@@ -17,7 +17,7 @@ var paths = {
   }
 }
 
-gulp.task('copy-dev-files', function () {
+gulp.task('copy-dev-files', ['browserify'], function () {
   return gulp.src(paths.devFiles.src)
     .pipe(gulp.dest(paths.devFiles.dest))
 })
@@ -41,10 +41,10 @@ gulp.task('typescript', function () {
 })
 
 gulp.task('watch', function () {
-  gulp.watch(paths.ts.src, ['ts-lint', 'typescript', 'browserify'])
+  gulp.watch(paths.ts.src, ['ts-lint', 'typescript', 'browserify', 'copy-dev-files'])
 })
 
-gulp.task('browserify', function () {
+gulp.task('browserify', ['typescript'], function () {
   return bundler = browserify({
     entries: './dist/mapillary-js/Viewer.js',
     debug: true,
@@ -56,3 +56,4 @@ gulp.task('browserify', function () {
   .pipe(gulp.dest('./dist/'))
 })
 
+gulp.task('default', ['serve', 'watch', 'typescript', 'browserify', 'copy-dev-files'])
