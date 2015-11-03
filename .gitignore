@@ -3,4 +3,5 @@ node_modules/
 *.log
 *.tgz
 dist
-debug
+debug/**/*.js
+debug/**/*.css
