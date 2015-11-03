@@ -1,0 +1,32 @@
+{
+  "name": "mapillary-js",
+  "version": "0.0.1",
+  "description": "Mapillary WebGL Viewer",
+  "main": "src/mapillary-js.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mapillary/mapillary-js.git"
+  },
+  "keywords": [
+    "mapillary",
+    "webgl",
+    "viewer"
+  ],
+  "author": "Kamil Nikel <knikel@posteo.de> (http://knikel.info/)",
+  "license": "TBA",
+  "bugs": {
+    "url": "https://github.com/mapillary/mapillary-js/issues"
+  },
+  "homepage": "https://github.com/mapillary/mapillary-js#readme",
+  "devDependencies": {
+    "browserify": "12.0.1",
+    "gulp": "3.9.0",
+    "gulp-serve": "1.2.0",
+    "gulp-tslint": "3.5.0",
+    "gulp-typescript": "2.9.2",
+    "vinyl-source-stream": "1.1.0"
+  }
+}
