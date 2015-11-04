@@ -105,4 +105,4 @@ gulp.task('documentation', ['typescript'], function () {
     .pipe(gulp.dest('html-documentation'))
 })
 
-gulp.task('default', ['serve', 'watch-ts', 'typescript'])
+gulp.task('default', ['serve', 'watch-ts', 'browserify'])
