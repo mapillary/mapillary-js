@@ -71,7 +71,7 @@ gulp.task('typescript', ['ts-lint', 'ts-test'], function () {
 gulp.task('ts-test', ['tsd'], shell.task(['./node_modules/karma/bin/karma start']))
 
 gulp.task('watch-ts', ['tsd'], function () {
-  gulp.watch([paths.ts.src, paths.ts.tests], ['typescript', 'browserify'])
+  gulp.watch([paths.ts.src, paths.ts.tests], ['browserify', 'ts-test'])
 })
 
 gulp.task('tsd', function (callback) {
