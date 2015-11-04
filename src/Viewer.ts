@@ -2,8 +2,10 @@ interface INode {
     node: string;
 }
 
-export default class Viewer {
+export class Viewer {
     constructor (id: string, node: INode ) {
-        console.info("Viewer", "--", "id: " + id + ",", "node: " + node.node);
+        return "Viewer", "--", "id: " + id + ",", "node: " + node.node;
     }
 }
+
+export default Viewer;

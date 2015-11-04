@@ -41,20 +41,7 @@ gulp.task('ts-lint', function () {
     .pipe(tslint.report('verbose'))
 })
 
-gulp.task('ts-test', function () {
-  gulp.src(paths.ts.tests)
-    .pipe(ts({
-      noImplicitAny: true,
-      target: 'ES5',
-      sourceMap: true,
-      emitDecoratorMetadata: true,
-      experimentalDecorators: true,
-      module: 'commonjs'
-    }))
-    .pipe(gulp.dest('spec'))
-})
-
-gulp.task('typescript', function () {
+gulp.task('typescript', ['ts-lint'], function () {
   gulp.src([paths.ts.src, paths.ts.tests])
     .pipe(ts({
       noImplicitAny: true,
@@ -68,7 +55,7 @@ gulp.task('watch-ts', function () {
   gulp.watch([paths.ts.src, paths.ts.tests], ['typescript', 'browserify'])
 })
 
-gulp.task('browserify', ['typescript', 'ts-test'], function () {
+gulp.task('browserify', ['typescript'], function () {
   var bundler = browserify({
     entries: './dist/Viewer.js',
     debug: true,
@@ -82,4 +69,4 @@ gulp.task('browserify', ['typescript', 'ts-test'], function () {
     .pipe(gulp.dest('./dist/'))
 })
 
-gulp.task('default', ['serve', 'watch-ts'])
+gulp.task('default', ['serve', 'watch-ts', 'typescript'])
