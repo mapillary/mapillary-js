@@ -1,6 +1,7 @@
 var gulp = require('gulp')
 
 var browserify = require('browserify')
+var documentation = require('gulp-documentation')
 var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
 var standard = require('gulp-standard')
@@ -85,6 +86,12 @@ gulp.task('browserify', ['typescript'], function () {
     .bundle()
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('./dist/'))
+})
+
+gulp.task('documentation', ['typescript'], function () {
+  gulp.src('./dist/Viewer.js')
+    .pipe(documentation({format: 'html' }))
+    .pipe(gulp.dest('html-documentation'))
 })
 
 gulp.task('default', ['serve', 'watch-ts', 'typescript'])

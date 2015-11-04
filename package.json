@@ -24,6 +24,7 @@
     "browserify": "12.0.1",
     "ghooks": "0.3.2",
     "gulp": "3.9.0",
+    "gulp-documentation": "2.0.0",
     "gulp-serve": "1.2.0",
     "gulp-standard": "5.2.2",
     "gulp-tsd": "0.0.4",
