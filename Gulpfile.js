@@ -4,6 +4,7 @@ var browserify = require('browserify')
 var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
 var standard = require('gulp-standard')
+var shell = require('gulp-shell')
 var ts = require('gulp-typescript')
 var tslint = require('gulp-tslint')
 
@@ -33,7 +34,7 @@ gulp.task('copy-dev-files', ['browserify'], function () {
     .pipe(gulp.dest(paths.devFiles.dest))
 })
 
-gulp.task('serve', serve('.'))
+gulp.task('serve', ['tsd'], serve('.'))
 
 gulp.task('js-lint', function () {
   return gulp.src('./Gulpfile.js')
@@ -64,6 +65,10 @@ gulp.task('ts-test', function () {
 gulp.task('watch-ts', function () {
   gulp.watch([paths.ts.src, paths.ts.tests], ['typescript', 'browserify'])
 })
+
+gulp.task('tsd', shell.task([
+  'tsd reinstall'
+]))
 
 gulp.task('browserify', ['typescript'], function () {
   var bundler = browserify({
