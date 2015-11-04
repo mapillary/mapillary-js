@@ -3,6 +3,7 @@ var gulp = require('gulp')
 var browserify = require('browserify')
 var del = require('del');
 var documentation = require('gulp-documentation')
+var karmaServer = require('karma').Server;
 var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
 var standard = require('gulp-standard')
@@ -17,7 +18,12 @@ var paths = {
   ts: {
     src: './src/**/*.ts',
     tests: './spec/**/*.ts',
-    dest: 'dist'
+    dest: 'dist',
+    testDest: 'dist/spec'
+  },
+  js: {
+    src: './src/**/*.js',
+    tests: './spec/**/*.js'
   },
   devFiles: {
     src: ['./dist/mapillary-js.css', './dist/bundle.js'],
@@ -33,6 +39,21 @@ var config = {
     }
 }
 
+gulp.task('browserify', ['typescript'], function () {
+  var bundler = browserify({
+    entries: './dist/Viewer.js',
+    debug: true,
+    fullPaths: false,
+    standalone: 'Mapillary'
+  })
+
+  return bundler
+    .bundle()
+    .pipe(source('./dist/**/*.js'))
+    .pipe(rename('bundle.js'))
+    .pipe(gulp.dest('./dist/'))
+})
+
 gulp.task('clean', function () {
   return del([
     'html-documentation',
@@ -46,7 +67,11 @@ gulp.task('copy-dev-files', ['browserify'], function () {
     .pipe(gulp.dest(paths.devFiles.dest))
 })
 
-gulp.task('serve', ['tsd'], serve('.'))
+gulp.task('documentation', ['browserify'], function () {
+  gulp.src(path.js.src)
+    .pipe(documentation({format: 'html' }))
+    .pipe(gulp.dest('html-documentation'))
+})
 
 gulp.task('js-lint', function () {
   return gulp.src('./Gulpfile.js')
@@ -56,22 +81,26 @@ gulp.task('js-lint', function () {
     }))
 })
 
-gulp.task('ts-lint', ['tsd'], function () {
+gulp.task('serve', ['browserify'], serve('.'))
+
+gulp.task('test', function (done) {
+  new karmaServer({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
+})
+
+gulp.task('test-watch', function (done) {
+  new karmaServer({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: false
+  }, done).start();
+})
+
+gulp.task('ts-lint', function () {
   return gulp.src(paths.ts.src)
     .pipe(tslint())
     .pipe(tslint.report('verbose'))
-})
-
-gulp.task('typescript', ['ts-lint', 'ts-test'], function () {
-  gulp.src(paths.ts.src)
-    .pipe(ts(config.ts))
-    .pipe(gulp.dest(paths.ts.dest))
-})
-
-gulp.task('ts-test', ['tsd'], shell.task(['./node_modules/karma/bin/karma start']))
-
-gulp.task('watch-ts', ['tsd'], function () {
-  gulp.watch([paths.ts.src, paths.ts.tests], ['browserify', 'ts-test'])
 })
 
 gulp.task('tsd', function (callback) {
@@ -81,25 +110,22 @@ gulp.task('tsd', function (callback) {
   }, callback)
 })
 
-gulp.task('browserify', ['typescript'], function () {
-  var bundler = browserify({
-    entries: './dist/Viewer.js',
-    debug: true,
-    fullPaths: false,
-    standalone: 'mapillaryjs'
-  })
+gulp.task('typescript', ['ts-lint', 'typescript-src', 'typescript-test'], function () {})
 
-  return bundler
-    .bundle()
-    .pipe(source('Viewer.js'))
-    .pipe(rename('bundle.js'))
-    .pipe(gulp.dest('./dist/'))
+gulp.task('typescript-src', ['tsd'], function () {
+  gulp.src(paths.ts.src)
+    .pipe(ts(config.ts))
+    .pipe(gulp.dest(paths.ts.dest))
 })
 
-gulp.task('documentation', ['typescript'], function () {
-  gulp.src('./dist/Viewer.js')
-    .pipe(documentation({format: 'html' }))
-    .pipe(gulp.dest('html-documentation'))
+gulp.task('typescript-test', ['tsd'], function () {
+  gulp.src(paths.ts.tests)
+    .pipe(ts(config.ts))
+    .pipe(gulp.dest(paths.ts.testDest))
 })
 
-gulp.task('default', ['serve', 'watch-ts', 'browserify'])
+gulp.task('watch', ['browserify'], function () {
+    gulp.watch([paths.ts.src, paths.ts.tests], ['browserify'])
+})
+
+gulp.task('default', ['serve', 'watch'])
