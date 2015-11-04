@@ -1,4 +1,5 @@
-var viewer = new mapillaryjs.Viewer('viewer', { node: 'test' })
+import Viewer from "../src/Viewer"
+var viewer = new mapillaryjs.Viewer('test', {'node': 'testing'})
 
 describe("Viewer", () =>
     it("exists", () =>
