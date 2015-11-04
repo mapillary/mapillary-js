@@ -3,6 +3,7 @@ var gulp = require('gulp')
 var browserify = require('browserify')
 var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
+var standard = require('gulp-standard')
 var ts = require('gulp-typescript')
 var tslint = require('gulp-tslint')
 
@@ -24,10 +25,18 @@ gulp.task('copy-dev-files', ['browserify'], function () {
 
 gulp.task('serve', serve('debug'))
 
+gulp.task('js-lint', function () {
+  return gulp.src('./Gulpfile.js')
+    .pipe(standard())
+    .pipe(standard.reporter('default', {
+      breakOnError: true
+    }))
+})
+
 gulp.task('ts-lint', function () {
   return gulp.src(paths.ts.src)
     .pipe(tslint())
-	  .pipe(tslint.report('verbose'))
+    .pipe(tslint.report('verbose'))
 })
 
 gulp.task('typescript', function () {
@@ -45,7 +54,7 @@ gulp.task('watch', function () {
 })
 
 gulp.task('browserify', ['typescript'], function () {
-  return bundler = browserify({
+  return browserify({
     entries: './dist/mapillary-js/Viewer.js',
     debug: true,
     fullPaths: false,
