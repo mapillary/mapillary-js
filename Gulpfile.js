@@ -20,6 +20,14 @@ var paths = {
   }
 }
 
+var config = {
+  ts: {
+      noImplicitAny: true,
+      target: 'ES5',
+      module: 'commonjs'
+    }
+}
+
 gulp.task('copy-dev-files', ['browserify'], function () {
   return gulp.src(paths.devFiles.src)
     .pipe(gulp.dest(paths.devFiles.dest))
@@ -41,14 +49,16 @@ gulp.task('ts-lint', function () {
     .pipe(tslint.report('verbose'))
 })
 
-gulp.task('typescript', ['ts-lint'], function () {
-  gulp.src([paths.ts.src, paths.ts.tests])
-    .pipe(ts({
-      noImplicitAny: true,
-      target: 'ES5',
-      module: 'commonjs'
-    }))
+gulp.task('typescript', ['ts-lint', 'ts-test'], function () {
+  gulp.src(paths.ts.src)
+    .pipe(ts(config.ts))
     .pipe(gulp.dest(paths.ts.dest))
+})
+
+gulp.task('ts-test', function () {
+  gulp.src(paths.ts.tests)
+    .pipe(ts(config.ts))
+    .pipe(gulp.dest('./spec'))
 })
 
 gulp.task('watch-ts', function () {
