@@ -1,1 +1,0 @@
-import Viewer from "./mapillary-js/Viewer";

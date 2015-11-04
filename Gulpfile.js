@@ -8,6 +8,7 @@ var ts = require('gulp-typescript')
 var tslint = require('gulp-tslint')
 
 var paths = {
+  mapillaryjs: 'mapillaryjs',
   ts: {
     src: './src/**/*.ts',
     dest: 'dist'
@@ -23,7 +24,7 @@ gulp.task('copy-dev-files', ['browserify'], function () {
     .pipe(gulp.dest(paths.devFiles.dest))
 })
 
-gulp.task('serve', serve('debug'))
+gulp.task('serve', serve('.'))
 
 gulp.task('js-lint', function () {
   return gulp.src('./Gulpfile.js')
@@ -49,20 +50,22 @@ gulp.task('typescript', function () {
     .pipe(gulp.dest(paths.ts.dest))
 })
 
-gulp.task('watch', function () {
-  gulp.watch(paths.ts.src, ['ts-lint', 'typescript', 'browserify', 'copy-dev-files'])
+gulp.task('watch-ts', function () {
+  gulp.watch(paths.ts.src, ['ts-lint', 'typescript', 'browserify'])
 })
 
 gulp.task('browserify', ['typescript'], function () {
-  return browserify({
-    entries: './dist/mapillary-js/Viewer.js',
+  var bundler = browserify({
+    entries: './dist/Viewer.js',
     debug: true,
     fullPaths: false,
-    insertGlobals: true
+    standalone: 'mapillaryjs'
   })
-  .bundle()
-  .pipe(source('bundle.js'))
-  .pipe(gulp.dest('./dist/'))
+   
+  return bundler
+    .bundle()
+    .pipe(source('bundle.js'))
+    .pipe(gulp.dest('./dist/'))
 })
 
 gulp.task('default', ['serve', 'watch', 'typescript', 'browserify', 'copy-dev-files'])
