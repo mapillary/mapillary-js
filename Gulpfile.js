@@ -1,6 +1,7 @@
 var gulp = require('gulp')
 
 var browserify = require('browserify')
+var del = require('del');
 var documentation = require('gulp-documentation')
 var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
@@ -30,6 +31,14 @@ var config = {
       module: 'commonjs'
     }
 }
+
+gulp.task('clean', function () {
+  return del([
+    'html-documentation',
+    'dist/**/*',
+    'debug/**/*.js'
+  ])
+})
 
 gulp.task('copy-dev-files', ['browserify'], function () {
   return gulp.src(paths.devFiles.src)

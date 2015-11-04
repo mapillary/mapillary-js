@@ -23,7 +23,7 @@
   "devDependencies": {
     "browserify": "12.0.1",
     "ghooks": "0.3.2",
-    "gulp": "3.9.0",
+    "gulp": "~3.9.0",
     "gulp-documentation": "2.0.0",
     "gulp-serve": "1.2.0",
     "gulp-standard": "5.2.2",
@@ -35,7 +35,8 @@
     "karma-chrome-launcher": "0.2.1",
     "karma-jasmine": "0.3.6",
     "vinyl-source-stream": "1.1.0",
-    "gulp-rename": "~1.2.2"
+    "gulp-rename": "~1.2.2",
+    "del": "~2.0.2"
   },
   "config": {
     "ghooks": {
