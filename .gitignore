@@ -1,4 +1,5 @@
 node_modules/
+spec/*.js
 *.d.ts
 *.log
 *.tgz

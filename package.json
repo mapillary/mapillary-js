@@ -27,6 +27,7 @@
     "gulp-standard": "5.2.2",
     "gulp-tslint": "3.5.0",
     "gulp-typescript": "2.9.2",
+    "jasmine-core": "2.3.4",
     "vinyl-source-stream": "1.1.0"
   }
 }
