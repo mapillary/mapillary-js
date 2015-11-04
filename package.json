@@ -2,7 +2,7 @@
   "name": "mapillary-js",
   "version": "0.0.1",
   "description": "Mapillary WebGL Viewer",
-  "main": "src/mapillary-js.js",
+  "main": "src/Viewer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,7 +15,6 @@
     "webgl",
     "viewer"
   ],
-  "author": "Kamil Nikel <knikel@posteo.de> (http://knikel.info/)",
   "license": "TBA",
   "bugs": {
     "url": "https://github.com/mapillary/mapillary-js/issues"
