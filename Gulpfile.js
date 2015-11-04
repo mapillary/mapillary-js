@@ -51,7 +51,7 @@ gulp.task('typescript', function () {
 })
 
 gulp.task('watch-ts', function () {
-  gulp.watch(paths.ts.src, ['ts-lint', 'typescript', 'browserify'])
+  gulp.watch(paths.ts.src, ['typescript', 'browserify'])
 })
 
 gulp.task('browserify', ['typescript'], function () {
@@ -68,4 +68,4 @@ gulp.task('browserify', ['typescript'], function () {
     .pipe(gulp.dest('./dist/'))
 })
 
-gulp.task('default', ['serve', 'watch', 'typescript', 'browserify', 'copy-dev-files'])
+gulp.task('default', ['serve', 'watch-ts'])
