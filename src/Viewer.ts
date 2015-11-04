@@ -4,7 +4,7 @@ interface INode {
 
 export class Viewer {
     constructor (id: string, node: INode ) {
-        return "Viewer", "--", "id: " + id + ",", "node: " + node.node;
+        return "Viewer -- id: " + id + ", node: " + node.node;
     }
 }
 
