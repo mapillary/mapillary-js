@@ -26,6 +26,7 @@
     "gulp": "~3.9.0",
     "gulp-documentation": "2.0.0",
     "gulp-serve": "1.2.0",
+    "gulp-shell": "0.5.1",
     "gulp-standard": "5.2.2",
     "gulp-tsd": "0.0.4",
     "gulp-tslint": "3.5.0",
