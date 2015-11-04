@@ -3,6 +3,6 @@ var viewer = new Mapillary.Viewer('test', {'node': 'testing'})
 
 describe("Viewer", () => {
     it("exists", () => {
-        expect(viewer).toBeDefined())
-    }
-});
+        expect(viewer).toBeDefined()
+    )}
+})

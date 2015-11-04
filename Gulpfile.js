@@ -22,7 +22,7 @@ var paths = {
     testDest: 'dist/spec'
   },
   js: {
-    src: './src/**/*.js',
+    src: './dist/**/*.js',
     tests: './spec/**/*.js'
   },
   devFiles: {
@@ -68,7 +68,7 @@ gulp.task('copy-dev-files', ['browserify'], function () {
 })
 
 gulp.task('documentation', ['browserify'], function () {
-  gulp.src(path.js.src)
+  gulp.src(paths.js.src)
     .pipe(documentation({format: 'html' }))
     .pipe(gulp.dest('html-documentation'))
 })
@@ -124,8 +124,8 @@ gulp.task('typescript-test', ['tsd'], function () {
     .pipe(gulp.dest(paths.ts.testDest))
 })
 
-gulp.task('watch', ['browserify'], function () {
-    gulp.watch([paths.ts.src, paths.ts.tests], ['browserify'])
+gulp.task('watch', ['documentation'], function () {
+    gulp.watch([paths.ts.src, paths.ts.tests], ['documentation'])
 })
 
 gulp.task('default', ['serve', 'watch'])
