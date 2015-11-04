@@ -6,6 +6,7 @@ var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
 var standard = require('gulp-standard')
 var ts = require('gulp-typescript')
+var rename = require('gulp-rename')
 var tsd = require('gulp-tsd')
 var tslint = require('gulp-tslint')
 
@@ -81,10 +82,11 @@ gulp.task('browserify', ['typescript'], function () {
     fullPaths: false,
     standalone: 'mapillaryjs'
   })
-   
+
   return bundler
     .bundle()
-    .pipe(source('bundle.js'))
+    .pipe(source('Viewer.js'))
+    .pipe(rename('bundle.js'))
     .pipe(gulp.dest('./dist/'))
 })
 
