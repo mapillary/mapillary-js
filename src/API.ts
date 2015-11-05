@@ -1,6 +1,6 @@
 ///<reference path="../typings/rest/rest.d.ts" />
 
-import rest from "rest";
+import * as rest from "rest";
 
 export class API {
     private clientId: string;
