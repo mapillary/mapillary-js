@@ -21,3 +21,17 @@ $ gulp
 ```
 
 Then head to `http://localhost:3000/debug/` to debug
+
+## Gulp Commands
+
+### gulp watch
+
+Serve and constantly rebuild.
+
+### gulp test
+
+Run single test one time
+
+### gulp test-watch
+
+Keep karma browser open and rerun tests upon changes in project files
