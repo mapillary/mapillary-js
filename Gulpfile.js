@@ -68,7 +68,7 @@ gulp.task('copy-dev-files', ['browserify'], function () {
 })
 
 gulp.task('documentation', ['browserify'], function () {
-  gulp.src(paths.js.src)
+    gulp.src(['./dist/Viewer.js', './dist/API.js'])
     .pipe(documentation({format: 'html' }))
     .pipe(gulp.dest('html-documentation'))
 })
@@ -124,8 +124,8 @@ gulp.task('typescript-test', ['tsd'], function () {
     .pipe(gulp.dest(paths.ts.testDest))
 })
 
-gulp.task('watch', ['documentation'], function () {
-    gulp.watch([paths.ts.src, paths.ts.tests], ['documentation'])
+gulp.task('watch', ['browserify'], function () {
+    gulp.watch([paths.ts.src, paths.ts.tests], ['browserify'])
 })
 
 gulp.task('default', ['serve', 'watch'])
