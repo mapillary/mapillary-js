@@ -1,3 +1,7 @@
+///<reference path="../typings/rest/rest.d.ts" />
+
+import rest from "rest.rest";
+
 export class API {
     private clientId: string;
 
@@ -18,7 +22,7 @@ export class API {
      * @param {string} key FIXME
      */
     public v2NavIm(key: string): any {
-        return {"test": ["1", "2"]};
+        return rest("");
     };
 };
 

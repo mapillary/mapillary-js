@@ -40,8 +40,8 @@
     "del": "~2.0.2"
   },
   "config": {
-    "ghooks": {
-      "pre-commit": "npm run test && gulp ts-lint"
-    }
+  },
+  "dependencies": {
+    "rest": "~1.3.1"
   }
 }
