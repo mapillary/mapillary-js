@@ -1,12 +1,14 @@
 import API from "./API";
 
+"use strict";
+
 class LatLng {
     public lat: number;
     public lon: number;
 }
 
 export class Viewer {
-    private api: API;
+    private apiV2: API.APIv2;
 
     /**
      * Initializes a Mapillary viewer
@@ -16,7 +18,7 @@ export class Viewer {
      * @param {string} clientId for Mapillary API
      */
     constructor (id: string, clientId: string) {
-        this.api = new API("CLIENT_ID");
+        this.apiV2 = new API.APIv2(clientId);
     }
 
     /**
