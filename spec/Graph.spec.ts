@@ -25,7 +25,7 @@ describe("Graph.insertNodes", () => {
             ss: [
                 {key: skey1, keys: [key1]}
             ]
-        }
+        };
 
         graph.insertNodes(data);
         var node = graph.node(key1);
@@ -33,4 +33,32 @@ describe("Graph.insertNodes", () => {
         expect(node.key).toEqual(key1);
         expect(node.sequence.key).toEqual(skey1);
     });
+
+
+    it("should have the same sequence key", () => {
+        var key1 = 'key1';
+        var key2 = 'key2';
+        var skey1 = 'skey1';
+
+        var data = {
+            ims: [
+                { key: key1 },
+                { key: key2 }
+            ],
+            ss: [
+                { key: skey1, keys: [key1, key2] }
+            ]
+        };
+
+        graph.insertNodes(data);
+
+        var node = graph.node(key1)
+        expect(node.key).toEqual(key1)
+        expect(node.sequence.key).toEqual(skey1)
+
+        node = graph.node(key2)
+        expect(node.key).toEqual(key2)
+        expect(node.sequence.key).toEqual(skey1)
+    });
+
 });
