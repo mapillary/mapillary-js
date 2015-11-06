@@ -1,14 +1,36 @@
-import API from "./API";
+import Graph from "./Graph";
+import Prefetcher from "./viewer/Prefetcher";
 
-"use strict";
+/* Errors */
+import ParameterMapillaryError from "./errors/ParameterMapillaryError";
 
-class LatLng {
-    public lat: number;
-    public lon: number;
-}
+/* Interfaces */
+import ILatLon from "./interfaces/ILatLon";
 
 export class Viewer {
-    private apiV2: API.APIv2;
+    /**
+     * true if Viewer is loading internally, false if not.
+     * @member Mapillary.Viewer#loading
+     * @public
+     * @type {boolean}
+     */
+    public loading: boolean;
+
+    /**
+     * Representation of the walkable graph
+     * @member Mapillary.Viewer#graph
+     * @private
+     * @type {Graph}
+     */
+    private graph: Graph;
+
+    /**
+     * Used for prefetching information about keys from Mapillary API
+     * @member Mapillary.Viewer#loading
+     * @private
+     * @type {Prefetcher}
+     */
+    private prefetcher: Prefetcher;
 
     /**
      * Initializes a Mapillary viewer
@@ -18,16 +40,25 @@ export class Viewer {
      * @param {string} clientId for Mapillary API
      */
     constructor (id: string, clientId: string) {
-        this.apiV2 = new API.APIv2(clientId);
+        this.loading = false;
+
+        this.graph = new Graph();
+        this.prefetcher = new Prefetcher(clientId);
     }
 
     /**
      * Move to an image key
      * @method Mapillary.Viewer#moveToKey
      * @param {string} key Mapillary image key to move to
+     * @throws {ParamaterMapillaryError} If no key is provided
      */
     public moveToKey(key: string): boolean {
-        return true;
+        if (key == null) {
+            throw new ParameterMapillaryError();
+        }
+        if (this.loading) {
+            return false;
+        }
     }
 
     /**
@@ -35,7 +66,7 @@ export class Viewer {
      * @method Mapillary.Viewer#moveToLngLat
      * @param {LatLng} latLng FIXME
      */
-    public moveToLngLat(latLng: LatLng): boolean {
+    public moveToLngLat(latLon: ILatLon): boolean {
         return true;
     }
 
@@ -44,7 +75,7 @@ export class Viewer {
      * @method Mapillary.Viewer#moveToKey
      * @param {LatLng} latLng FIXME
      */
-    public moveToLookAtLngLat(latLng: LatLng): boolean {
+    public moveToLookAtLngLat(latLon: ILatLon): boolean {
         return true;
     }
 }
