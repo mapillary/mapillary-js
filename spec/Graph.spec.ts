@@ -1,12 +1,10 @@
 /// <reference path="../typings/jasmine/jasmine.d.ts" />
 
 declare var Mapillary: any;
-var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
-
 describe("Graph", () => {
-    var graph = viewer.graph;
-
     it("exists", () => {
+        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
+        var graph = viewer.graph;
         expect(graph).toBeDefined();
     });
 });
@@ -15,6 +13,9 @@ describe("Graph.insertNodes", () => {
     var graph = viewer.graph;
 
     it("should have the correct sequence and skey", () => {
+        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
+        var graph = viewer.graph;
+
         var key1 = 'key1';
         var skey1 = 'skey1';
 
@@ -36,6 +37,9 @@ describe("Graph.insertNodes", () => {
 
 
     it("should have the same sequence key", () => {
+        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
+        var graph = viewer.graph;
+
         var key1 = 'key1';
         var key2 = 'key2';
         var skey1 = 'skey1';
@@ -63,12 +67,15 @@ describe("Graph.insertNodes", () => {
 
 
     it("should have different sequence keys", () => {
+        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
+        var graph = viewer.graph;
+
         var key1 = 'key1';
         var key2 = 'key2';
         var skey1 = 'skey1';
         var skey2 = 'skey2';
 
-        data = {
+        var data = {
             ims: [
                 { key: key1 },
                 { key: key2 }
@@ -87,7 +94,6 @@ describe("Graph.insertNodes", () => {
         expect(node.sequence.key).toEqual(skey1);
 
         node = graph.node(key2);
-        console.log(node);
 
         expect(node.key).toEqual(key2);
         expect(node.sequence.key).toEqual(skey2);
