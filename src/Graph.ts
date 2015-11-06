@@ -1,6 +1,8 @@
 /// <reference path="../typings/graphlib/graphlib.d.ts" />
+/// <reference path="../typings/rbush/rbush.d.ts" />
 
 import * as graphlib from "graphlib";
+import * as rbush from "rbush";
 
 /* Interfaces */
 import IAPINavIm from "./interfaces/IAPINavIm";
@@ -16,10 +18,12 @@ export class Graph {
     private graph: any;
     private mapImageSequences: ISequences;
     private sequences: ISequences;
+    private spatial: any;
 
     constructor () {
         this.mapImageSequences = {};
         this.sequences = {};
+        this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);
         this.graph = new graphlib.Graph();
     }
 
@@ -63,6 +67,7 @@ export class Graph {
                     im.worthy = true;
                     im.sequence = this.mapImageSequences[im.key];
 
+                    this.spatial.insert({node: im, lon: im.lon, lat: im.lat});
                     this.graph.setNode(im.key, im);
                 }
             }
