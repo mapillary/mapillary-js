@@ -80,7 +80,17 @@ export class Graph {
         }
     }
 
-    public node (key: string): any {
+    public keyIsWorthy(key: string): boolean {
+        let node: INode = this.node(key);
+
+        if (node == null) {
+            return false;
+        }
+
+        return node.worthy;
+    }
+
+    public node (key: string): INode {
         let node: any = this.graph.node(key);
         return node;
     }

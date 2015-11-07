@@ -1,3 +1,7 @@
+/// <reference path="../typings/when/when.d.ts" />
+
+import * as when from "when";
+
 import Graph from "./Graph";
 import Prefetcher from "./viewer/Prefetcher";
 
@@ -5,6 +9,7 @@ import Prefetcher from "./viewer/Prefetcher";
 import ParameterMapillaryError from "./errors/ParameterMapillaryError";
 
 /* Interfaces */
+import IAPINavIm from "./interfaces/IAPINavIm";
 import ILatLon from "./interfaces/ILatLon";
 
 export class Viewer {
@@ -52,12 +57,24 @@ export class Viewer {
      * @param {string} key Mapillary image key to move to
      * @throws {ParamaterMapillaryError} If no key is provided
      */
-    public moveToKey(key: string): boolean {
+    public moveToKey(key: string, cb?: (data: IAPINavIm) => void): boolean {
         if (key == null) {
             throw new ParameterMapillaryError();
         }
         if (this.loading) {
             return false;
+        }
+
+        if (this.graph.keyIsWorthy(key)) {
+            console.log("MOVE ON");
+        } else {
+            let response: when.Promise<IAPINavIm> = this.prefetcher.loadFromKey(key);
+            response.then((data: IAPINavIm) => {
+                console.log(data);
+                if (cb != null) {
+                    cb(data);
+                }
+            });
         }
     }
 
