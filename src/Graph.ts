@@ -74,7 +74,7 @@ export class Graph {
                     };
 
                     this.spatial.insert({node: node, lon: node.latLon.lon, lat: node.latLon.lat});
-                    this.graph.setNode(im.key, im);
+                    this.graph.setNode(node.key, node);
                 }
             }
         }
