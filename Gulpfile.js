@@ -47,7 +47,7 @@ gulp.task('browserify', ['typescript'], function () {
     standalone: 'Mapillary'
   })
 
-  return bundler
+  bundler
     .bundle()
     .pipe(source('./dist/Viewer.js'))
     .pipe(rename('bundle.js'))
@@ -97,34 +97,37 @@ gulp.task('test-watch', function (done) {
   }, done).start();
 })
 
-gulp.task('ts-lint', function () {
-  return gulp.src(paths.ts.src)
-    .pipe(tslint())
-    .pipe(tslint.report('verbose'))
+gulp.task('ts-lint', ['tsd'], function (cb) {
+    var stream = gulp.src(paths.ts.src)
+      .pipe(tslint())
+      .pipe(tslint.report('verbose'))
+    return stream
 })
 
-gulp.task('tsd', function (callback) {
+gulp.task('tsd', function (cb) {
   tsd({
     command: 'reinstall',
     config: './tsd.json'
-  }, callback)
+  }, cb())
 })
 
-gulp.task('typescript', ['ts-lint', 'typescript-src', 'typescript-test'], function () {})
+gulp.task('typescript', ['ts-lint', 'typescript-src', 'typescript-test'], function (cb) {cb()})
 
-gulp.task('typescript-src', ['tsd'], function () {
-  gulp.src(paths.ts.src)
-    .pipe(ts(config.ts))
-    .pipe(gulp.dest(paths.ts.dest))
+gulp.task('typescript-src', function () {
+    var stream = gulp.src(paths.ts.src)
+      .pipe(ts(config.ts))
+      .pipe(gulp.dest(paths.ts.dest))
+    return stream
 })
 
-gulp.task('typescript-test', ['tsd'], function () {
-  gulp.src(paths.ts.tests)
+gulp.task('typescript-test', function () {
+  var stream = gulp.src(paths.ts.tests)
     .pipe(ts(config.ts))
     .pipe(gulp.dest(paths.ts.testDest))
+  return stream
 })
 
-gulp.task('watch', ['browserify'], function () {
+gulp.task('watch', [], function () {
     gulp.watch([paths.ts.src, paths.ts.tests], ['browserify'])
 })
 
