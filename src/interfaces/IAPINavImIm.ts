@@ -1,6 +1,5 @@
 /* Interfaces */
 import INumberArray from "./INumberArray";
-import IAPINavImS from "./IAPINavImS";
 
 export interface IAPINavImIm {
     user: string;
@@ -23,12 +22,6 @@ export interface IAPINavImIm {
     merge_cc: number;
     clat: number;
     clon: number;
-    /* Added parameters */
-    old_ca?: number;
-    old_lat?: number;
-    old_lon?: number;
-    worthy?: boolean;
-    sequence?: IAPINavImS;
 }
 
 export default IAPINavImIm;

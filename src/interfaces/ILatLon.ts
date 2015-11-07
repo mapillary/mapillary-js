@@ -1,6 +1,6 @@
 export interface ILatLon {
-    lat: string;
-    lon: string;
+    lat: number;
+    lon: number;
 }
 
 export default ILatLon

@@ -8,7 +8,8 @@ import * as rbush from "rbush";
 import IAPINavIm from "./interfaces/IAPINavIm";
 import IAPINavImIm from "./interfaces/IAPINavImIm";
 import IAPINavImS from "./interfaces/IAPINavImS";
-// import INode from "./interfaces/INode";
+import ILatLon from "./interfaces/ILatLon";
+import INode from "./interfaces/INode";
 
 interface ISequences {
     [key: string]: IAPINavImS;
@@ -49,25 +50,30 @@ export class Graph {
                         this.graph.delNode(im.key);
                     }
 
+                    let lat: number = im.lat;
                     if (im.clat != null) {
-                        im.old_lat = im.lat;
-                        im.lat = im.clat;
+                        lat = im.clat;
                     }
-
+                    let lon: number = im.lon;
                     if (im.clon != null) {
-                        im.old_lon = im.lon;
-                        im.lon = im.clon;
+                        lon = im.clon;
                     }
-
+                    let ca: number = im.ca;
                     if (im.cca != null) {
-                        im.old_ca = im.ca;
-                        im.ca = im.cca;
+                        ca = im.cca;
                     }
+                    let latLon: ILatLon = {lat: lat, lon: lon};
 
-                    im.worthy = true;
-                    im.sequence = this.mapImageSequences[im.key];
+                    let node: INode = {
+                        key: im.key,
+                        ca: ca,
+                        latLon: latLon,
+                        worthy: true,
+                        sequence: this.mapImageSequences[im.key],
+                        apiNavImIm: im
+                    };
 
-                    this.spatial.insert({node: im, lon: im.lon, lat: im.lat});
+                    this.spatial.insert({node: node, lon: node.latLon.lon, lat: node.latLon.lat});
                     this.graph.setNode(im.key, im);
                 }
             }
