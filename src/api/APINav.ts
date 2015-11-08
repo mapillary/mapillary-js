@@ -1,7 +1,7 @@
 import APIc from "./APIc";
 
 /* interfaces */
-import IAPINavIm from "../interfaces/IAPINavIm";
+import IAPINavIm from "./interfaces/IAPINavIm";
 
 export class APINav extends APIc {
     public callNav(path: string): any {

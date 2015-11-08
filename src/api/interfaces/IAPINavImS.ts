@@ -1,10 +1,7 @@
-/* Interfaces */
-import IStringArray from "./IStringArray";
-
 export interface IAPINavImS {
     starred: boolean;
     key: string;
-    keys: IStringArray;
+    keys: string[];
     path: any;
 }
 

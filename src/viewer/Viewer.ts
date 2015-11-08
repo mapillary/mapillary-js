@@ -11,9 +11,9 @@ import OptionsParser from "./OptionsParser";
 import ParameterMapillaryError from "../errors/ParameterMapillaryError";
 
 /* Interfaces */
-import IAPINavIm from "../interfaces/IAPINavIm";
-import ILatLon from "../interfaces/ILatLon";
-import IViewerOptions from "../interfaces/IViewerOptions";
+import IAPINavIm from "../api/interfaces/IAPINavIm";
+import ILatLon from "./interfaces/ILatLon";
+import IViewerOptions from "./interfaces/IViewerOptions";
 
 export class Viewer {
     /**

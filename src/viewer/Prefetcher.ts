@@ -5,7 +5,7 @@ import * as when from "when";
 import APIv2 from "../api/API";
 
 /* Interfaces */
-import IAPINavIm from "../interfaces/IAPINavIm";
+import IAPINavIm from "../api/interfaces/IAPINavIm";
 
 export class Prefetcher {
     private apiV2: APIv2;

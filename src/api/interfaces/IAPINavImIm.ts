@@ -1,11 +1,8 @@
-/* Interfaces */
-import INumberArray from "./INumberArray";
-
 export interface IAPINavImIm {
     user: string;
     key: string;
     calt: number;
-    rotation: INumberArray;
+    rotation: number[];
     cca: number;
     cfocal: number;
     atomic_scale: number;
