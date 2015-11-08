@@ -1,15 +1,15 @@
-/// <reference path="../typings/graphlib/graphlib.d.ts" />
-/// <reference path="../typings/rbush/rbush.d.ts" />
+/// <reference path="../../typings/graphlib/graphlib.d.ts" />
+/// <reference path="../../typings/rbush/rbush.d.ts" />
 
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 
 /* Interfaces */
-import IAPINavIm from "./interfaces/IAPINavIm";
-import IAPINavImIm from "./interfaces/IAPINavImIm";
-import IAPINavImS from "./interfaces/IAPINavImS";
-import ILatLon from "./interfaces/ILatLon";
-import INode from "./interfaces/INode";
+import IAPINavIm from "../interfaces/IAPINavIm";
+import IAPINavImIm from "../interfaces/IAPINavImIm";
+import IAPINavImS from "../interfaces/IAPINavImS";
+import ILatLon from "../interfaces/ILatLon";
+import INode from "../interfaces/INode";
 
 interface ISequences {
     [key: string]: IAPINavImS;

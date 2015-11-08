@@ -41,7 +41,7 @@ var config = {
 
 gulp.task('browserify', ['typescript'], function () {
   var bundler = browserify({
-    entries: ['./dist/Viewer.js'],
+    entries: ['./dist/Mapillary.js'],
     debug: true,
     fullPaths: false,
     standalone: 'Mapillary'
@@ -49,7 +49,7 @@ gulp.task('browserify', ['typescript'], function () {
 
   bundler
     .bundle()
-    .pipe(source('./dist/Viewer.js'))
+    .pipe(source('./dist/Mapillary.js'))
     .pipe(rename('bundle.js'))
     .pipe(gulp.dest('./dist/'))
 })

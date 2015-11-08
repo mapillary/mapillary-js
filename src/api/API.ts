@@ -1,4 +1,4 @@
-import APINav from "./api/APINav";
+import APINav from "./APINav";
 
 export class APIv2 {
     public nav: APINav;

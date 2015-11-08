@@ -2,7 +2,7 @@
 
 import * as when from "when";
 
-import APIv2 from "../API";
+import APIv2 from "../api/API";
 
 /* Interfaces */
 import IAPINavIm from "../interfaces/IAPINavIm";

@@ -2,7 +2,6 @@
 
 declare var Mapillary: any;
 
-import {Viewer} from "../src/Viewer";
 var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
 
 describe("Viewer", () => {

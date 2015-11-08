@@ -1,19 +1,19 @@
-/// <reference path="../typings/when/when.d.ts" />
+/// <reference path="../../typings/when/when.d.ts" />
 
 import * as when from "when";
 
-import Debug from "./utils/Debug";
-import Graph from "./Graph";
-import Prefetcher from "./viewer/Prefetcher";
-import OptionsParser from "./viewer/OptionsParser";
+import Debug from "../utils/Debug";
+import Graph from "../graph/Graph";
+import Prefetcher from "./Prefetcher";
+import OptionsParser from "./OptionsParser";
 
 /* Errors */
-import ParameterMapillaryError from "./errors/ParameterMapillaryError";
+import ParameterMapillaryError from "../errors/ParameterMapillaryError";
 
 /* Interfaces */
-import IAPINavIm from "./interfaces/IAPINavIm";
-import ILatLon from "./interfaces/ILatLon";
-import IViewerOptions from "./interfaces/IViewerOptions";
+import IAPINavIm from "../interfaces/IAPINavIm";
+import ILatLon from "../interfaces/ILatLon";
+import IViewerOptions from "../interfaces/IViewerOptions";
 
 export class Viewer {
     /**
