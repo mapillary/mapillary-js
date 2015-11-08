@@ -1,6 +1,5 @@
 /* Interfaces */
-import IAPINavImIm from "../../api/interfaces/IAPINavImIm";
-import IAPINavImS from "../../api/interfaces/IAPINavImS";
+import {IAPINavImIm, IAPINavImS} from "../../api/API";
 import ILatLon from "../../viewer/interfaces/ILatLon";
 
 export interface INode {

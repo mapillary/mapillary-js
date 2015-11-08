@@ -2,18 +2,25 @@
 
 import * as when from "when";
 
-import Debug from "../utils/Debug";
-import Graph from "../graph/Graph";
-import Prefetcher from "./Prefetcher";
-import OptionsParser from "./OptionsParser";
+import {Debug} from "../utils/Debug";
+import {Graph} from "../graph/Graph";
+import {Prefetcher} from "./Prefetcher";
+import {OptionsParser} from "./OptionsParser";
 
 /* Errors */
 import ParameterMapillaryError from "../errors/ParameterMapillaryError";
 
 /* Interfaces */
-import IAPINavIm from "../api/interfaces/IAPINavIm";
-import ILatLon from "./interfaces/ILatLon";
-import IViewerOptions from "./interfaces/IViewerOptions";
+import {IAPINavIm} from "../api/API";
+
+/* Interface Exports Start */
+import {ILatLon} from "./interfaces/ILatLon";
+import {IViewerOptions} from "./interfaces/IViewerOptions";
+
+export {ILatLon} from "./interfaces/ILatLon";
+export {IViewerOptions} from "./interfaces/IViewerOptions";
+/* Interface Exports End */
+
 
 export class Viewer {
     /**

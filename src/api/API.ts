@@ -1,5 +1,15 @@
 import APINav from "./APINav";
 
+/* Interface Exports Start */
+import {IAPINavIm} from "./interfaces/IAPINavIm";
+import {IAPINavImIm} from "./interfaces/IAPINavImIm";
+import {IAPINavImS} from "./interfaces/IAPINavImS";
+
+export {IAPINavIm} from "./interfaces/IAPINavIm";
+export {IAPINavImIm} from "./interfaces/IAPINavImIm";
+export {IAPINavImS} from "./interfaces/IAPINavImS";
+/* Interface Exports End */
+
 export class APIv2 {
     public nav: APINav;
 

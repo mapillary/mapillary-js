@@ -5,11 +5,11 @@ import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 
 /* Interfaces */
-import IAPINavIm from "../api/interfaces/IAPINavIm";
-import IAPINavImIm from "../api/interfaces/IAPINavImIm";
-import IAPINavImS from "../api/interfaces/IAPINavImS";
-import ILatLon from "../viewer/interfaces/ILatLon";
-import INode from "./interfaces/INode";
+import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../api/API";
+import {ILatLon} from "../viewer/Viewer";
+import {INode} from "./interfaces/INode";
+
+export {INode} from "./interfaces/INode";
 
 interface ISequences {
     [key: string]: IAPINavImS;
