@@ -20,7 +20,6 @@ describe("Viewer.moveToKey", () => {
 
     it("should move to a key", (done) => {
         viewer.moveToKey("h_tzkTklF6DZfU5plCA9Cw", (data: any) => {
-            console.log(data);
             done();
         });
     });

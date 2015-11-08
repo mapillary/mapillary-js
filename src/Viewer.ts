@@ -2,8 +2,10 @@
 
 import * as when from "when";
 
+import Debug from "./utils/Debug";
 import Graph from "./Graph";
 import Prefetcher from "./viewer/Prefetcher";
+import OptionsParser from "./viewer/OptionsParser";
 
 /* Errors */
 import ParameterMapillaryError from "./errors/ParameterMapillaryError";
@@ -11,6 +13,7 @@ import ParameterMapillaryError from "./errors/ParameterMapillaryError";
 /* Interfaces */
 import IAPINavIm from "./interfaces/IAPINavIm";
 import ILatLon from "./interfaces/ILatLon";
+import IViewerOptions from "./interfaces/IViewerOptions";
 
 export class Viewer {
     /**
@@ -38,14 +41,27 @@ export class Viewer {
     private prefetcher: Prefetcher;
 
     /**
+     * Options to used to tweak the viewer. Optional if not
+     * provided Viewer will be set do default.
+     * @member Mapillary.Viewer#options
+     * @private
+     * @type {Prefetcher}
+     */
+    private options: IViewerOptions;
+
+    /**
      * Initializes a Mapillary viewer
      * @class Mapillary.Viewer
      * @classdesc A Viewer for viewing Mapillary Street Level Imagery
      * @param {string} id of element to transform into viewer
      * @param {string} clientId for Mapillary API
+     * @param {IViewerOptions} Options for the viewer
      */
-    constructor (id: string, clientId: string) {
+    constructor (id: string, clientId: string, options: IViewerOptions) {
         this.loading = false;
+
+        let optionsParser: OptionsParser = new OptionsParser();
+        this.options = optionsParser.parseAndDefaultOptions(options);
 
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
@@ -66,12 +82,12 @@ export class Viewer {
         }
 
         if (this.graph.keyIsWorthy(key)) {
-            console.log("MOVE ON");
+            Debug.log("MOVE ON");
         } else {
             let response: when.Promise<IAPINavIm> = this.prefetcher.loadFromKey(key);
             response.then((data: IAPINavIm) => {
-                console.log(data);
                 if (cb != null) {
+                    Debug.debug(data);
                     cb(data);
                 }
             });
