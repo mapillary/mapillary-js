@@ -3,8 +3,6 @@
 import * as rest from "rest";
 import * as mime from "rest/interceptor/mime";
 
-import NotImplementedMapillaryError from "../errors/NotImplementedMapillaryError";
-
 export class APIc {
     private clientId: string;
     private httpsUrl: string;
@@ -16,12 +14,8 @@ export class APIc {
         this.client = rest.wrap(mime);
     };
 
-    public callApi(path: string): any {
+    public callApi(path: string): rest.ResponsePromise {
         return this.client(this.httpsUrl + path + "?client_id=" + this.clientId);
-    }
-
-    public parseResponse(response: any): any {
-        throw new NotImplementedMapillaryError();
     }
 };
 

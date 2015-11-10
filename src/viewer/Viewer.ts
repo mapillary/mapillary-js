@@ -89,7 +89,6 @@ export class Viewer {
             let response: when.Promise<IAPINavIm> = this.prefetcher.loadFromKey(key);
             response.then((data: IAPINavIm) => {
                 if (cb != null) {
-                    Debug.debug(data);
                     cb(data);
                 }
             });
