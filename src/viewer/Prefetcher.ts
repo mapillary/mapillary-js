@@ -68,6 +68,7 @@ export class Prefetcher {
 
     private getFromCache(hkey: string): IHash {
         let hash: IHash = this.hashes[hkey];
+        hash.lastUsed = new Date;
         return hash;
     }
 

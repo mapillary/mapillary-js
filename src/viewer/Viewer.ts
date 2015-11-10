@@ -88,6 +88,7 @@ export class Viewer {
         } else {
             let response: when.Promise<IAPINavIm> = this.prefetcher.loadFromKey(key);
             response.then((data: IAPINavIm) => {
+                this.graph.insertNodes(data);
                 if (cb != null) {
                     cb(data);
                 }
