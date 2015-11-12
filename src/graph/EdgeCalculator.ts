@@ -1,14 +1,20 @@
-import {Node, Sequence} from "../Graph";
+import {GraphConstants, Node} from "../Graph";
+
+export interface ICalculatedEdges {
+    [key: string]: string[];
+}
 
 export class EdgeCalculator {
-    private graph: any;
+    public calculateEdges(node: Node): ICalculatedEdges {
+        let edges: ICalculatedEdges = {};
 
-    constructor (graph: any) {
-        this.graph = graph;
-    }
+        let nextKey: string = node.findNextKeyInSequence();
+        edges[GraphConstants.DirEnum.NEXT] = [nextKey];
 
-    public updateEdges(sequence: Sequence, node: Node): void {
-        console.log("UPDATE EDGES");
+        let prevKey: string = node.findPrevKeyInSequence();
+        edges[GraphConstants.DirEnum.PREV] = [prevKey];
+
+        return edges;
     }
 }
 

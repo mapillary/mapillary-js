@@ -1,7 +1,7 @@
 /// <reference path="../typings/jasmine/jasmine.d.ts" />
 
 declare var Mapillary: any;
-var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
+var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4');
 
 describe("APIv2", () => {
     var apiV2 = viewer.prefetcher.apiV2;

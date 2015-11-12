@@ -3,21 +3,22 @@
 declare var Mapillary: any;
 describe("Graph", () => {
     it("exists", () => {
-        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
+        var viewer = new Mapillary.Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
         var graph = viewer.graph;
         expect(graph).toBeDefined();
     });
 });
 
 describe("Graph.insertNodes", () => {
-    var graph = viewer.graph;
+    var graph: any;
+
+    beforeEach(() => {
+        graph = new Mapillary.Graph()
+    });
 
     it("should have the correct sequence and skey", () => {
-        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
-        var graph = viewer.graph;
-
-        var key1 = 'key1';
-        var skey1 = 'skey1';
+        var key1 = "key1";
+        var skey1 = "skey1";
 
         var data = {
             ims: [
@@ -37,12 +38,9 @@ describe("Graph.insertNodes", () => {
 
 
     it("should have the same sequence key", () => {
-        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
-        var graph = viewer.graph;
-
-        var key1 = 'key1';
-        var key2 = 'key2';
-        var skey1 = 'skey1';
+        var key1 = "key1";
+        var key2 = "key2";
+        var skey1 = "skey1";
 
         var data = {
             ims: [
@@ -67,13 +65,10 @@ describe("Graph.insertNodes", () => {
 
 
     it("should have different sequence keys", () => {
-        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
-        var graph = viewer.graph;
-
-        var key1 = 'key1';
-        var key2 = 'key2';
-        var skey1 = 'skey1';
-        var skey2 = 'skey2';
+        var key1 = "key1";
+        var key2 = "key2";
+        var skey1 = "skey1";
+        var skey2 = "skey2";
 
         var data = {
             ims: [

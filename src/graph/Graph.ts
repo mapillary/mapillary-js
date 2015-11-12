@@ -5,7 +5,7 @@ import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 
 import {GraphConstants} from "../Graph";
-import {EdgeCalculator} from "../Graph";
+import {ICalculatedEdges, EdgeCalculator} from "../Graph";
 import {IAPINavIm, IAPINavImIm} from "../API";
 import {ILatLon} from "../Viewer";
 import {Node} from "./Node";
@@ -16,8 +16,9 @@ interface ISequences {
 }
 
 export class Graph {
+    public edgeCalculator: EdgeCalculator;
+
     private graph: any;
-    private edgeCalculator: EdgeCalculator;
     private mapImageSequences: ISequences;
     private sequences: ISequences;
     private spatial: any;
@@ -31,7 +32,7 @@ export class Graph {
         this.sequences = {};
         this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);
         this.graph = new graphlib.Graph();
-        this.edgeCalculator = new EdgeCalculator(this.graph);
+        this.edgeCalculator = new EdgeCalculator();
 
         this.traversedCache = {};
         this.traversedDir = {};
@@ -117,6 +118,10 @@ export class Graph {
         return node;
     }
 
+    private addCalculatedEdgesToNode(node: Node: edges: CalculatedEdges): void {
+        console.log(node);
+    }
+
     private traverseAndGenerateDir(node: Node, dir: GraphConstants.DirEnum, depth: number): void {
         if (node == null) {
             return;
@@ -128,7 +133,8 @@ export class Graph {
             return;
         }
         if (!(node.key in this.traversedKeys)) {
-            this.edgeCalculator.updateEdges(this.mapImageSequences[node.key], node);
+            let edges: CalculatedEdges = this.edgeCalculator.calculateEdges(node);
+            this.addCalculatedEdgesToNode(node, edges);
         }
 
         this.traversedCache[node.key] = true;
