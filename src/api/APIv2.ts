@@ -1,8 +1,5 @@
 import APINav from "./APINav";
 
-/* Interface Exports */
-export * from "./interfaces/interfaces"
-
 export class APIv2 {
     public nav: APINav;
 

@@ -1,8 +1,5 @@
-/* Errors */
-import ParameterMapillaryError from "../errors/ParameterMapillaryError";
-
-/* Interfaces */
-import IViewerOptions from "./interfaces/IViewerOptions";
+import {IViewerOptions} from "../Viewer";
+import {ParameterMapillaryError} from "../Error";
 
 export class OptionsParser {
     public parseAndDefaultOptions(options: IViewerOptions): IViewerOptions {

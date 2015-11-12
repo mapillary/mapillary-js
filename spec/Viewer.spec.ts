@@ -1,7 +1,6 @@
 ///<reference path="../typings/jasmine/jasmine.d.ts" />
 
 declare var Mapillary: any;
-
 var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzozODVmNDk5ODE2ZDFiZWZm');
 
 describe("Viewer", () => {

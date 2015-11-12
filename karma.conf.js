@@ -4,7 +4,7 @@ module.exports = function(config) {
     browsers: ['Chrome'],
     files: [
       'dist/bundle.js',
-      'dist/spec/**/*.js'
+      'dist/spec/**/*.spec.js'
     ],
     singleRun: true
   })

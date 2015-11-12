@@ -1,4 +1,4 @@
-import MapillaryError from "./MapillaryError";
+import {MapillaryError} from "./MapillaryError";
 
 export class NotImplementedMapillaryError extends MapillaryError {
     constructor () {

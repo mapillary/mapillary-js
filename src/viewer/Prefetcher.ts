@@ -2,12 +2,9 @@
 
 import * as when from "when";
 
-import APIv2 from "../api/API";
+import {IAPINavIm} from "../API";
+import {APIv2} from "../API";
 
-/* Interfaces */
-import {IAPINavIm} from "../api/interfaces/IAPINavIm";
-
-/* Internal Interfaces */
 interface IHash {
     lastUsed: Date;
     data: IAPINavIm;

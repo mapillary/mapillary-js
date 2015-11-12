@@ -1,22 +1,18 @@
 /// <reference path="../../typings/graphlib/graphlib.d.ts" />
 /// <reference path="../../typings/rbush/rbush.d.ts" />
 
-/* Interface Exports */
-export * from "./interfaces/interfaces";
-
-import {DirEnum} from "./GraphConstants";
-import {EdgeCalculator} from "./EdgeCalculator";
-
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 
-/* Interfaces */
-import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../api/API";
-import {ILatLon} from "../viewer/Viewer";
-import {INode} from "./interfaces/interfaces";
+import {GraphConstants} from "../Graph";
+import {EdgeCalculator} from "../Graph";
+import {IAPINavIm, IAPINavImIm} from "../API";
+import {ILatLon} from "../Viewer";
+import {Node} from "./Node";
+import {Sequence} from "./Sequence";
 
 interface ISequences {
-    [key: string]: IAPINavImS;
+    [key: string]: Sequence;
 }
 
 export class Graph {
@@ -40,14 +36,12 @@ export class Graph {
         this.traversedCache = {};
         this.traversedDir = {};
         this.traversedKeys = {};
-
     }
 
     public insertNodes (data: IAPINavIm): void {
         for (var i in data.ss) {
             if (data.ss.hasOwnProperty(i)) {
-                let s: IAPINavImS = data.ss[i];
-                this.sequences[s.key] = s;
+                let s: Sequence = new Sequence(data.ss[i]);
                 for (var k in s.keys) {
                     if (s.keys.hasOwnProperty(k)) {
                         let key: string = s.keys[k];
@@ -79,7 +73,7 @@ export class Graph {
                     }
                     let latLon: ILatLon = {lat: lat, lon: lon};
 
-                    let node: INode = {
+                    let node: Node = {
                         key: im.key,
                         ca: ca,
                         latLon: latLon,
@@ -99,24 +93,24 @@ export class Graph {
         this.traversedCache = {};
         this.traversedDir = {};
 
-        let node: INode = this.node(key);
+        let node: Node = this.node(key);
 
-        this.traverseAndGenerateDir(node, DirEnum.NEXT, 2);
-        this.traverseAndGenerateDir(node, DirEnum.PREV, 1);
-        this.traverseAndGenerateDir(node, DirEnum.STEP_FORWARD, 2);
-        this.traverseAndGenerateDir(node, DirEnum.STEP_BACKWARD, 1);
-        this.traverseAndGenerateDir(node, DirEnum.STEP_LEFT, 0);
-        this.traverseAndGenerateDir(node, DirEnum.STEP_RIGHT, 0);
-        this.traverseAndGenerateDir(node, DirEnum.TURN_LEFT, 0);
-        this.traverseAndGenerateDir(node, DirEnum.TURN_RIGHT, 0);
-        this.traverseAndGenerateDir(node, DirEnum.TURN_U, 0);
-        this.traverseAndGenerateDir(node, DirEnum.ROTATE_LEFT, 0);
-        this.traverseAndGenerateDir(node, DirEnum.ROTATE_RIGHT, 1);
-        this.traverseAndGenerateDir(node, DirEnum.PANO, 1);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.NEXT, 2);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PREV, 1);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.STEP_FORWARD, 2);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.STEP_BACKWARD, 1);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.STEP_LEFT, 0);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.STEP_RIGHT, 0);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.TURN_LEFT, 0);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.TURN_RIGHT, 0);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.TURN_U, 0);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.ROTATE_LEFT, 0);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.ROTATE_RIGHT, 1);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PANO, 1);
     }
 
     public keyIsWorthy(key: string): boolean {
-        let node: INode = this.node(key);
+        let node: Node = this.node(key);
 
         if (node == null) {
             return false;
@@ -125,12 +119,12 @@ export class Graph {
         return node.worthy;
     }
 
-    public node (key: string): INode {
+    public node (key: string): Node {
         let node: any = this.graph.node(key);
         return node;
     }
 
-    private traverseAndGenerateDir(node: INode, dir: DirEnum, depth: number): void {
+    private traverseAndGenerateDir(node: Node, dir: GraphConstants.DirEnum, depth: number): void {
         if (node == null) {
             return;
         }

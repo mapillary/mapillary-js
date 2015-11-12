@@ -1,6 +1,4 @@
-/* Interfaces */
-import {IAPINavImS} from "../api/API";
-import {INode} from "./interfaces/interfaces";
+import {Node, Sequence} from "../Graph";
 
 export class EdgeCalculator {
     private graph: any;
@@ -9,7 +7,7 @@ export class EdgeCalculator {
         this.graph = graph;
     }
 
-    public updateEdges(sequence: IAPINavImS, node: INode): void {
+    public updateEdges(sequence: Sequence, node: Node): void {
         console.log("UPDATE EDGES");
     }
 }

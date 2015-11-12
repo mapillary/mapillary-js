@@ -3,7 +3,7 @@
 import * as rest from "rest";
 import * as mime from "rest/interceptor/mime";
 
-export class APIc {
+export class APIv2Call {
     private clientId: string;
     private httpsUrl: string;
     private client: rest.Client;
@@ -19,4 +19,4 @@ export class APIc {
     }
 };
 
-export default APIc
+export default APIv2Call
