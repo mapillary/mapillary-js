@@ -4,10 +4,8 @@ import * as when from "when";
 
 import {GraphConstants, Graph, Node} from "../Graph";
 import {IAPINavIm} from "../API";
-import {ILatLon, IViewerOptions} from "../Viewer";
-import {OptionsParser} from "./OptionsParser";
+import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
 import {ParameterMapillaryError} from "../Error";
-import {Prefetcher} from "./Prefetcher";
 
 export class Viewer {
     /**
@@ -25,6 +23,14 @@ export class Viewer {
      * @type {boolean}
      */
     public loading: boolean;
+
+    /**
+     * Cache for assets
+     * @member Mapillary.Viewer#assetCache
+     * @private
+     * @type {Graph}
+     */
+    private assetCache: AssetCache;
 
     /**
      * Representation of the walkable graph
@@ -65,6 +71,7 @@ export class Viewer {
         let optionsParser: OptionsParser = new OptionsParser();
         this.options = optionsParser.parseAndDefaultOptions(options);
 
+        this.assetCache = new AssetCache();
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
     }
@@ -84,14 +91,11 @@ export class Viewer {
         }
 
         if (this.graph.keyIsWorthy(key)) {
-            return when(this.graph.node(key));
+            return this.cacheNode(this.graph.node(key));
         } else {
-            let response: when.Promise<IAPINavIm> = this.prefetcher.loadFromKey(key);
-            return response.then((data: IAPINavIm) => {
+            return this.prefetcher.loadFromKey(key).then((data: IAPINavIm) => {
                 this.graph.insertNodes(data);
-                this.graph.updateGraphForKey(key);
-                this.currentNode = this.graph.node(key);
-                return this.currentNode;
+                return this.cacheNode(this.graph.node(key));
             });
         }
     }
@@ -110,6 +114,7 @@ export class Viewer {
         }
 
         let nextNode: Node = this.graph.nextNode(this.currentNode, dir);
+
         if (nextNode == null) {
             return when.reject("There are no node in direction: " + dir);
         }
@@ -133,6 +138,22 @@ export class Viewer {
      */
     public moveToLookAtLngLat(latLon: ILatLon): boolean {
         return true;
+    }
+
+    private cacheNode(wantedNode: Node): when.Promise<{}> {
+        let cacheNodes: Node[] = this.graph.updateGraph(wantedNode);
+
+        if (this.assetCache.isLoaded(wantedNode)) {
+            return this.setCurrentNode(wantedNode);
+        }
+
+        this.assetCache.cache(cacheNodes);
+        return this.setCurrentNode(wantedNode);
+    }
+
+    private setCurrentNode(node: Node): when.Promise<{}> {
+        this.currentNode = node;
+        return when(this.currentNode);
     }
 }
 

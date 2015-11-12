@@ -24,7 +24,6 @@ export class Graph {
 
     private traversedCache: any;
     private traversedDir: any;
-    private traversedKeys: any;
 
     constructor () {
         this.mapImageSequences = {};
@@ -35,7 +34,6 @@ export class Graph {
 
         this.traversedCache = {};
         this.traversedDir = {};
-        this.traversedKeys = {};
     }
 
     public insertNodes (data: IAPINavIm): void {
@@ -108,15 +106,12 @@ export class Graph {
     }
 
     public node(key: string): Node {
-        let node: any = this.graph.node(key);
-        return node;
+        return this.graph.node(key);
     }
 
-    public updateGraphForKey(key: string): void {
+    public updateGraph(node: Node): Node[] {
         this.traversedCache = {};
         this.traversedDir = {};
-
-        let node: Node = this.node(key);
 
         this.traverseAndGenerateDir(node, GraphConstants.DirEnum.NEXT, 2);
         this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PREV, 1);
@@ -130,6 +125,8 @@ export class Graph {
         this.traverseAndGenerateDir(node, GraphConstants.DirEnum.ROTATE_LEFT, 0);
         this.traverseAndGenerateDir(node, GraphConstants.DirEnum.ROTATE_RIGHT, 1);
         this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PANO, 1);
+
+        return this.traversedCache;
     }
 
     private addCalculatedEdgesToNode(node: Node, edges: ICalculatedEdges): void {
@@ -165,15 +162,15 @@ export class Graph {
         if ((node.key in this.traversedDir) && this.traversedDir[node.key] === dir) {
             return;
         }
-        if (!(node.key in this.traversedKeys)) {
+        if (!(node.key in this.traversedCache)) {
             let edges: ICalculatedEdges = this.edgeCalculator.calculateEdges(node);
             this.addCalculatedEdgesToNode(node, edges);
         }
 
-        this.traversedCache[node.key] = true;
-        this.traversedKeys[node.key] = true;
+        this.traversedCache[node.key] = node;
         this.traversedDir[node.key] = dir;
 
+        // fixme traverse graph here
         // edges = @graph.outEdges(node.key)
 
         // for edge in edges
