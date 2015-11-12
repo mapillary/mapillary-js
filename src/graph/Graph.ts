@@ -73,14 +73,7 @@ export class Graph {
                     }
                     let latLon: ILatLon = {lat: lat, lon: lon};
 
-                    let node: Node = {
-                        key: im.key,
-                        ca: ca,
-                        latLon: latLon,
-                        worthy: true,
-                        sequence: this.mapImageSequences[im.key],
-                        apiNavImIm: im
-                    };
+                    let node: Node = new Node(im.key, ca, latLon, true, this.mapImageSequences[im.key], im);
 
                     this.spatial.insert({node: node, lon: node.latLon.lon, lat: node.latLon.lat});
                     this.graph.setNode(node.key, node);
