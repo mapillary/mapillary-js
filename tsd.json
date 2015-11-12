@@ -5,20 +5,20 @@
   "path": "typings",
   "bundle": "typings/tsd.d.ts",
   "installed": {
-    "threejs/three.d.ts": {
-      "commit": "001ca36ba58cef903c4c063555afb07bbc36bb58"
-    },
     "jasmine/jasmine.d.ts": {
       "commit": "001ca36ba58cef903c4c063555afb07bbc36bb58"
     },
     "rest/rest.d.ts": {
       "commit": "001ca36ba58cef903c4c063555afb07bbc36bb58"
     },
-    "when/when.d.ts": {
+    "threejs/three.d.ts": {
       "commit": "001ca36ba58cef903c4c063555afb07bbc36bb58"
     },
     "underscore/underscore.d.ts": {
       "commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+    },
+    "when/when.d.ts": {
+      "commit": "001ca36ba58cef903c4c063555afb07bbc36bb58"
     }
   }
 }
