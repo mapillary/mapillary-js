@@ -4,8 +4,7 @@
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 
-import {GraphConstants} from "../Graph";
-import {ICalculatedEdges, EdgeCalculator} from "../Graph";
+import {GraphConstants, ICalculatedEdges, EdgeCalculator} from "../Graph";
 import {IAPINavIm, IAPINavImIm} from "../API";
 import {ILatLon} from "../Viewer";
 import {Node} from "./Node";
@@ -31,7 +30,7 @@ export class Graph {
         this.mapImageSequences = {};
         this.sequences = {};
         this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);
-        this.graph = new graphlib.Graph();
+        this.graph = new graphlib.Graph({multigraph: true});
         this.edgeCalculator = new EdgeCalculator();
 
         this.traversedCache = {};
@@ -83,6 +82,36 @@ export class Graph {
         }
     }
 
+    public keyIsWorthy(key: string): boolean {
+        let node: Node = this.node(key);
+
+        if (node == null) {
+            return false;
+        }
+
+        return node.worthy;
+    }
+
+    public nextNode(node: Node, dir: GraphConstants.DirEnum): Node {
+        let outEdges: any[] = this.graph.outEdges(node.key);
+
+        for (var i in outEdges) {
+            if (outEdges.hasOwnProperty(i)) {
+                let e: any = outEdges[i];
+                if (this.graph.edge(e.v, e.w) === dir) {
+                    return this.node(e.w);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public node(key: string): Node {
+        let node: any = this.graph.node(key);
+        return node;
+    }
+
     public updateGraphForKey(key: string): void {
         this.traversedCache = {};
         this.traversedDir = {};
@@ -103,23 +132,27 @@ export class Graph {
         this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PANO, 1);
     }
 
-    public keyIsWorthy(key: string): boolean {
-        let node: Node = this.node(key);
+    private addCalculatedEdgesToNode(node: Node, edges: ICalculatedEdges): void {
+        let outEdges: any[] = this.graph.outEdges(node.key);
 
-        if (node == null) {
-            return false;
+        for (var i in outEdges) {
+            if (outEdges.hasOwnProperty(i)) {
+                let e: any = outEdges[i];
+                this.graph.removeEdge(e);
+            }
         }
 
-        return node.worthy;
-    }
-
-    public node (key: string): Node {
-        let node: any = this.graph.node(key);
-        return node;
-    }
-
-    private addCalculatedEdgesToNode(node: Node: edges: CalculatedEdges): void {
-        console.log(node);
+        for (var k in edges) {
+            if (edges.hasOwnProperty(k)) {
+                let es: any = edges[k];
+                for (var l in es) {
+                    if (es.hasOwnProperty(l)) {
+                        let e: any = es[l];
+                        this.graph.setEdge(node.key, e, parseInt(k, 10));
+                    }
+                }
+            }
+        }
     }
 
     private traverseAndGenerateDir(node: Node, dir: GraphConstants.DirEnum, depth: number): void {
@@ -133,7 +166,7 @@ export class Graph {
             return;
         }
         if (!(node.key in this.traversedKeys)) {
-            let edges: CalculatedEdges = this.edgeCalculator.calculateEdges(node);
+            let edges: ICalculatedEdges = this.edgeCalculator.calculateEdges(node);
             this.addCalculatedEdgesToNode(node, edges);
         }
 

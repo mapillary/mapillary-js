@@ -2,8 +2,7 @@
 
 import * as when from "when";
 
-import {Debug} from "../Utils";
-import {Graph} from "../Graph";
+import {GraphConstants, Graph, Node} from "../Graph";
 import {IAPINavIm} from "../API";
 import {ILatLon, IViewerOptions} from "../Viewer";
 import {OptionsParser} from "./OptionsParser";
@@ -11,6 +10,14 @@ import {ParameterMapillaryError} from "../Error";
 import {Prefetcher} from "./Prefetcher";
 
 export class Viewer {
+    /**
+     * The node that the viewer is currently looking at
+     * @member Mapillary.Viewer#currentNode
+     * @public
+     * @type {Node}
+     */
+    public currentNode: Node;
+
     /**
      * true if Viewer is loading internally, false if not.
      * @member Mapillary.Viewer#loading
@@ -68,26 +75,46 @@ export class Viewer {
      * @param {string} key Mapillary image key to move to
      * @throws {ParamaterMapillaryError} If no key is provided
      */
-    public moveToKey(key: string, cb?: (data: IAPINavIm) => void): boolean {
+    public moveToKey(key: string): when.Promise<{}> {
         if (key == null) {
             throw new ParameterMapillaryError();
         }
         if (this.loading) {
-            return false;
+            return when.reject("Viewer is Loading");
         }
 
         if (this.graph.keyIsWorthy(key)) {
-            Debug.log("MOVE ON");
+            return when(this.graph.node(key));
         } else {
             let response: when.Promise<IAPINavIm> = this.prefetcher.loadFromKey(key);
-            response.then((data: IAPINavIm) => {
+            return response.then((data: IAPINavIm) => {
                 this.graph.insertNodes(data);
                 this.graph.updateGraphForKey(key);
-                if (cb != null) {
-                    cb(data);
-                }
+                this.currentNode = this.graph.node(key);
+                return this.currentNode;
             });
         }
+    }
+
+    /**
+     * Move in a direction
+     * @method Mapillary.Viewer#moveToLngLat
+     * @param {LatLng} latLng FIXME
+     */
+    public moveDir(dir: GraphConstants.DirEnum): when.Promise<{}> {
+        if (dir < 0 || dir >= 13) {
+            throw new ParameterMapillaryError();
+        }
+        if (this.loading) {
+            return when.reject("Viewer is Loading");
+        }
+
+        let nextNode: Node = this.graph.nextNode(this.currentNode, dir);
+        if (nextNode == null) {
+            return when.reject("There are no node in direction: " + dir);
+        }
+
+        return this.moveToKey(nextNode.key);
     }
 
     /**

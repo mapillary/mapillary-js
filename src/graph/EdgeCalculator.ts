@@ -1,8 +1,4 @@
-import {GraphConstants, Node} from "../Graph";
-
-export interface ICalculatedEdges {
-    [key: string]: string[];
-}
+import {ICalculatedEdges, GraphConstants, Node} from "../Graph";
 
 export class EdgeCalculator {
     public calculateEdges(node: Node): ICalculatedEdges {
