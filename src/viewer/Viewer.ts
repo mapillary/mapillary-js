@@ -94,8 +94,12 @@ export class Viewer {
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
 
-        this.container = this.getContainer(id);
-        this.cover = new Cover(this.options, this.container);
+        this.container = this.setupContainer(id);
+
+        this.cover = new Cover(this.container);
+        if (options.initialNode != null) {
+            this.cover.set(options.initialNode);
+        }
     }
 
     /**
@@ -175,13 +179,14 @@ export class Viewer {
         });
     }
 
-    private getContainer(id: string): HTMLElement {
+    private setupContainer(id: string): HTMLElement {
         let element: HTMLElement = document.getElementById(id);
 
         if (element == null) {
             throw new InitializationMapillaryError();
         }
 
+        element.classList.add("mapillary-js");
         return element;
     }
 
