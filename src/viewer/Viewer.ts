@@ -57,6 +57,8 @@ export class Viewer {
      */
     private options: IViewerOptions;
 
+    private container: any;
+
     /**
      * Initializes a Mapillary viewer
      * @class Mapillary.Viewer
@@ -77,6 +79,7 @@ export class Viewer {
 
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
+        this.setupContainer(id);
     }
 
     /**
@@ -158,6 +161,16 @@ export class Viewer {
 
     private setCurrentNode(node: Node): void {
         this.currentNode = node;
+    }
+
+    private setupContainer(id: string): void {
+      this.container = document.getElementById(id);
+
+      if (this.container) {
+          this.container.classList.add("mapillary-js");
+      } else {
+          throw new InitializationMapillaryError();
+      }
     }
 }
 
