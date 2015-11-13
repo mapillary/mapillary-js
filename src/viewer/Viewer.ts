@@ -96,9 +96,9 @@ export class Viewer {
 
         this.container = this.setupContainer(id);
 
-        this.cover = new Cover(this.container);
-        if (options.initialNode != null) {
-            this.cover.set(options.initialNode);
+        if (!options.active) {
+            this.cover = new Cover(this.container);
+            this.cover.set(options.key);
         }
     }
 

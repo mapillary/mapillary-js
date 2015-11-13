@@ -6,16 +6,25 @@ interface IViewerOptionsStepThr {
 }
 
 export interface IViewerOptions {
-    debugLevel?: string;
+    /**
+     * Start viewer in active state
+     * @member Mapillary.IViewerOptions#active
+     * @type {Node}
+     */
+    active?: boolean;
+
+    /**
+     * Initial Mapillary image key to start viewer from
+     * @member Mapillary.IViewerOptions#key
+     * @type {Node}
+     */
+    key?: string;
 
     stepThr?: IViewerOptionsStepThr;
-
     enablePanoNavigation?: boolean;
     enablePanoPlaying?: boolean;
     enablePanoArrowAlignment?: boolean;
     gamingNavigation?: boolean;
-
-    initialNode?: string;
 }
 
 export default IViewerOptions;
