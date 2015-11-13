@@ -16,10 +16,10 @@ export class Cover {
     }
 
     public update(key: string): void {
-      this.container.style.backgroundImage =
-          "url(https://d1cuyjsrcm0gby.cloudfront.net/"
-          + key
-          + "/thumb-640.jpg)";
+        this.container.style.backgroundImage =
+            "url(https://d1cuyjsrcm0gby.cloudfront.net/"
+            + key
+            + "/thumb-640.jpg)";
     }
 }
 
