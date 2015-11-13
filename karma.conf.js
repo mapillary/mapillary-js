@@ -3,8 +3,8 @@ module.exports = function(config) {
     frameworks: ['jasmine'],
     browsers: ['Chrome'],
     files: [
-      'dist/bundle.js',
-      'dist/spec/**/*.spec.js'
+      'build/bundle.js',
+      'build/spec/**/*.spec.js'
     ],
     singleRun: true
   })

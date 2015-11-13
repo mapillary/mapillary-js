@@ -15,19 +15,16 @@ var tslint = require('gulp-tslint')
 
 var paths = {
   mapillaryjs: 'mapillaryjs',
+  build: './build',
   ts: {
     src: './src/**/*.ts',
     tests: './spec/**/*.ts',
-    dest: 'dist',
-    testDest: 'dist/spec'
+    dest: 'build',
+    testDest: 'build/spec'
   },
   js: {
-    src: './dist/**/*.js',
+    src: './build/**/*.js',
     tests: './spec/**/*.js'
-  },
-  devFiles: {
-    src: ['./dist/mapillary-js.css', './dist/bundle.js'],
-    dest: 'debug'
   }
 }
 
@@ -41,7 +38,7 @@ var config = {
 
 gulp.task('browserify', ['typescript'], function () {
   var bundler = browserify({
-    entries: ['./dist/Mapillary.js'],
+    entries: ['./build/Mapillary.js'],
     debug: true,
     fullPaths: false,
     standalone: 'Mapillary'
@@ -49,26 +46,21 @@ gulp.task('browserify', ['typescript'], function () {
 
   bundler
     .bundle()
-    .pipe(source('./dist/Mapillary.js'))
+    .pipe(source('./build/Mapillary.js'))
     .pipe(rename('bundle.js'))
-    .pipe(gulp.dest('./dist/'))
+    .pipe(gulp.dest('./build/'))
 })
 
 gulp.task('clean', function () {
   return del([
     'html-documentation',
-    'dist/**/*',
+    'build/**/*',
     'debug/**/*.js'
   ])
 })
 
-gulp.task('copy-dev-files', ['browserify'], function () {
-  return gulp.src(paths.devFiles.src)
-    .pipe(gulp.dest(paths.devFiles.dest))
-})
-
 gulp.task('documentation', ['browserify'], function () {
-    gulp.src(['./dist/Viewer.js', './dist/API.js'])
+    gulp.src(['./build/Viewer.js', './build/API.js'])
     .pipe(documentation({format: 'html' }))
     .pipe(gulp.dest('html-documentation'))
 })

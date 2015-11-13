@@ -4,7 +4,7 @@ spec/*.js
 *.d.ts
 *.log
 *.tgz
-dist
+build/
 debug/**/*.js
 debug/**/*.css
 html-documentation
