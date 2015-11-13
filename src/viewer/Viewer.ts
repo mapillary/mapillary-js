@@ -2,10 +2,15 @@
 
 import * as when from "when";
 
-import {GraphConstants, Graph, Node} from "../Graph";
 import {IAPINavIm} from "../API";
-import {AssetCache, Cover, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
-import {ParameterMapillaryError, InitializationMapillaryError} from "../Error";
+import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
+import {Graph, GraphConstants, Node} from "../Graph";
+import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
+import {IActivatableUI, CoverUI} from "../UI";
+
+interface IActivatableUIMap {
+    [name: string]: IActivatableUI;
+}
 
 export class Viewer {
     /**
@@ -25,6 +30,14 @@ export class Viewer {
     public loading: boolean;
 
     /**
+     * Current active and used ui
+     * @member Mapillary.Viewer#ui
+     * @public
+     * @type {IActivatableUI}
+     */
+    public ui: IActivatableUI;
+
+    /**
      * Cache for assets
      * @member Mapillary.Viewer#assetCache
      * @private
@@ -33,20 +46,28 @@ export class Viewer {
     private assetCache: AssetCache;
 
     /**
+     * HTML element containing the Mapillary viewer
+     * @member Mapillary.Viewer#container
+     * @private
+     * @type {HTMLElement}
+     */
+    private container: HTMLElement;
+
+    /**
+     * Named dictionary of availble uis
+     * @member Mapillary.Viewer#uis
+     * @private
+     * @type {IActivatableUIMap}
+     */
+    private uis: IActivatableUIMap;
+
+    /**
      * Representation of the walkable graph
      * @member Mapillary.Viewer#graph
      * @private
      * @type {Graph}
      */
     private graph: Graph;
-
-    /**
-     * Used for prefetching information about keys from Mapillary API
-     * @member Mapillary.Viewer#loading
-     * @private
-     * @type {Prefetcher}
-     */
-    private prefetcher: Prefetcher;
 
     /**
      * Options to used to tweak the viewer. Optional if not
@@ -58,20 +79,12 @@ export class Viewer {
     private options: IViewerOptions;
 
     /**
-     * HTML element containing the Mapillary viewer
-     * @member Mapillary.Viewer#container
+     * Used for prefetching information about keys from Mapillary API
+     * @member Mapillary.Viewer#loading
      * @private
-     * @type {HTMLElement}
+     * @type {Prefetcher}
      */
-    private container: HTMLElement;
-
-    /**
-     * Cover of one image that will show before viewer is correctly initialized
-     * @member Mapillary.Viewer#cover
-     * @private
-     * @type {Cover}
-     */
-    private cover: Cover;
+    private prefetcher: Prefetcher;
 
     /**
      * Initializes a Mapillary viewer
@@ -96,10 +109,34 @@ export class Viewer {
 
         this.container = this.setupContainer(id);
 
-        if (!options.active) {
-            this.cover = new Cover(this.container);
-            this.cover.set(options.key);
+        this.uis = {};
+        let coverUI: IActivatableUI = new CoverUI(this.container);
+        this.addUI("cover", coverUI);
+
+        this.activateUI(options.ui);
+        this.moveToKey(options.key);
+    }
+
+    /**
+     * Activate an ui (means disabling current ui)
+     * @method Mapillary.Viewer#activateUI
+     * @param {IActivatableUI} activate ui on viewer
+     */
+    public activateUI(name: string): void {
+        if (!(name in this.uis)) {
+            throw new ParameterMapillaryError();
         }
+        this.uis[name].activate();
+        this.ui = this.uis[name];
+    }
+
+    /**
+     * Add ui to the viewer
+     * @method Mapillary.Viewer#addUI
+     * @param {IActivatableUI} add ui to viewer
+     */
+    public addUI(name: string, ui: IActivatableUI): void {
+        this.uis[name] = ui;
     }
 
     /**
@@ -116,13 +153,19 @@ export class Viewer {
             return when.reject("Viewer is Loading");
         }
 
-        if (this.graph.keyIsWorthy(key)) {
-            return this.cacheNode(this.graph.node(key));
-        } else {
-            return this.prefetcher.loadFromKey(key).then((data: IAPINavIm) => {
-                this.graph.insertNodes(data);
+        if (this.ui.graphSupport) {
+            if (this.graph.keyIsWorthy(key)) {
                 return this.cacheNode(this.graph.node(key));
-            });
+            } else {
+                return this.prefetcher.loadFromKey(key).then((data: IAPINavIm) => {
+                    this.graph.insertNodes(data);
+                    return this.cacheNode(this.graph.node(key));
+                });
+            }
+        } else {
+            let node: Node = this.graph.insertNoneWorthyNodeFromKey(key);
+            this.setCurrentNode(node);
+            return when(node);
         }
     }
 
@@ -132,6 +175,9 @@ export class Viewer {
      * @param {LatLng} latLng FIXME
      */
     public moveDir(dir: GraphConstants.DirEnum): when.Promise<{}> {
+        if (!this.ui.graphSupport) {
+            throw new MoveTypeMapillaryError();
+        }
         if (dir < 0 || dir >= 13) {
             throw new ParameterMapillaryError();
         }
@@ -192,6 +238,7 @@ export class Viewer {
 
     private setCurrentNode(node: Node): void {
         this.currentNode = node;
+        this.ui.display(node);
     }
 }
 

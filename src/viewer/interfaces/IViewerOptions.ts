@@ -7,18 +7,18 @@ interface IViewerOptionsStepThr {
 
 export interface IViewerOptions {
     /**
-     * Start viewer in active state
-     * @member Mapillary.IViewerOptions#active
-     * @type {Node}
-     */
-    active?: boolean;
-
-    /**
      * Initial Mapillary image key to start viewer from
      * @member Mapillary.IViewerOptions#key
      * @type {Node}
      */
     key?: string;
+
+    /**
+     * Type of ui to use
+     * @member Mapillary.IViewerOptions#ui
+     * @type {Node}
+     */
+    ui?: string;
 
     stepThr?: IViewerOptionsStepThr;
     enablePanoNavigation?: boolean;

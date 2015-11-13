@@ -81,6 +81,13 @@ export class Graph {
         }
     }
 
+    public insertNoneWorthyNodeFromKey(key: string): Node {
+        let latLon: ILatLon = {lat: 0, lon: 0};
+        let node: Node = new Node(key, -1, latLon, false, null, null);
+        this.graph.setNode(node.key, node);
+        return node;
+    }
+
     public keyIsWorthy(key: string): boolean {
         let node: Node = this.node(key);
 
@@ -172,7 +179,7 @@ export class Graph {
                     if (this.node(e.w) !== undefined && this.node(e.w).worthy) {
                         this.traverseAndGenerateDir(this.node(e.w), dir, depth - 1);
                     } else if (this.node(e.w) === undefined) {
-                        console.log("CREATE UNWORTHY NODE HERE");
+                        this.insertNoneWorthyNodeFromKey(e.w);
                     }
                 }
             }
