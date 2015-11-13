@@ -12,6 +12,7 @@ var ts = require('gulp-typescript')
 var rename = require('gulp-rename')
 var tsd = require('gulp-tsd')
 var tslint = require('gulp-tslint')
+var argv = require('yargs').argv
 
 var paths = {
   mapillaryjs: 'mapillaryjs',
@@ -75,12 +76,7 @@ gulp.task('js-lint', function () {
 
 gulp.task('serve', ['browserify'], serve('.'))
 
-gulp.task('test', function (done) {
-  new karmaServer({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, done).start();
-})
+gulp.task('test', shell.task('./node_modules/karma/bin/karma run -- --grep ' + argv.grep))
 
 gulp.task('test-watch', function (done) {
   new karmaServer({
