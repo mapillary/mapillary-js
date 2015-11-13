@@ -3,6 +3,7 @@
 
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
+import * as _ from "underscore";
 
 import {GraphConstants, ICalculatedEdges, EdgeCalculator} from "../Graph";
 import {IAPINavIm, IAPINavImIm} from "../API";
@@ -114,19 +115,11 @@ export class Graph {
         this.traversedDir = {};
 
         this.traverseAndGenerateDir(node, GraphConstants.DirEnum.NEXT, 2);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PREV, 1);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.STEP_FORWARD, 2);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.STEP_BACKWARD, 1);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.STEP_LEFT, 0);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.STEP_RIGHT, 0);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.TURN_LEFT, 0);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.TURN_RIGHT, 0);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.TURN_U, 0);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.ROTATE_LEFT, 0);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.ROTATE_RIGHT, 1);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PANO, 1);
+        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PREV, 2);
 
-        return this.traversedCache;
+        return _.map(this.traversedCache, (n: Node) => {
+            return n;
+        });
     }
 
     private addCalculatedEdgesToNode(node: Node, edges: ICalculatedEdges): void {
@@ -153,7 +146,7 @@ export class Graph {
     }
 
     private traverseAndGenerateDir(node: Node, dir: GraphConstants.DirEnum, depth: number): void {
-        if (node == null) {
+        if (node === undefined || node == null) {
             return;
         }
         if (depth < 0) {
@@ -170,15 +163,20 @@ export class Graph {
         this.traversedCache[node.key] = node;
         this.traversedDir[node.key] = dir;
 
-        // fixme traverse graph here
-        // edges = @graph.outEdges(node.key)
+        let outEdges: any[] = this.graph.outEdges(node.key);
 
-        // for edge in edges
-        //   edge = @graph.edge(edge)
-        //   if edge.label == dir
-        //     n = @graph.node(edge.to)
-        //     if n.worthy
-        //       traverseAndGenerateDir(n, dir, depth - 1)
+        for (var i in outEdges) {
+            if (outEdges.hasOwnProperty(i)) {
+                let e: any = outEdges[i];
+                if (this.graph.edge(e.v, e.w) === dir) {
+                    if (this.node(e.w) !== undefined && this.node(e.w).worthy) {
+                        this.traverseAndGenerateDir(this.node(e.w), dir, depth - 1);
+                    } else if (this.node(e.w) === undefined) {
+                        console.log("CREATE UNWORTHY NODE HERE");
+                    }
+                }
+            }
+        }
     }
 }
 

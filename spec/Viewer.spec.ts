@@ -17,15 +17,15 @@ describe("Viewer.moveToKey", () => {
     });
 
     it("should move to a key", (done) => {
-        var response: any = viewer.moveToKey("XkK3qsRg9j9UY5jTg8BKGQ");
+        var response: any = viewer.moveToKey("7bzPYiyMdQI1zSoi4Gk2_w");
 
         response.then((node: any) => {
             // fixme depends on real API data
-            expect(node.key).toBe("XkK3qsRg9j9UY5jTg8BKGQ");
+            expect(node.key).toBe("7bzPYiyMdQI1zSoi4Gk2_w");
             response = viewer.moveDir(Mapillary.GraphConstants.DirEnum.NEXT);
 
             response.then((node: any) => {
-                expect(node.key).toBe("EUTk0zsxzVgIyE6XeO-yWQ");
+                expect(node.key).toBe("PoSGroz_MT1PpaNPGV6PvA");
                 done();
             });
         });

@@ -72,6 +72,9 @@ export class Viewer {
         this.options = optionsParser.parseAndDefaultOptions(options);
 
         this.assetCache = new AssetCache();
+        this.assetCache.enableAsset("image");
+        this.assetCache.enableAsset("mesh");
+
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
     }
@@ -143,17 +146,18 @@ export class Viewer {
     private cacheNode(wantedNode: Node): when.Promise<{}> {
         let cacheNodes: Node[] = this.graph.updateGraph(wantedNode);
 
-        if (this.assetCache.isLoaded(wantedNode)) {
-            return this.setCurrentNode(wantedNode);
+        if (this.assetCache.isCached(wantedNode)) {
+            this.setCurrentNode(wantedNode);
         }
 
-        this.assetCache.cache(cacheNodes);
-        return this.setCurrentNode(wantedNode);
+        return this.assetCache.cache(cacheNodes).then((data: any) => {
+            this.setCurrentNode(wantedNode);
+            return when(wantedNode);
+        });
     }
 
-    private setCurrentNode(node: Node): when.Promise<{}> {
+    private setCurrentNode(node: Node): void {
         this.currentNode = node;
-        return when(this.currentNode);
     }
 }
 
