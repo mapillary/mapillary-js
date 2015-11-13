@@ -5,7 +5,7 @@ import * as when from "when";
 import {GraphConstants, Graph, Node} from "../Graph";
 import {IAPINavIm} from "../API";
 import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
-import {ParameterMapillaryError} from "../Error";
+import {ParameterMapillaryError, InitializationMapillaryError} from "../Error";
 
 export class Viewer {
     /**
