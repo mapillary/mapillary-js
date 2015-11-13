@@ -3,6 +3,7 @@ var gulp = require('gulp')
 var browserify = require('browserify')
 var del = require('del');
 var documentation = require('gulp-documentation')
+var fs = require('fs')
 var karmaServer = require('karma').Server;
 var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
@@ -13,6 +14,7 @@ var rename = require('gulp-rename')
 var tsd = require('gulp-tsd')
 var tslint = require('gulp-tslint')
 var argv = require('yargs').argv
+
 
 var paths = {
   mapillaryjs: 'mapillaryjs',
@@ -30,11 +32,7 @@ var paths = {
 }
 
 var config = {
-  ts: {
-      noImplicitAny: true,
-      target: 'ES5',
-      module: 'commonjs'
-    }
+  ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions
 }
 
 gulp.task('browserify', ['typescript'], function () {
