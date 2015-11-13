@@ -14,6 +14,8 @@ export interface IViewerOptions {
     enablePanoPlaying?: boolean;
     enablePanoArrowAlignment?: boolean;
     gamingNavigation?: boolean;
+
+    initialNode?: string;
 }
 
 export default IViewerOptions;

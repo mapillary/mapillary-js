@@ -3,7 +3,7 @@ import {ParameterMapillaryError} from "../Error";
 
 export class OptionsParser {
     public parseAndDefaultOptions(options: IViewerOptions): IViewerOptions {
-        if (false) {
+        if (!options.initialNode) {
             throw new ParameterMapillaryError();
         }
         return options;

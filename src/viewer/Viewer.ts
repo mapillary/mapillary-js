@@ -6,6 +6,7 @@ import {GraphConstants, Graph, Node} from "../Graph";
 import {IAPINavIm} from "../API";
 import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
 import {ParameterMapillaryError, InitializationMapillaryError} from "../Error";
+import {Cover} from "./Cover";
 
 export class Viewer {
     /**
@@ -59,6 +60,8 @@ export class Viewer {
 
     private container: any;
 
+    private cover: Cover;
+
     /**
      * Initializes a Mapillary viewer
      * @class Mapillary.Viewer
@@ -80,6 +83,7 @@ export class Viewer {
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
         this.setupContainer(id);
+        this.cover = new Cover(this.options, this.container);
     }
 
     /**
