@@ -4,9 +4,8 @@ import * as when from "when";
 
 import {GraphConstants, Graph, Node} from "../Graph";
 import {IAPINavIm} from "../API";
-import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
+import {AssetCache, Cover, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
 import {ParameterMapillaryError, InitializationMapillaryError} from "../Error";
-import {Cover} from "./Cover";
 
 export class Viewer {
     /**
@@ -54,12 +53,24 @@ export class Viewer {
      * provided Viewer will be set do default.
      * @member Mapillary.Viewer#options
      * @private
-     * @type {Prefetcher}
+     * @type {IViewerOptions}
      */
     private options: IViewerOptions;
 
-    private container: any;
+    /**
+     * HTML element containing the Mapillary viewer
+     * @member Mapillary.Viewer#container
+     * @private
+     * @type {HTMLElement}
+     */
+    private container: HTMLElement;
 
+    /**
+     * Cover of one image that will show before viewer is correctly initialized
+     * @member Mapillary.Viewer#cover
+     * @private
+     * @type {Cover}
+     */
     private cover: Cover;
 
     /**
@@ -82,7 +93,8 @@ export class Viewer {
 
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
-        this.setupContainer(id);
+
+        this.container = this.getContainer(id);
         this.cover = new Cover(this.options, this.container);
     }
 
@@ -163,18 +175,18 @@ export class Viewer {
         });
     }
 
-    private setCurrentNode(node: Node): void {
-        this.currentNode = node;
+    private getContainer(id: string): HTMLElement {
+        let element: HTMLElement = document.getElementById(id);
+
+        if (element == null) {
+            throw new InitializationMapillaryError();
+        }
+
+        return element;
     }
 
-    private setupContainer(id: string): void {
-      this.container = document.getElementById(id);
-
-      if (this.container) {
-          this.container.classList.add("mapillary-js");
-      } else {
-          throw new InitializationMapillaryError();
-      }
+    private setCurrentNode(node: Node): void {
+        this.currentNode = node;
     }
 }
 
