@@ -1,4 +1,3 @@
-/// <reference path="../../typings/when/when.d.ts" />
 import {IViewerOptions} from "../Viewer";
 
 export class Cover {
