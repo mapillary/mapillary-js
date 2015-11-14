@@ -165,6 +165,7 @@ export class Viewer {
         if (this.loading) {
             return when.reject("Viewer is Loading");
         }
+        this.loading = true;
 
         if (this.ui.graphSupport) {
             if (this.graph.keyIsWorthy(key)) {
@@ -251,6 +252,7 @@ export class Viewer {
 
     private setCurrentNode(node: Node): void {
         this.currentNode = node;
+        this.loading = false;
         this.ui.display(node);
     }
 }
