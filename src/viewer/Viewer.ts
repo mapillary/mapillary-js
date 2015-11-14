@@ -1,12 +1,13 @@
 /// <reference path="../../typings/when/when.d.ts" />
 
+import * as _ from "underscore";
 import * as when from "when";
 
 import {IAPINavIm} from "../API";
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Graph, GraphConstants, Node} from "../Graph";
 import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
-import {IActivatableUI, SimpleUI, CoverUI} from "../UI";
+import {CoverUI, IActivatableUI, NoneUI, SimpleUI} from "../UI";
 
 interface IActivatableUIMap {
     [name: string]: IActivatableUI;
@@ -107,18 +108,34 @@ export class Viewer {
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
 
-        this.container = this.setupContainer(id);
-
         this.uis = {};
 
-        let coverUI: CoverUI = new CoverUI(this.container);
-        this.addUI("cover", coverUI);
+        // fixme unuglify these switches
 
-        let simpleUI: SimpleUI = new SimpleUI(this.container);
-        this.addUI("simple", simpleUI);
+        if (_.indexOf(this.options.uiList, "cover") !== -1 || _.indexOf(this.options.uiList, "simple") !== -1) {
+            this.container = this.setupContainer(id);
 
-        this.activateUI(options.ui);
-        this.moveToKey(options.key);
+            if (_.indexOf(this.options.uiList, "cover") !== -1) {
+                let coverUI: CoverUI = new CoverUI(this.container);
+                this.addUI("cover", coverUI);
+            }
+
+            if (_.indexOf(this.options.uiList, "simple") !== -1) {
+                let simpleUI: SimpleUI = new SimpleUI(this.container);
+                this.addUI("simple", simpleUI);
+            }
+        }
+
+        if (_.indexOf(this.options.uiList, "none") !== -1) {
+            let noneUI: NoneUI = new NoneUI(true);
+            this.addUI("none", noneUI);
+        }
+
+        this.activateUI(this.options.ui);
+
+        if (this.options.key != null) {
+            this.moveToKey(this.options.key);
+        }
     }
 
     /**

@@ -1,7 +1,7 @@
 ///<reference path="../typings/jasmine/jasmine.d.ts" />
 
 declare var Mapillary: any;
-var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4');
+var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', {ui: "none", uiList: ["none"]});
 
 describe("Viewer", () => {
     it("exists", () => {
@@ -17,15 +17,15 @@ describe("Viewer.moveToKey", () => {
     });
 
     it("should move to a key", (done) => {
-        var response: any = viewer.moveToKey("7bzPYiyMdQI1zSoi4Gk2_w");
+        var response: any = viewer.moveToKey("XkK3qsRg9j9UY5jTg8BKGQ");
 
         response.then((node: any) => {
             // fixme depends on real API data
-            expect(node.key).toBe("7bzPYiyMdQI1zSoi4Gk2_w");
+            expect(node.key).toBe("XkK3qsRg9j9UY5jTg8BKGQ");
             response = viewer.moveDir(Mapillary.GraphConstants.DirEnum.NEXT);
 
             response.then((node: any) => {
-                expect(node.key).toBe("PoSGroz_MT1PpaNPGV6PvA");
+                expect(node.key).toBe("EUTk0zsxzVgIyE6XeO-yWQ");
                 done();
             });
         });

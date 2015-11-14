@@ -6,7 +6,7 @@ describe("Prefetcher", () => {
     var prefetcher: any;
 
     beforeEach(() => {
-        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4');
+        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', {ui: "none", uiList: ["none"]});
         prefetcher = viewer.prefetcher;
     });
 

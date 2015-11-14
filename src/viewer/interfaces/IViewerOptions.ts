@@ -20,6 +20,8 @@ export interface IViewerOptions {
      */
     ui?: string;
 
+    uiList?: string[];
+
     stepThr?: IViewerOptionsStepThr;
     enablePanoNavigation?: boolean;
     enablePanoPlaying?: boolean;

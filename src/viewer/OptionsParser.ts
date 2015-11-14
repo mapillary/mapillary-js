@@ -3,14 +3,20 @@ import {ParameterMapillaryError} from "../Error";
 
 export class OptionsParser {
     public parseAndDefaultOptions(options: IViewerOptions): IViewerOptions {
-        if (!options.key) {
-            throw new ParameterMapillaryError();
+        if (options === undefined || options == null) {
+            options = {};
         }
 
         if (options.ui == null) {
             options.ui = "cover";
         }
-        if (options.ui !== "cover" && options.ui !== "simple" && options.ui !== "gl") {
+
+        if (options.uiList == null) {
+            options.uiList = ["none", "cover", "simple"];
+        }
+
+
+        if (options.ui !== "none" && options.ui !== "cover" && options.ui !== "simple" && options.ui !== "gl") {
             throw new ParameterMapillaryError();
         }
 

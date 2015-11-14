@@ -3,7 +3,7 @@
 declare var Mapillary: any;
 describe("Graph", () => {
     it("exists", () => {
-        var viewer = new Mapillary.Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
+        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', {ui: "none", uiList: ["none"]});
         var graph = viewer.graph;
         expect(graph).toBeDefined();
     });
