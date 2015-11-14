@@ -1,5 +1,5 @@
 export {CoverUI} from "./ui/CoverUI"
 export {NoneUI} from "./ui/NoneUI"
 export {SimpleUI} from "./ui/SimpleUI"
-export {Renderer} from "./ui/Renderer"
+export {RendererUI} from "./ui/RendererUI"
 export * from "./ui/interfaces/interfaces"
