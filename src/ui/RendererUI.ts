@@ -1,8 +1,12 @@
 /// <reference path="../../typings/threejs/three.d.ts" />
 
 import * as THREE from "three";
+import {Node} from "../Graph";
+import {IActivatableUI} from "../UI";
 
-export class RendererUI {
+export class RendererUI implements IActivatableUI {
+    public graphSupport: boolean = true;
+
     private renderer: THREE.WebGLRenderer;
     private camera: THREE.PerspectiveCamera;
     private scene: THREE.Scene;
@@ -23,6 +27,18 @@ export class RendererUI {
         this.renderer.render(this.scene, this.camera);
 
         window.requestAnimationFrame(this.animate.bind(this));
+    }
+
+    public activate(): void {
+        return;
+    }
+
+    public deactivate(): void {
+        return;
+    }
+
+    public display(node: Node): void {
+        return;
     }
 
     private animate(): void {
