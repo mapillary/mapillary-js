@@ -10,7 +10,7 @@ export class OptionsParser {
         if (options.ui == null) {
             options.ui = "cover";
         }
-        if (options.ui !== "cover" && options.ui !== "gl") {
+        if (options.ui !== "cover" && options.ui !== "simple" && options.ui !== "gl") {
             throw new ParameterMapillaryError();
         }
 

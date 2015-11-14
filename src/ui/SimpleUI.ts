@@ -1,8 +1,8 @@
 import {Node} from "../Graph";
 import {IActivatableUI} from "../UI";
 
-export class CoverUI implements IActivatableUI {
-    public graphSupport: boolean = false;
+export class SimpleUI implements IActivatableUI {
+    public graphSupport: boolean = true;
 
     private container: any;
 
@@ -23,4 +23,4 @@ export class CoverUI implements IActivatableUI {
     }
 }
 
-export default CoverUI;
+export default SimpleUI;

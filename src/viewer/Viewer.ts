@@ -6,7 +6,7 @@ import {IAPINavIm} from "../API";
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Graph, GraphConstants, Node} from "../Graph";
 import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
-import {IActivatableUI, CoverUI} from "../UI";
+import {IActivatableUI, SimpleUI, CoverUI} from "../UI";
 
 interface IActivatableUIMap {
     [name: string]: IActivatableUI;
@@ -102,7 +102,7 @@ export class Viewer {
 
         this.assetCache = new AssetCache();
         this.assetCache.enableAsset("image");
-        this.assetCache.enableAsset("mesh");
+        // this.assetCache.enableAsset("mesh");
 
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
@@ -110,8 +110,12 @@ export class Viewer {
         this.container = this.setupContainer(id);
 
         this.uis = {};
-        let coverUI: IActivatableUI = new CoverUI(this.container);
+
+        let coverUI: CoverUI = new CoverUI(this.container);
         this.addUI("cover", coverUI);
+
+        let simpleUI: SimpleUI = new SimpleUI(this.container);
+        this.addUI("simple", simpleUI);
 
         this.activateUI(options.ui);
         this.moveToKey(options.key);
@@ -126,8 +130,17 @@ export class Viewer {
         if (!(name in this.uis)) {
             throw new ParameterMapillaryError();
         }
+
+        if (this.ui != null) {
+            this.ui.deactivate();
+        }
+
         this.uis[name].activate();
         this.ui = this.uis[name];
+
+        if (this.currentNode) {
+            this.moveToKey(this.currentNode.key);
+        }
     }
 
     /**

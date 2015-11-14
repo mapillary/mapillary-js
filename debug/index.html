@@ -12,10 +12,13 @@
     </style>
 </head>
 <body>
-    <div id='viewer'></div>
+    <div id='viewerCover'></div>
+    <div id='viewerSimple'></div>
+    <button onclick="viewerSimple.moveDir(0)">Forward</button><button onclick="viewerSimple.moveDir(1)">Backward</button>
     <script src='../build/bundle.js'></script>
     <script>
-        var viewer = new Mapillary.Viewer('viewer', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', ui: 'cover' })
+        var viewerCover = new Mapillary.Viewer('viewerCover', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', ui: 'cover' })
+        var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', ui: 'simple' })
     </script>
 </body>
 </html>

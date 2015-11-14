@@ -46,14 +46,16 @@ class ImageAsset implements IAsset {
             img.crossOrigin = "Anonymous";
 
             img.onload = () => {
+                this.cacheData[node.key] = {lastUsed: new Date(), cached: true, loaded: true, data: img};
                 resolve({node: node, img: img});
             };
 
             img.onerror = () => {
+                this.cacheData[node.key] = {lastUsed: new Date(), cached: true, loaded: true, data: img};
                 resolve({node: node, img: img});
             };
 
-            img.src = "https://d1cuyjsrcm0gby.cloudfront.net/" + node.key + "/thumb-640.jpg?origin=mapillary.webgl";
+            img.src = "https://d1cuyjsrcm0gby.cloudfront.net/" + node.key + "/thumb-320.jpg";
         });
     }
 
