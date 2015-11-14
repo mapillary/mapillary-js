@@ -21,6 +21,14 @@ export class RendererUI {
         this.scene = new THREE.Scene();
 
         this.renderer.render(this.scene, this.camera);
+
+        window.requestAnimationFrame(this.animate.bind(this));
+    }
+
+    private animate(): void {
+        window.requestAnimationFrame(this.animate.bind(this));
+
+        this.renderer.render(this.scene, this.camera);
     }
 }
 
