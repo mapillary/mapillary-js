@@ -13,8 +13,10 @@ export class RendererUI implements IActivatableUI {
 
     constructor (container: HTMLElement) {
         this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(640, 480);
-        this.renderer.setClearColor(new THREE.Color(0x202020), 1.0);
+
+        let width: number = container.offsetWidth;
+        this.renderer.setSize(width, width * 3 / 4);
+        this.renderer.setClearColor(new THREE.Color(0x2020FF), 1.0);
         this.renderer.sortObjects = false;
 
         this.renderer.domElement.style.width = "100%";
