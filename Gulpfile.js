@@ -43,6 +43,8 @@ gulp.task('browserify', ['typescript'], function () {
     standalone: 'Mapillary'
   })
 
+  bundler.transform('brfs');
+
   bundler
     .bundle()
     .pipe(source('./build/Mapillary.js'))

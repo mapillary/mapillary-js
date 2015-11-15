@@ -42,6 +42,7 @@
   },
   "config": {},
   "dependencies": {
+    "brfs": "^1.4.1",
     "graphlib": "~1.0.7",
     "rbush": "~1.4.1",
     "rest": "~1.3.1",
