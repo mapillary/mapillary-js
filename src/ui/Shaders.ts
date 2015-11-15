@@ -3,10 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-export interface IShader {
-    fragment: string;
-    vertex: string;
-}
+import {IShader} from "../UI";
 
 export class Shaders {
     public static perspective: IShader = {
