@@ -43,6 +43,7 @@ Keep karma browser open and rerun tests upon changes in project files
 ├── build/               - Development folder
 ├── debug/               - Access at localhost:3000/debug after `gulp`
 ├── dist/                - Distribution: CSS and other assets
+├── shaders/             - GLSL shaders
 ├── spec/                - Tests
 │   ├── Viewer.spec.ts
 │   └── viewer
