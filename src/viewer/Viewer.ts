@@ -8,6 +8,7 @@ import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillary
 import {Graph, GraphConstants, Node} from "../Graph";
 import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
 import {CoverUI, IActivatableUI, NoneUI, SimpleUI} from "../UI";
+import {StateContext} from "../State";
 
 interface IActivatableUIMap {
     [name: string]: IActivatableUI;
@@ -88,6 +89,14 @@ export class Viewer {
     private prefetcher: Prefetcher;
 
     /**
+     * Holds the current state
+     * @member Mapillary.Viewer#state
+     * @private
+     * @type {StateContext}
+     */
+    private state: StateContext;
+
+    /**
      * Initializes a Mapillary viewer
      * @class Mapillary.Viewer
      * @classdesc A Viewer for viewing Mapillary Street Level Imagery
@@ -107,6 +116,8 @@ export class Viewer {
 
         this.graph = new Graph();
         this.prefetcher = new Prefetcher(clientId);
+
+        this.state = new StateContext();
 
         this.uis = {};
 
