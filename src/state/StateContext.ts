@@ -6,9 +6,15 @@ export class StateContext {
 
     constructor () {
         this.node = new NodeState(null, null);
+
+        window.requestAnimationFrame(this.frame.bind(this));
     }
 
     public move(node: Node): void {
         this.node.move(node);
+    }
+
+    private frame(): void {
+        window.requestAnimationFrame(this.frame.bind(this));
     }
 }
