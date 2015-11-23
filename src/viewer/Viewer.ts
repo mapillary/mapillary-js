@@ -21,7 +21,9 @@ export class Viewer {
      * @public
      * @type {Node}
      */
-    public currentNode: Node;
+    public get currentNode(): Node {
+        return this.state.current.node;
+    }
 
     /**
      * true if Viewer is loading internally, false if not.
@@ -279,10 +281,9 @@ export class Viewer {
     }
 
     private setCurrentNode(node: Node): void {
-        this.currentNode = node;
         this.loading = false;
-        this.ui.display(node);
         this.state.move(node);
+        this.ui.display(node);
     }
 }
 
