@@ -282,6 +282,7 @@ export class Viewer {
         this.currentNode = node;
         this.loading = false;
         this.ui.display(node);
+        this.state.move(node);
     }
 }
 
