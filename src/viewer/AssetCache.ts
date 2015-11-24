@@ -55,7 +55,7 @@ class ImageAsset implements IAsset {
                 resolve({node: node, img: img});
             };
 
-            img.src = "https://d1cuyjsrcm0gby.cloudfront.net/" + node.key + "/thumb-320.jpg";
+            img.src = "https://d1cuyjsrcm0gby.cloudfront.net/" + node.key + "/thumb-320.jpg?origin=mapillary.webgl";
         });
     }
 
