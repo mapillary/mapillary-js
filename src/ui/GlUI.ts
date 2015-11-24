@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import {Node} from "../Graph";
 import {IActivatableUI, Shaders} from "../UI";
-import {StateContext} from "../State";
+import {StateContext, IStateWrapper} from "../State";
 
 export class GlUI implements IActivatableUI {
     public graphSupport: boolean = true;
@@ -48,13 +48,13 @@ export class GlUI implements IActivatableUI {
         return;
     }
 
-    private onStateUpdated(node: Node): void {
-        if (!node || this.currentKey === node.key) {
+    private onStateUpdated(current: IStateWrapper): void {
+        if (!current.node || this.currentKey === current.node.key) {
             this.renderer.render(this.scene, this.camera);
             return;
         }
 
-        this.currentKey = node.key;
+        this.currentKey = current.node.key;
 
         if (this.imagePlane) {
             this.scene.remove(this.imagePlane);
