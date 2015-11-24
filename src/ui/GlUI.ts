@@ -5,7 +5,7 @@ import {Node} from "../Graph";
 import {IActivatableUI, Shaders} from "../UI";
 import {StateContext} from "../State";
 
-export class RendererUI implements IActivatableUI {
+export class GlUI implements IActivatableUI {
     public graphSupport: boolean = true;
 
     private renderer: THREE.WebGLRenderer;
@@ -134,4 +134,4 @@ export class RendererUI implements IActivatableUI {
     }
 }
 
-export default RendererUI;
+export default GlUI;
