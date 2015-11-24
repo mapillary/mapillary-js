@@ -12,7 +12,7 @@ export class OptionsParser {
         }
 
         if (options.uiList == null) {
-            options.uiList = ["none", "cover", "simple"];
+            options.uiList = ["none", "cover", "simple", "gl"];
         }
 
 
