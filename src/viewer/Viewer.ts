@@ -7,7 +7,7 @@ import {IAPINavIm} from "../API";
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Graph, GraphConstants, Node} from "../Graph";
 import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
-import {CoverUI, IActivatableUI, NoneUI, SimpleUI} from "../UI";
+import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI} from "../UI";
 import {StateContext} from "../State";
 
 interface IActivatableUIMap {
@@ -125,7 +125,9 @@ export class Viewer {
 
         // fixme unuglify these switches
 
-        if (_.indexOf(this.options.uiList, "cover") !== -1 || _.indexOf(this.options.uiList, "simple") !== -1) {
+        if (_.indexOf(this.options.uiList, "cover") !== -1 ||
+            _.indexOf(this.options.uiList, "simple") !== -1 ||
+            _.indexOf(this.options.uiList, "gl") !== -1) {
             this.container = this.setupContainer(id);
 
             if (_.indexOf(this.options.uiList, "cover") !== -1) {
@@ -136,6 +138,11 @@ export class Viewer {
             if (_.indexOf(this.options.uiList, "simple") !== -1) {
                 let simpleUI: SimpleUI = new SimpleUI(this.container);
                 this.addUI("simple", simpleUI);
+            }
+
+            if (_.indexOf(this.options.uiList, "gl") !== -1) {
+                let glUI: GlUI = new GlUI(this.container, this.state);
+                this.addUI("gl", glUI);
             }
         }
 
