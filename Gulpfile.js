@@ -11,10 +11,9 @@ var standard = require('gulp-standard')
 var shell = require('gulp-shell')
 var ts = require('gulp-typescript')
 var rename = require('gulp-rename')
-var tsd = require('gulp-tsd')
+var tsd = require('tsd')
 var tslint = require('gulp-tslint')
 var argv = require('yargs').argv
-
 
 var paths = {
   mapillaryjs: 'mapillaryjs',
@@ -92,12 +91,7 @@ gulp.task('ts-lint', ['tsd'], function (cb) {
     return stream
 })
 
-gulp.task('tsd', function (cb) {
-  tsd({
-    command: 'reinstall',
-    config: './tsd.json'
-  }, cb())
-})
+gulp.task('tsd', shell.task('./node_modules/tsd/build/cli.js install'))
 
 gulp.task('typescript', ['ts-lint', 'typescript-src', 'typescript-test'], function (cb) {cb()})
 

@@ -38,6 +38,7 @@
     "karma": "0.13.15",
     "karma-chrome-launcher": "0.2.1",
     "karma-jasmine": "0.3.6",
+    "tsd": "0.6.5",
     "vinyl-source-stream": "1.1.0",
     "yargs": "3.29.0"
   },
