@@ -3,16 +3,18 @@ var fs = require('fs')
 module.exports = function(config) {
   config.set({
     preprocessors: {
-      'spec/**/*.ts': ['typescript']
+      'spec/**/*.spec.ts': ['browserify']
     },
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'browserify'],
     browsers: ['Firefox'],
     files: [
       'build/bundle.js',
-      'spec/**/*.spec.ts'
+      'spec/**/**.spec.ts'
     ],
-    typescriptPreprocessor: {
-      options: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions
+    browserify: {
+      debug: true,
+      plugin: ['tsify'],
+      extensions: ['.ts']
     }
   })
 }
