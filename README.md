@@ -1,4 +1,4 @@
-# mapillary-js
+# mapillary-js ![](https://travis-ci.com/mapillary/mapillary-js.svg?token=tBRfSc16QTp1eQmu6RAd)
 Mapillary WebGL Viewer
 
 ## Developing mapillary-js
