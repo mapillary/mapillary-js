@@ -124,7 +124,7 @@ gulp.task('ts', function () {
     debug: true,
     standalone: 'Mapillary'
   })
-    .plugin(tsify)
+    .plugin(tsify, config.ts)
     .transform('brfs')
     .bundle()
     .on('error', function (error) {
