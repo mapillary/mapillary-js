@@ -9,5 +9,5 @@ before_script:
   - sleep 5
 
 script:
-  - gulp browserify
+  - gulp ts
   - gulp test

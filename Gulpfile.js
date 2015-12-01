@@ -12,7 +12,6 @@ var standard = require('gulp-standard')
 var shell = require('gulp-shell')
 var ts = require('gulp-typescript')
 var tsify = require('tsify')
-var rename = require('gulp-rename')
 var tslint = require('gulp-tslint')
 var argv = require('yargs').argv
 
@@ -36,23 +35,6 @@ var config = {
   ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions
 }
 
-gulp.task('browserify', ['typescript'], function () {
-  var bundler = browserify({
-    entries: ['./build/Mapillary.js'],
-    debug: true,
-    fullPaths: false,
-    standalone: 'Mapillary'
-  })
-
-  bundler.transform('brfs')
-
-  bundler
-    .bundle()
-    .pipe(source('./build/Mapillary.js'))
-    .pipe(rename('bundle.js'))
-    .pipe(gulp.dest('./build/'))
-})
-
 gulp.task('clean', function () {
   return del([
     'html-documentation',
@@ -61,7 +43,7 @@ gulp.task('clean', function () {
   ])
 })
 
-gulp.task('documentation', ['browserify'], function () {
+gulp.task('documentation', ['ts'], function () {
   gulp.src(['./build/Viewer.js', './build/API.js'])
   .pipe(documentation({format: 'html'}))
   .pipe(gulp.dest('html-documentation'))
@@ -75,7 +57,7 @@ gulp.task('js-lint', function () {
     }))
 })
 
-gulp.task('serve', ['browserify'], serve('.'))
+gulp.task('serve', ['ts'], serve('.'))
 
 gulp.task('test', function (done) {
   var config
@@ -100,10 +82,9 @@ gulp.task('test', function (done) {
 })
 
 gulp.task('test-watch', function (done) {
-  new KarmaServer({
-    configFile: __dirname + '/karma.conf.js',
+  new KarmaServer(extendKarmaConfig(__dirname + '/karma.conf.js', {
     singleRun: false
-  }, done).start()
+  }), done).start()
 })
 
 gulp.task('ts-lint', ['tsd'], function (cb) {
@@ -124,15 +105,8 @@ gulp.task('typescript-src', function () {
   return stream
 })
 
-gulp.task('typescript-test', function () {
-  var stream = gulp.src(paths.ts.tests)
-    .pipe(ts(config.ts))
-    .pipe(gulp.dest(paths.ts.testDest))
-  return stream
-})
-
 gulp.task('watch', [], function () {
-  gulp.watch([paths.ts.src, paths.ts.tests], ['browserify'])
+  gulp.watch([paths.ts.src, paths.ts.tests], ['ts'])
 })
 
 gulp.task('default', ['serve', 'watch'])
