@@ -9,4 +9,6 @@ before_script:
   - sleep 5
 
 script:
-  - gulp ts && gulp test
+  - gulp tsd
+  - gulp ts
+  - gulp test
