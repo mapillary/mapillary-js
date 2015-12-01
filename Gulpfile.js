@@ -91,7 +91,7 @@ gulp.task('test', function (done) {
 
   new KarmaServer(config, function (exitCode) {
     if (exitCode) {
-      console.error(exitCode)
+      process.exit(exitCode)
     }
   }, done).start()
 })
