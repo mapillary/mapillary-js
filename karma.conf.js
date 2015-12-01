@@ -9,7 +9,7 @@ module.exports = function(config) {
       'build/bundle.js',
       'spec/**/*.spec.ts'
     ],
-    typesrciptPreprocessor: {
+    typescriptPreprocessor: {
     }
   })
 }
