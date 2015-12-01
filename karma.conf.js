@@ -1,7 +1,7 @@
 module.exports = function(config) {
   config.set({
     frameworks: ['jasmine'],
-    browsers: ['Chrome'],
+    browsers: ['Firefox'],
     files: [
       'build/bundle.js',
       'build/spec/**/*.spec.js'
