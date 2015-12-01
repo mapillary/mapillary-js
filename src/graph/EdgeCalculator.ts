@@ -1,4 +1,4 @@
-import {ICalculatedEdges, GraphConstants, Node} from "../Graph";
+import {ICalculatedEdges, IPotentialEdge, GraphConstants, Node} from "../Graph";
 
 export class EdgeCalculator {
     public calculateEdges(node: Node): ICalculatedEdges {
@@ -11,6 +11,16 @@ export class EdgeCalculator {
         edges[GraphConstants.DirEnum.PREV] = [prevKey];
 
         return edges;
+    }
+
+    public getPotentialEdges(node: Node, nodes: Node[], prev: Node, next: Node): IPotentialEdge[] {
+        if (!node.worthy) {
+            return [];
+        }
+
+        let potentialEdges: IPotentialEdge[] = [];
+
+        return potentialEdges;
     }
 }
 
