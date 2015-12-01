@@ -75,7 +75,28 @@ gulp.task('js-lint', function () {
 
 gulp.task('serve', ['browserify'], serve('.'))
 
-gulp.task('test', shell.task('./node_modules/karma/bin/karma run -- --grep ' + argv.grep))
+gulp.task('test', function (done) {
+    var config
+    if (argv.grep) {
+      config = extendKarmaConfig(__dirname + '/karma.conf.js', {
+        client: {
+          args: ['--grep', argv.grep]
+        },
+        singleRun: true
+      })
+    }
+    else {
+      config = extendKarmaConfig(__dirname + '/karma.conf.js', {
+        singleRun: true
+      })
+    }
+
+    new karmaServer(config, function (exitCode) {
+      if (exitCode) {
+        console.error(exitCode)
+      }
+    }, done).start()
+})
 
 gulp.task('test-watch', function (done) {
   new karmaServer({
@@ -114,3 +135,9 @@ gulp.task('watch', [], function () {
 })
 
 gulp.task('default', ['serve', 'watch'])
+
+// Helpers
+function extendKarmaConfig (path, conf) {
+    conf.configFile = path
+    return conf
+}
