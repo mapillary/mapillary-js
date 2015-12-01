@@ -3,6 +3,7 @@ var gulp = require('gulp')
 var browserify = require('browserify')
 var del = require('del')
 var documentation = require('gulp-documentation')
+var exorcist = require('exorcist')
 var fs = require('fs')
 var KarmaServer = require('karma').Server
 var source = require('vinyl-source-stream')
@@ -10,6 +11,7 @@ var serve = require('gulp-serve')
 var standard = require('gulp-standard')
 var shell = require('gulp-shell')
 var ts = require('gulp-typescript')
+var tsify = require('tsify')
 var rename = require('gulp-rename')
 var tslint = require('gulp-tslint')
 var argv = require('yargs').argv
@@ -26,7 +28,8 @@ var paths = {
   js: {
     src: './build/**/*.js',
     tests: './spec/**/*.js'
-  }
+  },
+  sourceMaps: './build/bundle.js.map'
 }
 
 var config = {
@@ -139,3 +142,21 @@ function extendKarmaConfig (path, conf) {
   conf.configFile = path
   return conf
 }
+
+// TODO: Refine this task
+gulp.task('ts', function () {
+  browserify({
+    entries: ['./src/Mapillary.ts'],
+    debug: true,
+    standalone: 'Mapillary'
+  })
+    .plugin(tsify)
+    .transform('brfs')
+    .bundle()
+    .on('error', function (error) {
+      console.error(error.toString())
+    })
+    .pipe(exorcist(paths.sourceMaps))
+    .pipe(source('bundle.js'))
+    .pipe(gulp.dest('./build'))
+})

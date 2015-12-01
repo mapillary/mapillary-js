@@ -24,6 +24,7 @@
     "brfs": "^1.4.1",
     "browserify": "12.0.1",
     "del": "~2.0.2",
+    "exorcist": "0.4.0",
     "ghooks": "0.3.2",
     "gulp": "~3.9.0",
     "gulp-documentation": "2.0.0",
@@ -40,6 +41,7 @@
     "karma-firefox-launcher": "0.1.7",
     "karma-jasmine": "0.3.6",
     "tsd": "0.6.5",
+    "tsify": "0.13.0",
     "vinyl-source-stream": "1.1.0",
     "yargs": "3.29.0"
   },
