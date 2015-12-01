@@ -12,7 +12,7 @@ module.exports = function(config) {
       'spec/**/*.spec.ts'
     ],
     typescriptPreprocessor: {
-      config: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions
+      options: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions
     }
   })
 }
