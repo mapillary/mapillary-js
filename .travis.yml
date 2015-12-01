@@ -9,4 +9,4 @@ before_script:
 
 script:
   - gulp ts-lint
-  - gulp
+  - gulp test
