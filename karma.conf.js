@@ -1,3 +1,5 @@
+var fs = require('fs')
+
 module.exports = function(config) {
   config.set({
     preprocessors: {
@@ -10,6 +12,7 @@ module.exports = function(config) {
       'spec/**/*.spec.ts'
     ],
     typescriptPreprocessor: {
+      config: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions
     }
   })
 }
