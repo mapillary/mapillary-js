@@ -103,7 +103,7 @@ gulp.task('test-watch', function (done) {
   }, done).start()
 })
 
-gulp.task('ts-lint', ['tsd'], function (cb) {
+gulp.task('ts-lint', function (cb) {
   var stream = gulp.src(paths.ts.src)
     .pipe(tslint())
     .pipe(tslint.report('verbose'))

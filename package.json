@@ -43,7 +43,12 @@
     "vinyl-source-stream": "1.1.0",
     "yargs": "3.29.0"
   },
-  "config": {},
+  "config": {
+    "ghooks": {
+      "pre-commit": "gulp js-lint && gulp ts-lint",
+      "pre-push": "gulp test"
+    }
+  },
   "dependencies": {
     "graphlib": "~1.0.7",
     "rbush": "~1.4.1",
