@@ -1,7 +1,7 @@
 /// <reference path="../typings/jasmine/jasmine.d.ts" />
 
-import {Graph, Node} from "../src/graph";
-import {IAPINavIm} from "../src/api";
+import {Graph, Node} from "../src/Graph";
+import {IAPINavIm} from "../src/API";
 
 describe("Graph", () => {
     var graph: Graph;

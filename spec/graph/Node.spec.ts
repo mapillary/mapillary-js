@@ -1,6 +1,6 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-import {Node, Sequence} from "../../src/graph";
+import {Node, Sequence} from "../../src/Graph";
 
 describe("Node", () => {
     var sequence: Sequence;

@@ -1,7 +1,7 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-import {AssetCache} from "../../src/viewer";
-import {Node} from "../../src/graph"
+import {AssetCache} from "../../src/Viewer";
+import {Node} from "../../src/Graph"
 
 describe("AssetCache", () => {
     var assetCache: any;
