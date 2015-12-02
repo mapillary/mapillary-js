@@ -14,22 +14,14 @@ describe("APIv2", () => {
     });
 
     it("calls h", (done) => {
-        done();
-
-        /*
         apiV2.nav.h("9q5f57x").then((response: IAPINavIm) => {
             done();
         });
-        */
     });
 
     it("calls im", (done) => {
-        done();
-
-        /*
         apiV2.nav.im("YWgi36yAvaCOxxAmQxN1kg").then((response: IAPINavIm) => {
             done();
         });
-        */
     });
 });

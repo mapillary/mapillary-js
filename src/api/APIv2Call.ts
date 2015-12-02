@@ -1,13 +1,12 @@
 /// <reference path="../../typings/rest/rest.d.ts" />
 /// <reference path="../../typings/when/when.d.ts" />
 
-import * as fs from "fs";
-import * as nodePath from "path";
-
 import * as rest from "rest";
 import * as mime from "rest/interceptor/mime";
 
 import * as when from "when";
+
+import {VCR} from "../VCR";
 
 export class APIv2Call {
     public static vcr: any = {};
@@ -23,19 +22,20 @@ export class APIv2Call {
     };
 
     public callApi(path: string): when.Promise<{}> {
+        let uri: string = this.httpsUrl + path + "?client_id=" + this.clientId;
+
         if (process.env.VCR === undefined) {
-            return this.client(this.httpsUrl + path + "?client_id=" + this.clientId).entity();
+            return this.client(uri).entity();
         } else if (process.env.VCR === "recording") {
-            if (APIv2Call.vcr[path] !== undefined) {
-                return when(APIv2Call.vcr[path]);
+            if (VCR.get("apicall", uri) !== undefined) {
+                return when(VCR.get("apicall", uri));
             }
-            return this.client(this.httpsUrl + path + "?client_id=" + this.clientId).entity().then((data: any): any => {
-                APIv2Call.vcr[path] = data;
+            return this.client(uri).entity().then((data: any): any => {
+                VCR.set("apicall", uri, data);
                 return data;
             });
         } else if (process.env.VCR === "playback") {
-            let vcr: any = JSON.parse(fs.readFileSync(nodePath.join(__dirname, "../../vcr/vcr.json"), "utf8"));
-            return when(vcr[path]);
+            return when(VCR.get("apicall", uri));
         }
     }
 };

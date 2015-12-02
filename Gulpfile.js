@@ -82,9 +82,25 @@ gulp.task('test', function (done) {
 })
 
 gulp.task('test-watch', function (done) {
-  new KarmaServer(extendKarmaConfig(__dirname + '/karma.conf.js', {
-    singleRun: false
-  }), done).start()
+  var config
+  if (argv.grep) {
+    config = extendKarmaConfig(__dirname + '/karma.conf.js', {
+      client: {
+        args: ['--grep', argv.grep]
+      },
+      singleRun: false
+    })
+  } else {
+    config = extendKarmaConfig(__dirname + '/karma.conf.js', {
+      singleRun: false
+    })
+  }
+
+  new KarmaServer(config, function (exitCode) {
+    if (exitCode) {
+      process.exit(exitCode)
+    }
+  }, done).start()
 })
 
 gulp.task('ts-lint', ['tsd'], function (cb) {

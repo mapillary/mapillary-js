@@ -21,21 +21,16 @@ describe("Viewer", () => {
     });
 
     it("should move to a key", (done) => {
-        done();
-
-        /*
-        var response: any = viewer.moveToKey("YWgi36yAvaCOxxAmQxN1kg");
+        var response: any = viewer.moveToKey("TQiOw3g0PDxyJrVdfqaYYQ");
 
         response.then((node: any) => {
-            // fixme depends on real API data
-            expect(node.key).toBe("YWgi36yAvaCOxxAmQxN1kg");
+            expect(node.key).toBe("TQiOw3g0PDxyJrVdfqaYYQ");
             response = viewer.moveDir(GraphConstants.DirEnum.NEXT);
 
             response.then((node: any) => {
-                expect(node.key).toBe("POmoOyTyCULgupYCjp_qYg");
+                expect(node.key).toBe("sY_oYi8xaFME4coAB2Rl1w");
                 done();
             });
         });
-        */
     });
 });
