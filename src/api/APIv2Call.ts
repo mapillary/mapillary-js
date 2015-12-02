@@ -1,7 +1,10 @@
 /// <reference path="../../typings/rest/rest.d.ts" />
+/// <reference path="../../typings/when/when.d.ts" />
 
 import * as rest from "rest";
 import * as mime from "rest/interceptor/mime";
+
+import * as when from "when";
 
 export class APIv2Call {
     private clientId: string;
@@ -14,8 +17,8 @@ export class APIv2Call {
         this.client = rest.wrap(mime);
     };
 
-    public callApi(path: string): rest.ResponsePromise {
-        return this.client(this.httpsUrl + path + "?client_id=" + this.clientId);
+    public callApi(path: string): when.Promise<{}> {
+        return this.client(this.httpsUrl + path + "?client_id=" + this.clientId).entity();
     }
 };
 

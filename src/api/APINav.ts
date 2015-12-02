@@ -4,7 +4,7 @@ import {APIv2Call, IAPINavIm} from "../API";
 
 export class APINav extends APIv2Call {
     public callNav(path: string): when.Promise<any> {
-        return this.callApi("nav/" + path).entity();
+        return this.callApi("nav/" + path);
     }
 
     public h(id: string): when.Promise<IAPINavIm> {
