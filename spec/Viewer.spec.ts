@@ -1,15 +1,18 @@
 ///<reference path="../typings/jasmine/jasmine.d.ts" />
 
-declare var Mapillary: any;
-var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', {ui: "none", uiList: ["none"]});
+import {Viewer} from "../src/viewer";
 
 describe("Viewer", () => {
+    var viewer: Viewer;
+
+    beforeEach(() => {
+        viewer = new Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", {ui: "none", uiList: ["none"]})
+    });
+
     it("exists", () => {
         expect(viewer).toBeDefined();
     });
-});
 
-describe("Viewer.moveToKey", () => {
     it("should throw error if key is not set", () => {
         expect(() => {
             viewer.moveToKey(null);
