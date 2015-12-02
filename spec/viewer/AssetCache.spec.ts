@@ -26,10 +26,16 @@ describe("AssetCache", () => {
     });
 
     it("should enable image and mesh caches", (done) => {
+        let img: any = {};
+
+        spyOn(window, 'Image').and.returnValue(img);
+
         assetCache.enableAsset("image");
         assetCache.cache([node]).then((data: any) => {
             console.log(data);
             done();
         });
+
+        img.onload();
     });
 });
