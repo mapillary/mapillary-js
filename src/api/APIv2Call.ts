@@ -35,7 +35,6 @@ export class APIv2Call {
             });
         } else if (process.env.VCR === "playback") {
             let vcr: any = JSON.parse(fs.readFileSync(nodePath.join(__dirname, "../../vcr/vcr.json"), "utf8"));
-            console.log(vcr);
             return when(vcr[path]);
         }
     }
