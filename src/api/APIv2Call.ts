@@ -19,6 +19,13 @@ export class APIv2Call {
 
     public callApi(path: string): when.Promise<{}> {
         return this.client(this.httpsUrl + path + "?client_id=" + this.clientId).entity();
+//        if (process.env.MAP_ENV == 'production') {
+//            console.log("PRODUCTION");
+//            return this.client(this.httpsUrl + path + "?client_id=" + this.clientId).entity();
+//        } else {
+//            console.log("TESTING");
+//            return when({test: "test"})
+//        }
     }
 };
 

@@ -1,13 +1,12 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-declare var Mapillary: any;
+import {Prefetcher} from "../../src/Viewer";
 
 describe("Prefetcher", () => {
-    var prefetcher: any;
+    var prefetcher: Prefetcher;
 
     beforeEach(() => {
-        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', {ui: "none", uiList: ["none"]});
-        prefetcher = viewer.prefetcher;
+        prefetcher = new Prefetcher("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
     });
 
     it("exists", () => {

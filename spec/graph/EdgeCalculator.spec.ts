@@ -1,13 +1,13 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-declare var Mapillary: any;
+import {Graph, GraphConstants} from "../../src/Graph";
+import {IAPINavIm} from "../../src/API";
 
 describe("EdgeCalculator", () => {
-    var graph: any;
-    var edgeCalculator: any;
+    var graph: Graph;
 
     beforeEach(() => {
-        graph = new Mapillary.Graph()
+        graph = new Graph()
     });
 
     it("should create an edgeCalculator", () => {
@@ -20,7 +20,8 @@ describe("EdgeCalculator", () => {
         var key3 = "key3";
         var skey1 = "skey1";
 
-        var data = {
+        var data: IAPINavIm = {
+            hs: [],
             ims: [
                 { key: key1 },
                 { key: key2 },
@@ -34,8 +35,8 @@ describe("EdgeCalculator", () => {
         graph.insertNodes(data);
         let edges: any = graph.edgeCalculator.calculateEdges(graph.node(key2));
 
-        let nextEdges = edges[Mapillary.GraphConstants.DirEnum.NEXT];
-        let prevEdges = edges[Mapillary.GraphConstants.DirEnum.PREV];
+        let nextEdges = edges[GraphConstants.DirEnum.NEXT];
+        let prevEdges = edges[GraphConstants.DirEnum.PREV];
 
         expect(prevEdges.length).toBe(1);
         expect(nextEdges.length).toBe(1);

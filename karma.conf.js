@@ -1,3 +1,4 @@
+var envify = require('envify');
 var fs = require('fs')
 
 module.exports = function(config) {
@@ -13,7 +14,7 @@ module.exports = function(config) {
     ],
     browserify: {
       debug: true,
-      transform: ['brfs'],
+      transform: ['brfs', ['envify', {MAP_ENV: 'testing'}]],
       plugin: [['tsify', JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions]],
       extensions: ['.ts']
     }

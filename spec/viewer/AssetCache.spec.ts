@@ -1,14 +1,15 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-declare var Mapillary: any;
+import {AssetCache} from "../../src/viewer";
+import {Node} from "../../src/graph"
 
 describe("AssetCache", () => {
     var assetCache: any;
     var node: any;
 
     beforeEach(() => {
-        assetCache = new Mapillary.AssetCache();
-        node = new Mapillary.Node("XkK3qsRg9j9UY5jTg8BKGQ", 0, {lon: 0, lat: 0}, true, null, null);
+        assetCache = new AssetCache();
+        node = new Node("XkK3qsRg9j9UY5jTg8BKGQ", 0, {lon: 0, lat: 0}, true, null, null);
     });
 
     it("exists", () => {

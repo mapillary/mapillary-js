@@ -5,11 +5,9 @@ import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 import * as _ from "underscore";
 
-import {GraphConstants, ICalculatedEdges, EdgeCalculator} from "../Graph";
-import {IAPINavIm, IAPINavImIm} from "../API";
-import {ILatLon} from "../Viewer";
-import {Node} from "./Node";
-import {Sequence} from "./Sequence";
+import {EdgeCalculator, GraphConstants, ICalculatedEdges, Node, Sequence} from "../graph";
+import {IAPINavIm, IAPINavImIm} from "../api";
+import {ILatLon} from "../viewer";
 
 interface ISequences {
     [key: string]: Sequence;

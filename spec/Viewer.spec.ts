@@ -1,6 +1,7 @@
 ///<reference path="../typings/jasmine/jasmine.d.ts" />
 
-import {Viewer} from "../src/viewer";
+import {Viewer} from "../src/Viewer";
+import {GraphConstants} from "../src/Graph";
 
 describe("Viewer", () => {
     var viewer: Viewer;
@@ -25,7 +26,7 @@ describe("Viewer", () => {
         response.then((node: any) => {
             // fixme depends on real API data
             expect(node.key).toBe("XkK3qsRg9j9UY5jTg8BKGQ");
-            response = viewer.moveDir(Mapillary.GraphConstants.DirEnum.NEXT);
+            response = viewer.moveDir(GraphConstants.DirEnum.NEXT);
 
             response.then((node: any) => {
                 expect(node.key).toBe("EUTk0zsxzVgIyE6XeO-yWQ");

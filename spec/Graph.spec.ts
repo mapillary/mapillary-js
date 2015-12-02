@@ -1,31 +1,30 @@
 /// <reference path="../typings/jasmine/jasmine.d.ts" />
 
-declare var Mapillary: any;
-describe("Graph", () => {
-    it("exists", () => {
-        var viewer = new Mapillary.Viewer('mapillary', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', {ui: "none", uiList: ["none"]});
-        var graph = viewer.graph;
-        expect(graph).toBeDefined();
-    });
-});
+import {Graph, Node} from "../src/graph";
+import {IAPINavIm} from "../src/api";
 
-describe("Graph.insertNodes", () => {
-    var graph: any;
+describe("Graph", () => {
+    var graph: Graph;
 
     beforeEach(() => {
-        graph = new Mapillary.Graph()
+        graph = new Graph()
+    });
+
+    it("exists", () => {
+        expect(graph).toBeDefined();
     });
 
     it("should have the correct sequence and skey", () => {
-        var key1 = "key1";
-        var skey1 = "skey1";
+        var key1: string = "key1";
+        var skey1: string = "skey1";
 
-        var data = {
+        var data: IAPINavIm = {
+            hs: [],
             ims: [
-                {key: key1}
+                { key: key1 }
             ],
             ss: [
-                {key: skey1, keys: [key1]}
+                { key: skey1, keys: [key1] }
             ]
         };
 
@@ -38,11 +37,12 @@ describe("Graph.insertNodes", () => {
 
 
     it("should have the same sequence key", () => {
-        var key1 = "key1";
-        var key2 = "key2";
-        var skey1 = "skey1";
+        var key1: string = "key1";
+        var key2: string = "key2";
+        var skey1: string = "skey1";
 
-        var data = {
+        var data: IAPINavIm = {
+            hs: [],
             ims: [
                 { key: key1 },
                 { key: key2 }
@@ -54,7 +54,7 @@ describe("Graph.insertNodes", () => {
 
         graph.insertNodes(data);
 
-        var node = graph.node(key1);
+        var node: Node = graph.node(key1);
         expect(node.key).toEqual(key1);
         expect(node.sequence.key).toEqual(skey1);
 
@@ -70,7 +70,8 @@ describe("Graph.insertNodes", () => {
         var skey1 = "skey1";
         var skey2 = "skey2";
 
-        var data = {
+        var data: IAPINavIm = {
+            hs: [],
             ims: [
                 { key: key1 },
                 { key: key2 }
@@ -83,7 +84,7 @@ describe("Graph.insertNodes", () => {
 
         graph.insertNodes(data);
 
-        var node = graph.node(key1);
+        var node: Node = graph.node(key1);
 
         expect(node.key).toEqual(key1);
         expect(node.sequence.key).toEqual(skey1);

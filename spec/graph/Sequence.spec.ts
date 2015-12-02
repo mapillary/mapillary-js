@@ -1,6 +1,6 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-declare var Mapillary: any;
+import {Sequence} from "../../src/graph";
 
 describe("Sequence", () => {
     var sequence: any;
@@ -11,7 +11,7 @@ describe("Sequence", () => {
             keys: ['B','C','D','E'],
             path: {}
         }
-        sequence = new Mapillary.Sequence(response);
+        sequence = new Sequence(response);
     });
 
     it("should create a sequence", () => {

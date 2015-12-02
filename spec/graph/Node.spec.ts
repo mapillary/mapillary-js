@@ -1,9 +1,9 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-declare var Mapillary: any;
+import {Node, Sequence} from "../../src/graph";
 
 describe("Node", () => {
-    var sequence: any;
+    var sequence: Sequence;
 
     beforeEach(() => {
         let response: any = {
@@ -11,31 +11,31 @@ describe("Node", () => {
             keys: ['B','C','D','E'],
             path: {}
         }
-        sequence = new Mapillary.Sequence(response);
+        sequence = new Sequence(response);
     });
 
     it("should create a node", () => {
-        let node: any = new Mapillary.Node("C", 0, {lat: 1, lon: 1}, true, sequence, null);
+        let node: Node = new Node("C", 0, {lat: 1, lon: 1}, true, sequence, null);
         expect(node).toBeDefined();
     });
 
     it("should find next node key in nodes sequence", () => {
-        let node: any = new Mapillary.Node("C", 0, {lat: 1, lon: 1}, true, sequence, null);
+        let node: Node = new Node("C", 0, {lat: 1, lon: 1}, true, sequence, null);
         expect(node.findNextKeyInSequence()).toEqual('D')
     });
 
     it("should find prev node key in nodes sequence", () => {
-        let node: any = new Mapillary.Node("C", 0, {lat: 1, lon: 1}, true, sequence, null);
+        let node: Node = new Node("C", 0, {lat: 1, lon: 1}, true, sequence, null);
         expect(node.findPrevKeyInSequence()).toEqual('B')
     });
 
     it("should return null if no next key", () => {
-        let node: any = new Mapillary.Node("E", 0, {lat: 1, lon: 1}, true, sequence, null);
+        let node: Node = new Node("E", 0, {lat: 1, lon: 1}, true, sequence, null);
         expect(node.findNextKeyInSequence()).toBe(null)
     });
 
     it("should return null if no prev key", () => {
-        let node: any = new Mapillary.Node("B", 0, {lat: 1, lon: 1}, true, sequence, null);
+        let node: Node = new Node("B", 0, {lat: 1, lon: 1}, true, sequence, null);
         expect(node.findPrevKeyInSequence()).toBe(null)
     });
 });
