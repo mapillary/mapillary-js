@@ -32,7 +32,6 @@ describe("AssetCache", () => {
 
         assetCache.enableAsset("image");
         assetCache.cache([node]).then((data: any) => {
-            console.log(data);
             done();
         });
 
