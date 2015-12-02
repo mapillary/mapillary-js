@@ -2,6 +2,9 @@ language: node_js
 node_js:
   - "4.1"
 
+env:
+  - VCR=playback
+
 before_script:
   - npm install -g gulp
   - export DISPLAY=:99.0
