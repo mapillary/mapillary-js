@@ -14,8 +14,8 @@ describe("Prefetcher", () => {
     });
 
     it("should handle a cached hash", (done) => {
-        prefetcher.loadFromHash('u3ck26t').then((data: any) => {
-            prefetcher.loadFromHash('u3ck26t').then((data: any) => {
+        prefetcher.loadFromHash('9q5f57x').then((data: any) => {
+            prefetcher.loadFromHash('9q5f57x').then((data: any) => {
                 done();
             });
         });

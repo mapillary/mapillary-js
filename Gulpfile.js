@@ -3,7 +3,6 @@ var gulp = require('gulp')
 var browserify = require('browserify')
 var del = require('del')
 var documentation = require('gulp-documentation')
-var envify = require('envify/custom')
 var exorcist = require('exorcist')
 var fs = require('fs')
 var KarmaServer = require('karma').Server
@@ -127,7 +126,7 @@ gulp.task('ts', function () {
   })
     .plugin(tsify, config.ts)
     .transform('brfs')
-    .transform(envify({MAP_ENV: 'production'}))
+    .transform('envify')
     .bundle()
     .on('error', function (error) {
       console.error(error.toString())

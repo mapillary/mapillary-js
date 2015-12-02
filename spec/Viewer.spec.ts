@@ -21,15 +21,15 @@ describe("Viewer", () => {
     });
 
     it("should move to a key", (done) => {
-        var response: any = viewer.moveToKey("XkK3qsRg9j9UY5jTg8BKGQ");
+        var response: any = viewer.moveToKey("YWgi36yAvaCOxxAmQxN1kg");
 
         response.then((node: any) => {
             // fixme depends on real API data
-            expect(node.key).toBe("XkK3qsRg9j9UY5jTg8BKGQ");
+            expect(node.key).toBe("YWgi36yAvaCOxxAmQxN1kg");
             response = viewer.moveDir(GraphConstants.DirEnum.NEXT);
 
             response.then((node: any) => {
-                expect(node.key).toBe("EUTk0zsxzVgIyE6XeO-yWQ");
+                expect(node.key).toBe("POmoOyTyCULgupYCjp_qYg");
                 done();
             });
         });

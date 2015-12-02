@@ -14,7 +14,7 @@ module.exports = function(config) {
     ],
     browserify: {
       debug: true,
-      transform: ['brfs', ['envify', {MAP_ENV: 'testing'}]],
+      transform: ['brfs', 'envify'],
       plugin: [['tsify', JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions]],
       extensions: ['.ts']
     }

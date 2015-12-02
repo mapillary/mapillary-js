@@ -14,13 +14,13 @@ describe("APIv2", () => {
     });
 
     it("calls h", (done) => {
-        apiV2.nav.h("u3ck26t").then((response: IAPINavIm) => {
+        apiV2.nav.h("9q5f57x").then((response: IAPINavIm) => {
             done();
         });
     });
 
     it("calls im", (done) => {
-        apiV2.nav.im("h_tzkTklF6DZfU5plCA9Cw").then((response: IAPINavIm) => {
+        apiV2.nav.im("YWgi36yAvaCOxxAmQxN1kg").then((response: IAPINavIm) => {
             done();
         });
     });
