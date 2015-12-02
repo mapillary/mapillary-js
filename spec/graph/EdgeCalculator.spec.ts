@@ -1,6 +1,6 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-import {Graph, GraphConstants} from "../../src/Graph";
+import {EdgeCalculator, IPotentialEdge, Node, Graph, GraphConstants} from "../../src/Graph";
 import {IAPINavIm} from "../../src/API";
 
 describe("EdgeCalculator", () => {
@@ -43,5 +43,22 @@ describe("EdgeCalculator", () => {
 
         expect(prevEdges[0]).toBe(key1);
         expect(nextEdges[0]).toBe(key3);
+    });
+});
+
+describe("EdgeCalculator.getPotentialEdges", () => {
+    let edgeCalculator: EdgeCalculator;
+
+    beforeEach(() => {
+        edgeCalculator = new EdgeCalculator()
+    });
+
+    it("should return empty array when node is not worthy", () => {
+        let node: Node = new Node("key", 0, null, false, null, null);
+
+        let result: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, null, null, null);
+
+        expect(result.length).toBe(0);
     });
 });
