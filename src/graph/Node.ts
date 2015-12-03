@@ -28,6 +28,12 @@ export class Node {
         this.translation = translation;
     }
 
+    public get merged(): boolean {
+        return this.apiNavImIm != null &&
+            this.apiNavImIm.merge_version != null &&
+            this.apiNavImIm.merge_version > 0;
+    }
+
     public findNextKeyInSequence (): string {
         return this.sequence.findNextKey(this.key);
     }
