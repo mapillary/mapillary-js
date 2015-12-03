@@ -7,7 +7,7 @@ describe("Spatial.rotationMatrix", () => {
     let epsilon: number = 10e-9;
 
     beforeEach(() => {
-        spatial = new Spatial()
+        spatial = new Spatial();
     });
 
     it("should return a rotation matrix rotating 90 degrees around the x-axis", () => {
@@ -34,5 +34,26 @@ describe("Spatial.rotationMatrix", () => {
         expect(elements[13]).toBe(0);
         expect(elements[14]).toBe(0);
         expect(elements[15]).toBe(1);
+    });
+});
+
+describe("Spatial.rotate", () => {
+    let spatial: Spatial;
+    let epsilon: number = 10e-9;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should return a vector rotated 90 degrees around the x-axis", () => {
+        let vector: number[] = [0, 0, 1];
+        let angleAxis: number[] = [Math.PI / 2, 0, 0];
+
+        let rotated: THREE.Vector3 = spatial.rotate(vector, angleAxis);
+
+        // counter-clockwise rotation about the x-axis pointing towards the observer
+        expect(rotated.x).toBe(0);
+        expect(rotated.y).toBe(-1);
+        expect(rotated.z).toBeLessThan(epsilon);
     });
 });
