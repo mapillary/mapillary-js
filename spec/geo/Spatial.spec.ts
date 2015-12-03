@@ -1,10 +1,13 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../typings/threejs/three.d.ts" />
+
+import * as THREE from "three";
 
 import {Spatial} from "../../src/Geo";
 
 describe("Spatial.rotationMatrix", () => {
     let spatial: Spatial;
-    let epsilon: number = 10e-9;
+    let epsilon: number = 10e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -39,7 +42,7 @@ describe("Spatial.rotationMatrix", () => {
 
 describe("Spatial.rotate", () => {
     let spatial: Spatial;
-    let epsilon: number = 10e-9;
+    let epsilon: number = 10e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -55,5 +58,68 @@ describe("Spatial.rotate", () => {
         expect(rotated.x).toBe(0);
         expect(rotated.y).toBe(-1);
         expect(rotated.z).toBeLessThan(epsilon);
+    });
+});
+
+describe("Spatial.opticalCenter", () => {
+    let spatial: Spatial;
+    let epsilon: number = 10e-8;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should return the correct optical center", () => {
+        let C: number[] = [1, 0, 0];
+
+        // Random rotation by 120 degrees
+        let r: THREE.Vector3 = new THREE.Vector3(1, 1, 1).normalize().multiplyScalar(2 * Math.PI / 3);
+        let R: THREE.Matrix4 = spatial.rotationMatrix(r.toArray());
+
+        // t = -RC
+        let t: THREE.Vector3 = new THREE.Vector3().fromArray(C).applyMatrix4(R).multiplyScalar(-1);
+
+        let opticalCenter: THREE.Vector3 = spatial.opticalCenter(r.toArray(), t.toArray());
+
+        expect(opticalCenter.x).toBeCloseTo(C[0], epsilon);
+        expect(opticalCenter.y).toBeCloseTo(C[1], epsilon);
+        expect(opticalCenter.z).toBeCloseTo(C[2], epsilon);
+    });
+
+    it("should return the correct optical center", () => {
+        let C: number[] = [54, 22, -34];
+
+        // Random rotation by 60 degrees
+        let r: THREE.Vector3 = new THREE.Vector3(-1, 1, -2).normalize().multiplyScalar(Math.PI / 3);
+        let R: THREE.Matrix4 = spatial.rotationMatrix(r.toArray());
+
+        // t = -RC
+        let t: THREE.Vector3 = new THREE.Vector3().fromArray(C).applyMatrix4(R).multiplyScalar(-1);
+
+        let opticalCenter: THREE.Vector3 = spatial.opticalCenter(r.toArray(), t.toArray());
+
+        expect(opticalCenter.x).toBeCloseTo(C[0], epsilon);
+        expect(opticalCenter.y).toBeCloseTo(C[1], epsilon);
+        expect(opticalCenter.z).toBeCloseTo(C[2], epsilon);
+    });
+});
+
+describe("Spatial.viewingDirection", () => {
+    let spatial: Spatial;
+    let epsilon: number = 10e-8;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should return a viewing direction in the x-axis direction", () => {
+        let rotation: number[] = [0, -Math.PI / 2, 0];
+
+        let viewingDirection: THREE.Vector3 = spatial.viewingDirection(rotation);
+
+        // counter-clockwise rotation about the y-axis pointing towards the observer
+        expect(viewingDirection.x).toBeCloseTo(1, epsilon);
+        expect(viewingDirection.y).toBeCloseTo(0, epsilon);
+        expect(viewingDirection.z).toBeCloseTo(0, epsilon);
     });
 });
