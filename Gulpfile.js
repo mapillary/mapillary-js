@@ -43,10 +43,17 @@ gulp.task('clean', function () {
   ])
 })
 
-gulp.task('documentation', ['ts'], function () {
-  gulp.src(['./build/Viewer.js', './build/API.js'])
-  .pipe(documentation({format: 'html'}))
-  .pipe(gulp.dest('html-documentation'))
+gulp.task('ts-for-documentation', function () {
+  var tsProject = ts.createProject('tsconfig.json')
+  return gulp.src('src/**/*.ts')
+   .pipe(ts(tsProject))
+   .pipe(gulp.dest('html-documentation'))
+})
+
+gulp.task('documentation', ['ts-for-documentation'], function () {
+  gulp.src('./html-documentation/Mapillary.js')
+    .pipe(documentation({ format: 'html' }))
+    .pipe(gulp.dest('html-documentation'))
 })
 
 gulp.task('js-lint', function () {
