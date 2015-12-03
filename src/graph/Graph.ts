@@ -68,9 +68,19 @@ export class Graph {
                     if (im.cca != null) {
                         ca = im.cca;
                     }
-                    let latLon: ILatLon = {lat: lat, lon: lon};
 
-                    let node: Node = new Node(im.key, ca, latLon, true, this.mapImageSequences[im.key], im);
+                    let latLon: ILatLon = {lat: lat, lon: lon};
+                    let translation: number[] = [0, 0, 0];
+
+                    let node: Node = new Node(
+                        im.key,
+                        ca,
+                        latLon,
+                        true,
+                        this.mapImageSequences[im.key],
+                        im,
+                        translation
+                    );
 
                     this.spatial.insert({node: node, lon: node.latLon.lon, lat: node.latLon.lat});
                     this.graph.setNode(node.key, node);
@@ -81,7 +91,7 @@ export class Graph {
 
     public insertNoneWorthyNodeFromKey(key: string): Node {
         let latLon: ILatLon = {lat: 0, lon: 0};
-        let node: Node = new Node(key, -1, latLon, false, null, null);
+        let node: Node = new Node(key, -1, latLon, false, null, null, null);
         this.graph.setNode(node.key, node);
         return node;
     }

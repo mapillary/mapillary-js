@@ -9,7 +9,7 @@ describe("AssetCache", () => {
 
     beforeEach(() => {
         assetCache = new AssetCache();
-        node = new Node("XkK3qsRg9j9UY5jTg8BKGQ", 0, {lon: 0, lat: 0}, true, null, null);
+        node = new Node("XkK3qsRg9j9UY5jTg8BKGQ", 0, {lon: 0, lat: 0}, true, null, null, null);
     });
 
     it("exists", () => {

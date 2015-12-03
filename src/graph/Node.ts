@@ -9,14 +9,23 @@ export class Node {
     public worthy: boolean;
     public sequence: Sequence;
     public apiNavImIm: IAPINavImIm;
+    public translation: number[];
 
-    constructor (key: string, ca: number, latLon: ILatLon, worthy: boolean, sequence: Sequence, apiNavImIm: IAPINavImIm) {
+    constructor (
+        key: string,
+        ca: number,
+        latLon: ILatLon,
+        worthy: boolean,
+        sequence: Sequence,
+        apiNavImIm: IAPINavImIm,
+        translation: number[]) {
         this.key = key;
         this.ca = ca;
         this.latLon = latLon;
         this.worthy = worthy;
         this.sequence = sequence;
         this.apiNavImIm = apiNavImIm;
+        this.translation = translation;
     }
 
     public findNextKeyInSequence (): string {

@@ -54,7 +54,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
     });
 
     it("should return empty array when node is not worthy", () => {
-        let node: Node = new Node("key", 0, null, false, null, null);
+        let node: Node = new Node("key", 0, null, false, null, null, null);
 
         let result: IPotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, null, null, null);
