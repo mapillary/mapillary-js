@@ -103,7 +103,7 @@ gulp.task('test-watch', function (done) {
   }, done).start()
 })
 
-gulp.task('ts-lint', ['tsd'], function (cb) {
+gulp.task('ts-lint', function (cb) {
   var stream = gulp.src(paths.ts.src)
     .pipe(tslint())
     .pipe(tslint.report('verbose'))
@@ -134,7 +134,7 @@ function extendKarmaConfig (path, conf) {
 }
 
 // TODO: Refine this task
-gulp.task('ts', function () {
+gulp.task('ts', ['ts-lint'], function () {
   browserify({
     entries: ['./src/Mapillary.ts'],
     debug: true,
