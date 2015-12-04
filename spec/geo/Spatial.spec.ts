@@ -284,3 +284,103 @@ describe('Spatial.angleBetweenVector2', () => {
     });
 });
 
+describe('Spatial.relativeRotationAngle', () => {
+    let spatial: Spatial;
+    let epsilon: number = 1e-8;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should be 0 degrees when there is no rotation", () => {
+        let rotation1: number[] = [0, 0, 0];
+        let rotation2: number[] = [0, 0, 0];
+
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(0, epsilon);
+    });
+
+    it("should be 0 degrees when rotation is the same", () => {
+        let rotation1: number[] = [Math.PI / 2, 0, 0];
+        let rotation2: number[] = [Math.PI / 2, 0, 0];
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(0, epsilon);
+    });
+
+    it("should be 45 degrees when rotating 45 degrees", () => {
+        let rotation1: number[] = [Math.PI / 4, 0, 0];
+        let rotation2: number[] = [Math.PI / 2, 0, 0];
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
+    it("should be 90 degrees when rotating 90 degrees around X-axis", () => {
+        let rotation1: number[] = [Math.PI / 2, 0, 0];
+        let rotation2: number[] = [Math.PI, 0, 0];
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should be 90 degrees when rotating 90 degrees around Y-axis", () => {
+        let rotation1: number[] = [0, Math.PI / 2, 0];
+        let rotation2: number[] = [0, Math.PI, 0];
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should be 90 degrees when rotating 90 degrees around Z-axis", () => {
+        let rotation1: number[] = [0, 0, Math.PI / 2];
+        let rotation2: number[] = [0, 0, Math.PI];
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should be 180 degrees when rotating 180 degrees", () => {
+        let rotation1: number[] = [0, 0, 0];
+        let rotation2: number[] = [Math.PI, 0, 0];
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(Math.PI, epsilon);
+    });
+
+    it("should be 90 degrees when rotating 90 degrees in negative direction", () => {
+        let rotation1: number[] = [0, 0, 0];
+        let rotation2: number[] = [-Math.PI / 2, 0, 0];
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should be 180 degrees when rotating 180 degrees in negative direction", () => {
+        let rotation1: number[] = [0, 0, 0]
+        let rotation2: number[] = [-Math.PI, 0, 0]
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2)
+
+        expect(theta).toBeCloseTo(Math.PI, epsilon);
+    });
+
+    it("should be 90 degrees when rotating 90 degrees in general direction", () => {
+        let k1: number = Math.PI / Math.sqrt(3);
+        let k2: number = Math.PI / Math.sqrt(12);
+        let rotation1: number[] = [k1, k1, k1];
+        let rotation2: number[] = [k2, k2, k2];
+
+        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+
+        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+});

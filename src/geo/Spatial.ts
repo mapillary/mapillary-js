@@ -108,6 +108,26 @@ export class Spatial {
 
         return this.wrapAngle(angle);
     }
+
+    /**
+     * Calculates the relative rotation angle between two
+     * angle-axis vectors.
+     *
+     * @param {number} rotation1 First angle-axis vector
+     * @param {number} rotation2 Second angle-axis vector
+     */
+    public relativeRotationAngle(rotation1: number[], rotation2: number[]): number {
+        let R1: THREE.Matrix4 = this.rotationMatrix(rotation1);
+        let R2: THREE.Matrix4 = this.rotationMatrix(rotation2);
+
+        let R: THREE.Matrix4 = R1.transpose().multiply(R2);
+        let elements: Float32Array = R.elements;
+
+        // from Tr(R) = 1 + 2*cos(theta)
+        let theta: number = Math.acos((elements[0] + elements[5] + elements[10] - 1) / 2);
+
+        return theta;
+    }
 }
 
 export default Spatial;
