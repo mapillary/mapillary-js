@@ -181,3 +181,51 @@ describe('Spatial.wrap', () => {
         expect(result).toBe(-0.5);
     });
 });
+
+describe('Spatial.wrap', () => {
+    let spatial: Spatial;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should be equal to itself when it is zero", () => {
+        let angle: number = 0;
+
+        let result: number = spatial.wrapAngle(angle);
+
+        expect(result).toBe(angle);
+    });
+
+    it("should be equal to itself when it is below or equal to Pi", () => {
+        let angle: number = Math.PI;
+
+        let result: number = spatial.wrapAngle(angle);
+
+        expect(result).toBe(angle);
+    });
+
+    it("should be equal to itself when it is above or equal to minus Pi", () => {
+        let angle: number = -Math.PI;
+
+        let result: number = spatial.wrapAngle(angle);
+
+        expect(result).toBe(angle);
+    });
+
+    it("should be wrapped by two Pi when it is bigger than Pi", () => {
+        let angle: number = 3 / 2 * Math.PI;
+
+        let result: number = spatial.wrapAngle(angle);
+
+        expect(result).toBe(angle - 2 * Math.PI);
+    });
+
+    it("should be wrapped by two Pi when it is smaller than Pi", () => {
+        let angle: number = - 3 / 2 * Math.PI;
+
+        let result: number = spatial.wrapAngle(angle);
+
+        expect(result).toBe(angle + 2 * Math.PI);
+    });
+});

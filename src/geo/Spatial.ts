@@ -53,6 +53,15 @@ export class Spatial {
 
         return value;
     }
+
+    /**
+     * Wrap an angle on the interval [-Pi, Pi]
+     *
+     * @param {number} angle Value to wrap
+     */
+    public wrapAngle(angle: number): number {
+        return this.wrap(angle, -Math.PI, Math.PI);
+    }
 }
 
 export default Spatial;
