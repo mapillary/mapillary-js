@@ -4,6 +4,11 @@ import * as THREE from "three";
 
 export class Spatial {
 
+    /**
+     * Creates a rotation matrix from an angle-axis vector
+     *
+     * @param {Array<number>} angleAxis Angle-axis representation of a rotation
+     */
     public rotationMatrix(angleAxis: number[]): THREE.Matrix4 {
         let axis: THREE.Vector3 =
             new THREE.Vector3(angleAxis[0], angleAxis[1], angleAxis[2]);
@@ -14,6 +19,12 @@ export class Spatial {
         return new THREE.Matrix4().makeRotationAxis(axis, angle);
     }
 
+    /**
+     * Rotates a vector according to a angle-axis rotation vector
+     *
+     * @param {Array<number>} vector Vector to rotate
+     * @param {Array<number>} angleAxis Angle-axis representation of a rotation
+     */
     public rotate(vector: number[], angleAxis: number[]): THREE.Vector3 {
         let v: THREE.Vector3 = new THREE.Vector3(vector[0], vector[1], vector[2]);
         let rotationMatrix: THREE.Matrix4 = this.rotationMatrix(angleAxis);
@@ -22,20 +33,40 @@ export class Spatial {
         return v;
     }
 
+    /**
+     * Calculates the optical center from a rotation vector
+     * on the angle-axis representation and a translation vector
+     * according to C = -R^T t
+     *
+     * @param {Array<number>} rotation Angle-axis representation of a rotation
+     * @param {Array<number>} translation Translation vector
+     */
     public opticalCenter(rotation: number[], translation: number[]): THREE.Vector3 {
-        // according to C = -R^t t
         let angleAxis: number[] = [-rotation[0], -rotation[1], -rotation[2]];
         let vector: number[] = [-translation[0], -translation[1], -translation[2]];
 
         return this.rotate(vector, angleAxis);
     }
 
+    /**
+     * Calculates the viewing direction from a rotation vector
+     * on the angle-axis representation
+     *
+     * @param {number[]} rotation Angle-axis representation of a rotation
+     */
     public viewingDirection(rotation: number[]): THREE.Vector3 {
         let angleAxis: number[] = [-rotation[0], -rotation[1], -rotation[2]];
 
         return this.rotate([0, 0, 1], angleAxis);
     }
 
+    /**
+     * Wrap a number on the interval [min, max]
+     *
+     * @param {number} value Value to wrap
+     * @param {number} min Lower endpoint of interval
+     * @param {number} max Upper endpoint of interval
+     */
     public wrap(value: number, min: number, max: number): number {
         if (max < min) {
             throw new Error("Invalid arguments: max must be larger than min.");
