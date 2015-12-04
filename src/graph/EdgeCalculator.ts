@@ -1,12 +1,14 @@
-import {ICalculatedEdges, IPotentialEdge, GraphConstants, Node} from "../Graph";
+import {ICalculatedEdges, IPotentialEdge, GraphConstants, Node, EdgeCalculatorSettings} from "../Graph";
 import {Spatial} from "../Geo";
 
 export class EdgeCalculator {
 
     private spatial: Spatial;
+    private settings: EdgeCalculatorSettings;
 
-    constructor() {
+    constructor(settings?: EdgeCalculatorSettings) {
         this.spatial = new Spatial();
+        this.settings = settings != null ? settings : new EdgeCalculatorSettings();
     }
 
     public calculateEdges(node: Node): ICalculatedEdges {
@@ -46,7 +48,7 @@ export class EdgeCalculator {
             let motion: THREE.Vector3 = position.clone().sub(currentPosition);
             let distance: number = motion.length();
 
-            if (distance > 20) {
+            if (distance > this.settings.maxDistance) {
                 continue;
             }
 
