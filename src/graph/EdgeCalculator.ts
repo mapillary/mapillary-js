@@ -23,7 +23,7 @@ export class EdgeCalculator {
         return edges;
     }
 
-    public getPotentialEdges(node: Node, nodes: Node[], prev: Node, next: Node): IPotentialEdge[] {
+    public getPotentialEdges(node: Node, nodes: Node[], fallbackKeys: string[]): IPotentialEdge[] {
         if (!node.worthy || !node.merged) {
             return [];
         }
@@ -50,7 +50,8 @@ export class EdgeCalculator {
             let motion: THREE.Vector3 = position.clone().sub(currentPosition);
             let distance: number = motion.length();
 
-            if (distance > this.settings.maxDistance) {
+            if (distance > this.settings.maxDistance &&
+                fallbackKeys.indexOf(potential.key) < 0) {
                 continue;
             }
 

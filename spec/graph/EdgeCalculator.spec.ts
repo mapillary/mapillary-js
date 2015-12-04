@@ -64,7 +64,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let node: Node = new Node("key", 0, null, false, null, null, null);
 
         let result: IPotentialEdge[] =
-            edgeCalculator.getPotentialEdges(node, null, null, null);
+            edgeCalculator.getPotentialEdges(node, null, []);
 
         expect(result.length).toBe(0);
     });
@@ -73,7 +73,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
-        let apiNavImS: IAPINavImS = { key: "skey", keys: [key, edgeKey] };
+        let apiNavImS: IAPINavImS = { key: "skey", keys: [key] };
         let sequence: Sequence = new Sequence(apiNavImS);
 
         let latLon: ILatLon = { lat: 0, lon: 0 };
@@ -95,7 +95,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeNode: Node = new Node("edgeKey", 0, latLon, true, sequence, apiNavImImE, te);
 
         let potentialEdges: IPotentialEdge[] =
-            edgeCalculator.getPotentialEdges(node, [edgeNode], null, edgeNode);
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
 
         expect(potentialEdges.length).toBe(1);
 
