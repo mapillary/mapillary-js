@@ -1,6 +1,14 @@
 import {ICalculatedEdges, IPotentialEdge, GraphConstants, Node} from "../Graph";
+import {Spatial} from "../Geo";
 
 export class EdgeCalculator {
+
+    private spatial: Spatial;
+
+    constructor() {
+        this.spatial = new Spatial();
+    }
+
     public calculateEdges(node: Node): ICalculatedEdges {
         let edges: ICalculatedEdges = {};
 
@@ -14,11 +22,41 @@ export class EdgeCalculator {
     }
 
     public getPotentialEdges(node: Node, nodes: Node[], prev: Node, next: Node): IPotentialEdge[] {
-        if (!node.worthy) {
+        if (!node.worthy || !node.merged) {
             return [];
         }
 
+        let currentPosition: THREE.Vector3 =
+            this.spatial.opticalCenter(node.apiNavImIm.rotation, node.translation);
+
         let potentialEdges: IPotentialEdge[] = [];
+
+        for (var i: number = 0; i < nodes.length; i++) {
+            let potential: Node = nodes[i];
+
+            if (!potential.worthy ||
+                !potential.merged ||
+                potential.key === node.key) {
+                continue;
+            }
+
+            let position: THREE.Vector3 =
+                this.spatial.opticalCenter(potential.apiNavImIm.rotation, potential.translation);
+
+            let motion: THREE.Vector3 = position.clone().sub(currentPosition);
+            let distance: number = motion.length();
+
+            if (distance > 20) {
+                continue;
+            }
+
+            let potentialEdge: IPotentialEdge = {
+                distance: distance,
+                apiNavImIm: potential.apiNavImIm
+            };
+
+            potentialEdges.push(potentialEdge);
+        }
 
         return potentialEdges;
     }
