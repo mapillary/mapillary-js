@@ -117,10 +117,11 @@ export class Spatial {
      * @param {number} rotation2 Second angle-axis vector
      */
     public relativeRotationAngle(rotation1: number[], rotation2: number[]): number {
-        let R1: THREE.Matrix4 = this.rotationMatrix(rotation1);
+        let R1T: THREE.Matrix4 = this.rotationMatrix(
+            [-rotation1[0], -rotation1[1], -rotation1[2]]);
         let R2: THREE.Matrix4 = this.rotationMatrix(rotation2);
 
-        let R: THREE.Matrix4 = R1.transpose().multiply(R2);
+        let R: THREE.Matrix4 = R1T.multiply(R2);
         let elements: Float32Array = R.elements;
 
         // from Tr(R) = 1 + 2*cos(theta)
