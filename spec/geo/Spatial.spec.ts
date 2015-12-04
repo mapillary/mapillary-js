@@ -123,3 +123,61 @@ describe("Spatial.viewingDirection", () => {
         expect(viewingDirection.z).toBeCloseTo(0, epsilon);
     });
 });
+
+describe('Spatial.wrap', () => {
+    let spatial: Spatial;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should not wrap when in interval", () => {
+        let value: number = 0;
+        let min: number = -1;
+        let max: number = 1;
+
+        let result = spatial.wrap(value, min, max);
+
+        expect(result).toBe(value);
+    });
+
+    it("should wrap when below interval", () => {
+        let value: number = -2.5;
+        let min: number = -1;
+        let max: number = 1;
+
+        let result: number = spatial.wrap(value, min, max);
+
+        expect(result).toBe(-0.5);
+    });
+
+    it("should wrap when above interval", () => {
+        let value: number = 2;
+        let min: number = -1;
+        let max: number = 1;
+
+        let result: number = spatial.wrap(value, min, max);
+
+        expect(result).toBe(0);
+    });
+
+    it("should wrap repeatedly until within interval when above", () => {
+        let value: number = 30;
+        let min: number = -1;
+        let max: number = 1;
+
+        let result: number = spatial.wrap(value, min, max);
+
+        expect(result).toBe(0);
+    });
+
+    it("should wrap repeatedly until within interval when below", () => {
+        let value: number = -54.5;
+        let min: number = -1;
+        let max: number = 1;
+
+        let result: number = spatial.wrap(value, min, max);
+
+        expect(result).toBe(-0.5);
+    });
+});

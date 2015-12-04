@@ -35,6 +35,24 @@ export class Spatial {
 
         return this.rotate([0, 0, 1], angleAxis);
     }
+
+    public wrap(value: number, min: number, max: number): number {
+        if (max < min) {
+            throw new Error("Invalid arguments: max must be larger than min.");
+        }
+
+        let interval: number = (max - min);
+
+        while (value > max || value < min) {
+            if (value > max) {
+                value = value - interval;
+            } else if (value < min) {
+                value = value + interval;
+            }
+        }
+
+        return value;
+    }
 }
 
 export default Spatial;
