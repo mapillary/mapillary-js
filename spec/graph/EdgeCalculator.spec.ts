@@ -103,5 +103,6 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
         expect(potentialEdge.distance).toBe(10);
+        expect(potentialEdge.directionChange).toBe(0);
     });
 });
