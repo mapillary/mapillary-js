@@ -64,9 +64,14 @@ export class EdgeCalculator {
                 direction.x,
                 direction.y);
 
+            let rotation: number = this.spatial.relativeRotationAngle(
+                node.apiNavImIm.rotation,
+                potential.apiNavImIm.rotation);
+
             let potentialEdge: IPotentialEdge = {
                 distance: distance,
                 directionChange: directionChange,
+                rotation: rotation,
                 apiNavImIm: potential.apiNavImIm
             };
 
