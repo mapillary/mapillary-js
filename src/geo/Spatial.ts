@@ -93,6 +93,21 @@ export class Spatial {
     public wrapAngle(angle: number): number {
         return this.wrap(angle, -Math.PI, Math.PI);
     }
+
+    /**
+     * Calculates the counter-clockwise angle from the first
+     * vector (x1, y1)^T to the second (x2, y2)^T
+     *
+     * @param {number} x1 X-value of first vector
+     * @param {number} y1 Y-value of first vector
+     * @param {number} x2 X-value of second vector
+     * @param {number} y2 Y-value of second vector
+     */
+    public angleBetweenVector2(x1: number, y1: number, x2: number, y2: number): number {
+        let angle: number = Math.atan2(y2, x2) - Math.atan2(y1, x1);
+
+        return this.wrapAngle(angle);
+    }
 }
 
 export default Spatial;

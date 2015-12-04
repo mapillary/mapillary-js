@@ -229,3 +229,58 @@ describe('Spatial.wrap', () => {
         expect(result).toBe(angle + 2 * Math.PI);
     });
 });
+
+describe('Spatial.angleBetweenVector2', () => {
+    let spatial: Spatial;
+    let epsilon: number = 1e-8;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should be zero", () => {
+        let v1: number[] = [1, 1];
+        let v2: number[] = [1, 1];
+
+        let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
+
+        expect(result).toBe(0);
+    });
+
+    it("should be 90 degrees", () => {
+        let v1: number[] = [1, 1];
+        let v2: number[] = [-1, 1];
+
+        let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
+
+        expect(result).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should be minus 90 degrees", () => {
+        let v1: number[] = [-1, 1];
+        let v2: number[] = [1, 1];
+
+        let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
+
+        expect(result).toBeCloseTo(-Math.PI / 2, epsilon);
+    });
+
+    it("should be minus 45 degrees", () => {
+        let v1: number[] = [1, -1];
+        let v2: number[] = [0, -1];
+
+        let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
+
+        expect(result).toBeCloseTo(-Math.PI / 4, epsilon);
+    });
+
+    it("should be 180 degrees", () => {
+        let v1: number[] = [-1, 0];
+        let v2: number[] = [1, 0];
+
+        let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
+
+        expect(Math.abs(result)).toBeCloseTo(Math.PI, epsilon);
+    });
+});
+
