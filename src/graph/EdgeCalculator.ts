@@ -55,6 +55,12 @@ export class EdgeCalculator {
                 continue;
             }
 
+            let motionChange: number = this.spatial.angleBetweenVector2(
+                currentDirection.x,
+                currentDirection.y,
+                motion.x,
+                motion.y);
+
             let direction: THREE.Vector3 =
                 this.spatial.viewingDirection(potential.apiNavImIm.rotation);
 
@@ -70,6 +76,7 @@ export class EdgeCalculator {
 
             let potentialEdge: IPotentialEdge = {
                 distance: distance,
+                motionChange: motionChange,
                 directionChange: directionChange,
                 rotation: rotation,
                 apiNavImIm: potential.apiNavImIm
