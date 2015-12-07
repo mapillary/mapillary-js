@@ -74,11 +74,20 @@ export class EdgeCalculator {
                 node.apiNavImIm.rotation,
                 potential.apiNavImIm.rotation);
 
+            let sameSequence: boolean = potential.sequence.key === node.sequence.key;
+
+            let sameMergeCc: boolean =
+                 potential.apiNavImIm.merge_cc == null ||
+                 node.apiNavImIm.merge_cc == null ||
+                 potential.apiNavImIm.merge_cc === node.apiNavImIm.merge_cc;
+
             let potentialEdge: IPotentialEdge = {
                 distance: distance,
                 motionChange: motionChange,
                 directionChange: directionChange,
                 rotation: rotation,
+                sameSequence: sameSequence,
+                sameMergeCc: sameMergeCc,
                 apiNavImIm: potential.apiNavImIm
             };
 

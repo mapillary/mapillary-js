@@ -33,6 +33,20 @@ export interface IPotentialEdge {
     rotation: number;
 
     /**
+     * Determines if the origin and destination node are in the
+     * same sequence.
+     * @property {boolean} sameSequence
+     */
+    sameSequence: boolean;
+
+    /**
+     * Determines if the origin and destination node are considered
+     * to be in the same merge connected component.
+     * @property {boolean} sameMergeCc
+     */
+    sameMergeCc: boolean;
+
+    /**
      * APINavImIm properties of destination node.
      * @property {IAPINavImIm} apiNavImIm
      */
