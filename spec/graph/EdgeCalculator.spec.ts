@@ -40,8 +40,8 @@ describe("EdgeCalculator", () => {
         graph.insertNodes(data);
         let edges: any = graph.edgeCalculator.calculateEdges(graph.node(key2));
 
-        let nextEdges = edges[GraphConstants.DirEnum.NEXT];
-        let prevEdges = edges[GraphConstants.DirEnum.PREV];
+        let nextEdges = edges[GraphConstants.Direction.NEXT];
+        let prevEdges = edges[GraphConstants.Direction.PREV];
 
         expect(prevEdges.length).toBe(1);
         expect(nextEdges.length).toBe(1);

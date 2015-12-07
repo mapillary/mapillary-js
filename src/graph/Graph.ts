@@ -106,7 +106,7 @@ export class Graph {
         return node.worthy;
     }
 
-    public nextNode(node: Node, dir: GraphConstants.DirEnum): Node {
+    public nextNode(node: Node, dir: GraphConstants.Direction): Node {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
         for (var i in outEdges) {
@@ -129,8 +129,8 @@ export class Graph {
         this.traversedCache = {};
         this.traversedDir = {};
 
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.NEXT, 2);
-        this.traverseAndGenerateDir(node, GraphConstants.DirEnum.PREV, 2);
+        this.traverseAndGenerateDir(node, GraphConstants.Direction.NEXT, 2);
+        this.traverseAndGenerateDir(node, GraphConstants.Direction.PREV, 2);
 
         return _.map(this.traversedCache, (n: Node) => {
             return n;
@@ -160,7 +160,7 @@ export class Graph {
         }
     }
 
-    private traverseAndGenerateDir(node: Node, dir: GraphConstants.DirEnum, depth: number): void {
+    private traverseAndGenerateDir(node: Node, dir: GraphConstants.Direction, depth: number): void {
         if (node === undefined || node == null) {
             return;
         }

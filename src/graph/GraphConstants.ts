@@ -1,7 +1,7 @@
 export namespace GraphConstants {
     "use strict";
 
-    export enum DirEnum {
+    export enum Direction {
         NEXT,
         PREV,
         STEP_LEFT,

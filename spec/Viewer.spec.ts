@@ -25,7 +25,7 @@ describe("Viewer", () => {
 
         response.then((node: any) => {
             expect(node.key).toBe("TQiOw3g0PDxyJrVdfqaYYQ");
-            response = viewer.moveDir(GraphConstants.DirEnum.NEXT);
+            response = viewer.moveDir(GraphConstants.Direction.NEXT);
 
             response.then((node: any) => {
                 expect(node.key).toBe("sY_oYi8xaFME4coAB2Rl1w");

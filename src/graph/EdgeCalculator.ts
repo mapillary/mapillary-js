@@ -15,10 +15,10 @@ export class EdgeCalculator {
         let edges: ICalculatedEdges = {};
 
         let nextKey: string = node.findNextKeyInSequence();
-        edges[GraphConstants.DirEnum.NEXT] = [nextKey];
+        edges[GraphConstants.Direction.NEXT] = [nextKey];
 
         let prevKey: string = node.findPrevKeyInSequence();
-        edges[GraphConstants.DirEnum.PREV] = [prevKey];
+        edges[GraphConstants.Direction.PREV] = [prevKey];
 
         return edges;
     }

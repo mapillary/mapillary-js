@@ -225,7 +225,7 @@ export class Viewer {
      * @method Mapillary.Viewer#moveToLngLat
      * @param {LatLng} latLng FIXME
      */
-    public moveDir(dir: GraphConstants.DirEnum): when.Promise<{}> {
+    public moveDir(dir: GraphConstants.Direction): when.Promise<{}> {
         if (!this.ui.graphSupport) {
             throw new MoveTypeMapillaryError();
         }
