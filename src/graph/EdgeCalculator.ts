@@ -32,6 +32,8 @@ export class EdgeCalculator {
             this.spatial.opticalCenter(node.apiNavImIm.rotation, node.translation);
         let currentDirection: THREE.Vector3 =
             this.spatial.viewingDirection(node.apiNavImIm.rotation);
+        let currentVerticalDirection: number =
+            this.spatial.angleToPlane(currentDirection.toArray(), [0, 0, 1]);
 
         let potentialEdges: IPotentialEdge[] = [];
 
@@ -61,6 +63,8 @@ export class EdgeCalculator {
                 motion.x,
                 motion.y);
 
+            let verticalMotion: number = this.spatial.angleToPlane(motion.toArray(), [0, 0, 1]);
+
             let direction: THREE.Vector3 =
                 this.spatial.viewingDirection(potential.apiNavImIm.rotation);
 
@@ -69,6 +73,9 @@ export class EdgeCalculator {
                 currentDirection.y,
                 direction.x,
                 direction.y);
+
+            let verticalDirection: number = this.spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
+            let verticalDirectionChange: number = Math.abs(verticalDirection - currentVerticalDirection);
 
             let rotation: number = this.spatial.relativeRotationAngle(
                 node.apiNavImIm.rotation,
@@ -84,7 +91,9 @@ export class EdgeCalculator {
             let potentialEdge: IPotentialEdge = {
                 distance: distance,
                 motionChange: motionChange,
+                verticalMotion: verticalMotion,
                 directionChange: directionChange,
+                verticalDirectionChange: verticalDirectionChange,
                 rotation: rotation,
                 sameSequence: sameSequence,
                 sameMergeCc: sameMergeCc,

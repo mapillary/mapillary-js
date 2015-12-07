@@ -104,8 +104,10 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
         expect(potentialEdge.distance).toBe(10);
         expect(potentialEdge.motionChange).toBe(0);
-        expect(potentialEdge.directionChange).toBe(0);
+        expect(potentialEdge.verticalMotion).toBe(0);
         expect(potentialEdge.rotation).toBe(0);
+        expect(potentialEdge.directionChange).toBe(0);
+        expect(potentialEdge.verticalDirectionChange).toBe(0);
         expect(potentialEdge.sameSequence).toBe(true);
         expect(potentialEdge.sameMergeCc).toBe(true);
     });

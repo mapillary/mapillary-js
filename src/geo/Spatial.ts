@@ -159,7 +159,7 @@ export class Spatial {
             return 0;
         }
 
-        let projection: number = v.clone().dot(new THREE.Vector3().fromArray(planeNormal));
+        let projection: number = v.dot(new THREE.Vector3().fromArray(planeNormal));
 
         return Math.asin(projection / norm);
     }

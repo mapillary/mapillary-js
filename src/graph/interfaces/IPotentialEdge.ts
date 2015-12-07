@@ -21,10 +21,22 @@ export interface IPotentialEdge {
     motionChange: number;
 
     /**
+     * The angle between motion vector and the XY-plane
+     * @property {number} verticalMotion
+     */
+    verticalMotion: number;
+
+    /**
      * Change in viewing direction with respect to the origin node.
      * @property {number} directionChange
      */
     directionChange: number;
+
+    /**
+     * Change in viewing direction with respect to the XY-plane.
+     * @property {number} verticalDirectionChange
+     */
+    verticalDirectionChange: number;
 
     /**
      * General camera rotation with respect to the origin node.
