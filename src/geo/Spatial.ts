@@ -4,6 +4,8 @@ import * as THREE from "three";
 
 export class Spatial {
 
+    private epsilon: number = 1e-9;
+
     /**
      * Creates a rotation matrix from an angle-axis vector
      *
@@ -141,6 +143,25 @@ export class Spatial {
         let theta: number = Math.acos((elements[0] + elements[5] + elements[10] - 1) / 2);
 
         return theta;
+    }
+
+    /**
+     * Calculates the angle from a vector to a plane.
+     *
+     * @param {Array<number>} vector The vector
+     * @param {Array<number>} planeNormal Normal of the plane
+     */
+    public angleToPlane(vector: number[], planeNormal: number[]): number {
+        let v: THREE.Vector3 = new THREE.Vector3().fromArray(vector);
+        let norm: number = v.length();
+
+        if (norm < this.epsilon) {
+            return 0;
+        }
+
+        let projection: number = v.clone().dot(new THREE.Vector3().fromArray(planeNormal));
+
+        return Math.asin(projection / norm);
     }
 }
 

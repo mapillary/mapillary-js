@@ -124,7 +124,7 @@ describe("Spatial.viewingDirection", () => {
     });
 });
 
-describe('Spatial.wrap', () => {
+describe("Spatial.wrap", () => {
     let spatial: Spatial;
 
     beforeEach(() => {
@@ -182,7 +182,7 @@ describe('Spatial.wrap', () => {
     });
 });
 
-describe('Spatial.wrap', () => {
+describe("Spatial.wrap", () => {
     let spatial: Spatial;
 
     beforeEach(() => {
@@ -230,7 +230,7 @@ describe('Spatial.wrap', () => {
     });
 });
 
-describe('Spatial.angleBetweenVector2', () => {
+describe("Spatial.angleBetweenVector2", () => {
     let spatial: Spatial;
     let epsilon: number = 1e-8;
 
@@ -284,7 +284,7 @@ describe('Spatial.angleBetweenVector2', () => {
     });
 });
 
-describe('Spatial.relativeRotationAngle', () => {
+describe("Spatial.relativeRotationAngle", () => {
     let spatial: Spatial;
     let epsilon: number = 1e-8;
 
@@ -385,7 +385,7 @@ describe('Spatial.relativeRotationAngle', () => {
     });
 });
 
-describe('Spatial.angleDifference', () => {
+describe("Spatial.angleDifference", () => {
     let spatial: Spatial;
     let epsilon: number = 1e-8;
 
@@ -463,5 +463,104 @@ describe('Spatial.angleDifference', () => {
         let result: number = spatial.angleDifference(angle1, angle2);
 
         expect(Math.abs(result)).toBeCloseTo(Math.PI, epsilon);
+    });
+});
+
+describe("Spatial.angleToPlane", () => {
+    let spatial: Spatial;
+    let epsilon: number = 1e-8;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should be 0 degrees when the vector lies in the XY plane", () => {
+        let n: number[] = [0, 0, 1];
+        let v: number[] = [1, 1, 0];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(0, epsilon);
+    });
+
+    it("should be 0 degrees when the vector lies in the XY plane", () => {
+        let n: number[] = [0, 0, 1];
+        let v: number[] = [-1, -1, 0];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(0, epsilon);
+    });
+
+    it("should be 90 degrees when the vector is orthogonal to the XY plane", () => {
+        let n: number[] = [0, 0, 1];
+        let v: number[] = [0, 0, 1];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should be minus 90 degrees when the vector is orthogonal to the XY plane", () => {
+        let n: number[] = [0, 0, 1];
+        let v: number[] = [0, 0, -1];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(-Math.PI / 2, epsilon);
+    });
+
+    it("should be 45 degrees", () => {
+        let n: number[] = [0, 0, 1];
+        let v: number[] = [-1, 0, 1];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
+    it("should be 45 degrees", () => {
+        let n: number[] = [0, 0, 1];
+        let v: number[] = [0, 1, 1];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
+    it("should be minus 45 degrees", () => {
+        let n: number[] = [0, 0, 1];
+        let v: number[] = [1, 0, -1];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(-Math.PI / 4, epsilon);
+    });
+
+    it("should be minus 45 degrees", () => {
+        let n: number[] = [0, 0, 1];
+        let v: number[] = [0, -1, -1];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(-Math.PI / 4, epsilon);
+    });
+
+    it("should be 45 degrees", () => {
+        let n: number[] = [0, 1, 0];
+        let v: number[] = [1, 1, 0];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
+    it("should be 0 degrees for null vector", () => {
+        let n: number[] = [0, 1, 0];
+        let v: number[] = [0, 0, 0];
+
+        let theta: number = spatial.angleToPlane(v, n);
+
+        expect(theta).toBeCloseTo(0, epsilon);
     });
 });
