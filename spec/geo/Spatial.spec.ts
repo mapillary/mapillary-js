@@ -384,3 +384,84 @@ describe('Spatial.relativeRotationAngle', () => {
         expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
     });
 });
+
+describe('Spatial.angleDifference', () => {
+    let spatial: Spatial;
+    let epsilon: number = 1e-8;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should be 0 degrees when angles are zero", () => {
+        let angle1: number = 0;
+        let angle2: number = 0;
+
+        let result: number = spatial.angleDifference(angle1, angle2);
+
+        expect(result).toBeCloseTo(0, epsilon);
+    });
+
+    it("should be 0 degrees when angles are equal", () => {
+        let angle1: number = - 3 * Math.PI / 4;
+        let angle2: number = - 3 * Math.PI / 4;
+
+        let result: number = spatial.angleDifference(angle1, angle2);
+
+        expect(result).toBeCloseTo(0, epsilon);
+    });
+
+    it("should be 45 degrees", () => {
+        let angle1: number = Math.PI / 4;
+        let angle2: number = Math.PI / 2;
+
+        let result: number = spatial.angleDifference(angle1, angle2);
+
+        expect(result).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
+    it("should be minus 45 degrees", () => {
+        let angle1: number = Math.PI / 2;
+        let angle2: number = Math.PI / 4;
+
+        let result: number = spatial.angleDifference(angle1, angle2);
+
+        expect(result).toBeCloseTo(-Math.PI / 4, epsilon);
+    });
+
+    it("should be 135 degrees", () => {
+        let angle1: number = Math.PI / 4;
+        let angle2: number = Math.PI;
+
+        let result: number = spatial.angleDifference(angle1, angle2);
+
+        expect(result).toBeCloseTo(3 * Math.PI / 4, epsilon);
+    });
+
+    it("should be 45 degress when passing PI", () => {
+        let angle1: number = 7 * Math.PI / 8;
+        let angle2: number = -7 * Math.PI / 8;
+
+        let result: number = spatial.angleDifference(angle1, angle2);
+
+        expect(result).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
+     it("should be minus 45 degress when passing PI", () => {
+        let angle1: number = -7 * Math.PI / 8;
+        let angle2: number = 7 * Math.PI / 8;
+
+        let result: number = spatial.angleDifference(angle1, angle2);
+
+        expect(result).toBeCloseTo(-Math.PI / 4, epsilon);
+    });
+
+    it("should be 180 degress", () => {
+        let angle1: number = -7 * Math.PI / 8;
+        let angle2: number = 1 * Math.PI / 8;
+
+        let result: number = spatial.angleDifference(angle1, angle2);
+
+        expect(Math.abs(result)).toBeCloseTo(Math.PI, epsilon);
+    });
+});

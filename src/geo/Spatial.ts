@@ -110,6 +110,19 @@ export class Spatial {
     }
 
     /**
+     * Calculates the minimum (absolute) angle change for rotation
+     * from one angle to another on the [-Pi, Pi] interval
+     *
+     * @param {number} angle1 The origin angle
+     * @param {number} angle2 The destination angle
+     */
+    public angleDifference(angle1: number, angle2: number): number {
+        let angle: number = angle2 - angle1;
+
+        return this.wrapAngle(angle);
+    }
+
+    /**
      * Calculates the relative rotation angle between two
      * angle-axis vectors.
      *
