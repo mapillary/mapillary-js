@@ -1,10 +1,4 @@
-import {EdgeConstants} from "../../Edge";
-
-export interface IStep {
-    direction: EdgeConstants.Direction;
-    motionChange: number;
-    useFallback: boolean;
-}
+import {EdgeConstants, IStep} from "../../Edge";
 
 export class EdgeCalculatorDirections {
 
