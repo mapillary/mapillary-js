@@ -1,52 +1,25 @@
-import {ICalculatedEdges, IPotentialEdge, IEdge, GraphConstants, Node, EdgeCalculatorSettings} from "../Graph";
+import
+{
+    ICalculatedEdges,
+    IPotentialEdge,
+    IEdge,
+    GraphConstants,
+    Node,
+    EdgeCalculatorSettings,
+    EdgeCalculatorDirections,
+    IStep
+} from "../Graph";
 import {Spatial} from "../Geo";
-
-interface IStep {
-    direction: GraphConstants.Direction;
-    motionChange: number;
-    maxDirectionChange: number;
-    maxDrift: number;
-    useFallback: boolean;
-}
 
 export class EdgeCalculator {
 
-    private steps: IStep[] = [
-        {
-            direction: GraphConstants.Direction.STEP_FORWARD,
-            motionChange: 0,
-            maxDirectionChange: Math.PI / 6,
-            maxDrift: Math.PI / 6,
-            useFallback: true
-        },
-        {
-            direction: GraphConstants.Direction.STEP_BACKWARD,
-            motionChange: Math.PI,
-            maxDirectionChange: Math.PI / 6,
-            maxDrift: Math.PI / 6,
-            useFallback: true
-        },
-        {
-            direction: GraphConstants.Direction.STEP_LEFT,
-            motionChange: Math.PI / 2,
-            maxDirectionChange: Math.PI / 6,
-            maxDrift: Math.PI / 6,
-            useFallback: false
-        },
-        {
-            direction: GraphConstants.Direction.STEP_RIGHT,
-            motionChange: -Math.PI / 2,
-            maxDirectionChange: Math.PI / 6,
-            maxDrift: Math.PI / 6,
-            useFallback: false
-        }
-    ];
-
     private spatial: Spatial;
+    private directions: EdgeCalculatorDirections;
     private settings: EdgeCalculatorSettings;
 
     constructor(settings?: EdgeCalculatorSettings) {
         this.spatial = new Spatial();
+        this.directions = new EdgeCalculatorDirections();
         this.settings = settings != null ? settings : new EdgeCalculatorSettings();
     }
 
@@ -148,8 +121,8 @@ export class EdgeCalculator {
     public computeStepEdges(potentialEdges: IPotentialEdge[], prevKey: string, nextKey: string): IEdge[] {
         let edges: IEdge[] = [];
 
-        for (var i: number = 0; i < this.steps.length; i++) {
-            let step: IStep = this.steps[i];
+        for (var i: number = 0; i < this.directions.steps.length; i++) {
+            let step: IStep = this.directions.steps[i];
 
             let lowestScore: number = Number.MAX_VALUE;
             let stepKey: string = null;
@@ -158,7 +131,7 @@ export class EdgeCalculator {
             for (var j: number = 0; j < potentialEdges.length; j++) {
                 let potential: IPotentialEdge = potentialEdges[j];
 
-                if (Math.abs(potential.directionChange) > step.maxDirectionChange) {
+                if (Math.abs(potential.directionChange) > this.settings.maxStepDirectionChange) {
                     continue;
                 }
 
@@ -169,7 +142,7 @@ export class EdgeCalculator {
                 let drift: number =
                     Math.max(Math.abs(motionDifference), Math.abs(directionMotionDifference));
 
-                if (Math.abs(drift) > step.maxDrift) {
+                if (Math.abs(drift) > this.settings.maxStepDrift) {
                     continue;
                 }
 
@@ -188,8 +161,8 @@ export class EdgeCalculator {
 
                 let score: number =
                     2 * potential.distance / this.settings.maxDistance +
-                    2 * motionDifference / step.maxDrift +
-                    2 * potential.rotation / step.maxDirectionChange +
+                    2 * motionDifference / this.settings.maxStepDrift +
+                    2 * potential.rotation / this.settings.maxStepDirectionChange +
                     2 * (potential.sameSequence ? 1 : 0) +
                     2 * (potential.sameMergeCc ? 1 : 0);
 
