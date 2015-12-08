@@ -1,7 +1,7 @@
 ///<reference path="../typings/jasmine/jasmine.d.ts" />
 
 import {Viewer} from "../src/Viewer";
-import {EdgeConstants} from "../src/Graph";
+import {EdgeConstants} from "../src/Edge";
 
 describe("Viewer", () => {
     var viewer: Viewer;

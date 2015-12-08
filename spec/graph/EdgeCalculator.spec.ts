@@ -3,8 +3,8 @@
 
 import * as THREE from "three";
 
-import {EdgeCalculator, Node, Sequence, Graph, EdgeConstants} from "../../src/Graph";
-import {IEdge, IPotentialEdge} from "../../src/Edge";
+import {EdgeCalculator, Node, Sequence, Graph} from "../../src/Graph";
+import {EdgeConstants, IEdge, IPotentialEdge} from "../../src/Edge";
 import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../src/API";
 import {ILatLon} from "../../src/Viewer"
 import {Spatial} from "../../src/Geo";

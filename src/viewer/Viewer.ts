@@ -5,7 +5,8 @@ import * as when from "when";
 
 import {IAPINavIm} from "../API";
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
-import {Graph, EdgeConstants, Node} from "../Graph";
+import {Graph, Node} from "../Graph";
+import {EdgeConstants} from "../Edge";
 import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
 import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI} from "../UI";
 import {StateContext} from "../State";

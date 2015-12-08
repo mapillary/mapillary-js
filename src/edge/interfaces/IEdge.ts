@@ -1,4 +1,4 @@
-import {EdgeConstants} from "../../Graph";
+import {EdgeConstants} from "../../Edge";
 
 export interface IEdge {
     to: string;
