@@ -5,8 +5,8 @@ import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 import * as _ from "underscore";
 
-import {EdgeCalculator, Node, Sequence} from "../Graph";
-import {ICalculatedEdges, EdgeConstants} from "../Edge";
+import {Node, Sequence} from "../Graph";
+import {ICalculatedEdges, EdgeConstants, EdgeCalculator} from "../Edge";
 import {IAPINavIm, IAPINavImIm} from "../API";
 import {ILatLon} from "../Viewer";
 
