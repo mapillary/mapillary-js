@@ -1,5 +1,5 @@
-import {GraphConstants, Node, EdgeCalculatorSettings, EdgeCalculatorDirections, IStep} from "../Graph";
-import {IEdge, IPotentialEdge, ICalculatedEdges} from "../Edge";
+import {GraphConstants, Node, EdgeCalculatorDirections, IStep} from "../Graph";
+import {IEdge, IPotentialEdge, ICalculatedEdges, EdgeCalculatorSettings} from "../Edge";
 import {Spatial} from "../Geo";
 
 export class EdgeCalculator {
