@@ -3,7 +3,7 @@
 
 import * as THREE from "three";
 
-import {EdgeCalculator, IPotentialEdge, Node, Sequence, Graph, GraphConstants} from "../../src/Graph";
+import {EdgeCalculator, IPotentialEdge, IEdge, Node, Sequence, Graph, GraphConstants} from "../../src/Graph";
 import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../src/API";
 import {ILatLon} from "../../src/Viewer"
 import {Spatial} from "../../src/Geo";
@@ -110,5 +110,83 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.verticalDirectionChange).toBe(0);
         expect(potentialEdge.sameSequence).toBe(true);
         expect(potentialEdge.sameMergeCc).toBe(true);
+    });
+});
+
+describe("EdgeCalculator.computeStepNodes", () => {
+    let edgeCalculator: EdgeCalculator;
+    let spatial: Spatial;
+
+    let potentialEdge: IPotentialEdge;
+
+    beforeEach(() => {
+        edgeCalculator = new EdgeCalculator();
+        spatial = new Spatial();
+    });
+
+    beforeEach(() => {
+       potentialEdge = {
+            distance: 10,
+            motionChange: 0,
+            verticalMotion: 0,
+            directionChange: 0,
+            verticalDirectionChange: 0,
+            rotation: 0,
+            sameSequence: false,
+            sameMergeCc: false,
+            apiNavImIm: { key: "pkey" }
+        }
+    });
+
+    it("should have a step forward edge", () => {
+        potentialEdge.motionChange = 0;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(GraphConstants.Direction.STEP_FORWARD);
+    });
+
+    it("should have a step left edge", () => {
+        potentialEdge.motionChange = Math.PI / 2;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(GraphConstants.Direction.STEP_LEFT);
+    });
+
+    it("should have a step forward edge", () => {
+        potentialEdge.motionChange = -Math.PI / 2;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(GraphConstants.Direction.STEP_RIGHT);
+    });
+
+    it("should have a step forward edge", () => {
+        potentialEdge.motionChange = Math.PI;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(GraphConstants.Direction.STEP_BACKWARD);
     });
 });

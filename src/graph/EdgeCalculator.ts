@@ -1,7 +1,46 @@
-import {ICalculatedEdges, IPotentialEdge, GraphConstants, Node, EdgeCalculatorSettings} from "../Graph";
+import {ICalculatedEdges, IPotentialEdge, IEdge, GraphConstants, Node, EdgeCalculatorSettings} from "../Graph";
 import {Spatial} from "../Geo";
 
+interface IStep {
+    direction: GraphConstants.Direction;
+    motionChange: number;
+    maxDirectionChange: number;
+    maxDrift: number;
+    useFallback: boolean;
+}
+
 export class EdgeCalculator {
+
+    private steps: IStep[] = [
+        {
+            direction: GraphConstants.Direction.STEP_FORWARD,
+            motionChange: 0,
+            maxDirectionChange: Math.PI / 6,
+            maxDrift: Math.PI / 6,
+            useFallback: true
+        },
+        {
+            direction: GraphConstants.Direction.STEP_BACKWARD,
+            motionChange: Math.PI,
+            maxDirectionChange: Math.PI / 6,
+            maxDrift: Math.PI / 6,
+            useFallback: true
+        },
+        {
+            direction: GraphConstants.Direction.STEP_LEFT,
+            motionChange: Math.PI / 2,
+            maxDirectionChange: Math.PI / 6,
+            maxDrift: Math.PI / 6,
+            useFallback: false
+        },
+        {
+            direction: GraphConstants.Direction.STEP_RIGHT,
+            motionChange: -Math.PI / 2,
+            maxDirectionChange: Math.PI / 6,
+            maxDrift: Math.PI / 6,
+            useFallback: false
+        }
+    ];
 
     private spatial: Spatial;
     private settings: EdgeCalculatorSettings;
@@ -104,6 +143,72 @@ export class EdgeCalculator {
         }
 
         return potentialEdges;
+    }
+
+    public computeStepEdges(potentialEdges: IPotentialEdge[], prevKey: string, nextKey: string): IEdge[] {
+        let edges: IEdge[] = [];
+
+        for (var i: number = 0; i < this.steps.length; i++) {
+            let step: IStep = this.steps[i];
+
+            let lowestScore: number = Number.MAX_VALUE;
+            let stepKey: string = null;
+            let fallbackKey: string = null;
+
+            for (var j: number = 0; j < potentialEdges.length; j++) {
+                let potential: IPotentialEdge = potentialEdges[j];
+
+                if (Math.abs(potential.directionChange) > step.maxDirectionChange) {
+                    continue;
+                }
+
+                let motionDifference: number =
+                    this.spatial.angleDifference(step.motionChange, potential.motionChange);
+                let directionMotionDifference: number =
+                    this.spatial.angleDifference(potential.directionChange, motionDifference);
+                let drift: number =
+                    Math.max(Math.abs(motionDifference), Math.abs(directionMotionDifference));
+
+                if (Math.abs(drift) > step.maxDrift) {
+                    continue;
+                }
+
+                let potentialKey: string = potential.apiNavImIm.key;
+                if (step.useFallback && (potentialKey === prevKey || potentialKey === nextKey)) {
+                    fallbackKey = potentialKey;
+                }
+
+                if (potential.distance > this.settings.maxDistance) {
+                    continue;
+                }
+
+                motionDifference = Math.sqrt(
+                    motionDifference * motionDifference +
+                    potential.verticalMotion * potential.verticalMotion);
+
+                let score: number =
+                    2 * potential.distance / this.settings.maxDistance +
+                    2 * motionDifference / step.maxDrift +
+                    2 * potential.rotation / step.maxDirectionChange +
+                    2 * (potential.sameSequence ? 1 : 0) +
+                    2 * (potential.sameMergeCc ? 1 : 0);
+
+                if (score < lowestScore) {
+                    lowestScore = score;
+                    stepKey = potentialKey;
+                }
+            }
+
+            let key: string = stepKey == null ? fallbackKey : stepKey;
+            if (key != null) {
+                edges.push({
+                    to: key,
+                    direction: step.direction
+                });
+            }
+        }
+
+        return edges;
     }
 }
 
