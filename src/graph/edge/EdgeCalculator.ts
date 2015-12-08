@@ -1,4 +1,4 @@
-import {Node} from "../Graph";
+import {Node} from "../../Graph";
 import
 {
     EdgeConstants,
@@ -8,8 +8,8 @@ import
     IPotentialEdge,
     ICalculatedEdges,
     EdgeCalculatorSettings
-} from "../Edge";
-import {Spatial} from "../Geo";
+} from "../../Edge";
+import {Spatial} from "../../Geo";
 
 export class EdgeCalculator {
 

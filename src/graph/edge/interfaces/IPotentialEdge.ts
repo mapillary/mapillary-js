@@ -1,4 +1,4 @@
-import {IAPINavImIm} from "../../API";
+import {IAPINavImIm} from "../../../API";
 
 /**
  * Interface that describes the properties for a node that is the destination of a

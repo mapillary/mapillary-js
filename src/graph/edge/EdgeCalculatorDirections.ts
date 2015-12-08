@@ -1,4 +1,4 @@
-import {EdgeConstants} from "../Edge";
+import {EdgeConstants} from "../../Edge";
 
 export interface IStep {
     direction: EdgeConstants.Direction;

@@ -1,13 +1,13 @@
-/// <reference path="../../typings/jasmine/jasmine.d.ts" />
-/// <reference path="../../typings/threejs/three.d.ts" />
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../../typings/threejs/three.d.ts" />
 
 import * as THREE from "three";
 
-import {Node, Sequence, Graph} from "../../src/Graph";
-import {EdgeCalculator, EdgeConstants, IEdge, IPotentialEdge} from "../../src/Edge";
-import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../src/API";
-import {ILatLon} from "../../src/Viewer"
-import {Spatial} from "../../src/Geo";
+import {Node, Sequence, Graph} from "../../../src/Graph";
+import {EdgeCalculator, EdgeConstants, IEdge, IPotentialEdge} from "../../../src/Edge";
+import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../../src/API";
+import {ILatLon} from "../../../src/Viewer"
+import {Spatial} from "../../../src/Geo";
 
 describe("EdgeCalculator", () => {
     var graph: Graph;

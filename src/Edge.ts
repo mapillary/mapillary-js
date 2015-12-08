@@ -1,5 +1,5 @@
-export {EdgeConstants} from "./edge/EdgeConstants";
-export {EdgeCalculatorSettings} from "./edge/EdgeCalculatorSettings";
-export {EdgeCalculatorDirections, IStep} from "./edge/EdgeCalculatorDirections";
-export {EdgeCalculator} from "./edge/EdgeCalculator";
-export * from "./edge/interfaces/interfaces";
+export {EdgeConstants} from "./graph/edge/EdgeConstants";
+export {EdgeCalculatorSettings} from "./graph/edge/EdgeCalculatorSettings";
+export {EdgeCalculatorDirections, IStep} from "./graph/edge/EdgeCalculatorDirections";
+export {EdgeCalculator} from "./graph/edge/EdgeCalculator";
+export * from "./graph/edge/interfaces/interfaces";
