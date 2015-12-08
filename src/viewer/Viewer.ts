@@ -5,7 +5,7 @@ import * as when from "when";
 
 import {IAPINavIm} from "../API";
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
-import {Graph, GraphConstants, Node} from "../Graph";
+import {Graph, EdgeConstants, Node} from "../Graph";
 import {AssetCache, ILatLon, IViewerOptions, OptionsParser, Prefetcher} from "../Viewer";
 import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI} from "../UI";
 import {StateContext} from "../State";
@@ -225,7 +225,7 @@ export class Viewer {
      * @method Mapillary.Viewer#moveToLngLat
      * @param {LatLng} latLng FIXME
      */
-    public moveDir(dir: GraphConstants.Direction): when.Promise<{}> {
+    public moveDir(dir: EdgeConstants.Direction): when.Promise<{}> {
         if (!this.ui.graphSupport) {
             throw new MoveTypeMapillaryError();
         }

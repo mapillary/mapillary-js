@@ -1,8 +1,8 @@
-import {GraphConstants} from "../../Graph";
+import {EdgeConstants} from "../../Graph";
 
 export interface IEdge {
     to: string;
-    direction: GraphConstants.Direction;
+    direction: EdgeConstants.Direction;
     data?: any;
 }
 

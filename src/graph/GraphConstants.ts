@@ -1,4 +1,4 @@
-export namespace GraphConstants {
+export namespace EdgeConstants {
     "use strict";
 
     export enum Direction {

@@ -1,7 +1,7 @@
 ///<reference path="../typings/jasmine/jasmine.d.ts" />
 
 import {Viewer} from "../src/Viewer";
-import {GraphConstants} from "../src/Graph";
+import {EdgeConstants} from "../src/Graph";
 
 describe("Viewer", () => {
     var viewer: Viewer;
@@ -25,7 +25,7 @@ describe("Viewer", () => {
 
         response.then((node: any) => {
             expect(node.key).toBe("TQiOw3g0PDxyJrVdfqaYYQ");
-            response = viewer.moveDir(GraphConstants.Direction.NEXT);
+            response = viewer.moveDir(EdgeConstants.Direction.NEXT);
 
             response.then((node: any) => {
                 expect(node.key).toBe("sY_oYi8xaFME4coAB2Rl1w");

@@ -3,7 +3,7 @@
 
 import * as THREE from "three";
 
-import {EdgeCalculator, Node, Sequence, Graph, GraphConstants} from "../../src/Graph";
+import {EdgeCalculator, Node, Sequence, Graph, EdgeConstants} from "../../src/Graph";
 import {IEdge, IPotentialEdge} from "../../src/Edge";
 import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../src/API";
 import {ILatLon} from "../../src/Viewer"
@@ -41,8 +41,8 @@ describe("EdgeCalculator", () => {
         graph.insertNodes(data);
         let edges: any = graph.edgeCalculator.calculateEdges(graph.node(key2));
 
-        let nextEdges = edges[GraphConstants.Direction.NEXT];
-        let prevEdges = edges[GraphConstants.Direction.PREV];
+        let nextEdges = edges[EdgeConstants.Direction.NEXT];
+        let prevEdges = edges[EdgeConstants.Direction.PREV];
 
         expect(prevEdges.length).toBe(1);
         expect(nextEdges.length).toBe(1);
@@ -149,7 +149,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
         let stepEdge: IEdge = stepEdges[0];
 
         expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(stepEdge.direction).toBe(GraphConstants.Direction.STEP_FORWARD);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
     });
 
     it("should have a step left edge", () => {
@@ -162,7 +162,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
         let stepEdge: IEdge = stepEdges[0];
 
         expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(stepEdge.direction).toBe(GraphConstants.Direction.STEP_LEFT);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_LEFT);
     });
 
     it("should have a step forward edge", () => {
@@ -175,7 +175,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
         let stepEdge: IEdge = stepEdges[0];
 
         expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(stepEdge.direction).toBe(GraphConstants.Direction.STEP_RIGHT);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_RIGHT);
     });
 
     it("should have a step forward edge", () => {
@@ -188,6 +188,6 @@ describe("EdgeCalculator.computeStepNodes", () => {
         let stepEdge: IEdge = stepEdges[0];
 
         expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(stepEdge.direction).toBe(GraphConstants.Direction.STEP_BACKWARD);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_BACKWARD);
     });
 });

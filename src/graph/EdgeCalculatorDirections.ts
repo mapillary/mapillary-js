@@ -1,7 +1,7 @@
-import {GraphConstants} from "../Graph";
+import {EdgeConstants} from "../Graph";
 
 export interface IStep {
-    direction: GraphConstants.Direction;
+    direction: EdgeConstants.Direction;
     motionChange: number;
     useFallback: boolean;
 }
@@ -13,22 +13,22 @@ export class EdgeCalculatorDirections {
     constructor() {
         this._steps = [
             {
-                direction: GraphConstants.Direction.STEP_FORWARD,
+                direction: EdgeConstants.Direction.STEP_FORWARD,
                 motionChange: 0,
                 useFallback: true
             },
             {
-                direction: GraphConstants.Direction.STEP_BACKWARD,
+                direction: EdgeConstants.Direction.STEP_BACKWARD,
                 motionChange: Math.PI,
                 useFallback: true
             },
             {
-                direction: GraphConstants.Direction.STEP_LEFT,
+                direction: EdgeConstants.Direction.STEP_LEFT,
                 motionChange: Math.PI / 2,
                 useFallback: false
             },
             {
-                direction: GraphConstants.Direction.STEP_RIGHT,
+                direction: EdgeConstants.Direction.STEP_RIGHT,
                 motionChange: -Math.PI / 2,
                 useFallback: false
             }

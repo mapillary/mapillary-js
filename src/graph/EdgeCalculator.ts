@@ -1,4 +1,4 @@
-import {GraphConstants, Node, EdgeCalculatorDirections, IStep} from "../Graph";
+import {EdgeConstants, Node, EdgeCalculatorDirections, IStep} from "../Graph";
 import {IEdge, IPotentialEdge, ICalculatedEdges, EdgeCalculatorSettings} from "../Edge";
 import {Spatial} from "../Geo";
 
@@ -18,10 +18,10 @@ export class EdgeCalculator {
         let edges: ICalculatedEdges = {};
 
         let nextKey: string = node.findNextKeyInSequence();
-        edges[GraphConstants.Direction.NEXT] = [nextKey];
+        edges[EdgeConstants.Direction.NEXT] = [nextKey];
 
         let prevKey: string = node.findPrevKeyInSequence();
-        edges[GraphConstants.Direction.PREV] = [prevKey];
+        edges[EdgeConstants.Direction.PREV] = [prevKey];
 
         return edges;
     }

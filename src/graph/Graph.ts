@@ -5,7 +5,7 @@ import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 import * as _ from "underscore";
 
-import {EdgeCalculator, GraphConstants, Node, Sequence} from "../Graph";
+import {EdgeCalculator, EdgeConstants, Node, Sequence} from "../Graph";
 import {ICalculatedEdges} from "../Edge";
 import {IAPINavIm, IAPINavImIm} from "../API";
 import {ILatLon} from "../Viewer";
@@ -107,7 +107,7 @@ export class Graph {
         return node.worthy;
     }
 
-    public nextNode(node: Node, dir: GraphConstants.Direction): Node {
+    public nextNode(node: Node, dir: EdgeConstants.Direction): Node {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
         for (var i in outEdges) {
@@ -130,8 +130,8 @@ export class Graph {
         this.traversedCache = {};
         this.traversedDir = {};
 
-        this.traverseAndGenerateDir(node, GraphConstants.Direction.NEXT, 2);
-        this.traverseAndGenerateDir(node, GraphConstants.Direction.PREV, 2);
+        this.traverseAndGenerateDir(node, EdgeConstants.Direction.NEXT, 2);
+        this.traverseAndGenerateDir(node, EdgeConstants.Direction.PREV, 2);
 
         return _.map(this.traversedCache, (n: Node) => {
             return n;
@@ -161,7 +161,7 @@ export class Graph {
         }
     }
 
-    private traverseAndGenerateDir(node: Node, dir: GraphConstants.Direction, depth: number): void {
+    private traverseAndGenerateDir(node: Node, dir: EdgeConstants.Direction, depth: number): void {
         if (node === undefined || node == null) {
             return;
         }
