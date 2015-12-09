@@ -1,9 +1,9 @@
 export class EdgeCalculatorSettings {
 
-    public maxStepDistance: number;
-    public maxStepDirectionChange: number;
-    public maxStepDrift: number;
-    public preferredStepDistance: number;
+    public stepMaxStepDistance: number;
+    public stepMaxDirectionChange: number;
+    public stepMaxDrift: number;
+    public stepPreferredDistance: number;
 
     public turnMaxDistance: number;
     public turnMaxDirectionChange: number;
@@ -11,10 +11,10 @@ export class EdgeCalculatorSettings {
     public turnMinRigDirectionChange: number;
 
     constructor() {
-        this.maxStepDistance = 20;
-        this.maxStepDirectionChange = Math.PI / 6;
-        this.maxStepDrift = Math.PI / 6;
-        this.preferredStepDistance = 4;
+        this.stepMaxStepDistance = 20;
+        this.stepMaxDirectionChange = Math.PI / 6;
+        this.stepMaxDrift = Math.PI / 6;
+        this.stepPreferredDistance = 4;
 
         this.turnMaxDistance = 15;
         this.turnMaxDirectionChange = 2 * Math.PI / 9;
@@ -23,7 +23,7 @@ export class EdgeCalculatorSettings {
     }
 
     public get maxDistance(): number {
-        return Math.max(this.maxStepDistance, this.turnMaxDistance);
+        return Math.max(this.stepMaxStepDistance, this.turnMaxDistance);
     }
 }
 

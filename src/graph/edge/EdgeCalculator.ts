@@ -141,7 +141,7 @@ export class EdgeCalculator {
             for (var j: number = 0; j < potentialEdges.length; j++) {
                 let potential: IPotentialEdge = potentialEdges[j];
 
-                if (Math.abs(potential.directionChange) > this.settings.maxStepDirectionChange) {
+                if (Math.abs(potential.directionChange) > this.settings.stepMaxDirectionChange) {
                     continue;
                 }
 
@@ -152,7 +152,7 @@ export class EdgeCalculator {
                 let drift: number =
                     Math.max(Math.abs(motionDifference), Math.abs(directionMotionDifference));
 
-                if (Math.abs(drift) > this.settings.maxStepDrift) {
+                if (Math.abs(drift) > this.settings.stepMaxDrift) {
                     continue;
                 }
 
@@ -161,7 +161,7 @@ export class EdgeCalculator {
                     fallbackKey = potentialKey;
                 }
 
-                if (potential.distance > this.settings.maxStepDistance) {
+                if (potential.distance > this.settings.stepMaxStepDistance) {
                     continue;
                 }
 
@@ -171,10 +171,10 @@ export class EdgeCalculator {
 
                 let score: number =
                     this.coefficients.stepPreferredDistance *
-                    Math.abs(potential.distance - this.settings.preferredStepDistance) /
-                    this.settings.maxStepDistance +
-                    this.coefficients.stepMotion * motionDifference / this.settings.maxStepDrift +
-                    this.coefficients.stepRotation * potential.rotation / this.settings.maxStepDirectionChange +
+                    Math.abs(potential.distance - this.settings.stepPreferredDistance) /
+                    this.settings.stepMaxStepDistance +
+                    this.coefficients.stepMotion * motionDifference / this.settings.stepMaxDrift +
+                    this.coefficients.stepRotation * potential.rotation / this.settings.stepMaxDirectionChange +
                     this.coefficients.stepSequencePenalty * (potential.sameSequence ? 1 : 0) +
                     this.coefficients.stepMergeCcPenalty * (potential.sameMergeCc ? 1 : 0);
 

@@ -143,7 +143,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
 
     beforeEach(() => {
        potentialEdge = {
-            distance: edgeCalculatorSettings.maxStepDistance / 2,
+            distance: edgeCalculatorSettings.stepMaxStepDistance / 2,
             motionChange: 0,
             verticalMotion: 0,
             directionChange: 0,
@@ -208,7 +208,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should not have any edges because of max distance", () => {
-        potentialEdge.distance = edgeCalculatorSettings.maxStepDistance + 1;
+        potentialEdge.distance = edgeCalculatorSettings.stepMaxStepDistance + 1;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -216,7 +216,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should not have any edges because of direction change", () => {
-        potentialEdge.directionChange = edgeCalculatorSettings.maxStepDirectionChange + Math.PI / 18;
+        potentialEdge.directionChange = edgeCalculatorSettings.stepMaxDirectionChange + Math.PI / 18;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -224,7 +224,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should not have any edges because of negative direction change", () => {
-        potentialEdge.directionChange = -edgeCalculatorSettings.maxStepDirectionChange - Math.PI / 18;
+        potentialEdge.directionChange = -edgeCalculatorSettings.stepMaxDirectionChange - Math.PI / 18;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -232,7 +232,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should not have any edges because of drift", () => {
-        potentialEdge.motionChange = edgeCalculatorSettings.maxStepDrift + Math.PI / 18;
+        potentialEdge.motionChange = edgeCalculatorSettings.stepMaxDrift + Math.PI / 18;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -240,7 +240,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should not have any edges because of negative drift", () => {
-        potentialEdge.motionChange = -edgeCalculatorSettings.maxStepDrift - Math.PI / 18;
+        potentialEdge.motionChange = -edgeCalculatorSettings.stepMaxDrift - Math.PI / 18;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -248,7 +248,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should fallback to next node with enabled fallback setting", () => {
-        potentialEdge.distance = edgeCalculatorSettings.maxStepDistance + 1;
+        potentialEdge.distance = edgeCalculatorSettings.stepMaxStepDistance + 1;
         potentialEdge.motionChange = 0;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
@@ -263,7 +263,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should not fallback to previous node with disabled fallback setting", () => {
-        potentialEdge.distance = edgeCalculatorSettings.maxStepDistance + 1;
+        potentialEdge.distance = edgeCalculatorSettings.stepMaxStepDistance + 1;
         potentialEdge.motionChange = Math.PI;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
