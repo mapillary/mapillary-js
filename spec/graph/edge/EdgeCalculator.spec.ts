@@ -4,7 +4,14 @@
 import * as THREE from "three";
 
 import {Node, Sequence, Graph} from "../../../src/Graph";
-import {EdgeCalculator, EdgeConstants, IEdge, IPotentialEdge} from "../../../src/Edge";
+import {
+    EdgeCalculator,
+    EdgeCalculatorSettings,
+    EdgeCalculatorDirections,
+    EdgeConstants,
+    IEdge,
+    IPotentialEdge
+} from "../../../src/Edge";
 import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../../src/API";
 import {ILatLon} from "../../../src/Viewer"
 import {Spatial} from "../../../src/Geo";
@@ -116,18 +123,27 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
 describe("EdgeCalculator.computeStepNodes", () => {
     let edgeCalculator: EdgeCalculator;
+    let edgeCalculatorSettings: EdgeCalculatorSettings;
+    let edgeCalculatorDirections: EdgeCalculatorDirections;
+
     let spatial: Spatial;
 
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculator = new EdgeCalculator();
+        edgeCalculatorSettings = new EdgeCalculatorSettings();
+
+        edgeCalculatorDirections = new EdgeCalculatorDirections();
+        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_FORWARD].useFallback = true;
+        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_BACKWARD].useFallback = false;
+
+        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
         spatial = new Spatial();
     });
 
     beforeEach(() => {
        potentialEdge = {
-            distance: 10,
+            distance: edgeCalculatorSettings.maxStepDistance / 2,
             motionChange: 0,
             verticalMotion: 0,
             directionChange: 0,
@@ -165,7 +181,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
         expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_LEFT);
     });
 
-    it("should have a step forward edge", () => {
+    it("should have a step right edge", () => {
         potentialEdge.motionChange = -Math.PI / 2;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
@@ -178,7 +194,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
         expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_RIGHT);
     });
 
-    it("should have a step forward edge", () => {
+    it("should have a step back edge", () => {
         potentialEdge.motionChange = Math.PI;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
@@ -189,5 +205,70 @@ describe("EdgeCalculator.computeStepNodes", () => {
 
         expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
         expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_BACKWARD);
+    });
+
+    it("should not have any edges because of max distance", () => {
+        potentialEdge.distance = edgeCalculatorSettings.maxStepDistance + 1;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(0);
+    });
+
+    it("should not have any edges because of direction change", () => {
+        potentialEdge.directionChange = edgeCalculatorSettings.maxStepDirectionChange + Math.PI / 18;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(0);
+    });
+
+    it("should not have any edges because of negative direction change", () => {
+        potentialEdge.directionChange = -edgeCalculatorSettings.maxStepDirectionChange - Math.PI / 18;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(0);
+    });
+
+    it("should not have any edges because of drift", () => {
+        potentialEdge.motionChange = edgeCalculatorSettings.maxStepDrift + Math.PI / 18;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(0);
+    });
+
+    it("should not have any edges because of negative drift", () => {
+        potentialEdge.motionChange = -edgeCalculatorSettings.maxStepDrift - Math.PI / 18;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(0);
+    });
+
+    it("should fallback to next node with enabled fallback setting", () => {
+        potentialEdge.distance = edgeCalculatorSettings.maxStepDistance + 1;
+        potentialEdge.motionChange = 0;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
+            [potentialEdge], potentialEdge.apiNavImIm.key, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
+    });
+
+    it("should not fallback to previous node with disabled fallback setting", () => {
+        potentialEdge.distance = edgeCalculatorSettings.maxStepDistance + 1;
+        potentialEdge.motionChange = Math.PI;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
+            [potentialEdge], null, potentialEdge.apiNavImIm.key);
+
+        expect(stepEdges.length).toBe(0);
     });
 });

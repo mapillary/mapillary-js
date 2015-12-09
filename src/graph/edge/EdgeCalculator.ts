@@ -15,14 +15,17 @@ import {Spatial} from "../../Geo";
 export class EdgeCalculator {
 
     private spatial: Spatial;
-    private directions: EdgeCalculatorDirections;
     private settings: EdgeCalculatorSettings;
+    private directions: EdgeCalculatorDirections;
     private coefficients: EdgeCalculatorCoefficients;
 
-    constructor(settings?: EdgeCalculatorSettings, coefficients?: EdgeCalculatorCoefficients) {
+    constructor(
+        settings?: EdgeCalculatorSettings,
+        directions?: EdgeCalculatorDirections,
+        coefficients?: EdgeCalculatorCoefficients) {
         this.spatial = new Spatial();
-        this.directions = new EdgeCalculatorDirections();
         this.settings = settings != null ? settings : new EdgeCalculatorSettings();
+        this.directions = directions != null ? directions : new EdgeCalculatorDirections();
         this.coefficients = coefficients != null ? coefficients : new EdgeCalculatorCoefficients();
     }
 
@@ -124,8 +127,12 @@ export class EdgeCalculator {
     public computeStepEdges(potentialEdges: IPotentialEdge[], prevKey: string, nextKey: string): IEdge[] {
         let edges: IEdge[] = [];
 
-        for (var i: number = 0; i < this.directions.steps.length; i++) {
-            let step: IStep = this.directions.steps[i];
+        for (let k in this.directions.steps) {
+            if (!this.directions.steps.hasOwnProperty(k)) {
+                continue;
+            }
+
+            let step: IStep = this.directions.steps[k];
 
             let lowestScore: number = Number.MAX_VALUE;
             let stepKey: string = null;
