@@ -3,6 +3,7 @@ import
 {
     EdgeConstants,
     IStep,
+    ITurn,
     IEdge,
     IPotentialEdge,
     ICalculatedEdges,
@@ -138,7 +139,7 @@ export class EdgeCalculator {
             let stepKey: string = null;
             let fallbackKey: string = null;
 
-            for (var j: number = 0; j < potentialEdges.length; j++) {
+            for (let j: number = 0; j < potentialEdges.length; j++) {
                 let potential: IPotentialEdge = potentialEdges[j];
 
                 if (Math.abs(potential.directionChange) > this.settings.stepMaxDirectionChange) {
@@ -161,7 +162,7 @@ export class EdgeCalculator {
                     fallbackKey = potentialKey;
                 }
 
-                if (potential.distance > this.settings.stepMaxStepDistance) {
+                if (potential.distance > this.settings.stepMaxDistance) {
                     continue;
                 }
 
@@ -172,11 +173,11 @@ export class EdgeCalculator {
                 let score: number =
                     this.coefficients.stepPreferredDistance *
                     Math.abs(potential.distance - this.settings.stepPreferredDistance) /
-                    this.settings.stepMaxStepDistance +
+                    this.settings.stepMaxDistance +
                     this.coefficients.stepMotion * motionDifference / this.settings.stepMaxDrift +
                     this.coefficients.stepRotation * potential.rotation / this.settings.stepMaxDirectionChange +
-                    this.coefficients.stepSequencePenalty * (potential.sameSequence ? 1 : 0) +
-                    this.coefficients.stepMergeCcPenalty * (potential.sameMergeCc ? 1 : 0);
+                    this.coefficients.stepSequencePenalty * (potential.sameSequence ? 0 : 1) +
+                    this.coefficients.stepMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
 
                 if (score < lowestScore) {
                     lowestScore = score;
@@ -189,6 +190,78 @@ export class EdgeCalculator {
                 edges.push({
                     to: key,
                     direction: step.direction
+                });
+            }
+        }
+
+        return edges;
+    }
+
+    public computeTurnEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
+        let edges: IEdge[] = [];
+
+        for (let k in this.directions.turns) {
+            if (!this.directions.turns.hasOwnProperty(k)) {
+                continue;
+            }
+
+            let turn: ITurn = this.directions.turns[k];
+
+            let lowestScore: number = Number.MAX_VALUE;
+            let turnKey: string = null;
+
+            for (let i: number = 0; i < potentialEdges.length; i++) {
+                let potential: IPotentialEdge = potentialEdges[i];
+
+                if (potential.distance > this.settings.turnMaxDistance) {
+                    continue;
+                }
+
+                let rig: boolean =
+                    turn.direction !== EdgeConstants.Direction.TURN_U &&
+                    potential.distance < this.settings.turnMaxRigDistance &&
+                    Math.abs(potential.directionChange) > this.settings.turnMinRigDirectionChange;
+
+                let directionDifference: number = this.spatial.angleDifference(
+                    turn.directionChange, potential.directionChange);
+
+                let score: number;
+
+                if (
+                    rig &&
+                    potential.directionChange * turn.directionChange > 0 &&
+                    Math.abs(potential.directionChange) < Math.abs(turn.directionChange)) {
+                    score = -Math.PI / 2 + Math.abs(potential.directionChange);
+                } else {
+                    if (Math.abs(directionDifference) > this.settings.turnMaxDirectionChange) {
+                        continue;
+                    }
+
+                    let motionDifference: number = turn.motionChange ?
+                        this.spatial.angleDifference(turn.motionChange, potential.motionChange) : 0;
+
+                    motionDifference = Math.sqrt(
+                        motionDifference * motionDifference +
+                        potential.verticalMotion * potential.verticalMotion);
+
+                    score =
+                        this.coefficients.turnDistance * potential.distance /
+                        this.settings.turnMaxDistance +
+                        this.coefficients.turnMotion * motionDifference / Math.PI +
+                        this.coefficients.turnSequencePenalty * (potential.sameSequence ? 0 : 1) +
+                        this.coefficients.turnMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
+                }
+
+                if (score < lowestScore) {
+                    lowestScore = score;
+                    turnKey = potential.apiNavImIm.key;
+                }
+            }
+
+            if (turnKey != null) {
+                edges.push({
+                    to: turnKey,
+                    direction: turn.direction
                 });
             }
         }

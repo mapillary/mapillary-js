@@ -143,7 +143,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
 
     beforeEach(() => {
        potentialEdge = {
-            distance: edgeCalculatorSettings.stepMaxStepDistance / 2,
+            distance: edgeCalculatorSettings.stepMaxDistance / 2,
             motionChange: 0,
             verticalMotion: 0,
             directionChange: 0,
@@ -208,7 +208,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should not have any edges because of max distance", () => {
-        potentialEdge.distance = edgeCalculatorSettings.stepMaxStepDistance + 1;
+        potentialEdge.distance = edgeCalculatorSettings.stepMaxDistance + 1;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -248,7 +248,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should fallback to next node with enabled fallback setting", () => {
-        potentialEdge.distance = edgeCalculatorSettings.stepMaxStepDistance + 1;
+        potentialEdge.distance = edgeCalculatorSettings.stepMaxDistance + 1;
         potentialEdge.motionChange = 0;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
@@ -263,12 +263,82 @@ describe("EdgeCalculator.computeStepNodes", () => {
     });
 
     it("should not fallback to previous node with disabled fallback setting", () => {
-        potentialEdge.distance = edgeCalculatorSettings.stepMaxStepDistance + 1;
+        potentialEdge.distance = edgeCalculatorSettings.stepMaxDistance + 1;
         potentialEdge.motionChange = Math.PI;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
             [potentialEdge], null, potentialEdge.apiNavImIm.key);
 
         expect(stepEdges.length).toBe(0);
+    });
+});
+
+describe("EdgeCalculator.computeTurnNodes", () => {
+    let edgeCalculator: EdgeCalculator;
+    let edgeCalculatorSettings: EdgeCalculatorSettings;
+    let edgeCalculatorDirections: EdgeCalculatorDirections;
+
+    let spatial: Spatial;
+
+    let potentialEdge: IPotentialEdge;
+
+    beforeEach(() => {
+        edgeCalculatorSettings = new EdgeCalculatorSettings();
+        edgeCalculatorDirections = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        spatial = new Spatial();
+    });
+
+    beforeEach(() => {
+       potentialEdge = {
+            distance: edgeCalculatorSettings.turnMaxDistance / 2,
+            motionChange: 0,
+            verticalMotion: 0,
+            directionChange: 0,
+            verticalDirectionChange: 0,
+            rotation: 0,
+            sameSequence: false,
+            sameMergeCc: false,
+            apiNavImIm: { key: "pkey" }
+        }
+    });
+
+    it("should have a turn left edge", () => {
+        potentialEdge.directionChange = Math.PI / 2;
+
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge]);
+
+        expect(turnEdges.length).toBe(1);
+
+        let turnEdge: IEdge = turnEdges[0];
+
+        expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
+    });
+
+    it("should have a turn right edge", () => {
+        potentialEdge.directionChange = -Math.PI / 2;
+
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge]);
+
+        expect(turnEdges.length).toBe(1);
+
+        let turnEdge: IEdge = turnEdges[0];
+
+        expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_RIGHT);
+    });
+
+    it("should have a u-turn edge", () => {
+        potentialEdge.directionChange = Math.PI;
+
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge]);
+
+        expect(turnEdges.length).toBe(1);
+
+        let turnEdge: IEdge = turnEdges[0];
+
+        expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_U);
     });
 });
