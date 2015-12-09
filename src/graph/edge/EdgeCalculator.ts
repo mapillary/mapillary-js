@@ -160,7 +160,7 @@ export class EdgeCalculator {
                     potential.verticalMotion * potential.verticalMotion);
 
                 let score: number =
-                    2 * potential.distance / this.settings.maxDistance +
+                    2 * Math.abs(potential.distance - this.settings.preferredStepDistance) / this.settings.maxDistance +
                     2 * motionDifference / this.settings.maxStepDrift +
                     2 * potential.rotation / this.settings.maxStepDirectionChange +
                     2 * (potential.sameSequence ? 1 : 0) +
