@@ -2,12 +2,13 @@ import {Node} from "../../Graph";
 import
 {
     EdgeConstants,
-    EdgeCalculatorDirections,
     IStep,
     IEdge,
     IPotentialEdge,
     ICalculatedEdges,
-    EdgeCalculatorSettings
+    EdgeCalculatorSettings,
+    EdgeCalculatorDirections,
+    EdgeCalculatorCoefficients
 } from "../../Edge";
 import {Spatial} from "../../Geo";
 
@@ -16,11 +17,13 @@ export class EdgeCalculator {
     private spatial: Spatial;
     private directions: EdgeCalculatorDirections;
     private settings: EdgeCalculatorSettings;
+    private coefficients: EdgeCalculatorCoefficients;
 
-    constructor(settings?: EdgeCalculatorSettings) {
+    constructor(settings?: EdgeCalculatorSettings, coefficients?: EdgeCalculatorCoefficients) {
         this.spatial = new Spatial();
         this.directions = new EdgeCalculatorDirections();
         this.settings = settings != null ? settings : new EdgeCalculatorSettings();
+        this.coefficients = coefficients != null ? coefficients : new EdgeCalculatorCoefficients();
     }
 
     public calculateEdges(node: Node): ICalculatedEdges {
@@ -160,11 +163,13 @@ export class EdgeCalculator {
                     potential.verticalMotion * potential.verticalMotion);
 
                 let score: number =
-                    2 * Math.abs(potential.distance - this.settings.preferredStepDistance) / this.settings.maxDistance +
-                    2 * motionDifference / this.settings.maxStepDrift +
-                    2 * potential.rotation / this.settings.maxStepDirectionChange +
-                    2 * (potential.sameSequence ? 1 : 0) +
-                    2 * (potential.sameMergeCc ? 1 : 0);
+                    this.coefficients.stepPreferredDistance *
+                    Math.abs(potential.distance - this.settings.preferredStepDistance) /
+                    this.settings.maxStepDistance +
+                    this.coefficients.stepMotion * motionDifference / this.settings.maxStepDrift +
+                    this.coefficients.stepRotation * potential.rotation / this.settings.maxStepDirectionChange +
+                    this.coefficients.stepSequencePenalty * (potential.sameSequence ? 1 : 0) +
+                    this.coefficients.stepMergeCcPenalty * (potential.sameMergeCc ? 1 : 0);
 
                 if (score < lowestScore) {
                     lowestScore = score;
