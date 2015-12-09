@@ -151,7 +151,7 @@ export class EdgeCalculator {
                     fallbackKey = potentialKey;
                 }
 
-                if (potential.distance > this.settings.maxDistance) {
+                if (potential.distance > this.settings.maxStepDistance) {
                     continue;
                 }
 
