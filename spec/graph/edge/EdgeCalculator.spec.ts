@@ -350,11 +350,7 @@ describe("EdgeCalculator.computeStepNodes", () => {
 
     beforeEach(() => {
         edgeCalculatorSettings = new EdgeCalculatorSettings();
-
         edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_FORWARD].useFallback = true;
-        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_BACKWARD].useFallback = false;
-
         edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
 
         edgeCalculatorHelper = new EdgeCalculatorHelper();
@@ -393,38 +389,6 @@ describe("EdgeCalculator.computeStepNodes", () => {
 
         expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
         expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
-    });
-});
-
-describe("EdgeCalculator.computeStepNodes", () => {
-    let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
-
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
-
-    let spatial: Spatial;
-
-    let potentialEdge1: IPotentialEdge;
-    let potentialEdge2: IPotentialEdge;
-
-    beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
-
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_FORWARD].useFallback = true;
-        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_BACKWARD].useFallback = false;
-
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
-
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
-    });
-
-    beforeEach(() => {
-        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
-        potentialEdge2 = edgeCalculatorHelper.createPotentialEdge("pkey2");
     });
 
     it("should have a step forward edge for smallest motion change", () => {
@@ -489,6 +453,34 @@ describe("EdgeCalculator.computeStepNodes", () => {
 
         potentialEdge2.motionChange = -edgeCalculatorSettings.stepMaxDrift / 3;
         potentialEdge2.verticalMotion = -edgeCalculatorSettings.stepMaxDrift / 3;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
+    });
+
+    it("should have a step forward edge with the same sequence", () => {
+        potentialEdge1.sameSequence = false;
+        potentialEdge2.sameSequence = true;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
+    });
+
+    it("should have a step forward edge with the same merge cc", () => {
+        potentialEdge1.sameMergeCc = false;
+        potentialEdge2.sameMergeCc = true;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
 
