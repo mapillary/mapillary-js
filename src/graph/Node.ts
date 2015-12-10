@@ -34,6 +34,14 @@ export class Node {
             this.apiNavImIm.merge_version > 0;
     }
 
+    public get fullPano(): boolean {
+        return this.apiNavImIm.gpano != null &&
+            this.apiNavImIm.gpano.CroppedAreaLeftPixels === 0 &&
+            this.apiNavImIm.gpano.CroppedAreaTopPixels === 0 &&
+            this.apiNavImIm.gpano.CroppedAreaImageWidthPixels === this.apiNavImIm.gpano.FullPanoWidthPixels &&
+            this.apiNavImIm.gpano.CroppedAreaImageHeightPixels === this.apiNavImIm.gpano.FullPanoHeightPixels;
+    }
+
     public findNextKeyInSequence (): string {
         return this.sequence.findNextKey(this.key);
     }

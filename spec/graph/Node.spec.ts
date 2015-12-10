@@ -58,4 +58,96 @@ describe("Node", () => {
         let node: Node = new Node("B", 0, {lat: 1, lon: 1}, true, sequence, apiNavImIm, null);
         expect(node.merged).toBe(true)
     });
+
+    it("should not be full pano when gpano is null", () => {
+        let apiNavImIm: IAPINavImIm = { key: "B", gpano: null }
+
+        let node: Node = new Node("B", 0, {lat: 1, lon: 1}, true, sequence, apiNavImIm, null);
+        expect(node.fullPano).toBe(false)
+    });
+
+    it("should not be full pano when cropped left", () => {
+        let apiNavImIm: IAPINavImIm = {
+            key: "B",
+            gpano: {
+                CroppedAreaLeftPixels: 0.5,
+                CroppedAreaTopPixels: 0,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaImageHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+                FullPanoHeightPixels: 1
+            }
+        };
+
+        let node: Node = new Node("B", 0, {lat: 1, lon: 1}, true, sequence, apiNavImIm, null);
+        expect(node.fullPano).toBe(false)
+    });
+
+    it("should not be full pano when cropped top", () => {
+        let apiNavImIm: IAPINavImIm = {
+            key: "B",
+            gpano: {
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0.5,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaImageHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+                FullPanoHeightPixels: 1
+            }
+        };
+
+        let node: Node = new Node("B", 0, {lat: 1, lon: 1}, true, sequence, apiNavImIm, null);
+        expect(node.fullPano).toBe(false)
+    });
+
+    it("should not be full pano when cropped right", () => {
+        let apiNavImIm: IAPINavImIm = {
+            key: "B",
+            gpano: {
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                CroppedAreaImageWidthPixels: 0.5,
+                CroppedAreaImageHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+                FullPanoHeightPixels: 1
+            }
+        };
+
+        let node: Node = new Node("B", 0, {lat: 1, lon: 1}, true, sequence, apiNavImIm, null);
+        expect(node.fullPano).toBe(false)
+    });
+
+    it("should not be full pano when cropped bottom", () => {
+        let apiNavImIm: IAPINavImIm = {
+            key: "B",
+            gpano: {
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaImageHeightPixels: 0.5,
+                FullPanoWidthPixels: 1,
+                FullPanoHeightPixels: 1
+            }
+        };
+
+        let node: Node = new Node("B", 0, {lat: 1, lon: 1}, true, sequence, apiNavImIm, null);
+        expect(node.fullPano).toBe(false)
+    });
+
+    it("should be full pano", () => {
+        let apiNavImIm: IAPINavImIm = {
+            key: "B",
+            gpano: {
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaImageHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+                FullPanoHeightPixels: 1
+            }
+        };
+
+        let node: Node = new Node("B", 0, {lat: 1, lon: 1}, true, sequence, apiNavImIm, null);
+        expect(node.fullPano).toBe(true)
+    });
 });

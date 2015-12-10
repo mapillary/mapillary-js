@@ -1,3 +1,5 @@
+import {IGPano} from "../../API";
+
 export interface IAPINavImIm {
     key: string;
     user?: string;
@@ -19,6 +21,7 @@ export interface IAPINavImIm {
     merge_cc?: number;
     clat?: number;
     clon?: number;
+    gpano?: IGPano;
 }
 
 export default IAPINavImIm;
