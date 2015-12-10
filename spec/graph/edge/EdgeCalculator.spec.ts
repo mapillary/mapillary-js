@@ -491,4 +491,18 @@ describe("EdgeCalculator.computeStepNodes", () => {
         expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
         expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
     });
+
+    it("should have a step forward edge with smallest rotation", () => {
+        potentialEdge1.rotation = 0.2;
+        potentialEdge2.rotation = 0.1;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
+    });
 });
