@@ -15,6 +15,7 @@ import {
 import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../../src/API";
 import {ILatLon} from "../../../src/Viewer"
 import {Spatial} from "../../../src/Geo";
+import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator", () => {
     var graph: Graph;
@@ -126,6 +127,8 @@ describe("EdgeCalculator.computeStepNodes", () => {
     let edgeCalculatorSettings: EdgeCalculatorSettings;
     let edgeCalculatorDirections: EdgeCalculatorDirections;
 
+    let edgeCalculatorHelper: EdgeCalculatorHelper;
+
     let spatial: Spatial;
 
     let potentialEdge: IPotentialEdge;
@@ -138,21 +141,15 @@ describe("EdgeCalculator.computeStepNodes", () => {
         edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_BACKWARD].useFallback = false;
 
         edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+
+        edgeCalculatorHelper = new EdgeCalculatorHelper();
+
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-       potentialEdge = {
-            distance: edgeCalculatorSettings.stepMaxDistance / 2,
-            motionChange: 0,
-            verticalMotion: 0,
-            directionChange: 0,
-            verticalDirectionChange: 0,
-            rotation: 0,
-            sameSequence: false,
-            sameMergeCc: false,
-            apiNavImIm: { key: "pkey" }
-        }
+        potentialEdge = edgeCalculatorHelper.createPotentialEdge();
+        potentialEdge.distance = edgeCalculatorSettings.stepMaxDistance / 2;
     });
 
     it("should have a step forward edge", () => {
@@ -278,6 +275,8 @@ describe("EdgeCalculator.computeTurnNodes", () => {
     let edgeCalculatorSettings: EdgeCalculatorSettings;
     let edgeCalculatorDirections: EdgeCalculatorDirections;
 
+    let edgeCalculatorHelper: EdgeCalculatorHelper;
+
     let spatial: Spatial;
 
     let potentialEdge: IPotentialEdge;
@@ -286,21 +285,15 @@ describe("EdgeCalculator.computeTurnNodes", () => {
         edgeCalculatorSettings = new EdgeCalculatorSettings();
         edgeCalculatorDirections = new EdgeCalculatorDirections();
         edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+
+        edgeCalculatorHelper = new EdgeCalculatorHelper();
+
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-       potentialEdge = {
-            distance: edgeCalculatorSettings.turnMaxDistance / 2,
-            motionChange: 0,
-            verticalMotion: 0,
-            directionChange: 0,
-            verticalDirectionChange: 0,
-            rotation: 0,
-            sameSequence: false,
-            sameMergeCc: false,
-            apiNavImIm: { key: "pkey" }
-        }
+       potentialEdge = edgeCalculatorHelper.createPotentialEdge();
+       potentialEdge.distance = edgeCalculatorSettings.turnMaxDistance / 2;
     });
 
     it("should have a turn left edge", () => {
@@ -348,24 +341,12 @@ describe("EdgeCalculator.computeStepNodes", () => {
     let edgeCalculatorSettings: EdgeCalculatorSettings;
     let edgeCalculatorDirections: EdgeCalculatorDirections;
 
+    let edgeCalculatorHelper: EdgeCalculatorHelper;
+
     let spatial: Spatial;
 
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
-
-    let createPotentialEdge = (): IPotentialEdge => {
-        return {
-            distance: 0,
-            motionChange: 0,
-            verticalMotion: 0,
-            directionChange: 0,
-            verticalDirectionChange: 0,
-            rotation: 0,
-            sameSequence: false,
-            sameMergeCc: false,
-            apiNavImIm: { key: "pkey" }
-        };
-    }
 
     beforeEach(() => {
         edgeCalculatorSettings = new EdgeCalculatorSettings();
@@ -375,12 +356,15 @@ describe("EdgeCalculator.computeStepNodes", () => {
         edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_BACKWARD].useFallback = false;
 
         edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+
+        edgeCalculatorHelper = new EdgeCalculatorHelper();
+
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-        potentialEdge1 = createPotentialEdge();
-        potentialEdge2 = createPotentialEdge();
+        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
+        potentialEdge2 = edgeCalculatorHelper.createPotentialEdge("pkey2");
     });
 
     it("should have a step forward edge based on preferred distance", () => {
