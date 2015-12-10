@@ -11,6 +11,11 @@ export class EdgeCalculatorCoefficients {
     public turnSequencePenalty: number;
     public turnMergeCcPenalty: number;
 
+    public panoPreferredDistance: number;
+    public panoMotion: number;
+    public panoSequencePenalty: number;
+    public panoMergeCcPenalty: number;
+
     constructor() {
         this.stepPreferredDistance = 4;
         this.stepMotion = 3;
@@ -22,6 +27,11 @@ export class EdgeCalculatorCoefficients {
         this.turnMotion = 2;
         this.turnSequencePenalty = 1;
         this.turnMergeCcPenalty = 4;
+
+        this.panoPreferredDistance = 2;
+        this.panoMotion = 2;
+        this.panoSequencePenalty = 1;
+        this.panoMergeCcPenalty = 4;
     }
 }
 
