@@ -342,3 +342,72 @@ describe("EdgeCalculator.computeTurnNodes", () => {
         expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_U);
     });
 });
+
+describe("EdgeCalculator.computeStepNodes", () => {
+    let edgeCalculator: EdgeCalculator;
+    let edgeCalculatorSettings: EdgeCalculatorSettings;
+    let edgeCalculatorDirections: EdgeCalculatorDirections;
+
+    let spatial: Spatial;
+
+    let potentialEdge1: IPotentialEdge;
+    let potentialEdge2: IPotentialEdge;
+
+    let createPotentialEdge = (): IPotentialEdge => {
+        return {
+            distance: 0,
+            motionChange: 0,
+            verticalMotion: 0,
+            directionChange: 0,
+            verticalDirectionChange: 0,
+            rotation: 0,
+            sameSequence: false,
+            sameMergeCc: false,
+            apiNavImIm: { key: "pkey" }
+        };
+    }
+
+    beforeEach(() => {
+        edgeCalculatorSettings = new EdgeCalculatorSettings();
+
+        edgeCalculatorDirections = new EdgeCalculatorDirections();
+        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_FORWARD].useFallback = true;
+        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_BACKWARD].useFallback = false;
+
+        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        spatial = new Spatial();
+    });
+
+    beforeEach(() => {
+        potentialEdge1 = createPotentialEdge();
+        potentialEdge2 = createPotentialEdge();
+    });
+
+    it("should have a step forward edge based on preferred distance", () => {
+        potentialEdge1.distance = edgeCalculatorSettings.stepPreferredDistance + 1;
+        potentialEdge2.distance = edgeCalculatorSettings.stepPreferredDistance;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
+    });
+
+    it("should have a step forward edge based on preferred distance", () => {
+        potentialEdge1.distance = edgeCalculatorSettings.stepPreferredDistance - 1;
+        potentialEdge2.distance = edgeCalculatorSettings.stepPreferredDistance;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
+
+        expect(stepEdges.length).toBe(1);
+
+        let stepEdge: IEdge = stepEdges[0];
+
+        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
+    });
+});
