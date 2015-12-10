@@ -11,6 +11,7 @@ export class EdgeCalculatorHelper {
             rotation: 0,
             sameSequence: false,
             sameMergeCc: false,
+            fullPano: false,
             apiNavImIm: { key: key }
         };
     }

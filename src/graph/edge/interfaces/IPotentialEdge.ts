@@ -59,6 +59,12 @@ export interface IPotentialEdge {
     sameMergeCc: boolean;
 
     /**
+     * Determines if the destination node is a full panorama.
+     * @property {boolean} fullPano
+     */
+    fullPano: boolean;
+
+    /**
      * APINavImIm properties of destination node.
      * @property {IAPINavImIm} apiNavImIm
      */

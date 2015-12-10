@@ -116,6 +116,7 @@ export class EdgeCalculator {
                 rotation: rotation,
                 sameSequence: sameSequence,
                 sameMergeCc: sameMergeCc,
+                fullPano: potential.fullPano,
                 apiNavImIm: potential.apiNavImIm
             };
 
