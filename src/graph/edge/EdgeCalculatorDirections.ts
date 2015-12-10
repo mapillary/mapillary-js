@@ -1,9 +1,10 @@
-import {EdgeConstants, IStep, ITurn} from "../../Edge";
+import {EdgeConstants, IStep, ITurn, IPano} from "../../Edge";
 
 export class EdgeCalculatorDirections {
 
     public steps: { [direction: string]: IStep } = {};
     public turns: { [direction: string]: ITurn } = {};
+    public panos: { [direction: string]: IPano } = {};
 
     constructor() {
         this.steps[EdgeConstants.Direction.STEP_FORWARD] = {
@@ -46,6 +47,34 @@ export class EdgeCalculatorDirections {
             direction: EdgeConstants.Direction.TURN_U,
             directionChange: Math.PI,
             motionChange: null
+        };
+
+        this.panos[EdgeConstants.Direction.STEP_FORWARD] = {
+            direction: EdgeConstants.Direction.STEP_FORWARD,
+            prev: EdgeConstants.Direction.STEP_RIGHT,
+            next: EdgeConstants.Direction.STEP_LEFT,
+            directionChange: 0
+        };
+
+        this.panos[EdgeConstants.Direction.STEP_BACKWARD] = {
+            direction: EdgeConstants.Direction.STEP_BACKWARD,
+            prev: EdgeConstants.Direction.STEP_LEFT,
+            next: EdgeConstants.Direction.STEP_RIGHT,
+            directionChange: Math.PI
+        };
+
+        this.panos[EdgeConstants.Direction.STEP_LEFT] = {
+            direction: EdgeConstants.Direction.STEP_LEFT,
+            prev: EdgeConstants.Direction.STEP_FORWARD,
+            next: EdgeConstants.Direction.STEP_BACKWARD,
+            directionChange: Math.PI / 2
+        };
+
+        this.panos[EdgeConstants.Direction.STEP_RIGHT] = {
+            direction: EdgeConstants.Direction.STEP_RIGHT,
+            prev: EdgeConstants.Direction.STEP_BACKWARD,
+            next: EdgeConstants.Direction.STEP_FORWARD,
+            directionChange: -Math.PI / 2
         };
     }
 }
