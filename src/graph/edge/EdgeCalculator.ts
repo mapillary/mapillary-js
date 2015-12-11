@@ -94,7 +94,7 @@ export class EdgeCalculator {
                 direction.y);
 
             let verticalDirection: number = this.spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
-            let verticalDirectionChange: number = Math.abs(verticalDirection - currentVerticalDirection);
+            let verticalDirectionChange: number = verticalDirection - currentVerticalDirection;
 
             let rotation: number = this.spatial.relativeRotationAngle(
                 node.apiNavImIm.rotation,
