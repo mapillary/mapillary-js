@@ -106,8 +106,7 @@ export class EdgeCalculator {
             let sameSequence: boolean = potential.sequence.key === node.sequence.key;
 
             let sameMergeCc: boolean =
-                 potential.apiNavImIm.merge_cc == null ||
-                 node.apiNavImIm.merge_cc == null ||
+                 (potential.apiNavImIm.merge_cc == null && node.apiNavImIm.merge_cc == null) ||
                  potential.apiNavImIm.merge_cc === node.apiNavImIm.merge_cc;
 
             let potentialEdge: IPotentialEdge = {

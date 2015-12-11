@@ -82,10 +82,15 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         return t;
     };
 
-    let createNode = (key: string, sequence: Sequence, r: number[], C: number[]): Node => {
+    let createNode = (
+        key: string,
+        sequence: Sequence,
+        r: number[],
+        C: number[],
+        merge_cc: number = 2): Node => {
         let t: number[] = getTranslation(r, C);
 
-        let apiNavImIm: IAPINavImIm = { key: key, rotation: r, merge_version: 1, merge_cc: 2 };
+        let apiNavImIm: IAPINavImIm = { key: key, rotation: r, merge_version: 1, merge_cc: merge_cc };
         let node: Node = new Node(key, 0, latLon, true, sequence, apiNavImIm, t);
 
         return node;
@@ -410,5 +415,131 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
         expect(potentialEdge.rotation).toBeCloseTo(theta, epsilon);
+    });
+
+    it("should be same sequence", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(0), [0, 0, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.sameSequence).toBe(true);
+    });
+
+    it("should not be same sequence", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence1: Sequence = createSequence("skey1", [key, edgeKey]);
+        let sequence2: Sequence = createSequence("skey2", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence1, createRotationVector(0), [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence2, createRotationVector(0), [0, 0, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.sameSequence).toBe(false);
+    });
+
+    it("should be same merge cc", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey1", [key, edgeKey]);
+
+        let mergeCc: number = 45;
+
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0], mergeCc)
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(0), [0, 0, 0], mergeCc);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.sameMergeCc).toBe(true);
+    });
+
+    it("should not be same merge cc", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey1", [key, edgeKey]);
+
+        let mergeCc1: number = 45;
+        let mergeCc2: number = 22;
+
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0], mergeCc1)
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(0), [0, 0, 0], mergeCc2);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.sameMergeCc).toBe(false);
+    });
+
+    it("should be same merge cc when nonexistent", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey1", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0], null)
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(0), [0, 0, 0], null);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.sameMergeCc).toBe(true);
+    });
+
+    it("should not be same merge cc when one is nonexistent", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey1", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0], 467)
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(0), [0, 0, 0], null);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.sameMergeCc).toBe(false);
     });
 });
