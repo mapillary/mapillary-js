@@ -64,9 +64,38 @@ describe("EdgeCalculator.getPotentialEdges", () => {
     let edgeCalculator: EdgeCalculator;
     let spatial: Spatial;
 
+    let latLon: ILatLon;
+
+    let createSequence = (key: string, keys: string[]): Sequence => {
+        let apiNavImS: IAPINavImS = { key: key, keys: keys };
+        let sequence: Sequence = new Sequence(apiNavImS);
+
+        return sequence;
+    };
+
+    let getTranslation = (r: number[], C: number[]): number[] => {
+        let R: THREE.Matrix4 = spatial.rotationMatrix(r);
+        let t: number[] = new THREE.Vector3().fromArray(C).applyMatrix4(R).multiplyScalar(-1).toArray();
+
+        return t;
+    };
+
+    let createNode = (key: string, sequence: Sequence, r: number[], C: number[]): Node => {
+        let t: number[] = getTranslation(r, C);
+
+        let apiNavImIm: IAPINavImIm = { key: key, rotation: r, merge_version: 1, merge_cc: 2 };
+        let node: Node = new Node(key, 0, latLon, true, sequence, apiNavImIm, t);
+
+        return node;
+    };
+
     beforeEach(() => {
         edgeCalculator = new EdgeCalculator();
         spatial = new Spatial();
+    });
+
+    beforeEach(() => {
+        latLon = { lat: 0, lon: 0 };
     });
 
     it("should return empty array when node is not worthy", () => {
@@ -82,26 +111,10 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
-        let apiNavImS: IAPINavImS = { key: "skey", keys: [key, edgeKey] };
-        let sequence: Sequence = new Sequence(apiNavImS);
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
 
-        let latLon: ILatLon = { lat: 0, lon: 0 };
-
-        let r: number[] = [0, -Math.PI / 2, 0];
-        let R: THREE.Matrix4 = spatial.rotationMatrix(r);
-        let apiNavImIm: IAPINavImIm = { key: key, rotation: r, merge_version: 1, merge_cc: 2 };
-
-        let C: number[] = [0, 0, 0];
-        let t: number[] = new THREE.Vector3().fromArray(C).applyMatrix4(R).multiplyScalar(-1).toArray();
-
-        let node: Node = new Node(key, 0, latLon, true, sequence, apiNavImIm, t);
-
-        let apiNavImImE: IAPINavImIm = { key: edgeKey, rotation: r, merge_version: 1, merge_cc: 2 };
-
-        let Ce: number[] = [10, 0, 0];
-        let te: number[] = new THREE.Vector3().fromArray(Ce).applyMatrix4(R).multiplyScalar(-1).toArray();
-
-        let edgeNode: Node = new Node("edgeKey", 0, latLon, true, sequence, apiNavImImE, te);
+        let node: Node = createNode(key, sequence, [0, -Math.PI / 2, 0], [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, [0, -Math.PI / 2, 0], [10, 0, 0]);
 
         let potentialEdges: IPotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, [edgeNode], []);
@@ -126,26 +139,10 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
-        let apiNavImS: IAPINavImS = { key: "skey", keys: [key, edgeKey] };
-        let sequence: Sequence = new Sequence(apiNavImS);
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
 
-        let latLon: ILatLon = { lat: 0, lon: 0 };
-
-        let r: number[] = [0, -Math.PI / 2, 0];
-        let R: THREE.Matrix4 = spatial.rotationMatrix(r);
-        let apiNavImIm: IAPINavImIm = { key: key, rotation: r, merge_version: 1, merge_cc: 2 };
-
-        let C: number[] = [10, 10, 3];
-        let t: number[] = new THREE.Vector3().fromArray(C).applyMatrix4(R).multiplyScalar(-1).toArray();
-
-        let node: Node = new Node(key, 0, latLon, true, sequence, apiNavImIm, t);
-
-        let apiNavImImE: IAPINavImIm = { key: edgeKey, rotation: r, merge_version: 1, merge_cc: 2 };
-
-        let Ce: number[] = [13, 6, 3];
-        let te: number[] = new THREE.Vector3().fromArray(Ce).applyMatrix4(R).multiplyScalar(-1).toArray();
-
-        let edgeNode: Node = new Node("edgeKey", 0, latLon, true, sequence, apiNavImImE, te);
+        let node: Node = createNode(key, sequence, [0, -Math.PI / 2, 0], [10, 10, 3])
+        let edgeNode: Node = createNode(edgeKey, sequence, [0, -Math.PI / 2, 0], [13, 6, 3]);
 
         let potentialEdges: IPotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, [edgeNode], []);
