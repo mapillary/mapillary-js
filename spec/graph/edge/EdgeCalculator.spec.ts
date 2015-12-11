@@ -366,4 +366,49 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
         expect(potentialEdge.verticalDirectionChange).toBeCloseTo(-Math.PI / 6, epsilon);
     });
+
+    it("should have correct rotation", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, createRotationVector(Math.PI / 2, Math.PI / 6), [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(Math.PI / 2, 2 * Math.PI / 3), [-3, 0, 2]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.rotation).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should have correct rotation", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let r1: number[] = [1/3, 2/3, -1/3];
+        let r2: number[] = [-2/3, -1/4, 1/6];
+
+        let theta: number = spatial.relativeRotationAngle(r1, r2);
+
+        let node: Node = createNode(key, sequence, r1, [0, 2, -1])
+        let edgeNode: Node = createNode(edgeKey, sequence, r2, [-3, 0, 2]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.rotation).toBeCloseTo(theta, epsilon);
+    });
 });
