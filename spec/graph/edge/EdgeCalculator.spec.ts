@@ -61,6 +61,8 @@ describe("EdgeCalculator", () => {
 });
 
 describe("EdgeCalculator.getPotentialEdges", () => {
+    let epsilon: number = 1e-8;
+
     let edgeCalculator: EdgeCalculator;
     let spatial: Spatial;
 
@@ -153,5 +155,106 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
         expect(potentialEdge.distance).toBe(5);
+    });
+
+
+    it("should return a potential edge with correct motion change", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, [0, -Math.PI / 2, 0], [-10, -10, -5])
+        let edgeNode: Node = createNode(edgeKey, sequence, [0, -Math.PI / 2, 0], [-5, -5, -5]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.motionChange).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
+    it("should return a potential edge with correct motion change", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, [Math.PI / 2, 0, 0], [10, -10, -5])
+        let edgeNode: Node = createNode(edgeKey, sequence, [Math.PI / 2, 0, 0], [15, -5, -5]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.motionChange).toBeCloseTo(-Math.PI / 4, epsilon);
+    });
+
+    it("should return a potential edge with correct motion change", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, [Math.PI / 2, 0, 0], [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, [Math.PI / 2, 0, 0], [0, -10, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(Math.abs(potentialEdge.motionChange)).toBeCloseTo(Math.PI, epsilon);
+    });
+
+    it("should return a potential edge with correct vertical motion", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, [Math.PI / 2, 0, 0], [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, [Math.PI / 2, 0, 0], [3, 4, 5]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.verticalMotion).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
+    it("should return a potential edge with correct vertical motion", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, [Math.PI / 2, 0, 0], [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, [Math.PI / 2, 0, 0], [-3, -4, -5]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.verticalMotion).toBeCloseTo(-Math.PI / 4, epsilon);
     });
 });
