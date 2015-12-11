@@ -91,6 +91,15 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         return node;
     };
 
+    let createRotationVector = (azimuth: number, norm: number = Math.PI / 2): number[] => {
+        let x: number = Math.cos(azimuth);
+        let y: number = Math.sin(azimuth);
+
+        let r: number[] = [norm * x, norm * y, 0];
+
+        return r;
+    };
+
     beforeEach(() => {
         edgeCalculator = new EdgeCalculator();
         spatial = new Spatial();
@@ -137,7 +146,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.sameMergeCc).toBe(true);
     });
 
-    it("should return a potential edge with correct distance", () => {
+    it("should have correct distance", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
@@ -158,7 +167,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
     });
 
 
-    it("should return a potential edge with correct motion change", () => {
+    it("should have correct motion change", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
@@ -178,7 +187,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.motionChange).toBeCloseTo(Math.PI / 4, epsilon);
     });
 
-    it("should return a potential edge with correct motion change", () => {
+    it("should have correct motion change", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
@@ -198,7 +207,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.motionChange).toBeCloseTo(-Math.PI / 4, epsilon);
     });
 
-    it("should return a potential edge with correct motion change", () => {
+    it("should have correct motion change", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
@@ -218,7 +227,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(Math.abs(potentialEdge.motionChange)).toBeCloseTo(Math.PI, epsilon);
     });
 
-    it("should return a potential edge with correct vertical motion", () => {
+    it("should have correct vertical motion", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
@@ -238,7 +247,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.verticalMotion).toBeCloseTo(Math.PI / 4, epsilon);
     });
 
-    it("should return a potential edge with correct vertical motion", () => {
+    it("should have correct vertical motion", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
 
@@ -256,5 +265,65 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
         expect(potentialEdge.verticalMotion).toBeCloseTo(-Math.PI / 4, epsilon);
+    });
+
+    it("should have correct viewing direction change", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(Math.PI / 2), [-3, -4, -5]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.directionChange).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should have correct viewing direction change", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(-Math.PI / 2), [-3, 0, -5]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.directionChange).toBeCloseTo(-Math.PI / 2, epsilon);
+    });
+
+    it("should have correct viewing direction change", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, createRotationVector(Math.PI / 4), [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(-3 * Math.PI / 4), [-3, 0, -5]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(Math.abs(potentialEdge.directionChange)).toBeCloseTo(Math.PI, epsilon);
     });
 });
