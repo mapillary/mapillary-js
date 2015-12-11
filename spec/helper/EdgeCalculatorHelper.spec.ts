@@ -9,6 +9,7 @@ export class EdgeCalculatorHelper {
             directionChange: 0,
             verticalDirectionChange: 0,
             rotation: 0,
+            worldMotionAzimuth: 0,
             sameSequence: false,
             sameMergeCc: false,
             fullPano: false,

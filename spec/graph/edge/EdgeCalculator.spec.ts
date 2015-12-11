@@ -115,6 +115,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.motionChange).toBe(0);
         expect(potentialEdge.verticalMotion).toBe(0);
         expect(potentialEdge.rotation).toBe(0);
+        expect(potentialEdge.worldMotionAzimuth).toBe(0);
         expect(potentialEdge.directionChange).toBe(0);
         expect(potentialEdge.verticalDirectionChange).toBe(0);
         expect(potentialEdge.sameSequence).toBe(true);

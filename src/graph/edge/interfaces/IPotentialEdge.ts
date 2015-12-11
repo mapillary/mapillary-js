@@ -45,6 +45,13 @@ export interface IPotentialEdge {
     rotation: number;
 
     /**
+     * The counter clockwise horizontal rotation angle from
+     * the X-axis in a spherical coordiante system.
+     * @propery {number} worldMotionAzimuth
+     */
+    worldMotionAzimuth: number;
+
+    /**
      * Determines if the origin and destination node are in the
      * same sequence.
      * @property {boolean} sameSequence

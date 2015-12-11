@@ -100,6 +100,9 @@ export class EdgeCalculator {
                 node.apiNavImIm.rotation,
                 potential.apiNavImIm.rotation);
 
+            let worldMotionAzimuth: number =
+                this.spatial.angleBetweenVector2(1, 0, direction.x, direction.y);
+
             let sameSequence: boolean = potential.sequence.key === node.sequence.key;
 
             let sameMergeCc: boolean =
@@ -114,6 +117,7 @@ export class EdgeCalculator {
                 directionChange: directionChange,
                 verticalDirectionChange: verticalDirectionChange,
                 rotation: rotation,
+                worldMotionAzimuth: worldMotionAzimuth,
                 sameSequence: sameSequence,
                 sameMergeCc: sameMergeCc,
                 fullPano: potential.fullPano,
@@ -137,8 +141,8 @@ export class EdgeCalculator {
             let step: IStep = this.directions.steps[k];
 
             let lowestScore: number = Number.MAX_VALUE;
-            let stepKey: string = null;
-            let fallbackKey: string = null;
+            let edge: IPotentialEdge = null;
+            let fallback: IPotentialEdge = null;
 
             for (let j: number = 0; j < potentialEdges.length; j++) {
                 let potential: IPotentialEdge = potentialEdges[j];
@@ -160,7 +164,7 @@ export class EdgeCalculator {
 
                 let potentialKey: string = potential.apiNavImIm.key;
                 if (step.useFallback && (potentialKey === prevKey || potentialKey === nextKey)) {
-                    fallbackKey = potentialKey;
+                    fallback = potential;
                 }
 
                 if (potential.distance > this.settings.stepMaxDistance) {
@@ -182,15 +186,16 @@ export class EdgeCalculator {
 
                 if (score < lowestScore) {
                     lowestScore = score;
-                    stepKey = potentialKey;
+                    edge = potential;
                 }
             }
 
-            let key: string = stepKey == null ? fallbackKey : stepKey;
-            if (key != null) {
+            edge = edge == null ? fallback : edge;
+            if (edge != null) {
                 edges.push({
-                    to: key,
-                    direction: step.direction
+                    to: edge.apiNavImIm.key,
+                    direction: step.direction,
+                    data: { worldMotionAzimuth: edge.worldMotionAzimuth }
                 });
             }
         }
@@ -209,7 +214,7 @@ export class EdgeCalculator {
             let turn: ITurn = this.directions.turns[k];
 
             let lowestScore: number = Number.MAX_VALUE;
-            let turnKey: string = null;
+            let edge: IPotentialEdge = null;
 
             for (let i: number = 0; i < potentialEdges.length; i++) {
                 let potential: IPotentialEdge = potentialEdges[i];
@@ -255,14 +260,15 @@ export class EdgeCalculator {
 
                 if (score < lowestScore) {
                     lowestScore = score;
-                    turnKey = potential.apiNavImIm.key;
+                    edge = potential;
                 }
             }
 
-            if (turnKey != null) {
+            if (edge != null) {
                 edges.push({
-                    to: turnKey,
-                    direction: turn.direction
+                    to: edge.apiNavImIm.key,
+                    direction: turn.direction,
+                    data: { worldMotionAzimuth: edge.worldMotionAzimuth }
                 });
             }
         }
@@ -295,7 +301,7 @@ export class EdgeCalculator {
             let rotation: number = index / this.settings.panoMaxItems * 2 * Math.PI;
 
             let lowestScore: number = Number.MAX_VALUE;
-            let item: IPotentialEdge = null;
+            let edge: IPotentialEdge = null;
 
             for (let i: number = 0; i < potentialPanos.length; i++) {
                 let potential: IPotentialEdge = potentialPanos[i];
@@ -329,14 +335,15 @@ export class EdgeCalculator {
 
                 if (score < lowestScore) {
                     lowestScore = score;
-                    item = potential;
+                    edge = potential;
                 }
             }
 
-            if (item != null) {
+            if (edge != null) {
                 panoEdges.push({
-                    to: item.apiNavImIm.key,
-                    direction: EdgeConstants.Direction.PANO
+                    to: edge.apiNavImIm.key,
+                    direction: EdgeConstants.Direction.PANO,
+                    data: { worldMotionAzimuth: edge.worldMotionAzimuth }
                 });
             }
         }
