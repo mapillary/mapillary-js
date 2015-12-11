@@ -713,3 +713,113 @@ describe('EdgeCalculator.computePanoEdges', () => {
         expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
     });
 });
+
+describe('EdgeCalculator.computePanoEdges', () => {
+    let edgeCalculator: EdgeCalculator;
+    let edgeCalculatorSettings: EdgeCalculatorSettings;
+    let edgeCalculatorDirections: EdgeCalculatorDirections;
+
+    let edgeCalculatorHelper: EdgeCalculatorHelper;
+
+    let spatial: Spatial;
+
+    let potentialEdge1: IPotentialEdge;
+    let potentialEdge2: IPotentialEdge;
+
+    beforeEach(() => {
+        edgeCalculatorSettings = new EdgeCalculatorSettings();
+        edgeCalculatorSettings.panoMinDistance = 0.1;
+        edgeCalculatorSettings.panoMaxDistance = 20;
+        edgeCalculatorSettings.panoPreferredDistance = 5;
+        edgeCalculatorSettings.panoMaxItems = 4;
+    });
+
+    beforeEach(() => {
+        edgeCalculatorDirections = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+
+        edgeCalculatorHelper = new EdgeCalculatorHelper();
+
+        spatial = new Spatial();
+    });
+
+    beforeEach(() => {
+        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
+        potentialEdge1.distance = edgeCalculatorSettings.panoPreferredDistance;
+        potentialEdge1.fullPano = true
+
+        potentialEdge2 = edgeCalculatorHelper.createPotentialEdge("pkey2");
+        potentialEdge2.distance = edgeCalculatorSettings.panoPreferredDistance;
+        potentialEdge2.fullPano = true
+    });
+
+    it('should have a pano edge closest to preferred distance', () => {
+        potentialEdge1.distance = edgeCalculatorSettings.panoPreferredDistance + 1;
+        potentialEdge2.distance = edgeCalculatorSettings.panoPreferredDistance;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
+    it('should have a pano edge closest to preferred distance', () => {
+        potentialEdge1.distance = edgeCalculatorSettings.panoPreferredDistance - 1;
+        potentialEdge2.distance = edgeCalculatorSettings.panoPreferredDistance;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
+    it('should have a pano edge with same sequence', () => {
+        potentialEdge1.sameSequence = false;
+        potentialEdge2.sameSequence = true;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
+    it('should have a pano edge with same sequence', () => {
+        potentialEdge1.sameMergeCc = false;
+        potentialEdge2.sameMergeCc = true;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
+    it('should have a pano edge with smallest motion change', () => {
+        potentialEdge1.motionChange = 0.2;
+        potentialEdge2.motionChange = 0.1;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+});
