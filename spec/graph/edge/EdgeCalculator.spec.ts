@@ -121,4 +121,40 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.sameSequence).toBe(true);
         expect(potentialEdge.sameMergeCc).toBe(true);
     });
+
+    it("should return a potential edge with correct distance", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let apiNavImS: IAPINavImS = { key: "skey", keys: [key, edgeKey] };
+        let sequence: Sequence = new Sequence(apiNavImS);
+
+        let latLon: ILatLon = { lat: 0, lon: 0 };
+
+        let r: number[] = [0, -Math.PI / 2, 0];
+        let R: THREE.Matrix4 = spatial.rotationMatrix(r);
+        let apiNavImIm: IAPINavImIm = { key: key, rotation: r, merge_version: 1, merge_cc: 2 };
+
+        let C: number[] = [10, 10, 3];
+        let t: number[] = new THREE.Vector3().fromArray(C).applyMatrix4(R).multiplyScalar(-1).toArray();
+
+        let node: Node = new Node(key, 0, latLon, true, sequence, apiNavImIm, t);
+
+        let apiNavImImE: IAPINavImIm = { key: edgeKey, rotation: r, merge_version: 1, merge_cc: 2 };
+
+        let Ce: number[] = [13, 6, 3];
+        let te: number[] = new THREE.Vector3().fromArray(Ce).applyMatrix4(R).multiplyScalar(-1).toArray();
+
+        let edgeNode: Node = new Node("edgeKey", 0, latLon, true, sequence, apiNavImImE, te);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.distance).toBe(5);
+    });
 });
