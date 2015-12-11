@@ -269,6 +269,80 @@ export class EdgeCalculator {
 
         return edges;
     }
+
+    public computePanoEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
+        let panoEdges: IEdge[] = [];
+        let potentialPanos: IPotentialEdge[] = [];
+
+        for (let i: number = 0; i < potentialEdges.length; i++) {
+            let potential: IPotentialEdge = potentialEdges[i];
+
+            if (!potential.fullPano) {
+                continue;
+            }
+
+            if (potential.distance < this.settings.panoMinDistance ||
+                potential.distance > this.settings.panoMaxDistance) {
+                continue;
+            }
+
+            potentialPanos.push(potential);
+        }
+
+        let maxRotationDifference: number = Math.PI / this.settings.panoMaxItems;
+        let occupiedAngles: number[] = [];
+        for (let index: number = 0; index < this.settings.panoMaxItems; index++) {
+            let rotation: number = index / this.settings.panoMaxItems * 2 * Math.PI;
+
+            let lowestScore: number = Number.MAX_VALUE;
+            let item: IPotentialEdge = null;
+
+            for (let i: number = 0; i < potentialPanos.length; i++) {
+                let potential: IPotentialEdge = potentialPanos[i];
+
+                let motionDifference: number = this.spatial.angleDifference(rotation, potential.motionChange);
+
+                if (Math.abs(motionDifference) > maxRotationDifference) {
+                    continue;
+                }
+
+                let occupiedDifference: number = Number.MAX_VALUE;
+                for (let j: number = 0; j < occupiedAngles.length; j++) {
+                    let occupiedAngle: number = occupiedAngles[j];
+                    let difference: number = this.spatial.angleDifference(occupiedAngle, potential.motionChange);
+                    if (Math.abs(difference) < occupiedDifference) {
+                        occupiedDifference = difference;
+                    }
+                }
+
+                if (occupiedDifference < maxRotationDifference) {
+                    continue;
+                }
+
+                let score: number =
+                    this.coefficients.panoPreferredDistance *
+                    Math.abs(potential.distance - this.settings.panoPreferredDistance) /
+                    this.settings.panoMaxDistance +
+                    this.coefficients.panoMotion * Math.abs(motionDifference) / maxRotationDifference +
+                    this.coefficients.panoSequencePenalty * (potential.sameSequence ? 0 : 1) +
+                    this.coefficients.panoMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
+
+                if (score < lowestScore) {
+                    lowestScore = score;
+                    item = potential;
+                }
+            }
+
+            if (item != null) {
+                panoEdges.push({
+                    to: item.apiNavImIm.key,
+                    direction: EdgeConstants.Direction.PANO
+                });
+            }
+        }
+
+        return panoEdges;
+    }
 }
 
 export default EdgeCalculator;
