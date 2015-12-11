@@ -712,6 +712,30 @@ describe('EdgeCalculator.computePanoEdges', () => {
         expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
         expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
     });
+
+    it('should not have a pano edge with to long distance', () => {
+        potentialEdge1.distance = edgeCalculatorSettings.panoMaxDistance + 1;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
+    });
+
+    it('should not have a pano edge with to short distance', () => {
+        potentialEdge1.distance = edgeCalculatorSettings.panoMinDistance / 2;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
+    });
+
+    it('should not have a pano edge for non full pano', () => {
+        potentialEdge1.fullPano = false;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
+    });
 });
 
 describe('EdgeCalculator.computePanoEdges', () => {
