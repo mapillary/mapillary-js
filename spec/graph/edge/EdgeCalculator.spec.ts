@@ -87,10 +87,13 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         sequence: Sequence,
         r: number[],
         C: number[],
-        merge_cc: number = 2): Node => {
+        merge_cc: number = 2,
+        apiNavImIm: IAPINavImIm = null): Node => {
         let t: number[] = getTranslation(r, C);
 
-        let apiNavImIm: IAPINavImIm = { key: key, rotation: r, merge_version: 1, merge_cc: merge_cc };
+        apiNavImIm = apiNavImIm == null ?
+            { key: key, rotation: r, merge_version: 1, merge_cc: merge_cc } :
+            apiNavImIm;
         let node: Node = new Node(key, 0, latLon, true, sequence, apiNavImIm, t);
 
         return node;
@@ -529,7 +532,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let sequence: Sequence = createSequence("skey1", [key, edgeKey]);
 
-        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0], 467)
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0], 467);
         let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(0), [0, 0, 0], null);
 
         let potentialEdges: IPotentialEdge[] =
@@ -541,5 +544,41 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
         expect(potentialEdge.sameMergeCc).toBe(false);
+    });
+
+    it("should be full pano when gpano existing and correct", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey1", [key, edgeKey]);
+
+        let node: Node = createNode(key, sequence, createRotationVector(0), [0, 0, 0], 467);
+
+        let apiNavImIm: IAPINavImIm = {
+            key: edgeKey,
+            rotation: [0, 0, 0],
+            merge_version: 1,
+            merge_cc: 435,
+            gpano: {
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaImageHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+                FullPanoHeightPixels: 1
+            }
+        }
+
+        let edgeNode: Node = createNode(edgeKey, sequence, createRotationVector(0), [0, 0, 0], 435, apiNavImIm);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.fullPano).toBe(true);
     });
 });
