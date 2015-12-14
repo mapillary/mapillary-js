@@ -42,6 +42,16 @@ export class EdgeCalculator {
         return edges;
     }
 
+    /**
+     * Returns the potential edges to destination nodes for a set
+     * of nodes with respect to a source node.
+     *
+     * @param {Node} node The source node
+     * @param {Array<Node>} nodes Potential destination nodes
+     * @param {Array<string>} fallbackKeys Keys for destination nodes that should
+     *                                     be returned even if they do not meet
+     *                                     the criteria for a potential edge.
+     */
     public getPotentialEdges(node: Node, nodes: Node[], fallbackKeys: string[]): IPotentialEdge[] {
         if (!node.worthy || !node.merged) {
             return [];
@@ -129,6 +139,13 @@ export class EdgeCalculator {
         return potentialEdges;
     }
 
+    /**
+     * Computes the step edges for a perspective node.
+     *
+     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     * @param {string} prevKey Key of previous node in sequence
+     * @param {string} prevKey Key of next node in sequence
+     */
     public computeStepEdges(potentialEdges: IPotentialEdge[], prevKey: string, nextKey: string): IEdge[] {
         let edges: IEdge[] = [];
 
@@ -202,6 +219,11 @@ export class EdgeCalculator {
         return edges;
     }
 
+    /**
+     * Computes the turn edges for a perspective node.
+     *
+     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     */
     public computeTurnEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
         let edges: IEdge[] = [];
 
@@ -275,6 +297,11 @@ export class EdgeCalculator {
         return edges;
     }
 
+    /**
+     * Computes the pano edges for a pano node.
+     *
+     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     */
     public computePanoEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
         let panoEdges: IEdge[] = [];
         let potentialPanos: IPotentialEdge[] = [];
@@ -350,6 +377,11 @@ export class EdgeCalculator {
         return panoEdges;
     }
 
+    /**
+     * Computes the pano edges for a perspective node.
+     *
+     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     */
     public computePerspectiveToPanoEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
         let lowestScore: number = Number.MAX_VALUE;
         let edge: IPotentialEdge = null;
