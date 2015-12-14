@@ -13,28 +13,28 @@ import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computeTurnEdges", () => {
     let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
 
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
+    let helper: EdgeCalculatorHelper;
 
     let spatial: Spatial;
 
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        settings = new EdgeCalculatorSettings();
+        directions = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(settings, directions);
 
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
+        helper = new EdgeCalculatorHelper();
 
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-       potentialEdge = edgeCalculatorHelper.createPotentialEdge();
-       potentialEdge.distance = edgeCalculatorSettings.turnMaxDistance / 2;
+       potentialEdge = helper.createPotentialEdge();
+       potentialEdge.distance = settings.turnMaxDistance / 2;
     });
 
     it("should have a turn left edge", () => {
@@ -79,10 +79,10 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
 describe("EdgeCalculator.computeTurnEdges", () => {
     let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
 
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
+    let helper: EdgeCalculatorHelper;
 
     let spatial: Spatial;
 
@@ -90,21 +90,21 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     let potentialEdge2: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        settings = new EdgeCalculatorSettings();
+        directions = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(settings, directions);
 
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
+        helper = new EdgeCalculatorHelper();
 
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-       potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
-       potentialEdge1.distance = edgeCalculatorSettings.turnMaxRigDistance * 2;
+       potentialEdge1 = helper.createPotentialEdge("pkey1");
+       potentialEdge1.distance = settings.turnMaxRigDistance * 2;
 
-       potentialEdge2 = edgeCalculatorHelper.createPotentialEdge("pkey2");
-       potentialEdge2.distance = edgeCalculatorSettings.turnMaxRigDistance * 2;
+       potentialEdge2 = helper.createPotentialEdge("pkey2");
+       potentialEdge2.distance = settings.turnMaxRigDistance * 2;
     });
 
     it("should have a turn left with the same sequence", () => {
@@ -160,7 +160,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
     it("should have a turn left edge with the smallest motion difference", () => {
         let motionChange: number =
-            edgeCalculatorDirections.turns[EdgeConstants.Direction.TURN_LEFT].motionChange;
+            directions.turns[EdgeConstants.Direction.TURN_LEFT].motionChange;
 
         potentialEdge1.directionChange = Math.PI / 2;
         potentialEdge1.motionChange = 0.9 * motionChange;
@@ -179,11 +179,11 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     });
 
     it("should have a turn left edge for rig setup with smallest direction change", () => {
-        potentialEdge1.distance = 0.5 * edgeCalculatorSettings.turnMaxRigDistance;
-        potentialEdge1.directionChange = 1.2 * edgeCalculatorSettings.turnMinRigDirectionChange;
+        potentialEdge1.distance = 0.5 * settings.turnMaxRigDistance;
+        potentialEdge1.directionChange = 1.2 * settings.turnMinRigDirectionChange;
 
-        potentialEdge2.distance = 0.5 * edgeCalculatorSettings.turnMaxRigDistance;
-        potentialEdge2.directionChange = 1.1 * edgeCalculatorSettings.turnMinRigDirectionChange;
+        potentialEdge2.distance = 0.5 * settings.turnMaxRigDistance;
+        potentialEdge2.directionChange = 1.1 * settings.turnMinRigDirectionChange;
 
         let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
 
@@ -196,11 +196,11 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     });
 
     it("should have a turn right edge for rig setup with smallest direction change", () => {
-        potentialEdge1.distance = 0.5 * edgeCalculatorSettings.turnMaxRigDistance;
-        potentialEdge1.directionChange = -1.2 * edgeCalculatorSettings.turnMinRigDirectionChange;
+        potentialEdge1.distance = 0.5 * settings.turnMaxRigDistance;
+        potentialEdge1.directionChange = -1.2 * settings.turnMinRigDirectionChange;
 
-        potentialEdge2.distance = 0.5 * edgeCalculatorSettings.turnMaxRigDistance;
-        potentialEdge2.directionChange = -1.1 * edgeCalculatorSettings.turnMinRigDirectionChange;
+        potentialEdge2.distance = 0.5 * settings.turnMaxRigDistance;
+        potentialEdge2.directionChange = -1.1 * settings.turnMinRigDirectionChange;
 
         let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
 
@@ -213,11 +213,11 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     });
 
     it("should not have a turn left edge for rig with too small angle", () => {
-        potentialEdge1.distance = 0.5 * edgeCalculatorSettings.turnMaxRigDistance;
-        potentialEdge1.directionChange = 0.9 * edgeCalculatorSettings.turnMinRigDirectionChange;
+        potentialEdge1.distance = 0.5 * settings.turnMaxRigDistance;
+        potentialEdge1.directionChange = 0.9 * settings.turnMinRigDirectionChange;
 
-        potentialEdge1.distance = 0.5 * edgeCalculatorSettings.turnMaxRigDistance;
-        potentialEdge1.directionChange = -0.9 * edgeCalculatorSettings.turnMinRigDirectionChange;
+        potentialEdge1.distance = 0.5 * settings.turnMaxRigDistance;
+        potentialEdge1.directionChange = -0.9 * settings.turnMinRigDirectionChange;
 
         let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
 

@@ -13,35 +13,35 @@ import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe('EdgeCalculator.computePanoEdges', () => {
     let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
 
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
+    let helper: EdgeCalculatorHelper;
 
     let spatial: Spatial;
 
     let potentialEdge1: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
-        edgeCalculatorSettings.panoMinDistance = 0.1;
-        edgeCalculatorSettings.panoMaxDistance = 20;
-        edgeCalculatorSettings.panoPreferredDistance = 5;
-        edgeCalculatorSettings.panoMaxItems = 4;
+        settings = new EdgeCalculatorSettings();
+        settings.panoMinDistance = 0.1;
+        settings.panoMaxDistance = 20;
+        settings.panoPreferredDistance = 5;
+        settings.panoMaxItems = 4;
     });
 
     beforeEach(() => {
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        directions = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(settings, directions);
 
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
+        helper = new EdgeCalculatorHelper();
 
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
-        potentialEdge1.distance = edgeCalculatorSettings.panoMaxDistance / 2;
+        potentialEdge1 = helper.createPotentialEdge("pkey1");
+        potentialEdge1.distance = settings.panoMaxDistance / 2;
         potentialEdge1.fullPano = true
     });
 
@@ -70,7 +70,7 @@ describe('EdgeCalculator.computePanoEdges', () => {
     });
 
     it('should not have a pano edge with to long distance', () => {
-        potentialEdge1.distance = edgeCalculatorSettings.panoMaxDistance + 1;
+        potentialEdge1.distance = settings.panoMaxDistance + 1;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1]);
 
@@ -78,7 +78,7 @@ describe('EdgeCalculator.computePanoEdges', () => {
     });
 
     it('should not have a pano edge with to short distance', () => {
-        potentialEdge1.distance = edgeCalculatorSettings.panoMinDistance / 2;
+        potentialEdge1.distance = settings.panoMinDistance / 2;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1]);
 
@@ -96,10 +96,10 @@ describe('EdgeCalculator.computePanoEdges', () => {
 
 describe('EdgeCalculator.computePanoEdges', () => {
     let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
 
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
+    let helper: EdgeCalculatorHelper;
 
     let spatial: Spatial;
 
@@ -107,35 +107,35 @@ describe('EdgeCalculator.computePanoEdges', () => {
     let potentialEdge2: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
-        edgeCalculatorSettings.panoMinDistance = 0.1;
-        edgeCalculatorSettings.panoMaxDistance = 20;
-        edgeCalculatorSettings.panoPreferredDistance = 5;
-        edgeCalculatorSettings.panoMaxItems = 4;
+        settings = new EdgeCalculatorSettings();
+        settings.panoMinDistance = 0.1;
+        settings.panoMaxDistance = 20;
+        settings.panoPreferredDistance = 5;
+        settings.panoMaxItems = 4;
     });
 
     beforeEach(() => {
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        directions = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(settings, directions);
 
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
+        helper = new EdgeCalculatorHelper();
 
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
-        potentialEdge1.distance = edgeCalculatorSettings.panoPreferredDistance;
+        potentialEdge1 = helper.createPotentialEdge("pkey1");
+        potentialEdge1.distance = settings.panoPreferredDistance;
         potentialEdge1.fullPano = true
 
-        potentialEdge2 = edgeCalculatorHelper.createPotentialEdge("pkey2");
-        potentialEdge2.distance = edgeCalculatorSettings.panoPreferredDistance;
+        potentialEdge2 = helper.createPotentialEdge("pkey2");
+        potentialEdge2.distance = settings.panoPreferredDistance;
         potentialEdge2.fullPano = true
     });
 
     it('should have a pano edge closest to preferred distance', () => {
-        potentialEdge1.distance = edgeCalculatorSettings.panoPreferredDistance + 1;
-        potentialEdge2.distance = edgeCalculatorSettings.panoPreferredDistance;
+        potentialEdge1.distance = settings.panoPreferredDistance + 1;
+        potentialEdge2.distance = settings.panoPreferredDistance;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1, potentialEdge2]);
 
@@ -148,8 +148,8 @@ describe('EdgeCalculator.computePanoEdges', () => {
     });
 
     it('should have a pano edge closest to preferred distance', () => {
-        potentialEdge1.distance = edgeCalculatorSettings.panoPreferredDistance - 1;
-        potentialEdge2.distance = edgeCalculatorSettings.panoPreferredDistance;
+        potentialEdge1.distance = settings.panoPreferredDistance - 1;
+        potentialEdge2.distance = settings.panoPreferredDistance;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges([potentialEdge1, potentialEdge2]);
 
@@ -206,10 +206,10 @@ describe('EdgeCalculator.computePanoEdges', () => {
 
 describe('EdgeCalculator.computePanoEdges', () => {
     let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
 
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
+    let helper: EdgeCalculatorHelper;
 
     let spatial: Spatial;
 
@@ -219,37 +219,37 @@ describe('EdgeCalculator.computePanoEdges', () => {
     let potentialEdge4: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
-        edgeCalculatorSettings.panoMinDistance = 0.1;
-        edgeCalculatorSettings.panoMaxDistance = 20;
-        edgeCalculatorSettings.panoPreferredDistance = 5;
-        edgeCalculatorSettings.panoMaxItems = 4;
+        settings = new EdgeCalculatorSettings();
+        settings.panoMinDistance = 0.1;
+        settings.panoMaxDistance = 20;
+        settings.panoPreferredDistance = 5;
+        settings.panoMaxItems = 4;
     });
 
     beforeEach(() => {
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        directions = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(settings, directions);
 
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
+        helper = new EdgeCalculatorHelper();
 
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
-        potentialEdge1.distance = edgeCalculatorSettings.panoMaxDistance / 2;
+        potentialEdge1 = helper.createPotentialEdge("pkey1");
+        potentialEdge1.distance = settings.panoMaxDistance / 2;
         potentialEdge1.fullPano = true;
 
-        potentialEdge2 = edgeCalculatorHelper.createPotentialEdge("pkey2");
-        potentialEdge2.distance = edgeCalculatorSettings.panoMaxDistance / 2;
+        potentialEdge2 = helper.createPotentialEdge("pkey2");
+        potentialEdge2.distance = settings.panoMaxDistance / 2;
         potentialEdge2.fullPano = true;
 
-        potentialEdge3 = edgeCalculatorHelper.createPotentialEdge("pkey3");
-        potentialEdge3.distance = edgeCalculatorSettings.panoMaxDistance / 2;
+        potentialEdge3 = helper.createPotentialEdge("pkey3");
+        potentialEdge3.distance = settings.panoMaxDistance / 2;
         potentialEdge3.fullPano = true;
 
-        potentialEdge4 = edgeCalculatorHelper.createPotentialEdge("pkey4");
-        potentialEdge4.distance = edgeCalculatorSettings.panoMaxDistance / 2;
+        potentialEdge4 = helper.createPotentialEdge("pkey4");
+        potentialEdge4.distance = settings.panoMaxDistance / 2;
         potentialEdge4.fullPano = true;
     });
 

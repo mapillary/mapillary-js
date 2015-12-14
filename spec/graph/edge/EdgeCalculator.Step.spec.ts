@@ -13,32 +13,32 @@ import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computeStepEdges", () => {
     let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
 
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
+    let helper: EdgeCalculatorHelper;
 
     let spatial: Spatial;
 
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
+        settings = new EdgeCalculatorSettings();
 
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_FORWARD].useFallback = true;
-        edgeCalculatorDirections.steps[EdgeConstants.Direction.STEP_BACKWARD].useFallback = false;
+        directions = new EdgeCalculatorDirections();
+        directions.steps[EdgeConstants.Direction.STEP_FORWARD].useFallback = true;
+        directions.steps[EdgeConstants.Direction.STEP_BACKWARD].useFallback = false;
 
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        edgeCalculator = new EdgeCalculator(settings, directions);
 
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
+        helper = new EdgeCalculatorHelper();
 
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-        potentialEdge = edgeCalculatorHelper.createPotentialEdge();
-        potentialEdge.distance = edgeCalculatorSettings.stepMaxDistance / 2;
+        potentialEdge = helper.createPotentialEdge();
+        potentialEdge.distance = settings.stepMaxDistance / 2;
     });
 
     it("should have a step forward edge", () => {
@@ -94,7 +94,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should not have any edges because of max distance", () => {
-        potentialEdge.distance = edgeCalculatorSettings.stepMaxDistance + 1;
+        potentialEdge.distance = settings.stepMaxDistance + 1;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -102,7 +102,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should not have any edges because of direction change", () => {
-        potentialEdge.directionChange = edgeCalculatorSettings.stepMaxDirectionChange + Math.PI / 18;
+        potentialEdge.directionChange = settings.stepMaxDirectionChange + Math.PI / 18;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -110,7 +110,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should not have any edges because of negative direction change", () => {
-        potentialEdge.directionChange = -edgeCalculatorSettings.stepMaxDirectionChange - Math.PI / 18;
+        potentialEdge.directionChange = -settings.stepMaxDirectionChange - Math.PI / 18;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -118,7 +118,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should not have any edges because of drift", () => {
-        potentialEdge.motionChange = edgeCalculatorSettings.stepMaxDrift + Math.PI / 18;
+        potentialEdge.motionChange = settings.stepMaxDrift + Math.PI / 18;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -126,7 +126,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should not have any edges because of negative drift", () => {
-        potentialEdge.motionChange = -edgeCalculatorSettings.stepMaxDrift - Math.PI / 18;
+        potentialEdge.motionChange = -settings.stepMaxDrift - Math.PI / 18;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge], null, null);
 
@@ -134,7 +134,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should fallback to next node with enabled fallback setting", () => {
-        potentialEdge.distance = edgeCalculatorSettings.stepMaxDistance + 1;
+        potentialEdge.distance = settings.stepMaxDistance + 1;
         potentialEdge.motionChange = 0;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
@@ -149,7 +149,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should not fallback to previous node with disabled fallback setting", () => {
-        potentialEdge.distance = edgeCalculatorSettings.stepMaxDistance + 1;
+        potentialEdge.distance = settings.stepMaxDistance + 1;
         potentialEdge.motionChange = Math.PI;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
@@ -161,10 +161,10 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
 describe("EdgeCalculator.computeStepEdges", () => {
     let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
 
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
+    let helper: EdgeCalculatorHelper;
 
     let spatial: Spatial;
 
@@ -172,23 +172,23 @@ describe("EdgeCalculator.computeStepEdges", () => {
     let potentialEdge2: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        settings = new EdgeCalculatorSettings();
+        directions = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(settings, directions);
 
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
+        helper = new EdgeCalculatorHelper();
 
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
-        potentialEdge2 = edgeCalculatorHelper.createPotentialEdge("pkey2");
+        potentialEdge1 = helper.createPotentialEdge("pkey1");
+        potentialEdge2 = helper.createPotentialEdge("pkey2");
     });
 
     it("should have a step forward edge based on preferred distance", () => {
-        potentialEdge1.distance = edgeCalculatorSettings.stepPreferredDistance + 1;
-        potentialEdge2.distance = edgeCalculatorSettings.stepPreferredDistance;
+        potentialEdge1.distance = settings.stepPreferredDistance + 1;
+        potentialEdge2.distance = settings.stepPreferredDistance;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
 
@@ -201,8 +201,8 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should have a step forward edge based on preferred distance", () => {
-        potentialEdge1.distance = edgeCalculatorSettings.stepPreferredDistance - 1;
-        potentialEdge2.distance = edgeCalculatorSettings.stepPreferredDistance;
+        potentialEdge1.distance = settings.stepPreferredDistance - 1;
+        potentialEdge2.distance = settings.stepPreferredDistance;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
 
@@ -215,8 +215,8 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should have a step forward edge for smallest motion change", () => {
-        potentialEdge1.motionChange = edgeCalculatorSettings.stepMaxDrift / 2;
-        potentialEdge2.motionChange = edgeCalculatorSettings.stepMaxDrift / 4;
+        potentialEdge1.motionChange = settings.stepMaxDrift / 2;
+        potentialEdge2.motionChange = settings.stepMaxDrift / 4;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
 
@@ -229,8 +229,8 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should have a step forward edge for smallest motion change", () => {
-        potentialEdge1.motionChange = -edgeCalculatorSettings.stepMaxDrift / 2;
-        potentialEdge2.motionChange = -edgeCalculatorSettings.stepMaxDrift / 4;
+        potentialEdge1.motionChange = -settings.stepMaxDrift / 2;
+        potentialEdge2.motionChange = -settings.stepMaxDrift / 4;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
 
@@ -243,8 +243,8 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should have a step forward edge for smallest vertical motion change", () => {
-        potentialEdge1.verticalMotion = edgeCalculatorSettings.stepMaxDrift / 2;
-        potentialEdge2.verticalMotion = edgeCalculatorSettings.stepMaxDrift / 4;
+        potentialEdge1.verticalMotion = settings.stepMaxDrift / 2;
+        potentialEdge2.verticalMotion = settings.stepMaxDrift / 4;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
 
@@ -257,8 +257,8 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should have a step forward edge for smallest vertical motion change", () => {
-        potentialEdge1.verticalMotion = -edgeCalculatorSettings.stepMaxDrift / 2;
-        potentialEdge2.verticalMotion = -edgeCalculatorSettings.stepMaxDrift / 4;
+        potentialEdge1.verticalMotion = -settings.stepMaxDrift / 2;
+        potentialEdge2.verticalMotion = -settings.stepMaxDrift / 4;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
 
@@ -271,11 +271,11 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should have a step forward edge for smallest combined motion change", () => {
-        potentialEdge1.motionChange = -edgeCalculatorSettings.stepMaxDrift / 2;
-        potentialEdge1.verticalMotion = -edgeCalculatorSettings.stepMaxDrift / 4;
+        potentialEdge1.motionChange = -settings.stepMaxDrift / 2;
+        potentialEdge1.verticalMotion = -settings.stepMaxDrift / 4;
 
-        potentialEdge2.motionChange = -edgeCalculatorSettings.stepMaxDrift / 3;
-        potentialEdge2.verticalMotion = -edgeCalculatorSettings.stepMaxDrift / 3;
+        potentialEdge2.motionChange = -settings.stepMaxDrift / 3;
+        potentialEdge2.verticalMotion = -settings.stepMaxDrift / 3;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges([potentialEdge1, potentialEdge2], null, null);
 
