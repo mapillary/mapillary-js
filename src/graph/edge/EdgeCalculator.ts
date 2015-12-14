@@ -4,6 +4,7 @@ import
     EdgeConstants,
     IStep,
     ITurn,
+    IRotation,
     IEdge,
     IPotentialEdge,
     ICalculatedEdges,
@@ -358,6 +359,65 @@ export class EdgeCalculator {
             direction: EdgeConstants.Direction.PANO,
             data: { worldMotionAzimuth: edge.worldMotionAzimuth }
         }];
+    }
+
+    /**
+     * Computes rotation edges for perspective nodes. Rotation edges
+     * are for rotating at approximately the same position.
+     *
+     * @param {Node} node Source node
+     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     */
+    public computeRotationEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+        let edges: IEdge[] = [];
+
+        if (node.fullPano) {
+            return edges;
+        }
+
+        for (let k in this.directions.rotations) {
+            if (!this.directions.rotations.hasOwnProperty(k)) {
+                continue;
+            }
+
+            let rotation: IRotation = this.directions.rotations[k];
+
+            let lowestScore: number = Number.MAX_VALUE;
+            let edge: IPotentialEdge = null;
+
+            for (let i: number = 0; i < potentialEdges.length; i++) {
+                let potential: IPotentialEdge = potentialEdges[i];
+
+                if (potential.fullPano) {
+                    continue;
+                }
+
+                if (potential.distance > this.settings.rotationMaxDistance ||
+                    potential.directionChange * rotation.directionChangeSign < 0 ||
+                    Math.abs(potential.directionChange) > this.settings.rotationMaxDirectionChange ||
+                    Math.abs(potential.verticalDirectionChange) > this.settings.rotationMaxVerticalDirectionChange) {
+                    continue;
+                }
+
+                let score: number = Math.abs(potential.directionChange);
+
+                if (score < lowestScore) {
+                    lowestScore = score;
+                    edge = potential;
+                }
+            }
+
+            if (edge != null) {
+                edges.push({
+                    from: node.key,
+                    to: edge.apiNavImIm.key,
+                    direction: rotation.direction,
+                    data: { worldMotionAzimuth: edge.worldMotionAzimuth }
+                });
+            }
+        }
+
+        return edges;
     }
 
     /**
