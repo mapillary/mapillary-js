@@ -219,6 +219,7 @@ export class EdgeCalculator {
             edge = edge == null ? fallback : edge;
             if (edge != null) {
                 edges.push({
+                    from: node.key,
                     to: edge.apiNavImIm.key,
                     direction: step.direction,
                     data: { worldMotionAzimuth: edge.worldMotionAzimuth }
@@ -302,6 +303,7 @@ export class EdgeCalculator {
 
             if (edge != null) {
                 edges.push({
+                    from: node.key,
                     to: edge.apiNavImIm.key,
                     direction: turn.direction,
                     data: { worldMotionAzimuth: edge.worldMotionAzimuth }
@@ -351,6 +353,7 @@ export class EdgeCalculator {
         }
 
         return [{
+            from: node.key,
             to: edge.apiNavImIm.key,
             direction: EdgeConstants.Direction.PANO,
             data: { worldMotionAzimuth: edge.worldMotionAzimuth }
@@ -432,6 +435,7 @@ export class EdgeCalculator {
 
             if (edge != null) {
                 panoEdges.push({
+                    from: node.key,
                     to: edge.apiNavImIm.key,
                     direction: EdgeConstants.Direction.PANO,
                     data: { worldMotionAzimuth: edge.worldMotionAzimuth }

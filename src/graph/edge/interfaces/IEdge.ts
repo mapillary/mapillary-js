@@ -23,6 +23,13 @@ export interface IEdgeData {
  */
 export interface IEdge {
     /**
+     * The key of the source node.
+     *
+     * @property {string} from
+     */
+    from: string;
+
+    /**
      * The key of the destination node.
      *
      * @property {string} to
