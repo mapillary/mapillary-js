@@ -313,6 +313,51 @@ export class EdgeCalculator {
     }
 
     /**
+     * Computes the pano edges for a perspective node.
+     *
+     * @param {Node} node Source node
+     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     */
+    public computePerspectiveToPanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+        if (node.fullPano) {
+            return [];
+        }
+
+        let lowestScore: number = Number.MAX_VALUE;
+        let edge: IPotentialEdge = null;
+
+        for (let i: number = 0; i < potentialEdges.length; i++) {
+            let potential: IPotentialEdge = potentialEdges[i];
+
+            if (!potential.fullPano) {
+                continue;
+            }
+
+            let score: number =
+                this.coefficients.panoPreferredDistance *
+                Math.abs(potential.distance - this.settings.panoPreferredDistance) /
+                this.settings.panoMaxDistance +
+                this.coefficients.panoMotion * Math.abs(potential.motionChange) / Math.PI +
+                this.coefficients.panoMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
+
+            if (score < lowestScore) {
+                lowestScore = score;
+                edge = potential;
+            }
+        }
+
+        if (edge == null) {
+            return [];
+        }
+
+        return [{
+            to: edge.apiNavImIm.key,
+            direction: EdgeConstants.Direction.PANO,
+            data: { worldMotionAzimuth: edge.worldMotionAzimuth }
+        }];
+    }
+
+    /**
      * Computes the pano edges for a pano node.
      *
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
@@ -390,46 +435,6 @@ export class EdgeCalculator {
         }
 
         return panoEdges;
-    }
-
-    /**
-     * Computes the pano edges for a perspective node.
-     *
-     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
-     */
-    public computePerspectiveToPanoEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
-        let lowestScore: number = Number.MAX_VALUE;
-        let edge: IPotentialEdge = null;
-
-        for (let i: number = 0; i < potentialEdges.length; i++) {
-            let potential: IPotentialEdge = potentialEdges[i];
-
-            if (!potential.fullPano) {
-                continue;
-            }
-
-            let score: number =
-                this.coefficients.panoPreferredDistance *
-                Math.abs(potential.distance - this.settings.panoPreferredDistance) /
-                this.settings.panoMaxDistance +
-                this.coefficients.panoMotion * Math.abs(potential.motionChange) / Math.PI +
-                this.coefficients.panoMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
-
-            if (score < lowestScore) {
-                lowestScore = score;
-                edge = potential;
-            }
-        }
-
-        if (edge == null) {
-            return [];
-        }
-
-        return [{
-            to: edge.apiNavImIm.key,
-            direction: EdgeConstants.Direction.PANO,
-            data: { worldMotionAzimuth: edge.worldMotionAzimuth }
-        }];
     }
 }
 

@@ -8,6 +8,7 @@ import {
     IEdge,
     IPotentialEdge
 } from "../../../src/Edge";
+import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
@@ -329,6 +330,7 @@ describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
 
     let spatial: Spatial;
 
+    let node: Node;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
 
@@ -350,6 +352,8 @@ describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
     });
 
     beforeEach(() => {
+        node = helper.createNode();
+
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
         potentialEdge1.fullPano = true;
@@ -360,7 +364,7 @@ describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
     });
 
     it('should return a pano edge', () => {
-        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1]);
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1]);
 
         expect(panoEdges.length).toBe(1);
 
@@ -370,8 +374,16 @@ describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
         expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
     });
 
+    it('should not return a pano edge when node is pano', () => {
+        node = helper.createNode(true);
+
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
+    });
+
     it('should return only one pano edge', () => {
-        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1, potentialEdge2]);
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(panoEdges.length).toBe(1);
     });
@@ -380,7 +392,7 @@ describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
         potentialEdge1.distance = settings.panoPreferredDistance - 1;
         potentialEdge2.distance = settings.panoPreferredDistance;
 
-        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1, potentialEdge2]);
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(panoEdges.length).toBe(1);
 
@@ -394,7 +406,7 @@ describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
         potentialEdge1.motionChange = -Math.PI / 9;
         potentialEdge2.motionChange = Math.PI / 18;
 
-        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1, potentialEdge2]);
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(panoEdges.length).toBe(1);
 
@@ -408,7 +420,7 @@ describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
         potentialEdge1.sameMergeCc = false;
         potentialEdge2.sameMergeCc = true;
 
-        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1, potentialEdge2]);
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(panoEdges.length).toBe(1);
 
