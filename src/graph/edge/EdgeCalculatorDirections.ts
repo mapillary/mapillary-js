@@ -1,10 +1,11 @@
-import {EdgeConstants, IStep, ITurn, IPano} from "../../Edge";
+import {EdgeConstants, IStep, ITurn, IPano, IRotation} from "../../Edge";
 
 export class EdgeCalculatorDirections {
 
     public steps: { [direction: string]: IStep } = {};
     public turns: { [direction: string]: ITurn } = {};
     public panos: { [direction: string]: IPano } = {};
+    public rotations: { [direction: string]: IRotation } = {};
 
     constructor() {
         this.steps[EdgeConstants.Direction.STEP_FORWARD] = {
@@ -75,6 +76,16 @@ export class EdgeCalculatorDirections {
             prev: EdgeConstants.Direction.STEP_BACKWARD,
             next: EdgeConstants.Direction.STEP_FORWARD,
             directionChange: -Math.PI / 2
+        };
+
+        this.rotations[EdgeConstants.Direction.ROTATE_LEFT] = {
+            direction: EdgeConstants.Direction.ROTATE_LEFT,
+            directionChangeSign: 1
+        };
+
+        this.rotations[EdgeConstants.Direction.ROTATE_RIGHT] = {
+            direction: EdgeConstants.Direction.ROTATE_RIGHT,
+            directionChangeSign: -1
         };
     }
 }
