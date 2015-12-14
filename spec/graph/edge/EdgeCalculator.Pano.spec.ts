@@ -321,47 +321,100 @@ describe('EdgeCalculator.computePanoEdges', () => {
 });
 
 describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
-    let edgeCalculator: EdgeCalculator;
-    let edgeCalculatorSettings: EdgeCalculatorSettings;
-    let edgeCalculatorDirections: EdgeCalculatorDirections;
+    let calculator: EdgeCalculator;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
 
-    let edgeCalculatorHelper: EdgeCalculatorHelper;
+    let helper: EdgeCalculatorHelper;
 
     let spatial: Spatial;
 
     let potentialEdge1: IPotentialEdge;
+    let potentialEdge2: IPotentialEdge;
 
     beforeEach(() => {
-        edgeCalculatorSettings = new EdgeCalculatorSettings();
-        edgeCalculatorSettings.panoMinDistance = 0.1;
-        edgeCalculatorSettings.panoMaxDistance = 20;
-        edgeCalculatorSettings.panoPreferredDistance = 5;
-        edgeCalculatorSettings.panoMaxItems = 4;
+        settings = new EdgeCalculatorSettings();
+        settings.panoMinDistance = 0.1;
+        settings.panoMaxDistance = 20;
+        settings.panoPreferredDistance = 5;
+        settings.panoMaxItems = 4;
     });
 
     beforeEach(() => {
-        edgeCalculatorDirections = new EdgeCalculatorDirections();
-        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+        directions = new EdgeCalculatorDirections();
+        calculator = new EdgeCalculator(settings, directions);
 
-        edgeCalculatorHelper = new EdgeCalculatorHelper();
+        helper = new EdgeCalculatorHelper();
 
         spatial = new Spatial();
     });
 
     beforeEach(() => {
-        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
-        potentialEdge1.distance = edgeCalculatorSettings.panoMaxDistance / 2;
-        potentialEdge1.fullPano = true
+        potentialEdge1 = helper.createPotentialEdge("pkey1");
+        potentialEdge1.distance = settings.panoMaxDistance / 2;
+        potentialEdge1.fullPano = true;
+
+        potentialEdge2 = helper.createPotentialEdge("pkey2");
+        potentialEdge2.distance = settings.panoMaxDistance / 2;
+        potentialEdge2.fullPano = true;
     });
 
-    it('should have a pano edge', () => {
-        let panoEdges: IEdge[] = edgeCalculator.computePerspectiveToPanoEdges([potentialEdge1]);
+    it('should return a pano edge', () => {
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1]);
 
         expect(panoEdges.length).toBe(1);
 
         let panoEdge: IEdge = panoEdges[0];
 
         expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
+    it('should return only one pano edge', () => {
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+    });
+
+    it('should return the pano edge closest to preferred distance', () => {
+        potentialEdge1.distance = settings.panoPreferredDistance - 1;
+        potentialEdge2.distance = settings.panoPreferredDistance;
+
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
+    it('should return the pano edge preferring forward motion', () => {
+        potentialEdge1.motionChange = -Math.PI / 9;
+        potentialEdge2.motionChange = Math.PI / 18;
+
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
+    it('should return the pano edge preferring same connected component', () => {
+        potentialEdge1.sameMergeCc = false;
+        potentialEdge2.sameMergeCc = true;
+
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges([potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
         expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
     });
 });
