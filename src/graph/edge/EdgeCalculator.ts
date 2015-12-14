@@ -142,11 +142,21 @@ export class EdgeCalculator {
     /**
      * Computes the step edges for a perspective node.
      *
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      * @param {string} prevKey Key of previous node in sequence
      * @param {string} prevKey Key of next node in sequence
      */
-    public computeStepEdges(potentialEdges: IPotentialEdge[], prevKey: string, nextKey: string): IEdge[] {
+    public computeStepEdges(
+        node: Node,
+        potentialEdges: IPotentialEdge[],
+        prevKey: string,
+        nextKey: string): IEdge[] {
+
+        if (node.fullPano) {
+            return [];
+        }
+
         let edges: IEdge[] = [];
 
         for (let k in this.directions.steps) {

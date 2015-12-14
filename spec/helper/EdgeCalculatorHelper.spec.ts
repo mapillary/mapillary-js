@@ -1,3 +1,5 @@
+import {IAPINavImS, IAPINavImIm} from "../../src/API";
+import {Node, Sequence} from "../../src/Graph";
 import {IPotentialEdge} from "../../src/Edge";
 
 export class EdgeCalculatorHelper {
@@ -15,6 +17,18 @@ export class EdgeCalculatorHelper {
             fullPano: false,
             apiNavImIm: { key: key }
         };
+    }
+
+    public createNode(): Node {
+        let key: string = "key";
+
+        let apiNavImS: IAPINavImS = { key: "skey", keys: [key] };
+        let sequence: Sequence = new Sequence(apiNavImS);
+
+        let apiNavImIm: IAPINavImIm = { key: key };
+        let node: Node = new Node(key, 0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, [0, 0, 0]);
+
+        return node;
     }
 }
 
