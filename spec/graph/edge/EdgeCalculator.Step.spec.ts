@@ -161,6 +161,14 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         expect(stepEdges.length).toBe(0);
     });
+
+    it("should not have any edges if node is pano", () => {
+        node = helper.createNode(true);
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(0);
+    });
 });
 
 describe("EdgeCalculator.computeStepEdges", () => {

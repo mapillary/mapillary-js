@@ -19,13 +19,25 @@ export class EdgeCalculatorHelper {
         };
     }
 
-    public createNode(): Node {
+    public createNode(fullPano = false): Node {
         let key: string = "key";
 
         let apiNavImS: IAPINavImS = { key: "skey", keys: [key] };
         let sequence: Sequence = new Sequence(apiNavImS);
 
         let apiNavImIm: IAPINavImIm = { key: key };
+
+        if (fullPano) {
+            apiNavImIm.gpano = {
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaImageHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+                FullPanoHeightPixels: 1
+            }
+        }
+
         let node: Node = new Node(key, 0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, [0, 0, 0]);
 
         return node;
