@@ -349,6 +349,41 @@ export class EdgeCalculator {
 
         return panoEdges;
     }
+
+    public computePerspectiveToPanoEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
+        let lowestScore: number = Number.MAX_VALUE;
+        let edge: IPotentialEdge = null;
+
+        for (let i: number = 0; i < potentialEdges.length; i++) {
+            let potential: IPotentialEdge = potentialEdges[i];
+
+            if (!potential.fullPano) {
+                continue;
+            }
+
+            let score: number =
+                this.coefficients.panoPreferredDistance *
+                Math.abs(potential.distance - this.settings.panoPreferredDistance) /
+                this.settings.panoMaxDistance +
+                this.coefficients.panoMotion * Math.abs(potential.motionChange) / Math.PI +
+                this.coefficients.panoMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
+
+            if (score < lowestScore) {
+                lowestScore = score;
+                edge = potential;
+            }
+        }
+
+        if (edge == null) {
+            return [];
+        }
+
+        return [{
+            to: edge.apiNavImIm.key,
+            direction: EdgeConstants.Direction.PANO,
+            data: { worldMotionAzimuth: edge.worldMotionAzimuth }
+        }];
+    }
 }
 
 export default EdgeCalculator;

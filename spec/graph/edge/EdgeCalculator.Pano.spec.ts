@@ -319,3 +319,49 @@ describe('EdgeCalculator.computePanoEdges', () => {
         }
     });
 });
+
+describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
+    let edgeCalculator: EdgeCalculator;
+    let edgeCalculatorSettings: EdgeCalculatorSettings;
+    let edgeCalculatorDirections: EdgeCalculatorDirections;
+
+    let edgeCalculatorHelper: EdgeCalculatorHelper;
+
+    let spatial: Spatial;
+
+    let potentialEdge1: IPotentialEdge;
+
+    beforeEach(() => {
+        edgeCalculatorSettings = new EdgeCalculatorSettings();
+        edgeCalculatorSettings.panoMinDistance = 0.1;
+        edgeCalculatorSettings.panoMaxDistance = 20;
+        edgeCalculatorSettings.panoPreferredDistance = 5;
+        edgeCalculatorSettings.panoMaxItems = 4;
+    });
+
+    beforeEach(() => {
+        edgeCalculatorDirections = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(edgeCalculatorSettings, edgeCalculatorDirections);
+
+        edgeCalculatorHelper = new EdgeCalculatorHelper();
+
+        spatial = new Spatial();
+    });
+
+    beforeEach(() => {
+        potentialEdge1 = edgeCalculatorHelper.createPotentialEdge("pkey1");
+        potentialEdge1.distance = edgeCalculatorSettings.panoMaxDistance / 2;
+        potentialEdge1.fullPano = true
+    });
+
+    it('should have a pano edge', () => {
+        let panoEdges: IEdge[] = edgeCalculator.computePerspectiveToPanoEdges([potentialEdge1]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+});
