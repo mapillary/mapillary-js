@@ -360,9 +360,14 @@ export class EdgeCalculator {
     /**
      * Computes the pano edges for a pano node.
      *
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computePanoEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computePanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+        if (!node.fullPano) {
+            return [];
+        }
+
         let panoEdges: IEdge[] = [];
         let potentialPanos: IPotentialEdge[] = [];
 
