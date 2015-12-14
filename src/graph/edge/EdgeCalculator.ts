@@ -422,7 +422,7 @@ export class EdgeCalculator {
     }
 
     /**
-     * Computes the pano edges for a pano node.
+     * Computes the pano and step edges for a pano node.
      *
      * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
@@ -434,7 +434,7 @@ export class EdgeCalculator {
 
         let panoEdges: IEdge[] = [];
         let potentialPanos: IPotentialEdge[] = [];
-        let potentialSteps: IPotentialEdge[] = [];
+        let potentialSteps: [EdgeConstants.Direction, IPotentialEdge][] = [];
 
         for (let i: number = 0; i < potentialEdges.length; i++) {
             let potential: IPotentialEdge = potentialEdges[i];
@@ -467,7 +467,7 @@ export class EdgeCalculator {
                         continue;
                     }
 
-                    potentialSteps.push(potential);
+                    potentialSteps.push([pano.direction, potential]);
 
                     // break if step direction found
                     break;
