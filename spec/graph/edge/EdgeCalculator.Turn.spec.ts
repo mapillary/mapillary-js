@@ -8,6 +8,7 @@ import {
     IEdge,
     IPotentialEdge
 } from "../../../src/Edge";
+import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
@@ -20,6 +21,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
     let spatial: Spatial;
 
+    let node: Node;
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
@@ -33,14 +35,16 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     });
 
     beforeEach(() => {
-       potentialEdge = helper.createPotentialEdge();
-       potentialEdge.distance = settings.turnMaxDistance / 2;
+        node = helper.createNode();
+
+        potentialEdge = helper.createPotentialEdge();
+        potentialEdge.distance = settings.turnMaxDistance / 2;
     });
 
     it("should have a turn left edge", () => {
         potentialEdge.directionChange = Math.PI / 2;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -53,7 +57,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     it("should have a turn right edge", () => {
         potentialEdge.directionChange = -Math.PI / 2;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -66,7 +70,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     it("should have a u-turn edge", () => {
         potentialEdge.directionChange = Math.PI;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -74,6 +78,16 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
         expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_U);
+    });
+
+    it("should not have a u-turn edge when node is full pano", () => {
+        node = helper.createNode(true);
+
+        potentialEdge.directionChange = Math.PI;
+
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge]);
+
+        expect(turnEdges.length).toBe(0);
     });
 });
 
@@ -86,6 +100,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
     let spatial: Spatial;
 
+    let node: Node;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
 
@@ -100,11 +115,13 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     });
 
     beforeEach(() => {
-       potentialEdge1 = helper.createPotentialEdge("pkey1");
-       potentialEdge1.distance = settings.turnMaxRigDistance * 2;
+        node = helper.createNode();
 
-       potentialEdge2 = helper.createPotentialEdge("pkey2");
-       potentialEdge2.distance = settings.turnMaxRigDistance * 2;
+        potentialEdge1 = helper.createPotentialEdge("pkey1");
+        potentialEdge1.distance = settings.turnMaxRigDistance * 2;
+
+        potentialEdge2 = helper.createPotentialEdge("pkey2");
+        potentialEdge2.distance = settings.turnMaxRigDistance * 2;
     });
 
     it("should have a turn left with the same sequence", () => {
@@ -114,7 +131,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge2.directionChange = Math.PI / 2;
         potentialEdge2.sameSequence = true;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -131,7 +148,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge2.directionChange = Math.PI / 2;
         potentialEdge2.sameMergeCc = true;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -148,7 +165,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge2.directionChange = Math.PI / 2;
         potentialEdge2.distance = 3;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -168,7 +185,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge2.directionChange = Math.PI / 2;
         potentialEdge2.motionChange = motionChange;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -185,7 +202,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge2.distance = 0.5 * settings.turnMaxRigDistance;
         potentialEdge2.directionChange = 1.1 * settings.turnMinRigDirectionChange;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -202,7 +219,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge2.distance = 0.5 * settings.turnMaxRigDistance;
         potentialEdge2.directionChange = -1.1 * settings.turnMinRigDirectionChange;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(turnEdges.length).toBe(1);
 
@@ -219,7 +236,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge1.distance = 0.5 * settings.turnMaxRigDistance;
         potentialEdge1.directionChange = -0.9 * settings.turnMinRigDirectionChange;
 
-        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges([potentialEdge1, potentialEdge2]);
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge1, potentialEdge2]);
 
         expect(turnEdges.length).toBe(0);
     });

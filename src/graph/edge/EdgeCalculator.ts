@@ -153,11 +153,11 @@ export class EdgeCalculator {
         prevKey: string,
         nextKey: string): IEdge[] {
 
-        if (node.fullPano) {
-            return [];
-        }
-
         let edges: IEdge[] = [];
+
+        if (node.fullPano) {
+            return edges;
+        }
 
         for (let k in this.directions.steps) {
             if (!this.directions.steps.hasOwnProperty(k)) {
@@ -232,10 +232,15 @@ export class EdgeCalculator {
     /**
      * Computes the turn edges for a perspective node.
      *
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computeTurnEdges(potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeTurnEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         let edges: IEdge[] = [];
+
+        if (node.fullPano) {
+            return edges;
+        }
 
         for (let k in this.directions.turns) {
             if (!this.directions.turns.hasOwnProperty(k)) {
