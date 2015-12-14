@@ -1,12 +1,46 @@
 import {EdgeConstants} from "../../../Edge";
 
+/**
+ * Interface that describes additional properties of an edge.
+ * @interface IEdge
+ */
 export interface IEdgeData {
+    /**
+     * The counter clockwise horizontal rotation angle from
+     * the X-axis in a spherical coordiante system of the
+     * motion from the source node to the destination node.
+     *
+     * @propery {number} worldMotionAzimuth
+     */
     worldMotionAzimuth: number;
 }
 
+/**
+ * Interface that describes the properties for an edge from
+ * a source node to a destination node.
+ *
+ * @interface IEdge
+ */
 export interface IEdge {
+    /**
+     * The key of the destination node.
+     *
+     * @property {string} to
+     */
     to: string;
+
+    /**
+     * The edge direction.
+     *
+     * @property {EdgeConstants.Direction} direction
+     */
     direction: EdgeConstants.Direction;
+
+    /**
+     * Additional data describing properties of the edge.
+     *
+     * @property {IEdgeData} data
+     */
     data: IEdgeData;
 }
 
