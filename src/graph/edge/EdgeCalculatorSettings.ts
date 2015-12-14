@@ -14,6 +14,7 @@ export class EdgeCalculatorSettings {
     public panoMaxDistance: number;
     public panoPreferredDistance: number;
     public panoMaxItems: number;
+    public panoMaxStepTurnChange: number;
 
     public rotationMaxDistance: number;
     public rotationMaxDirectionChange: number;
@@ -34,6 +35,7 @@ export class EdgeCalculatorSettings {
         this.panoMaxDistance = 20;
         this.panoPreferredDistance = 5;
         this.panoMaxItems = 4;
+        this.panoMaxStepTurnChange = Math.PI / 8;
 
         this.rotationMaxDistance = this.turnMaxRigDistance;
         this.rotationMaxDirectionChange = Math.PI / 6;

@@ -4,6 +4,7 @@ import
     EdgeConstants,
     IStep,
     ITurn,
+    IPano,
     IRotation,
     IEdge,
     IPotentialEdge,
@@ -433,20 +434,45 @@ export class EdgeCalculator {
 
         let panoEdges: IEdge[] = [];
         let potentialPanos: IPotentialEdge[] = [];
+        let potentialSteps: IPotentialEdge[] = [];
 
         for (let i: number = 0; i < potentialEdges.length; i++) {
             let potential: IPotentialEdge = potentialEdges[i];
 
-            if (!potential.fullPano) {
+            if (potential.distance > this.settings.panoMaxDistance) {
                 continue;
             }
 
-            if (potential.distance < this.settings.panoMinDistance ||
-                potential.distance > this.settings.panoMaxDistance) {
-                continue;
-            }
+            if (potential.fullPano) {
+                if (potential.distance < this.settings.panoMinDistance) {
+                    continue;
+                }
 
-            potentialPanos.push(potential);
+                potentialPanos.push(potential);
+            } else {
+                for (let k in this.directions.panos) {
+                    if (!this.directions.panos.hasOwnProperty(k)) {
+                        continue;
+                    }
+
+                    let pano: IPano = this.directions.panos[k];
+
+                    let turn: number = this.spatial.angleDifference(
+                        potential.directionChange,
+                        potential.motionChange);
+
+                    let turnChange: number = this.spatial.angleDifference(pano.directionChange, turn);
+
+                    if (Math.abs(turnChange) > this.settings.panoMaxStepTurnChange) {
+                        continue;
+                    }
+
+                    potentialSteps.push(potential);
+
+                    // break if step direction found
+                    break;
+                }
+            }
         }
 
         let maxRotationDifference: number = Math.PI / this.settings.panoMaxItems;
@@ -502,6 +528,8 @@ export class EdgeCalculator {
                 });
             }
         }
+
+
 
         return panoEdges;
     }
