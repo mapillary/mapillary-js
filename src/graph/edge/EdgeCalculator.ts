@@ -477,6 +477,8 @@ export class EdgeCalculator {
 
         let maxRotationDifference: number = Math.PI / this.settings.panoMaxItems;
         let occupiedAngles: number[] = [];
+        let stepAngles: number[] = [];
+
         for (let index: number = 0; index < this.settings.panoMaxItems; index++) {
             let rotation: number = index / this.settings.panoMaxItems * 2 * Math.PI;
 
@@ -527,10 +529,96 @@ export class EdgeCalculator {
                     direction: EdgeConstants.Direction.PANO,
                     data: { worldMotionAzimuth: edge.worldMotionAzimuth }
                 });
+            } else {
+                stepAngles.push(rotation);
             }
         }
 
+        let occupiedStepAngles: {[direction: string]: number[] } = {};
+        occupiedStepAngles[EdgeConstants.Direction.PANO] = occupiedAngles;
+        occupiedStepAngles[EdgeConstants.Direction.STEP_FORWARD] = [];
+        occupiedStepAngles[EdgeConstants.Direction.STEP_LEFT] = [];
+        occupiedStepAngles[EdgeConstants.Direction.STEP_BACKWARD] = [];
+        occupiedStepAngles[EdgeConstants.Direction.STEP_RIGHT] = [];
 
+        for (let i: number = 0; i < stepAngles.length; i++) {
+            let stepAngle: number = stepAngles[i];
+
+            let occupations: [EdgeConstants.Direction, IPotentialEdge][] = [];
+
+            for (let k in this.directions.panos) {
+                if (!this.directions.panos.hasOwnProperty(k)) {
+                    continue;
+                }
+
+                let pano: IPano = this.directions.panos[k];
+
+                let allOccupiedAngles: number[] = occupiedStepAngles[EdgeConstants.Direction.PANO]
+                    .concat(occupiedStepAngles[pano.direction])
+                    .concat(occupiedStepAngles[pano.prev])
+                    .concat(occupiedStepAngles[pano.next]);
+
+                let lowestScore: number = Number.MAX_VALUE;
+                let edge: [EdgeConstants.Direction, IPotentialEdge] = null;
+
+                for (let j: number = 0; j < potentialSteps.length; j++) {
+                    let potential: [EdgeConstants.Direction, IPotentialEdge] = potentialSteps[j];
+
+                    if (potential[0] !== pano.direction) {
+                        continue;
+                    }
+
+                    let motionChange: number = this.spatial.angleDifference(stepAngle, potential[1].motionChange);
+
+                    if (Math.abs(motionChange) > maxRotationDifference) {
+                        continue;
+                    }
+
+                    let minOccupiedDifference: number = Number.MAX_VALUE;
+                    for (let k: number = 0; k < allOccupiedAngles.length; k++) {
+                        let occupiedAngle: number = allOccupiedAngles[k];
+
+                        let occupiedDifference: number =
+                            Math.abs(this.spatial.angleDifference(occupiedAngle, potential[1].motionChange));
+
+                        if (occupiedDifference < minOccupiedDifference) {
+                            minOccupiedDifference = occupiedDifference;
+                        }
+                    }
+
+                    if (minOccupiedDifference < maxRotationDifference) {
+                        continue;
+                    }
+
+                    let score: number = this.coefficients.panoPreferredDistance *
+                        Math.abs(potential[1].distance - this.settings.panoPreferredDistance) /
+                        this.settings.panoMaxDistance +
+                        this.coefficients.panoMotion * Math.abs(motionChange) / maxRotationDifference +
+                        this.coefficients.panoMergeCcPenalty * (potential[1].sameMergeCc ? 0 : 1);
+
+                    if (score < lowestScore) {
+                        lowestScore = score;
+                        edge = potential;
+                    }
+                }
+
+                if (edge != null) {
+                    occupations.push(edge);
+                    panoEdges.push({
+                        from: node.key,
+                        to: edge[1].apiNavImIm.key,
+                        direction: edge[0],
+                        data: { worldMotionAzimuth: edge[1].worldMotionAzimuth }
+                    });
+                }
+
+                for (let j: number = 0; j < occupations.length; j++) {
+                    let occupation: [EdgeConstants.Direction, IPotentialEdge] = occupations[j];
+
+                    occupiedStepAngles[occupation[0]].push(occupation[1].motionChange);
+                }
+            }
+        }
 
         return panoEdges;
     }
