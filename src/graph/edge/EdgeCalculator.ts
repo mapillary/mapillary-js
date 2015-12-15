@@ -495,8 +495,8 @@ export class EdgeCalculator {
                 let occupiedDifference: number = Number.MAX_VALUE;
                 for (let j: number = 0; j < occupiedAngles.length; j++) {
                     let occupiedAngle: number = occupiedAngles[j];
-                    let difference: number = this.spatial.angleDifference(occupiedAngle, potential.motionChange);
-                    if (Math.abs(difference) < occupiedDifference) {
+                    let difference: number = Math.abs(this.spatial.angleDifference(occupiedAngle, potential.motionChange));
+                    if (difference < occupiedDifference) {
                         occupiedDifference = difference;
                     }
                 }
@@ -520,6 +520,7 @@ export class EdgeCalculator {
             }
 
             if (edge != null) {
+                occupiedAngles.push(edge.motionChange);
                 panoEdges.push({
                     from: node.key,
                     to: edge.apiNavImIm.key,

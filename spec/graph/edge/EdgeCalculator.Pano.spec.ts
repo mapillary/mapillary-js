@@ -339,6 +339,22 @@ describe('EdgeCalculator.computePanoEdges', () => {
             expect(edge.direction).toBe(EdgeConstants.Direction.PANO);
         }
     });
+
+    it('should not have pano edges too close to each other on different slices', () => {
+        potentialEdge1.motionChange = Math.PI / 6;
+        potentialEdge2.motionChange = 2 * Math.PI / 6;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(
+            node,
+            [potentialEdge1, potentialEdge2]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
 });
 
 describe('EdgeCalculator.computePerspectiveToPanoEdges', () => {
