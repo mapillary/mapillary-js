@@ -13,6 +13,13 @@ export interface IEdgeData {
      * @propery {number} worldMotionAzimuth
      */
     worldMotionAzimuth: number;
+
+    /**
+     * The edge direction.
+     *
+     * @property {EdgeConstants.Direction} direction
+     */
+    direction: EdgeConstants.Direction;
 }
 
 /**
@@ -35,13 +42,6 @@ export interface IEdge {
      * @property {string} to
      */
     to: string;
-
-    /**
-     * The edge direction.
-     *
-     * @property {EdgeConstants.Direction} direction
-     */
-    direction: EdgeConstants.Direction;
 
     /**
      * Additional data describing properties of the edge.

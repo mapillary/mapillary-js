@@ -50,7 +50,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let sequenceEdge: IEdge = sequenceEdges[0];
 
         expect(sequenceEdge.to).toBe(nextKey);
-        expect(sequenceEdge.direction).toBe(EdgeConstants.Direction.NEXT);
+        expect(sequenceEdge.data.direction).toBe(EdgeConstants.Direction.NEXT);
     });
 
     it("should return a prev edge", () => {
@@ -66,7 +66,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let sequenceEdge: IEdge = sequenceEdges[0];
 
         expect(sequenceEdge.to).toBe(prevKey);
-        expect(sequenceEdge.direction).toBe(EdgeConstants.Direction.PREV);
+        expect(sequenceEdge.data.direction).toBe(EdgeConstants.Direction.PREV);
     });
 
     it("should return a prev and a next edge", () => {
@@ -84,9 +84,9 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
             let sequenceEdge: IEdge = sequenceEdges[i];
 
             if (sequenceEdge.to === prevKey) {
-                expect(sequenceEdge.direction).toBe(EdgeConstants.Direction.PREV);
+                expect(sequenceEdge.data.direction).toBe(EdgeConstants.Direction.PREV);
             } else if (sequenceEdge.to === nextKey) {
-                expect(sequenceEdge.direction).toBe(EdgeConstants.Direction.NEXT);
+                expect(sequenceEdge.data.direction).toBe(EdgeConstants.Direction.NEXT);
             }
         }
     });

@@ -57,8 +57,10 @@ export class EdgeCalculator {
             edges.push({
                 from: node.apiNavImIm.key,
                 to: nextKey,
-                direction: EdgeConstants.Direction.NEXT,
-                data: null
+                data: {
+                    direction: EdgeConstants.Direction.NEXT,
+                    worldMotionAzimuth: Number.NaN
+                }
             });
         }
 
@@ -67,8 +69,10 @@ export class EdgeCalculator {
             edges.push({
                 from: node.apiNavImIm.key,
                 to: prevKey,
-                direction: EdgeConstants.Direction.PREV,
-                data: null
+                data: {
+                    direction: EdgeConstants.Direction.PREV,
+                    worldMotionAzimuth: Number.NaN
+                }
             });
         }
 
@@ -254,8 +258,10 @@ export class EdgeCalculator {
                 edges.push({
                     from: node.key,
                     to: edge.apiNavImIm.key,
-                    direction: step.direction,
-                    data: { worldMotionAzimuth: edge.worldMotionAzimuth }
+                    data: {
+                        direction: step.direction,
+                        worldMotionAzimuth: edge.worldMotionAzimuth
+                    }
                 });
             }
         }
@@ -338,8 +344,10 @@ export class EdgeCalculator {
                 edges.push({
                     from: node.key,
                     to: edge.apiNavImIm.key,
-                    direction: turn.direction,
-                    data: { worldMotionAzimuth: edge.worldMotionAzimuth }
+                    data: {
+                        direction: turn.direction,
+                        worldMotionAzimuth: edge.worldMotionAzimuth
+                    }
                 });
             }
         }
@@ -388,8 +396,10 @@ export class EdgeCalculator {
         return [{
             from: node.key,
             to: edge.apiNavImIm.key,
-            direction: EdgeConstants.Direction.PANO,
-            data: { worldMotionAzimuth: edge.worldMotionAzimuth }
+            data: {
+                direction: EdgeConstants.Direction.PANO,
+                worldMotionAzimuth: edge.worldMotionAzimuth
+            }
         }];
     }
 
@@ -443,8 +453,10 @@ export class EdgeCalculator {
                 edges.push({
                     from: node.key,
                     to: edge.apiNavImIm.key,
-                    direction: rotation.direction,
-                    data: { worldMotionAzimuth: edge.worldMotionAzimuth }
+                    data: {
+                        direction: rotation.direction,
+                        worldMotionAzimuth: edge.worldMotionAzimuth
+                    }
                 });
             }
         }
@@ -557,8 +569,10 @@ export class EdgeCalculator {
                 panoEdges.push({
                     from: node.key,
                     to: edge.apiNavImIm.key,
-                    direction: EdgeConstants.Direction.PANO,
-                    data: { worldMotionAzimuth: edge.worldMotionAzimuth }
+                    data: {
+                        direction: EdgeConstants.Direction.PANO,
+                        worldMotionAzimuth: edge.worldMotionAzimuth
+                    }
                 });
             } else {
                 stepAngles.push(rotation);
@@ -638,8 +652,10 @@ export class EdgeCalculator {
                     panoEdges.push({
                         from: node.key,
                         to: edge[1].apiNavImIm.key,
-                        direction: edge[0],
-                        data: { worldMotionAzimuth: edge[1].worldMotionAzimuth }
+                        data: {
+                            direction: edge[0],
+                            worldMotionAzimuth: edge[1].worldMotionAzimuth
+                        }
                     });
                 }
             }

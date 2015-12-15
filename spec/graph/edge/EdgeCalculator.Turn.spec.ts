@@ -51,7 +51,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
     });
 
     it("should have a turn right edge", () => {
@@ -64,7 +64,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_RIGHT);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_RIGHT);
     });
 
     it("should have a u-turn edge", () => {
@@ -77,7 +77,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_U);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_U);
     });
 
     it("should not have a u-turn edge when node is full pano", () => {
@@ -138,7 +138,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
     });
 
     it("should have a turn left with the same merge cc", () => {
@@ -155,7 +155,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
     });
 
     it("should have a turn left edge with the smallest distance", () => {
@@ -172,7 +172,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
     });
 
     it("should have a turn left edge with the smallest motion difference", () => {
@@ -192,7 +192,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
     });
 
     it("should have a turn left edge for rig setup with smallest direction change", () => {
@@ -209,7 +209,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_LEFT);
     });
 
     it("should have a turn right edge for rig setup with smallest direction change", () => {
@@ -226,7 +226,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         let turnEdge: IEdge = turnEdges[0];
 
         expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
-        expect(turnEdge.direction).toBe(EdgeConstants.Direction.TURN_RIGHT);
+        expect(turnEdge.data.direction).toBe(EdgeConstants.Direction.TURN_RIGHT);
     });
 
     it("should not have a turn left edge for rig with too small angle", () => {
