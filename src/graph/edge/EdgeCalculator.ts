@@ -503,7 +503,7 @@ export class EdgeCalculator {
                     }
                 }
 
-                if (occupiedDifference < maxRotationDifference) {
+                if (occupiedDifference <= maxRotationDifference) {
                     continue;
                 }
 
@@ -586,7 +586,7 @@ export class EdgeCalculator {
                         }
                     }
 
-                    if (minOccupiedDifference < maxRotationDifference) {
+                    if (minOccupiedDifference <= maxRotationDifference) {
                         continue;
                     }
 

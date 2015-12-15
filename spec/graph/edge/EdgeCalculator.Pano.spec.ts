@@ -276,6 +276,24 @@ describe("EdgeCalculator.computePanoEdges", () => {
         potentialEdge4.fullPano = true;
     });
 
+    it("should have only have one pano edge based on motion change", () => {
+        potentialEdge1.motionChange = Math.PI / 4;
+        potentialEdge2.motionChange = -Math.PI / 4;
+        potentialEdge3.motionChange = Math.PI / 8;
+        potentialEdge4.motionChange = 0;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(
+            node,
+            [potentialEdge1, potentialEdge2, potentialEdge3, potentialEdge4]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge4.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
     it("should have a pano edge in four directions", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge2.motionChange = Math.PI / 2;
@@ -789,6 +807,28 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
         expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
+
+    it("should not have a step left or right edge based on step forward edges", () => {
+        potentialEdge1.directionChange = 0;
+        potentialEdge1.motionChange = Math.PI / 18;
+
+        potentialEdge2.directionChange = Math.PI / 4;
+        potentialEdge2.motionChange = Math.PI / 4 + Math.PI / 36;
+
+        potentialEdge3.directionChange = 3 * Math.PI / 4;
+        potentialEdge3.motionChange = Math.PI / 4 + Math.PI / 36;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(
+            node,
+            [potentialEdge1, potentialEdge2, potentialEdge3]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
     });
 });
 
