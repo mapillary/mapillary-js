@@ -32,41 +32,6 @@ export class EdgeCalculator {
     }
 
     /**
-     * Computes the sequence edges for a node.
-     *
-     * @param {Node} node Source node
-     */
-    public computeSequenceEdges(node: Node): IEdge[] {
-        let edges: IEdge[] = [];
-
-        let nextKey: string = node.findNextKeyInSequence();
-        if (nextKey != null) {
-            edges.push({
-                from: node.apiNavImIm.key,
-                to: nextKey,
-                data: {
-                    direction: EdgeConstants.Direction.NEXT,
-                    worldMotionAzimuth: Number.NaN
-                }
-            });
-        }
-
-        let prevKey: string = node.findPrevKeyInSequence();
-        if (prevKey != null) {
-            edges.push({
-                from: node.apiNavImIm.key,
-                to: prevKey,
-                data: {
-                    direction: EdgeConstants.Direction.PREV,
-                    worldMotionAzimuth: Number.NaN
-                }
-            });
-        }
-
-        return edges;
-    }
-
-    /**
      * Returns the potential edges to destination nodes for a set
      * of nodes with respect to a source node.
      *
@@ -161,6 +126,41 @@ export class EdgeCalculator {
         }
 
         return potentialEdges;
+    }
+
+    /**
+     * Computes the sequence edges for a node.
+     *
+     * @param {Node} node Source node
+     */
+    public computeSequenceEdges(node: Node): IEdge[] {
+        let edges: IEdge[] = [];
+
+        let nextKey: string = node.findNextKeyInSequence();
+        if (nextKey != null) {
+            edges.push({
+                from: node.apiNavImIm.key,
+                to: nextKey,
+                data: {
+                    direction: EdgeConstants.Direction.NEXT,
+                    worldMotionAzimuth: Number.NaN
+                }
+            });
+        }
+
+        let prevKey: string = node.findPrevKeyInSequence();
+        if (prevKey != null) {
+            edges.push({
+                from: node.apiNavImIm.key,
+                to: prevKey,
+                data: {
+                    direction: EdgeConstants.Direction.PREV,
+                    worldMotionAzimuth: Number.NaN
+                }
+            });
+        }
+
+        return edges;
     }
 
     /**
