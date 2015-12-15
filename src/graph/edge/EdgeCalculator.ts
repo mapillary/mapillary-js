@@ -45,6 +45,37 @@ export class EdgeCalculator {
     }
 
     /**
+     * Computes the sequence edges for a node.
+     *
+     * @param {Node} node Source node
+     */
+    public computeSequenceEdges(node: Node): IEdge[] {
+        let edges: IEdge[] = [];
+
+        let nextKey: string = node.findNextKeyInSequence();
+        if (nextKey != null) {
+            edges.push({
+                from: node.apiNavImIm.key,
+                to: nextKey,
+                direction: EdgeConstants.Direction.NEXT,
+                data: null
+            });
+        }
+
+        let prevKey: string = node.findPrevKeyInSequence();
+        if (prevKey != null) {
+            edges.push({
+                from: node.apiNavImIm.key,
+                to: prevKey,
+                direction: EdgeConstants.Direction.PREV,
+                data: null
+            });
+        }
+
+        return edges;
+    }
+
+    /**
      * Returns the potential edges to destination nodes for a set
      * of nodes with respect to a source node.
      *
