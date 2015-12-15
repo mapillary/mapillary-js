@@ -692,6 +692,87 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 });
 
+describe("EdgeCalculator.computePanoEdges", () => {
+    let edgeCalculator: EdgeCalculator;
+    let settings: EdgeCalculatorSettings;
+    let directions: EdgeCalculatorDirections;
+
+    let helper: EdgeCalculatorHelper;
+
+    let spatial: Spatial;
+
+    let node: Node;
+
+    let potentialEdge1: IPotentialEdge;
+    let potentialEdge2: IPotentialEdge;
+    let potentialEdge3: IPotentialEdge;
+    let potentialEdge4: IPotentialEdge;
+
+    beforeEach(() => {
+        settings = new EdgeCalculatorSettings();
+        settings.panoMinDistance = 0.1;
+        settings.panoMaxDistance = 20;
+        settings.panoPreferredDistance = 5;
+        settings.panoMaxItems = 4;
+    });
+
+    beforeEach(() => {
+        directions = new EdgeCalculatorDirections();
+        edgeCalculator = new EdgeCalculator(settings, directions);
+
+        helper = new EdgeCalculatorHelper();
+
+        spatial = new Spatial();
+    });
+
+    beforeEach(() => {
+        node = helper.createNode(true);
+
+        potentialEdge1 = helper.createPotentialEdge("pkey1");
+        potentialEdge1.distance = settings.panoMaxDistance / 2;
+        potentialEdge1.fullPano = false;
+
+        potentialEdge2 = helper.createPotentialEdge("pkey2");
+        potentialEdge2.distance = settings.panoMaxDistance / 2;
+        potentialEdge2.fullPano = false;
+
+        potentialEdge3 = helper.createPotentialEdge("pkey3");
+        potentialEdge3.distance = settings.panoMaxDistance / 2;
+        potentialEdge3.fullPano = false;
+
+        potentialEdge4 = helper.createPotentialEdge("pkey4");
+        potentialEdge4.distance = settings.panoMaxDistance / 2;
+        potentialEdge4.fullPano = false;
+    });
+
+    it("should have a forward, left, backward and right pano edge at the same motion", () => {
+        potentialEdge1.directionChange = 0;
+        potentialEdge2.directionChange = -Math.PI / 2;
+        potentialEdge3.directionChange = Math.PI;
+        potentialEdge4.directionChange = Math.PI / 2;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(
+            node,
+            [potentialEdge1, potentialEdge2, potentialEdge3, potentialEdge4]);
+
+        expect(panoEdges.length).toBe(4);
+
+        for (let i: number = 0; i < panoEdges.length; i++) {
+            let panoEdge: IEdge = panoEdges[i];
+
+            if (panoEdge.to === potentialEdge1.apiNavImIm.key) {
+                expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
+            } else if (panoEdge.to === potentialEdge2.apiNavImIm.key) {
+                expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_LEFT);
+            } else if (panoEdge.to === potentialEdge3.apiNavImIm.key) {
+                expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_BACKWARD);
+            } else if (panoEdge.to === potentialEdge4.apiNavImIm.key) {
+                expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_RIGHT);
+            }
+        }
+    });
+});
+
 describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
     let calculator: EdgeCalculator;
     let settings: EdgeCalculatorSettings;

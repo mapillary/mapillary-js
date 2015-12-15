@@ -611,12 +611,12 @@ export class EdgeCalculator {
                         data: { worldMotionAzimuth: edge[1].worldMotionAzimuth }
                     });
                 }
+            }
 
-                for (let j: number = 0; j < occupations.length; j++) {
-                    let occupation: [EdgeConstants.Direction, IPotentialEdge] = occupations[j];
+            for (let j: number = 0; j < occupations.length; j++) {
+                let occupation: [EdgeConstants.Direction, IPotentialEdge] = occupations[j];
 
-                    occupiedStepAngles[occupation[0]].push(occupation[1].motionChange);
-                }
+                occupiedStepAngles[occupation[0]].push(occupation[1].motionChange);
             }
         }
 
