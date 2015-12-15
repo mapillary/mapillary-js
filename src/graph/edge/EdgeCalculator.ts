@@ -8,7 +8,6 @@ import
     IRotation,
     IEdge,
     IPotentialEdge,
-    ICalculatedEdges,
     EdgeCalculatorSettings,
     EdgeCalculatorDirections,
     EdgeCalculatorCoefficients
@@ -30,18 +29,6 @@ export class EdgeCalculator {
         this.settings = settings != null ? settings : new EdgeCalculatorSettings();
         this.directions = directions != null ? directions : new EdgeCalculatorDirections();
         this.coefficients = coefficients != null ? coefficients : new EdgeCalculatorCoefficients();
-    }
-
-    public calculateEdges(node: Node): ICalculatedEdges {
-        let edges: ICalculatedEdges = {};
-
-        let nextKey: string = node.findNextKeyInSequence();
-        edges[EdgeConstants.Direction.NEXT] = [nextKey];
-
-        let prevKey: string = node.findPrevKeyInSequence();
-        edges[EdgeConstants.Direction.PREV] = [prevKey];
-
-        return edges;
     }
 
     /**

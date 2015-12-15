@@ -6,7 +6,7 @@ import * as rbush from "rbush";
 import * as _ from "underscore";
 
 import {Node, Sequence} from "../Graph";
-import {ICalculatedEdges, EdgeConstants, EdgeCalculator} from "../Edge";
+import {IEdge, EdgeConstants, EdgeCalculator} from "../Edge";
 import {IAPINavIm, IAPINavImIm} from "../API";
 import {ILatLon} from "../Viewer";
 
@@ -110,12 +110,13 @@ export class Graph {
     public nextNode(node: Node, dir: EdgeConstants.Direction): Node {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
-        for (var i in outEdges) {
-            if (outEdges.hasOwnProperty(i)) {
-                let e: any = outEdges[i];
-                if (this.graph.edge(e.v, e.w) === dir) {
-                    return this.node(e.w);
-                }
+        for (let i: number = 0; i < outEdges.length; i++) {
+            let outEdge: any = outEdges[i];
+
+            let edge: any = this.graph.edge(outEdge);
+
+            if (edge.direction === dir) {
+                return this.node(outEdge.w);
             }
         }
 
@@ -138,26 +139,20 @@ export class Graph {
         });
     }
 
-    private addCalculatedEdgesToNode(node: Node, edges: ICalculatedEdges): void {
+    private addEdgesToNode(node: Node, edges: IEdge[]): void {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
-        for (var i in outEdges) {
+        for (let i in outEdges) {
             if (outEdges.hasOwnProperty(i)) {
                 let e: any = outEdges[i];
                 this.graph.removeEdge(e);
             }
         }
 
-        for (var k in edges) {
-            if (edges.hasOwnProperty(k)) {
-                let es: any = edges[k];
-                for (var l in es) {
-                    if (es.hasOwnProperty(l)) {
-                        let e: any = es[l];
-                        this.graph.setEdge(node.key, e, parseInt(k, 10));
-                    }
-                }
-            }
+        for (let i: number = 0; i < edges.length; i++) {
+            let edge: IEdge = edges[i];
+
+            this.graph.setEdge(node.key, edge.to, edge.data, node.key + edge.to + edge.data.direction);
         }
     }
 
@@ -172,8 +167,8 @@ export class Graph {
             return;
         }
         if (!(node.key in this.traversedCache)) {
-            let edges: ICalculatedEdges = this.edgeCalculator.calculateEdges(node);
-            this.addCalculatedEdgesToNode(node, edges);
+            let edges: IEdge[] = this.edgeCalculator.computeSequenceEdges(node);
+            this.addEdgesToNode(node, edges);
         }
 
         this.traversedCache[node.key] = node;

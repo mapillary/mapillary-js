@@ -3,7 +3,7 @@
 
 import * as THREE from "three";
 
-import {Node, Sequence, Graph} from "../../../src/Graph";
+import {Node, Sequence} from "../../../src/Graph";
 import {
     EdgeCalculator,
     EdgeCalculatorSettings,
@@ -12,53 +12,10 @@ import {
     IEdge,
     IPotentialEdge
 } from "../../../src/Edge";
-import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../../src/API";
+import {IAPINavImIm, IAPINavImS} from "../../../src/API";
 import {ILatLon} from "../../../src/Viewer"
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
-
-describe("EdgeCalculator", () => {
-    var graph: Graph;
-
-    beforeEach(() => {
-        graph = new Graph()
-    });
-
-    it("should create an edgeCalculator", () => {
-        expect(graph.edgeCalculator).toBeDefined();
-    });
-
-    it("should create the simplest sequence graph", () => {
-        var key1 = "key1";
-        var key2 = "key2";
-        var key3 = "key3";
-        var skey1 = "skey1";
-
-        var data: IAPINavIm = {
-            hs: [],
-            ims: [
-                { key: key1 },
-                { key: key2 },
-                { key: key3 }
-            ],
-            ss: [
-                { key: skey1, keys: [key1, key2, key3] }
-            ]
-        };
-
-        graph.insertNodes(data);
-        let edges: any = graph.edgeCalculator.calculateEdges(graph.node(key2));
-
-        let nextEdges = edges[EdgeConstants.Direction.NEXT];
-        let prevEdges = edges[EdgeConstants.Direction.PREV];
-
-        expect(prevEdges.length).toBe(1);
-        expect(nextEdges.length).toBe(1);
-
-        expect(prevEdges[0]).toBe(key1);
-        expect(nextEdges[0]).toBe(key3);
-    });
-});
 
 describe("EdgeCalculator.getPotentialEdges", () => {
     let epsilon: number = 1e-8;
