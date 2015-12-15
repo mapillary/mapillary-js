@@ -771,6 +771,25 @@ describe("EdgeCalculator.computePanoEdges", () => {
             }
         }
     });
+
+    it("should not have any step edges in the pano edge direction", () => {
+        potentialEdge1.fullPano = true;
+
+        potentialEdge2.directionChange = 0;
+        potentialEdge3.directionChange = Math.PI / 2;
+        potentialEdge4.directionChange = Math.PI;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(
+            node,
+            [potentialEdge1, potentialEdge2, potentialEdge3, potentialEdge4]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.PANO);
+    });
 });
 
 describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
