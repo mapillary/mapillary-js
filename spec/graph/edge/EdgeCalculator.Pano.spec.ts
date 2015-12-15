@@ -379,10 +379,12 @@ describe("EdgeCalc updateEdges", () => {
         settings.panoMaxDistance = 20;
         settings.panoPreferredDistance = 5;
         settings.panoMaxItems = 4;
+        settings.panoMaxStepTurnChange = Math.PI / 8;
     });
 
     beforeEach(() => {
         directions = new EdgeCalculatorDirections();
+
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
@@ -426,6 +428,20 @@ describe("EdgeCalc updateEdges", () => {
         expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_LEFT);
     });
 
+    it("should have a step left edge for direction change", () => {
+        potentialEdge1.motionChange = 0;
+        potentialEdge1.directionChange = -Math.PI / 2;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_LEFT);
+    });
+
     it("should have a step right edge", () => {
         potentialEdge1.motionChange = -Math.PI / 2;
         potentialEdge1.directionChange = 0;
@@ -440,9 +456,37 @@ describe("EdgeCalc updateEdges", () => {
         expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_RIGHT);
     });
 
+    it("should have a step right edge for direction change", () => {
+        potentialEdge1.motionChange = 0;
+        potentialEdge1.directionChange = Math.PI / 2;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_RIGHT);
+    });
+
     it("should have a step backward edge", () => {
         potentialEdge1.motionChange = Math.PI;
         potentialEdge1.directionChange = 0;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(1);
+
+        let panoEdge: IEdge = panoEdges[0];
+
+        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_BACKWARD);
+    });
+
+    it("should have a step backward edge for direction change", () => {
+        potentialEdge1.motionChange = 0;
+        potentialEdge1.directionChange = Math.PI;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
 
@@ -494,6 +538,42 @@ describe("EdgeCalc updateEdges", () => {
 
         expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
         expect(panoEdge.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
+    });
+
+    it("should not have a step forward edge when turn is to large", () => {
+        potentialEdge1.motionChange = 0;
+        potentialEdge1.directionChange = settings.panoMaxStepTurnChange + Math.PI / 18;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
+    });
+
+    it("should not have a step forward edge when turn is to large", () => {
+        potentialEdge1.motionChange = 0;
+        potentialEdge1.directionChange = -settings.panoMaxStepTurnChange - Math.PI / 18;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
+    });
+
+        it("should not have a step left edge when turn is to large", () => {
+        potentialEdge1.motionChange = 0;
+        potentialEdge1.directionChange = Math.PI / 2 +settings.panoMaxStepTurnChange + Math.PI / 18;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
+    });
+
+    it("should not have a step left edge when turn is to large", () => {
+        potentialEdge1.motionChange = 0;
+        potentialEdge1.directionChange = Math.PI / 2 -settings.panoMaxStepTurnChange - Math.PI / 18;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
     });
 });
 
