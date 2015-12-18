@@ -28,8 +28,8 @@ export class Graph {
     private traversedCache: any;
     private traversedDir: any;
 
-    constructor (clientId: string) {
-        this.prefetcher = new Prefetcher(clientId);
+    constructor (clientId: string, prefetcher?: Prefetcher) {
+        this.prefetcher = prefetcher != null ? prefetcher : new Prefetcher(clientId);
         this.mapImageSequences = {};
         this.sequences = {};
         this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);

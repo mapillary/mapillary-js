@@ -1,6 +1,9 @@
 /// <reference path="../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../typings/when/when.d.ts" />
 
-import {Graph, Node} from "../src/Graph";
+import * as when from "when";
+
+import {Graph, Prefetcher, Node} from "../src/Graph";
 import {IAPINavIm} from "../src/API";
 
 describe("Graph", () => {
@@ -93,5 +96,38 @@ describe("Graph", () => {
 
         expect(node.key).toEqual(key2);
         expect(node.sequence.key).toEqual(skey2);
+    });
+});
+
+describe("Graph.getNode", () => {
+    let prefetcher: Prefetcher;
+    let graph: Graph;
+
+    beforeEach(() => {
+        prefetcher = new Prefetcher("clientId");
+        graph = new Graph("clientId", prefetcher);
+    });
+
+    it("should prefetch and return node", (done) => {
+        let key: string = "key";
+
+        spyOn(prefetcher, 'loadFromKey').and.callFake(() => {
+            let deferred: when.Deferred<IAPINavIm> = when.defer<IAPINavIm>();
+            let result: IAPINavIm = {
+                hs: [],
+                ims: [{key: key}],
+                ss: [],
+            };
+
+            deferred.resolve(result);
+            return deferred.promise;
+        });
+
+        graph.getNode(key).then((node: Node) => {
+            expect(node.apiNavImIm.key).toBe(key);
+            expect(prefetcher.loadFromKey).toHaveBeenCalled();
+
+            done();
+        });
     });
 });
