@@ -112,15 +112,13 @@ describe("Graph.getNode", () => {
         let key: string = "key";
 
         spyOn(prefetcher, 'loadFromKey').and.callFake(() => {
-            let deferred: when.Deferred<IAPINavIm> = when.defer<IAPINavIm>();
             let result: IAPINavIm = {
                 hs: [],
                 ims: [{key: key}],
                 ss: [],
             };
 
-            deferred.resolve(result);
-            return deferred.promise;
+            return when(result);
         });
 
         graph.getNode(key).then((node: Node) => {
@@ -136,15 +134,13 @@ describe("Graph.getNode", () => {
         let key2: string = "key2";
 
         spyOn(prefetcher, 'loadFromKey').and.callFake(() => {
-            let deferred: when.Deferred<IAPINavIm> = when.defer<IAPINavIm>();
             let result: IAPINavIm = {
                 hs: [],
                 ims: [{key: key1}, {key: key2}],
                 ss: [],
             };
 
-            deferred.resolve(result);
-            return deferred.promise;
+            return when(result);
         });
 
         let promise: when.Promise<void> = graph.getNode(key1).then((node: Node) => {
