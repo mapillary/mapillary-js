@@ -10,7 +10,7 @@ describe("Graph", () => {
     var graph: Graph;
 
     beforeEach(() => {
-        graph = new Graph("clientId")
+        graph = new Graph(new Prefetcher("clientId"));
     });
 
     it("exists", () => {
@@ -105,7 +105,7 @@ describe("Graph.getNode", () => {
 
     beforeEach(() => {
         prefetcher = new Prefetcher("clientId");
-        graph = new Graph("clientId", prefetcher);
+        graph = new Graph(prefetcher);
     });
 
     it("should prefetch and return node", (done) => {
