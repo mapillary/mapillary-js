@@ -1,6 +1,8 @@
 /// <reference path="../../typings/graphlib/graphlib.d.ts" />
 /// <reference path="../../typings/rbush/rbush.d.ts" />
+/// <reference path="../../typings/when/when.d.ts" />
 
+import * as when from "when";
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 import * as _ from "underscore";
@@ -36,6 +38,20 @@ export class Graph {
 
         this.traversedCache = {};
         this.traversedDir = {};
+    }
+
+    public getNode(key: string): when.Promise<Node> {
+        let node: Node = this.graph.node(key);
+
+        if (node != null && node.worthy) {
+            return when.resolve(node);
+        }
+
+        return this.prefetcher.loadFromKey(key).then((data: IAPINavIm) => {
+            this.insertNodes(data);
+
+            return this.graph.node(key);
+        });
     }
 
     public insertNodes (data: IAPINavIm): void {
