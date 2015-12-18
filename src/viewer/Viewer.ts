@@ -269,6 +269,7 @@ export class Viewer {
 
         if (this.assetCache.isCached(wantedNode)) {
             this.setCurrentNode(wantedNode);
+            return when.resolve(wantedNode);
         }
 
         return this.assetCache.cache(cacheNodes).then((data: any) => {
