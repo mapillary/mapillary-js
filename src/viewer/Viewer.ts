@@ -83,14 +83,6 @@ export class Viewer {
     private options: IViewerOptions;
 
     /**
-     * Used for prefetching information about keys from Mapillary API
-     * @member Mapillary.Viewer#loading
-     * @private
-     * @type {Prefetcher}
-     */
-    private prefetcher: Prefetcher;
-
-    /**
      * Holds the current state
      * @member Mapillary.Viewer#state
      * @private
@@ -116,8 +108,7 @@ export class Viewer {
         this.assetCache.enableAsset("image");
         // this.assetCache.enableAsset("mesh");
 
-        this.prefetcher = new Prefetcher(clientId);
-        this.graph = new Graph(this.prefetcher);
+        this.graph = new Graph(new Prefetcher(clientId));
 
         this.state = new StateContext();
 
