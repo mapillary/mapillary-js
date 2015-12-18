@@ -196,12 +196,12 @@ export class Viewer {
      * @param {string} key Mapillary image key to move to
      * @throws {ParamaterMapillaryError} If no key is provided
      */
-    public moveToKey(key: string): when.Promise<{}> {
+    public moveToKey(key: string): when.Promise<Node> {
         if (key == null) {
             throw new ParameterMapillaryError();
         }
         if (this.loading) {
-            return when.reject("Viewer is Loading");
+            return when.reject<Node>("Viewer is Loading");
         }
         this.loading = true;
 
@@ -217,7 +217,7 @@ export class Viewer {
         } else {
             let node: Node = this.graph.insertNoneWorthyNodeFromKey(key);
             this.setCurrentNode(node);
-            return when(node);
+            return when.resolve<Node>(node);
         }
     }
 
@@ -226,7 +226,7 @@ export class Viewer {
      * @method Mapillary.Viewer#moveToLngLat
      * @param {LatLng} latLng FIXME
      */
-    public moveDir(dir: EdgeConstants.Direction): when.Promise<{}> {
+    public moveDir(dir: EdgeConstants.Direction): when.Promise<Node> {
         if (!this.ui.graphSupport) {
             throw new MoveTypeMapillaryError();
         }
@@ -234,13 +234,13 @@ export class Viewer {
             throw new ParameterMapillaryError();
         }
         if (this.loading) {
-            return when.reject("Viewer is Loading");
+            return when.reject<Node>("Viewer is Loading");
         }
 
         let nextNode: Node = this.graph.nextNode(this.currentNode, dir);
 
         if (nextNode == null) {
-            return when.reject("There are no node in direction: " + dir);
+            return when.reject<Node>("There are no node in direction: " + dir);
         }
 
         return this.moveToKey(nextNode.key);
@@ -264,7 +264,7 @@ export class Viewer {
         return true;
     }
 
-    private cacheNode(wantedNode: Node): when.Promise<{}> {
+    private cacheNode(wantedNode: Node): when.Promise<Node> {
         let cacheNodes: Node[] = this.graph.updateGraph(wantedNode);
 
         if (this.assetCache.isCached(wantedNode)) {
@@ -273,7 +273,8 @@ export class Viewer {
 
         return this.assetCache.cache(cacheNodes).then((data: any) => {
             this.setCurrentNode(wantedNode);
-            return when(wantedNode);
+
+            return wantedNode;
         });
     }
 
