@@ -7,10 +7,9 @@ import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 import * as _ from "underscore";
 
-import {Prefetcher, Node, Sequence} from "../Graph";
+import {Prefetcher, Node, Sequence, ILatLon} from "../Graph";
 import {IEdge, EdgeConstants, EdgeCalculator} from "../Edge";
 import {IAPINavIm, IAPINavImIm} from "../API";
-import {ILatLon} from "../Viewer";
 
 interface ISequences {
     [key: string]: Sequence;

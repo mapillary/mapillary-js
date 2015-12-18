@@ -1,5 +1,5 @@
 import {IAPINavImIm} from "../API";
-import {ILatLon} from "../Viewer";
+import {ILatLon} from "../Graph";
 import Sequence from "./Sequence";
 
 export class Node {
