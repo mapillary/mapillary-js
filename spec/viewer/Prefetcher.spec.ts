@@ -1,6 +1,6 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-import {Prefetcher} from "../../src/Viewer";
+import {Prefetcher} from "../../src/Graph";
 
 describe("Prefetcher", () => {
     var prefetcher: Prefetcher;
