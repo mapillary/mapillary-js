@@ -3,7 +3,6 @@
 import * as _ from "underscore";
 import * as when from "when";
 
-import {IAPINavIm} from "../API";
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Graph, Node, Prefetcher, ILatLon} from "../Graph";
 import {EdgeConstants} from "../Edge";
@@ -206,14 +205,9 @@ export class Viewer {
         this.loading = true;
 
         if (this.ui.graphSupport) {
-            if (this.graph.keyIsWorthy(key)) {
+            return this.graph.getNode(key).then((node: Node) => {
                 return this.cacheNode(this.graph.node(key));
-            } else {
-                return this.prefetcher.loadFromKey(key).then((data: IAPINavIm) => {
-                    this.graph.insertNodes(data);
-                    return this.cacheNode(this.graph.node(key));
-                });
-            }
+            });
         } else {
             let node: Node = this.graph.insertNoneWorthyNodeFromKey(key);
             this.setCurrentNode(node);
