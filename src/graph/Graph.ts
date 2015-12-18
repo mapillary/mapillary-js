@@ -15,7 +15,7 @@ interface ISequences {
 }
 
 export class Graph {
-    public edgeCalculator: EdgeCalculator;
+    private edgeCalculator: EdgeCalculator;
     private prefetcher: Prefetcher;
 
     private graph: any;
