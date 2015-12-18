@@ -55,8 +55,10 @@
   },
   "dependencies": {
     "graphlib": "~1.0.7",
+    "latlon-geohash": "^1.0.1",
     "rbush": "~1.4.1",
     "rest": "~1.3.1",
+    "rx": "^4.0.7",
     "three": "~0.73.0",
     "underscore": "~1.8.3",
     "when": "~3.7.4"

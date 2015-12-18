@@ -4,7 +4,7 @@ import * as _ from "underscore";
 import * as when from "when";
 
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
-import {Graph, Node, Prefetcher, ILatLon} from "../Graph";
+import {Graph, GraphService, Node, Prefetcher, ILatLon} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {AssetCache, IViewerOptions, OptionsParser} from "../Viewer";
 import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI} from "../UI";
@@ -24,6 +24,14 @@ export class Viewer {
     public get currentNode(): Node {
         return this.state.current.node;
     }
+
+    /**
+     * Service for handling the graph
+     * @member Mapillary.Viewer#graphService
+     * @public
+     * @type {GraphService}
+     */
+    public graphService: GraphService;
 
     /**
      * true if Viewer is loading internally, false if not.
@@ -113,6 +121,8 @@ export class Viewer {
         this.state = new StateContext();
 
         this.uis = {};
+
+        this.graphService = new GraphService(clientId);
 
         // fixme unuglify these switches
 

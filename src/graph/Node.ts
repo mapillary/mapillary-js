@@ -10,6 +10,7 @@ export class Node {
     public sequence: Sequence;
     public apiNavImIm: IAPINavImIm;
     public translation: number[];
+    public edgesSynched: boolean;
 
     constructor (
         key: string,
@@ -26,6 +27,7 @@ export class Node {
         this.sequence = sequence;
         this.apiNavImIm = apiNavImIm;
         this.translation = translation;
+        this.edgesSynched = false;
     }
 
     public get merged(): boolean {
