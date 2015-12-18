@@ -130,4 +130,37 @@ describe("Graph.getNode", () => {
             done();
         });
     });
+
+    it("should not prefetch when in graph", (done) => {
+        let key1: string = "key1";
+        let key2: string = "key2";
+
+        spyOn(prefetcher, 'loadFromKey').and.callFake(() => {
+            let deferred: when.Deferred<IAPINavIm> = when.defer<IAPINavIm>();
+            let result: IAPINavIm = {
+                hs: [],
+                ims: [{key: key1}, {key: key2}],
+                ss: [],
+            };
+
+            deferred.resolve(result);
+            return deferred.promise;
+        });
+
+        let promise: when.Promise<void> = graph.getNode(key1).then((node: Node) => {
+            expect(node.apiNavImIm.key).toBe(key1);
+            expect(prefetcher.loadFromKey).toHaveBeenCalledWith(key1);
+
+            return;
+        });
+
+        promise.then(() => {
+            graph.getNode(key2).then((node: Node) => {
+                expect(node.apiNavImIm.key).toBe(key2);
+                expect(prefetcher.loadFromKey).not.toHaveBeenCalledWith(key2);
+
+                done();
+            });
+        });
+    });
 });
