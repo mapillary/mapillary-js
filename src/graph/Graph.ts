@@ -5,7 +5,7 @@ import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 import * as _ from "underscore";
 
-import {Node, Sequence} from "../Graph";
+import {Prefetcher, Node, Sequence} from "../Graph";
 import {IEdge, EdgeConstants, EdgeCalculator} from "../Edge";
 import {IAPINavIm, IAPINavImIm} from "../API";
 import {ILatLon} from "../Viewer";
@@ -16,6 +16,7 @@ interface ISequences {
 
 export class Graph {
     public edgeCalculator: EdgeCalculator;
+    private prefetcher: Prefetcher;
 
     private graph: any;
     private mapImageSequences: ISequences;
@@ -25,7 +26,8 @@ export class Graph {
     private traversedCache: any;
     private traversedDir: any;
 
-    constructor () {
+    constructor (clientId: string) {
+        this.prefetcher = new Prefetcher(clientId);
         this.mapImageSequences = {};
         this.sequences = {};
         this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);

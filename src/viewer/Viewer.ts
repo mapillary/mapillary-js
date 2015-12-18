@@ -117,7 +117,7 @@ export class Viewer {
         this.assetCache.enableAsset("image");
         // this.assetCache.enableAsset("mesh");
 
-        this.graph = new Graph();
+        this.graph = new Graph(clientId);
         this.prefetcher = new Prefetcher(clientId);
 
         this.state = new StateContext();

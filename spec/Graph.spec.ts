@@ -7,7 +7,7 @@ describe("Graph", () => {
     var graph: Graph;
 
     beforeEach(() => {
-        graph = new Graph()
+        graph = new Graph("clientId")
     });
 
     it("exists", () => {
