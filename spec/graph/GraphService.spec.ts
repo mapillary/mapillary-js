@@ -1,7 +1,7 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm, APIv2} from "../../src/API";
-import {GraphService, MyGraph, ICachedTile, Node} from "../../src/Graph";
+import {GraphService, MyGraph, Node} from "../../src/Graph";
 
 describe("GraphService", () => {
     var graphService: GraphService;
@@ -16,10 +16,7 @@ describe("GraphService", () => {
 
     it("can subscribe to the graph", (done) => {
         graphService.getNode("TQiOw3g0PDxyJrVdfqaYYQ").subscribe((node: Node): void => {
-            console.log(node);
             graphService.getNode("TQiOw3g0PDxyJrVdfqaYYQ").subscribe((node: Node): void => {
-                console.log("DUNZO");
-                console.log(node);
                 done();
             });
         });

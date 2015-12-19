@@ -8,11 +8,14 @@ import * as rbush from "rbush";
 import * as rx from "rx";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
-import {IAPIVal, ILatLon, Node, Sequence, TilesService} from "../Graph";
+import {IEdge, EdgeCalculator} from "../Edge";
+import {AssetService, ILatLon, Node, Sequence, TilesService} from "../Graph";
 
 export class MyGraph {
-    public sequences: Sequence[];
-    public sequenceHash: {[key: string]: Sequence};
+    private edgeCalculator: EdgeCalculator;
+
+    private sequences: Sequence[];
+    private sequenceHash: {[key: string]: Sequence};
 
     private graph: any;
     private spatial: any;
@@ -22,10 +25,23 @@ export class MyGraph {
         this.sequenceHash = {};
         this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);
         this.graph = new graphlib.Graph({multigraph: true});
+        this.edgeCalculator = new EdgeCalculator();
     }
 
     public getNode(key: string): Node {
         return this.graph.node(key);
+    }
+
+    public computeEdges(node: Node): boolean {
+        if (!node.worthy) {
+            return false;
+        }
+
+        let edges: IEdge[] = this.edgeCalculator.computeSequenceEdges(node);
+        this.addEdgesToNode(node, edges);
+
+        node.edgesSynched = true;
+        return true;
     }
 
     public insertNodes(nodes: Node[]): void {
@@ -44,6 +60,24 @@ export class MyGraph {
         this.spatial.insert({node: node, lon: node.latLon.lon, lat: node.latLon.lat});
         this.graph.setNode(node.key, node);
     }
+
+    private addEdgesToNode(node: Node, edges: IEdge[]): void {
+        let outEdges: any[] = this.graph.outEdges(node.key);
+
+        for (let i in outEdges) {
+            if (outEdges.hasOwnProperty(i)) {
+                let e: any = outEdges[i];
+                this.graph.removeEdge(e);
+            }
+        }
+
+        for (let i: number = 0; i < edges.length; i++) {
+            let edge: IEdge = edges[i];
+
+            this.graph.setEdge(node.key, edge.to, edge.data, node.key + edge.to + edge.data.direction);
+        }
+    }
+
 }
 
 interface IGraphOperation extends Function {
@@ -51,9 +85,12 @@ interface IGraphOperation extends Function {
 }
 
 export class GraphService {
-    public graph: rx.Observable<MyGraph>;
+    public getedges: rx.Subject<any> = new rx.Subject<any>();
     public updates: rx.Subject<any> = new rx.Subject<any>();
 
+    public graph: rx.Observable<MyGraph>;
+
+    public assetService: AssetService;
     public tilesService: TilesService;
 
     private prisitine: boolean;
@@ -61,6 +98,7 @@ export class GraphService {
     constructor (clientId: string) {
         this.prisitine = true;
 
+        this.assetService = new AssetService();
         this.tilesService = new TilesService(clientId);
 
         this.graph = this.updates
@@ -71,9 +109,16 @@ export class GraphService {
             new MyGraph())
             .shareReplay(1);
 
-        this.tilesService.imTiles.merge(this.tilesService.hTiles).map((val: IAPIVal): IGraphOperation => {
+        this.getedges.map((key: string) => {
             return (myGraph: MyGraph): MyGraph => {
-                let data: IAPINavIm = val.data;
+                let node: Node = myGraph.getNode(key);
+                myGraph.computeEdges(node);
+                return myGraph;
+            };
+        }).subscribe(this.updates);
+
+        this.tilesService.imTiles.merge(this.tilesService.hTiles).map((data: IAPINavIm): IGraphOperation => {
+            return (myGraph: MyGraph): MyGraph => {
                 let nodes: Node[];
                 let sequences: Sequence[];
                 let sequenceHash: {[key: string]: Sequence} = {};
@@ -136,17 +181,17 @@ export class GraphService {
                     return true;
                 }
                 if (!node.edgesSynched) {
-                    return false;
+                    this.synchEdges(node.key);
                 }
 
-                return false;
+                return !node.edgesSynched; // && !node.image && !node.mesh;
             }
         }).map((myGraph: MyGraph): Node => {
             return myGraph.getNode(key);
-        }).first();
+        });
 
         if (this.prisitine) {
-            this.tilesService.cacheIm.onNext(key);
+            this.tilesService.cache(key);
             this.prisitine = false;
         }
 
@@ -161,9 +206,13 @@ export class GraphService {
             return myGraph.getNode(key);
         }).first();
 
-        this.tilesService.cacheIm.onNext(key);
+        this.tilesService.cache(key);
 
         return ret;
+    }
+
+    public synchEdges(key: string): void {
+        this.getedges.onNext(key);
     }
 }
 
