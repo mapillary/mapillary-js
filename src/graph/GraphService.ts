@@ -198,7 +198,7 @@ export class GraphService {
         }).subscribe(this.updates);
     }
 
-    public getNode(key: string): rx.Observable<Node> {
+    public getNode(key: string, cacheEdges: boolean = true): rx.Observable<Node> {
         let ret: rx.Observable<Node> = this.graph.skipWhile((myGraph: MyGraph) => {
             let node: Node = myGraph.getNode(key);
             if (node == null || node === undefined) {
@@ -216,9 +216,22 @@ export class GraphService {
                     this.cacheNode(node);
                 }
 
+                if (node.edgesSynched && cacheEdges) {
+                    let nextNode: Node = myGraph.nextNode(node, EdgeConstants.Direction.NEXT);
+                    if (nextNode != null) {
+                        this.getNode(nextNode.key, false).first().subscribe();
+                    }
+
+                    nextNode = myGraph.nextNode(node, EdgeConstants.Direction.PREV);
+                    if (nextNode != null) {
+                        this.getNode(nextNode.key, false).first().subscribe();
+                    }
+                }
+
                 return !node.edgesSynched || !node.cached;
             }
         }).map((myGraph: MyGraph): Node => {
+            console.log(`cached ${key}`);
             return myGraph.getNode(key);
         });
 
