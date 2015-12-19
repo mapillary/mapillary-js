@@ -1,6 +1,10 @@
+/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+
 import {IAPINavImIm} from "../API";
 import {ILatLon} from "../Graph";
 import Sequence from "./Sequence";
+
+import * as rx from "rx";
 
 export class Node {
     public key: string;
@@ -11,6 +15,12 @@ export class Node {
     public apiNavImIm: IAPINavImIm;
     public translation: number[];
     public edgesSynched: boolean;
+    public synchingEdges: boolean;
+    public cached: boolean;
+    public caching: boolean;
+
+    public image: any;
+    public mesh: any;
 
     constructor (
         key: string,
@@ -28,6 +38,32 @@ export class Node {
         this.apiNavImIm = apiNavImIm;
         this.translation = translation;
         this.edgesSynched = false;
+        this.synchingEdges = false;
+        this.cached = false;
+        this.caching = false;
+    }
+
+    public cacheAssets(): rx.Observable<Node> {
+        return this.cacheImage();
+    }
+
+    public cacheImage(): rx.Observable<Node> {
+        return rx.Observable.create<Node>((observer: rx.Observer<Node>): void => {
+            let img: HTMLImageElement = new Image();
+            img.crossOrigin = "Anonymous";
+
+            img.onload = () => {
+                this.image = img;
+                observer.onNext(this);
+                observer.onCompleted();
+            };
+
+            img.onerror = (err: Event) => {
+                observer.onError(err);
+            };
+
+            img.src = "https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/thumb-320.jpg?origin=mapillary.webgl";
+        });
     }
 
     public get merged(): boolean {
@@ -51,7 +87,6 @@ export class Node {
     public findPrevKeyInSequence (): string {
         return this.sequence.findPrevKey(this.key);
     }
-
 }
 
 export default Node;

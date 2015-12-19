@@ -29,6 +29,8 @@ export class APIv2Call {
         } else if (process.env.VCR === "recording") {
             if (VCR.get("apicall", uri) !== undefined) {
                 return when(VCR.get("apicall", uri));
+            } else {
+                VCR.set("apicall", uri, undefined);
             }
             return this.client(uri).entity().then((data: any): any => {
                 VCR.set("apicall", uri, data);

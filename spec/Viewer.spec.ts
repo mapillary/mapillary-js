@@ -1,7 +1,8 @@
 ///<reference path="../typings/jasmine/jasmine.d.ts" />
 
-import {Viewer} from "../src/Viewer";
 import {EdgeConstants} from "../src/Edge";
+import {Node} from "../src/Graph";
+import {Viewer} from "../src/Viewer";
 
 describe("Viewer", () => {
     var viewer: Viewer;
@@ -21,13 +22,9 @@ describe("Viewer", () => {
     });
 
     it("should move to a key", (done) => {
-        var response: any = viewer.moveToKey("TQiOw3g0PDxyJrVdfqaYYQ");
-
-        response.then((node: any) => {
+        viewer.moveToKey("TQiOw3g0PDxyJrVdfqaYYQ").first().subscribe((node: Node) => {
             expect(node.key).toBe("TQiOw3g0PDxyJrVdfqaYYQ");
-            response = viewer.moveDir(EdgeConstants.Direction.NEXT);
-
-            response.then((node: any) => {
+            viewer.moveDir(EdgeConstants.Direction.NEXT).first().subscribe((node: Node) => {
                 expect(node.key).toBe("sY_oYi8xaFME4coAB2Rl1w");
                 done();
             });

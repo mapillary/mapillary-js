@@ -1,7 +1,7 @@
-/// <reference path="../../typings/when/when.d.ts" />
+/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
 import * as _ from "underscore";
-import * as when from "when";
+import * as rx from "rx";
 
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Graph, GraphService, Node, Prefetcher, ILatLon} from "../Graph";
@@ -155,7 +155,7 @@ export class Viewer {
         this.activateUI(this.options.ui);
 
         if (this.options.key != null) {
-            this.moveToKey(this.options.key);
+            this.moveToKey(this.options.key).first().subscribe();
         }
     }
 
@@ -196,24 +196,19 @@ export class Viewer {
      * @param {string} key Mapillary image key to move to
      * @throws {ParamaterMapillaryError} If no key is provided
      */
-    public moveToKey(key: string): when.Promise<Node> {
+    public moveToKey(key: string): rx.Observable<Node> {
         if (key == null) {
             throw new ParameterMapillaryError();
         }
         if (this.loading) {
-            return when.reject<Node>("Viewer is Loading");
+            return rx.Observable.throw<Node>(new Error("viewer is loading"));
         }
         this.loading = true;
 
-        if (this.ui.graphSupport) {
-            return this.graph.getNode(key).then((node: Node) => {
-                return this.cacheNode(this.graph.node(key));
-            });
-        } else {
-            let node: Node = this.graph.insertNoneWorthyNodeFromKey(key);
+        return this.graphService.getNode(key).map<Node>((node: Node): Node => {
             this.setCurrentNode(node);
-            return when.resolve<Node>(node);
-        }
+            return node;
+        });
     }
 
     /**
@@ -221,7 +216,7 @@ export class Viewer {
      * @method Mapillary.Viewer#moveToLngLat
      * @param {LatLng} latLng FIXME
      */
-    public moveDir(dir: EdgeConstants.Direction): when.Promise<Node> {
+    public moveDir(dir: EdgeConstants.Direction): rx.Observable<Node> {
         if (!this.ui.graphSupport) {
             throw new MoveTypeMapillaryError();
         }
@@ -229,16 +224,12 @@ export class Viewer {
             throw new ParameterMapillaryError();
         }
         if (this.loading) {
-            return when.reject<Node>("Viewer is Loading");
+            return rx.Observable.throw<Node>(new Error("viewer is loading"));
         }
 
-        let nextNode: Node = this.graph.nextNode(this.currentNode, dir);
-
-        if (nextNode == null) {
-            return when.reject<Node>("There are no node in direction: " + dir);
-        }
-
-        return this.moveToKey(nextNode.key);
+        return this.graphService.getNextNode(this.currentNode, dir).flatMap((node: Node) => {
+            return this.moveToKey(node.key);
+        });
     }
 
     /**
@@ -257,21 +248,6 @@ export class Viewer {
      */
     public moveToLookAtLngLat(latLon: ILatLon): boolean {
         return true;
-    }
-
-    private cacheNode(wantedNode: Node): when.Promise<Node> {
-        let cacheNodes: Node[] = this.graph.updateGraph(wantedNode);
-
-        if (this.assetCache.isCached(wantedNode)) {
-            this.setCurrentNode(wantedNode);
-            return when.resolve(wantedNode);
-        }
-
-        return this.assetCache.cache(cacheNodes).then((data: any) => {
-            this.setCurrentNode(wantedNode);
-
-            return wantedNode;
-        });
     }
 
     private setupContainer(id: string): HTMLElement {

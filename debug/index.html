@@ -14,9 +14,9 @@
 <body>
     <div id='viewerCover'></div>
     <div id='viewerSimple'></div>
-    <button onclick="viewerSimple.moveDir(0)">Forward</button><button onclick="viewerSimple.moveDir(1)">Backward</button>
+    <button onclick="viewerSimple.moveDir(0).first().subscribe()">Forward</button><button onclick="viewerSimple.moveDir(1).first().subscribe()">Backward</button>
     <div id='viewerGl'></div>
-    <button onclick="viewerGl.moveDir(0)">Forward</button><button onclick="viewerGl.moveDir(1)">Backward</button>
+    <button onclick="viewerGl.moveDir(0).first().subscribe()">Forward</button><button onclick="viewerGl.moveDir(1).first().subscribe()">Backward</button>
     <script src='../build/bundle.js'></script>
     <script>
         var viewerCover = new Mapillary.Viewer('viewerCover', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', ui: 'cover' })

@@ -2,11 +2,11 @@
 /// <reference path="../../typings/latlon-geohash/latlon-geohash.d.ts" />
 
 import * as _ from "underscore";
-// import * as geohash from "latlon-geohash";
+import * as geohash from "latlon-geohash";
 import * as rx from "rx";
 
 import {IAPINavIm, APIv2} from "../API";
-import {CachedTile, TilesCache} from "../Graph";
+import {CachedTile, Node, TilesCache} from "../Graph";
 
 interface ITilesOperation extends Function {
     (tilesCache: TilesCache): TilesCache;
@@ -25,7 +25,7 @@ export class TilesService {
 
     private apiV2: APIv2;
 
-    constructor (clientId: string) {
+    constructor (clientId: string, cachedNode: rx.Observable<Node>) {
         this.apiV2 = new APIv2(clientId);
 
         this.imTiles = this.createIm.flatMap<IAPINavIm>((im: string): rx.Observable<IAPINavIm> => {
@@ -55,37 +55,33 @@ export class TilesService {
             };
         }).subscribe(this.updates);
 
-        // this.fetchedTiles.subscribe((tilesCache: {[key: string]: ICachedTile}) => {
-        //     console.log("PREDICT HERE");
-        //     // console.log(tilesCache);
-        //     // if (val.cacheFurther) {
-        //     //     _.each(geohash.neighbours(h), (nh: string): void => {
-        //     //         if (tilesCache[nh] === undefined) {
-        //     //             tilesCache[nh] = {
-        //     //                 key: nh,
-        //     //                 cached: false,
-        //     //                 fetching: false,
-        //     //                 lastUsed: new Date()
-        //     //             };
-        //     //         }
-        //     //     });
-        //     // }
-        //
-        //     // _.each(tilesCache, (cachedTile: ICachedTile, key: string) => {
-        //     //     console.log("AROUND AND AROUND");
-        //     //     console.log(key);
-        //     //     if (!cachedTile.cached && !cachedTile.fetching) {
-        //     //         console.log(`Cache tile:${key}`);
-        //     //         cachedTile.fetching = true;
-        //     //         this.cacheH.onNext(key);
-        //     //     }
-        //     // });
-        //
-        // });
+        cachedNode.subscribe((node: Node) => {
+            let h: string = geohash.encode(node.latLon.lat, node.latLon.lon, 8);
+            _.each(geohash.neighbours(h), (nh: string): void => {
+                this.cacheH(nh);
+            });
+            this.cacheH(h);
+        });
     }
 
     public cache(key: string): void {
         this.createIm.onNext(key);
+    }
+
+    public cacheH(key: string): rx.Observable<CachedTile> {
+        return this.cachedTiles.skipWhile((tilesCache: TilesCache) => {
+            let cachedTile: CachedTile = tilesCache.get(key);
+
+            if (cachedTile === undefined) {
+                console.log(key);
+                this.createH.onNext(key);
+                return true;
+            }
+
+            return false;
+        }).map((tilesCache: TilesCache) => {
+            return tilesCache.get(key);
+        });
     }
 }
 

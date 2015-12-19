@@ -8,8 +8,8 @@ import * as rbush from "rbush";
 import * as rx from "rx";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
-import {IEdge, EdgeCalculator} from "../Edge";
-import {AssetService, ILatLon, Node, Sequence, TilesService} from "../Graph";
+import {IEdge, EdgeCalculator, EdgeConstants} from "../Edge";
+import {ILatLon, Node, Sequence, TilesService} from "../Graph";
 
 export class MyGraph {
     private edgeCalculator: EdgeCalculator;
@@ -61,6 +61,22 @@ export class MyGraph {
         this.graph.setNode(node.key, node);
     }
 
+    public nextNode(node: Node, dir: EdgeConstants.Direction): Node {
+        let outEdges: any[] = this.graph.outEdges(node.key);
+
+        for (let i: number = 0; i < outEdges.length; i++) {
+            let outEdge: any = outEdges[i];
+
+            let edge: any = this.graph.edge(outEdge);
+
+            if (edge.direction === dir) {
+                return this.getNode(outEdge.w);
+            }
+        }
+
+        return null;
+    }
+
     private addEdgesToNode(node: Node, edges: IEdge[]): void {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
@@ -85,21 +101,20 @@ interface IGraphOperation extends Function {
 }
 
 export class GraphService {
+    public cache: rx.Subject<any> = new rx.Subject<any>();
     public getedges: rx.Subject<any> = new rx.Subject<any>();
     public updates: rx.Subject<any> = new rx.Subject<any>();
 
+    public cachedNode: rx.Observable<Node>;
+
     public graph: rx.Observable<MyGraph>;
 
-    public assetService: AssetService;
     public tilesService: TilesService;
 
     private prisitine: boolean;
 
     constructor (clientId: string) {
         this.prisitine = true;
-
-        this.assetService = new AssetService();
-        this.tilesService = new TilesService(clientId);
 
         this.graph = this.updates
             .scan<MyGraph>(
@@ -109,10 +124,22 @@ export class GraphService {
             new MyGraph())
             .shareReplay(1);
 
-        this.getedges.map((key: string) => {
+        this.getedges.map((node: Node) => {
             return (myGraph: MyGraph): MyGraph => {
-                let node: Node = myGraph.getNode(key);
                 myGraph.computeEdges(node);
+                return myGraph;
+            };
+        }).subscribe(this.updates);
+
+        this.cachedNode = this.cache.flatMap<Node>((node: Node): rx.Observable<Node> => {
+            return node.cacheAssets();
+        });
+
+        this.tilesService = new TilesService(clientId, this.cachedNode);
+
+        this.cachedNode.map((node: Node) => {
+            return (myGraph: MyGraph): MyGraph => {
+                node.cached = true;
                 return myGraph;
             };
         }).subscribe(this.updates);
@@ -175,16 +202,21 @@ export class GraphService {
         let ret: rx.Observable<Node> = this.graph.skipWhile((myGraph: MyGraph) => {
             let node: Node = myGraph.getNode(key);
             if (node == null || node === undefined) {
+                this.tilesService.cache(key);
                 return true;
             } else {
                 if (!node.worthy) {
+                    this.tilesService.cache(node.key);
                     return true;
                 }
-                if (!node.edgesSynched) {
-                    this.synchEdges(node.key);
+                if (!node.synchingEdges) {
+                    this.synchEdges(node);
+                }
+                if (!node.caching) {
+                    this.cacheNode(node);
                 }
 
-                return !node.edgesSynched; // && !node.image && !node.mesh;
+                return !node.edgesSynched || !node.cached;
             }
         }).map((myGraph: MyGraph): Node => {
             return myGraph.getNode(key);
@@ -198,21 +230,30 @@ export class GraphService {
         return ret;
     }
 
-    public getNextNode(key: string, dir: number): rx.Observable<Node> {
-        let ret: rx.Observable<Node> = this.graph.skipWhile((myGraph: MyGraph) => {
-            let node: Node = myGraph.getNode(key);
-            return (node == null || node === undefined);
-        }).map((myGraph: MyGraph): Node => {
-            return myGraph.getNode(key);
-        }).first();
+    public getNextNode(node: Node, dir: number): rx.Observable<Node> {
+        if (!node.edgesSynched || !node.cached) {
+            rx.Observable.throw<Node>(new Error("node is not yet cached"));
+        }
 
-        this.tilesService.cache(key);
-
-        return ret;
+        return this.graph.map((myGraph: MyGraph): Node => {
+            return myGraph.nextNode(node, dir);
+        }).flatMap((nextNode: Node): rx.Observable<Node> => {
+            if (nextNode == null) {
+                return rx.Observable.throw<Node>(new Error("there is no node in that direction"));
+            } else {
+                return this.getNode(nextNode.key);
+            }
+        });
     }
 
-    public synchEdges(key: string): void {
-        this.getedges.onNext(key);
+    public synchEdges(node: Node): void {
+        node.synchingEdges = true;
+        this.getedges.onNext(node);
+    }
+
+    public cacheNode(node: Node): void {
+        node.caching = true;
+        this.cache.onNext(node);
     }
 }
 

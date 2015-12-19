@@ -1,5 +1,3 @@
-export {CachedAsset, AssetCache} from "./graph/AssetCache";
-export {AssetService} from "./graph/AssetService";
 export {Graph} from "./graph/Graph";
 export {GraphService, MyGraph} from "./graph/GraphService";
 export {Node} from "./graph/Node";

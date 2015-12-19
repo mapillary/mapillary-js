@@ -15,8 +15,8 @@ describe("GraphService", () => {
     });
 
     it("can subscribe to the graph", (done) => {
-        graphService.getNode("TQiOw3g0PDxyJrVdfqaYYQ").subscribe((node: Node): void => {
-            graphService.getNode("TQiOw3g0PDxyJrVdfqaYYQ").subscribe((node: Node): void => {
+        graphService.getNode("gAktPQ48LwONPDLyODMkbA").subscribe((node: Node): void => {
+            graphService.getNode("gAktPQ48LwONPDLyODMkbA").subscribe((node: Node): void => {
                 done();
             });
         });
