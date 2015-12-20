@@ -15,9 +15,13 @@ interface ITilesOperation extends Function {
 export class TilesService {
     public updates: rx.Subject<any> = new rx.Subject<any>();
 
+    public scheduleH: rx.Subject<string> = new rx.Subject<string>();
+
     public createH: rx.Subject<string> = new rx.Subject<string>();
     public createIm: rx.Subject<string> = new rx.Subject<string>();
 
+    public cacheNode: rx.Subject<Node> = new rx.Subject<Node>();
+    public createCacheNode: rx.Subject<Node> = new rx.Subject<Node>();
     public cachedTiles: rx.Observable<TilesCache>;
 
     public imTiles: rx.Observable<IAPINavIm>;
@@ -25,8 +29,22 @@ export class TilesService {
 
     private apiV2: APIv2;
 
-    constructor (clientId: string, cachedNode: rx.Observable<Node>) {
+    constructor (clientId: string) {
         this.apiV2 = new APIv2(clientId);
+
+        this.scheduleH.map((h: string) => {
+            return (tilesCache: TilesCache): TilesCache => {
+                let cachedTile: CachedTile = tilesCache.get(h);
+                if (cachedTile === undefined) {
+                    tilesCache.set(h, new CachedTile(true, false));
+                    this.createH.onNext(h);
+                } else if (!cachedTile.fetching && !cachedTile.cached) {
+                    cachedTile.fetching = true;
+                    this.createH.onNext(h);
+                }
+                return tilesCache;
+            };
+        }).subscribe(this.updates);
 
         this.imTiles = this.createIm.flatMap<IAPINavIm>((im: string): rx.Observable<IAPINavIm> => {
             return rx.Observable.fromPromise(this.apiV2.nav.im(im));
@@ -47,41 +65,44 @@ export class TilesService {
         this.imTiles.merge(this.hTiles).map((data: IAPINavIm): ITilesOperation => {
             return (tilesCache: TilesCache): TilesCache => {
                 _.each(data.hs, (h: string) => {
-                    let cachedTile: CachedTile = new CachedTile(true, true);
-                    tilesCache.set(h, cachedTile);
+                    console.log(`save tile ${h}`);
+                    let cachedTile: CachedTile = tilesCache.get(h);
+                    if (cachedTile === undefined) {
+                        tilesCache.set(h, new CachedTile(true, true));
+                    } else {
+                        cachedTile.fetching = false;
+                        cachedTile.cached = true;
+                    }
                 });
 
                 return tilesCache;
             };
         }).subscribe(this.updates);
 
-        cachedNode.subscribe((node: Node) => {
-            let h: string = geohash.encode(node.latLon.lat, node.latLon.lon, 8);
+        this.createCacheNode.flatMap<string>((node: Node): rx.Observable<string> => {
+            let hs: string[] = [];
+
+            let h: string = geohash.encode(node.latLon.lat, node.latLon.lon, 7);
+            hs.push(h);
+
             _.each(geohash.neighbours(h), (nh: string): void => {
-                this.cacheH(nh);
+                hs.push(nh);
             });
-            this.cacheH(h);
-        });
+
+            return rx.Observable.from(hs);
+        }).combineLatest(this.cachedTiles, (h: string, tilesCache: TilesCache) => {
+            let cachedTile: CachedTile = tilesCache.get(h);
+            if (cachedTile === undefined) {
+                console.log(`cahching tile ${h}`);
+                this.scheduleH.onNext(h);
+            }
+        }).subscribe();
+
+        this.cacheNode.subscribe(this.createCacheNode);
     }
 
     public cache(key: string): void {
         this.createIm.onNext(key);
-    }
-
-    public cacheH(key: string): rx.Observable<CachedTile> {
-        return this.cachedTiles.skipWhile((tilesCache: TilesCache) => {
-            let cachedTile: CachedTile = tilesCache.get(key);
-
-            if (cachedTile === undefined) {
-                console.log(key);
-                this.createH.onNext(key);
-                return true;
-            }
-
-            return false;
-        }).map((tilesCache: TilesCache) => {
-            return tilesCache.get(key);
-        });
     }
 }
 

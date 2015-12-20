@@ -81,10 +81,16 @@ export class Node {
     }
 
     public findNextKeyInSequence (): string {
+        if (this.sequence === undefined) {
+            return null;
+        }
         return this.sequence.findNextKey(this.key);
     }
 
     public findPrevKeyInSequence (): string {
+        if (this.sequence === undefined) {
+            return null;
+        }
         return this.sequence.findPrevKey(this.key);
     }
 }

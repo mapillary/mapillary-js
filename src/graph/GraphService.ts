@@ -115,6 +115,7 @@ export class GraphService {
 
     constructor (clientId: string) {
         this.prisitine = true;
+        this.tilesService = new TilesService(clientId);
 
         this.graph = this.updates
             .scan<MyGraph>(
@@ -134,8 +135,7 @@ export class GraphService {
         this.cachedNode = this.cache.flatMap<Node>((node: Node): rx.Observable<Node> => {
             return node.cacheAssets();
         });
-
-        this.tilesService = new TilesService(clientId, this.cachedNode);
+        this.cachedNode.subscribe(this.tilesService.cacheNode);
 
         this.cachedNode.map((node: Node) => {
             return (myGraph: MyGraph): MyGraph => {
@@ -231,7 +231,6 @@ export class GraphService {
                 return !node.edgesSynched || !node.cached;
             }
         }).map((myGraph: MyGraph): Node => {
-            console.log(`cached ${key}`);
             return myGraph.getNode(key);
         });
 
