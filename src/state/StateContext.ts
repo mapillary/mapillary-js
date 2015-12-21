@@ -1,14 +1,14 @@
 import {Node} from "../Graph";
-import {NodeState, IStateWrapper} from "../State";
+import {CompletingState, IStateWrapper} from "../State";
 
 export class StateContext {
-    public node: NodeState;
+    public completing: CompletingState;
     public current: IStateWrapper;
 
     private callbacks: Array<IAction<IStateWrapper>>;
 
     constructor () {
-        this.node = new NodeState(null, null);
+        this.completing = new CompletingState([]);
 
         this.current = new CurrentWrapper(this);
 
@@ -22,11 +22,13 @@ export class StateContext {
     }
 
     public move(node: Node): void {
-        this.node.move(node);
+        this.completing.setTrajectory([node]);
     }
 
     private frame(): void {
         window.requestAnimationFrame(this.frame.bind(this));
+
+        this.completing.update();
 
         for (var i: number = 0; i < this.callbacks.length; i++) {
             this.callbacks[i](this.current);
@@ -46,6 +48,6 @@ class CurrentWrapper implements IStateWrapper {
     }
 
     public get node(): Node {
-        return this.context.node.current;
+        return this.context.completing.currentNode;
     }
 }
