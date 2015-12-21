@@ -12,11 +12,11 @@ export class OptionsParser {
         }
 
         if (options.uiList == null) {
-            options.uiList = ["none", "cover", "simple", "gl"];
+            options.uiList = ["none", "cover", "simple", "gl", "css"];
         }
 
 
-        if (options.ui !== "none" && options.ui !== "cover" && options.ui !== "simple" && options.ui !== "gl") {
+        if (options.ui !== "none" && options.ui !== "cover" && options.ui !== "simple" && options.ui !== "gl" && options.ui !== "css") {
             throw new ParameterMapillaryError();
         }
 

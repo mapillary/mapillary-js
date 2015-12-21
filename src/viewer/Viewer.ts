@@ -7,7 +7,7 @@ import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillary
 import {Graph, GraphService, Node, Prefetcher, ILatLon} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {AssetCache, IViewerOptions, OptionsParser} from "../Viewer";
-import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI} from "../UI";
+import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI, CssUI} from "../UI";
 import {StateContext} from "../State";
 
 interface IActivatableUIMap {
@@ -128,7 +128,8 @@ export class Viewer {
 
         if (_.indexOf(this.options.uiList, "cover") !== -1 ||
             _.indexOf(this.options.uiList, "simple") !== -1 ||
-            _.indexOf(this.options.uiList, "gl") !== -1) {
+            _.indexOf(this.options.uiList, "gl") !== -1 ||
+            _.indexOf(this.options.uiList, "css") !== -1) {
             this.container = this.setupContainer(id);
 
             if (_.indexOf(this.options.uiList, "cover") !== -1) {
@@ -144,6 +145,11 @@ export class Viewer {
             if (_.indexOf(this.options.uiList, "gl") !== -1) {
                 let glUI: GlUI = new GlUI(this.container, this.state);
                 this.addUI("gl", glUI);
+            }
+
+            if (_.indexOf(this.options.uiList, "css") !== -1) {
+                let cssUI: CssUI = new CssUI(this.container, this.state);
+                this.addUI("css", cssUI);
             }
         }
 

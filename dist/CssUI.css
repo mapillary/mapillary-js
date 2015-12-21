@@ -1,0 +1,55 @@
+.btn {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    display: inline-block;
+    height: auto;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.CssUi {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 5;
+}
+
+.Direction {
+    color: white;
+    font-family: Helvetica, Arial, sans-serif;
+    position: absolute;
+    padding: 0.3rem;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.75);
+}
+
+.DirectionForward {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.DirectionBackward {
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.DirectionLeft {
+    left: 0;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+
+.DirectionRight {
+    right: 0;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+
+.DirectionTurnaround {
+    left: 0;
+    bottom: 0;
+}
