@@ -65,7 +65,6 @@ export class TilesService {
         this.imTiles.merge(this.hTiles).map((data: IAPINavIm): ITilesOperation => {
             return (tilesCache: TilesCache): TilesCache => {
                 _.each(data.hs, (h: string) => {
-                    console.log(`save tile ${h}`);
                     let cachedTile: CachedTile = tilesCache.get(h);
                     if (cachedTile === undefined) {
                         tilesCache.set(h, new CachedTile(true, true));
@@ -93,7 +92,6 @@ export class TilesService {
         }).combineLatest(this.cachedTiles, (h: string, tilesCache: TilesCache) => {
             let cachedTile: CachedTile = tilesCache.get(h);
             if (cachedTile === undefined) {
-                console.log(`cahching tile ${h}`);
                 this.scheduleH.onNext(h);
             }
         }).subscribe();

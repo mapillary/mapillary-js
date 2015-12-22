@@ -4,11 +4,11 @@ import * as _ from "underscore";
 import * as rx from "rx";
 
 import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
-import {Graph, GraphService, Node, Prefetcher, ILatLon} from "../Graph";
+import {GraphService, Node, ILatLon} from "../Graph";
 import {EdgeConstants} from "../Edge";
-import {AssetCache, IViewerOptions, OptionsParser} from "../Viewer";
+import {IViewerOptions, OptionsParser} from "../Viewer";
 import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI, CssUI} from "../UI";
-import {StateContext} from "../State";
+import {StateService, StateContext} from "../State";
 
 interface IActivatableUIMap {
     [name: string]: IActivatableUI;
@@ -25,6 +25,9 @@ export class Viewer {
         return this.state.current.node;
     }
 
+    public thisNode: rx.BehaviorSubject<Node> = new rx.BehaviorSubject<Node>(null);
+    public thisLoading: rx.BehaviorSubject<boolean> = new rx.BehaviorSubject<boolean>(false);
+
     /**
      * Service for handling the graph
      * @member Mapillary.Viewer#graphService
@@ -32,6 +35,14 @@ export class Viewer {
      * @type {GraphService}
      */
     public graphService: GraphService;
+
+    /**
+     * Service for handling the state
+     * @member Mapillary.Viewer#stateService
+     * @public
+     * @type {StateService}
+     */
+    public stateService: StateService;
 
     /**
      * true if Viewer is loading internally, false if not.
@@ -50,14 +61,6 @@ export class Viewer {
     public ui: IActivatableUI;
 
     /**
-     * Cache for assets
-     * @member Mapillary.Viewer#assetCache
-     * @private
-     * @type {Graph}
-     */
-    private assetCache: AssetCache;
-
-    /**
      * HTML element containing the Mapillary viewer
      * @member Mapillary.Viewer#container
      * @private
@@ -72,14 +75,6 @@ export class Viewer {
      * @type {IActivatableUIMap}
      */
     private uis: IActivatableUIMap;
-
-    /**
-     * Representation of the walkable graph
-     * @member Mapillary.Viewer#graph
-     * @private
-     * @type {Graph}
-     */
-    private graph: Graph;
 
     /**
      * Options to used to tweak the viewer. Optional if not
@@ -112,17 +107,12 @@ export class Viewer {
         let optionsParser: OptionsParser = new OptionsParser();
         this.options = optionsParser.parseAndDefaultOptions(options);
 
-        this.assetCache = new AssetCache();
-        this.assetCache.enableAsset("image");
-        // this.assetCache.enableAsset("mesh");
-
-        this.graph = new Graph(new Prefetcher(clientId));
-
         this.state = new StateContext();
 
         this.uis = {};
 
         this.graphService = new GraphService(clientId);
+        this.stateService = new StateService();
 
         // fixme unuglify these switches
 
@@ -138,7 +128,7 @@ export class Viewer {
             }
 
             if (_.indexOf(this.options.uiList, "simple") !== -1) {
-                let simpleUI: SimpleUI = new SimpleUI(this.container);
+                let simpleUI: SimpleUI = new SimpleUI(this.container, this.stateService);
                 this.addUI("simple", simpleUI);
             }
 
@@ -209,10 +199,12 @@ export class Viewer {
         if (this.loading) {
             return rx.Observable.throw<Node>(new Error("viewer is loading"));
         }
+        this.thisLoading.onNext(true);
         this.loading = true;
 
         return this.graphService.getNode(key).map<Node>((node: Node): Node => {
             this.setCurrentNode(node);
+            this.stateService.startMove([node]);
             return node;
         });
     }
@@ -268,6 +260,8 @@ export class Viewer {
     }
 
     private setCurrentNode(node: Node): void {
+        this.thisNode.onNext(node);
+        this.thisLoading.onNext(false);
         this.loading = false;
         this.state.move(node);
         this.ui.display(node);

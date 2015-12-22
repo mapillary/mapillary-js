@@ -32,6 +32,11 @@ export class MyGraph {
         return this.graph.node(key);
     }
 
+    public getEdges(node: Node): IEdge[] {
+        let outEdges: any[] = this.graph.outEdges(node.key);
+        return outEdges;
+    }
+
     public computeEdges(node: Node): boolean {
         if (!node.worthy) {
             return false;
