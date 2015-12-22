@@ -1,31 +1,44 @@
+/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+
+import * as rx from "rx";
+
 import {Node} from "../Graph";
 import {IActivatableUI} from "../UI";
-import {StateContext} from "../State";
+import {ICurrentState, StateService} from "../State";
 import * as _ from "underscore";
 
 export class CssUI implements IActivatableUI {
-    public graphSupport: boolean = false;
+    public graphSupport: boolean = true;
 
     private container: HTMLElement;
+    private disposable: rx.IDisposable;
+    private stateService: StateService;
 
     // inject viewer here --------------->
-    constructor(container: HTMLElement, state: StateContext) {
+    constructor(container: HTMLElement, stateService: StateService) {
         let uiContainer: HTMLElement = document.createElement("div");
         uiContainer.className = "CssUi";
         container.appendChild(uiContainer);
 
         this.container = uiContainer;
+        this.stateService = stateService;
     }
 
     public activate(): void {
-        _.each(this.getDirectionsUi(), (direction: HTMLElement) => {
-            this.container.appendChild(direction);
+        this.disposable = this.stateService.currentState.subscribe((currentState: ICurrentState) => {
+            if (currentState != null && currentState.currentNode != null) {
+                // fixme: UPDATE DIRECTIONS HERE
+                _.each(this.getDirectionsUi(), (direction: HTMLElement) => {
+                    this.container.appendChild(direction);
+                });
+            }
         });
+
         return;
     }
 
     public deactivate(): void {
-        this.container = null;
+        this.disposable.dispose();
         return;
     }
 

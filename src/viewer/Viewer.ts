@@ -138,7 +138,7 @@ export class Viewer {
             }
 
             if (_.indexOf(this.options.uiList, "css") !== -1) {
-                let cssUI: CssUI = new CssUI(this.container, this.state);
+                let cssUI: CssUI = new CssUI(this.container, this.stateService);
                 this.addUI("css", cssUI);
             }
         }
@@ -149,6 +149,7 @@ export class Viewer {
         }
 
         this.activateUI(this.options.ui);
+        this.activateUI("css");
 
         if (this.options.key != null) {
             this.moveToKey(this.options.key).first().subscribe();
