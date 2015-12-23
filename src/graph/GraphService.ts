@@ -8,7 +8,7 @@ import * as rbush from "rbush";
 import * as rx from "rx";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
-import {IEdge, IEdgeData, EdgeCalculator, EdgeConstants} from "../Edge";
+import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeConstants} from "../Edge";
 import {ILatLon, Node, Sequence, TilesService} from "../Graph";
 
 export class MyGraph {
@@ -19,6 +19,8 @@ export class MyGraph {
 
     private graph: any;
     private spatial: any;
+
+    private boxWidth: number = 0.001;
 
     constructor () {
         this.sequences = [];
@@ -52,6 +54,25 @@ export class MyGraph {
         }
 
         let edges: IEdge[] = this.edgeCalculator.computeSequenceEdges(node);
+        let fallbackKeys: string[] = _.map(edges, (edge: IEdge) => { return edge.to; });
+
+        let minLon: number = node.latLon.lon - this.boxWidth / 2;
+        let minLat: number = node.latLon.lat - this.boxWidth / 2;
+
+        let maxLon: number = node.latLon.lon + this.boxWidth / 2;
+        let maxLat: number = node.latLon.lat + this.boxWidth / 2;
+
+        let nodes: Node[] = this.spatial.search([minLon, minLat, maxLon, maxLat]);
+
+        let potentialEdges: IPotentialEdge[] = this.edgeCalculator.getPotentialEdges(node, nodes, fallbackKeys);
+
+        edges = edges.concat(
+            this.edgeCalculator.computeStepEdges(
+                node,
+                potentialEdges,
+                node.findPrevKeyInSequence(),
+                node.findNextKeyInSequence()));
+
         this.addEdgesToNode(node, edges);
 
         node.edgesSynched = true;
