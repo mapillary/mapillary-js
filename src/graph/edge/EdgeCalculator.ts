@@ -102,7 +102,9 @@ export class EdgeCalculator {
             let worldMotionAzimuth: number =
                 this.spatial.angleBetweenVector2(1, 0, direction.x, direction.y);
 
-            let sameSequence: boolean = potential.sequence.key === node.sequence.key;
+            let sameSequence: boolean = potential.sequence != null &&
+                node.sequence != null &&
+                potential.sequence.key === node.sequence.key;
 
             let sameMergeCc: boolean =
                  (potential.apiNavImIm.merge_cc == null && node.apiNavImIm.merge_cc == null) ||
