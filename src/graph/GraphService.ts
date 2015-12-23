@@ -10,6 +10,7 @@ import * as rx from "rx";
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeConstants} from "../Edge";
 import {ILatLon, ILatLonAlt, Node, Sequence, TilesService} from "../Graph";
+import {Spatial, GeoCoords} from "../Geo";
 
 export class MyGraph {
     public referenceLatLonAlt: ILatLonAlt = null;
@@ -23,6 +24,10 @@ export class MyGraph {
     private spatial: any;
 
     private boxWidth: number = 0.001;
+    private defaultAlt: number = 2;
+
+    private spatialLib: Spatial;
+    private geoCoords: GeoCoords;
 
     constructor () {
         this.sequences = [];
@@ -30,6 +35,8 @@ export class MyGraph {
         this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);
         this.graph = new graphlib.Graph({multigraph: true});
         this.edgeCalculator = new EdgeCalculator();
+        this.spatialLib = new Spatial();
+        this.geoCoords = new GeoCoords();
     }
 
     public getNode(key: string): Node {
@@ -64,7 +71,9 @@ export class MyGraph {
         let maxLon: number = node.latLon.lon + this.boxWidth / 2;
         let maxLat: number = node.latLon.lat + this.boxWidth / 2;
 
-        let nodes: Node[] = this.spatial.search([minLon, minLat, maxLon, maxLat]);
+        let nodes: Node[] = _.map(this.spatial.search([minLon, minLat, maxLon, maxLat]), (item: any) => {
+            return <Node>item.node;
+        });
 
         let potentialEdges: IPotentialEdge[] = this.edgeCalculator.getPotentialEdges(node, nodes, fallbackKeys);
 
@@ -112,6 +121,30 @@ export class MyGraph {
         }
 
         return null;
+    }
+
+    public computeTranslation(im: IAPINavImIm, latLon: ILatLon): number[] {
+        let alt: number = im.calt == null ? this.defaultAlt : im.calt;
+
+        if (this.referenceLatLonAlt == null) {
+            this.referenceLatLonAlt = {
+                alt: alt,
+                lat: latLon.lat,
+                lon: latLon.lon
+            };
+        }
+
+        let C: number[] = this.geoCoords.topocentric_from_lla(
+            latLon.lat,
+            latLon.lon,
+            alt,
+            this.referenceLatLonAlt.lat,
+            this.referenceLatLonAlt.lon,
+            this.referenceLatLonAlt.alt);
+
+        let RC: THREE.Vector3 = this.spatialLib.rotate(C, im.rotation);
+
+        return [-RC.x, -RC.y, -RC.z];
     }
 
     private addEdgesToNode(node: Node, edges: IEdge[]): void {
@@ -213,15 +246,7 @@ export class GraphService {
 
                     let latLon: ILatLon = {lat: lat, lon: lon};
 
-                    if (myGraph.referenceLatLonAlt == null) {
-                        myGraph.referenceLatLonAlt = {
-                            alt: im.calt == null ? 2 : im.calt,
-                            lat: latLon.lat,
-                            lon: latLon.lon
-                        };
-                    }
-
-                    let translation: number[] = [0, 0, 0];
+                    let translation: number[] = myGraph.computeTranslation(im, latLon);
 
                     let node: Node = new Node(
                         im.key,
