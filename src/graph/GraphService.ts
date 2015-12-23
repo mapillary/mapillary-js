@@ -8,7 +8,7 @@ import * as rbush from "rbush";
 import * as rx from "rx";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
-import {IEdge, EdgeCalculator, EdgeConstants} from "../Edge";
+import {IEdge, IEdgeData, EdgeCalculator, EdgeConstants} from "../Edge";
 import {ILatLon, Node, Sequence, TilesService} from "../Graph";
 
 export class MyGraph {
@@ -34,7 +34,16 @@ export class MyGraph {
 
     public getEdges(node: Node): IEdge[] {
         let outEdges: any[] = this.graph.outEdges(node.key);
-        return outEdges;
+
+        return _.map(outEdges, (outEdge: any) => {
+            let edge: any = this.graph.edge(outEdge);
+
+            return {
+                from: outEdge.v,
+                to: outEdge.w,
+                data: <IEdgeData>edge
+            };
+        });
     }
 
     public computeEdges(node: Node): boolean {
