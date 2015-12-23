@@ -2,11 +2,11 @@
 
 import * as rx from "rx";
 
-import {IEdge} from "../Edge";
+import {IEdge, EdgeConstants} from "../Edge";
 import {Node, GraphService, MyGraph} from "../Graph";
 import {IActivatableUI} from "../UI";
 import {ICurrentState, StateService} from "../State";
-import * as _ from "underscore";
+import {Viewer} from "../Viewer";
 
 export class CssUI implements IActivatableUI {
     public graphSupport: boolean = true;
@@ -15,9 +15,19 @@ export class CssUI implements IActivatableUI {
     private disposable: rx.IDisposable;
     private stateService: StateService;
     private graphService: GraphService;
+    private viewer: Viewer;
+
+    private elements: { [direction: string]: HTMLButtonElement } = {};
+    private directionClassMappings: { [direction: string]: string } = {};
 
     // inject viewer here --------------->
-    constructor(container: HTMLElement, stateService: StateService, graphService: GraphService) {
+    constructor(container: HTMLElement, viewer: Viewer, stateService: StateService, graphService: GraphService) {
+        this.directionClassMappings[EdgeConstants.Direction.STEP_FORWARD] = "Forward";
+        this.directionClassMappings[EdgeConstants.Direction.STEP_BACKWARD] = "Backward";
+        this.directionClassMappings[EdgeConstants.Direction.STEP_LEFT] = "Left";
+        this.directionClassMappings[EdgeConstants.Direction.STEP_RIGHT] = "Right";
+        this.directionClassMappings[EdgeConstants.Direction.TURN_U] = "Turnaround";
+
         let uiContainer: HTMLElement = document.createElement("div");
         uiContainer.className = "CssUi";
         container.appendChild(uiContainer);
@@ -25,17 +35,27 @@ export class CssUI implements IActivatableUI {
         this.container = uiContainer;
         this.stateService = stateService;
         this.graphService = graphService;
+        this.viewer = viewer;
     }
 
     public activate(): void {
-        this.disposable = this.stateService.currentState.subscribe((currentState: ICurrentState) => {
-            if (currentState != null && currentState.currentNode != null) {
-                // fixme: UPDATE DIRECTIONS HERE
-                _.each(this.getDirectionsUi(), (direction: HTMLElement) => {
-                    this.container.appendChild(direction);
-                });
-            }
-        });
+        this.elements[EdgeConstants.Direction.STEP_FORWARD] =
+            this.createElement(EdgeConstants.Direction.STEP_FORWARD);
+        this.elements[EdgeConstants.Direction.STEP_BACKWARD] =
+            this.createElement(EdgeConstants.Direction.STEP_BACKWARD);
+        this.elements[EdgeConstants.Direction.STEP_LEFT] =
+            this.createElement(EdgeConstants.Direction.STEP_LEFT);
+        this.elements[EdgeConstants.Direction.STEP_RIGHT] =
+            this.createElement(EdgeConstants.Direction.STEP_RIGHT);
+        this.elements[EdgeConstants.Direction.TURN_U] =
+            this.createElement(EdgeConstants.Direction.TURN_U);
+
+        for (let k in this.elements) {
+             if (this.elements.hasOwnProperty(k)) {
+                let element: HTMLButtonElement = this.elements[k];
+                this.container.appendChild(element);
+             }
+        }
 
         this.disposable = this.stateService.currentState.combineLatest(
             this.graphService.graph,
@@ -66,16 +86,14 @@ export class CssUI implements IActivatableUI {
         return;
     }
 
-    private getDirectionsUi(): Array<HTMLElement> {
-        let possibleDirections: Array<string> = ["Forward", "Backward", "Left", "Right", "Turnaround"];
+    private createElement(direction: EdgeConstants.Direction): HTMLButtonElement {
+        let element: HTMLButtonElement = document.createElement("button");
 
-        return _.map(possibleDirections, (str: string) => {
-            let elem: HTMLElement = document.createElement("button");
-            elem.className = `btn Direction Direction${str}`;
-            elem.innerText = str[0];
-            return elem;
-        });
+        let name: string = this.directionClassMappings[direction];
+        element.className = `btn Direction Direction${name}`;
+        element.innerText = name[0];
 
+        return element;
     }
 }
 

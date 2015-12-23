@@ -138,7 +138,7 @@ export class Viewer {
             }
 
             if (_.indexOf(this.options.uiList, "css") !== -1) {
-                let cssUI: CssUI = new CssUI(this.container, this.stateService, this.graphService);
+                let cssUI: CssUI = new CssUI(this.container, this, this.stateService, this.graphService);
                 this.addUI("css", cssUI);
             }
         }
