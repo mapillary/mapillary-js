@@ -8,7 +8,7 @@ describe("Viewer", () => {
     var viewer: Viewer;
 
     beforeEach(() => {
-        viewer = new Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", {ui: "none", uiList: ["none"]})
+        viewer = new Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", {uis: ["none"], uiList: ["none"]})
     });
 
     it("exists", () => {

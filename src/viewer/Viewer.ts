@@ -3,7 +3,7 @@
 import * as _ from "underscore";
 import * as rx from "rx";
 
-import {MoveTypeMapillaryError, InitializationMapillaryError, ParameterMapillaryError} from "../Error";
+import {InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {GraphService, Node, ILatLon} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {IViewerOptions, OptionsParser} from "../Viewer";
@@ -58,7 +58,7 @@ export class Viewer {
      * @public
      * @type {IActivatableUI}
      */
-    public ui: IActivatableUI;
+    public activeUis: {[key: string]: IActivatableUI};
 
     /**
      * HTML element containing the Mapillary viewer
@@ -148,8 +148,10 @@ export class Viewer {
             this.addUI("none", noneUI);
         }
 
-        this.activateUI(this.options.ui);
-        this.activateUI("css");
+        this.activeUis = {};
+        _.map(this.options.uis, (ui: string) => {
+            this.activateUI(ui);
+        });
 
         if (this.options.key != null) {
             this.moveToKey(this.options.key).first().subscribe();
@@ -165,17 +167,8 @@ export class Viewer {
         if (!(name in this.uis)) {
             throw new ParameterMapillaryError();
         }
-
-        if (this.ui != null) {
-            this.ui.deactivate();
-        }
-
         this.uis[name].activate();
-        this.ui = this.uis[name];
-
-        if (this.currentNode) {
-            this.moveToKey(this.currentNode.key);
-        }
+        this.activeUis[name] = this.uis[name];
     }
 
     /**
@@ -216,9 +209,6 @@ export class Viewer {
      * @param {LatLng} latLng FIXME
      */
     public moveDir(dir: EdgeConstants.Direction): rx.Observable<Node> {
-        if (!this.ui.graphSupport) {
-            throw new MoveTypeMapillaryError();
-        }
         if (dir < 0 || dir >= 13) {
             throw new ParameterMapillaryError();
         }
@@ -265,7 +255,6 @@ export class Viewer {
         this.thisLoading.onNext(false);
         this.loading = false;
         this.state.move(node);
-        this.ui.display(node);
     }
 }
 

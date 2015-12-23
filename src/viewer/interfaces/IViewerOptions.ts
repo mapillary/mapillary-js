@@ -18,7 +18,7 @@ export interface IViewerOptions {
      * @member Mapillary.IViewerOptions#ui
      * @type {Node}
      */
-    ui?: string;
+    uis?: string[];
 
     uiList?: string[];
 
