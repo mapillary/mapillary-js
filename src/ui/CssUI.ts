@@ -66,9 +66,24 @@ export class CssUI implements IActivatableUI {
                 let graph: MyGraph = tuple[1];
 
                 if (currentState != null && currentState.currentNode != null) {
-                    let edges: IEdge[] = graph.getEdges(currentState.currentNode);
+                    for (let k in this.elements) {
+                        if (this.elements.hasOwnProperty(k)) {
+                            let element: HTMLButtonElement = this.elements[k];
+                            element.className =
+                                element.className.replace(/\DirectionHidden\b/, "");
+                            element.className += " DirectionHidden";
+                        }
+                    }
 
+                    let edges: IEdge[] = graph.getEdges(currentState.currentNode);
                     for (let i: number = 0; i < edges.length; i++) {
+                        let element: HTMLButtonElement = this.elements[edges[i].data.direction];
+                        if (element == null) {
+                            continue;
+                        }
+
+                        element.className =
+                            element.className.replace(/\DirectionHidden\b/, "");
                         console.log(edges[i].data.direction);
                     }
                 }
@@ -90,7 +105,7 @@ export class CssUI implements IActivatableUI {
         let element: HTMLButtonElement = document.createElement("button");
 
         let name: string = this.directionClassMappings[direction];
-        element.className = `btn Direction Direction${name}`;
+        element.className = `btn Direction Direction${name} DirectionHidden`;
         element.innerText = name[0];
 
         return element;

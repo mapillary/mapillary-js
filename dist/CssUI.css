@@ -25,6 +25,10 @@
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.75);
 }
 
+.DirectionHidden {
+    display: none;
+}
+
 .DirectionForward {
     top: 0;
     left: 50%;
