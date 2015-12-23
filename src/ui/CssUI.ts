@@ -84,7 +84,6 @@ export class CssUI implements IActivatableUI {
 
                         element.className =
                             element.className.replace(/\DirectionHidden\b/, "");
-                        console.log(edges[i].data.direction);
                     }
                 }
             });
@@ -101,12 +100,21 @@ export class CssUI implements IActivatableUI {
         return;
     }
 
+    private move(direction: EdgeConstants.Direction): void {
+        this.viewer.moveDir(direction).first().subscribe();
+    }
+
     private createElement(direction: EdgeConstants.Direction): HTMLButtonElement {
         let element: HTMLButtonElement = document.createElement("button");
 
         let name: string = this.directionClassMappings[direction];
         element.className = `btn Direction Direction${name} DirectionHidden`;
         element.innerText = name[0];
+
+        let move: (direction: EdgeConstants.Direction) => void = this.move.bind(this);
+        let listener: () => void = () => { move(direction); };
+
+        element.addEventListener("click", listener);
 
         return element;
     }
