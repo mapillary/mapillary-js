@@ -9,10 +9,10 @@ import * as rx from "rx";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeConstants} from "../Edge";
-import {ILatLon, Node, Sequence, TilesService} from "../Graph";
+import {ILatLon, ILatLonAlt, Node, Sequence, TilesService} from "../Graph";
 
 export class MyGraph {
-    public referenceLatLon: ILatLon = null;
+    public referenceLatLonAlt: ILatLonAlt = null;
 
     private edgeCalculator: EdgeCalculator;
 
@@ -213,8 +213,12 @@ export class GraphService {
 
                     let latLon: ILatLon = {lat: lat, lon: lon};
 
-                    if (myGraph.referenceLatLon == null) {
-                        myGraph.referenceLatLon = latLon;
+                    if (myGraph.referenceLatLonAlt == null) {
+                        myGraph.referenceLatLonAlt = {
+                            alt: im.calt == null ? 2 : im.calt,
+                            lat: latLon.lat,
+                            lon: latLon.lon
+                        };
                     }
 
                     let translation: number[] = [0, 0, 0];
