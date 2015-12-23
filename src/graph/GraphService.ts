@@ -12,6 +12,8 @@ import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeConstants} from ".
 import {ILatLon, Node, Sequence, TilesService} from "../Graph";
 
 export class MyGraph {
+    public referenceLatLon: ILatLon = null;
+
     private edgeCalculator: EdgeCalculator;
 
     private sequences: Sequence[];
@@ -210,6 +212,11 @@ export class GraphService {
                     }
 
                     let latLon: ILatLon = {lat: lat, lon: lon};
+
+                    if (myGraph.referenceLatLon == null) {
+                        myGraph.referenceLatLon = latLon;
+                    }
+
                     let translation: number[] = [0, 0, 0];
 
                     let node: Node = new Node(
