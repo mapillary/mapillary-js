@@ -25,9 +25,6 @@ export class Viewer {
         return this.state.current.node;
     }
 
-    public thisNode: rx.BehaviorSubject<Node> = new rx.BehaviorSubject<Node>(null);
-    public thisLoading: rx.BehaviorSubject<boolean> = new rx.BehaviorSubject<boolean>(false);
-
     /**
      * Service for handling the graph
      * @member Mapillary.Viewer#graphService
@@ -193,7 +190,6 @@ export class Viewer {
         if (this.loading) {
             return rx.Observable.throw<Node>(new Error("viewer is loading"));
         }
-        this.thisLoading.onNext(true);
         this.loading = true;
 
         return this.graphService.getNode(key).map<Node>((node: Node): Node => {
@@ -251,8 +247,6 @@ export class Viewer {
     }
 
     private setCurrentNode(node: Node): void {
-        this.thisNode.onNext(node);
-        this.thisLoading.onNext(false);
         this.loading = false;
         this.state.move(node);
     }

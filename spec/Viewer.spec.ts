@@ -22,41 +22,12 @@ describe("Viewer", () => {
     });
 
     it("should move to a key", (done) => {
-        // viewer.thisLoading.subscribe((loading: boolean) => {
-        //     console.log(`Loading Viewer: ${loading}`);
-        // });
-
         viewer.moveToKey("TQiOw3g0PDxyJrVdfqaYYQ").first().subscribe((node: Node) => {
             expect(node.key).toBe("TQiOw3g0PDxyJrVdfqaYYQ");
-            done();
-//            viewer.thisNode.first().subscribe((node: Node) => {
-//                expect(node.key).toBe("TQiOw3g0PDxyJrVdfqaYYQ");
-//                viewer.moveDir(EdgeConstants.Direction.NEXT).first().subscribe((node: Node) => {
-//                    expect(node.key).toBe("sY_oYi8xaFME4coAB2Rl1w");
-//                    viewer.thisNode.first().subscribe((node: Node) => {
-//                        expect(node.key).toBe("sY_oYi8xaFME4coAB2Rl1w");
-//                        done();
-//                    });
-//                });
-//            });
+            viewer.moveDir(EdgeConstants.Direction.NEXT).first().subscribe((node: Node) => {
+                expect(node.key).toBe("sY_oYi8xaFME4coAB2Rl1w");
+                done();
+            });
         });
-    });
-
-    it("should emulate a simple playbot", (done) => {
-        let cNode: Node = null;
-
-        viewer.moveToKey("TQiOw3g0PDxyJrVdfqaYYQ").first().subscribe();
-        viewer.graphService.graph.combineLatest(viewer.thisNode, (myGraph: MyGraph, node: Node) => {
-            // if (node !== cNode) {
-            //     cNode = node;
-            //     // console.log("################## NOT IGNORING");
-            //     if (node != null) {
-            //         console.log(node.key);
-            //     }
-            // } else {
-            //     console.log("IGNORING");
-            // }
-            done();
-        }).subscribe();
     });
 });
