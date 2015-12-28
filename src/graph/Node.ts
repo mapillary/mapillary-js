@@ -14,10 +14,7 @@ export class Node {
     public sequence: Sequence;
     public apiNavImIm: IAPINavImIm;
     public translation: number[];
-    public edgesSynched: boolean;
-    public synchingEdges: boolean;
     public cached: boolean;
-    public caching: boolean;
 
     public image: any;
     public mesh: any;
@@ -37,10 +34,7 @@ export class Node {
         this.sequence = sequence;
         this.apiNavImIm = apiNavImIm;
         this.translation = translation;
-        this.edgesSynched = false;
-        this.synchingEdges = false;
         this.cached = false;
-        this.caching = false;
     }
 
     public cacheAssets(): rx.Observable<Node> {
