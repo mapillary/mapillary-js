@@ -21,8 +21,7 @@ export class SimpleUI implements IActivatableUI {
     public activate(): void {
         this.disposable = this.stateService.currentState.subscribe((currentState: ICurrentState) => {
             if (currentState != null && currentState.currentNode != null) {
-                this.container.style.backgroundImage =
-                    "url(https://d1cuyjsrcm0gby.cloudfront.net/" + currentState.currentNode.key + "/thumb-320.jpg)";
+                this.container.style.backgroundImage = `url(${currentState.currentNode.image})`;
             }
         });
     }
