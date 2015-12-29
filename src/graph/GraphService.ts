@@ -1,9 +1,11 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
+import * as _ from "underscore";
 import * as rx from "rx";
 
 import {IAPINavIm} from "../API";
 import {MyGraph, Node, TilesService} from "../Graph";
+import {IEdge} from "../Edge";
 
 interface IGraphOperation extends Function {
   (myGraph: MyGraph): MyGraph;
@@ -74,6 +76,12 @@ export class GraphService {
             if (!node.cached) {
                 this.cache.onNext(node);
                 return true;
+            }
+
+            if (cacheEdges) {
+                _.map(node.edges, (edge: IEdge) => {
+                    this.getNode(edge.to, false).first().subscribe();
+                });
             }
 
             return false;
