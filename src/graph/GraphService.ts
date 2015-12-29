@@ -86,6 +86,8 @@ export class MyGraph {
 
         this.addEdgesToNode(node, edges);
 
+        node.edges = this.getEdges(node);
+
         return true;
     }
 

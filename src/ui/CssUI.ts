@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {IEdge, EdgeConstants} from "../Edge";
-import {Node, GraphService, MyGraph} from "../Graph";
+import {Node, GraphService} from "../Graph";
 import {IActivatableUI} from "../UI";
 import {ICurrentState, StateService} from "../State";
 import {Viewer} from "../Viewer";
@@ -57,36 +57,29 @@ export class CssUI implements IActivatableUI {
              }
         }
 
-        this.disposable = this.stateService.currentState.combineLatest(
-            this.graphService.graph,
-            (currentState: ICurrentState, graph: MyGraph) => {
-                return [currentState, graph];
-            }).subscribe((tuple: [ICurrentState, MyGraph]) => {
-                let currentState: ICurrentState = tuple[0];
-                let graph: MyGraph = tuple[1];
-
-                if (currentState != null && currentState.currentNode != null) {
-                    for (let k in this.elements) {
-                        if (this.elements.hasOwnProperty(k)) {
-                            let element: HTMLButtonElement = this.elements[k];
-                            element.className =
-                                element.className.replace(/\DirectionHidden\b/, "");
-                            element.className += " DirectionHidden";
-                        }
-                    }
-
-                    let edges: IEdge[] = graph.getEdges(currentState.currentNode);
-                    for (let i: number = 0; i < edges.length; i++) {
-                        let element: HTMLButtonElement = this.elements[edges[i].data.direction];
-                        if (element == null) {
-                            continue;
-                        }
-
+        this.disposable = this.stateService.currentState.subscribe((currentState: ICurrentState) => {
+            if (currentState != null && currentState.currentNode != null) {
+                for (let k in this.elements) {
+                    if (this.elements.hasOwnProperty(k)) {
+                        let element: HTMLButtonElement = this.elements[k];
                         element.className =
                             element.className.replace(/\DirectionHidden\b/, "");
+                        element.className += " DirectionHidden";
                     }
                 }
-            });
+
+                let edges: IEdge[] = currentState.currentNode.edges;
+                for (let i: number = 0; i < edges.length; i++) {
+                    let element: HTMLButtonElement = this.elements[edges[i].data.direction];
+                    if (element == null) {
+                        continue;
+                    }
+
+                    element.className =
+                        element.className.replace(/\DirectionHidden\b/, "");
+                }
+            }
+        });
 
         return;
     }

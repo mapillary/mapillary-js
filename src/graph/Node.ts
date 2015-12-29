@@ -1,6 +1,7 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
 import {IAPINavImIm} from "../API";
+import {IEdge} from "../Edge";
 import {ILatLon} from "../Graph";
 import Sequence from "./Sequence";
 
@@ -18,6 +19,7 @@ export class Node {
 
     public image: any;
     public mesh: any;
+    public edges: IEdge[];
 
     constructor (
         key: string,
