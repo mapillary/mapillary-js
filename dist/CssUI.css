@@ -21,8 +21,13 @@
     color: white;
     font-family: Helvetica, Arial, sans-serif;
     position: absolute;
-    padding: 0.3rem;
+    margin: 0.1rem;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.75);
+    background: url(./arrow-up.svg);
+    background-size: contain;
+    width: 1.3rem;
+    height: 1.3rem;
+    display: block;
 }
 
 .DirectionHidden {
@@ -38,19 +43,19 @@
 .DirectionBackward {
     bottom: 0;
     left: 50%;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, 0) rotateX(180deg);
 }
 
 .DirectionLeft {
     left: 0;
     top: 50%;
-    transform: translate(0, -50%);
+    transform: translate(0, -50%) rotateX(-90deg);
 }
 
 .DirectionRight {
     right: 0;
     top: 50%;
-    transform: translate(0, -50%);
+    transform: translate(0, -50%) rotateX(90deg);
 }
 
 .DirectionTurnaround {

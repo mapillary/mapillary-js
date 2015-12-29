@@ -16,7 +16,7 @@ export class CssUI implements IActivatableUI {
     private stateService: StateService;
     private viewer: Viewer;
 
-    private elements: { [direction: string]: HTMLButtonElement } = {};
+    private elements: { [direction: string]: HTMLSpanElement } = {};
     private directionClassMappings: { [direction: string]: string } = {};
 
     // inject viewer here --------------->
@@ -50,7 +50,7 @@ export class CssUI implements IActivatableUI {
 
         for (let k in this.elements) {
              if (this.elements.hasOwnProperty(k)) {
-                let element: HTMLButtonElement = this.elements[k];
+                let element: HTMLSpanElement = this.elements[k];
                 this.container.appendChild(element);
              }
         }
@@ -59,7 +59,7 @@ export class CssUI implements IActivatableUI {
             if (currentState != null && currentState.currentNode != null) {
                 for (let k in this.elements) {
                     if (this.elements.hasOwnProperty(k)) {
-                        let element: HTMLButtonElement = this.elements[k];
+                        let element: HTMLSpanElement = this.elements[k];
                         element.className =
                             element.className.replace(/\DirectionHidden\b/, "");
                         element.className += " DirectionHidden";
@@ -68,7 +68,7 @@ export class CssUI implements IActivatableUI {
 
                 let edges: IEdge[] = currentState.currentNode.edges;
                 for (let i: number = 0; i < edges.length; i++) {
-                    let element: HTMLButtonElement = this.elements[edges[i].data.direction];
+                    let element: HTMLSpanElement = this.elements[edges[i].data.direction];
                     if (element == null) {
                         continue;
                     }
@@ -95,12 +95,11 @@ export class CssUI implements IActivatableUI {
         this.viewer.moveDir(direction).first().subscribe();
     }
 
-    private createElement(direction: EdgeConstants.Direction): HTMLButtonElement {
-        let element: HTMLButtonElement = document.createElement("button");
+    private createElement(direction: EdgeConstants.Direction): HTMLSpanElement {
+        let element: HTMLSpanElement = document.createElement("span");
 
         let name: string = this.directionClassMappings[direction];
         element.className = `btn Direction Direction${name} DirectionHidden`;
-        element.innerText = name[0];
 
         let move: (direction: EdgeConstants.Direction) => void = this.move.bind(this);
         let listener: () => void = () => { move(direction); };
