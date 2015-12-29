@@ -44,6 +44,14 @@ export class Node {
     public cacheImage(): rx.Observable<Node> {
         return rx.Observable.create<Node>((observer: rx.Observer<Node>): void => {
             let img: HTMLImageElement = new Image();
+
+            if (process.env.MAPENV === "development") {
+                this.image = "fake";
+                observer.onNext(this);
+                observer.onCompleted();
+                return;
+            }
+
             img.crossOrigin = "Anonymous";
 
             img.onload = () => {

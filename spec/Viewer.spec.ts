@@ -1,5 +1,9 @@
 ///<reference path="../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../typings/when/when.d.ts" />
 
+import * as when from "when";
+
+import {IAPINavIm} from "../src/API";
 import {EdgeConstants} from "../src/Edge";
 import {MyGraph, Node} from "../src/Graph";
 import {Viewer} from "../src/Viewer";
@@ -22,12 +26,22 @@ describe("Viewer", () => {
     });
 
     it("should move to a key", (done) => {
-        viewer.moveToKey("TQiOw3g0PDxyJrVdfqaYYQ").first().subscribe((node: Node) => {
-            expect(node.key).toBe("TQiOw3g0PDxyJrVdfqaYYQ");
-            viewer.moveDir(EdgeConstants.Direction.NEXT).first().subscribe((node: Node) => {
-                expect(node.key).toBe("sY_oYi8xaFME4coAB2Rl1w");
-                done();
-            });
+        spyOn(viewer.graphService.tilesService.apiV2.nav, 'im').and.callFake(() => {
+            let result: IAPINavIm = {
+                hs: ["u3ck26d"],
+                ims: [{key: "A", rotation: [0, -Math.PI / 2, 0], merge_version: 1, merge_cc: 1, lat: 0, lon: 0}],
+                ss: [{key: "SA", keys: ["A", "B"]}],
+            };
+            return when(result);
+        });
+
+        viewer.moveToKey("A").first().subscribe((node: Node) => {
+            expect(node.key).toBe("A");
+            done();
+            // viewer.moveDir(EdgeConstants.Direction.NEXT).first().subscribe((node: Node) => {
+            //     expect(node.key).toBe("B");
+            //     done();
+            // });
         });
     });
 });

@@ -37,6 +37,7 @@ export class TilesService {
             },
             {})
             .shareReplay(1);
+        this.cachedTiles.subscribe();
 
         this.imTiles = this.cacheIm.distinct().flatMap<IAPINavIm>((im: string): rx.Observable<IAPINavIm> => {
             return rx.Observable.fromPromise(this.apiV2.nav.im(im));
