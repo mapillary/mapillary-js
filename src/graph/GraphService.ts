@@ -25,37 +25,39 @@ export class GraphService {
         this.prisitine = true;
         this.tilesService = new TilesService(clientId);
 
+        // operation pattern updating the graph
         this.graph = this.updates
             .scan<MyGraph>(
             (myGraph: MyGraph, operation: IGraphOperation): MyGraph => {
-                return operation(myGraph);
+                let newMyGraph: MyGraph = operation(myGraph);
+                newMyGraph.evictNodeCache();
+                return newMyGraph;
             },
             new MyGraph())
             .shareReplay(1);
 
+        // stream of cached nodes, uses distinct to not cache a node more than once
         this.cachedNode = this.cache.distinct((node: Node): string => {
-            return node.key;
+            return node.key + node.lastCacheEvict;
         }).flatMap<Node>((node: Node): rx.Observable<Node> => {
             return node.cacheAssets();
         });
+
+        // make tilesservice aware of that a new node is beeing cached
         this.cachedNode.subscribe(this.tilesService.cacheNode);
 
+        // save the cached node to the graph, cache its edges
         this.cachedNode.map((node: Node) => {
             return (myGraph: MyGraph): MyGraph => {
-                myGraph.computeEdges(node);
-                node.cached = true;
+                myGraph.cacheNode(node);
                 return myGraph;
             };
         }).subscribe(this.updates);
 
+        // feedback from tiles service adding fresh tiles to the graph
         this.tilesService.tiles.map((data: IAPINavIm): IGraphOperation => {
             return (myGraph: MyGraph): MyGraph => {
-                if (data === undefined) {
-                    return myGraph;
-                }
-
                 myGraph.addNodesFromAPI(data);
-
                 return myGraph;
             };
         }).subscribe(this.updates);
@@ -79,6 +81,7 @@ export class GraphService {
             return myGraph.getNode(key);
         });
 
+        // hack to start of the whole graph fetching process, a better trigger is needed
         if (this.prisitine) {
             this.tilesService.cacheIm.onNext(key);
             this.prisitine = false;
@@ -92,6 +95,7 @@ export class GraphService {
             rx.Observable.throw<Node>(new Error("node is not yet cached"));
         }
 
+        // go find the next node
         return this.graph.map((myGraph: MyGraph): string => {
             let nextNode: Node = myGraph.nextNode(node, dir);
             if (nextNode == null) {

@@ -16,6 +16,8 @@ export class Node {
     public apiNavImIm: IAPINavImIm;
     public translation: number[];
     public cached: boolean;
+    public lastCacheEvict: number;
+    public lastUsed: number;
 
     public image: any;
     public mesh: any;
@@ -37,6 +39,8 @@ export class Node {
         this.apiNavImIm = apiNavImIm;
         this.translation = translation;
         this.cached = false;
+        this.lastCacheEvict = 0;
+        this.lastUsed = new Date().getTime();
     }
 
     public cacheAssets(): rx.Observable<Node> {

@@ -21,6 +21,8 @@ export class MyGraph {
     private graph: any;
     private spatial: any;
 
+    private cachedNodes: {[key: string]: boolean};
+
     private boxWidth: number = 0.001;
     private defaultAlt: number = 2;
 
@@ -32,12 +34,17 @@ export class MyGraph {
         this.sequenceHash = {};
         this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);
         this.graph = new graphlib.Graph({multigraph: true});
+        this.cachedNodes = {};
         this.edgeCalculator = new EdgeCalculator();
         this.spatialLib = new Spatial();
         this.geoCoords = new GeoCoords();
     }
 
     public addNodesFromAPI(data: IAPINavIm): void {
+        if (data === undefined) {
+            return;
+        }
+
         let nodes: Node[];
         let sequences: Sequence[];
         let sequenceHash: {[key: string]: Sequence} = {};
@@ -103,6 +110,28 @@ export class MyGraph {
                 data: <IEdgeData>edge
             };
         });
+    }
+
+    public cacheNode(node: Node): void {
+        this.computeEdges(node);
+        node.cached = true;
+        node.lastUsed =  new Date().getTime();
+        this.cachedNodes[node.key] = true;
+    }
+
+    public evictNodeCache(): void {
+        if (Object.keys(this.cachedNodes).length < 30) {
+            // no cleaning of cache
+            return;
+        }
+        // evice nodes from cache here
+        return;
+    }
+
+    public unCacheNode(node: Node): void {
+        delete this.cachedNodes[node.key];
+        node.lastCacheEvict = new Date().getTime();
+        console.log("uncache");
     }
 
     public computeEdges(node: Node): boolean {
