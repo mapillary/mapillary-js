@@ -10,7 +10,7 @@ import {Viewer} from "../Viewer";
 
 interface INavigationElement {
     element: HTMLSpanElement;
-    listener: () => void;
+    subscription: rx.IDisposable;
 }
 
 export class CssUI implements IActivatableUI {
@@ -92,10 +92,7 @@ export class CssUI implements IActivatableUI {
 
         for (let k in this.elements) {
              if (this.elements.hasOwnProperty(k)) {
-                let element: HTMLSpanElement = this.elements[k].element;
-                let listener: () => void = this.elements[k].listener;
-
-                element.removeEventListener("click", listener);
+                this.elements[k].subscription.dispose();
              }
         }
     }
@@ -115,11 +112,11 @@ export class CssUI implements IActivatableUI {
         element.className = `btn Direction Direction${name} DirectionHidden`;
 
         let move: (direction: EdgeConstants.Direction) => void = this.move.bind(this);
-        let listener: () => void = () => { move(direction); };
 
-        element.addEventListener("click", listener);
+        let clickStream: rx.Observable<void> = rx.Observable.fromEvent<void>(element, "click");
+        let subscription: rx.IDisposable = clickStream.subscribe(() => { move(direction); });
 
-        return { element: element, listener: listener };
+        return { element: element, subscription: subscription };
     }
 }
 
