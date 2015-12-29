@@ -8,6 +8,11 @@ import {IActivatableUI} from "../UI";
 import {ICurrentState, StateService} from "../State";
 import {Viewer} from "../Viewer";
 
+interface INavigationElement {
+    element: HTMLSpanElement;
+    listener: () => void;
+}
+
 export class CssUI implements IActivatableUI {
     public graphSupport: boolean = true;
 
@@ -16,16 +21,15 @@ export class CssUI implements IActivatableUI {
     private stateService: StateService;
     private viewer: Viewer;
 
-    private elements: { [direction: string]: HTMLSpanElement } = {};
-    private directionClassMappings: { [direction: string]: string } = {};
+    private elements: { [direction: number]: INavigationElement } = {};
+    private directions: { [direction: number]: string } = {};
 
-    // inject viewer here --------------->
     constructor(container: HTMLElement, viewer: Viewer, stateService: StateService) {
-        this.directionClassMappings[EdgeConstants.Direction.STEP_FORWARD] = "Forward";
-        this.directionClassMappings[EdgeConstants.Direction.STEP_BACKWARD] = "Backward";
-        this.directionClassMappings[EdgeConstants.Direction.STEP_LEFT] = "Left";
-        this.directionClassMappings[EdgeConstants.Direction.STEP_RIGHT] = "Right";
-        this.directionClassMappings[EdgeConstants.Direction.TURN_U] = "Turnaround";
+        this.directions[EdgeConstants.Direction.STEP_FORWARD] = "Forward";
+        this.directions[EdgeConstants.Direction.STEP_BACKWARD] = "Backward";
+        this.directions[EdgeConstants.Direction.STEP_LEFT] = "Left";
+        this.directions[EdgeConstants.Direction.STEP_RIGHT] = "Right";
+        this.directions[EdgeConstants.Direction.TURN_U] = "Turnaround";
 
         let uiContainer: HTMLElement = document.createElement("div");
         uiContainer.className = "CssUi";
@@ -50,7 +54,7 @@ export class CssUI implements IActivatableUI {
 
         for (let k in this.elements) {
              if (this.elements.hasOwnProperty(k)) {
-                let element: HTMLSpanElement = this.elements[k];
+                let element: HTMLSpanElement = this.elements[k].element;
                 this.container.appendChild(element);
              }
         }
@@ -59,7 +63,7 @@ export class CssUI implements IActivatableUI {
             if (currentState != null && currentState.currentNode != null) {
                 for (let k in this.elements) {
                     if (this.elements.hasOwnProperty(k)) {
-                        let element: HTMLSpanElement = this.elements[k];
+                        let element: HTMLSpanElement = this.elements[k].element;
                         element.className =
                             element.className.replace(/\DirectionHidden\b/, "");
                         element.className += " DirectionHidden";
@@ -68,11 +72,12 @@ export class CssUI implements IActivatableUI {
 
                 let edges: IEdge[] = currentState.currentNode.edges;
                 for (let i: number = 0; i < edges.length; i++) {
-                    let element: HTMLSpanElement = this.elements[edges[i].data.direction];
-                    if (element == null) {
+                    let item: INavigationElement = this.elements[edges[i].data.direction];
+                    if (item == null) {
                         continue;
                     }
 
+                    let element: HTMLSpanElement = item.element;
                     element.className =
                         element.className.replace(/\DirectionHidden\b/, "");
                 }
@@ -84,7 +89,15 @@ export class CssUI implements IActivatableUI {
 
     public deactivate(): void {
         this.disposable.dispose();
-        return;
+
+        for (let k in this.elements) {
+             if (this.elements.hasOwnProperty(k)) {
+                let element: HTMLSpanElement = this.elements[k].element;
+                let listener: () => void = this.elements[k].listener;
+
+                element.removeEventListener("click", listener);
+             }
+        }
     }
 
     public display(node: Node): void {
@@ -95,10 +108,10 @@ export class CssUI implements IActivatableUI {
         this.viewer.moveDir(direction).first().subscribe();
     }
 
-    private createElement(direction: EdgeConstants.Direction): HTMLSpanElement {
+    private createElement(direction: EdgeConstants.Direction): INavigationElement {
         let element: HTMLSpanElement = document.createElement("span");
 
-        let name: string = this.directionClassMappings[direction];
+        let name: string = this.directions[direction];
         element.className = `btn Direction Direction${name} DirectionHidden`;
 
         let move: (direction: EdgeConstants.Direction) => void = this.move.bind(this);
@@ -106,7 +119,7 @@ export class CssUI implements IActivatableUI {
 
         element.addEventListener("click", listener);
 
-        return element;
+        return { element: element, listener: listener };
     }
 }
 
