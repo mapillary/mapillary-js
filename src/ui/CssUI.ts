@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {IEdge, EdgeConstants} from "../Edge";
-import {Node, GraphService} from "../Graph";
+import {Node} from "../Graph";
 import {IActivatableUI} from "../UI";
 import {ICurrentState, StateService} from "../State";
 import {Viewer} from "../Viewer";
@@ -14,14 +14,13 @@ export class CssUI implements IActivatableUI {
     private container: HTMLElement;
     private disposable: rx.IDisposable;
     private stateService: StateService;
-    private graphService: GraphService;
     private viewer: Viewer;
 
     private elements: { [direction: string]: HTMLButtonElement } = {};
     private directionClassMappings: { [direction: string]: string } = {};
 
     // inject viewer here --------------->
-    constructor(container: HTMLElement, viewer: Viewer, stateService: StateService, graphService: GraphService) {
+    constructor(container: HTMLElement, viewer: Viewer, stateService: StateService) {
         this.directionClassMappings[EdgeConstants.Direction.STEP_FORWARD] = "Forward";
         this.directionClassMappings[EdgeConstants.Direction.STEP_BACKWARD] = "Backward";
         this.directionClassMappings[EdgeConstants.Direction.STEP_LEFT] = "Left";
@@ -34,7 +33,6 @@ export class CssUI implements IActivatableUI {
 
         this.container = uiContainer;
         this.stateService = stateService;
-        this.graphService = graphService;
         this.viewer = viewer;
     }
 
