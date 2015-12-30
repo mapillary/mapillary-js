@@ -60,7 +60,7 @@ export class CssUI implements IActivatableUI {
         }
 
         this.disposable = this.stateService.currentState
-            .distinct((cs: ICurrentState) => {
+            .distinctUntilChanged((cs: ICurrentState) => {
                 if (cs.currentNode) {
                     return cs.currentNode.key;
                 }
