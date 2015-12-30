@@ -59,31 +59,36 @@ export class CssUI implements IActivatableUI {
              }
         }
 
-        this.disposable = this.stateService.currentState.subscribe((currentState: ICurrentState) => {
-            if (currentState != null && currentState.currentNode != null) {
-                for (let k in this.elements) {
-                    if (this.elements.hasOwnProperty(k)) {
-                        let element: HTMLSpanElement = this.elements[k].element;
+        this.disposable = this.stateService.currentState
+            .distinct((cs: ICurrentState) => {
+                if (cs.currentNode) {
+                    return cs.currentNode.key;
+                }
+            })
+            .subscribe((currentState: ICurrentState) => {
+                if (currentState != null && currentState.currentNode != null) {
+                    for (let k in this.elements) {
+                        if (this.elements.hasOwnProperty(k)) {
+                            let element: HTMLSpanElement = this.elements[k].element;
+                            element.className =
+                                element.className.replace(/\DirectionHidden\b/, "");
+                            element.className += " DirectionHidden";
+                        }
+                    }
+
+                    let edges: IEdge[] = currentState.currentNode.edges;
+                    for (let i: number = 0; i < edges.length; i++) {
+                        let item: INavigationElement = this.elements[edges[i].data.direction];
+                        if (item == null) {
+                            continue;
+                        }
+
+                        let element: HTMLSpanElement = item.element;
                         element.className =
                             element.className.replace(/\DirectionHidden\b/, "");
-                        element.className += " DirectionHidden";
                     }
                 }
-
-                let edges: IEdge[] = currentState.currentNode.edges;
-                for (let i: number = 0; i < edges.length; i++) {
-                    let item: INavigationElement = this.elements[edges[i].data.direction];
-                    if (item == null) {
-                        continue;
-                    }
-
-                    let element: HTMLSpanElement = item.element;
-                    element.className =
-                        element.className.replace(/\DirectionHidden\b/, "");
-                }
-            }
-        });
-
+            });
         return;
     }
 
