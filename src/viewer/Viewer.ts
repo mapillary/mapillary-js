@@ -4,50 +4,16 @@ import * as _ from "underscore";
 import * as rx from "rx";
 
 import {InitializationMapillaryError, ParameterMapillaryError} from "../Error";
-import {GraphService, Node, ILatLon} from "../Graph";
+import {Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
-import {IViewerOptions, OptionsParser} from "../Viewer";
+import {IViewerOptions, Navigator, OptionsParser} from "../Viewer";
 import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI, CssUI} from "../UI";
-import {StateService, StateContext} from "../State";
 
 interface IActivatableUIMap {
     [name: string]: IActivatableUI;
 }
 
 export class Viewer {
-    /**
-     * The node that the viewer is currently looking at
-     * @member Mapillary.Viewer#currentNode
-     * @public
-     * @type {Node}
-     */
-    public get currentNode(): Node {
-        return this.state.current.node;
-    }
-
-    /**
-     * Service for handling the graph
-     * @member Mapillary.Viewer#graphService
-     * @public
-     * @type {GraphService}
-     */
-    public graphService: GraphService;
-
-    /**
-     * Service for handling the state
-     * @member Mapillary.Viewer#stateService
-     * @public
-     * @type {StateService}
-     */
-    public stateService: StateService;
-
-    /**
-     * true if Viewer is loading internally, false if not.
-     * @member Mapillary.Viewer#loading
-     * @public
-     * @type {boolean}
-     */
-    public loading: boolean;
 
     /**
      * Current active and used ui
@@ -56,6 +22,14 @@ export class Viewer {
      * @type {IActivatableUI}
      */
     public activeUis: {[key: string]: IActivatableUI};
+
+    /**
+     * Navigator used to Navigate the vast seas of Mapillary
+     * @member Mapillary.Viewer#navigator
+     * @public
+     * @type {Navigator}
+     */
+    public navigator: Navigator;
 
     /**
      * HTML element containing the Mapillary viewer
@@ -83,14 +57,6 @@ export class Viewer {
     private options: IViewerOptions;
 
     /**
-     * Holds the current state
-     * @member Mapillary.Viewer#state
-     * @private
-     * @type {StateContext}
-     */
-    private state: StateContext;
-
-    /**
      * Initializes a Mapillary viewer
      * @class Mapillary.Viewer
      * @classdesc A Viewer for viewing Mapillary Street Level Imagery
@@ -99,20 +65,13 @@ export class Viewer {
      * @param {IViewerOptions} Options for the viewer
      */
     constructor (id: string, clientId: string, options: IViewerOptions) {
-        this.loading = false;
-
         let optionsParser: OptionsParser = new OptionsParser();
         this.options = optionsParser.parseAndDefaultOptions(options);
 
-        this.state = new StateContext();
-
         this.uis = {};
-
-        this.graphService = new GraphService(clientId);
-        this.stateService = new StateService();
+        this.navigator = new Navigator(clientId);
 
         // fixme unuglify these switches
-
         if (_.indexOf(this.options.uiList, "cover") !== -1 ||
             _.indexOf(this.options.uiList, "simple") !== -1 ||
             _.indexOf(this.options.uiList, "gl") !== -1 ||
@@ -125,17 +84,17 @@ export class Viewer {
             }
 
             if (_.indexOf(this.options.uiList, "simple") !== -1) {
-                let simpleUI: SimpleUI = new SimpleUI(this.container, this.stateService);
+                let simpleUI: SimpleUI = new SimpleUI(this.container, this.navigator);
                 this.addUI("simple", simpleUI);
             }
 
             if (_.indexOf(this.options.uiList, "gl") !== -1) {
-                let glUI: GlUI = new GlUI(this.container, this.state);
+                let glUI: GlUI = new GlUI(this.container, this.navigator.state);
                 this.addUI("gl", glUI);
             }
 
             if (_.indexOf(this.options.uiList, "css") !== -1) {
-                let cssUI: CssUI = new CssUI(this.container, this, this.stateService);
+                let cssUI: CssUI = new CssUI(this.container, this.navigator);
                 this.addUI("css", cssUI);
             }
         }
@@ -187,16 +146,7 @@ export class Viewer {
         if (key == null) {
             throw new ParameterMapillaryError();
         }
-        if (this.loading) {
-            return rx.Observable.throw<Node>(new Error("viewer is loading"));
-        }
-        this.loading = true;
-
-        return this.graphService.getNode(key).map<Node>((node: Node): Node => {
-            this.setCurrentNode(node);
-            this.stateService.startMove([node]);
-            return node;
-        });
+        return this.navigator.moveToKey(key);
     }
 
     /**
@@ -208,31 +158,7 @@ export class Viewer {
         if (dir < 0 || dir >= 13) {
             throw new ParameterMapillaryError();
         }
-        if (this.loading) {
-            return rx.Observable.throw<Node>(new Error("viewer is loading"));
-        }
-
-        return this.graphService.getNextNode(this.currentNode, dir).flatMap((node: Node) => {
-            return this.moveToKey(node.key);
-        });
-    }
-
-    /**
-     * Move to a latitude longitude
-     * @method Mapillary.Viewer#moveToLngLat
-     * @param {LatLng} latLng FIXME
-     */
-    public moveToLngLat(latLon: ILatLon): boolean {
-        return true;
-    }
-
-    /**
-     * Move to a key that looks at a specific latitude longitude
-     * @method Mapillary.Viewer#moveToKey
-     * @param {LatLng} latLng FIXME
-     */
-    public moveToLookAtLngLat(latLon: ILatLon): boolean {
-        return true;
+        return this.navigator.moveDir(dir);
     }
 
     private setupContainer(id: string): HTMLElement {
@@ -244,11 +170,6 @@ export class Viewer {
 
         element.classList.add("mapillary-js");
         return element;
-    }
-
-    private setCurrentNode(node: Node): void {
-        this.loading = false;
-        this.state.move(node);
     }
 }
 

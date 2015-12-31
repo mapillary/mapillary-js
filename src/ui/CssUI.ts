@@ -5,8 +5,8 @@ import * as rx from "rx";
 import {IEdge, EdgeConstants} from "../Edge";
 import {Node} from "../Graph";
 import {IActivatableUI} from "../UI";
-import {ICurrentState, StateService} from "../State";
-import {Viewer} from "../Viewer";
+import {ICurrentState} from "../State";
+import {Navigator} from "../Viewer";
 
 interface INavigationElement {
     element: HTMLSpanElement;
@@ -18,13 +18,12 @@ export class CssUI implements IActivatableUI {
 
     private container: HTMLElement;
     private disposable: rx.IDisposable;
-    private stateService: StateService;
-    private viewer: Viewer;
+    private navigator: Navigator;
 
     private elements: { [direction: number]: INavigationElement } = {};
     private directions: { [direction: number]: string } = {};
 
-    constructor(container: HTMLElement, viewer: Viewer, stateService: StateService) {
+    constructor(container: HTMLElement, navigator: Navigator) {
         this.directions[EdgeConstants.Direction.STEP_FORWARD] = "Forward";
         this.directions[EdgeConstants.Direction.STEP_BACKWARD] = "Backward";
         this.directions[EdgeConstants.Direction.STEP_LEFT] = "Left";
@@ -36,8 +35,7 @@ export class CssUI implements IActivatableUI {
         container.appendChild(uiContainer);
 
         this.container = uiContainer;
-        this.stateService = stateService;
-        this.viewer = viewer;
+        this.navigator = navigator;
     }
 
     public activate(): void {
@@ -59,7 +57,7 @@ export class CssUI implements IActivatableUI {
              }
         }
 
-        this.disposable = this.stateService.currentState
+        this.disposable = this.navigator.stateService.currentState
             .distinctUntilChanged((cs: ICurrentState) => {
                 if (cs.currentNode) {
                     return cs.currentNode.key;
@@ -107,7 +105,7 @@ export class CssUI implements IActivatableUI {
     }
 
     private move(direction: EdgeConstants.Direction): void {
-        this.viewer.moveDir(direction).first().subscribe();
+        this.navigator.moveDir(direction).first().subscribe();
     }
 
     private createElement(direction: EdgeConstants.Direction): INavigationElement {

@@ -3,7 +3,8 @@
 import * as rx from "rx";
 
 import {Node} from "../Graph";
-import {ICurrentState, StateService} from "../State";
+import {ICurrentState} from "../State";
+import {Navigator} from "../Viewer";
 import {IActivatableUI} from "../UI";
 
 export class SimpleUI implements IActivatableUI {
@@ -11,15 +12,15 @@ export class SimpleUI implements IActivatableUI {
 
     private container: any;
     private disposable: rx.IDisposable;
-    private stateService: StateService;
+    private navigator: Navigator;
 
-    constructor(container: HTMLElement, stateService: StateService) {
+    constructor(container: HTMLElement, navigator: Navigator) {
         this.container = container;
-        this.stateService = stateService;
+        this.navigator = navigator;
     }
 
     public activate(): void {
-        this.disposable = this.stateService.currentState.subscribe((currentState: ICurrentState) => {
+        this.disposable = this.navigator.stateService.currentState.subscribe((currentState: ICurrentState) => {
             if (currentState != null && currentState.currentNode != null) {
                 this.container.style.backgroundImage = `url(${currentState.currentNode.image})`;
             }
