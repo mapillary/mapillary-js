@@ -24,7 +24,7 @@ export class StateService {
     public updateCurrentState: rx.Subject<ICurrentStateOperation> = new rx.Subject<ICurrentStateOperation>();
     public currentState: rx.Observable<ICurrentState>;
 
-    private animationSpeed: number = 0.025;
+    private animationSpeed: number = 0.20;
 
     constructor () {
         this.currentState = this.updateCurrentState
@@ -32,32 +32,28 @@ export class StateService {
             (cs: ICurrentState, operation: ICurrentStateOperation): ICurrentState => {
                 let currentState: ICurrentState = operation(cs);
 
-                if (currentState.currentAlpha > 1 && currentState.nextNodes.length <= 2) {
+                if (currentState.nextNodes.length === 1) {
+                    currentState.currentNode = currentState.previousNode = currentState.nextNodes[0];
+                    currentState.currentAlpha = 0;
                     return currentState;
-                }
-
-                if (currentState.currentAlpha <= 1 && currentState.nextNodes.length <= 2) {
-                    if (currentState.nextNodes.length === 1) {
-                        currentState.currentNode = currentState.previousNode = currentState.nextNodes[0];
-                        currentState.currentAlpha = 1;
-                        return currentState;
-                    }
-
+                } else if (currentState.currentAlpha < 1) {
                     currentState.previousNode = currentState.nextNodes[0];
                     currentState.currentNode = currentState.nextNodes[1];
                     currentState.currentAlpha += this.animationSpeed;
-
                     return currentState;
                 }
 
-                if (currentState.currentAlpha >= 1 && currentState.nextNodes.length > 2) {
-                    currentState.currentAlpha = 0;
-                    currentState.previousNode = currentState.currentNode;
-                    currentState.currentNode = currentState.nextNodes[2];
-                    currentState.nextNodes.shift();
+                currentState.nextNodes.shift();
+
+                if (currentState.nextNodes.length === 1) {
+                    currentState.currentNode = currentState.previousNode = currentState.nextNodes[0];
+                    currentState.currentAlpha = 1;
                     return currentState;
                 }
 
+                currentState.currentAlpha = 0;
+                currentState.previousNode = currentState.currentNode;
+                currentState.currentNode = currentState.nextNodes[1];
                 return currentState;
             },
             {previousNode: null, currentNode: null, currentAlpha: 0, nextNodes: []})
@@ -65,6 +61,7 @@ export class StateService {
 
         this.resetCurrentState.map<ICurrentStateOperation>((nodes: Node[]): ICurrentStateOperation => {
             return ((currentState: ICurrentState) => {
+                currentState.currentAlpha = 0;
                 currentState.nextNodes = nodes;
                 return currentState;
             });
@@ -72,7 +69,7 @@ export class StateService {
 
         this.appendCurrentState.map<ICurrentStateOperation>((nodes: Node[]): ICurrentStateOperation => {
             return ((currentState: ICurrentState) => {
-                currentState.nextNodes.concat(nodes);
+                currentState.nextNodes = currentState.nextNodes.concat(nodes);
                 return currentState;
             });
         }).subscribe(this.updateCurrentState);
@@ -89,7 +86,7 @@ export class StateService {
             (x: number) => { return true; },
             (x: number) => { return x + 1; },
             (x: number) => { return x; },
-            (x: number): Date => { return new Date(new Date().getTime() + (100 * x)); }
+            (x: number): Date => { return new Date(new Date().getTime() + (1000)); }
         ).timeInterval().subscribe(this.tick);
     }
 

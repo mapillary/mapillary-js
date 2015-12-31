@@ -8,6 +8,7 @@ import {Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {IViewerOptions, Navigator, OptionsParser} from "../Viewer";
 import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI, CssUI} from "../UI";
+import {IBot} from "../Bot";
 
 interface IActivatableUIMap {
     [name: string]: IActivatableUI;
@@ -72,40 +73,41 @@ export class Viewer {
         this.navigator = new Navigator(clientId);
 
         // fixme unuglify these switches
-        if (_.indexOf(this.options.uiList, "cover") !== -1 ||
-            _.indexOf(this.options.uiList, "simple") !== -1 ||
-            _.indexOf(this.options.uiList, "gl") !== -1 ||
-            _.indexOf(this.options.uiList, "css") !== -1) {
+        if (_.indexOf(this.options.uis, "cover") !== -1 ||
+            _.indexOf(this.options.uis, "simple") !== -1 ||
+            _.indexOf(this.options.uis, "gl") !== -1 ||
+            _.indexOf(this.options.uis, "css") !== -1) {
             this.container = this.setupContainer(id);
 
-            if (_.indexOf(this.options.uiList, "cover") !== -1) {
+            if (_.indexOf(this.options.uis, "cover") !== -1) {
                 let coverUI: CoverUI = new CoverUI(this.container);
                 this.addUI("cover", coverUI);
             }
 
-            if (_.indexOf(this.options.uiList, "simple") !== -1) {
+            if (_.indexOf(this.options.uis, "simple") !== -1) {
                 let simpleUI: SimpleUI = new SimpleUI(this.container, this.navigator);
                 this.addUI("simple", simpleUI);
             }
 
-            if (_.indexOf(this.options.uiList, "gl") !== -1) {
+            if (_.indexOf(this.options.uis, "gl") !== -1) {
                 let glUI: GlUI = new GlUI(this.container, this.navigator.state);
                 this.addUI("gl", glUI);
             }
 
-            if (_.indexOf(this.options.uiList, "css") !== -1) {
+            if (_.indexOf(this.options.uis, "css") !== -1) {
                 let cssUI: CssUI = new CssUI(this.container, this.navigator);
                 this.addUI("css", cssUI);
             }
         }
 
-        if (_.indexOf(this.options.uiList, "none") !== -1) {
+        if (_.indexOf(this.options.uis, "none") !== -1) {
             let noneUI: NoneUI = new NoneUI(true);
             this.addUI("none", noneUI);
         }
 
         this.activeUis = {};
         _.map(this.options.uis, (ui: string) => {
+            console.log(`Activate ${ui}`);
             this.activateUI(ui);
         });
 
@@ -125,6 +127,10 @@ export class Viewer {
         }
         this.uis[name].activate();
         this.activeUis[name] = this.uis[name];
+    }
+
+    public activateBot(bot: IBot): void {
+        bot.activate(this.navigator);
     }
 
     /**

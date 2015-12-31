@@ -18,13 +18,17 @@
     <button onclick="viewerSimple.moveDir(0)">Forward</button><button onclick="viewerSimple.moveDir(1)">Backward</button>
     <div id='viewerGl'></div>
     <button onclick="viewerGl.moveDir(0)">Forward</button><button onclick="viewerGl.moveDir(1)">Backward</button>
+    <br>
+    <button onclick="simplePlayBot.play()">Play</button><button onclick="simplePlayBot.stop()">Stop</button>
 
     <div id='viewerCss'></div>
     <script src='../build/bundle.js'></script>
     <script>
-        var viewerCover = new Mapillary.Viewer('viewerCover', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', ui: ['cover'] })
         var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['simple', 'css'] })
         var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['gl', 'css'] })
+
+        var simplePlayBot = new Mapillary.SimplePlayBot();
+        viewerSimple.activateBot(simplePlayBot);
     </script>
 </body>
 </html>
