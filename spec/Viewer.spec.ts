@@ -35,7 +35,7 @@ describe("Viewer", () => {
             return when(result);
         });
 
-        viewer.moveToKey("A").first().subscribe((node: Node) => {
+        viewer.moveToKey("A").then((node: Node) => {
             expect(node.key).toBe("A");
             done();
             // viewer.moveDir(EdgeConstants.Direction.NEXT).first().subscribe((node: Node) => {

@@ -1,7 +1,7 @@
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../typings/when/when.d.ts" />
 
 import * as _ from "underscore";
-import * as rx from "rx";
+import * as when from "when";
 
 import {InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Node} from "../Graph";
@@ -110,7 +110,7 @@ export class Viewer {
         });
 
         if (this.options.key != null) {
-            this.moveToKey(this.options.key).first().subscribe();
+            this.moveToKey(this.options.key);
         }
     }
 
@@ -142,11 +142,15 @@ export class Viewer {
      * @param {string} key Mapillary image key to move to
      * @throws {ParamaterMapillaryError} If no key is provided
      */
-    public moveToKey(key: string): rx.Observable<Node> {
+    public moveToKey(key: string): when.Promise<Node> {
         if (key == null) {
             throw new ParameterMapillaryError();
         }
-        return this.navigator.moveToKey(key);
+        return when.promise((resolve: (value: any) => void, reject: (reason: any) => void): void => {
+            this.navigator.moveToKey(key).first().subscribe((node: Node) => {
+                resolve(node);
+            });
+        });
     }
 
     /**
@@ -154,11 +158,15 @@ export class Viewer {
      * @method Mapillary.Viewer#moveToLngLat
      * @param {LatLng} latLng FIXME
      */
-    public moveDir(dir: EdgeConstants.Direction): rx.Observable<Node> {
+    public moveDir(dir: EdgeConstants.Direction): when.Promise<Node> {
         if (dir < 0 || dir >= 13) {
             throw new ParameterMapillaryError();
         }
-        return this.navigator.moveDir(dir);
+        return when.promise((resolve: (value: any) => void, reject: (reason: any) => void): void => {
+            this.navigator.moveDir(dir).first().subscribe((node: Node) => {
+                resolve(node);
+            });
+        });
     }
 
     private setupContainer(id: string): HTMLElement {
