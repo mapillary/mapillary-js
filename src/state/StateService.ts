@@ -47,7 +47,7 @@ export class StateService {
 
                 if (currentState.nextNodes.length === 1) {
                     currentState.currentNode = currentState.previousNode = currentState.nextNodes[0];
-                    currentState.currentAlpha = 1;
+                    currentState.currentAlpha = 0;
                     return currentState;
                 }
 
@@ -76,7 +76,6 @@ export class StateService {
 
         this.tick.map<ICurrentStateOperation>((i: number): ICurrentStateOperation => {
             return ((currentState: ICurrentState) => {
-                console.log(`VERY FAKE TICK ${i}`);
                 return currentState;
             });
         }).subscribe(this.updateCurrentState);
@@ -86,7 +85,7 @@ export class StateService {
             (x: number) => { return true; },
             (x: number) => { return x + 1; },
             (x: number) => { return x; },
-            (x: number): Date => { return new Date(new Date().getTime() + (1000)); }
+            (x: number): Date => { return new Date(new Date().getTime() + (100)); }
         ).timeInterval().subscribe(this.tick);
     }
 

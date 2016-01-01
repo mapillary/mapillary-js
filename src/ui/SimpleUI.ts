@@ -15,7 +15,6 @@ export class SimpleUI implements IActivatableUI {
     private navigator: Navigator;
 
     constructor(container: HTMLElement, navigator: Navigator) {
-        console.log("LOADING MTF SIMPLE UI!!!");
         this.navigator = navigator;
 
         this.canvas = document.createElement("canvas");
@@ -27,7 +26,6 @@ export class SimpleUI implements IActivatableUI {
     public activate(): void {
         this.disposable = this.navigator.stateService.currentState.subscribe((currentState: ICurrentState) => {
             if (currentState != null && currentState.currentNode != null) {
-                console.log(currentState.currentNode.key);
                 let ctx: any = this.canvas.getContext("2d");
                 ctx.drawImage(currentState.currentNode.image, 0, 0);
             }

@@ -131,7 +131,6 @@ export class MyGraph {
     public unCacheNode(node: Node): void {
         delete this.cachedNodes[node.key];
         node.lastCacheEvict = new Date().getTime();
-        console.log("uncache");
     }
 
     public computeEdges(node: Node): boolean {
@@ -181,6 +180,9 @@ export class MyGraph {
     }
 
     public insertNode(node: Node): void {
+        if (this.getNode(node.key) != null) {
+            return;
+        }
         this.spatial.insert({node: node, lon: node.latLon.lon, lat: node.latLon.lat});
         this.graph.setNode(node.key, node);
     }

@@ -23,13 +23,9 @@ export class SimplePlayBot implements IBot {
 
         this.disposable = this.navigator.stateService.currentState.subscribe((currentState: ICurrentState) => {
             if (currentState != null && currentState.currentNode != null) {
-                if (this.currentNode == null) {
+                if (currentState.nextNodes.length < 5) {
                     this.currentNode = currentState.currentNode;
-                    this.getNbrNexts(this.currentNode);
-                }
-                if (this.currentNode.key !== currentState.currentNode.key) {
-                    this.currentNode = currentState.currentNode;
-                    this.getNbrNexts(this.currentNode);
+                    this.getNbrNexts(currentState.nextNodes[currentState.nextNodes.length - 1]);
                 }
             }
         });
