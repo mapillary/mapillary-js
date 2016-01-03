@@ -107,7 +107,6 @@ export class Viewer {
 
         this.activeUis = {};
         _.map(this.options.uis, (ui: string) => {
-            console.log(`Activate ${ui}`);
             this.activateUI(ui);
         });
 

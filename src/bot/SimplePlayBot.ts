@@ -13,15 +13,20 @@ export class SimplePlayBot implements IBot {
     private disposable: rx.IDisposable;
     private navigator: Navigator;
     private currentNode: Node;
+    private playing: boolean;
 
     constructor () {
         this.currentNode = null;
+        this.playing =  false;
     }
 
     public activate(navigator: Navigator): void {
         this.navigator = navigator;
 
         this.disposable = this.navigator.stateService.currentState.subscribe((currentState: ICurrentState) => {
+            if (!this.playing) {
+                return;
+            }
             if (currentState != null && currentState.currentNode != null) {
                 if (currentState.nextNodes.length < 5) {
                     this.currentNode = currentState.currentNode;
@@ -36,10 +41,13 @@ export class SimplePlayBot implements IBot {
     }
 
     public play(): void {
+        this.playing =  true;
         console.log("PLAY");
     }
 
     public stop(): void {
+        this.playing =  false;
+        this.navigator.stateService.startMove([]);
         console.log("STOP");
     }
 
