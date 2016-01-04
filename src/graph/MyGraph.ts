@@ -160,6 +160,8 @@ export class MyGraph {
                 node.findPrevKeyInSequence(),
                 node.findNextKeyInSequence()));
 
+        edges = edges.concat(this.edgeCalculator.computeTurnEdges(node, potentialEdges));
+
         this.addEdgesToNode(node, edges);
 
         node.edges = this.getEdges(node);
