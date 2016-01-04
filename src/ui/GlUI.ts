@@ -1,13 +1,10 @@
 /// <reference path="../../typings/threejs/three.d.ts" />
 
 import * as THREE from "three";
-import {Node} from "../Graph";
-import {IActivatableUI, Shaders} from "../UI";
+import {IUI, Shaders} from "../UI";
 import {StateContext, IStateWrapper} from "../State";
 
-export class GlUI implements IActivatableUI {
-    public graphSupport: boolean = true;
-
+export class GlUI implements IUI {
     private renderer: THREE.WebGLRenderer;
     private camera: THREE.PerspectiveCamera;
     private scene: THREE.Scene;
@@ -41,10 +38,6 @@ export class GlUI implements IActivatableUI {
     }
 
     public deactivate(): void {
-        return;
-    }
-
-    public display(node: Node): void {
         return;
     }
 

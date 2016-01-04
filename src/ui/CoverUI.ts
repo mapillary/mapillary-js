@@ -1,9 +1,6 @@
-import {Node} from "../Graph";
-import {IActivatableUI} from "../UI";
+import {IUI} from "../UI";
 
-export class CoverUI implements IActivatableUI {
-    public graphSupport: boolean = false;
-
+export class CoverUI implements IUI {
     private container: any;
 
     constructor(container: HTMLElement) {
@@ -16,10 +13,6 @@ export class CoverUI implements IActivatableUI {
 
     public deactivate(): void {
         this.container.style.backgroundImage = "";
-    }
-
-    public display(node: Node): void {
-        this.container.style.backgroundImage = "url(https://d1cuyjsrcm0gby.cloudfront.net/" + node.key + "/thumb-320.jpg)";
     }
 }
 

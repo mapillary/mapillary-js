@@ -5,9 +5,9 @@ import * as rx from "rx";
 import {Node} from "../Graph";
 import {ICurrentState} from "../State";
 import {Navigator} from "../Viewer";
-import {IActivatableUI} from "../UI";
+import {IUI} from "../UI";
 
-export class SimpleUI implements IActivatableUI {
+export class SimpleUI implements IUI {
     public graphSupport: boolean = true;
 
     private canvas: HTMLCanvasElement;

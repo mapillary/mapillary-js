@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
     <link rel='stylesheet' href='../dist/mapillary-js.css' />
-    <link rel='stylesheet' href='../dist/CssUI.css' />
+    <link rel='stylesheet' href='../dist/SimpleNavUI.css' />
     <style>
         body { margin: 0; padding: 0; }
         html, body, #map { height: 100%; }
@@ -20,12 +20,10 @@
     <button onclick="simplePlayBot.play()">Play</button><button onclick="simplePlayBot.stop()">Stop</button>
     <div id='viewerGl'></div>
     <button onclick="viewerGl.moveDir(0)">Forward</button><button onclick="viewerGl.moveDir(1)">Backward</button>
-
-    <div id='viewerCss'></div>
     <script src='../build/bundle.js'></script>
     <script>
-        var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['simple', 'css'] })
-        var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['gl', 'css'] })
+        var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['simple', 'simplenav'] })
+        var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['gl', 'simplenav'] })
 
         var simplePlayBot = new Mapillary.SimplePlayBot();
         viewerSimple.activateBot(simplePlayBot);

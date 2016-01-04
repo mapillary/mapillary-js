@@ -3,8 +3,7 @@
 import * as rx from "rx";
 
 import {IEdge, EdgeConstants} from "../Edge";
-import {Node} from "../Graph";
-import {IActivatableUI} from "../UI";
+import {IUI} from "../UI";
 import {ICurrentState} from "../State";
 import {Navigator} from "../Viewer";
 
@@ -13,9 +12,7 @@ interface INavigationElement {
     subscription: rx.IDisposable;
 }
 
-export class CssUI implements IActivatableUI {
-    public graphSupport: boolean = true;
-
+export class SimpleNavUI implements IUI {
     private container: HTMLElement;
     private disposable: rx.IDisposable;
     private navigator: Navigator;
@@ -33,7 +30,7 @@ export class CssUI implements IActivatableUI {
         this.directions[EdgeConstants.Direction.TURN_U] = "Turnaround";
 
         let uiContainer: HTMLElement = document.createElement("div");
-        uiContainer.className = "CssUi";
+        uiContainer.className = "SimpleNavUi";
         container.appendChild(uiContainer);
 
         this.container = uiContainer;
@@ -106,10 +103,6 @@ export class CssUI implements IActivatableUI {
         }
     }
 
-    public display(node: Node): void {
-        return;
-    }
-
     private move(direction: EdgeConstants.Direction): void {
         this.navigator.moveDir(direction).first().subscribe();
     }
@@ -129,4 +122,4 @@ export class CssUI implements IActivatableUI {
     }
 }
 
-export default CssUI;
+export default SimpleNavUI;

@@ -7,12 +7,8 @@ import {InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {IViewerOptions, Navigator, OptionsParser} from "../Viewer";
-import {CoverUI, IActivatableUI, NoneUI, SimpleUI, GlUI, CssUI} from "../UI";
+import {CoverUI, IUI, NoneUI, SimpleUI, GlUI, SimpleNavUI} from "../UI";
 import {IBot} from "../Bot";
-
-interface IActivatableUIMap {
-    [name: string]: IActivatableUI;
-}
 
 export class Viewer {
 
@@ -20,9 +16,9 @@ export class Viewer {
      * Current active and used ui
      * @member Mapillary.Viewer#ui
      * @public
-     * @type {IActivatableUI}
+     * @type {{[key: string]: IUI}}
      */
-    public activeUis: {[key: string]: IActivatableUI};
+    public activeUis: {[key: string]: IUI};
 
     /**
      * Navigator used to Navigate the vast seas of Mapillary
@@ -44,9 +40,9 @@ export class Viewer {
      * Named dictionary of availble uis
      * @member Mapillary.Viewer#uis
      * @private
-     * @type {IActivatableUIMap}
+     * @type {{[key: string]: IUI}}
      */
-    private uis: IActivatableUIMap;
+    private uis: {[key: string]: IUI};
 
     /**
      * Options to used to tweak the viewer. Optional if not
@@ -76,7 +72,7 @@ export class Viewer {
         if (_.indexOf(this.options.uis, "cover") !== -1 ||
             _.indexOf(this.options.uis, "simple") !== -1 ||
             _.indexOf(this.options.uis, "gl") !== -1 ||
-            _.indexOf(this.options.uis, "css") !== -1) {
+            _.indexOf(this.options.uis, "simplenav") !== -1) {
             this.container = this.setupContainer(id);
 
             if (_.indexOf(this.options.uis, "cover") !== -1) {
@@ -94,14 +90,14 @@ export class Viewer {
                 this.addUI("gl", glUI);
             }
 
-            if (_.indexOf(this.options.uis, "css") !== -1) {
-                let cssUI: CssUI = new CssUI(this.container, this.navigator);
-                this.addUI("css", cssUI);
+            if (_.indexOf(this.options.uis, "simplenav") !== -1) {
+                let simpleNavUI: SimpleNavUI = new SimpleNavUI(this.container, this.navigator);
+                this.addUI("simplenav", simpleNavUI);
             }
         }
 
         if (_.indexOf(this.options.uis, "none") !== -1) {
-            let noneUI: NoneUI = new NoneUI(true);
+            let noneUI: NoneUI = new NoneUI();
             this.addUI("none", noneUI);
         }
 
@@ -137,7 +133,7 @@ export class Viewer {
      * @method Mapillary.Viewer#addUI
      * @param {IActivatableUI} add ui to viewer
      */
-    public addUI(name: string, ui: IActivatableUI): void {
+    public addUI(name: string, ui: IUI): void {
         this.uis[name] = ui;
     }
 

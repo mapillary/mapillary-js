@@ -1,22 +1,11 @@
-import {Node} from "../Graph";
-import {IActivatableUI} from "../UI";
+import {IUI} from "../UI";
 
-export class NoneUI implements IActivatableUI {
-    public graphSupport: boolean;
-
-    constructor(graphSupport: boolean) {
-        this.graphSupport = graphSupport;
-    }
-
+export class NoneUI implements IUI {
     public activate(): void {
         return;
     }
 
     public deactivate(): void {
-        return;
-    }
-
-    public display(node: Node): void {
         return;
     }
 }
