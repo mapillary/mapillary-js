@@ -21,10 +21,7 @@ export class GraphService {
 
     public tilesService: TilesService;
 
-    private prisitine: boolean;
-
     constructor (clientId: string) {
-        this.prisitine = true;
         this.tilesService = new TilesService(clientId);
 
         // operation pattern updating the graph
@@ -37,6 +34,12 @@ export class GraphService {
             },
             new MyGraph())
             .shareReplay(1);
+
+        // always keep the graph running also initiate it to empty
+        this.graph.subscribe();
+        this.updates.onNext((myGraph: MyGraph): MyGraph => {
+            return myGraph;
+        });
 
         // stream of cached nodes, uses distinct to not cache a node more than once
         this.cachedNode = this.cache.distinct((node: Node): string => {
@@ -89,12 +92,6 @@ export class GraphService {
             return myGraph.getNode(key);
         });
 
-        // hack to start of the whole graph fetching process, a better trigger is needed
-        if (this.prisitine) {
-            this.tilesService.cacheIm.onNext(key);
-            this.prisitine = false;
-        }
-
         return ret;
     }
 
@@ -103,7 +100,6 @@ export class GraphService {
             rx.Observable.throw<Node>(new Error("node is not yet cached"));
         }
 
-        // go find the next node
         return this.graph.map((myGraph: MyGraph): string => {
             let nextNode: Node = myGraph.nextNode(node, dir);
             if (nextNode == null) {
@@ -112,7 +108,7 @@ export class GraphService {
             return nextNode.key;
         }).distinct().flatMap((key: string): rx.Observable<Node> => {
             if (key == null) {
-                return rx.Observable.throw<Node>(new Error("there is no node in that direction"));
+                return null; // rx.Observable.throw<Node>(new Error("there is no node in that direction"));
             }
             return this.getNode(key);
         });

@@ -28,9 +28,14 @@ describe("GraphService", () => {
         expect(graphService).toBeDefined();
     });
 
-//    it("gets an error on faulty key", (done) => {
-//        graphService.getNode(key).subscribe((node: Node): void => {
-//            console.log("SHOULD NOT BE REACHED OOOO");
+    it("contains an empty graph from the start", (done) => {
+        graphService.graph.subscribe((myGraph: MyGraph) => {
+            done();
+        })
+    });
+
+//    it("should get a key", (done) => {
+//        graphService.getNode("A").subscribe((node: Node): void => {
 //            done();
 //        });
 //    });
