@@ -42,24 +42,19 @@ export class SimplePlayBot implements IBot {
 
     public play(): void {
         this.playing =  true;
-        console.log("PLAY");
     }
 
     public stop(): void {
         this.playing =  false;
         this.navigator.stateService.startMove([]);
-        console.log("STOP");
     }
 
     private getNbrNexts(node: Node): void {
-        this.navigator.graphService.getNextNode(node,
-                                                EdgeConstants.Direction.NEXT)
+        this.navigator.graphService.getNextNode(node, EdgeConstants.Direction.NEXT)
             .first()
             .subscribe((nextNode: Node) => {
-                console.log(`Append move ${nextNode.key}`);
                 this.navigator.stateService.appendMove([nextNode]);
             });
-
     }
 }
 

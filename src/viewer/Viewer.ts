@@ -8,7 +8,7 @@ import {Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {IViewerOptions, Navigator, OptionsParser} from "../Viewer";
 import {CoverUI, IUI, NoneUI, SimpleUI, GlUI, SimpleNavUI} from "../UI";
-import {IBot} from "../Bot";
+import {CacheBot, IBot} from "../Bot";
 
 export class Viewer {
 
@@ -109,6 +109,8 @@ export class Viewer {
         if (this.options.key != null) {
             this.moveToKey(this.options.key);
         }
+
+        this.activateBot(new CacheBot());
     }
 
     /**

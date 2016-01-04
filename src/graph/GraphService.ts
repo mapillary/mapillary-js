@@ -1,11 +1,9 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
-import * as _ from "underscore";
 import * as rx from "rx";
 
 import {IAPINavIm} from "../API";
 import {Graph, Node, TilesService} from "../Graph";
-import {IEdge} from "../Edge";
 
 interface IGraphOperation extends Function {
   (graph: Graph): Graph;
@@ -68,7 +66,7 @@ export class GraphService {
         }).subscribe(this.updates);
     }
 
-    public getNode(key: string, cacheEdges: boolean = true): rx.Observable<Node> {
+    public getNode(key: string): rx.Observable<Node> {
         let ret: rx.Observable<Node> = this.graph.skipWhile((graph: Graph) => {
             let node: Node = graph.getNode(key);
             if (node == null || !node.worthy) {
@@ -79,12 +77,6 @@ export class GraphService {
             if (!node.cached) {
                 this.cache.onNext(node);
                 return true;
-            }
-
-            if (cacheEdges) {
-                _.map(node.edges, (edge: IEdge) => {
-                    this.getNode(edge.to, false).first().subscribe();
-                });
             }
 
             return false;
