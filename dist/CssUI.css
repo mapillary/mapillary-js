@@ -58,7 +58,20 @@
     transform: translate(0, -50%) rotate(90deg);
 }
 
-.DirectionTurnaround {
+.DirectionTurnleft {
     left: 0;
+    top: 0;
+    transform: rotate(-45deg);
+}
+
+.DirectionTurnright {
+    right: 0;
+    top: 0;
+    transform: rotate(45deg);
+}
+
+.DirectionTurnaround {
+    right: 0;
     bottom: 0;
+    transform: rotate(135deg);
 }

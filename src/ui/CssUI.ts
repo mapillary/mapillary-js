@@ -28,6 +28,8 @@ export class CssUI implements IActivatableUI {
         this.directions[EdgeConstants.Direction.STEP_BACKWARD] = "Backward";
         this.directions[EdgeConstants.Direction.STEP_LEFT] = "Left";
         this.directions[EdgeConstants.Direction.STEP_RIGHT] = "Right";
+        this.directions[EdgeConstants.Direction.TURN_LEFT] = "Turnleft";
+        this.directions[EdgeConstants.Direction.TURN_RIGHT] = "Turnright";
         this.directions[EdgeConstants.Direction.TURN_U] = "Turnaround";
 
         let uiContainer: HTMLElement = document.createElement("div");
@@ -47,6 +49,10 @@ export class CssUI implements IActivatableUI {
             this.createElement(EdgeConstants.Direction.STEP_LEFT);
         this.elements[EdgeConstants.Direction.STEP_RIGHT] =
             this.createElement(EdgeConstants.Direction.STEP_RIGHT);
+        this.elements[EdgeConstants.Direction.TURN_LEFT] =
+            this.createElement(EdgeConstants.Direction.TURN_LEFT);
+        this.elements[EdgeConstants.Direction.TURN_RIGHT] =
+            this.createElement(EdgeConstants.Direction.TURN_RIGHT);
         this.elements[EdgeConstants.Direction.TURN_U] =
             this.createElement(EdgeConstants.Direction.TURN_U);
 
