@@ -5,7 +5,7 @@ import * as when from "when";
 
 import {IAPINavIm} from "../src/API";
 import {EdgeConstants} from "../src/Edge";
-import {MyGraph, Node} from "../src/Graph";
+import {Node} from "../src/Graph";
 import {Viewer} from "../src/Viewer";
 
 describe("Viewer", () => {

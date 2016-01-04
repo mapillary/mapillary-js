@@ -4,7 +4,7 @@
 import * as when from "when";
 
 import {IAPINavIm} from "../../src/API";
-import {GraphService, MyGraph, Node} from "../../src/Graph";
+import {GraphService, Graph, Node} from "../../src/Graph";
 
 describe("GraphService", () => {
     var graphService: GraphService;
@@ -29,7 +29,7 @@ describe("GraphService", () => {
     });
 
     it("contains an empty graph from the start", (done) => {
-        graphService.graph.subscribe((myGraph: MyGraph) => {
+        graphService.graph.subscribe((graph: Graph) => {
             done();
         })
     });
