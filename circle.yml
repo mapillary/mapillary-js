@@ -1,17 +1,14 @@
-language: node_js
-node_js:
-  - "4.1"
+machine:
+  node:
+    version: 0.10.33
 
-env:
-  - VCR=playback
-
-before_script:
+pre:
   - npm install -g gulp
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - sleep 5
 
-script:
+test:
   - gulp tsd
   - gulp ts
   - gulp test
