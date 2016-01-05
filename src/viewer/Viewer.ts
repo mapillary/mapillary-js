@@ -7,7 +7,7 @@ import {InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {IViewerOptions, Navigator, OptionsParser} from "../Viewer";
-import {CoverUI, EventUI, IUI, NoneUI, SimpleUI, GlUI, SimpleNavUI} from "../UI";
+import {CoverUI, EventUI, KeyboardUI, IUI, NoneUI, SimpleUI, GlUI, SimpleNavUI} from "../UI";
 import {CacheBot, IBot} from "../Bot";
 
 export class Viewer {
@@ -91,6 +91,11 @@ export class Viewer {
             if (_.indexOf(this.options.uis, "gl") !== -1) {
                 let glUI: GlUI = new GlUI(this.container, this.navigator.state);
                 this.addUI("gl", glUI);
+            }
+
+            if (_.indexOf(this.options.uis, "keyboard") !== -1) {
+                let keyboardUI: KeyboardUI = new KeyboardUI(this.container, this.navigator);
+                this.addUI("keyboard", keyboardUI);
             }
 
             if (_.indexOf(this.options.uis, "simplenav") !== -1) {
