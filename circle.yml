@@ -2,13 +2,15 @@ machine:
   node:
     version: 0.10.33
 
-pre:
-  - npm install -g gulp
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - sleep 5
+dependencies:
+  pre:
+    - npm install -g gulp
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - sleep 5
 
 test:
-  - gulp tsd
-  - gulp ts
-  - gulp test
+  post:
+    - gulp tsd
+    - gulp ts
+    - gulp test
