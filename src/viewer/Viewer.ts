@@ -7,7 +7,7 @@ import {InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {IViewerOptions, Navigator, OptionsParser} from "../Viewer";
-import {CoverUI, IUI, NoneUI, SimpleUI, GlUI, SimpleNavUI} from "../UI";
+import {CoverUI, EventUI, IUI, NoneUI, SimpleUI, GlUI, SimpleNavUI} from "../UI";
 import {CacheBot, IBot} from "../Bot";
 
 export class Viewer {
@@ -27,6 +27,9 @@ export class Viewer {
      * @type {Navigator}
      */
     public navigator: Navigator;
+
+    // fixme ugly eventui test
+    public eventUI: EventUI;
 
     /**
      * HTML element containing the Mapillary viewer
@@ -102,6 +105,11 @@ export class Viewer {
         }
 
         this.activeUis = {};
+
+        this.eventUI = new EventUI(this.navigator);
+        this.addUI("event", this.eventUI);
+        this.activateUI("event");
+
         _.map(this.options.uis, (ui: string) => {
             this.activateUI(ui);
         });

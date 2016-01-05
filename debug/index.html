@@ -27,6 +27,10 @@
 
         var simplePlayBot = new Mapillary.SimplePlayBot();
         viewerSimple.activateBot(simplePlayBot);
+
+        viewerSimple.eventUI.on("moveend", function (node) {
+            console.log(node.key);
+        });
     </script>
 </body>
 </html>

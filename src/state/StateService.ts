@@ -23,6 +23,7 @@ export class StateService {
 
     public updateCurrentState: rx.Subject<ICurrentStateOperation> = new rx.Subject<ICurrentStateOperation>();
     public currentState: rx.Observable<ICurrentState>;
+    public currentNode: rx.Observable<Node>;
 
     private animationSpeed: number = 0.20;
 
@@ -73,6 +74,15 @@ export class StateService {
                 return currentState;
             });
         }).subscribe(this.updateCurrentState);
+
+        this.currentNode = this.currentState.map((currentState: ICurrentState): Node => {
+            if (currentState != null && currentState.currentNode != null) {
+                return currentState.currentNode;
+            }
+            return null;
+        }).filter((node: Node): boolean => {
+            return node != null;
+        }).distinctUntilChanged();
 
         this.tick.map<ICurrentStateOperation>((i: number): ICurrentStateOperation => {
             return ((currentState: ICurrentState) => {
