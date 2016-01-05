@@ -67,7 +67,7 @@ export class GraphService {
     }
 
     public getNode(key: string): rx.Observable<Node> {
-        let ret: rx.Observable<Node> = this.graph.skipWhile((graph: Graph) => {
+        return this.graph.skipWhile((graph: Graph) => {
             let node: Node = graph.getNode(key);
             if (node == null || !node.worthy) {
                 this.tilesService.cacheIm.onNext(key);
@@ -82,9 +82,7 @@ export class GraphService {
             return false;
         }).map((graph: Graph): Node => {
             return graph.getNode(key);
-        });
-
-        return ret;
+        }).take(1);
     }
 
     public getNextNode(node: Node, dir: number): rx.Observable<Node> {
