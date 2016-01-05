@@ -93,10 +93,8 @@ export class StateService2 {
         this.context = new StateContext2();
         this.currentStateSubject = new rx.BehaviorSubject<ICurrentState2>(this.context);
 
-        let frame: FrameRequestCallback = this.frame.bind(this);
-
         this.frameHelper = new FrameHelper();
-        this.frameHelper.requestAnimationFrame(frame);
+        this.frameHelper.requestAnimationFrame(this.frame.bind(this));
     }
 
     public get currentState(): rx.Observable<ICurrentState2> {
@@ -112,7 +110,7 @@ export class StateService2 {
     }
 
     private frame(time: number): void {
-        this.frameId = window.requestAnimationFrame(this.frame.bind(this));
+        this.frameId = this.frameHelper.requestAnimationFrame(this.frame.bind(this));
 
         this.context.update();
 
