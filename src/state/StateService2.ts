@@ -41,8 +41,8 @@ export class StateContext2 implements IStateContext2 {
 export class StateService2 {
     public currentState: rx.Observable<IStateContext2>;
 
-    public frame: rx.Subject<any> = new rx.Subject<any>();
-    public updateCurrentState: rx.Subject<IStateContextOperation2> = new rx.Subject<IStateContextOperation2>();
+    private frame: rx.Subject<any> = new rx.Subject<any>();
+    private updateCurrentState: rx.Subject<IStateContextOperation2> = new rx.Subject<IStateContextOperation2>();
 
     private context: IStateContext2;
     private frameSubscription: rx.IDisposable;
