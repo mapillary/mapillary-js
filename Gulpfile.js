@@ -145,11 +145,19 @@ gulp.task('ts', ['ts-lint'], function () {
   browserify({
     entries: ['./src/Mapillary.ts'],
     debug: true,
-    standalone: 'Mapillary'
+    standalone: 'Mapillary',
+    fullPaths: true
   })
     .plugin(tsify, config.ts)
     .transform('brfs')
     .transform('envify')
+    .transform({ global: true,
+                 ignore: ['**/node_modules/rest/*',
+                          '**/node_modules/rest/**/*',
+                          '**/node_modules/when/*',
+                          '**/node_modules/when/**/*'
+                         ]
+               }, 'uglifyify')
     .bundle()
     .on('error', function (error) {
       console.error(error.toString())

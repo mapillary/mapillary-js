@@ -44,6 +44,7 @@
     "tsd": "0.6.5",
     "tsify": "0.13.0",
     "typescript": "1.7.3",
+    "uglifyify": "3.0.1",
     "vinyl-source-stream": "1.1.0",
     "yargs": "3.29.0"
   },
@@ -62,5 +63,9 @@
     "three": "~0.73.0",
     "underscore": "~1.8.3",
     "when": "~3.7.4"
+  },
+  "browser": {
+    "rx": "./node_modules/rx/dist/rx.all.min.js",
+    "three": "./node_modules/three/three.min.js"
   }
 }
