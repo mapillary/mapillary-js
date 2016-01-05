@@ -30,7 +30,7 @@ export class SimpleNavUI implements IUI {
         this.directions[EdgeConstants.Direction.TURN_U] = "Turnaround";
 
         let uiContainer: HTMLElement = document.createElement("div");
-        uiContainer.className = "SimpleNavUi";
+        uiContainer.className = "SimpleNavUI";
         container.appendChild(uiContainer);
 
         this.container = uiContainer;
