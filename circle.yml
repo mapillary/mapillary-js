@@ -9,7 +9,7 @@ dependencies:
     - sleep 5
 
 test:
-  post:
+  override:
     - gulp tsd
     - gulp ts
     - gulp test
