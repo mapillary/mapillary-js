@@ -42,11 +42,6 @@ class FrameHelper {
     }
 }
 
-
-interface IStateContextOperation2 extends Function {
-    (context: IStateContext2): IStateContext2;
-}
-
 export interface ICurrentState2 {
     previous: Node;
     current: Node;
