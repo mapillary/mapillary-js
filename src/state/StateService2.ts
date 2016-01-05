@@ -1,9 +1,48 @@
 /// <reference path="../../typings/rx-dom/rx.dom.d.ts" />
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../typings/lib/lib.d.ts" />
 
 import * as rx from "rx";
 
 import {Node} from "../Graph";
+
+class FrameHelper {
+    private _requestAnimationFrame: (callback: FrameRequestCallback) => number;
+    private _cancelAnimationFrame: (id: number) => void;
+
+    constructor() {
+        if (window.requestAnimationFrame) {
+            this._requestAnimationFrame = window.requestAnimationFrame;
+            this._cancelAnimationFrame = window.cancelAnimationFrame;
+        } else if (window.mozRequestAnimationFrame) {
+            this._requestAnimationFrame = window.mozRequestAnimationFrame;
+            this._cancelAnimationFrame = window.mozCancelAnimationFrame;
+        } else if (window.webkitRequestAnimationFrame) {
+            this._requestAnimationFrame = window.webkitRequestAnimationFrame;
+            this._cancelAnimationFrame = window.webkitCancelAnimationFrame;
+        } else if (window.msRequestAnimationFrame) {
+            this._requestAnimationFrame = window.msRequestAnimationFrame;
+            this._cancelAnimationFrame = window.msCancelRequestAnimationFrame;
+        } else if (window.oRequestAnimationFrame) {
+            this._requestAnimationFrame = window.oRequestAnimationFrame;
+            this._cancelAnimationFrame = window.oCancelAnimationFrame;
+        } else {
+            this._requestAnimationFrame = (callback: FrameRequestCallback): number => {
+                return window.setTimeout(callback, 1000 / 60);
+            };
+            this._cancelAnimationFrame = window.clearTimeout;
+        }
+    }
+
+    public requestAnimationFrame(callback: FrameRequestCallback): number {
+        return this._requestAnimationFrame.call(window, callback);
+    }
+
+    public cancelAnimationFrame(id: number): void {
+        this._cancelAnimationFrame.call(window, id);
+    }
+}
+
 
 interface IStateContextOperation2 extends Function {
     (context: IStateContext2): IStateContext2;
@@ -49,32 +88,40 @@ export class StateContext2 implements IStateContext2 {
 }
 
 export class StateService2 {
-    public currentState: rx.Observable<ICurrentState2>;
+    private currentStateSubject: rx.Subject<ICurrentState2>;
 
     private context: IStateContext2;
-    private frameSubscription: rx.IDisposable;
+
+    private frameHelper: FrameHelper;
+    private frameId: number;
 
     constructor () {
         this.context = new StateContext2();
+        this.currentStateSubject = new rx.BehaviorSubject<ICurrentState2>(this.context);
 
-        this.currentState = rx.Observable.generate<IStateContext2, ICurrentState2>(
-            this.context,
-            function (context: IStateContext2): boolean { return true; },
-            function (context: IStateContext2): IStateContext2 {
-                    context.update();
+        let frame: FrameRequestCallback = this.frame.bind(this);
 
-                    return context;
-                },
-            function (context: IStateContext2): ICurrentState2 { return context; },
-            rx.Scheduler.requestAnimationFrame
-        ).shareReplay(1);
+        this.frameHelper = new FrameHelper();
+        this.frameHelper.requestAnimationFrame(frame);
+    }
+
+    public get currentState(): rx.Observable<ICurrentState2> {
+        return this.currentStateSubject;
     }
 
     public dispose(): void {
-        this.frameSubscription.dispose();
+        this.frameHelper.cancelAnimationFrame(this.frameId);
     }
 
     public appendNodes(nodes: Node[]): void {
         this.context.appendNodes(nodes);
+    }
+
+    private frame(time: number): void {
+        this.frameId = window.requestAnimationFrame(this.frame.bind(this));
+
+        this.context.update();
+
+        this.currentStateSubject.onNext(this.context);
     }
 }
