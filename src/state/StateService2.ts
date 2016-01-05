@@ -41,7 +41,7 @@ export class StateContext2 implements IStateContext2 {
 export class StateService2 {
     public currentState: rx.Observable<IStateContext2>;
 
-    private frame: rx.Subject<any> = new rx.Subject<any>();
+    private frame: rx.Subject<void> = new rx.Subject<void>();
     private updateCurrentState: rx.Subject<IStateContextOperation2> = new rx.Subject<IStateContextOperation2>();
 
     private context: IStateContext2;
@@ -62,7 +62,7 @@ export class StateService2 {
                 this.context)
                 .shareReplay(1);
 
-        this.frame.map<IStateContextOperation2>((i: number): IStateContextOperation2 => {
+        this.frame.map<IStateContextOperation2>((): IStateContextOperation2 => {
             return ((context: IStateContext2) => {
                 return context;
             });
@@ -70,13 +70,15 @@ export class StateService2 {
 
         let frameScheduler: rxdom.IRequestAnimationFrameScheduler = rx.Scheduler.requestAnimationFrame;
 
-        this.frameSubscription = rx.Observable.generate<number, number>(
+        this.frameSubscription = rx.Observable.generate<number, void>(
             0,
             function (x: number): boolean { return true; },
-            function (x: number): number { return x + 1; },
             function (x: number): number { return x; },
+            function (x: number): void { return; },
             frameScheduler
         ).subscribe(this.frame);
+
+        this.currentState.subscribe();
     }
 
     public dispose(): void {
