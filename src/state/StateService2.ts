@@ -2,7 +2,6 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
 import * as rx from "rx";
-import * as rxdom from "rx.dom";
 
 import {Node} from "../Graph";
 
@@ -58,8 +57,6 @@ export class StateService2 {
     constructor () {
         this.context = new StateContext2();
 
-        let frameScheduler: rxdom.IRequestAnimationFrameScheduler = rx.Scheduler.requestAnimationFrame;
-
         this.currentState = rx.Observable.generate<IStateContext2, ICurrentState2>(
             this.context,
             function (context: IStateContext2): boolean { return true; },
@@ -69,7 +66,7 @@ export class StateService2 {
                     return context;
                 },
             function (context: IStateContext2): ICurrentState2 { return context; },
-            frameScheduler
+            rx.Scheduler.requestAnimationFrame
         ).shareReplay(1);
     }
 
