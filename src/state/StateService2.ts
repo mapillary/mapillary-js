@@ -1,4 +1,3 @@
-/// <reference path="../../typings/rx-dom/rx.dom.d.ts" />
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 /// <reference path="../../typings/lib/lib.d.ts" />
 
