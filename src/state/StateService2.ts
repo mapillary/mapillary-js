@@ -19,30 +19,38 @@ export interface ICurrentState2 {
 
 interface IStateContext2 extends ICurrentState2 {
     update(): void;
+
+    appendNodes(nodes: Node[]): void;
 }
 
 export class StateContext2 implements IStateContext2 {
     public previous: Node;
     public current: Node;
     public trajectory: Node[];
-    public alpha: number = 0;
 
-    public update(): void {
+    public alpha: number;
+
+    constructor() {
+        this.previous = null;
+        this.current = null;
+        this.trajectory = [];
+
         this.alpha = 0;
     }
 
+    public update(): void {
+        this.alpha += 1;
+    }
+
     public appendNodes(nodes: Node[]): void {
-        for (let i: number; i < nodes.length; i++) {
+        for (let i: number = 0; i < nodes.length; i++) {
             this.trajectory.push(nodes[i]);
         }
     }
 }
 
 export class StateService2 {
-    public currentState: rx.Observable<IStateContext2>;
-
-    private frame: rx.Subject<void> = new rx.Subject<void>();
-    private updateCurrentState: rx.Subject<IStateContextOperation2> = new rx.Subject<IStateContextOperation2>();
+    public currentState: rx.Observable<ICurrentState2>;
 
     private context: IStateContext2;
     private frameSubscription: rx.IDisposable;
@@ -50,38 +58,26 @@ export class StateService2 {
     constructor () {
         this.context = new StateContext2();
 
-        this.currentState = this.updateCurrentState
-            .scan<IStateContext2>(
-                (context: IStateContext2, operation: IStateContextOperation2): IStateContext2 => {
-                    context.update();
-
-                    let currentState: IStateContext2 = operation(context);
-
-                    return currentState;
-                },
-                this.context)
-                .shareReplay(1);
-
-        this.frame.map<IStateContextOperation2>((): IStateContextOperation2 => {
-            return ((context: IStateContext2) => {
-                return context;
-            });
-        }).subscribe(this.updateCurrentState);
-
         let frameScheduler: rxdom.IRequestAnimationFrameScheduler = rx.Scheduler.requestAnimationFrame;
 
-        this.frameSubscription = rx.Observable.generate<number, void>(
-            0,
-            function (x: number): boolean { return true; },
-            function (x: number): number { return x; },
-            function (x: number): void { return; },
-            frameScheduler
-        ).subscribe(this.frame);
+        this.currentState = rx.Observable.generate<IStateContext2, ICurrentState2>(
+            this.context,
+            function (context: IStateContext2): boolean { return true; },
+            function (context: IStateContext2): IStateContext2 {
+                    context.update();
 
-        this.currentState.subscribe();
+                    return context;
+                },
+            function (context: IStateContext2): ICurrentState2 { return context; },
+            frameScheduler
+        ).shareReplay(1);
     }
 
     public dispose(): void {
         this.frameSubscription.dispose();
+    }
+
+    public appendNodes(nodes: Node[]): void {
+        this.context.appendNodes(nodes);
     }
 }
