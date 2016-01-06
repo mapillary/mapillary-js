@@ -15,8 +15,8 @@ export class SimpleUI implements IUI {
         this.navigator = navigator;
 
         this.canvas = document.createElement("canvas");
-        this.canvas.style.width = "320px";
-        this.canvas.style.height = "240px";
+        this.canvas.width = 320;
+        this.canvas.height = 240;
         container.appendChild(this.canvas);
     }
 
@@ -24,7 +24,7 @@ export class SimpleUI implements IUI {
         this.disposable = this.navigator.stateService.currentState.subscribe((currentState: ICurrentState) => {
             if (currentState != null && currentState.currentNode != null) {
                 let ctx: any = this.canvas.getContext("2d");
-                ctx.drawImage(currentState.currentNode.image, 0, 0, 300, 225);
+                ctx.drawImage(currentState.currentNode.image, 0, 0);
             }
         });
     }
