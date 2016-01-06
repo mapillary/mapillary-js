@@ -9,6 +9,8 @@ import * as rx from "rx";
 
 export class Node {
     public key: string;
+    public user: string;
+    public capturedAt: number;
     public ca: number;
     public latLon: ILatLon;
     public worthy: boolean;

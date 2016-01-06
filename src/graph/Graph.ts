@@ -87,6 +87,9 @@ export class Graph {
                 translation
             );
 
+            node.user = im.user;
+            node.capturedAt = im.captured_at;
+
             return node;
         });
 
