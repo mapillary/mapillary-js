@@ -2,75 +2,32 @@
 
 import * as rx from "rx";
 
+import {IAPISearchImClose2, APIv2} from "../API";
 import {GraphService, Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
 import {StateService, StateContext} from "../State";
 
 export class Navigator {
-    /**
-     * The node that the viewer is currently looking at
-     * @member Mapillary.Viewer#currentNode
-     * @public
-     * @type {Node}
-     */
     public get currentNode(): Node {
         return this.state.current.node;
     }
 
-    /**
-     * Service for handling the graph
-     * @member Mapillary.Viewer#graphService
-     * @public
-     * @type {GraphService}
-     */
     public graphService: GraphService;
-
-    /**
-     * Service for handling the state
-     * @member Mapillary.Viewer#stateService
-     * @public
-     * @type {StateService}
-     */
     public stateService: StateService;
-
-    /**
-     * Holds the current state
-     * @member Mapillary.Viewer#state
-     * @private
-     * @type {StateContext}
-     */
     public state: StateContext;
-
-    /**
-     * true if Viewer is loading internally, false if not.
-     * @member Mapillary.Viewer#loading
-     * @public
-     * @type {boolean}
-     */
     public loading: boolean;
 
-    /**
-     * Initializes a Mapillary viewer
-     * @class Mapillary.Viewer
-     * @classdesc A Viewer for viewing Mapillary Street Level Imagery
-     * @param {string} id of element to transform into viewer
-     * @param {string} clientId for Mapillary API
-     * @param {IViewerOptions} Options for the viewer
-     */
+    public apiV2: APIv2;
+
     constructor (clientId: string) {
         this.loading = false;
+        this.apiV2 = new APIv2(clientId);
 
         this.state = new StateContext();
-        this.graphService = new GraphService(clientId);
+        this.graphService = new GraphService(this.apiV2);
         this.stateService = new StateService();
     }
 
-    /**
-     * Move to an image key
-     * @method Mapillary.Viewer#moveToKey
-     * @param {string} key Mapillary image key to move to
-     * @throws {ParamaterMapillaryError} If no key is provided
-     */
     public moveToKey(key: string): rx.Observable<Node> {
         if (this.loading) {
             return rx.Observable.throw<Node>(new Error("viewer is loading"));
@@ -85,17 +42,22 @@ export class Navigator {
         });
     }
 
-    /**
-     * Move in a direction
-     * @method Mapillary.Viewer#moveToLngLat
-     * @param {LatLng} latLng FIXME
-     */
     public moveDir(dir: EdgeConstants.Direction): rx.Observable<Node> {
         if (this.loading) {
             return rx.Observable.throw<Node>(new Error("viewer is loading"));
         }
         return this.graphService.getNextNode(this.currentNode, dir).flatMap((node: Node) => {
             return this.moveToKey(node.key);
+        });
+    }
+
+    public moveCloseTo(lat: number, lon: number): rx.Observable<Node> {
+        if (this.loading) {
+            return rx.Observable.throw<Node>(new Error("viewer is loading"));
+        }
+
+        return rx.Observable.fromPromise(this.apiV2.search.im.close2(lat, lon)).flatMap((data: IAPISearchImClose2): rx.Observable<Node> => {
+            return this.moveToKey(data.key);
         });
     }
 }

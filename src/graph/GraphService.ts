@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {IAPINavIm} from "../API";
+import {IAPINavIm, APIv2} from "../API";
 import {Graph, Node, TilesService} from "../Graph";
 
 interface IGraphOperation extends Function {
@@ -19,8 +19,8 @@ export class GraphService {
 
     public tilesService: TilesService;
 
-    constructor (clientId: string) {
-        this.tilesService = new TilesService(clientId);
+    constructor (apiV2: APIv2) {
+        this.tilesService = new TilesService(apiV2);
 
         // operation pattern updating the graph
         this.graph = this.updates

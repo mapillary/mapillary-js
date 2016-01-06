@@ -1,7 +1,9 @@
 import APINav from "./APINav";
+import APISearch from "./APISearch";
 
 export class APIv2 {
     public nav: APINav;
+    public search: APISearch;
 
     private clientId: string;
 
@@ -14,6 +16,7 @@ export class APIv2 {
     constructor (clientId: string) {
         this.clientId = clientId;
         this.nav = new APINav(clientId);
+        this.search = new APISearch(clientId);
     };
 }
 

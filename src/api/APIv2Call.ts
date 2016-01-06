@@ -20,7 +20,14 @@ export class APIv2Call {
     };
 
     public callApi(path: string): when.Promise<{}> {
-        let uri: string = this.httpsUrl + path + "?client_id=" + this.clientId;
+        let uri: string = this.httpsUrl + path;
+
+        if (path.indexOf("?") > -1) {
+            uri += "&client_id=" + this.clientId;
+        } else {
+            uri += "?client_id=" + this.clientId;
+        }
+
         return this.client(uri).entity();
     }
 };

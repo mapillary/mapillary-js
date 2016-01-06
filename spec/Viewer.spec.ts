@@ -26,7 +26,7 @@ describe("Viewer", () => {
     });
 
     it("should move to a key", (done) => {
-        spyOn(viewer.navigator.graphService.tilesService.apiV2.nav, 'im').and.callFake(() => {
+        spyOn(viewer.navigator.apiV2.nav, 'im').and.callFake(() => {
             let result: IAPINavIm = {
                 hs: ["u3ck26d"],
                 ims: [{key: "A", rotation: [0, -Math.PI / 2, 0], merge_version: 1, merge_cc: 1, lat: 0, lon: 0}],

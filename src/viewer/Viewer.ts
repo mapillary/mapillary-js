@@ -185,6 +185,14 @@ export class Viewer {
         });
     }
 
+    public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
+        return when.promise((resolve: (value: any) => void, reject: (reason: any) => void): void => {
+            this.navigator.moveCloseTo(lat, lon).first().subscribe((node: Node) => {
+                resolve(node);
+            });
+        });
+    }
+
     private setupContainer(id: string): HTMLElement {
         let element: HTMLElement = document.getElementById(id);
 

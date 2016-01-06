@@ -3,14 +3,16 @@
 
 import * as when from "when";
 
-import {IAPINavIm} from "../../src/API";
+import {IAPINavIm, APIv2} from "../../src/API";
 import {TilesService} from "../../src/Graph";
 
 describe("TilesService", () => {
     var tilesService: TilesService;
+    var apiV2: APIv2;
 
     beforeEach(() => {
-        tilesService = new TilesService("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
+        apiV2 = new APIv2("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4")
+        tilesService = new TilesService(apiV2);
     });
 
     it("exists", () => {
@@ -21,7 +23,7 @@ describe("TilesService", () => {
         let key: string = "key";
         let h: string = "h";
 
-        spyOn(tilesService.apiV2.nav, 'im').and.callFake(() => {
+        spyOn(apiV2.nav, 'im').and.callFake(() => {
             let result: IAPINavIm = {
                 hs: [h],
                 ims: [{key: key}],
@@ -43,7 +45,7 @@ describe("TilesService", () => {
         let key: string = "key";
         let h: string = "h";
 
-        spyOn(tilesService.apiV2.nav, 'h').and.callFake(() => {
+        spyOn(apiV2.nav, 'h').and.callFake(() => {
             let result: IAPINavIm = {
                 hs: [h],
                 ims: [{key: key}],

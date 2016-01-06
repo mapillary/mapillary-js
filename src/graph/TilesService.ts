@@ -27,8 +27,8 @@ export class TilesService {
 
     public apiV2: APIv2;
 
-    constructor (clientId: string) {
-        this.apiV2 = new APIv2(clientId);
+    constructor (apiV2: APIv2) {
+        this.apiV2 = apiV2;
 
         this.cachedTiles = this.updates
             .scan<{[key: string]: boolean}>(

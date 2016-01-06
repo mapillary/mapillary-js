@@ -3,14 +3,16 @@
 
 import * as when from "when";
 
-import {IAPINavIm} from "../../src/API";
+import {IAPINavIm, APIv2} from "../../src/API";
 import {GraphService, Graph, Node} from "../../src/Graph";
 
 describe("GraphService", () => {
+    var apiV2: APIv2;
     var graphService: GraphService;
 
     beforeEach(() => {
-        graphService = new GraphService("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
+        apiV2 = new APIv2("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
+        graphService = new GraphService(apiV2);
 
 //        spyOn(graphService.tilesService.apiV2.nav, 'im').and.callFake(() => {
 //            let result: IAPINavIm = {
