@@ -36,6 +36,9 @@ export class SimpleUI implements IUI {
                 let w: number = ch / 3 * 4;
                 let offsetLeft: number = (cw - w) / 2;
 
+                this.canvas.width = cw;
+                this.canvas.height = ch;
+
                 ctx.drawImage(currentState.currentNode.image, offsetLeft, 0, w, ch);
             }
         });
