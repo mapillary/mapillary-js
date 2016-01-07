@@ -35,7 +35,7 @@ export class UI {
      */
     public static add(name: string, ui: new (c: HTMLElement, n: Navigator) => IUI): void {
         if (name in UI.uis) {
-            throw new ParameterMapillaryError("Name already exist in UI dictionary.");
+            throw new ParameterMapillaryError("Name already exist in UI dictionary");
         }
 
         UI.uis[name] = ui;
@@ -52,7 +52,7 @@ export class UI {
      */
     public static get(name: string, c: HTMLElement, n: Navigator): IUI {
         if (!(name in UI.uis)) {
-            throw new ParameterMapillaryError("Name does not exist in UI dictionary.");
+            throw new ParameterMapillaryError("Name does not exist in UI dictionary");
         }
 
         return new UI.uis[name](c, n);
