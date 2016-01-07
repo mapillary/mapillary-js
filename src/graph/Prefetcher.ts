@@ -32,7 +32,7 @@ export class Prefetcher {
 
     public loadFromKey(key: string): when.Promise<IAPINavIm> {
         return this.apiV2.nav.im(key).then((data: IAPINavIm): IAPINavIm => {
-            for (var h in data.hs) {
+            for (let h in data.hs) {
                 if (data.hs.hasOwnProperty(h)) {
                     let hkey: string = data.hs[h];
                     if (!this.hashIsCached(hkey)) {

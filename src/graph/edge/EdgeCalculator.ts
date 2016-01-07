@@ -62,7 +62,7 @@ export class EdgeCalculator {
 
         let potentialEdges: IPotentialEdge[] = [];
 
-        for (var i: number = 0; i < nodes.length; i++) {
+        for (let i: number = 0; i < nodes.length; i++) {
             let potential: Node = nodes[i];
 
             if (!potential.worthy ||
