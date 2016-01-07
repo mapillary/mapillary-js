@@ -6,14 +6,11 @@ import * as when from "when";
 import {InitializationMapillaryError, ParameterMapillaryError} from "../Error";
 import {Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
-import {IViewerOptions, Navigator, OptionsParser} from "../Viewer";
-import {CoverUI, EventUI, KeyboardUI, IUI, NoneUI, SimpleUI, GlUI, SimpleNavUI} from "../UI";
+import {IViewerOptions, Navigator, OptionsParser, UI} from "../Viewer";
+import {IUI, EventUI} from "../UI";
 import {CacheBot, IBot} from "../Bot";
 
 export class Viewer {
-
-    private static testUis: {[key: string]: (container: HTMLElement, navigator: Navigator) => IUI } = {};
-
     /**
      * Current active and used ui
      * @member Mapillary.Viewer#ui
@@ -76,7 +73,7 @@ export class Viewer {
 
         for (let i: number = 0; i < this.options.uis.length; i++) {
             let name: string = this.options.uis[i];
-            let ui: IUI = Viewer.testUis[name](this.container, this.navigator);
+            let ui: IUI = UI.uis[name](this.container, this.navigator);
             this.addUI(name, ui);
         }
 
@@ -95,23 +92,6 @@ export class Viewer {
         }
 
         this.activateBot(new CacheBot());
-    }
-
-    public static initialize(): void {
-        Viewer.addUI("cover", (c: HTMLElement, n: Navigator): IUI => { return new CoverUI(c); });
-        Viewer.addUI("simple", (c: HTMLElement, n: Navigator): IUI => { return new SimpleUI(c, n); });
-        Viewer.addUI("gl", (c: HTMLElement, n: Navigator): IUI => { return new GlUI(c, n.state); });
-        Viewer.addUI("keyboard", (c: HTMLElement, n: Navigator): IUI => { return new KeyboardUI(c, n); });
-        Viewer.addUI("simplenav", (c: HTMLElement, n: Navigator): IUI => { return new SimpleNavUI(c, n); });
-        Viewer.addUI("none", (c: HTMLElement, n: Navigator): IUI => { return new NoneUI(); });
-    }
-
-    public static addUI(name: string, ctorFunc: (container: HTMLElement, navigator: Navigator) => IUI): void {
-        if (name in Viewer.testUis) {
-            throw new InitializationMapillaryError();
-        }
-
-        Viewer.testUis[name] = ctorFunc;
     }
 
     /**
@@ -191,12 +171,6 @@ export class Viewer {
         element.classList.add("mapillary-js");
         return element;
     }
-}
-
-export namespace Viewer {
-    "use strict";
-
-    Viewer.initialize();
 }
 
 export default Viewer;
