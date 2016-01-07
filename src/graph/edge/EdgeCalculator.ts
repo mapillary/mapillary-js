@@ -62,9 +62,7 @@ export class EdgeCalculator {
 
         let potentialEdges: IPotentialEdge[] = [];
 
-        for (let i: number = 0; i < nodes.length; i++) {
-            let potential: Node = nodes[i];
-
+        for (let potential of nodes) {
             if (!potential.worthy ||
                 !potential.merged ||
                 potential.key === node.key) {
@@ -203,9 +201,7 @@ export class EdgeCalculator {
             let edge: IPotentialEdge = null;
             let fallback: IPotentialEdge = null;
 
-            for (let j: number = 0; j < potentialEdges.length; j++) {
-                let potential: IPotentialEdge = potentialEdges[j];
-
+            for (let potential of potentialEdges) {
                 if (Math.abs(potential.directionChange) > this.settings.stepMaxDirectionChange) {
                     continue;
                 }
@@ -288,9 +284,7 @@ export class EdgeCalculator {
             let lowestScore: number = Number.MAX_VALUE;
             let edge: IPotentialEdge = null;
 
-            for (let i: number = 0; i < potentialEdges.length; i++) {
-                let potential: IPotentialEdge = potentialEdges[i];
-
+            for (let potential of potentialEdges) {
                 if (potential.distance > this.settings.turnMaxDistance) {
                     continue;
                 }
@@ -365,9 +359,7 @@ export class EdgeCalculator {
         let lowestScore: number = Number.MAX_VALUE;
         let edge: IPotentialEdge = null;
 
-        for (let i: number = 0; i < potentialEdges.length; i++) {
-            let potential: IPotentialEdge = potentialEdges[i];
-
+        for (let potential of potentialEdges) {
             if (!potential.fullPano) {
                 continue;
             }
@@ -423,9 +415,7 @@ export class EdgeCalculator {
             let lowestScore: number = Number.MAX_VALUE;
             let edge: IPotentialEdge = null;
 
-            for (let i: number = 0; i < potentialEdges.length; i++) {
-                let potential: IPotentialEdge = potentialEdges[i];
-
+            for (let potential of potentialEdges) {
                 if (potential.fullPano) {
                     continue;
                 }
@@ -475,9 +465,7 @@ export class EdgeCalculator {
         let potentialPanos: IPotentialEdge[] = [];
         let potentialSteps: [EdgeConstants.Direction, IPotentialEdge][] = [];
 
-        for (let i: number = 0; i < potentialEdges.length; i++) {
-            let potential: IPotentialEdge = potentialEdges[i];
-
+        for (let potential of potentialEdges) {
             if (potential.distance > this.settings.panoMaxDistance) {
                 continue;
             }
@@ -524,9 +512,7 @@ export class EdgeCalculator {
             let lowestScore: number = Number.MAX_VALUE;
             let edge: IPotentialEdge = null;
 
-            for (let i: number = 0; i < potentialPanos.length; i++) {
-                let potential: IPotentialEdge = potentialPanos[i];
-
+            for (let potential of potentialPanos) {
                 let motionDifference: number = this.spatial.angleDifference(rotation, potential.motionChange);
 
                 if (Math.abs(motionDifference) > maxRotationDifference) {
@@ -534,8 +520,7 @@ export class EdgeCalculator {
                 }
 
                 let occupiedDifference: number = Number.MAX_VALUE;
-                for (let j: number = 0; j < occupiedAngles.length; j++) {
-                    let occupiedAngle: number = occupiedAngles[j];
+                for (let occupiedAngle of occupiedAngles) {
                     let difference: number = Math.abs(this.spatial.angleDifference(occupiedAngle, potential.motionChange));
                     if (difference < occupiedDifference) {
                         occupiedDifference = difference;
@@ -582,9 +567,7 @@ export class EdgeCalculator {
         occupiedStepAngles[EdgeConstants.Direction.STEP_BACKWARD] = [];
         occupiedStepAngles[EdgeConstants.Direction.STEP_RIGHT] = [];
 
-        for (let i: number = 0; i < stepAngles.length; i++) {
-            let stepAngle: number = stepAngles[i];
-
+        for (let stepAngle of stepAngles) {
             let occupations: [EdgeConstants.Direction, IPotentialEdge][] = [];
 
             for (let k in this.directions.panos) {
@@ -602,9 +585,7 @@ export class EdgeCalculator {
                 let lowestScore: number = Number.MAX_VALUE;
                 let edge: [EdgeConstants.Direction, IPotentialEdge] = null;
 
-                for (let j: number = 0; j < potentialSteps.length; j++) {
-                    let potential: [EdgeConstants.Direction, IPotentialEdge] = potentialSteps[j];
-
+                for (let potential of potentialSteps) {
                     if (potential[0] !== pano.direction) {
                         continue;
                     }
@@ -616,9 +597,7 @@ export class EdgeCalculator {
                     }
 
                     let minOccupiedDifference: number = Number.MAX_VALUE;
-                    for (let k: number = 0; k < allOccupiedAngles.length; k++) {
-                        let occupiedAngle: number = allOccupiedAngles[k];
-
+                    for (let occupiedAngle of allOccupiedAngles) {
                         let occupiedDifference: number =
                             Math.abs(this.spatial.angleDifference(occupiedAngle, potential[1].motionChange));
 
@@ -656,9 +635,7 @@ export class EdgeCalculator {
                 }
             }
 
-            for (let j: number = 0; j < occupations.length; j++) {
-                let occupation: [EdgeConstants.Direction, IPotentialEdge] = occupations[j];
-
+            for (let occupation of occupations) {
                 occupiedStepAngles[occupation[0]].push(occupation[1].motionChange);
             }
         }
