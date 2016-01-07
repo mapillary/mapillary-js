@@ -80,9 +80,10 @@ export class GlUI implements IUI {
         projectorMat.multiply(projection);
 
         let materialParameters: THREE.ShaderMaterialParameters = {
+            depthWrite: false,
+            fragmentShader: Shaders.perspective.fragment,
             side: THREE.DoubleSide,
             transparent: true,
-            depthWrite: false,
             uniforms: {
                 opacity: {
                     type: "f",
@@ -98,7 +99,6 @@ export class GlUI implements IUI {
                 },
             },
             vertexShader: Shaders.perspective.vertex,
-            fragmentShader: Shaders.perspective.fragment,
         };
 
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);

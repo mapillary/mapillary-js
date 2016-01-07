@@ -126,9 +126,9 @@ export class Graph {
             let edge: any = this.graph.edge(outEdge);
 
             return {
+                data: <IEdgeData>edge,
                 from: outEdge.v,
                 to: outEdge.w,
-                data: <IEdgeData>edge,
             };
         });
     }
@@ -234,7 +234,7 @@ export class Graph {
         if (this.getNode(node.key) != null) {
             return;
         }
-        this.spatial.insert({node: node, lon: node.latLon.lon, lat: node.latLon.lat});
+        this.spatial.insert({lat: node.latLon.lat, lon: node.latLon.lon, node: node});
         this.graph.setNode(node.key, node);
     }
 

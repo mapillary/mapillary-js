@@ -52,30 +52,30 @@ export class EdgeCalculatorDirections {
 
         this.panos[EdgeConstants.Direction.STEP_FORWARD] = {
             direction: EdgeConstants.Direction.STEP_FORWARD,
-            prev: EdgeConstants.Direction.STEP_RIGHT,
-            next: EdgeConstants.Direction.STEP_LEFT,
             directionChange: 0,
+            next: EdgeConstants.Direction.STEP_LEFT,
+            prev: EdgeConstants.Direction.STEP_RIGHT,
         };
 
         this.panos[EdgeConstants.Direction.STEP_BACKWARD] = {
             direction: EdgeConstants.Direction.STEP_BACKWARD,
-            prev: EdgeConstants.Direction.STEP_LEFT,
-            next: EdgeConstants.Direction.STEP_RIGHT,
             directionChange: Math.PI,
+            next: EdgeConstants.Direction.STEP_RIGHT,
+            prev: EdgeConstants.Direction.STEP_LEFT,
         };
 
         this.panos[EdgeConstants.Direction.STEP_LEFT] = {
             direction: EdgeConstants.Direction.STEP_LEFT,
-            prev: EdgeConstants.Direction.STEP_FORWARD,
-            next: EdgeConstants.Direction.STEP_BACKWARD,
             directionChange: Math.PI / 2,
+            next: EdgeConstants.Direction.STEP_BACKWARD,
+            prev: EdgeConstants.Direction.STEP_FORWARD,
         };
 
         this.panos[EdgeConstants.Direction.STEP_RIGHT] = {
             direction: EdgeConstants.Direction.STEP_RIGHT,
-            prev: EdgeConstants.Direction.STEP_BACKWARD,
-            next: EdgeConstants.Direction.STEP_FORWARD,
             directionChange: -Math.PI / 2,
+            next: EdgeConstants.Direction.STEP_FORWARD,
+            prev: EdgeConstants.Direction.STEP_BACKWARD,
         };
 
         this.rotations[EdgeConstants.Direction.ROTATE_LEFT] = {

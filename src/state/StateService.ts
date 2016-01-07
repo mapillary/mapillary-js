@@ -57,7 +57,7 @@ export class StateService {
                 currentState.currentNode = currentState.nextNodes[1];
                 return currentState;
             },
-            {previousNode: null, currentNode: null, currentAlpha: 0, nextNodes: []})
+            {currentAlpha: 0, currentNode: null, nextNodes: [], previousNode: null})
             .shareReplay(1);
 
         this.resetCurrentState.map<ICurrentStateOperation>((nodes: Node[]): ICurrentStateOperation => {
