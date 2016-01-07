@@ -247,9 +247,7 @@ export class Graph {
     public nextNode(node: Node, dir: EdgeConstants.Direction): Node {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
-        for (let i: number = 0; i < outEdges.length; i++) {
-            let outEdge: any = outEdges[i];
-
+        for (let outEdge of outEdges) {
             let edge: any = this.graph.edge(outEdge);
 
             if (edge.direction === dir) {
@@ -305,9 +303,7 @@ export class Graph {
             }
         }
 
-        for (let i: number = 0; i < edges.length; i++) {
-            let edge: IEdge = edges[i];
-
+        for (let edge of edges) {
             this.graph.setEdge(node.key, edge.to, edge.data, node.key + edge.to + edge.data.direction);
         }
     }

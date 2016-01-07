@@ -30,8 +30,8 @@ export class StateContext {
 
         this.completing.update();
 
-        for (let i: number = 0; i < this.callbacks.length; i++) {
-            this.callbacks[i](this.current);
+        for (let callback of this.callbacks) {
+            callback(this.current);
         }
     }
 }

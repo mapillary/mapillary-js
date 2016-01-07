@@ -78,8 +78,8 @@ export class SimpleNavUI implements IUI {
                     }
 
                     let edges: IEdge[] = currentState.currentNode.edges;
-                    for (let i: number = 0; i < edges.length; i++) {
-                        let item: INavigationElement = this.elements[edges[i].data.direction];
+                    for (let edge of edges) {
+                        let item: INavigationElement = this.elements[edge.data.direction];
                         if (item == null) {
                             continue;
                         }

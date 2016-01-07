@@ -38,8 +38,8 @@ export class StateContext2 implements IStateContext2 {
     }
 
     public appendNodes(nodes: Node[]): void {
-        for (let i: number = 0; i < nodes.length; i++) {
-            this.trajectory.push(nodes[i]);
+        for (let node of nodes) {
+            this.trajectory.push(node);
         }
     }
 }

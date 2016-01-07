@@ -70,8 +70,7 @@ export class Viewer {
         this.navigator = new Navigator(clientId);
         this.container = this.setupContainer(id);
 
-        for (let i: number = 0; i < this.options.uis.length; i++) {
-            let name: string = this.options.uis[i];
+        for (let name of this.options.uis) {
             let ui: IUI = new UI.uis[name](this.container, this.navigator);
             this.addUI(name, ui);
         }

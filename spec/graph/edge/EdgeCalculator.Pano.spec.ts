@@ -94,9 +94,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
 
-        for (let i: number = 0; i < panoEdges.length; i++) {
-            let panoEdge: IEdge = panoEdges[i];
-
+        for (let panoEdge of panoEdges) {
             expect(panoEdge.data.direction === EdgeConstants.Direction.PANO).toBe(false);
         }
     });
@@ -313,13 +311,9 @@ describe("EdgeCalculator.computePanoEdges", () => {
             potentialEdge4.apiNavImIm.key
         ];
 
-        for (let i: number = 0; i < keys.length; i++) {
-            let key: string = keys[i];
-
+        for (let key of keys) {
             let edge: IEdge = null;
-            for (let j: number = 0; j < panoEdges.length; j++) {
-                let panoEdge: IEdge = panoEdges[j];
-
+            for (let panoEdge of panoEdges) {
                 if (panoEdge.to === key) {
                     edge = panoEdge;
                 }
@@ -346,13 +340,9 @@ describe("EdgeCalculator.computePanoEdges", () => {
             potentialEdge3.apiNavImIm.key
         ];
 
-        for (let i: number = 0; i < keys.length; i++) {
-            let key: string = keys[i];
-
+        for (let key of keys) {
             let edge: IEdge = null;
-            for (let j: number = 0; j < panoEdges.length; j++) {
-                let panoEdge: IEdge = panoEdges[j];
-
+            for (let panoEdge of panoEdges) {
                 if (panoEdge.to === key) {
                     edge = panoEdge;
                 }
@@ -775,9 +765,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         expect(panoEdges.length).toBe(4);
 
-        for (let i: number = 0; i < panoEdges.length; i++) {
-            let panoEdge: IEdge = panoEdges[i];
-
+        for (let panoEdge of panoEdges) {
             if (panoEdge.to === potentialEdge1.apiNavImIm.key) {
                 expect(panoEdge.data.direction).toBe(EdgeConstants.Direction.STEP_FORWARD);
             } else if (panoEdge.to === potentialEdge2.apiNavImIm.key) {

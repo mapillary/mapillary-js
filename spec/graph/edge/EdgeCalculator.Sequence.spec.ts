@@ -80,9 +80,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
 
         expect(sequenceEdges.length).toBe(2);
 
-        for (let i: number = 0; i < sequenceEdges.length; i++) {
-            let sequenceEdge: IEdge = sequenceEdges[i];
-
+        for (let sequenceEdge of sequenceEdges) {
             if (sequenceEdge.to === prevKey) {
                 expect(sequenceEdge.data.direction).toBe(EdgeConstants.Direction.PREV);
             } else if (sequenceEdge.to === nextKey) {
