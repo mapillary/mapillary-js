@@ -71,7 +71,7 @@ export class Viewer {
         this.container = this.setupContainer(id);
 
         for (let name of this.options.uis) {
-            let ui: IUI = new UI.uis[name](this.container, this.navigator);
+            let ui: IUI = UI.get(name, this.container, this.navigator);
             this.addUI(name, ui);
         }
 

@@ -4,7 +4,7 @@ import {InitializationMapillaryError} from "../Error";
 
 export class UI {
 
-    public static uis: {[key: string]: new (c: HTMLElement, n: Navigator) => IUI } = {};
+    private static uis: {[key: string]: new (c: HTMLElement, n: Navigator) => IUI } = {};
 
     public static initialize(): void {
         UI.add("none", NoneUI);
@@ -21,6 +21,10 @@ export class UI {
         }
 
         UI.uis[name] = ui;
+    }
+
+    public static get(name: string, c: HTMLElement, n: Navigator): IUI {
+        return new UI.uis[name](c, n);
     }
 }
 
