@@ -128,7 +128,7 @@ export class Graph {
             return {
                 from: outEdge.v,
                 to: outEdge.w,
-                data: <IEdgeData>edge
+                data: <IEdgeData>edge,
             };
         });
     }
@@ -273,7 +273,7 @@ export class Graph {
             this.referenceLatLonAlt = {
                 alt: alt,
                 lat: latLon.lat,
-                lon: latLon.lon
+                lon: latLon.lon,
             };
         }
 

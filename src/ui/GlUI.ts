@@ -86,16 +86,16 @@ export class GlUI implements IUI {
             uniforms: {
                 opacity: {
                     type: "f",
-                    value: 1
+                    value: 1,
                 },
                 projectorMat: {
                     type: "m4",
-                    value: projectorMat
+                    value: projectorMat,
                 },
                 projectorTex: {
                     type: "t",
-                    value: null
-                }
+                    value: null,
+                },
             },
             vertexShader: Shaders.perspective.vertex,
             fragmentShader: Shaders.perspective.fragment,

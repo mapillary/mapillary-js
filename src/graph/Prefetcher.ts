@@ -57,7 +57,7 @@ export class Prefetcher {
     private addToCache(hkey: string, data: IAPINavIm): void {
         let hash: IHash = {
             data: data,
-            lastUsed: new Date
+            lastUsed: new Date,
         };
 
         this.hashes[hkey] = hash;

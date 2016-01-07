@@ -10,7 +10,7 @@ import
     IPotentialEdge,
     EdgeCalculatorSettings,
     EdgeCalculatorDirections,
-    EdgeCalculatorCoefficients
+    EdgeCalculatorCoefficients,
 } from "../../Edge";
 import {Spatial} from "../../Geo";
 
@@ -128,7 +128,7 @@ export class EdgeCalculator {
                 sameSequence: sameSequence,
                 sameMergeCc: sameMergeCc,
                 fullPano: potential.fullPano,
-                apiNavImIm: potential.apiNavImIm
+                apiNavImIm: potential.apiNavImIm,
             };
 
             potentialEdges.push(potentialEdge);
@@ -152,8 +152,8 @@ export class EdgeCalculator {
                 to: nextKey,
                 data: {
                     direction: EdgeConstants.Direction.NEXT,
-                    worldMotionAzimuth: Number.NaN
-                }
+                    worldMotionAzimuth: Number.NaN,
+                },
             });
         }
 
@@ -164,8 +164,8 @@ export class EdgeCalculator {
                 to: prevKey,
                 data: {
                     direction: EdgeConstants.Direction.PREV,
-                    worldMotionAzimuth: Number.NaN
-                }
+                    worldMotionAzimuth: Number.NaN,
+                },
             });
         }
 
@@ -256,8 +256,8 @@ export class EdgeCalculator {
                     to: edge.apiNavImIm.key,
                     data: {
                         direction: step.direction,
-                        worldMotionAzimuth: edge.worldMotionAzimuth
-                    }
+                        worldMotionAzimuth: edge.worldMotionAzimuth,
+                    },
                 });
             }
         }
@@ -342,8 +342,8 @@ export class EdgeCalculator {
                     to: edge.apiNavImIm.key,
                     data: {
                         direction: turn.direction,
-                        worldMotionAzimuth: edge.worldMotionAzimuth
-                    }
+                        worldMotionAzimuth: edge.worldMotionAzimuth,
+                    },
                 });
             }
         }
@@ -394,9 +394,9 @@ export class EdgeCalculator {
             to: edge.apiNavImIm.key,
             data: {
                 direction: EdgeConstants.Direction.PANO,
-                worldMotionAzimuth: edge.worldMotionAzimuth
-            }
-        }];
+                worldMotionAzimuth: edge.worldMotionAzimuth,
+            },
+        }, ];
     }
 
     /**
@@ -451,8 +451,8 @@ export class EdgeCalculator {
                     to: edge.apiNavImIm.key,
                     data: {
                         direction: rotation.direction,
-                        worldMotionAzimuth: edge.worldMotionAzimuth
-                    }
+                        worldMotionAzimuth: edge.worldMotionAzimuth,
+                    },
                 });
             }
         }
@@ -567,8 +567,8 @@ export class EdgeCalculator {
                     to: edge.apiNavImIm.key,
                     data: {
                         direction: EdgeConstants.Direction.PANO,
-                        worldMotionAzimuth: edge.worldMotionAzimuth
-                    }
+                        worldMotionAzimuth: edge.worldMotionAzimuth,
+                    },
                 });
             } else {
                 stepAngles.push(rotation);
@@ -650,8 +650,8 @@ export class EdgeCalculator {
                         to: edge[1].apiNavImIm.key,
                         data: {
                             direction: edge[0],
-                            worldMotionAzimuth: edge[1].worldMotionAzimuth
-                        }
+                            worldMotionAzimuth: edge[1].worldMotionAzimuth,
+                        },
                     });
                 }
             }
