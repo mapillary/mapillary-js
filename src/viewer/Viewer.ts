@@ -73,7 +73,7 @@ export class Viewer {
 
         for (let i: number = 0; i < this.options.uis.length; i++) {
             let name: string = this.options.uis[i];
-            let ui: IUI = UI.uis[name](this.container, this.navigator);
+            let ui: IUI = new UI.uis[name](this.container, this.navigator);
             this.addUI(name, ui);
         }
 
