@@ -12,6 +12,8 @@ import {CacheBot, IBot} from "../Bot";
 
 export class Viewer {
 
+    private static testUis: {[key: string]: (container: HTMLElement, navigator: Navigator) => IUI } = {};
+
     /**
      * Current active and used ui
      * @member Mapillary.Viewer#ui
@@ -70,43 +72,12 @@ export class Viewer {
 
         this.uis = {};
         this.navigator = new Navigator(clientId);
+        this.container = this.setupContainer(id);
 
-        // fixme unuglify these switches
-        if (_.indexOf(this.options.uis, "cover") !== -1 ||
-            _.indexOf(this.options.uis, "simple") !== -1 ||
-            _.indexOf(this.options.uis, "gl") !== -1 ||
-            _.indexOf(this.options.uis, "simplenav") !== -1) {
-            this.container = this.setupContainer(id);
-
-            if (_.indexOf(this.options.uis, "cover") !== -1) {
-                let coverUI: CoverUI = new CoverUI(this.container);
-                this.addUI("cover", coverUI);
-            }
-
-            if (_.indexOf(this.options.uis, "simple") !== -1) {
-                let simpleUI: SimpleUI = new SimpleUI(this.container, this.navigator);
-                this.addUI("simple", simpleUI);
-            }
-
-            if (_.indexOf(this.options.uis, "gl") !== -1) {
-                let glUI: GlUI = new GlUI(this.container, this.navigator.state);
-                this.addUI("gl", glUI);
-            }
-
-            if (_.indexOf(this.options.uis, "keyboard") !== -1) {
-                let keyboardUI: KeyboardUI = new KeyboardUI(this.container, this.navigator);
-                this.addUI("keyboard", keyboardUI);
-            }
-
-            if (_.indexOf(this.options.uis, "simplenav") !== -1) {
-                let simpleNavUI: SimpleNavUI = new SimpleNavUI(this.container, this.navigator);
-                this.addUI("simplenav", simpleNavUI);
-            }
-        }
-
-        if (_.indexOf(this.options.uis, "none") !== -1) {
-            let noneUI: NoneUI = new NoneUI();
-            this.addUI("none", noneUI);
+        for (let i: number = 0; i < this.options.uis.length; i++) {
+            let name: string = this.options.uis[i];
+            let ui: IUI = Viewer.testUis[name](this.container, this.navigator);
+            this.addUI(name, ui);
         }
 
         this.activeUis = {};
@@ -124,6 +95,23 @@ export class Viewer {
         }
 
         this.activateBot(new CacheBot());
+    }
+
+    public static initialize(): void {
+        Viewer.addUI("cover", (c: HTMLElement, n: Navigator): IUI => { return new CoverUI(c); });
+        Viewer.addUI("simple", (c: HTMLElement, n: Navigator): IUI => { return new SimpleUI(c, n); });
+        Viewer.addUI("gl", (c: HTMLElement, n: Navigator): IUI => { return new GlUI(c, n.state); });
+        Viewer.addUI("keyboard", (c: HTMLElement, n: Navigator): IUI => { return new KeyboardUI(c, n); });
+        Viewer.addUI("simplenav", (c: HTMLElement, n: Navigator): IUI => { return new SimpleNavUI(c, n); });
+        Viewer.addUI("none", (c: HTMLElement, n: Navigator): IUI => { return new NoneUI(); });
+    }
+
+    public static addUI(name: string, ctorFunc: (container: HTMLElement, navigator: Navigator) => IUI): void {
+        if (name in Viewer.testUis) {
+            throw new InitializationMapillaryError();
+        }
+
+        Viewer.testUis[name] = ctorFunc;
     }
 
     /**
@@ -203,6 +191,12 @@ export class Viewer {
         element.classList.add("mapillary-js");
         return element;
     }
+}
+
+export namespace Viewer {
+    "use strict";
+
+    Viewer.initialize();
 }
 
 export default Viewer;
