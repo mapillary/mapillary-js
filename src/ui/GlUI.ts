@@ -2,7 +2,8 @@
 
 import * as THREE from "three";
 import {IUI, Shaders} from "../UI";
-import {StateContext, IStateWrapper} from "../State";
+import {Navigator} from "../Viewer";
+import {IStateWrapper} from "../State";
 
 export class GlUI implements IUI {
     private renderer: THREE.WebGLRenderer;
@@ -12,7 +13,7 @@ export class GlUI implements IUI {
 
     private currentKey: string;
 
-    constructor (container: HTMLElement, state: StateContext) {
+    constructor (container: HTMLElement, navigator: Navigator) {
         this.renderer = new THREE.WebGLRenderer();
 
         let width: number = container.offsetWidth;
@@ -30,7 +31,7 @@ export class GlUI implements IUI {
 
         this.renderer.render(this.scene, this.camera);
 
-        state.register(this.onStateUpdated.bind(this));
+        navigator.state.register(this.onStateUpdated.bind(this));
     }
 
     public activate(): void {

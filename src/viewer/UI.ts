@@ -9,7 +9,7 @@ export class UI {
     public static initialize(): void {
         UI.add("cover", (c: HTMLElement, n: Navigator): IUI => { return new CoverUI(c); });
         UI.add("simple", (c: HTMLElement, n: Navigator): IUI => { return new SimpleUI(c, n); });
-        UI.add("gl", (c: HTMLElement, n: Navigator): IUI => { return new GlUI(c, n.state); });
+        UI.add("gl", (c: HTMLElement, n: Navigator): IUI => { return new GlUI(c, n); });
         UI.add("keyboard", (c: HTMLElement, n: Navigator): IUI => { return new KeyboardUI(c, n); });
         UI.add("simplenav", (c: HTMLElement, n: Navigator): IUI => { return new SimpleNavUI(c, n); });
         UI.add("none", (c: HTMLElement, n: Navigator): IUI => { return new NoneUI(); });
