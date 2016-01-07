@@ -36,7 +36,7 @@
     "gulp-tslint": "3.5.0",
     "gulp-typescript": "2.9.2",
     "jasmine-core": "2.3.4",
-    "karma": "0.13.15",
+    "karma": "^0.13.19",
     "karma-browserify": "4.4.1",
     "karma-chrome-launcher": "0.2.1",
     "karma-firefox-launcher": "0.1.7",
