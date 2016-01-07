@@ -13,7 +13,7 @@ import {CacheBot, IBot} from "../Bot";
 export class Viewer {
     /**
      * Current active and used ui
-     * @member Mapillary.Viewer#ui
+     * @member Mapillary.Viewer#
      * @public
      * @type {{[key: string]: IUI}}
      */
@@ -56,12 +56,11 @@ export class Viewer {
     private options: IViewerOptions;
 
     /**
-     * Initializes a Mapillary viewer
-     * @class Mapillary.Viewer
-     * @classdesc A Viewer for viewing Mapillary Street Level Imagery
-     * @param {string} id of element to transform into viewer
-     * @param {string} clientId for Mapillary API
-     * @param {IViewerOptions} Options for the viewer
+     * Creates a viewer instance
+     * @class Viewer
+     * @param {string} id - `id` of an DOM element which will be transformed into the viewer
+     * @param {string} clientId -  Mapillary API Client ID
+     * @param {IViewerOptions} options - Like `imageKey`, etc.
      */
     constructor (id: string, clientId: string, options: IViewerOptions) {
         let optionsParser: OptionsParser = new OptionsParser();
@@ -96,8 +95,8 @@ export class Viewer {
 
     /**
      * Activate an ui (means disabling current ui)
-     * @method Mapillary.Viewer#activateUI
-     * @param {IActivatableUI} activate ui on viewer
+     * @method
+     * @param {string} name - UI on viewer
      */
     public activateUI(name: string): void {
         if (!(name in this.uis)) {
@@ -107,13 +106,19 @@ export class Viewer {
         this.activeUis[name] = this.uis[name];
     }
 
+
+    /**
+     * Activate a Bot
+     * @method
+     * @param {IBot} bot - Bot which will be activated
+     */
     public activateBot(bot: IBot): void {
         bot.activate(this.navigator);
     }
 
     /**
      * Add ui to the viewer
-     * @method Mapillary.Viewer#addUI
+     * @method
      * @param {IActivatableUI} add ui to viewer
      */
     public addUI(name: string, ui: IUI): void {
@@ -121,10 +126,11 @@ export class Viewer {
     }
 
     /**
-     * Move to an image key
-     * @method Mapillary.Viewer#moveToKey
-     * @param {string} key Mapillary image key to move to
+     * Move to a photo key
+     * @method
+     * @param {string} key Mapillary photo key to move to
      * @throws {ParamaterMapillaryError} If no key is provided
+     * @return {Promise}
      */
     public moveToKey(key: string): when.Promise<Node> {
         if (key == null) {
@@ -138,9 +144,9 @@ export class Viewer {
     }
 
     /**
-     * Move in a direction
-     * @method Mapillary.Viewer#moveToLngLat
-     * @param {LatLng} latLng FIXME
+     * Move in a given direction
+     * @method
+     * @param {Direction} dir - Direction towards which to move
      */
     public moveDir(dir: EdgeConstants.Direction): when.Promise<Node> {
         if (dir < 0 || dir >= 13) {
@@ -153,6 +159,13 @@ export class Viewer {
         });
     }
 
+    /**
+     * Move close to given latitude and longitude
+     * @method
+     * @param {Number} lat - Latitude
+     * @param {Number} lon - Longitude
+     * @return {Promise}
+     */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
         return when.promise((resolve: (value: any) => void, reject: (reason: any) => void): void => {
             this.navigator.moveCloseTo(lat, lon).first().subscribe((node: Node) => {
@@ -174,3 +187,40 @@ export class Viewer {
 }
 
 export default Viewer;
+
+
+/**
+ * Move end event.
+ *
+ * @event moveend
+ * @memberof Viewer
+ * @type {Object}
+ * @property {TODO} TODO
+ */
+
+/**
+ * Move start event.
+ *
+ * @event movestart
+ * @memberof Viewer
+ * @type {Object}
+ * @property {TODO} TODO
+ */
+
+/**
+ * Node change event
+ *
+ * @event nodechange
+ * @memberof Viewer
+ * @type {Object}
+ * @property {TODO} TODO
+ */
+
+/**
+ * Load event
+ *
+ * @event load
+ * @memberof Viewer
+ * @type {Object}
+ * @property {TODO} TODO
+ */
