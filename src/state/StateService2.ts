@@ -1,46 +1,9 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
-/// <reference path="../../typings/lib/lib.d.ts" />
 
 import * as rx from "rx";
 
 import {Node} from "../Graph";
-
-class FrameHelper {
-    private _requestAnimationFrame: (callback: FrameRequestCallback) => number;
-    private _cancelAnimationFrame: (id: number) => void;
-
-    constructor() {
-        if (window.requestAnimationFrame) {
-            this._requestAnimationFrame = window.requestAnimationFrame;
-            this._cancelAnimationFrame = window.cancelAnimationFrame;
-        } else if (window.mozRequestAnimationFrame) {
-            this._requestAnimationFrame = window.mozRequestAnimationFrame;
-            this._cancelAnimationFrame = window.mozCancelAnimationFrame;
-        } else if (window.webkitRequestAnimationFrame) {
-            this._requestAnimationFrame = window.webkitRequestAnimationFrame;
-            this._cancelAnimationFrame = window.webkitCancelAnimationFrame;
-        } else if (window.msRequestAnimationFrame) {
-            this._requestAnimationFrame = window.msRequestAnimationFrame;
-            this._cancelAnimationFrame = window.msCancelRequestAnimationFrame;
-        } else if (window.oRequestAnimationFrame) {
-            this._requestAnimationFrame = window.oRequestAnimationFrame;
-            this._cancelAnimationFrame = window.oCancelAnimationFrame;
-        } else {
-            this._requestAnimationFrame = (callback: FrameRequestCallback): number => {
-                return window.setTimeout(callback, 1000 / 60);
-            };
-            this._cancelAnimationFrame = window.clearTimeout;
-        }
-    }
-
-    public requestAnimationFrame(callback: FrameRequestCallback): number {
-        return this._requestAnimationFrame.call(window, callback);
-    }
-
-    public cancelAnimationFrame(id: number): void {
-        this._cancelAnimationFrame.call(window, id);
-    }
-}
+import {FrameGenerator} from "../State";
 
 export interface ICurrentState2 {
     previous: Node;
@@ -86,15 +49,15 @@ export class StateService2 {
 
     private context: IStateContext2;
 
-    private frameHelper: FrameHelper;
+    private frameGenerator: FrameGenerator;
     private frameId: number;
 
     constructor () {
         this.context = new StateContext2();
         this.currentStateSubject = new rx.BehaviorSubject<ICurrentState2>(this.context);
 
-        this.frameHelper = new FrameHelper();
-        this.frameHelper.requestAnimationFrame(this.frame.bind(this));
+        this.frameGenerator = new FrameGenerator();
+        this.frameGenerator.requestAnimationFrame(this.frame.bind(this));
     }
 
     public get currentState(): rx.Observable<ICurrentState2> {
@@ -102,7 +65,7 @@ export class StateService2 {
     }
 
     public dispose(): void {
-        this.frameHelper.cancelAnimationFrame(this.frameId);
+        this.frameGenerator.cancelAnimationFrame(this.frameId);
     }
 
     public appendNodes(nodes: Node[]): void {
@@ -110,7 +73,7 @@ export class StateService2 {
     }
 
     private frame(time: number): void {
-        this.frameId = this.frameHelper.requestAnimationFrame(this.frame.bind(this));
+        this.frameId = this.frameGenerator.requestAnimationFrame(this.frame.bind(this));
 
         this.context.update();
 
