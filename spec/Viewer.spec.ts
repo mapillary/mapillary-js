@@ -12,6 +12,8 @@ describe("Viewer", () => {
     var viewer: Viewer;
 
     beforeEach(() => {
+        spyOn(document, 'getElementById').and.callFake(() => { return document.createElement('div'); });
+
         viewer = new Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", {uis: ["none"], uiList: ["none"]})
     });
 
