@@ -1,6 +1,6 @@
 import {IUI, NoneUI, CoverUI, KeyboardUI, SimpleNavUI, SimpleUI, GlUI} from "../UI";
 import {Navigator} from "../Viewer";
-import {InitializationMapillaryError} from "../Error";
+import {ParameterMapillaryError} from "../Error";
 
 export class UI {
 
@@ -17,13 +17,17 @@ export class UI {
 
     public static add(name: string, ui: new (c: HTMLElement, n: Navigator) => IUI): void {
         if (name in UI.uis) {
-            throw new InitializationMapillaryError();
+            throw new ParameterMapillaryError("Name already exist in UI dictionary.");
         }
 
         UI.uis[name] = ui;
     }
 
     public static get(name: string, c: HTMLElement, n: Navigator): IUI {
+        if (!(name in UI.uis)) {
+            throw new ParameterMapillaryError("Name does not exist in UI dictionary.");
+        }
+
         return new UI.uis[name](c, n);
     }
 }
