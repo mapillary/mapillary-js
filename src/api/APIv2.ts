@@ -9,9 +9,10 @@ export class APIv2 {
 
    /**
     * Initializes an endpoint to the Mapillary API
-    * @class Mapillary.API
+    *
+    * @class API
     * @classdesc An endpoint for the Mapillary API
-    * @param {string} clientId for Mapillary API
+    * @param {string} clientId - Mapillary API Client ID
     */
     constructor (clientId: string) {
         this.clientId = clientId;

@@ -21,6 +21,13 @@ export class EdgeCalculator {
     private directions: EdgeCalculatorDirections;
     private coefficients: EdgeCalculatorCoefficients;
 
+    /**
+     * @class
+     * @param {EdgeCalculatorSettings} settings?
+     * @param {EdgeCalculatorDirections} directions?
+     * @param {EdgeCalculatorCoefficients} coefficients?
+     */
+
     constructor(
         settings?: EdgeCalculatorSettings,
         directions?: EdgeCalculatorDirections,

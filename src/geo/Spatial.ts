@@ -4,6 +4,10 @@ import * as THREE from "three";
 
 export class Spatial {
 
+    /**
+     * @class Spatial
+     */
+
     private epsilon: number = 1e-9;
 
     /**

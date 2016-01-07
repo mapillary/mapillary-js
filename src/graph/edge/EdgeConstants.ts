@@ -2,6 +2,11 @@ export namespace EdgeConstants {
     "use strict";
 
     export enum Direction {
+        /** Enumeration for directions
+         * @enum {string}
+         * @readonly
+         */
+
         NEXT,
         PREV,
         STEP_LEFT,

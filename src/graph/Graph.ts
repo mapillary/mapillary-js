@@ -29,6 +29,10 @@ export class Graph {
     private spatialLib: Spatial;
     private geoCoords: GeoCoords;
 
+    /**
+     * Creates a graph instance
+     * @class Graph
+     */
     constructor () {
         this.sequences = [];
         this.sequenceHash = {};
@@ -40,6 +44,10 @@ export class Graph {
         this.geoCoords = new GeoCoords();
     }
 
+    /**
+     * Add nodes from an API call
+     * @param {IAPINavIm} data - todo
+     */
     public addNodesFromAPI(data: IAPINavIm): void {
         if (data === undefined) {
             return;
@@ -97,10 +105,20 @@ export class Graph {
         this.insertSequences(sequences);
     }
 
+    /**
+     * Get node from valid `key`
+     * @param {string} key - valid Mapillary photo key
+     * @return {Node}
+     */
     public getNode(key: string): Node {
         return this.graph.node(key);
     }
 
+    /**
+     * Get edges for the given node
+     * @param {Node} node - The node
+     * @return {IEdge}
+     */
     public getEdges(node: Node): IEdge[] {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
@@ -115,6 +133,10 @@ export class Graph {
         });
     }
 
+    /**
+     * Cache given node
+     * @param {Node} node - Node to be cached
+     */
     public cacheNode(node: Node): void {
         this.computeEdges(node);
         node.cached = true;
@@ -122,6 +144,9 @@ export class Graph {
         this.cachedNodes[node.key] = true;
     }
 
+    /**
+     * Clear node cache
+     */
     public evictNodeCache(): void {
         if (Object.keys(this.cachedNodes).length < 30) {
             // no cleaning of cache
@@ -131,11 +156,20 @@ export class Graph {
         return;
     }
 
+    /**
+     * Clear cache for the given node
+     * @param {Node} node - Node which cache will be cleared
+     */
     public unCacheNode(node: Node): void {
         delete this.cachedNodes[node.key];
         node.lastCacheEvict = new Date().getTime();
     }
 
+    /**
+     * Compute edges for the given node
+     * @param {Node} node
+     * @return {boolean}
+     */
     public computeEdges(node: Node): boolean {
         if (!node.worthy) {
             return false;
@@ -172,18 +206,30 @@ export class Graph {
         return true;
     }
 
+    /**
+     * Insert given nodes
+     * @param {Node[]}
+     */
     public insertNodes(nodes: Node[]): void {
         _.each(nodes, (node: Node) => {
             this.insertNode(node);
         });
     }
 
+    /**
+     * Insert given sequences
+     * @param {Sequence[]}
+     */
     public insertSequences(sequences: Sequence[]): void {
         this.sequences = _.uniq(this.sequences.concat(sequences), (sequence: Sequence): string => {
             return sequence.key;
         });
     }
 
+    /**
+     * Insert node
+     * @param {Node} node
+     */
     public insertNode(node: Node): void {
         if (this.getNode(node.key) != null) {
             return;
@@ -192,6 +238,12 @@ export class Graph {
         this.graph.setNode(node.key, node);
     }
 
+    /**
+     * Find next node in the graph
+     * @param {Node} node
+     * @param {Direction} dir
+     * @return {Node}
+     */
     public nextNode(node: Node, dir: EdgeConstants.Direction): Node {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
@@ -208,6 +260,12 @@ export class Graph {
         return null;
     }
 
+    /**
+     * Compute translation
+     * @param {IAPINavImIm} im
+     * @param {ILatLon} latLon
+     * @return {number}
+     */
     public computeTranslation(im: IAPINavImIm, latLon: ILatLon): number[] {
         let alt: number = im.calt == null ? this.defaultAlt : im.calt;
 
@@ -232,6 +290,11 @@ export class Graph {
         return [-RC.x, -RC.y, -RC.z];
     }
 
+    /**
+     * Add edges to given node
+     * @param {Node} node
+     * @param {IEdge[]} edges
+     */
     private addEdgesToNode(node: Node, edges: IEdge[]): void {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
