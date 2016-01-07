@@ -37,7 +37,7 @@ var config = {
 
 gulp.task('clean', function () {
   return del([
-    'html-documentation',
+    'docs/ts/**/*',
     'build/**/*',
     'debug/**/*.js'
   ])
@@ -47,13 +47,13 @@ gulp.task('ts-for-documentation', function () {
   var tsProject = ts.createProject('tsconfig.json')
   return gulp.src('src/**/*.ts')
    .pipe(ts(tsProject))
-   .pipe(gulp.dest('html-documentation'))
+   .pipe(gulp.dest('build/docs/ts'))
 })
 
 gulp.task('documentation', ['ts-for-documentation'], function () {
-  gulp.src('./html-documentation/Mapillary.js')
+  gulp.src('./build/docs/ts/Mapillary.js')
     .pipe(documentation({ format: 'html' }))
-    .pipe(gulp.dest('html-documentation'))
+    .pipe(gulp.dest('docs'))
 })
 
 gulp.task('js-lint', function () {
@@ -129,7 +129,7 @@ gulp.task('typescript-src', function () {
 })
 
 gulp.task('watch', [], function () {
-  gulp.watch([paths.ts.src, paths.ts.tests], ['ts'])
+  gulp.watch([paths.ts.src, paths.ts.tests], ['ts', 'documentation'])
 })
 
 gulp.task('default', ['serve', 'watch'])
