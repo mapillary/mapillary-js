@@ -14,8 +14,7 @@ export interface ICurrentState2 {
 
 interface IStateContext2 extends ICurrentState2 {
     update(): void;
-
-    appendNodes(nodes: Node[]): void;
+    append(nodes: Node[]): void;
 }
 
 export class StateContext2 implements IStateContext2 {
@@ -37,7 +36,7 @@ export class StateContext2 implements IStateContext2 {
         this.alpha += 1;
     }
 
-    public appendNodes(nodes: Node[]): void {
+    public append(nodes: Node[]): void {
         for (let node of nodes) {
             this.trajectory.push(node);
         }
@@ -64,12 +63,19 @@ export class StateService2 {
         return this.currentStateSubject;
     }
 
+    public get currentNode(): rx.Observable<Node> {
+        return this.currentStateSubject
+            .map<Node>((c: ICurrentState2): Node => { return c.current; })
+            .filter((n: Node): boolean => { return n != null; })
+            .distinctUntilChanged();
+    }
+
     public dispose(): void {
         this.frameGenerator.cancelAnimationFrame(this.frameId);
     }
 
     public appendNodes(nodes: Node[]): void {
-        this.context.appendNodes(nodes);
+        this.context.append(nodes);
     }
 
     private frame(time: number): void {
