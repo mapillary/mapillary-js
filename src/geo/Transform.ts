@@ -1,0 +1,54 @@
+/// <reference path="../../typings/threejs/three.d.ts" />
+
+import * as THREE from "three";
+
+import {IGPano} from "../API";
+import {Node} from "../Graph";
+
+export class Transform {
+    public rt: THREE.Matrix4;
+    public srt: THREE.Matrix4;
+    public width: number;
+    public height: number;
+    public focal: number;
+    public orientation: number;
+    public scale: number;
+    public gpano: IGPano;
+
+    constructor(node: Node) {
+        this.rt = this.getRt(node);
+        this.srt = this.getSrt(this.rt, node);
+    }
+
+    private getRt(node: Node): THREE.Matrix4 {
+        let axis: THREE.Vector3 = new THREE.Vector3(
+            node.apiNavImIm.rotation[0],
+            node.apiNavImIm.rotation[1],
+            node.apiNavImIm.rotation[2]);
+
+        let angle: number = axis.length();
+        axis.normalize();
+        let rt: THREE.Matrix4 = new THREE.Matrix4();
+        rt.makeRotationAxis(axis, angle);
+        rt.setPosition(new THREE.Vector3(
+            node.translation[0],
+            node.translation[1],
+            node.translation[2]));
+
+        return rt;
+    }
+
+    private getSrt(rt: THREE.Matrix4, node: Node): THREE.Matrix4 {
+        let srt: THREE.Matrix4 = rt.clone();
+        let scale: number = node.apiNavImIm.atomic_scale;
+
+        let elements: Float32Array = srt.elements;
+        elements[12] = scale * elements[12];
+        elements[13] = scale * elements[13];
+        elements[14] = scale * elements[14];
+
+        srt.scale(new THREE.Vector3(scale, scale, scale));
+
+        return srt;
+    }
+}
