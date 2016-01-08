@@ -5,10 +5,74 @@ import * as rx from "rx";
 import {Node} from "../Graph";
 import {FrameGenerator} from "../State";
 
-export interface ICurrentState2 {
-    previous: Node;
-    current: Node;
+export interface IState {
     alpha: number;
+    currentNode: Node;
+    previousNode: Node;
+    trajectory: Node[];
+
+    update(): void;
+    append(nodes: Node[]): void;
+}
+
+export class CompletingState2 implements IState {
+    private _alpha: number;
+    private _animationSpeed: number;
+
+    private _trajectory: Node[];
+
+    private _currentIndex: number;
+    private _currentNode: Node;
+    private _previousNode: Node;
+
+    constructor (trajectory: Node[]) {
+        this._alpha = 0;
+        this._animationSpeed = 0.025;
+
+        this._trajectory = trajectory.slice();
+
+        this._currentIndex = 0;
+        this._currentNode = trajectory.length > 0 ? trajectory[this._currentIndex] : null;
+        this._previousNode = null;
+    }
+
+    public append(trajectory: Node[]): void {
+        this._trajectory = this._trajectory.concat(trajectory);
+    }
+
+    public update(): void {
+        if (this._alpha === 1 && this._currentIndex + this._alpha < this._trajectory.length) {
+            this._alpha = 0;
+
+            this._currentIndex += 1;
+            this._currentNode = this._trajectory[this._currentIndex];
+            this._previousNode = this._trajectory[this._currentIndex - 1];
+        }
+
+        this._alpha = Math.min(1, this._alpha + this._animationSpeed);
+    }
+
+    public get alpha(): number {
+        return this._alpha;
+    }
+
+    public get currentNode(): Node {
+        return this._currentNode;
+    }
+
+    public get previousNode(): Node {
+        return this._previousNode;
+    }
+
+    public get trajectory(): Node[] {
+        return this._trajectory;
+    }
+}
+
+export interface ICurrentState2 {
+    alpha: number;
+    currentNode: Node;
+    previousNode: Node;
     trajectory: Node[];
 }
 
@@ -18,28 +82,34 @@ interface IStateContext2 extends ICurrentState2 {
 }
 
 export class StateContext2 implements IStateContext2 {
-    public previous: Node;
-    public current: Node;
-    public trajectory: Node[];
-
-    public alpha: number;
+    private state: IState;
 
     constructor() {
-        this.previous = null;
-        this.current = null;
-        this.trajectory = [];
+        this.state = new CompletingState2([]);
+    }
 
-        this.alpha = 0;
+    public get alpha(): number {
+        return this.state.alpha;
+    }
+
+    public get currentNode(): Node {
+        return this.state.currentNode;
+    }
+
+    public get previousNode(): Node {
+        return this.state.previousNode;
+    }
+
+    public get trajectory(): Node[] {
+        return this.state.trajectory;
     }
 
     public update(): void {
-        this.alpha += 1;
+        this.state.update();
     }
 
     public append(nodes: Node[]): void {
-        for (let node of nodes) {
-            this.trajectory.push(node);
-        }
+        this.state.append(nodes);
     }
 }
 
@@ -65,7 +135,7 @@ export class StateService2 {
 
     public get currentNode(): rx.Observable<Node> {
         return this.currentStateSubject
-            .map<Node>((c: ICurrentState2): Node => { return c.current; })
+            .map<Node>((c: ICurrentState2): Node => { return c.currentNode; })
             .filter((n: Node): boolean => { return n != null; })
             .distinctUntilChanged();
     }
