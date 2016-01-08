@@ -23,6 +23,18 @@ export class CompletingState implements IState {
     }
 
     public append(trajectory: Node[]): void {
+        if (trajectory.length < 1) {
+            throw Error("Trajectory can not be empty");
+        }
+
+        if (this._trajectory.length === 0) {
+            this._alpha = 0;
+
+            this._currentIndex = 0;
+            this._currentNode = trajectory.length > 0 ? trajectory[this._currentIndex] : null;
+            this._previousNode = null;
+        }
+
         this._trajectory = this._trajectory.concat(trajectory);
     }
 
