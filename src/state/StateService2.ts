@@ -6,62 +6,20 @@ import {Node} from "../Graph";
 import {
     FrameGenerator,
     ICurrentState2,
-    IState,
-    CompletingState2,
+    IStateContext,
+    StateContext,
 } from "../State";
-
-interface IStateContext2 extends ICurrentState2 {
-    update(): void;
-    append(nodes: Node[]): void;
-    set(nodes: Node[]): void;
-}
-
-export class StateContext2 implements IStateContext2 {
-    private state: IState;
-
-    constructor() {
-        this.state = new CompletingState2([]);
-    }
-
-    public get alpha(): number {
-        return this.state.alpha;
-    }
-
-    public get currentNode(): Node {
-        return this.state.currentNode;
-    }
-
-    public get previousNode(): Node {
-        return this.state.previousNode;
-    }
-
-    public get trajectory(): Node[] {
-        return this.state.trajectory;
-    }
-
-    public update(): void {
-        this.state.update();
-    }
-
-    public append(nodes: Node[]): void {
-        this.state.append(nodes);
-    }
-
-    public set(nodes: Node[]): void {
-        this.state.set(nodes);
-    }
-}
 
 export class StateService2 {
     private currentStateSubject: rx.Subject<ICurrentState2>;
 
-    private context: IStateContext2;
+    private context: IStateContext;
 
     private frameGenerator: FrameGenerator;
     private frameId: number;
 
     constructor () {
-        this.context = new StateContext2();
+        this.context = new StateContext();
         this.currentStateSubject = new rx.BehaviorSubject<ICurrentState2>(this.context);
 
         this.frameGenerator = new FrameGenerator();
