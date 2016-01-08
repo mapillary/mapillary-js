@@ -5,16 +5,10 @@ import * as rx from "rx";
 import {Node} from "../Graph";
 import {
     FrameGenerator,
+    ICurrentState2,
     IState,
     CompletingState2,
 } from "../State";
-
-export interface ICurrentState2 {
-    alpha: number;
-    currentNode: Node;
-    previousNode: Node;
-    trajectory: Node[];
-}
 
 interface IStateContext2 extends ICurrentState2 {
     update(): void;
