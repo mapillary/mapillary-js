@@ -13,6 +13,7 @@ export class GlUI implements IUI {
     private imagePlaneOld: THREE.Mesh;
 
     private currentKey: string;
+    private previousKey: string;
 
     constructor (container: HTMLElement, navigator: Navigator) {
         this.currentKey = null;
@@ -46,23 +47,34 @@ export class GlUI implements IUI {
     }
 
     private onStateChanged(state: ICurrentState2): void {
-        if (state.currentNode != null && state.currentNode.key !== this.currentKey) {
-            this.currentKey = state.currentNode.key;
-
-            if (this.imagePlaneOld) {
-                this.scene.remove(this.imagePlaneOld);
-            }
-
-            if (this.imagePlane) {
-                this.imagePlaneOld = this.imagePlane;
-            }
-
-            this.imagePlane = this.createImagePlane(this.currentKey);
-
-            this.scene.add(this.imagePlane);
-        }
+        this.updateImagePlanes(state);
 
         this.render(state.alpha);
+    }
+
+    private updateImagePlanes(state: ICurrentState2): void {
+        if (state.currentNode == null || state.currentNode.key === this.currentKey) {
+            return;
+        }
+
+        if (this.imagePlaneOld) {
+            this.scene.remove(this.imagePlaneOld);
+            this.imagePlaneOld = null;
+        }
+
+        this.previousKey = state.previousNode != null ? state.previousNode.key : null;
+        if (this.previousKey != null) {
+            if (this.previousKey === this.currentKey) {
+                this.imagePlaneOld = this.imagePlane;
+            } else {
+                this.imagePlaneOld = this.createImagePlane(this.previousKey);
+            }
+        }
+
+        this.currentKey = state.currentNode.key;
+        this.imagePlane = this.createImagePlane(this.currentKey);
+
+        this.scene.add(this.imagePlane);
     }
 
     private render(alpha: number): void {
