@@ -5,6 +5,7 @@ import * as THREE from "three";
 
 import {Transform} from "../../src/Geo";
 import {Node} from "../../src/Graph";
+import {IGPano} from "../../src/API";
 
 describe("Transform.rt", () => {
     let epsilon: number = 10e-9;
@@ -221,5 +222,180 @@ describe("Transform.srt", () => {
         expect(elements[13]).toBe(10);
         expect(elements[14]).toBe(-15);
         expect(elements[15]).toBe(1);
+    });
+});
+
+describe("Transform.width", () => {
+    let epsilon: number = 10e-8;
+
+    it("should have fallback width", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.width).toBe(4);
+    });
+
+    it("should have width of node", () => {
+        let width: number = 11;
+
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { width: width, key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.width).toBe(width);
+    });
+});
+
+describe("Transform.height", () => {
+    let epsilon: number = 10e-8;
+
+    it("should have fallback height", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { height: -1, key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.height).toBe(3);
+    });
+
+    it("should have height of node", () => {
+        let height: number = 11;
+
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { height: height, key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.height).toBe(height);
+    });
+});
+
+describe("Transform.focal", () => {
+    let epsilon: number = 10e-8;
+
+    it("should have fallback focal", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.focal).toBe(1);
+    });
+
+    it("should have focal of node", () => {
+        let focal: number = 0.84;
+
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { cfocal: focal, key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.focal).toBe(focal);
+    });
+});
+
+describe("Transform.orientation", () => {
+    let epsilon: number = 10e-8;
+
+    it("should have fallback orientation", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.orientation).toBe(1);
+    });
+
+    it("should have orientation of node", () => {
+        let orientation: number = 3;
+
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { orientation: orientation, key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.orientation).toBe(orientation);
+    });
+});
+
+describe("Transform.scale", () => {
+    let epsilon: number = 10e-8;
+
+    it("should have fallback scale", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.orientation).toBe(1);
+    });
+
+    it("should have scale of node", () => {
+        let scale: number = 0.4;
+
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { atomic_scale: scale, key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.scale).toBe(scale);
+    });
+});
+
+describe("Transform.gpano", () => {
+    let epsilon: number = 10e-8;
+
+    it("should not have gpano set", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.gpano).toBeNull();
+    });
+
+    it("should have gpano set", () => {
+        let gpano: IGPano = {
+            CroppedAreaLeftPixels: 0,
+            CroppedAreaTopPixels: 0,
+            CroppedAreaImageWidthPixels: 1,
+            CroppedAreaImageHeightPixels: 1,
+            FullPanoWidthPixels: 1,
+            FullPanoHeightPixels: 1
+        }
+
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { gpano: gpano, key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        expect(transform.gpano).not.toBeNull();
     });
 });
