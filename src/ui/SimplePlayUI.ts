@@ -2,27 +2,25 @@
 
 import * as rx from "rx";
 
-// import {Node} from "../Graph";
-import {IBot} from "../Bot";
 import {EdgeConstants} from "../Edge";
 import {Node} from "../Graph";
 import {ICurrentState} from "../State";
-import {Navigator} from "../Viewer";
+import {IUI} from "../UI";
+import {Container, Navigator} from "../Viewer";
 
-export class SimplePlayBot implements IBot {
+export class SimplePlayUI implements IUI {
     private disposable: rx.IDisposable;
     private navigator: Navigator;
     private currentNode: Node;
     private playing: boolean;
 
-    constructor () {
+    constructor (container: Container, navigator: Navigator) {
+        this.navigator = navigator;
         this.currentNode = null;
         this.playing =  false;
     }
 
-    public activate(navigator: Navigator): void {
-        this.navigator = navigator;
-
+    public activate(): void {
         this.disposable = this.navigator.stateService.currentState.subscribe((currentState: ICurrentState) => {
             if (!this.playing) {
                 return;
@@ -58,4 +56,4 @@ export class SimplePlayBot implements IBot {
     }
 }
 
-export default SimplePlayBot;
+export default SimplePlayUI;

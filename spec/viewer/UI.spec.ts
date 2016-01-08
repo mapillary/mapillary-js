@@ -1,6 +1,6 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-import {UI, Navigator} from "../../src/Viewer";
+import {Container, Navigator, UI} from "../../src/Viewer";
 import {IUI, NoneUI} from "../../src/UI";
 
 class TestUI implements IUI {
@@ -14,23 +14,25 @@ class TestUI implements IUI {
 }
 
 describe("UI", () => {
-    var element: HTMLElement;
+    var container: Container;
     var navigator: Navigator;
 
     beforeEach(() => {
-        element = document.createElement("div");
+        spyOn(document, 'getElementById').and.callFake(() => { return document.createElement('div'); });
+
+        container = new Container("fake");
         navigator = new Navigator("clientId");
     });
 
     it("should retreive a NoneUI", () => {
-        let ui = UI.get("none", element, navigator);
+        let ui = UI.get("none", container, navigator);
 
         expect(ui instanceof NoneUI).toBeTruthy();
     });
 
     it("should throw if UI name does not exist", () => {
         expect(() => {
-            UI.get("nonexisting", element, navigator);
+            UI.get("nonexisting",  container, navigator);
         }).toThrowError("Name does not exist in UI dictionary");
     });
 
@@ -43,7 +45,7 @@ describe("UI", () => {
     it("should add and retreive a TestUI", () => {
         UI.add("test", TestUI)
 
-        let ui = UI.get("test", element, navigator);
+        let ui = UI.get("test", container, navigator);
 
         expect(ui instanceof TestUI).toBeTruthy();
     });

@@ -4,7 +4,7 @@ import * as _ from "underscore";
 import * as rx from "rx";
 
 import {Node} from "../Graph";
-import {Navigator} from "../Viewer";
+import {Container, Navigator} from "../Viewer";
 import {IUI} from "../UI";
 
 export class EventUI implements IUI {
@@ -12,13 +12,13 @@ export class EventUI implements IUI {
     private navigator: Navigator;
     private cbs: any[];
 
-    constructor(navigator: Navigator) {
+    constructor(container: Container, navigator: Navigator) {
         this.navigator = navigator;
         this.cbs = [];
     }
 
     public activate(): void {
-        this.disposable = this.navigator.stateService.currentNode.subscribe((node: Node): void => {
+        this.disposable = this.navigator.stateService2.currentNode.subscribe((node: Node): void => {
             _.map(this.cbs, (cb: any) => {
                 cb(node);
             });

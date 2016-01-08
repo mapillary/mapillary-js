@@ -6,10 +6,10 @@ import * as rx from "rx";
 
 import {IUI, Shaders} from "../UI";
 import {ICurrentState2} from "../State";
-import {Navigator} from "../Viewer";
+import {Container, Navigator} from "../Viewer";
 
 export class GlUI implements IUI {
-    private container: HTMLElement;
+    private container: Container;
     private navigator: Navigator;
 
     private stateSubscription: rx.IDisposable;
@@ -23,7 +23,7 @@ export class GlUI implements IUI {
     private currentKey: string;
     private previousKey: string;
 
-    constructor (container: HTMLElement, navigator: Navigator) {
+    constructor (container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
 
@@ -33,14 +33,14 @@ export class GlUI implements IUI {
     public activate(): void {
         this.renderer = new THREE.WebGLRenderer();
 
-        let width: number = this.container.offsetWidth;
+        let width: number = this.container.element.offsetWidth;
         this.renderer.setSize(width, width * 3 / 4);
         this.renderer.setClearColor(new THREE.Color(0x202020), 1.0);
         this.renderer.sortObjects = false;
 
         this.renderer.domElement.style.width = "100%";
         this.renderer.domElement.style.height = "100%";
-        this.container.appendChild(this.renderer.domElement);
+        this.container.element.appendChild(this.renderer.domElement);
 
         this.camera = new THREE.PerspectiveCamera(2 * Math.atan(0.5) * 180 / Math.PI, 4 / 3, 0.4, 1100);
         this.camera.lookAt(new THREE.Vector3(0, 0, 1));

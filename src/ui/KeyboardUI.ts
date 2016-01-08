@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {EdgeConstants} from "../Edge";
 import {IUI} from "../UI";
-import {Navigator} from "../Viewer";
+import {Container, Navigator} from "../Viewer";
 
 interface INavigationElement {
     element: HTMLSpanElement;
@@ -12,11 +12,11 @@ interface INavigationElement {
 }
 
 export class KeyboardUI implements IUI {
-    private container: HTMLElement;
+    private container: Container;
     private disposable: rx.IDisposable;
     private navigator: Navigator;
 
-    constructor(container: HTMLElement, navigator: Navigator) {
+    constructor(container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
     }

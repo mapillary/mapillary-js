@@ -1,10 +1,13 @@
+import {Container, Navigator} from "../Viewer";
 import {IUI} from "../UI";
 
 export class CoverUI implements IUI {
-    private container: any;
+    private container: Container;
+    private navigator: Navigator;
 
-    constructor(container: HTMLElement) {
+    constructor(container: Container, navigator: Navigator) {
         this.container = container;
+        this.navigator = navigator;
     }
 
     public activate(): void {
@@ -12,7 +15,7 @@ export class CoverUI implements IUI {
     }
 
     public deactivate(): void {
-        this.container.style.backgroundImage = "";
+        return;
     }
 }
 

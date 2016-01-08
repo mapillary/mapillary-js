@@ -4,8 +4,8 @@ import * as rx from "rx";
 
 import {IEdge, EdgeConstants} from "../Edge";
 import {IUI} from "../UI";
-import {ICurrentState} from "../State";
-import {Navigator} from "../Viewer";
+import {Node} from "../Graph";
+import {Container, Navigator} from "../Viewer";
 
 interface INavigationElement {
     element: HTMLSpanElement;
@@ -13,14 +13,14 @@ interface INavigationElement {
 }
 
 export class SimpleNavUI implements IUI {
-    private container: HTMLElement;
     private disposable: rx.IDisposable;
+    private element: HTMLElement;
     private navigator: Navigator;
 
     private elements: { [direction: number]: INavigationElement } = {};
     private directions: { [direction: number]: string } = {};
 
-    constructor(container: HTMLElement, navigator: Navigator) {
+    constructor(container: Container, navigator: Navigator) {
         this.directions[EdgeConstants.Direction.STEP_FORWARD] = "Forward";
         this.directions[EdgeConstants.Direction.STEP_BACKWARD] = "Backward";
         this.directions[EdgeConstants.Direction.STEP_LEFT] = "Left";
@@ -31,9 +31,9 @@ export class SimpleNavUI implements IUI {
 
         let uiContainer: HTMLElement = document.createElement("div");
         uiContainer.className = "SimpleNavUI";
-        container.appendChild(uiContainer);
+        container.element.appendChild(uiContainer);
 
-        this.container = uiContainer;
+        this.element = uiContainer;
         this.navigator = navigator;
     }
 
@@ -56,41 +56,30 @@ export class SimpleNavUI implements IUI {
         for (let k in this.elements) {
              if (this.elements.hasOwnProperty(k)) {
                 let element: HTMLSpanElement = this.elements[k].element;
-                this.container.appendChild(element);
+                this.element.appendChild(element);
              }
         }
 
-        this.disposable = this.navigator.stateService.currentState
-            .distinctUntilChanged((cs: ICurrentState) => {
-                if (cs.currentNode) {
-                    return cs.currentNode.key;
+        this.disposable = this.navigator.stateService2.currentNode.subscribe((node: Node): void => {
+            for (let k in this.elements) {
+                if (this.elements.hasOwnProperty(k)) {
+                    let element: HTMLSpanElement = this.elements[k].element;
+                    element.className = element.className.replace(/\DirectionHidden\b/, "");
+                    element.className += " DirectionHidden";
                 }
-            })
-            .subscribe((currentState: ICurrentState) => {
-                if (currentState != null && currentState.currentNode != null) {
-                    for (let k in this.elements) {
-                        if (this.elements.hasOwnProperty(k)) {
-                            let element: HTMLSpanElement = this.elements[k].element;
-                            element.className =
-                                element.className.replace(/\DirectionHidden\b/, "");
-                            element.className += " DirectionHidden";
-                        }
-                    }
+            }
 
-                    let edges: IEdge[] = currentState.currentNode.edges;
-                    for (let edge of edges) {
-                        let item: INavigationElement = this.elements[edge.data.direction];
-                        if (item == null) {
-                            continue;
-                        }
-
-                        let element: HTMLSpanElement = item.element;
-                        element.className =
-                            element.className.replace(/\DirectionHidden\b/, "");
-                    }
+            let edges: IEdge[] = node.edges;
+            for (let edge of edges) {
+                let item: INavigationElement = this.elements[edge.data.direction];
+                if (item == null) {
+                    continue;
                 }
-            });
-        return;
+
+                let element: HTMLSpanElement = item.element;
+                element.className = element.className.replace(/\DirectionHidden\b/, "");
+            }
+        });
     }
 
     public deactivate(): void {
