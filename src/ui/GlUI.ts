@@ -3,15 +3,20 @@
 import * as THREE from "three";
 import {IUI, Shaders} from "../UI";
 import {Navigator} from "../Viewer";
-import {Node} from "../Graph";
+import {ICurrentState2} from "../State";
 
 export class GlUI implements IUI {
     private renderer: THREE.WebGLRenderer;
     private camera: THREE.PerspectiveCamera;
     private scene: THREE.Scene;
     private imagePlane: THREE.Mesh;
+    private imagePlaneOld: THREE.Mesh;
+
+    private currentKey: string;
 
     constructor (container: HTMLElement, navigator: Navigator) {
+        this.currentKey = null;
+
         this.renderer = new THREE.WebGLRenderer();
 
         let width: number = container.offsetWidth;
@@ -29,7 +34,7 @@ export class GlUI implements IUI {
 
         this.renderer.render(this.scene, this.camera);
 
-        navigator.stateService.currentNode.subscribe(this.onCurrentNode.bind(this));
+        navigator.stateService2.currentState.subscribe(this.onStateChanged.bind(this));
     }
 
     public activate(): void {
@@ -40,16 +45,39 @@ export class GlUI implements IUI {
         return;
     }
 
-    private onCurrentNode(node: Node): void {
-        if (this.imagePlane) {
-            this.scene.remove(this.imagePlane);
+    private onStateChanged(state: ICurrentState2): void {
+        if (state.currentNode != null && state.currentNode.key !== this.currentKey) {
+            this.currentKey = state.currentNode.key;
+
+            if (this.imagePlaneOld) {
+                this.scene.remove(this.imagePlaneOld);
+            }
+
+            if (this.imagePlane) {
+                this.imagePlaneOld = this.imagePlane;
+            }
+
+            this.imagePlane = this.createImagePlane(this.currentKey);
+
+            this.scene.add(this.imagePlane);
         }
 
-        this.imagePlane = this.createImagePlane(node.key, () => { this.renderer.render(this.scene, this.camera); });
-        this.scene.add(this.imagePlane);
+        this.render(state.alpha);
     }
 
-    private createImagePlane(key: string, render: () => void): THREE.Mesh {
+    private render(alpha: number): void {
+        if (this.imagePlane) {
+            (<THREE.ShaderMaterial>this.imagePlane.material).uniforms.opacity.value = alpha;
+        }
+
+        if (this.imagePlaneOld) {
+            (<THREE.ShaderMaterial>this.imagePlaneOld.material).uniforms.opacity.value = 1;
+        }
+
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    private createImagePlane(key: string): THREE.Mesh {
         let url: string = "https://d1cuyjsrcm0gby.cloudfront.net/" + key + "/thumb-320.jpg?origin=mapillary.webgl";
 
         let projection: THREE.Matrix4 = new THREE.Matrix4().set(
@@ -97,7 +125,6 @@ export class GlUI implements IUI {
         textureLoader.load(url, (texture: THREE.Texture) => {
             texture.minFilter = THREE.LinearFilter;
             material.uniforms.projectorTex.value = texture;
-            render();
         });
 
         let geometry: THREE.Geometry = new THREE.Geometry();
