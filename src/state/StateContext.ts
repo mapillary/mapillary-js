@@ -1,11 +1,11 @@
-import {IStateContext, IState, CompletingState2} from "../State";
+import {IStateContext, IState, CompletingState} from "../State";
 import {Node} from "../Graph";
 
 export class StateContext implements IStateContext {
     private state: IState;
 
     constructor() {
-        this.state = new CompletingState2([]);
+        this.state = new CompletingState([]);
     }
 
     public get alpha(): number {

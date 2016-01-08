@@ -1,7 +1,7 @@
 import {IState} from "../../State";
 import {Node} from "../../Graph";
 
-export class CompletingState2 implements IState {
+export class CompletingState implements IState {
     private _alpha: number;
     private _animationSpeed: number;
 
