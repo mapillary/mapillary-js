@@ -13,6 +13,7 @@ export interface IState {
 
     update(): void;
     append(nodes: Node[]): void;
+    set(nodes: Node[]): void;
 }
 
 export class CompletingState2 implements IState {
@@ -26,7 +27,7 @@ export class CompletingState2 implements IState {
     private _previousNode: Node;
 
     constructor (trajectory: Node[]) {
-        this._alpha = 0;
+        this._alpha = trajectory.length > 0 ? 0 : 1;
         this._animationSpeed = 0.025;
 
         this._trajectory = trajectory.slice();
@@ -38,6 +39,25 @@ export class CompletingState2 implements IState {
 
     public append(trajectory: Node[]): void {
         this._trajectory = this._trajectory.concat(trajectory);
+    }
+
+    public set(trajectory: Node[]): void {
+        if (trajectory.length < 1) {
+            throw Error("Trajectory can not be empty");
+        }
+
+        if (this._currentNode != null) {
+            this._trajectory = [this._currentNode].concat(trajectory);
+            this._currentIndex = 1;
+        } else {
+            this._trajectory = trajectory.slice();
+            this._currentIndex = 0;
+        }
+
+        this._alpha = 0;
+
+        this._currentNode = this.trajectory[this._currentIndex];
+        this._previousNode = this._trajectory[this._currentIndex - 1];
     }
 
     public update(): void {
@@ -79,6 +99,7 @@ export interface ICurrentState2 {
 interface IStateContext2 extends ICurrentState2 {
     update(): void;
     append(nodes: Node[]): void;
+    set(nodes: Node[]): void;
 }
 
 export class StateContext2 implements IStateContext2 {
@@ -110,6 +131,10 @@ export class StateContext2 implements IStateContext2 {
 
     public append(nodes: Node[]): void {
         this.state.append(nodes);
+    }
+
+    public set(nodes: Node[]): void {
+        this.state.set(nodes);
     }
 }
 
@@ -146,6 +171,10 @@ export class StateService2 {
 
     public appendNodes(nodes: Node[]): void {
         this.context.append(nodes);
+    }
+
+    public setNodes(nodes: Node[]): void {
+        this.context.set(nodes);
     }
 
     private frame(time: number): void {
