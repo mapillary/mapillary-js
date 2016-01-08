@@ -3,15 +3,13 @@
 import * as THREE from "three";
 import {IUI, Shaders} from "../UI";
 import {Navigator} from "../Viewer";
-import {IStateWrapper} from "../State";
+import {Node} from "../Graph";
 
 export class GlUI implements IUI {
     private renderer: THREE.WebGLRenderer;
     private camera: THREE.PerspectiveCamera;
     private scene: THREE.Scene;
     private imagePlane: THREE.Mesh;
-
-    private currentKey: string;
 
     constructor (container: HTMLElement, navigator: Navigator) {
         this.renderer = new THREE.WebGLRenderer();
@@ -31,7 +29,7 @@ export class GlUI implements IUI {
 
         this.renderer.render(this.scene, this.camera);
 
-        navigator.state.register(this.onStateUpdated.bind(this));
+        navigator.stateService.currentNode.subscribe(this.onCurrentNode.bind(this));
     }
 
     public activate(): void {
@@ -42,25 +40,16 @@ export class GlUI implements IUI {
         return;
     }
 
-    private onStateUpdated(current: IStateWrapper): void {
-        if (!current.node || this.currentKey === current.node.key) {
-            this.renderer.render(this.scene, this.camera);
-            return;
-        }
-
-        this.currentKey = current.node.key;
-
+    private onCurrentNode(node: Node): void {
         if (this.imagePlane) {
             this.scene.remove(this.imagePlane);
         }
 
-        this.imagePlane = this.createImagePlane(this.currentKey);
+        this.imagePlane = this.createImagePlane(node.key, () => { this.renderer.render(this.scene, this.camera); });
         this.scene.add(this.imagePlane);
-
-        this.renderer.render(this.scene, this.camera);
     }
 
-    private createImagePlane(key: string): THREE.Mesh {
+    private createImagePlane(key: string, render: () => void): THREE.Mesh {
         let url: string = "https://d1cuyjsrcm0gby.cloudfront.net/" + key + "/thumb-320.jpg?origin=mapillary.webgl";
 
         let projection: THREE.Matrix4 = new THREE.Matrix4().set(
@@ -108,6 +97,7 @@ export class GlUI implements IUI {
         textureLoader.load(url, (texture: THREE.Texture) => {
             texture.minFilter = THREE.LinearFilter;
             material.uniforms.projectorTex.value = texture;
+            render();
         });
 
         let geometry: THREE.Geometry = new THREE.Geometry();
