@@ -1,5 +1,5 @@
 import {EdgeConstants} from "../Edge";
-import {IViewerOptions, Container, Navigator, OptionsParser, UI} from "../Viewer";
+import {IViewerOptions, Container, Navigator, UI} from "../Viewer";
 import {IUI} from "../UI";
 
 export class Viewer {
@@ -25,9 +25,6 @@ export class Viewer {
      * @param {IViewerOptions} options - Like `imageKey`, etc.
      */
     constructor (id: string, clientId: string, options: IViewerOptions) {
-        let optionsParser: OptionsParser = new OptionsParser();
-        options = optionsParser.parseAndDefaultOptions(options);
-
         this.navigator = new Navigator(clientId);
         this.container = new Container(id);
 

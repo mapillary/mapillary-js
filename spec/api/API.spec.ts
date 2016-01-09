@@ -1,6 +1,6 @@
-/// <reference path="../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../typings/jasmine/jasmine.d.ts" />
 
-import {APIv2, IAPINavIm} from "../src/API";
+import {APIv2, IAPINavIm} from "../../src/API";
 
 describe("APIv2", () => {
     var apiV2: APIv2;

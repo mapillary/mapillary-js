@@ -1,12 +1,10 @@
-///<reference path="../typings/jasmine/jasmine.d.ts" />
-/// <reference path="../typings/when/when.d.ts" />
+/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../typings/when/when.d.ts" />
 
-import * as when from "when";
-
-import {IAPINavIm} from "../src/API";
-import {EdgeConstants} from "../src/Edge";
-import {Node} from "../src/Graph";
-import {Viewer} from "../src/Viewer";
+import {IAPINavIm} from "../../src/API";
+import {EdgeConstants} from "../../src/Edge";
+import {Node} from "../../src/Graph";
+import {Viewer} from "../../src/Viewer";
 
 describe("Viewer", () => {
     var viewer: Viewer;
