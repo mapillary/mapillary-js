@@ -1,1 +1,1 @@
-export {Debug} from "./utils/Debug"
+export {EventEmitter} from "./utils/EventEmitter"

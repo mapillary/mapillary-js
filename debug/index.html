@@ -26,10 +26,7 @@
         var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['simple', 'simplenav', 'keyboard'] })
         var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['gl', 'simplenav', 'keyboard'] })
 
-        var simplePlayBot = new Mapillary.SimplePlayBot();
-        viewerSimple.activateBot(simplePlayBot);
-
-        viewerSimple.eventUI.on("moveend", function (node) {
+        viewerSimple.on("moveend", function (node) {
             console.log(node.key);
         });
     </script>

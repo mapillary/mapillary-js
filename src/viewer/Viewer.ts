@@ -1,8 +1,9 @@
 import {EdgeConstants} from "../Edge";
 import {IViewerOptions, Container, Navigator, UI} from "../Viewer";
-import {IUI} from "../UI";
+import {EventUI, IUI} from "../UI";
+import {EventEmitter} from "../Utils";
 
-export class Viewer {
+export class Viewer extends EventEmitter {
     /**
      * Container handling the space occupied by the viewer
      * @private
@@ -36,6 +37,11 @@ export class Viewer {
         if (options.key != null) {
             this.moveToKey(options.key);
         }
+
+        let eventUI: EventUI = new EventUI(this, this.container, this.navigator);
+        eventUI.activate();
+
+        super();
     }
 
     /**
