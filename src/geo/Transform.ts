@@ -30,6 +30,18 @@ export class Transform {
         this.srt = this.getSrt(this.rt, this.scale);
     }
 
+    public pixelToVertex(x: number, y: number, depth: number): THREE.Vector3 {
+        let v: THREE.Vector4 = new THREE.Vector4(
+            x / this.focal * depth,
+            y / this.focal * depth,
+            depth,
+            1);
+
+        v.applyMatrix4(new THREE.Matrix4().getInverse(this.rt));
+
+        return new THREE.Vector3(v.x / v.w, v.y / v.w, v.z / v.w);
+    }
+
     private getValue(value: number, fallback: number): number {
         return value != null && value > 0 ? value : fallback;
     }

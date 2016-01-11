@@ -7,6 +7,8 @@ import {Transform} from "../../src/Geo";
 import {Node} from "../../src/Graph";
 import {IGPano} from "../../src/API";
 
+import {GeoHelper} from "../helper/GeoHelper.spec";
+
 describe("Transform.rt", () => {
     let epsilon: number = 10e-9;
 
@@ -226,8 +228,6 @@ describe("Transform.srt", () => {
 });
 
 describe("Transform.width", () => {
-    let epsilon: number = 10e-8;
-
     it("should have fallback width", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
@@ -254,8 +254,6 @@ describe("Transform.width", () => {
 });
 
 describe("Transform.height", () => {
-    let epsilon: number = 10e-8;
-
     it("should have fallback height", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
@@ -282,8 +280,6 @@ describe("Transform.height", () => {
 });
 
 describe("Transform.focal", () => {
-    let epsilon: number = 10e-8;
-
     it("should have fallback focal", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
@@ -310,8 +306,6 @@ describe("Transform.focal", () => {
 });
 
 describe("Transform.orientation", () => {
-    let epsilon: number = 10e-8;
-
     it("should have fallback orientation", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
@@ -338,8 +332,6 @@ describe("Transform.orientation", () => {
 });
 
 describe("Transform.scale", () => {
-    let epsilon: number = 10e-8;
-
     it("should have fallback scale", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
@@ -366,8 +358,6 @@ describe("Transform.scale", () => {
 });
 
 describe("Transform.gpano", () => {
-    let epsilon: number = 10e-8;
-
     it("should not have gpano set", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
@@ -397,5 +387,100 @@ describe("Transform.gpano", () => {
         let transform: Transform = new Transform(node);
 
         expect(transform.gpano).not.toBeNull();
+    });
+});
+
+describe("Transform.pixelToVertex", () => {
+    let epsilon: number = 10e-8;
+
+    let geoHelper: GeoHelper;
+
+    beforeEach(() => {
+        geoHelper = new GeoHelper();
+    });
+
+    it("should return vertex at origin", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
+
+        expect(vertex.x).toBeCloseTo(0, epsilon);
+        expect(vertex.y).toBeCloseTo(0, epsilon);
+        expect(vertex.z).toBeCloseTo(0, epsilon);
+    });
+
+    it("should return vertex at inverted translation", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            [10, -20, 30]);
+
+        let transform: Transform = new Transform(node);
+
+        let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
+
+        expect(vertex.x).toBeCloseTo(-10, epsilon);
+        expect(vertex.y).toBeCloseTo(20, epsilon);
+        expect(vertex.z).toBeCloseTo(-30, epsilon);
+    });
+
+    it("should return vertex at camera center", () => {
+        let r: number[] = [0, Math.PI / 2, 0];
+        let C: number[] = [5, 8, 12];
+        let t: number[] = geoHelper.getTranslation(r, C);
+
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: r },
+            t);
+
+        let transform: Transform = new Transform(node);
+
+        let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
+
+        expect(vertex.x).toBeCloseTo(C[0], epsilon);
+        expect(vertex.y).toBeCloseTo(C[1], epsilon);
+        expect(vertex.z).toBeCloseTo(C[2], epsilon);
+    });
+
+    it("should return vertex 10 units front of origin in camera direction", () => {
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            [0, 0, 0]);
+
+        let transform: Transform = new Transform(node);
+
+        let depth: number = 10;
+        let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, depth);
+
+        expect(vertex.x).toBeCloseTo(0, epsilon);
+        expect(vertex.y).toBeCloseTo(0, epsilon);
+        expect(vertex.z).toBeCloseTo(depth, epsilon);
+    });
+
+    it("should return vertex shifted 5 units in all directions from camera center", () => {
+        let r: number[] = [Math.PI / 2, 0, 0];
+        let C: number[] = [10, 10, 10];
+        let t: number[] = geoHelper.getTranslation(r, C);
+
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: r },
+            t);
+
+        let transform: Transform = new Transform(node);
+
+        let depth: number = 5;
+        let vertex: THREE.Vector3 = transform.pixelToVertex(1, 1, depth);
+
+        expect(vertex.x).toBeCloseTo(C[0] + depth, epsilon);
+        expect(vertex.y).toBeCloseTo(C[1] + depth, epsilon);
+        expect(vertex.z).toBeCloseTo(C[2] - depth, epsilon);
     });
 });
