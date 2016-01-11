@@ -2,7 +2,6 @@ var gulp = require('gulp')
 
 var browserify = require('browserify')
 var del = require('del')
-var documentation = require('gulp-documentation')
 var exorcist = require('exorcist')
 var fs = require('fs')
 var KarmaServer = require('karma').Server
@@ -32,7 +31,20 @@ var paths = {
 }
 
 var config = {
-  ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions
+  ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions,
+  typedoc: {
+    includes: ['./src/viewer/Viewer.ts',
+              './src/graph/GraphService.ts'],
+    options: {
+      target: 'ES5',
+      module: 'commonjs',
+      theme: 'default',
+      mode: 'file',
+      includeDeclarations: '',
+      excludeExternals: '',
+      out: './out'
+    }
+  }
 }
 
 gulp.task('clean', function () {
@@ -43,18 +55,16 @@ gulp.task('clean', function () {
   ])
 })
 
-gulp.task('ts-for-documentation', function () {
-  var tsProject = ts.createProject('tsconfig.json')
-  return gulp.src('src/**/*.ts')
-   .pipe(ts(tsProject))
-   .pipe(gulp.dest('build/docs/ts'))
-})
+var parsedOptions = []
+for (var key in config.typedoc.options) {
+  parsedOptions.push(' ' + key + ' ' + config.typedoc.options[key])
+}
 
-gulp.task('documentation', ['ts-for-documentation'], function () {
-  gulp.src('./build/docs/ts/Mapillary.js')
-    .pipe(documentation({ format: 'html' }))
-    .pipe(gulp.dest('docs'))
-})
+gulp.task('documentation', shell.task('./node_modules/typedoc/bin/typedoc' +
+                                      parsedOptions.join(' ') +
+                                      ' ' +
+                                      config.typedoc.includes.join(' ')
+                                     ))
 
 gulp.task('js-lint', function () {
   return gulp.src('./Gulpfile.js')

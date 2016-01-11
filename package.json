@@ -34,6 +34,7 @@
     "gulp-standard": "5.2.2",
     "gulp-tsd": "0.0.4",
     "gulp-tslint": "^4.2.2",
+    "gulp-typedoc": "1.2.1",
     "gulp-typescript": "2.9.2",
     "jasmine-core": "2.3.4",
     "karma": "^0.13.19",
