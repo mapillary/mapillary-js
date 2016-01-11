@@ -42,6 +42,23 @@ export class Transform {
         return new THREE.Vector3(v.x / v.w, v.y / v.w, v.z / v.w);
     }
 
+    public upVector(): THREE.Vector3 {
+        let rte: Float32Array = this.rt.elements;
+
+        switch (this.orientation) {
+            case 3:
+                return new THREE.Vector3(rte[1],  rte[5],  rte[9]);
+            case 6:
+                return new THREE.Vector3(-rte[0], -rte[4], -rte[8]);
+            case 8:
+                return new THREE.Vector3(rte[0],  rte[4],  rte[8]);
+            case 1:
+                return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
+            default:
+                return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
+        }
+    }
+
     private getValue(value: number, fallback: number): number {
         return value != null && value > 0 ? value : fallback;
     }
