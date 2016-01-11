@@ -1,5 +1,6 @@
 import {IStateContext, IState, CompletingState} from "../State";
 import {Node} from "../Graph";
+import {Transform} from "../Geo";
 
 export class StateContext implements IStateContext {
     private state: IState;
@@ -18,6 +19,14 @@ export class StateContext implements IStateContext {
 
     public get previousNode(): Node {
         return this.state.previousNode;
+    }
+
+    public get currentTransform(): Transform {
+        return this.state.currentTransform;
+    }
+
+    public get previousTransform(): Transform {
+        return this.state.previousTransform;
     }
 
     public get trajectory(): Node[] {
