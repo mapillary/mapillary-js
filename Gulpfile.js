@@ -34,13 +34,13 @@ var config = {
   ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions,
   typedoc: {
     includes: ['./src/viewer/Viewer.ts',
-              './src/graph/GraphService.ts'],
+               './src/graph/Graph.ts'
+              ],
     options: {
       target: 'ES5',
       module: 'commonjs',
-      theme: 'default',
+      theme: 'minimal',
       mode: 'file',
-      includeDeclarations: '',
       excludeExternals: '',
       out: './out'
     }
@@ -57,10 +57,10 @@ gulp.task('clean', function () {
 
 var parsedOptions = []
 for (var key in config.typedoc.options) {
-  parsedOptions.push(' ' + key + ' ' + config.typedoc.options[key])
+  parsedOptions.push('--' + key + ' ' + config.typedoc.options[key])
 }
 
-gulp.task('documentation', shell.task('./node_modules/typedoc/bin/typedoc' +
+gulp.task('documentation', shell.task('./node_modules/typedoc/bin/typedoc ' +
                                       parsedOptions.join(' ') +
                                       ' ' +
                                       config.typedoc.includes.join(' ')
