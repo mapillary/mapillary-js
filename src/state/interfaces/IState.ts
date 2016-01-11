@@ -1,8 +1,9 @@
 import {Node} from "../../Graph";
-import {Transform} from "../../Geo";
+import {Camera, Transform} from "../../Geo";
 
 export interface IState {
     alpha: number;
+    camera: Camera;
     currentNode: Node;
     previousNode: Node;
     trajectory: Node[];

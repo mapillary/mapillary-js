@@ -1,33 +1,47 @@
 import {IState} from "../../State";
 import {Node} from "../../Graph";
-import {Transform} from "../../Geo";
+import {Camera, Transform} from "../../Geo";
 
 export class CompletingState implements IState {
-    private _alpha: number;
-    private _animationSpeed: number;
+    public alpha: number;
+    public camera: Camera;
 
-    private _currentIndex: number;
+    public trajectory: Node[];
 
-    private _trajectoryNodes: Node[];
-    private _trajectoryTransforms: Transform[];
+    public currentNode: Node;
+    public previousNode: Node;
 
-    private _currentNode: Node;
-    private _previousNode: Node;
+    private animationSpeed: number;
+
+    private trajectoryTransforms: Transform[];
+    private trajectoryCameras: Camera[];
+
+    private currentIndex: number;
+
+    private currentCamera: Camera;
+    private previousCamera: Camera;
 
     constructor (trajectory: Node[]) {
-        this._alpha = trajectory.length > 0 ? 0 : 1;
-        this._animationSpeed = 0.025;
+        this.alpha = trajectory.length > 0 ? 0 : 1;
+        this.animationSpeed = 0.025;
+        this.camera = new Camera();
 
-        this._trajectoryNodes = trajectory.slice();
-        this._trajectoryTransforms = [];
-        for (let node of this._trajectoryNodes) {
-            this._trajectoryTransforms.push(new Transform(node));
+        this.trajectory = trajectory.slice();
+        this.trajectoryTransforms = [];
+        this.trajectoryCameras = [];
+        for (let node of this.trajectory) {
+            let transform: Transform = new Transform(node);
+            this.trajectoryTransforms.push(transform);
+            this.trajectoryCameras.push(new Camera(transform));
         }
 
-        this._currentIndex = 0;
+        this.currentIndex = 0;
 
-        this._currentNode = trajectory.length > 0 ? trajectory[this._currentIndex] : null;
-        this._previousNode = null;
+        this.currentNode = trajectory.length > 0 ? trajectory[this.currentIndex] : null;
+        this.previousNode = null;
+
+        this.currentCamera = trajectory.length > 0 ? this.trajectoryCameras[this.currentIndex] : new Camera();
+        this.previousCamera = this.currentCamera;
     }
 
     public append(trajectory: Node[]): void {
@@ -35,17 +49,22 @@ export class CompletingState implements IState {
             throw Error("Trajectory can not be empty");
         }
 
-        if (this._trajectoryNodes.length === 0) {
-            this._alpha = 0;
+        if (this.trajectory.length === 0) {
+            this.alpha = 0;
 
-            this._currentIndex = 0;
-            this._currentNode = trajectory.length > 0 ? trajectory[this._currentIndex] : null;
-            this._previousNode = null;
+            this.currentIndex = 0;
+            this.currentNode = trajectory[this.currentIndex];
+            this.previousNode = null;
+
+            this.currentCamera = this.trajectoryCameras[this.currentIndex];
+            this.previousCamera = this.currentCamera;
         }
 
-        this._trajectoryNodes = this._trajectoryNodes.concat(trajectory);
+        this.trajectory = this.trajectory.concat(trajectory);
         for (let node of trajectory) {
-            this._trajectoryTransforms.push(new Transform(node));
+            let transform: Transform = new Transform(node);
+            this.trajectoryTransforms.push(transform);
+            this.trajectoryCameras.push(new Camera(transform));
         }
     }
 
@@ -54,62 +73,62 @@ export class CompletingState implements IState {
             throw Error("Trajectory can not be empty");
         }
 
-        this._trajectoryTransforms.length = 0;
-        if (this._currentNode != null) {
-            this._trajectoryNodes = [this._currentNode].concat(trajectory);
-            for (let node of this._trajectoryNodes) {
-                this._trajectoryTransforms.push(new Transform(node));
+        this.trajectoryTransforms.length = 0;
+        this.trajectoryCameras.length = 0;
+        if (this.currentNode != null) {
+            this.trajectory = [this.currentNode].concat(trajectory);
+            for (let node of this.trajectory) {
+                let transform: Transform = new Transform(node);
+                this.trajectoryTransforms.push(transform);
+                this.trajectoryCameras.push(new Camera(transform));
             }
-            this._currentIndex = 1;
+            this.currentIndex = 1;
         } else {
-            this._trajectoryNodes = trajectory.slice();
-            for (let node of this._trajectoryNodes) {
-                this._trajectoryTransforms.push(new Transform(node));
+            this.trajectory = trajectory.slice();
+            for (let node of this.trajectory) {
+                let transform: Transform = new Transform(node);
+                this.trajectoryTransforms.push(transform);
+                this.trajectoryCameras.push(new Camera(transform));
             }
-            this._currentIndex = 0;
+            this.currentIndex = 0;
         }
 
-        this._alpha = 0;
+        this.alpha = 0;
 
-        this._currentNode = this.trajectory[this._currentIndex];
-        this._previousNode = this._trajectoryNodes[this._currentIndex - 1];
+        this.currentNode = this.trajectory[this.currentIndex];
+        this.previousNode = this.trajectory[this.currentIndex - 1];
+
+        this.currentCamera = this.trajectoryCameras[this.currentIndex];
+        this.previousCamera = this.currentIndex > 0 ?
+            this.trajectoryCameras[this.currentIndex - 1] :
+            this.currentCamera;
     }
 
     public update(): void {
-        if (this._alpha === 1 && this._currentIndex + this._alpha < this._trajectoryNodes.length) {
-            this._alpha = 0;
+        if (this.alpha === 1 && this.currentIndex + this.alpha < this.trajectory.length) {
+            this.alpha = 0;
 
-            this._currentIndex += 1;
-            this._currentNode = this._trajectoryNodes[this._currentIndex];
-            this._previousNode = this._trajectoryNodes[this._currentIndex - 1];
+            this.currentIndex += 1;
+            this.currentNode = this.trajectory[this.currentIndex];
+            this.previousNode = this.trajectory[this.currentIndex - 1];
+
+            this.currentCamera = this.trajectoryCameras[this.currentIndex];
+            this.previousCamera = this.currentIndex > 0 ?
+                this.trajectoryCameras[this.currentIndex - 1] :
+                this.currentCamera;
         }
 
-        this._alpha = Math.min(1, this._alpha + this._animationSpeed);
-    }
-
-    public get alpha(): number {
-        return this._alpha;
-    }
-
-    public get currentNode(): Node {
-        return this._currentNode;
-    }
-
-    public get previousNode(): Node {
-        return this._previousNode;
+        this.alpha = Math.min(1, this.alpha + this.animationSpeed);
+        this.camera.lerpCameras(this.previousCamera, this.currentCamera, this.alpha);
     }
 
     public get currentTransform(): Transform {
-        return this._trajectoryTransforms.length > 0 ?
-            this._trajectoryTransforms[this._currentIndex] : null;
+        return this.trajectoryTransforms.length > 0 ?
+            this.trajectoryTransforms[this.currentIndex] : null;
     }
 
     public get previousTransform(): Transform {
-        return this._trajectoryTransforms.length > 0 && this._currentIndex > 0 ?
-            this._trajectoryTransforms[this._currentIndex] : null;
-    }
-
-    public get trajectory(): Node[] {
-        return this._trajectoryNodes;
+        return this.trajectoryTransforms.length > 0 && this.currentIndex > 0 ?
+            this.trajectoryTransforms[this.currentIndex] : null;
     }
 }

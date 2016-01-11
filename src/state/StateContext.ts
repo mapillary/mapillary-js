@@ -1,6 +1,6 @@
 import {IStateContext, IState, CompletingState} from "../State";
 import {Node} from "../Graph";
-import {Transform} from "../Geo";
+import {Camera, Transform} from "../Geo";
 
 export class StateContext implements IStateContext {
     private state: IState;
@@ -11,6 +11,10 @@ export class StateContext implements IStateContext {
 
     public get alpha(): number {
         return this.state.alpha;
+    }
+
+    public get camera(): Camera {
+        return this.state.camera;
     }
 
     public get currentNode(): Node {
