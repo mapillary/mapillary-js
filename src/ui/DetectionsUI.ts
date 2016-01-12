@@ -7,15 +7,14 @@ import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import * as rest from "rest";
 
-import {IUI, IRect} from "../UI";
+import {IUI, IRect, IORResponse} from "../UI";
 
 export class DetectionsUI implements IUI {
     private disposable: rx.IDisposable;
     private navigator: Navigator;
     private container: Container;
     private rectContainer: HTMLElement;
-
-    private detectionData: any;
+    private detectionData: IORResponse;
 
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
@@ -24,13 +23,13 @@ export class DetectionsUI implements IUI {
 
     public activate(): void {
 
-        let child: any = document.createElement("div");
+        let child: HTMLElement = document.createElement("div");
         child.className = "rectContainer";
 
         this.rectContainer = child;
         this.container.element.appendChild(this.rectContainer);
 
-        let cid: any = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4";
+        let cid: string = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4";
 
         this.disposable = this.navigator
             .stateService2
@@ -46,22 +45,20 @@ export class DetectionsUI implements IUI {
     }
 
     public deactivate(): void {
-        console.log("detectionsUI deactivate");
         this.disposable.dispose();
     }
-
 
    /**
     * Update detection rects in the DOM
     */
     private updateRects (rects: Array<IRect>): void {
         rects.forEach((r: IRect) => {
-            let rect: any = document.createElement("div");
+            let rect: HTMLElement = document.createElement("div");
 
             let adjustedRect: Array<number> = this.coordsToCss(r.rect);
 
             // map adjusted coordinates to valid CSS styles
-            let rectMapped: Array<string> = adjustedRect.map((el: any) => {
+            let rectMapped: Array<string> = adjustedRect.map((el: number) => {
                 return (el * 100) + "%";
             });
 
