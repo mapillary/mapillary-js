@@ -15,7 +15,7 @@ export class Camera {
             this.position = transform.pixelToVertex(0, 0, 0);
             this.lookat = transform.pixelToVertex(0, 0, 10);
             this.up = transform.upVector();
-            this.focal = transform.focal;
+            this.focal = this.getFocal(transform);
         } else {
             this.position = new THREE.Vector3(0, 0, 0);
             this.lookat = new THREE.Vector3(0, 0, 1);
@@ -29,5 +29,14 @@ export class Camera {
       this.lookat.subVectors(b.lookat, a.lookat).multiplyScalar(alpha).add(a.lookat);
       this.up.subVectors(b.up, a.up).multiplyScalar(alpha).add(a.up);
       this.focal = (1 - alpha) * a.focal + alpha * b.focal;
+    }
+
+    private getFocal(transform: Transform): number {
+        let size: number = Math.max(transform.width, transform.height);
+        if (transform.orientation > 4) {
+            return transform.focal / size * transform.height;
+        }
+
+        return transform.focal / size * transform.width;
     }
 }
