@@ -22,6 +22,7 @@
     <div id='viewerGl'></div>
     <button onclick="viewerGl.moveDir(0)">Forward</button><button onclick="viewerGl.moveDir(1)">Backward</button>
     <div id='viewerNewUi'></div>
+    <div id='viewerNewUiPortrait'></div>
 
     <script src='../build/bundle.js'></script>
     <script>
@@ -31,7 +32,8 @@
         viewerSimple.on("moveend", function (node) {
             console.log(node.key);
         });
-        var viewerNewUi = new Mapillary.Viewer('viewerNewUi', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'dIPzva8vuKfAq0n_o7YuUA', uis: ['gl', 'simplenav', 'keyboard', 'detections'] })
+       var viewerNewUi = new Mapillary.Viewer('viewerNewUi', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'dIPzva8vuKfAq0n_o7YuUA', uis: ['simple', 'simplenav', 'keyboard', 'detections'] })
+       var viewerNewUiPortrait = new Mapillary.Viewer('viewerNewUiPortrait', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'RSf7Ww9YMHMndq1GEN4v0A', uis: ['simple', 'simplenav', 'keyboard', 'detections'] })
     </script>
 </body>
 </html>
