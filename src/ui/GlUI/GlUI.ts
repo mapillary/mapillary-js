@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import * as rx from "rx";
 
-import {IUI, Shaders} from "../../UI";
+import {IUI, Shaders, GlScene} from "../../UI";
 import {ICurrentState2} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {Transform, Camera} from "../../Geo";
@@ -17,9 +17,7 @@ export class GlUI implements IUI {
 
     private renderer: THREE.WebGLRenderer;
     private camera: THREE.PerspectiveCamera;
-    private scene: THREE.Scene;
-    private imagePlane: THREE.Mesh;
-    private imagePlaneOld: THREE.Mesh;
+    private imagePlaneScene: GlScene;
 
     private imagePlaneSize: number = 200;
 
@@ -46,9 +44,9 @@ export class GlUI implements IUI {
         this.container.element.appendChild(this.renderer.domElement);
 
         this.camera = new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000);
-        this.scene = new THREE.Scene();
+        this.imagePlaneScene = new GlScene();
 
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.imagePlaneScene.scene, this.camera);
 
         this.stateSubscription = this.navigator.stateService2.currentState.subscribe(
             this.onStateChanged.bind(this));
@@ -70,36 +68,29 @@ export class GlUI implements IUI {
             return;
         }
 
-        if (this.imagePlaneOld) {
-            this.scene.remove(this.imagePlaneOld);
-            this.imagePlaneOld = null;
-        }
-
         this.previousKey = state.previousNode != null ? state.previousNode.key : null;
         if (this.previousKey != null) {
-            if (this.previousKey === this.currentKey) {
-                this.imagePlaneOld = this.imagePlane;
-            } else {
-                this.imagePlaneOld = this.createImagePlane(this.previousKey, state.previousTransform);
+            if (this.previousKey !== this.currentKey) {
+                this.imagePlaneScene.updateImagePlanes(
+                    [this.createImagePlane(this.previousKey, state.previousTransform)]);
             }
         }
 
         this.currentKey = state.currentNode.key;
-        this.imagePlane = this.createImagePlane(this.currentKey, state.currentTransform);
-
-        this.scene.add(this.imagePlane);
+        this.imagePlaneScene.updateImagePlanes(
+            [this.createImagePlane(this.currentKey, state.currentTransform)]);
     }
 
     private render(alpha: number): void {
-        if (this.imagePlane) {
-            (<THREE.ShaderMaterial>this.imagePlane.material).uniforms.opacity.value = alpha;
+        for (let plane of this.imagePlaneScene.imagePlanes) {
+            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = alpha;
         }
 
-        if (this.imagePlaneOld) {
-            (<THREE.ShaderMaterial>this.imagePlaneOld.material).uniforms.opacity.value = 1;
+        for (let plane of this.imagePlaneScene.imagePlanesOld) {
+            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = 1;
         }
 
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.imagePlaneScene.scene, this.camera);
     }
 
     private getVerticalFov(aspect: number, camera: Camera): number {
