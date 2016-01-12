@@ -32,7 +32,10 @@ export class SimpleUI implements IUI {
             ctx.fillStyle = "black"; // todo: This should be customizable by the end user
             ctx.fillRect(0, 0, cw, ch);
 
-            let w: number = ch / 3 * 4;
+            let imHeight: number = node.image.height;
+            let imWidth: number = node.image.width;
+
+            let w: number = ch / imHeight * imWidth;
             let offsetLeft: number = (cw - w) / 2;
 
             this.canvas.width = cw;
