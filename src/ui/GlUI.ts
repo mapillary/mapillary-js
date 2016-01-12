@@ -123,6 +123,18 @@ export class GlUI implements IUI {
     private createImagePlane(key: string, transform: Transform): THREE.Mesh {
         let url: string = "https://d1cuyjsrcm0gby.cloudfront.net/" + key + "/thumb-320.jpg?origin=mapillary.webgl";
 
+        let materialParameters: THREE.ShaderMaterialParameters = this.createMaterialParameters(transform);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        this.setTexture(material, url);
+
+        let geometry: THREE.Geometry = this.getFlatImagePlaneGeo(transform);
+        let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
+
+        return mesh;
+    }
+
+    private createMaterialParameters(transform: Transform): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
             fragmentShader: Shaders.perspective.fragment,
@@ -145,19 +157,19 @@ export class GlUI implements IUI {
             vertexShader: Shaders.perspective.vertex,
         };
 
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+        return materialParameters;
+    }
+
+    private setTexture(material: THREE.ShaderMaterial, url: string): void {
+        material.visible = false;
 
         let textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
         textureLoader.crossOrigin = "Anonymous";
         textureLoader.load(url, (texture: THREE.Texture) => {
             texture.minFilter = THREE.LinearFilter;
             material.uniforms.projectorTex.value = texture;
+            material.visible = true;
         });
-
-        let geometry: THREE.Geometry = this.getFlatImagePlaneGeo(transform);
-        let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
-
-        return mesh;
     }
 
     private getFlatImagePlaneGeo(transform: Transform): THREE.Geometry {
