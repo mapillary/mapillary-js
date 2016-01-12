@@ -34,6 +34,8 @@ export class DetectionsUI implements IUI {
         this.disposable = this.navigator
             .stateService2
             .currentNode.subscribe((node: Node): void => {
+                this.setRectContainer(node.image.width, node.image.height);
+
                 this.removeRectsFromDOM();
                 let url: string = `https://a.mapillary.com/v2/im/${node.key}/or?client_id=${cid}`;
                 rest(url).then((data: any) => {
@@ -105,6 +107,22 @@ export class DetectionsUI implements IUI {
         while (this.rectContainer.firstChild) {
             this.rectContainer.removeChild(this.rectContainer.firstChild);
         }
+    }
+
+
+    /**
+     * Sets the rectContainer size to match ratio of currently displayed photo
+     */
+    private setRectContainer (w: number, h: number): void {
+        let cw: number = this.container.element.clientWidth;
+        let ch: number = this.container.element.clientHeight;
+
+        let ratioW: number = (ch / h * w);
+
+        let offset: number  = (cw - ratioW) / 2;
+
+        this.rectContainer.style.left = `${offset}px`;
+        this.rectContainer.style.right = `${offset}px`;
     }
 
 }
