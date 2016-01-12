@@ -1,13 +1,13 @@
-/// <reference path="../../typings/threejs/three.d.ts" />
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../../typings/threejs/three.d.ts" />
+/// <reference path="../../../node_modules/rx/ts/rx.all.d.ts" />
 
 import * as THREE from "three";
 import * as rx from "rx";
 
-import {IUI, Shaders} from "../UI";
-import {ICurrentState2} from "../State";
-import {Container, Navigator} from "../Viewer";
-import {Transform, Camera} from "../Geo";
+import {IUI, Shaders} from "../../UI";
+import {ICurrentState2} from "../../State";
+import {Container, Navigator} from "../../Viewer";
+import {Transform, Camera} from "../../Geo";
 
 export class GlUI implements IUI {
     private container: Container;
