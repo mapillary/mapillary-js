@@ -8,6 +8,7 @@ import {
     SimpleCacheUI,
     SimpleNavUI,
     SimplePlayUI,
+    DetectionsUI,
 } from "../UI";
 import {Container, Navigator} from "../Viewer";
 import {ParameterMapillaryError} from "../Error";
@@ -34,6 +35,7 @@ export class UI {
         UI.add("simplecache", SimpleCacheUI);
         UI.add("simplenav", SimpleNavUI);
         UI.add("simpleplay", SimplePlayUI);
+        UI.add("detections", DetectionsUI);
     }
 
     /**

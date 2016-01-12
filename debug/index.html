@@ -21,6 +21,8 @@
     <button onclick="viewerSimple.moveCloseTo(55.64005918003778, 13.138717721805165)">MoveCloseTo</button>
     <div id='viewerGl'></div>
     <button onclick="viewerGl.moveDir(0)">Forward</button><button onclick="viewerGl.moveDir(1)">Backward</button>
+    <div id='viewerNewUi'></div>
+
     <script src='../build/bundle.js'></script>
     <script>
         var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['simple', 'simplenav', 'keyboard'] })
@@ -29,6 +31,7 @@
         viewerSimple.on("moveend", function (node) {
             console.log(node.key);
         });
+        var viewerNewUi = new Mapillary.Viewer('viewerNewUi', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'dIPzva8vuKfAq0n_o7YuUA', uis: ['gl', 'simplenav', 'keyboard', 'detections'] })
     </script>
 </body>
 </html>

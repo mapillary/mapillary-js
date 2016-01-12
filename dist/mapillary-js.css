@@ -6,7 +6,6 @@
 }
 
 /*
-// Make the viewer responsive and retain 4/3 ratio
 .mapillary-js {
     position: relative;
     width: 100%;
@@ -22,3 +21,18 @@
     left: 0;
 }
 */
+
+.rectContainer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+}
+
+
+.Rect {
+    position: absolute;
+    outline: 1px solid lime;
+}
