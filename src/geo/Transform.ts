@@ -46,17 +46,34 @@ export class Transform {
         let rte: Float32Array = this.rt.elements;
 
         switch (this.orientation) {
+            case 1:
+                return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
             case 3:
                 return new THREE.Vector3(rte[1],  rte[5],  rte[9]);
             case 6:
                 return new THREE.Vector3(-rte[0], -rte[4], -rte[8]);
             case 8:
                 return new THREE.Vector3(rte[0],  rte[4],  rte[8]);
-            case 1:
-                return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
             default:
                 return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
         }
+    }
+
+    public projectorMatrix(): THREE.Matrix4 {
+        let projector: THREE.Matrix4 = this.normalizedToTextureMatrix();
+
+        let f: number = this.focal;
+        let projection: THREE.Matrix4 = new THREE.Matrix4().set(
+            f, 0, 0, 0,
+            0, f, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 1, 0
+        );
+
+        projector.multiply(projection);
+        projector.multiply(this.rt);
+
+        return projector;
     }
 
     private getValue(value: number, fallback: number): number {
@@ -92,5 +109,23 @@ export class Transform {
         srt.scale(new THREE.Vector3(scale, scale, scale));
 
         return srt;
+    }
+
+    private normalizedToTextureMatrix(): THREE.Matrix4 {
+        let size: number = Math.max(this.width, this.height);
+        let w: number = size / this.width;
+        let h: number = size / this.height;
+        switch (this.orientation) {
+            case 1:
+                return new THREE.Matrix4().set(w, 0, 0, 0.5, 0, -h, 0, 0.5, 0, 0, 1, 0, 0, 0, 0, 1);
+            case 3:
+                return new THREE.Matrix4().set(-w, 0, 0, 0.5, 0, h, 0, 0.5, 0, 0, 1, 0, 0, 0, 0, 1);
+            case 6:
+                return new THREE.Matrix4().set( 0, -h, 0, 0.5, -w, 0, 0, 0.5, 0, 0, 1, 0, 0, 0, 0, 1);
+            case 8:
+                return new THREE.Matrix4().set(0, h, 0, 0.5, w, 0, 0, 0.5, 0, 0, 1, 0, 0, 0, 0, 1);
+            default:
+                return new THREE.Matrix4().set(w, 0, 0, 0.5, 0, -h, 0, 0.5, 0, 0, 1, 0, 0, 0, 0, 1);
+        }
     }
 }
