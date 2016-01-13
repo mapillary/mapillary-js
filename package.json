@@ -1,8 +1,8 @@
 {
   "name": "mapillary-js",
   "version": "0.0.1",
-  "description": "Mapillary WebGL Viewer",
-  "main": "src/Viewer.js",
+  "description": "WebGL JavaScript library for displaying street level imagery from mapillary.com",
+  "main": "dist/mapillary-js.min",
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
     "prepublish": "./node_modules/gulp/bin/gulp.js prepublish"

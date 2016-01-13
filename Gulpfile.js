@@ -58,7 +58,7 @@ var config = {
       mode: 'file',
       excludeExternals: '',
       out: './docs-out',
-      name: '"mapillary-js 0.0.0 alpha"',
+      name: '"mapillary-js 0.0.1"',
       includes: 'docs/includes',
       media: 'docs/media'
     }
