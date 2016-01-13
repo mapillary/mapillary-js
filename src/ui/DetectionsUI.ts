@@ -48,6 +48,8 @@ export class DetectionsUI implements IUI {
 
     public deactivate(): void {
         this.disposable.dispose();
+        this.rectContainer = undefined;
+        this.detectionData = undefined;
     }
 
    /**
