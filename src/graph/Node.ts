@@ -91,6 +91,12 @@ export class Node {
                 return;
             }
 
+            if (!this.merged) {
+                observer.onNext(this);
+                observer.onCompleted();
+                return;
+            }
+
             let client: rest.Client = rest.wrap(mime);
             client("https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/sfm/v1.0/atomic_mesh.json").entity().then(
             (data: any) => {
