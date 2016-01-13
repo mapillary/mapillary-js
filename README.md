@@ -14,9 +14,9 @@ To install the latest version... @TODO
 @TODO
 
 ## Documentation
-- [Developing mapillary-js](https://github.com/mapillary/mapillary-js/blob/master/developing.md)
-- [Extending mapillary-js with plugins](https://github.com/mapillary/mapillary-js/blob/master/plugins.md)
-- [Glossary](https://github.com/mapillary/mapillary-js/blob/master/glossary.md)
+- [Developing mapillary-js](https://github.com/mapillary/mapillary-js/blob/master/docs/developing.md)
+- [Extending mapillary-js with plugins](https://github.com/mapillary/mapillary-js/blob/master/docs/plugins.md)
+- [Glossary](https://github.com/mapillary/mapillary-js/blob/master/docs/glossary.md)
 - [API Reference](https://mapillary.github.io/mapillary-js)
 
 ## Examples
