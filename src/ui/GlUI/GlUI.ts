@@ -8,6 +8,7 @@ import {IUI, Shaders, GlScene} from "../../UI";
 import {ICurrentState2} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {Transform, Camera} from "../../Geo";
+import {Node} from "../../Graph";
 
 export class GlUI implements IUI {
     private container: Container;
@@ -72,13 +73,13 @@ export class GlUI implements IUI {
         if (this.previousKey != null) {
             if (this.previousKey !== this.currentKey) {
                 this.imagePlaneScene.updateImagePlanes(
-                    [this.createImagePlane(this.previousKey, state.previousTransform)]);
+                    [this.createImagePlane(this.previousKey, state.previousTransform, state.previousNode)]);
             }
         }
 
         this.currentKey = state.currentNode.key;
         this.imagePlaneScene.updateImagePlanes(
-            [this.createImagePlane(this.currentKey, state.currentTransform)]);
+            [this.createImagePlane(this.currentKey, state.currentTransform, state.currentNode)]);
     }
 
     private render(alpha: number): void {
@@ -111,7 +112,7 @@ export class GlUI implements IUI {
         this.camera.lookAt(camera.lookat);
     }
 
-    private createImagePlane(key: string, transform: Transform): THREE.Mesh {
+    private createImagePlane(key: string, transform: Transform, node: Node): THREE.Mesh {
         let url: string = "https://d1cuyjsrcm0gby.cloudfront.net/" + key + "/thumb-320.jpg?origin=mapillary.webgl";
 
         let materialParameters: THREE.ShaderMaterialParameters = this.createMaterialParameters(transform);
@@ -119,7 +120,7 @@ export class GlUI implements IUI {
 
         this.setTexture(material, url);
 
-        let geometry: THREE.Geometry = this.getFlatImagePlaneGeo(transform);
+        let geometry: THREE.Geometry = this.getImagePlaneGeo(transform, node);
         let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
         return mesh;
@@ -161,6 +162,34 @@ export class GlUI implements IUI {
             material.uniforms.projectorTex.value = texture;
             material.visible = true;
         });
+    }
+
+    private getImagePlaneGeo(transform: Transform, node: Node): THREE.Geometry {
+        if (node.mesh == null ||
+            transform.scale < 1e-2 ||
+            transform.scale > 50) {
+            return this.getFlatImagePlaneGeo(transform);
+        }
+
+        let geometry: THREE.Geometry = new THREE.Geometry();
+        let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
+
+        // push everything at least 5 meters in front of the camera
+        let minZ: number = 5.0 * transform.scale;
+        let maxZ: number = this.imagePlaneSize * transform.scale;
+        for (let v of node.mesh.vertices) {
+            let z: number = Math.max(minZ, Math.min(v[2], maxZ));
+            let factor: number = z / v[2];
+            let p: THREE.Vector3 = new THREE.Vector3(v[0] * factor, v[1] * factor, z);
+            p.applyMatrix4(t);
+            geometry.vertices.push(p);
+        }
+
+        for (let f of node.mesh.faces) {
+            geometry.faces.push(new THREE.Face3(f[0], f[1], f[2]));
+        }
+
+        return geometry;
     }
 
     private getFlatImagePlaneGeo(transform: Transform): THREE.Geometry {
