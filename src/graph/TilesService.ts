@@ -21,7 +21,7 @@ export class TilesService {
 
     public imTiles: rx.Observable<IAPINavIm>;
     public hTiles: rx.Observable<IAPINavIm>;
-    public tiles: rx.Observable<IAPINavIm>;
+    public tiles: rx.ConnectableObservable<IAPINavIm>;
 
     public cachedTiles: rx.Observable<{[key: string]: boolean}>;
 
@@ -37,7 +37,6 @@ export class TilesService {
             },
             {})
             .shareReplay(1);
-        this.cachedTiles.subscribe();
 
         this.imTiles = this.cacheIm.distinct().flatMap<IAPINavIm>((im: string): rx.Observable<IAPINavIm> => {
             return rx.Observable.fromPromise(this.apiV2.nav.im(im));
@@ -47,7 +46,8 @@ export class TilesService {
             return rx.Observable.fromPromise(this.apiV2.nav.h(h));
         });
 
-        this.tiles = this.imTiles.merge(this.hTiles);
+        this.tiles = this.imTiles.merge(this.hTiles).publish();
+        this.tiles.connect();
 
         this.tiles.map((data: IAPINavIm): ITilesOperation => {
             return (tilesCache: {[key: string]: boolean}): {[key: string]: boolean} => {
