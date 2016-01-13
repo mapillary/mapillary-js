@@ -4,7 +4,7 @@
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
-import {ILatLon} from "../Graph";
+import {ILatLon, IMesh} from "../Graph";
 import Sequence from "./Sequence";
 
 import * as rx from "rx";
@@ -26,7 +26,7 @@ export class Node {
     public lastUsed: number;
 
     public image: any;
-    public mesh: any;
+    public mesh: IMesh;
     public edges: IEdge[];
 
     constructor (
@@ -85,7 +85,7 @@ export class Node {
     public cacheMesh(): rx.Observable<Node> {
         return rx.Observable.create<Node>((observer: rx.Observer<Node>): void => {
             if (process.env.MAPENV === "development") {
-                this.mesh = "fakeMesh";
+                this.mesh = { faces: [[-1]], vertices: [[-1]] };
                 observer.onNext(this);
                 observer.onCompleted();
                 return;
@@ -94,7 +94,7 @@ export class Node {
             let client: rest.Client = rest.wrap(mime);
             client("https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/sfm/v1.0/atomic_mesh.json").entity().then(
             (data: any) => {
-                this.mesh = JSON.parse(data)[this.key];
+                this.mesh = <IMesh>JSON.parse(data)[this.key];
                 observer.onNext(this);
                 observer.onCompleted();
             },
