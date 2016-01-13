@@ -27,10 +27,25 @@ var paths = {
     src: './build/**/*.js',
     tests: './spec/**/*.js'
   },
-  sourceMaps: './build/bundle.js.map'
+  sourceMaps: './build/bundle.js.map',
+  sourceMapsDist: './dist/mapillary-js.map'
 }
 
 var config = {
+  browserify: {
+    entries: ['./src/Mapillary.ts'],
+    debug: true,
+    standalone: 'Mapillary',
+    fullPaths: true
+  },
+  uglifyify: {
+    global: true,
+    ignore: ['**/node_modules/rest/*',
+             '**/node_modules/rest/**/*',
+             '**/node_modules/when/*',
+             '**/node_modules/when/**/*'
+            ]
+  },
   ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions,
   typedoc: {
     includes: ['./src/viewer/Viewer.ts',
@@ -153,24 +168,28 @@ function extendKarmaConfig (path, conf) {
   return conf
 }
 
-// TODO: Refine this task
-gulp.task('ts', ['ts-lint'], function () {
-  browserify({
-    entries: ['./src/Mapillary.ts'],
-    debug: true,
-    standalone: 'Mapillary',
-    fullPaths: true
-  })
+gulp.task('prepublish', ['ts-lint'], function () {
+  browserify(config.browserify)
     .plugin(tsify, config.ts)
     .transform('brfs')
     .transform('envify')
-    .transform({ global: true,
-                 ignore: ['**/node_modules/rest/*',
-                          '**/node_modules/rest/**/*',
-                          '**/node_modules/when/*',
-                          '**/node_modules/when/**/*'
-                         ]
-               }, 'uglifyify')
+    .transform(config.uglifyify, 'uglifyify')
+    .bundle()
+    .on('error', function (error) {
+      console.error(error.toString())
+    })
+    .pipe(exorcist(paths.sourceMapsDist))
+    .pipe(source('mapillary-js.min.js'))
+    .pipe(gulp.dest('./dist'))
+})
+
+// TODO: Refine this task
+gulp.task('ts', ['ts-lint'], function () {
+  browserify(config.browserify)
+    .plugin(tsify, config.ts)
+    .transform('brfs')
+    .transform('envify')
+    .transform(config.uglifyify, 'uglifyify')
     .bundle()
     .on('error', function (error) {
       console.error(error.toString())

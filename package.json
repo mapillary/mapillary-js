@@ -4,7 +4,8 @@
   "description": "Mapillary WebGL Viewer",
   "main": "src/Viewer.js",
   "scripts": {
-    "test": "./node_modules/karma/bin/karma start"
+    "test": "./node_modules/karma/bin/karma start",
+    "prepublish": "./node_modules/gulp/bin/gulp.js prepublish"
   },
   "repository": {
     "type": "git",
