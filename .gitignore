@@ -9,4 +9,4 @@ build/
 dist/**/*.js
 debug/**/*.js
 debug/**/*.css
-docs/
+docs-out/

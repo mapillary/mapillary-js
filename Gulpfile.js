@@ -42,7 +42,10 @@ var config = {
       theme: 'minimal',
       mode: 'file',
       excludeExternals: '',
-      out: './out'
+      out: './docs-out',
+      name: '"mapillary-js 0.0.0 alpha"',
+      includes: 'docs/includes',
+      media: 'docs/media'
     }
   }
 }

@@ -1,72 +1,31 @@
 # mapillary-js ![](https://circleci.com/gh/mapillary/mapillary-js.png?circle-token=60c8b9b3c9ce93616d0dc38a20c718f01a1fe689)
-Mapillary WebGL Viewer
 
-## Developing mapillary-js
+WebGL JavaScript library for displaying street level imagery from [Mapillary](https://www.mapillary.com)
 
-The following tools are required on any platform to develop `mapillary-js`.
+@TODO
 
-- git
-- node.js
+## Installation
+To install the latest version... @TODO
 
-To install dependencies
+`npm install --save mapillary-js`
 
-```
-$ npm install
-```
+## Quickstart
 
-Development mode
+@TODO
 
-```
-$ gulp
-```
+## Documentation
+- [Developing mapillary-js]()
+- [Extending mapillary-js with plugins]()
+- [Glossary]()
+- [API Reference]()
 
-Then head to `http://localhost:3000/debug/` to debug
+## Examples
+@TODO
 
-## Gulp Commands
+## Changelog
 
-### gulp watch
+Every release is described on the GitHub [Releases](https://github.com/mapillary/mapillary-js/releases) page.
 
-Serve and constantly rebuild.
+## License
 
-### gulp test
-
-Run single test one time
-
-### gulp test-watch
-
-Keep karma browser open and rerun tests upon changes in project files
-
-
-## Project Structure
-```
-.
-├── build/               - Development folder
-├── debug/               - Access at localhost:3000/debug after `gulp`
-├── dist/                - Distribution: CSS and other assets
-├── shaders/             - GLSL shaders
-├── spec/                - Tests
-│   ├── Viewer.spec.ts
-│   └── viewer
-│       ├── OptionsParser.spec.ts
-│       └── Prefetcher.spec.ts
-├── src/
-│   ├── Mapillary.ts   - Main file
-│   ├── Utils.ts       - Utility classes
-│   ├── *.ts           - One file per class
-│   └── api            - One folder per class
-│       ├── interfaces
-│       │   ├── IAPINavIm.ts
-│       │   ├── IAPINavImIm.ts
-│       │   ├── IAPINavImS.ts
-│       │   └── interfaces.ts
-│       ├── APINav.ts
-│       ├── APIv2.ts
-│       └── APIv2Call.ts
-├── typings/
-├── Gulpfile.js
-├── karma.conf.js
-├── package.json
-├── tsd.json
-├── tslint.json
-└── README.md
-```
+MIT License
