@@ -111,7 +111,7 @@ One way to extend the mapillary-js functionality is through custom UIs. This sho
 
 10. Now we’re ready to enjoy the attribution next to the photo!
 
-> @TODO: Add photos
+  > @TODO: Add photos
 
 11. Full code looks as follows:
 
