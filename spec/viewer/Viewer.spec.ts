@@ -38,6 +38,8 @@ describe("Viewer", () => {
         });
 
         viewer.on("moveend", (node: Node) => {
+            expect(node.image).toBe("fakeIm");
+            expect(node.mesh).toBe("fakeMesh");
             expect(node.key).toBe("A");
             done();
         });

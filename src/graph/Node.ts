@@ -1,4 +1,6 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../typings/rest/rest.d.ts" />
+/// <reference path="../../typings/when/when.d.ts" />
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
@@ -6,6 +8,8 @@ import {ILatLon} from "../Graph";
 import Sequence from "./Sequence";
 
 import * as rx from "rx";
+import * as rest from "rest";
+import * as mime from "rest/interceptor/mime";
 
 export class Node {
     public key: string;
@@ -46,7 +50,9 @@ export class Node {
     }
 
     public cacheAssets(): rx.Observable<Node> {
-        return this.cacheImage();
+        return this.cacheImage().zip(this.cacheMesh(), (n1: Node, n2: Node): Node => {
+            return n1;
+        });
     }
 
     public cacheImage(): rx.Observable<Node> {
@@ -54,7 +60,7 @@ export class Node {
             let img: HTMLImageElement = new Image();
 
             if (process.env.MAPENV === "development") {
-                this.image = "fake";
+                this.image = "fakeIm";
                 observer.onNext(this);
                 observer.onCompleted();
                 return;
@@ -73,6 +79,30 @@ export class Node {
             };
 
             img.src = "https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/thumb-320.jpg?origin=mapillary.webgl";
+        });
+    }
+
+    public cacheMesh(): rx.Observable<Node> {
+        return rx.Observable.create<Node>((observer: rx.Observer<Node>): void => {
+            if (process.env.MAPENV === "development") {
+                this.mesh = "fakeMesh";
+                observer.onNext(this);
+                observer.onCompleted();
+                return;
+            }
+
+            let client: rest.Client = rest.wrap(mime);
+            client("https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/sfm/v1.0/atomic_mesh.json").entity().then(
+            (data: any) => {
+                this.mesh = JSON.parse(data)[this.key];
+                observer.onNext(this);
+                observer.onCompleted();
+            },
+            (error: Error) => {
+                observer.onNext(this);
+                observer.onCompleted();
+            });
+            return;
         });
     }
 
