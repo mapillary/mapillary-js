@@ -5,11 +5,11 @@ import * as rx from "rx";
 import {IAPISearchImClose2, APIv2} from "../API";
 import {GraphService, Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
-import {StateService2} from "../State";
+import {StateService} from "../State";
 
 export class Navigator {
     public graphService: GraphService;
-    public stateService2: StateService2;
+    public stateService2: StateService;
     public loading: boolean;
 
     public apiV2: APIv2;
@@ -21,7 +21,7 @@ export class Navigator {
         this.apiV2 = new APIv2(clientId);
 
         this.graphService = new GraphService(this.apiV2);
-        this.stateService2 = new StateService2();
+        this.stateService2 = new StateService();
 
         this.stateService2.currentNode.subscribe((node: Node) => { this.currentNode = node; });
     }

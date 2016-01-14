@@ -10,7 +10,7 @@ import {
     StateContext,
 } from "../State";
 
-export class StateService2 {
+export class StateService {
     private currentStateSubject: rx.Subject<ICurrentState2>;
 
     private context: IStateContext;
