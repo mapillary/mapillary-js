@@ -17,10 +17,11 @@ export class GlUI implements IUI {
     private stateSubscription: rx.IDisposable;
 
     private renderer: THREE.WebGLRenderer;
+    private needsRender: boolean;
     private camera: THREE.PerspectiveCamera;
     private imagePlaneScene: GlScene;
 
-    private imagePlaneSize: number = 200;
+    private imagePlaneDistance: number = 200;
 
     private currentKey: string;
     private previousKey: string;
@@ -30,6 +31,9 @@ export class GlUI implements IUI {
         this.navigator = navigator;
 
         this.currentKey = null;
+        this.previousKey = null;
+
+        this.needsRender = false;
     }
 
     public activate(): void {
@@ -46,8 +50,6 @@ export class GlUI implements IUI {
 
         this.camera = new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000);
         this.imagePlaneScene = new GlScene();
-
-        this.renderer.render(this.imagePlaneScene.scene, this.camera);
 
         this.stateSubscription = this.navigator.stateService2.currentState.subscribe(
             this.onStateChanged.bind(this));
@@ -80,9 +82,17 @@ export class GlUI implements IUI {
         this.currentKey = state.currentNode.key;
         this.imagePlaneScene.updateImagePlanes(
             [this.createImagePlane(this.currentKey, state.currentTransform, state.currentNode)]);
+
+        this.needsRender = true;
     }
 
     private render(alpha: number): void {
+        if (!this.needsRender) {
+            return;
+        }
+
+        this.needsRender = false;
+
         for (let plane of this.imagePlaneScene.imagePlanes) {
             (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = alpha;
         }
@@ -110,6 +120,8 @@ export class GlUI implements IUI {
         this.camera.up.copy(camera.up);
         this.camera.position.copy(camera.position);
         this.camera.lookAt(camera.lookat);
+
+        this.needsRender = true;
     }
 
     private createImagePlane(key: string, transform: Transform, node: Node): THREE.Mesh {
@@ -176,7 +188,7 @@ export class GlUI implements IUI {
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
-        let maxZ: number = this.imagePlaneSize * transform.scale;
+        let maxZ: number = this.imagePlaneDistance * transform.scale;
         for (let v of node.mesh.vertices) {
             let z: number = Math.max(minZ, Math.min(v[2], maxZ));
             let factor: number = z / v[2];
@@ -198,10 +210,10 @@ export class GlUI implements IUI {
         let size: number = Math.max(width, height);
         let dx: number = width / 2.0 / size;
         let dy: number = height / 2.0 / size;
-        let tl: THREE.Vector3 = transform.pixelToVertex(-dx, -dy, this.imagePlaneSize);
-        let tr: THREE.Vector3 = transform.pixelToVertex( dx, -dy, this.imagePlaneSize);
-        let br: THREE.Vector3 = transform.pixelToVertex( dx, dy, this.imagePlaneSize);
-        let bl: THREE.Vector3 = transform.pixelToVertex(-dx, dy, this.imagePlaneSize);
+        let tl: THREE.Vector3 = transform.pixelToVertex(-dx, -dy, this.imagePlaneDistance);
+        let tr: THREE.Vector3 = transform.pixelToVertex( dx, -dy, this.imagePlaneDistance);
+        let br: THREE.Vector3 = transform.pixelToVertex( dx, dy, this.imagePlaneDistance);
+        let bl: THREE.Vector3 = transform.pixelToVertex(-dx, dy, this.imagePlaneDistance);
 
         let geometry: THREE.Geometry = new THREE.Geometry();
 
