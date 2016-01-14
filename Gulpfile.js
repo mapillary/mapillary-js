@@ -35,8 +35,7 @@ var config = {
   browserify: {
     entries: ['./src/Mapillary.ts'],
     debug: true,
-    standalone: 'Mapillary',
-    fullPaths: true
+    standalone: 'Mapillary'
   },
   uglifyify: {
     global: true,
