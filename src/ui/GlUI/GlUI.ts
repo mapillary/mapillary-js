@@ -19,7 +19,9 @@ export class GlUI implements IUI {
     private renderer: THREE.WebGLRenderer;
     private needsRender: boolean;
     private lastAlpha: number;
-    private camera: THREE.PerspectiveCamera;
+    private lastCamera: Camera;
+    private epsilon: number;
+    private perspectiveCamera: THREE.PerspectiveCamera;
     private imagePlaneScene: GlScene;
 
     private imagePlaneDistance: number = 200;
@@ -35,6 +37,10 @@ export class GlUI implements IUI {
         this.previousKey = null;
 
         this.needsRender = false;
+
+        this.lastAlpha = 0;
+        this.lastCamera = new Camera();
+        this.epsilon = 0.000001;
     }
 
     public activate(): void {
@@ -49,7 +55,7 @@ export class GlUI implements IUI {
         this.renderer.domElement.style.height = "100%";
         this.container.element.appendChild(this.renderer.domElement);
 
-        this.camera = new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000);
+        this.perspectiveCamera = new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000);
         this.imagePlaneScene = new GlScene();
 
         this.stateSubscription = this.navigator.stateService2.currentState.subscribe(
@@ -69,11 +75,12 @@ export class GlUI implements IUI {
     }
 
     private updateAlpha(alpha: number): void {
-        if (this.lastAlpha !== alpha) {
-            this.needsRender = true;
+        if (this.lastAlpha === alpha) {
+            return;
         }
 
         this.lastAlpha = alpha;
+        this.needsRender = true;
     }
 
     private updateImagePlanes(state: ICurrentState): void {
@@ -96,6 +103,31 @@ export class GlUI implements IUI {
         this.needsRender = true;
     }
 
+    private getVerticalFov(aspect: number, camera: Camera): number {
+        let focal: number = camera.focal;
+        let verticalFov: number = 2 * Math.atan(0.5 / aspect / focal) * 180 / Math.PI;
+
+        return verticalFov;
+    }
+
+    private updateCamera(camera: Camera): void {
+        if (this.lastCamera.diff(camera) < this.epsilon) {
+            return;
+        }
+
+        let verticalFov: number = this.getVerticalFov(4 / 3, camera);
+
+        this.perspectiveCamera.fov = verticalFov;
+        this.perspectiveCamera.updateProjectionMatrix();
+
+        this.perspectiveCamera.up.copy(camera.up);
+        this.perspectiveCamera.position.copy(camera.position);
+        this.perspectiveCamera.lookAt(camera.lookat);
+
+        this.lastCamera.copy(camera);
+        this.needsRender = true;
+    }
+
     private render(alpha: number): void {
         if (!this.needsRender) {
             return;
@@ -111,27 +143,7 @@ export class GlUI implements IUI {
             (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = 1;
         }
 
-        this.renderer.render(this.imagePlaneScene.scene, this.camera);
-    }
-
-    private getVerticalFov(aspect: number, camera: Camera): number {
-        let focal: number = camera.focal;
-        let verticalFov: number = 2 * Math.atan(0.5 / aspect / focal) * 180 / Math.PI;
-
-        return verticalFov;
-    }
-
-    private updateCamera(camera: Camera): void {
-        let verticalFov: number = this.getVerticalFov(4 / 3, camera);
-
-        this.camera.fov = verticalFov;
-        this.camera.updateProjectionMatrix();
-
-        this.camera.up.copy(camera.up);
-        this.camera.position.copy(camera.position);
-        this.camera.lookAt(camera.lookat);
-
-        this.needsRender = true;
+        this.renderer.render(this.imagePlaneScene.scene, this.perspectiveCamera);
     }
 
     private createImagePlane(key: string, transform: Transform, node: Node): THREE.Mesh {
