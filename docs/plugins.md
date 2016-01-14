@@ -33,7 +33,7 @@ One way to extend the mapillary-js functionality is through custom UIs. This sho
   ```js
   Attribution.prototype.activate = function () {
     this.disposable = this.navigator
-      .stateService2
+      .stateService
       .currentNode
       .subscribe(callbackFunction) // function (node) { ... }
   }
@@ -69,7 +69,7 @@ One way to extend the mapillary-js functionality is through custom UIs. This sho
   //--- still in the Attribution constructor
   Attribution.prototype.activate = function () {
     this.disposable = this.navigator
-      .stateService2
+      .stateService
       .currentNode
       .subscribe(onNodeChange.bind(this)) // `this` binds to the constructor as we
                                           // want to modify this.attributionContainer
@@ -126,7 +126,7 @@ var Attribution = (function () {
   Attribution.prototype.activate = function () {
     this.setAttributionContainer()
     this.disposable = this.navigator
-      .stateService2
+      .stateService
       .currentNode
       .subscribe(onNodeChange.bind(this))
   }
