@@ -6,7 +6,6 @@ spec/*.js
 *.tgz
 .#*
 build/
-dist/**/*.js
 debug/**/*.js
 debug/**/*.css
 docs-out/
