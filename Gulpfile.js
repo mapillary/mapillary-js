@@ -47,19 +47,16 @@ var config = {
   },
   ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions,
   typedoc: {
-    includes: ['./src/viewer/Viewer.ts',
-               './src/graph/Graph.ts'
-              ],
+    includes: [
+      './src/Mapillary.ts'
+    ],
     options: {
       target: 'ES5',
       module: 'commonjs',
       theme: 'minimal',
       mode: 'file',
-      excludeExternals: '',
       out: './docs-out',
-      name: '"mapillary-js 0.0.1"',
-      includes: 'docs/includes',
-      media: 'docs/media'
+      name: 'mapillary-js'
     }
   }
 }
