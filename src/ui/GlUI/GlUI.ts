@@ -18,6 +18,7 @@ export class GlUI implements IUI {
 
     private renderer: THREE.WebGLRenderer;
     private needsRender: boolean;
+    private lastAlpha: number;
     private camera: THREE.PerspectiveCamera;
     private imagePlaneScene: GlScene;
 
@@ -61,9 +62,18 @@ export class GlUI implements IUI {
 
     private onStateChanged(state: ICurrentState): void {
         this.updateImagePlanes(state);
+        this.updateAlpha(state.alpha);
         this.updateCamera(state.camera);
 
         this.render(state.alpha);
+    }
+
+    private updateAlpha(alpha: number): void {
+        if (this.lastAlpha !== alpha) {
+            this.needsRender = true;
+        }
+
+        this.lastAlpha = alpha;
     }
 
     private updateImagePlanes(state: ICurrentState): void {
