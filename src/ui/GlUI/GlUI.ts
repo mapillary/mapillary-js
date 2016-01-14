@@ -24,7 +24,7 @@ export class GlUI implements IUI {
     private perspectiveCamera: THREE.PerspectiveCamera;
     private imagePlaneScene: GlScene;
 
-    private imagePlaneDistance: number = 200;
+    private imagePlaneDepth: number = 200;
 
     private currentKey: string;
     private previousKey: string;
@@ -136,11 +136,20 @@ export class GlUI implements IUI {
         this.needsRender = false;
 
         for (let plane of this.imagePlaneScene.imagePlanes) {
-            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = alpha;
+            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = 1;
         }
 
         for (let plane of this.imagePlaneScene.imagePlanesOld) {
             (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = 1;
+        }
+
+        this.renderer.autoClear = false;
+        this.renderer.clear();
+        this.renderer.render(this.imagePlaneScene.scene, this.perspectiveCamera);
+        this.renderer.render(this.imagePlaneScene.sceneOld, this.perspectiveCamera);
+
+        for (let plane of this.imagePlaneScene.imagePlanes) {
+            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = alpha;
         }
 
         this.renderer.render(this.imagePlaneScene.scene, this.perspectiveCamera);
@@ -210,7 +219,7 @@ export class GlUI implements IUI {
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
-        let maxZ: number = this.imagePlaneDistance * transform.scale;
+        let maxZ: number = this.imagePlaneDepth * transform.scale;
         for (let v of node.mesh.vertices) {
             let z: number = Math.max(minZ, Math.min(v[2], maxZ));
             let factor: number = z / v[2];
@@ -232,10 +241,10 @@ export class GlUI implements IUI {
         let size: number = Math.max(width, height);
         let dx: number = width / 2.0 / size;
         let dy: number = height / 2.0 / size;
-        let tl: THREE.Vector3 = transform.pixelToVertex(-dx, -dy, this.imagePlaneDistance);
-        let tr: THREE.Vector3 = transform.pixelToVertex( dx, -dy, this.imagePlaneDistance);
-        let br: THREE.Vector3 = transform.pixelToVertex( dx, dy, this.imagePlaneDistance);
-        let bl: THREE.Vector3 = transform.pixelToVertex(-dx, dy, this.imagePlaneDistance);
+        let tl: THREE.Vector3 = transform.pixelToVertex(-dx, -dy, this.imagePlaneDepth);
+        let tr: THREE.Vector3 = transform.pixelToVertex( dx, -dy, this.imagePlaneDepth);
+        let br: THREE.Vector3 = transform.pixelToVertex( dx, dy, this.imagePlaneDepth);
+        let bl: THREE.Vector3 = transform.pixelToVertex(-dx, dy, this.imagePlaneDepth);
 
         let geometry: THREE.Geometry = new THREE.Geometry();
 
