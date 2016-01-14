@@ -12,5 +12,6 @@ export interface IState {
 
     update(): void;
     append(nodes: Node[]): void;
+    remove(n: number): void;
     set(nodes: Node[]): void;
 }

@@ -45,6 +45,10 @@ export class StateService2 {
         this.context.append(nodes);
     }
 
+    public removeNodes(n: number): void {
+        this.context.remove(n);
+    }
+
     public setNodes(nodes: Node[]): void {
         this.context.set(nodes);
     }

@@ -7,6 +7,7 @@ export class CompletingState implements IState {
     public camera: Camera;
 
     public trajectory: Node[];
+    public currentIndex: number;
 
     public currentNode: Node;
     public previousNode: Node;
@@ -15,8 +16,6 @@ export class CompletingState implements IState {
 
     private trajectoryTransforms: Transform[];
     private trajectoryCameras: Camera[];
-
-    private currentIndex: number;
 
     private currentCamera: Camera;
     private previousCamera: Camera;
@@ -65,6 +64,22 @@ export class CompletingState implements IState {
             let transform: Transform = new Transform(node);
             this.trajectoryTransforms.push(transform);
             this.trajectoryCameras.push(new Camera(transform));
+        }
+    }
+
+    public remove(n: number): void {
+        if (n < 0) {
+            throw Error("n must be a positive integer");
+        }
+
+        let length: number = this.trajectory.length;
+
+        if (length - (this.currentIndex + 1) < n) {
+            throw Error("Current node can not be removed");
+        }
+
+        for (let i: number = 0; i < n; i++) {
+            this.trajectory.pop();
         }
     }
 

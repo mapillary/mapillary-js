@@ -45,6 +45,10 @@ export class StateContext implements IStateContext {
         this.state.append(nodes);
     }
 
+    public remove(n: number): void {
+        this.state.remove(n);
+    }
+
     public set(nodes: Node[]): void {
         this.state.set(nodes);
     }
