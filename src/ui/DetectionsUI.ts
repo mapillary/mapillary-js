@@ -5,42 +5,39 @@ import * as rx from "rx";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import * as rest from "rest";
+import {APIv2} from "../API";
 
-import {IUI, IRect, IORResponse} from "../UI";
+import {IUI, IRect} from "../UI";
 
 export class DetectionsUI implements IUI {
     private disposable: rx.IDisposable;
     private navigator: Navigator;
     private container: Container;
     private rectContainer: HTMLElement;
-    private detectionData: IORResponse;
+    private detectionData: any;
+    private apiV2: APIv2;
 
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
+        this.apiV2 = navigator.apiV2;
     }
 
     public activate(): void {
-
         let child: HTMLElement = document.createElement("div");
         child.className = "rectContainer";
 
         this.rectContainer = child;
         this.container.element.appendChild(this.rectContainer);
 
-        let cid: string = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4";
-
         this.disposable = this.navigator
             .stateService2
             .currentNode.subscribe((node: Node): void => {
                 this.setRectContainer(node.image.width, node.image.height);
-
                 this.removeRectsFromDOM();
-                let url: string = `https://a.mapillary.com/v2/im/${node.key}/or?client_id=${cid}`;
-                rest(url).then((data: any) => {
-                    this.detectionData = JSON.parse(data.entity);
 
+                this.apiV2.im.callOr(node.key).then((data: any) => {
+                    this.detectionData = data;
                     this.updateRects(this.detectionData.or_rects);
                 });
             });

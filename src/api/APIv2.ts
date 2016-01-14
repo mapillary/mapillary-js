@@ -1,7 +1,9 @@
+import APIIm from "./APIIm";
 import APINav from "./APINav";
 import APISearch from "./APISearch";
 
 export class APIv2 {
+    public im: APIIm;
     public nav: APINav;
     public search: APISearch;
 
@@ -16,6 +18,8 @@ export class APIv2 {
     */
     constructor (clientId: string) {
         this.clientId = clientId;
+
+        this.im = new APIIm(clientId);
         this.nav = new APINav(clientId);
         this.search = new APISearch(clientId);
     };
