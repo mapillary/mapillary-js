@@ -5,11 +5,10 @@ import * as rx from "rx";
 import {IAPISearchImClose2, APIv2} from "../API";
 import {GraphService, Node} from "../Graph";
 import {EdgeConstants} from "../Edge";
-import {StateService, StateService2} from "../State";
+import {StateService2} from "../State";
 
 export class Navigator {
     public graphService: GraphService;
-    public stateService: StateService;
     public stateService2: StateService2;
     public loading: boolean;
 
@@ -22,10 +21,9 @@ export class Navigator {
         this.apiV2 = new APIv2(clientId);
 
         this.graphService = new GraphService(this.apiV2);
-        this.stateService = new StateService();
         this.stateService2 = new StateService2();
 
-        this.stateService.currentNode.subscribe((node: Node) => { this.currentNode = node; });
+        this.stateService2.currentNode.subscribe((node: Node) => { this.currentNode = node; });
     }
 
     public moveToKey(key: string): rx.Observable<Node> {
@@ -36,7 +34,6 @@ export class Navigator {
 
         return this.graphService.getNode(key).map<Node>((node: Node): Node => {
             this.loading = false;
-            this.stateService.startMove([node]);
             this.stateService2.setNodes([node]);
             return node;
         });
