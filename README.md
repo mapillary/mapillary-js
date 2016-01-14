@@ -1,4 +1,4 @@
-# mapillary-js ![](https://circleci.com/gh/mapillary/mapillary-js.png?circle-token=60c8b9b3c9ce93616d0dc38a20c718f01a1fe689)
+# mapillary-js [![Build Status](https://circleci.com/gh/mapillary/mapillary-js.svg?style=svg)](https://circleci.com/gh/mapillary/mapillary-js)
 
 WebGL JavaScript library for displaying street level imagery from [Mapillary](https://www.mapillary.com)
 
