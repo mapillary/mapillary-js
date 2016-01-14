@@ -29,7 +29,6 @@ Then head to `http://localhost:3000/debug/` to debug
 ├── build/               - Development folder
 ├── debug/               - Access at localhost:3000/debug after `gulp`
 ├── dist/                - Distribution: CSS and other assets
-├── shaders/             - GLSL shaders
 ├── spec/                - Tests
 │   ├── Viewer.spec.ts
 │   └── viewer
