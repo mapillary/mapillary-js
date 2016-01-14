@@ -5,7 +5,7 @@ WebGL JavaScript library for displaying street level imagery from [Mapillary](ht
 > **ATTENTION! This is an early alpha release, expect the APIs to change and some things to break.**
 
 ## Installation
-To install the latest version... @TODO
+To install the latest version
 
 `npm install --save mapillary-js`
 
@@ -56,7 +56,8 @@ var mly = new Mapillary
 - [API Reference](https://mapillary.github.io/mapillary-js)
 
 ## Examples
-@TODO
+- [mapillary-js + Leaflet + Tangram](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
+- [mapillary-js + Leaflet](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555)
 
 ## Changelog
 
