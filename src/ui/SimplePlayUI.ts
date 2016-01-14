@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {EdgeConstants} from "../Edge";
 import {Node} from "../Graph";
-import {ICurrentState2} from "../State";
+import {ICurrentState} from "../State";
 import {IUI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
@@ -21,7 +21,7 @@ export class SimplePlayUI implements IUI {
     }
 
     public activate(): void {
-        this.disposable = this.navigator.stateService2.currentState.subscribe((currentState: ICurrentState2) => {
+        this.disposable = this.navigator.stateService2.currentState.subscribe((currentState: ICurrentState) => {
             if (!this.playing) {
                 return;
             }

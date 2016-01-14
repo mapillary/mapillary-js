@@ -5,13 +5,13 @@ import * as rx from "rx";
 import {Node} from "../Graph";
 import {
     FrameGenerator,
-    ICurrentState2,
+    ICurrentState,
     IStateContext,
     StateContext,
 } from "../State";
 
 export class StateService {
-    private currentStateSubject: rx.Subject<ICurrentState2>;
+    private currentStateSubject: rx.Subject<ICurrentState>;
 
     private context: IStateContext;
 
@@ -20,19 +20,19 @@ export class StateService {
 
     constructor () {
         this.context = new StateContext();
-        this.currentStateSubject = new rx.BehaviorSubject<ICurrentState2>(this.context);
+        this.currentStateSubject = new rx.BehaviorSubject<ICurrentState>(this.context);
 
         this.frameGenerator = new FrameGenerator();
         this.frameGenerator.requestAnimationFrame(this.frame.bind(this));
     }
 
-    public get currentState(): rx.Observable<ICurrentState2> {
+    public get currentState(): rx.Observable<ICurrentState> {
         return this.currentStateSubject;
     }
 
     public get currentNode(): rx.Observable<Node> {
         return this.currentStateSubject
-            .map<Node>((c: ICurrentState2): Node => { return c.currentNode; })
+            .map<Node>((c: ICurrentState): Node => { return c.currentNode; })
             .filter((n: Node): boolean => { return n != null; })
             .distinctUntilChanged();
     }

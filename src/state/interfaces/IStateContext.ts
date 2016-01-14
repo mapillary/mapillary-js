@@ -1,7 +1,7 @@
-import {ICurrentState2} from "../../State";
+import {ICurrentState} from "../../State";
 import {Node} from "../../Graph";
 
-export interface IStateContext extends ICurrentState2 {
+export interface IStateContext extends ICurrentState {
     update(): void;
     append(nodes: Node[]): void;
     remove(n: number): void;

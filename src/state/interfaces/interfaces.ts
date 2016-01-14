@@ -1,3 +1,3 @@
-export {ICurrentState2} from "./ICurrentState2";
+export {ICurrentState} from "./ICurrentState";
 export {IStateContext} from "./IStateContext";
 export {IState} from "./IState";

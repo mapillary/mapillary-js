@@ -5,7 +5,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 
 import {IUI, Shaders, GlScene} from "../../UI";
-import {ICurrentState2} from "../../State";
+import {ICurrentState} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
@@ -57,14 +57,14 @@ export class GlUI implements IUI {
         this.stateSubscription.dispose();
     }
 
-    private onStateChanged(state: ICurrentState2): void {
+    private onStateChanged(state: ICurrentState): void {
         this.updateImagePlanes(state);
         this.updateCamera(state.camera);
 
         this.render(state.alpha);
     }
 
-    private updateImagePlanes(state: ICurrentState2): void {
+    private updateImagePlanes(state: ICurrentState): void {
         if (state.currentNode == null || state.currentNode.key === this.currentKey) {
             return;
         }
