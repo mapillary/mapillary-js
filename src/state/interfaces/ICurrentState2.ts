@@ -7,6 +7,7 @@ export interface ICurrentState2 {
     currentNode: Node;
     previousNode: Node;
     trajectory: Node[];
+    currentIndex: number;
     currentTransform: Transform;
     previousTransform: Transform;
 }

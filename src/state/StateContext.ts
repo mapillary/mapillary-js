@@ -37,6 +37,10 @@ export class StateContext implements IStateContext {
         return this.state.trajectory;
     }
 
+    public get currentIndex(): number {
+        return this.state.currentIndex;
+    }
+
     public update(): void {
         this.state.update();
     }

@@ -7,6 +7,7 @@ export interface IState {
     currentNode: Node;
     previousNode: Node;
     trajectory: Node[];
+    currentIndex: number;
     currentTransform: Transform;
     previousTransform: Transform;
 
