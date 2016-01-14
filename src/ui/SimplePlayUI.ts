@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {EdgeConstants} from "../Edge";
 import {Node} from "../Graph";
-import {ICurrentState} from "../State";
+import {ICurrentState2} from "../State";
 import {IUI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
@@ -21,14 +21,15 @@ export class SimplePlayUI implements IUI {
     }
 
     public activate(): void {
-        this.disposable = this.navigator.stateService.currentState.subscribe((currentState: ICurrentState) => {
+        this.disposable = this.navigator.stateService2.currentState.subscribe((currentState: ICurrentState2) => {
             if (!this.playing) {
                 return;
             }
             if (currentState != null && currentState.currentNode != null) {
-                if (currentState.nextNodes.length < 5) {
+                let l: number = currentState.trajectory.length;
+                if (l - currentState.currentIndex < 5) {
                     this.currentNode = currentState.currentNode;
-                    this.getNbrNexts(currentState.nextNodes[currentState.nextNodes.length - 1]);
+                    this.getNbrNexts(currentState.trajectory[l - 1]);
                 }
             }
         });
@@ -44,14 +45,14 @@ export class SimplePlayUI implements IUI {
 
     public stop(): void {
         this.playing =  false;
-        this.navigator.stateService.startMove([]);
+        this.navigator.stateService2.cutNodes();
     }
 
     private getNbrNexts(node: Node): void {
         this.navigator.graphService.getNextNode(node, EdgeConstants.Direction.NEXT)
             .first()
             .subscribe((nextNode: Node) => {
-                this.navigator.stateService.appendMove([nextNode]);
+                this.navigator.stateService2.appendNodes([nextNode]);
             });
     }
 }
