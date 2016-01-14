@@ -112,7 +112,6 @@ describe("Camera.lerpCameras", () => {
         expect(camera.up.z).toBe(a.up.z / 2);
     });
 
-
     it("should interpolate focal", () => {
         let a: Camera = new Camera();
         a.focal = 0.5;
@@ -133,5 +132,90 @@ describe("Camera.lerpCameras", () => {
         camera.lerpCameras(a, b, 0.5);
 
         expect(camera.focal).toBe((a.focal + b.focal) / 2);
+    });
+});
+
+describe("Camera.copy", () => {
+    it("should copy properties of other camera", () => {
+        let camera: Camera = new Camera();
+
+        let position: number[] = [10, 20, -30];
+        let lookat: number[] = [-5, 2, 19];
+        let up: number[] = [0.3, 0.7, -0.5];
+        let focal: number = 0.85;
+
+        let other: Camera = new Camera();
+        other.position.fromArray(position);
+        other.lookat.fromArray(lookat);
+        other.up.fromArray(up);
+        other.focal = focal;
+
+        camera.copy(other);
+
+        expect(camera.position.x).toBe(position[0]);
+        expect(camera.position.y).toBe(position[1]);
+        expect(camera.position.z).toBe(position[2]);
+
+        expect(camera.lookat.x).toBe(lookat[0]);
+        expect(camera.lookat.y).toBe(lookat[1]);
+        expect(camera.lookat.z).toBe(lookat[2]);
+
+        expect(camera.up.x).toBe(up[0]);
+        expect(camera.up.y).toBe(up[1]);
+        expect(camera.up.z).toBe(up[2]);
+
+        expect(camera.focal).toBe(focal);
+    });
+});
+
+describe("Camera.diff", () => {
+    let epsilon: number = 10e-8;
+
+    it("should have difference based on position", () => {
+        let camera: Camera = new Camera();
+        camera.position.fromArray([0, 0, 0]);
+
+        let other: Camera = new Camera();
+        other.position.fromArray([0, 0, 2]);
+
+        let diff: number = camera.diff(other);
+
+        expect(diff).toBe(4);
+    });
+
+    it("should have difference based on lookat", () => {
+        let camera: Camera = new Camera();
+        camera.lookat.fromArray([0, 1, 0]);
+
+        let other: Camera = new Camera();
+        other.lookat.fromArray([0, 3, 0]);
+
+        let diff: number = camera.diff(other);
+
+        expect(diff).toBe(4);
+    });
+
+    it("should have difference based on up", () => {
+        let camera: Camera = new Camera();
+        camera.up.fromArray([-1, 0, 0]);
+
+        let other: Camera = new Camera();
+        other.up.fromArray([1, 0, 0]);
+
+        let diff: number = camera.diff(other);
+
+        expect(diff).toBe(4);
+    });
+
+    it("should have difference based on focal", () => {
+        let camera: Camera = new Camera();
+        camera.focal = 0.85
+
+        let other: Camera = new Camera();
+        other.focal = 0.89;
+
+        let diff: number = camera.diff(other);
+
+        expect(diff).toBeCloseTo(4, epsilon);
     });
 });

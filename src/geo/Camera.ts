@@ -31,6 +31,22 @@ export class Camera {
       this.focal = (1 - alpha) * a.focal + alpha * b.focal;
     }
 
+    public copy(other: Camera): void {
+        this.position.copy(other.position);
+        this.lookat.copy(other.lookat);
+        this.up.copy(other.up);
+        this.focal = other.focal;
+    }
+
+    public diff(other: Camera): number {
+        let pd: number = this.position.distanceToSquared(other.position);
+        let ld: number = this.lookat.distanceToSquared(other.lookat);
+        let ud: number = this.up.distanceToSquared(other.up);
+        let fd: number = 100 * Math.abs(this.focal - other.focal);
+
+        return Math.max(pd, ld, ud, fd);
+    }
+
     private getFocal(transform: Transform): number {
         let size: number = Math.max(transform.width, transform.height);
         if (transform.orientation > 4) {
