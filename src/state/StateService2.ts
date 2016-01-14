@@ -49,6 +49,10 @@ export class StateService2 {
         this.context.remove(n);
     }
 
+    public cutNodes(): void {
+        this.context.cut();
+    }
+
     public setNodes(nodes: Node[]): void {
         this.context.set(nodes);
     }

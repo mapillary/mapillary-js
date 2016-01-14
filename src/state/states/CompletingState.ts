@@ -83,6 +83,12 @@ export class CompletingState implements IState {
         }
     }
 
+    public cut(): void {
+        while (this.trajectory.length - 1 > this.currentIndex) {
+            this.trajectory.pop();
+        }
+    }
+
     public set(trajectory: Node[]): void {
         if (trajectory.length < 1) {
             throw Error("Trajectory can not be empty");

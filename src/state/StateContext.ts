@@ -49,6 +49,10 @@ export class StateContext implements IStateContext {
         this.state.remove(n);
     }
 
+    public cut(): void {
+        this.state.cut();
+    }
+
     public set(nodes: Node[]): void {
         this.state.set(nodes);
     }
