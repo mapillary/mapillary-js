@@ -30,7 +30,7 @@
         var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['simple', 'simplenav', 'simplecache', 'keyboard'] })
         var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['gl', 'simplenav', 'simplecache', 'keyboard'] })
 
-        viewerSimple.on("moveend", function (node) {
+        viewerSimple.on("nodechanged", function (node) {
             console.log(node.key);
         });
         viewerSimple.on("loadingchanged", function (loading) {

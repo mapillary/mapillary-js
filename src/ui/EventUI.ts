@@ -24,7 +24,7 @@ export class EventUI implements IUI {
         });
 
         this.disposableState = this.navigator.stateService2.currentNode.subscribe((node: Node): void => {
-            this.eventEmitter.fire("moveend", node);
+            this.eventEmitter.fire("nodechanged", node);
         });
     }
 
