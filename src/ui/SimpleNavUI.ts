@@ -42,36 +42,12 @@ export class SimpleNavUI implements IUI {
         this.createElement(EdgeDirection.NEXT, "Forward", this.sequenceElements, EdgeDirection.STEP_FORWARD);
         this.createElement(EdgeDirection.PREV, "Backward", this.sequenceElements, EdgeDirection.STEP_BACKWARD);
 
-        for (let k in this.elements) {
-             if (this.elements.hasOwnProperty(k)) {
-                let element: HTMLSpanElement = this.elements[k].element;
-                this.element.appendChild(element);
-             }
-        }
-
-        for (let k in this.sequenceElements) {
-             if (this.sequenceElements.hasOwnProperty(k)) {
-                let element: HTMLSpanElement = this.sequenceElements[k].element;
-                this.element.appendChild(element);
-             }
-        }
+        this.appendElements(this.elements);
+        this.appendElements(this.sequenceElements);
 
         this.disposable = this.navigator.stateService.currentNode.subscribe((node: Node): void => {
-            for (let k in this.elements) {
-                if (this.elements.hasOwnProperty(k)) {
-                    let element: HTMLSpanElement = this.elements[k].element;
-                    element.className = element.className.replace(/\DirectionHidden\b/, "");
-                    element.className += " DirectionHidden";
-                }
-            }
-
-            for (let k in this.sequenceElements) {
-                if (this.sequenceElements.hasOwnProperty(k)) {
-                    let element: HTMLSpanElement = this.sequenceElements[k].element;
-                    element.className = element.className.replace(/\DirectionHidden\b/, "");
-                    element.className += " DirectionHidden";
-                }
-            }
+            this.hideElements(this.elements);
+            this.hideElements(this.sequenceElements);
 
             let directions: EdgeDirection[] = [];
             let keys: string[] = [];
@@ -109,6 +85,24 @@ export class SimpleNavUI implements IUI {
              if (this.elements.hasOwnProperty(k)) {
                 this.elements[k].subscription.dispose();
              }
+        }
+    }
+
+    private appendElements(elements: { [direction: number]: INavigationElement }): void {
+         for (let k in elements) {
+             if (elements.hasOwnProperty(k)) {
+                 this.element.appendChild(elements[k].element);
+             }
+        }
+    }
+
+    private hideElements(elements: { [direction: number]: INavigationElement }): void {
+        for (let k in elements) {
+            if (elements.hasOwnProperty(k)) {
+                let element: HTMLSpanElement = elements[k].element;
+                element.className = element.className.replace(/\DirectionHidden\b/, "");
+                element.className += " DirectionHidden";
+            }
         }
     }
 
