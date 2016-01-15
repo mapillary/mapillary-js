@@ -135,8 +135,10 @@ export class GlUI implements IUI {
 
         this.needsRender = false;
 
+        let planeAlpha: number = this.imagePlaneScene.imagePlanesOld.length ? 1 : alpha;
+
         for (let plane of this.imagePlaneScene.imagePlanes) {
-            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = 1;
+            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = planeAlpha;
         }
 
         for (let plane of this.imagePlaneScene.imagePlanesOld) {
