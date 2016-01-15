@@ -14,6 +14,7 @@
 </head>
 <body>
     <div id='viewerCover'></div>
+    <br>
     <div id='viewerSimple'></div>
     <button onclick="viewerSimple.moveDir(0)">Forward</button><button onclick="viewerSimple.moveDir(1)">Backward</button>
     <div id='viewerSimpleLoading'></div>
@@ -27,6 +28,8 @@
 
     <script src='../build/bundle.js'></script>
     <script>
+        var viewerCover = new Mapillary.Viewer('viewerCover', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['cover', 'simple', 'simplenav', 'simplecache', 'keyboard'] })
+
         var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['simple', 'simplenav', 'simplecache', 'keyboard'] })
         var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['gl', 'simplenav', 'simplecache', 'keyboard'] })
 
