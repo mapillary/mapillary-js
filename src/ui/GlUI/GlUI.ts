@@ -19,6 +19,8 @@ export class GlUI implements IUI {
     private renderer: THREE.WebGLRenderer;
     private needsRender: boolean;
     private lastAlpha: number;
+    private alphaOld: number;
+    private fadeOutSpeed: number;
     private lastCamera: Camera;
     private epsilon: number;
     private perspectiveCamera: THREE.PerspectiveCamera;
@@ -39,6 +41,8 @@ export class GlUI implements IUI {
         this.needsRender = false;
 
         this.lastAlpha = 0;
+        this.alphaOld = 0;
+        this.fadeOutSpeed = 0.05;
         this.lastCamera = new Camera();
         this.epsilon = 0.000001;
     }
@@ -69,6 +73,7 @@ export class GlUI implements IUI {
     private onStateChanged(state: ICurrentState): void {
         this.updateImagePlanes(state);
         this.updateAlpha(state.alpha);
+        this.updateAlphaOld(state.alpha);
         this.updateCamera(state.camera);
 
         this.render(state.alpha);
@@ -80,6 +85,15 @@ export class GlUI implements IUI {
         }
 
         this.lastAlpha = alpha;
+        this.needsRender = true;
+    }
+
+    private updateAlphaOld(alpha: number): void {
+        if (alpha < 1 || this.alphaOld === 0) {
+            return;
+        }
+
+        this.alphaOld = Math.max(0, this.alphaOld - this.fadeOutSpeed);
         this.needsRender = true;
     }
 
@@ -100,6 +114,7 @@ export class GlUI implements IUI {
         this.imagePlaneScene.updateImagePlanes(
             [this.createImagePlane(this.currentKey, state.currentTransform, state.currentNode)]);
 
+        this.alphaOld = 1;
         this.needsRender = true;
     }
 
@@ -142,7 +157,7 @@ export class GlUI implements IUI {
         }
 
         for (let plane of this.imagePlaneScene.imagePlanesOld) {
-            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = 1;
+            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = this.alphaOld;
         }
 
         this.renderer.autoClear = false;
