@@ -106,22 +106,18 @@ export class SimpleNavUI implements IUI {
         }
     }
 
-    private move(direction: EdgeDirection): void {
-        this.navigator.moveDir(direction).first().subscribe();
-    }
-
     private createElement(
         direction: EdgeDirection,
         name: string,
         elements: { [direction: number]: INavigationElement },
         preferred?: EdgeDirection): void {
+
         let element: HTMLSpanElement = document.createElement("span");
         element.className = `btn Direction Direction${name} DirectionHidden`;
 
-        let move: (direction: EdgeDirection) => void = this.move.bind(this);
-
-        let clickStream: rx.Observable<void> = rx.Observable.fromEvent<void>(element, "click");
-        let subscription: rx.IDisposable = clickStream.subscribe(() => { move(direction); });
+        let subscription: rx.IDisposable = rx.Observable
+            .fromEvent<void>(element, "click")
+            .subscribe(() => { this.navigator.moveDir(direction).first().subscribe(); });
 
         elements[direction] = { element: element, preferred: preferred, subscription: subscription };
     }
