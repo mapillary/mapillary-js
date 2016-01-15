@@ -16,6 +16,7 @@
     <div id='viewerCover'></div>
     <div id='viewerSimple'></div>
     <button onclick="viewerSimple.moveDir(0)">Forward</button><button onclick="viewerSimple.moveDir(1)">Backward</button>
+    <div id='viewerSimpleLoading'></div>
     <br>
     <button onclick="simplePlayBot.play()">Play</button><button onclick="simplePlayBot.stop()">Stop</button>
     <button onclick="viewerSimple.moveCloseTo(55.64005918003778, 13.138717721805165)">MoveCloseTo</button>
@@ -32,8 +33,16 @@
         viewerSimple.on("moveend", function (node) {
             console.log(node.key);
         });
-       var viewerNewUi = new Mapillary.Viewer('viewerNewUi', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'dIPzva8vuKfAq0n_o7YuUA', uis: ['simple', 'simplenav', 'keyboard', 'detections'] })
-       var viewerNewUiPortrait = new Mapillary.Viewer('viewerNewUiPortrait', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'RSf7Ww9YMHMndq1GEN4v0A', uis: ['simple', 'simplenav', 'keyboard', 'detections'] })
+        viewerSimple.on("loadingchanged", function (loading) {
+            if (loading) {
+                document.getElementById("viewerSimpleLoading").innerHTML = "Loading";
+            } else {
+                document.getElementById("viewerSimpleLoading").innerHTML = "Not Loading";
+            }
+        });
+
+        var viewerNewUi = new Mapillary.Viewer('viewerNewUi', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'dIPzva8vuKfAq0n_o7YuUA', uis: ['simple', 'simplenav', 'keyboard', 'detections'] })
+        var viewerNewUiPortrait = new Mapillary.Viewer('viewerNewUiPortrait', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'RSf7Ww9YMHMndq1GEN4v0A', uis: ['simple', 'simplenav', 'keyboard', 'detections'] })
     </script>
 </body>
 </html>

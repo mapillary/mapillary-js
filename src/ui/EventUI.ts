@@ -8,7 +8,8 @@ import {IUI} from "../UI";
 import {EventEmitter} from "../Utils";
 
 export class EventUI implements IUI {
-    private disposable: rx.IDisposable;
+    private disposableState: rx.IDisposable;
+    private disposableLoading: rx.IDisposable;
     private eventEmitter: EventEmitter;
     private navigator: Navigator;
 
@@ -18,13 +19,18 @@ export class EventUI implements IUI {
     }
 
     public activate(): void {
-        this.disposable = this.navigator.stateService2.currentNode.subscribe((node: Node): void => {
+        this.disposableLoading = this.navigator.loadingService.loading().subscribe((loading: boolean): void => {
+            this.eventEmitter.fire("loadingchanged", loading);
+        });
+
+        this.disposableState = this.navigator.stateService2.currentNode.subscribe((node: Node): void => {
             this.eventEmitter.fire("moveend", node);
         });
     }
 
     public deactivate(): void {
-        this.disposable.dispose();
+        this.disposableLoading.dispose();
+        this.disposableState.dispose();
     }
 }
 

@@ -6,7 +6,7 @@ import {IAPINavIm, APIv2} from "../API";
 import {Graph, Node, TilesService} from "../Graph";
 
 interface IGraphOperation extends Function {
-  (graph: Graph): Graph;
+    (graph: Graph): Graph;
 }
 
 export class GraphService {

@@ -105,6 +105,15 @@ export default Viewer;
  */
 
 /**
+ * The loading state changed
+ *
+ * @event loadingchanged
+ * @memberof Viewer
+ * @type {Object}
+ * @property {TODO} TODO
+ */
+
+/**
  * Load event
  *
  * @event load
