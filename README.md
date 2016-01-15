@@ -3,8 +3,8 @@
 WebGL JavaScript library for displaying street level imagery from [Mapillary](https://www.mapillary.com)
 
 
-![mapillary-js viewer](https://github.com/mapillary/mapillary-js/blob/master/docs/assets/media/mapillary-js-preview-01.jpg "mapillary-js viewer")
-![mapillary-js traffic sign detections in the viewer](https://github.com/mapillary/mapillary-js/blob/master/docs/assets/media/mapillary-js-preview-02-detections-ui.jpg "mapillary-js traffic sign detections in the viewer")
+![mapillary-js viewer](https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-01.jpg "mapillary-js viewer")
+![mapillary-js traffic sign detections in the viewer](https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-02-detections-ui.jpg "mapillary-js traffic sign detections in the viewer")
 
 > **ATTENTION! This is an early alpha release, expect the APIs to change and some things to break.**
 
