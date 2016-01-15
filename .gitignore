@@ -11,5 +11,4 @@ debug/**/*.css
 docs-out/
 dist/mapillary-js.map
 dist/mapillary-js.min.js
-docs/assets/**
 docs/index.html
