@@ -19,20 +19,20 @@ export class SimpleCacheUI implements IUI {
     public activate(): void {
         this.disposable = this.navigator.stateService2.currentNode.subscribe((node: Node) => {
             _.map(node.edges, (edge: IEdge): void => {
-                if (edge.data.direction === EdgeConstants.Direction.NEXT) {
+                if (edge.data.direction === EdgeConstants.EdgeDirection.NEXT) {
                     this.navigator.graphService.getNode(edge.to).first().subscribe((node2: Node) => {
                         _.map(node2.edges, (edge2: IEdge): void => {
-                            if (edge2.data.direction === EdgeConstants.Direction.NEXT) {
+                            if (edge2.data.direction === EdgeConstants.EdgeDirection.NEXT) {
                                 this.navigator.graphService.getNode(edge2.to).first().subscribe();
                             }
                         });
                     });
                 }
 
-                if (edge.data.direction === EdgeConstants.Direction.PREV) {
+                if (edge.data.direction === EdgeConstants.EdgeDirection.PREV) {
                     this.navigator.graphService.getNode(edge.to).first().subscribe((node2: Node) => {
                         _.map(node2.edges, (edge2: IEdge): void => {
-                            if (edge2.data.direction === EdgeConstants.Direction.PREV) {
+                            if (edge2.data.direction === EdgeConstants.EdgeDirection.PREV) {
                                 this.navigator.graphService.getNode(edge2.to).first().subscribe();
                             }
                         });

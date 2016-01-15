@@ -19,7 +19,7 @@ export interface IEdgeData {
      *
      * @property {EdgeConstants.Direction} direction
      */
-    direction: EdgeConstants.Direction;
+    direction: EdgeConstants.EdgeDirection;
 }
 
 /**

@@ -147,7 +147,7 @@ export class EdgeCalculator {
         if (nextKey != null) {
             edges.push({
                 data: {
-                    direction: EdgeConstants.Direction.NEXT,
+                    direction: EdgeConstants.EdgeDirection.NEXT,
                     worldMotionAzimuth: Number.NaN,
                 },
                 from: node.apiNavImIm.key,
@@ -159,7 +159,7 @@ export class EdgeCalculator {
         if (prevKey != null) {
             edges.push({
                 data: {
-                    direction: EdgeConstants.Direction.PREV,
+                    direction: EdgeConstants.EdgeDirection.PREV,
                     worldMotionAzimuth: Number.NaN,
                 },
                 from: node.apiNavImIm.key,
@@ -290,7 +290,7 @@ export class EdgeCalculator {
                 }
 
                 let rig: boolean =
-                    turn.direction !== EdgeConstants.Direction.TURN_U &&
+                    turn.direction !== EdgeConstants.EdgeDirection.TURN_U &&
                     potential.distance < this.settings.turnMaxRigDistance &&
                     Math.abs(potential.directionChange) > this.settings.turnMinRigDirectionChange;
 
@@ -383,7 +383,7 @@ export class EdgeCalculator {
 
         return [{
             data: {
-                direction: EdgeConstants.Direction.PANO,
+                direction: EdgeConstants.EdgeDirection.PANO,
                 worldMotionAzimuth: edge.worldMotionAzimuth,
             },
             from: node.key,
@@ -463,7 +463,7 @@ export class EdgeCalculator {
 
         let panoEdges: IEdge[] = [];
         let potentialPanos: IPotentialEdge[] = [];
-        let potentialSteps: [EdgeConstants.Direction, IPotentialEdge][] = [];
+        let potentialSteps: [EdgeConstants.EdgeDirection, IPotentialEdge][] = [];
 
         for (let potential of potentialEdges) {
             if (potential.distance > this.settings.panoMaxDistance) {
@@ -549,7 +549,7 @@ export class EdgeCalculator {
                 occupiedAngles.push(edge.motionChange);
                 panoEdges.push({
                     data: {
-                        direction: EdgeConstants.Direction.PANO,
+                        direction: EdgeConstants.EdgeDirection.PANO,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     from: node.key,
@@ -561,14 +561,14 @@ export class EdgeCalculator {
         }
 
         let occupiedStepAngles: {[direction: string]: number[] } = {};
-        occupiedStepAngles[EdgeConstants.Direction.PANO] = occupiedAngles;
-        occupiedStepAngles[EdgeConstants.Direction.STEP_FORWARD] = [];
-        occupiedStepAngles[EdgeConstants.Direction.STEP_LEFT] = [];
-        occupiedStepAngles[EdgeConstants.Direction.STEP_BACKWARD] = [];
-        occupiedStepAngles[EdgeConstants.Direction.STEP_RIGHT] = [];
+        occupiedStepAngles[EdgeConstants.EdgeDirection.PANO] = occupiedAngles;
+        occupiedStepAngles[EdgeConstants.EdgeDirection.STEP_FORWARD] = [];
+        occupiedStepAngles[EdgeConstants.EdgeDirection.STEP_LEFT] = [];
+        occupiedStepAngles[EdgeConstants.EdgeDirection.STEP_BACKWARD] = [];
+        occupiedStepAngles[EdgeConstants.EdgeDirection.STEP_RIGHT] = [];
 
         for (let stepAngle of stepAngles) {
-            let occupations: [EdgeConstants.Direction, IPotentialEdge][] = [];
+            let occupations: [EdgeConstants.EdgeDirection, IPotentialEdge][] = [];
 
             for (let k in this.directions.panos) {
                 if (!this.directions.panos.hasOwnProperty(k)) {
@@ -577,13 +577,13 @@ export class EdgeCalculator {
 
                 let pano: IPano = this.directions.panos[k];
 
-                let allOccupiedAngles: number[] = occupiedStepAngles[EdgeConstants.Direction.PANO]
+                let allOccupiedAngles: number[] = occupiedStepAngles[EdgeConstants.EdgeDirection.PANO]
                     .concat(occupiedStepAngles[pano.direction])
                     .concat(occupiedStepAngles[pano.prev])
                     .concat(occupiedStepAngles[pano.next]);
 
                 let lowestScore: number = Number.MAX_VALUE;
-                let edge: [EdgeConstants.Direction, IPotentialEdge] = null;
+                let edge: [EdgeConstants.EdgeDirection, IPotentialEdge] = null;
 
                 for (let potential of potentialSteps) {
                     if (potential[0] !== pano.direction) {

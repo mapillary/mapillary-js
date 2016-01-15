@@ -1,7 +1,7 @@
 export namespace EdgeConstants {
     "use strict";
 
-    export enum Direction {
+    export enum EdgeDirection {
         /** Enumeration for directions
          * @enum {string}
          * @readonly

@@ -244,7 +244,7 @@ export class Graph {
      * @param {Direction} dir
      * @return {Node}
      */
-    public nextNode(node: Node, dir: EdgeConstants.Direction): Node {
+    public nextNode(node: Node, dir: EdgeConstants.EdgeDirection): Node {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
         for (let outEdge of outEdges) {

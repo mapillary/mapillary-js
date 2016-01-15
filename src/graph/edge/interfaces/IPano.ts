@@ -1,8 +1,8 @@
 import {EdgeConstants} from "../../../Edge";
 
 export interface IPano {
-    direction: EdgeConstants.Direction;
-    prev: EdgeConstants.Direction;
-    next: EdgeConstants.Direction;
+    direction: EdgeConstants.EdgeDirection;
+    prev: EdgeConstants.EdgeDirection;
+    next: EdgeConstants.EdgeDirection;
     directionChange: number;
 }

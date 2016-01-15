@@ -21,13 +21,13 @@ export class SimpleNavUI implements IUI {
     private directions: { [direction: number]: string } = {};
 
     constructor(container: Container, navigator: Navigator) {
-        this.directions[EdgeConstants.Direction.STEP_FORWARD] = "Forward";
-        this.directions[EdgeConstants.Direction.STEP_BACKWARD] = "Backward";
-        this.directions[EdgeConstants.Direction.STEP_LEFT] = "Left";
-        this.directions[EdgeConstants.Direction.STEP_RIGHT] = "Right";
-        this.directions[EdgeConstants.Direction.TURN_LEFT] = "Turnleft";
-        this.directions[EdgeConstants.Direction.TURN_RIGHT] = "Turnright";
-        this.directions[EdgeConstants.Direction.TURN_U] = "Turnaround";
+        this.directions[EdgeConstants.EdgeDirection.STEP_FORWARD] = "Forward";
+        this.directions[EdgeConstants.EdgeDirection.STEP_BACKWARD] = "Backward";
+        this.directions[EdgeConstants.EdgeDirection.STEP_LEFT] = "Left";
+        this.directions[EdgeConstants.EdgeDirection.STEP_RIGHT] = "Right";
+        this.directions[EdgeConstants.EdgeDirection.TURN_LEFT] = "Turnleft";
+        this.directions[EdgeConstants.EdgeDirection.TURN_RIGHT] = "Turnright";
+        this.directions[EdgeConstants.EdgeDirection.TURN_U] = "Turnaround";
 
         let uiContainer: HTMLElement = document.createElement("div");
         uiContainer.className = "SimpleNavUI";
@@ -38,20 +38,20 @@ export class SimpleNavUI implements IUI {
     }
 
     public activate(): void {
-        this.elements[EdgeConstants.Direction.STEP_FORWARD] =
-            this.createElement(EdgeConstants.Direction.STEP_FORWARD);
-        this.elements[EdgeConstants.Direction.STEP_BACKWARD] =
-            this.createElement(EdgeConstants.Direction.STEP_BACKWARD);
-        this.elements[EdgeConstants.Direction.STEP_LEFT] =
-            this.createElement(EdgeConstants.Direction.STEP_LEFT);
-        this.elements[EdgeConstants.Direction.STEP_RIGHT] =
-            this.createElement(EdgeConstants.Direction.STEP_RIGHT);
-        this.elements[EdgeConstants.Direction.TURN_LEFT] =
-            this.createElement(EdgeConstants.Direction.TURN_LEFT);
-        this.elements[EdgeConstants.Direction.TURN_RIGHT] =
-            this.createElement(EdgeConstants.Direction.TURN_RIGHT);
-        this.elements[EdgeConstants.Direction.TURN_U] =
-            this.createElement(EdgeConstants.Direction.TURN_U);
+        this.elements[EdgeConstants.EdgeDirection.STEP_FORWARD] =
+            this.createElement(EdgeConstants.EdgeDirection.STEP_FORWARD);
+        this.elements[EdgeConstants.EdgeDirection.STEP_BACKWARD] =
+            this.createElement(EdgeConstants.EdgeDirection.STEP_BACKWARD);
+        this.elements[EdgeConstants.EdgeDirection.STEP_LEFT] =
+            this.createElement(EdgeConstants.EdgeDirection.STEP_LEFT);
+        this.elements[EdgeConstants.EdgeDirection.STEP_RIGHT] =
+            this.createElement(EdgeConstants.EdgeDirection.STEP_RIGHT);
+        this.elements[EdgeConstants.EdgeDirection.TURN_LEFT] =
+            this.createElement(EdgeConstants.EdgeDirection.TURN_LEFT);
+        this.elements[EdgeConstants.EdgeDirection.TURN_RIGHT] =
+            this.createElement(EdgeConstants.EdgeDirection.TURN_RIGHT);
+        this.elements[EdgeConstants.EdgeDirection.TURN_U] =
+            this.createElement(EdgeConstants.EdgeDirection.TURN_U);
 
         for (let k in this.elements) {
              if (this.elements.hasOwnProperty(k)) {
@@ -92,17 +92,17 @@ export class SimpleNavUI implements IUI {
         }
     }
 
-    private move(direction: EdgeConstants.Direction): void {
+    private move(direction: EdgeConstants.EdgeDirection): void {
         this.navigator.moveDir(direction).first().subscribe();
     }
 
-    private createElement(direction: EdgeConstants.Direction): INavigationElement {
+    private createElement(direction: EdgeConstants.EdgeDirection): INavigationElement {
         let element: HTMLSpanElement = document.createElement("span");
 
         let name: string = this.directions[direction];
         element.className = `btn Direction Direction${name} DirectionHidden`;
 
-        let move: (direction: EdgeConstants.Direction) => void = this.move.bind(this);
+        let move: (direction: EdgeConstants.EdgeDirection) => void = this.move.bind(this);
 
         let clickStream: rx.Observable<void> = rx.Observable.fromEvent<void>(element, "click");
         let subscription: rx.IDisposable = clickStream.subscribe(() => { move(direction); });

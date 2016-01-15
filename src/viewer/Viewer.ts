@@ -59,7 +59,7 @@ export class Viewer extends EventEmitter {
      * @method
      * @param {Direction} dir - Direction towards which to move
      */
-    public moveDir(dir: EdgeConstants.Direction): void {
+    public moveDir(dir: EdgeConstants.EdgeDirection): void {
         this.navigator.moveDir(dir).first().subscribe();
     }
 

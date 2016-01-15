@@ -49,7 +49,7 @@ export class SimplePlayUI implements IUI {
     }
 
     private getNbrNexts(node: Node): void {
-        this.navigator.graphService.getNextNode(node, EdgeConstants.Direction.NEXT)
+        this.navigator.graphService.getNextNode(node, EdgeConstants.EdgeDirection.NEXT)
             .first()
             .subscribe((nextNode: Node) => {
                 this.navigator.stateService2.appendNodes([nextNode]);
