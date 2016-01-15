@@ -1,3 +1,7 @@
+/// <reference path="../../../typings/unitbezier/unitbezier.d.ts" />
+
+import * as UnitBezier from "unitbezier";
+
 import {IState} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, Transform} from "../../Geo";
@@ -12,6 +16,7 @@ export class CompletingState implements IState {
     public currentNode: Node;
     public previousNode: Node;
 
+    private baseAlpha: number;
     private animationSpeed: number;
 
     private trajectoryTransforms: Transform[];
@@ -20,9 +25,14 @@ export class CompletingState implements IState {
     private currentCamera: Camera;
     private previousCamera: Camera;
 
+    private unitBezier: UnitBezier;
+
     constructor (trajectory: Node[]) {
         this.alpha = trajectory.length > 0 ? 0 : 1;
+        this.baseAlpha = this.alpha;
         this.animationSpeed = 0.025;
+        this.unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
+
         this.camera = new Camera();
 
         this.trajectory = trajectory.slice();
@@ -50,6 +60,7 @@ export class CompletingState implements IState {
 
         if (this.trajectory.length === 0) {
             this.alpha = 0;
+            this.baseAlpha = 0;
 
             this.currentIndex = 0;
             this.currentNode = trajectory[this.currentIndex];
@@ -115,6 +126,7 @@ export class CompletingState implements IState {
         }
 
         this.alpha = 0;
+        this.baseAlpha = 0;
 
         this.currentNode = this.trajectory[this.currentIndex];
         this.previousNode = this.trajectory[this.currentIndex - 1];
@@ -128,6 +140,7 @@ export class CompletingState implements IState {
     public update(): void {
         if (this.alpha === 1 && this.currentIndex + this.alpha < this.trajectory.length) {
             this.alpha = 0;
+            this.baseAlpha = 0;
 
             this.currentIndex += 1;
             this.currentNode = this.trajectory[this.currentIndex];
@@ -139,7 +152,13 @@ export class CompletingState implements IState {
                 this.currentCamera;
         }
 
-        this.alpha = Math.min(1, this.alpha + this.animationSpeed);
+        this.baseAlpha = Math.min(1, this.baseAlpha + this.animationSpeed);
+        if (this.currentIndex + 1 < this.trajectory.length) {
+            this.alpha = this.baseAlpha;
+        } else {
+            this.alpha = this.unitBezier.solve(this.baseAlpha);
+        }
+
         this.camera.lerpCameras(this.previousCamera, this.currentCamera, this.alpha);
     }
 
