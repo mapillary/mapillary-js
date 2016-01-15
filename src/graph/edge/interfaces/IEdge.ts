@@ -1,4 +1,4 @@
-import {EdgeConstants} from "../../../Edge";
+import {EdgeDirection} from "../../../Edge";
 
 /**
  * Interface that describes additional properties of an edge.
@@ -17,9 +17,9 @@ export interface IEdgeData {
     /**
      * The edge direction.
      *
-     * @property {EdgeConstants.Direction} direction
+     * @property {EdgeDirection} direction
      */
-    direction: EdgeConstants.EdgeDirection;
+    direction: EdgeDirection;
 }
 
 /**

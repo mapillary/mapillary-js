@@ -8,7 +8,6 @@ import {
     EdgeCalculator,
     EdgeCalculatorSettings,
     EdgeCalculatorDirections,
-    EdgeConstants,
     IEdge,
     IPotentialEdge
 } from "../../../src/Edge";

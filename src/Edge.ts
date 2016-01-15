@@ -1,4 +1,4 @@
-export {EdgeConstants} from "./graph/edge/EdgeConstants";
+export {EdgeDirection} from "./graph/edge/EdgeDirection";
 export {EdgeCalculatorSettings} from "./graph/edge/EdgeCalculatorSettings";
 export {EdgeCalculatorDirections} from "./graph/edge/EdgeCalculatorDirections";
 export {EdgeCalculatorCoefficients} from "./graph/edge/EdgeCalculatorCoefficients";

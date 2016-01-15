@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {EdgeConstants} from "../Edge";
+import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {ICurrentState} from "../State";
 import {IUI} from "../UI";
@@ -49,7 +49,7 @@ export class SimplePlayUI implements IUI {
     }
 
     private getNbrNexts(node: Node): void {
-        this.navigator.graphService.getNextNode(node, EdgeConstants.EdgeDirection.NEXT)
+        this.navigator.graphService.getNextNode(node, EdgeDirection.NEXT)
             .first()
             .subscribe((nextNode: Node) => {
                 this.navigator.stateService2.appendNodes([nextNode]);

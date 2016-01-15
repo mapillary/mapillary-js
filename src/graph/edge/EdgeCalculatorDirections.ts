@@ -1,4 +1,4 @@
-import {EdgeConstants, IStep, ITurn, IPano, IRotation} from "../../Edge";
+import {EdgeDirection, IStep, ITurn, IPano, IRotation} from "../../Edge";
 
 export class EdgeCalculatorDirections {
 
@@ -8,83 +8,83 @@ export class EdgeCalculatorDirections {
     public rotations: { [direction: string]: IRotation } = {};
 
     constructor() {
-        this.steps[EdgeConstants.EdgeDirection.STEP_FORWARD] = {
-            direction: EdgeConstants.EdgeDirection.STEP_FORWARD,
+        this.steps[EdgeDirection.STEP_FORWARD] = {
+            direction: EdgeDirection.STEP_FORWARD,
             motionChange: 0,
             useFallback: true,
         };
 
-        this.steps[EdgeConstants.EdgeDirection.STEP_BACKWARD] = {
-            direction: EdgeConstants.EdgeDirection.STEP_BACKWARD,
+        this.steps[EdgeDirection.STEP_BACKWARD] = {
+            direction: EdgeDirection.STEP_BACKWARD,
             motionChange: Math.PI,
             useFallback: true,
         };
 
-        this.steps[EdgeConstants.EdgeDirection.STEP_LEFT] = {
-            direction: EdgeConstants.EdgeDirection.STEP_LEFT,
+        this.steps[EdgeDirection.STEP_LEFT] = {
+            direction: EdgeDirection.STEP_LEFT,
             motionChange: Math.PI / 2,
             useFallback: false,
         };
 
-        this.steps[EdgeConstants.EdgeDirection.STEP_RIGHT] = {
-            direction: EdgeConstants.EdgeDirection.STEP_RIGHT,
+        this.steps[EdgeDirection.STEP_RIGHT] = {
+            direction: EdgeDirection.STEP_RIGHT,
             motionChange: -Math.PI / 2,
             useFallback: false,
         };
 
-        this.turns[EdgeConstants.EdgeDirection.TURN_LEFT] = {
-            direction: EdgeConstants.EdgeDirection.TURN_LEFT,
+        this.turns[EdgeDirection.TURN_LEFT] = {
+            direction: EdgeDirection.TURN_LEFT,
             directionChange: Math.PI / 2,
             motionChange: Math.PI / 4,
         };
 
-        this.turns[EdgeConstants.EdgeDirection.TURN_RIGHT] = {
-            direction: EdgeConstants.EdgeDirection.TURN_RIGHT,
+        this.turns[EdgeDirection.TURN_RIGHT] = {
+            direction: EdgeDirection.TURN_RIGHT,
             directionChange: -Math.PI / 2,
             motionChange: -Math.PI / 4,
         };
 
-        this.turns[EdgeConstants.EdgeDirection.TURN_U] = {
-            direction: EdgeConstants.EdgeDirection.TURN_U,
+        this.turns[EdgeDirection.TURN_U] = {
+            direction: EdgeDirection.TURN_U,
             directionChange: Math.PI,
             motionChange: null,
         };
 
-        this.panos[EdgeConstants.EdgeDirection.STEP_FORWARD] = {
-            direction: EdgeConstants.EdgeDirection.STEP_FORWARD,
+        this.panos[EdgeDirection.STEP_FORWARD] = {
+            direction: EdgeDirection.STEP_FORWARD,
             directionChange: 0,
-            next: EdgeConstants.EdgeDirection.STEP_LEFT,
-            prev: EdgeConstants.EdgeDirection.STEP_RIGHT,
+            next: EdgeDirection.STEP_LEFT,
+            prev: EdgeDirection.STEP_RIGHT,
         };
 
-        this.panos[EdgeConstants.EdgeDirection.STEP_BACKWARD] = {
-            direction: EdgeConstants.EdgeDirection.STEP_BACKWARD,
+        this.panos[EdgeDirection.STEP_BACKWARD] = {
+            direction: EdgeDirection.STEP_BACKWARD,
             directionChange: Math.PI,
-            next: EdgeConstants.EdgeDirection.STEP_RIGHT,
-            prev: EdgeConstants.EdgeDirection.STEP_LEFT,
+            next: EdgeDirection.STEP_RIGHT,
+            prev: EdgeDirection.STEP_LEFT,
         };
 
-        this.panos[EdgeConstants.EdgeDirection.STEP_LEFT] = {
-            direction: EdgeConstants.EdgeDirection.STEP_LEFT,
+        this.panos[EdgeDirection.STEP_LEFT] = {
+            direction: EdgeDirection.STEP_LEFT,
             directionChange: Math.PI / 2,
-            next: EdgeConstants.EdgeDirection.STEP_BACKWARD,
-            prev: EdgeConstants.EdgeDirection.STEP_FORWARD,
+            next: EdgeDirection.STEP_BACKWARD,
+            prev: EdgeDirection.STEP_FORWARD,
         };
 
-        this.panos[EdgeConstants.EdgeDirection.STEP_RIGHT] = {
-            direction: EdgeConstants.EdgeDirection.STEP_RIGHT,
+        this.panos[EdgeDirection.STEP_RIGHT] = {
+            direction: EdgeDirection.STEP_RIGHT,
             directionChange: -Math.PI / 2,
-            next: EdgeConstants.EdgeDirection.STEP_FORWARD,
-            prev: EdgeConstants.EdgeDirection.STEP_BACKWARD,
+            next: EdgeDirection.STEP_FORWARD,
+            prev: EdgeDirection.STEP_BACKWARD,
         };
 
-        this.rotations[EdgeConstants.EdgeDirection.ROTATE_LEFT] = {
-            direction: EdgeConstants.EdgeDirection.ROTATE_LEFT,
+        this.rotations[EdgeDirection.ROTATE_LEFT] = {
+            direction: EdgeDirection.ROTATE_LEFT,
             directionChangeSign: 1,
         };
 
-        this.rotations[EdgeConstants.EdgeDirection.ROTATE_RIGHT] = {
-            direction: EdgeConstants.EdgeDirection.ROTATE_RIGHT,
+        this.rotations[EdgeDirection.ROTATE_RIGHT] = {
+            direction: EdgeDirection.ROTATE_RIGHT,
             directionChangeSign: -1,
         };
     }

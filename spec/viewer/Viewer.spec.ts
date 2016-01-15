@@ -4,7 +4,7 @@
 import * as when from "when";
 
 import {IAPINavIm} from "../../src/API";
-import {EdgeConstants} from "../../src/Edge";
+import {EdgeDirection} from "../../src/Edge";
 import {Node} from "../../src/Graph";
 import {Viewer} from "../../src/Viewer";
 
@@ -36,20 +36,20 @@ describe("Viewer", () => {
     //         };
     //         return when(result);
     //     });
-    // 
+    //
     //     viewer.on("moveend", (node: Node) => {
     //         expect(node.image).toBe("fakeIm");
     //         expect(node.mesh).toBe("fakeMesh");
     //         expect(node.key).toBe("A");
     //         done();
     //     });
-    // 
+    //
     //     viewer.moveToKey("A");
-    // 
+    //
     //     //.then((node: Node) => {
     //     //    expect(node.key).toBe("A");
     //     //    done();
-    //         // viewer.moveDir(EdgeConstants.Direction.NEXT).first().subscribe((node: Node) => {
+    //         // viewer.moveDir(EdgeDirection.NEXT).first().subscribe((node: Node) => {
     //         //     expect(node.key).toBe("B");
     //         //     done();
     //         // });

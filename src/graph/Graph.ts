@@ -6,7 +6,7 @@ import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
-import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeConstants} from "../Edge";
+import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
 import {Spatial, GeoCoords} from "../Geo";
 import {ILatLon, ILatLonAlt, Node, Sequence} from "../Graph";
 
@@ -244,7 +244,7 @@ export class Graph {
      * @param {Direction} dir
      * @return {Node}
      */
-    public nextNode(node: Node, dir: EdgeConstants.EdgeDirection): Node {
+    public nextNode(node: Node, dir: EdgeDirection): Node {
         let outEdges: any[] = this.graph.outEdges(node.key);
 
         for (let outEdge of outEdges) {

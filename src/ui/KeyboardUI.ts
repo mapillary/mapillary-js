@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {EdgeConstants} from "../Edge";
+import {EdgeDirection} from "../Edge";
 import {IUI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
@@ -24,9 +24,9 @@ export class KeyboardUI implements IUI {
     public activate(): void {
         rx.Observable.fromEvent(document, "keydown").subscribe((event: KeyboardEvent): void => {
             if (event.keyCode === 40) {
-                this.navigator.moveDir(EdgeConstants.EdgeDirection.STEP_BACKWARD).subscribe();
+                this.navigator.moveDir(EdgeDirection.STEP_BACKWARD).subscribe();
             } else if (event.keyCode === 38) {
-                this.navigator.moveDir(EdgeConstants.EdgeDirection.STEP_FORWARD).subscribe();
+                this.navigator.moveDir(EdgeDirection.STEP_FORWARD).subscribe();
             }
         });
     }

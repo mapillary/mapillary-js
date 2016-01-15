@@ -1,7 +1,7 @@
-import {EdgeConstants} from "../../../Edge";
+import {EdgeDirection} from "../../../Edge";
 
 export interface ITurn {
-    direction: EdgeConstants.EdgeDirection;
+    direction: EdgeDirection;
     directionChange: number;
     motionChange?: number;
 }

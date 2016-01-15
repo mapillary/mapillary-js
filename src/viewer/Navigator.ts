@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {IAPISearchImClose2, APIv2} from "../API";
 import {GraphService, Node} from "../Graph";
-import {EdgeConstants} from "../Edge";
+import {EdgeDirection} from "../Edge";
 import {StateService} from "../State";
 import {LoadingService} from "../Viewer";
 
@@ -36,7 +36,7 @@ export class Navigator {
         });
     }
 
-    public moveDir(dir: EdgeConstants.EdgeDirection): rx.Observable<Node> {
+    public moveDir(dir: EdgeDirection): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
         return this.graphService.getNextNode(this.currentNode, dir).flatMap((node: Node) => {
             return this.moveToKey(node.key);

@@ -1,4 +1,4 @@
-import {EdgeConstants} from "../Edge";
+import {EdgeDirection} from "../Edge";
 import {IViewerOptions, Container, Navigator, UI} from "../Viewer";
 import {EventUI, IUI} from "../UI";
 import {EventEmitter} from "../Utils";
@@ -59,7 +59,7 @@ export class Viewer extends EventEmitter {
      * @method
      * @param {Direction} dir - Direction towards which to move
      */
-    public moveDir(dir: EdgeConstants.EdgeDirection): void {
+    public moveDir(dir: EdgeDirection): void {
         this.navigator.moveDir(dir).first().subscribe();
     }
 

@@ -1,6 +1,6 @@
-import {EdgeConstants} from "../../../Edge";
+import {EdgeDirection} from "../../../Edge";
 
 export interface IRotation {
-    direction: EdgeConstants.EdgeDirection;
+    direction: EdgeDirection;
     directionChangeSign: number;
 }
