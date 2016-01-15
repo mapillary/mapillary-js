@@ -2,13 +2,14 @@
 
 import * as rx from "rx";
 
-import {IEdge, EdgeDirection} from "../Edge";
+import {EdgeDirection} from "../Edge";
 import {IUI} from "../UI";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
 interface INavigationElement {
     element: HTMLSpanElement;
+    preferred?: EdgeDirection;
     subscription: rx.IDisposable;
 }
 
@@ -18,6 +19,7 @@ export class SimpleNavUI implements IUI {
     private navigator: Navigator;
 
     private elements: { [direction: number]: INavigationElement } = {};
+    private sequenceElements: { [direction: number]: INavigationElement } = {};
 
     constructor(container: Container, navigator: Navigator) {
         let uiContainer: HTMLElement = document.createElement("div");
@@ -29,17 +31,27 @@ export class SimpleNavUI implements IUI {
     }
 
     public activate(): void {
-        this.createElement(EdgeDirection.STEP_FORWARD, "Forward");
-        this.createElement(EdgeDirection.STEP_BACKWARD, "Backward");
-        this.createElement(EdgeDirection.STEP_LEFT, "Left");
-        this.createElement(EdgeDirection.STEP_RIGHT, "Right");
-        this.createElement(EdgeDirection.TURN_LEFT, "Turnleft");
-        this.createElement(EdgeDirection.TURN_RIGHT, "Turnright");
-        this.createElement(EdgeDirection.TURN_U, "Turnaround");
+        this.createElement(EdgeDirection.STEP_FORWARD, "Forward", this.elements);
+        this.createElement(EdgeDirection.STEP_BACKWARD, "Backward", this.elements);
+        this.createElement(EdgeDirection.STEP_LEFT, "Left", this.elements);
+        this.createElement(EdgeDirection.STEP_RIGHT, "Right", this.elements);
+        this.createElement(EdgeDirection.TURN_LEFT, "Turnleft", this.elements);
+        this.createElement(EdgeDirection.TURN_RIGHT, "Turnright", this.elements);
+        this.createElement(EdgeDirection.TURN_U, "Turnaround", this.elements);
+
+        this.createElement(EdgeDirection.NEXT, "Forward", this.sequenceElements, EdgeDirection.STEP_FORWARD);
+        this.createElement(EdgeDirection.PREV, "Backward", this.sequenceElements, EdgeDirection.STEP_BACKWARD);
 
         for (let k in this.elements) {
              if (this.elements.hasOwnProperty(k)) {
                 let element: HTMLSpanElement = this.elements[k].element;
+                this.element.appendChild(element);
+             }
+        }
+
+        for (let k in this.sequenceElements) {
+             if (this.sequenceElements.hasOwnProperty(k)) {
+                let element: HTMLSpanElement = this.sequenceElements[k].element;
                 this.element.appendChild(element);
              }
         }
@@ -53,10 +65,34 @@ export class SimpleNavUI implements IUI {
                 }
             }
 
-            let edges: IEdge[] = node.edges;
-            for (let edge of edges) {
-                let item: INavigationElement = this.elements[edge.data.direction];
+            for (let k in this.sequenceElements) {
+                if (this.sequenceElements.hasOwnProperty(k)) {
+                    let element: HTMLSpanElement = this.sequenceElements[k].element;
+                    element.className = element.className.replace(/\DirectionHidden\b/, "");
+                    element.className += " DirectionHidden";
+                }
+            }
+
+            let directions: EdgeDirection[] = [];
+            let keys: string[] = [];
+
+            for (let edge of node.edges) {
+                let direction: EdgeDirection = edge.data.direction;
+                let item: INavigationElement = this.elements[direction];
                 if (item == null) {
+                    continue;
+                }
+
+                directions.push(direction);
+                keys.push(edge.to);
+
+                let element: HTMLSpanElement = item.element;
+                element.className = element.className.replace(/\DirectionHidden\b/, "");
+            }
+
+            for (let edge of node.edges) {
+                let item: INavigationElement = this.sequenceElements[edge.data.direction];
+                if (item == null || keys.indexOf(edge.to) > -1 || directions.indexOf(item.preferred) > -1) {
                     continue;
                 }
 
@@ -80,7 +116,11 @@ export class SimpleNavUI implements IUI {
         this.navigator.moveDir(direction).first().subscribe();
     }
 
-    private createElement(direction: EdgeDirection, name: string): void {
+    private createElement(
+        direction: EdgeDirection,
+        name: string,
+        elements: { [direction: number]: INavigationElement },
+        preferred?: EdgeDirection): void {
         let element: HTMLSpanElement = document.createElement("span");
         element.className = `btn Direction Direction${name} DirectionHidden`;
 
@@ -89,7 +129,7 @@ export class SimpleNavUI implements IUI {
         let clickStream: rx.Observable<void> = rx.Observable.fromEvent<void>(element, "click");
         let subscription: rx.IDisposable = clickStream.subscribe(() => { move(direction); });
 
-        this.elements[direction] = { element: element, subscription: subscription };
+        elements[direction] = { element: element, preferred: preferred, subscription: subscription };
     }
 }
 
