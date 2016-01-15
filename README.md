@@ -58,6 +58,7 @@ var mly = new Mapillary
 ## Examples
 - [mapillary-js + Leaflet + Tangram](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
 - [mapillary-js + Leaflet](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555)
+- [mapillary-js + Google Maps](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
 
 ## Changelog
 
