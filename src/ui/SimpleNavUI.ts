@@ -60,7 +60,7 @@ export class SimpleNavUI implements IUI {
              }
         }
 
-        this.disposable = this.navigator.stateService2.currentNode.subscribe((node: Node): void => {
+        this.disposable = this.navigator.stateService.currentNode.subscribe((node: Node): void => {
             for (let k in this.elements) {
                 if (this.elements.hasOwnProperty(k)) {
                     let element: HTMLSpanElement = this.elements[k].element;

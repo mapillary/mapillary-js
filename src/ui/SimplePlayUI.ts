@@ -21,7 +21,7 @@ export class SimplePlayUI implements IUI {
     }
 
     public activate(): void {
-        this.disposable = this.navigator.stateService2.currentState.subscribe((currentState: ICurrentState) => {
+        this.disposable = this.navigator.stateService.currentState.subscribe((currentState: ICurrentState) => {
             if (!this.playing) {
                 return;
             }
@@ -45,14 +45,14 @@ export class SimplePlayUI implements IUI {
 
     public stop(): void {
         this.playing =  false;
-        this.navigator.stateService2.cutNodes();
+        this.navigator.stateService.cutNodes();
     }
 
     private getNbrNexts(node: Node): void {
         this.navigator.graphService.getNextNode(node, EdgeDirection.NEXT)
             .first()
             .subscribe((nextNode: Node) => {
-                this.navigator.stateService2.appendNodes([nextNode]);
+                this.navigator.stateService.appendNodes([nextNode]);
             });
     }
 }

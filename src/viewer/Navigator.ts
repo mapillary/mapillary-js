@@ -10,7 +10,7 @@ import {LoadingService} from "../Viewer";
 
 export class Navigator {
     public graphService: GraphService;
-    public stateService2: StateService;
+    public stateService: StateService;
     public loadingService: LoadingService;
 
     public apiV2: APIv2;
@@ -21,17 +21,17 @@ export class Navigator {
         this.apiV2 = new APIv2(clientId);
 
         this.graphService = new GraphService(this.apiV2);
-        this.stateService2 = new StateService();
+        this.stateService = new StateService();
         this.loadingService = new LoadingService();
 
-        this.stateService2.currentNode.subscribe((node: Node) => { this.currentNode = node; });
+        this.stateService.currentNode.subscribe((node: Node) => { this.currentNode = node; });
     }
 
     public moveToKey(key: string): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
         return this.graphService.getNode(key).map<Node>((node: Node) => {
             this.loadingService.stopLoading("navigator");
-            this.stateService2.setNodes([node]);
+            this.stateService.setNodes([node]);
             return node;
         });
     }

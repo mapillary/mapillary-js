@@ -31,7 +31,7 @@ export class DetectionsUI implements IUI {
         this.container.element.appendChild(this.rectContainer);
 
         this.disposable = this.navigator
-            .stateService2
+            .stateService
             .currentNode.subscribe((node: Node): void => {
                 this.setRectContainer(node.image.width, node.image.height);
                 this.removeRectsFromDOM();

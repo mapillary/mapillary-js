@@ -23,7 +23,7 @@ export class EventUI implements IUI {
             this.eventEmitter.fire("loadingchanged", loading);
         });
 
-        this.disposableState = this.navigator.stateService2.currentNode.subscribe((node: Node): void => {
+        this.disposableState = this.navigator.stateService.currentNode.subscribe((node: Node): void => {
             this.eventEmitter.fire("nodechanged", node);
         });
     }
