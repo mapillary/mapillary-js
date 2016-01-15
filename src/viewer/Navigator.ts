@@ -15,16 +15,12 @@ export class Navigator {
 
     public apiV2: APIv2;
 
-    private currentNode: Node;
-
     constructor (clientId: string) {
         this.apiV2 = new APIv2(clientId);
 
         this.graphService = new GraphService(this.apiV2);
         this.stateService = new StateService();
         this.loadingService = new LoadingService();
-
-        this.stateService.currentNode.subscribe((node: Node) => { this.currentNode = node; });
     }
 
     public moveToKey(key: string): rx.Observable<Node> {
@@ -38,16 +34,21 @@ export class Navigator {
 
     public moveDir(dir: EdgeDirection): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
-        return this.graphService.getNextNode(this.currentNode, dir).flatMap((node: Node) => {
-            return this.moveToKey(node.key);
-        });
+        return this.stateService.currentNode.first()
+            .flatMap<Node>((currentNode: Node) => {
+                return this.graphService.getNextNode(currentNode, dir)
+                    .flatMap<Node>((node: Node) => {
+                        return this.moveToKey(node.key);
+                    });
+            });
     }
 
     public moveCloseTo(lat: number, lon: number): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
-        return rx.Observable.fromPromise(this.apiV2.search.im.close2(lat, lon)).flatMap((data: IAPISearchImClose2): rx.Observable<Node> => {
-            return this.moveToKey(data.key);
-        });
+        return rx.Observable.fromPromise(this.apiV2.search.im.close2(lat, lon))
+            .flatMap<Node>((data: IAPISearchImClose2): rx.Observable<Node> => {
+                return this.moveToKey(data.key);
+            });
     }
 }
 
