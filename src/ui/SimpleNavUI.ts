@@ -7,10 +7,35 @@ import {IUI} from "../UI";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
-interface INavigationElement {
-    element: HTMLSpanElement;
+interface INavigation {
+    navigation: NavigationElement;
     preferred?: EdgeDirection;
     subscription: rx.IDisposable;
+}
+
+class NavigationElement {
+    public element: HTMLSpanElement;
+
+    constructor(element: HTMLSpanElement, name: string) {
+        this.element = element;
+        this.element.className = `btn Direction Direction${name} DirectionHidden`;
+    }
+
+    public get hidden(): boolean {
+        return this.hasHiddenClass();
+    }
+
+    public set hidden(value: boolean) {
+        if (value && !this.hasHiddenClass()) {
+            this.element.className += " DirectionHidden";
+        } else if (!value) {
+            this.element.className = this.element.className.replace(/\DirectionHidden\b/, "");
+        }
+    }
+
+    private hasHiddenClass(): boolean {
+        return this.element.className.indexOf("DirectionHidden") > -1;
+    }
 }
 
 export class SimpleNavUI implements IUI {
@@ -18,8 +43,8 @@ export class SimpleNavUI implements IUI {
     private element: HTMLElement;
     private navigator: Navigator;
 
-    private elements: { [direction: number]: INavigationElement } = {};
-    private sequenceElements: { [direction: number]: INavigationElement } = {};
+    private elements: { [direction: number]: INavigation } = {};
+    private sequenceElements: { [direction: number]: INavigation } = {};
 
     constructor(container: Container, navigator: Navigator) {
         let uiContainer: HTMLElement = document.createElement("div");
@@ -54,7 +79,7 @@ export class SimpleNavUI implements IUI {
 
             for (let edge of node.edges) {
                 let direction: EdgeDirection = edge.data.direction;
-                let item: INavigationElement = this.elements[direction];
+                let item: INavigation = this.elements[direction];
                 if (item == null) {
                     continue;
                 }
@@ -62,18 +87,16 @@ export class SimpleNavUI implements IUI {
                 directions.push(direction);
                 keys.push(edge.to);
 
-                let element: HTMLSpanElement = item.element;
-                element.className = element.className.replace(/\DirectionHidden\b/, "");
+                item.navigation.hidden = false;
             }
 
             for (let edge of node.edges) {
-                let item: INavigationElement = this.sequenceElements[edge.data.direction];
+                let item: INavigation = this.sequenceElements[edge.data.direction];
                 if (item == null || keys.indexOf(edge.to) > -1 || directions.indexOf(item.preferred) > -1) {
                     continue;
                 }
 
-                let element: HTMLSpanElement = item.element;
-                element.className = element.className.replace(/\DirectionHidden\b/, "");
+                item.navigation.hidden = false;
             }
         });
     }
@@ -88,20 +111,18 @@ export class SimpleNavUI implements IUI {
         }
     }
 
-    private appendElements(elements: { [direction: number]: INavigationElement }): void {
+    private appendElements(elements: { [direction: number]: INavigation }): void {
          for (let k in elements) {
              if (elements.hasOwnProperty(k)) {
-                 this.element.appendChild(elements[k].element);
+                 this.element.appendChild(elements[k].navigation.element);
              }
         }
     }
 
-    private hideElements(elements: { [direction: number]: INavigationElement }): void {
+    private hideElements(elements: { [direction: number]: INavigation }): void {
         for (let k in elements) {
             if (elements.hasOwnProperty(k)) {
-                let element: HTMLSpanElement = elements[k].element;
-                element.className = element.className.replace(/\DirectionHidden\b/, "");
-                element.className += " DirectionHidden";
+                elements[k].navigation.hidden = true;
             }
         }
     }
@@ -109,17 +130,16 @@ export class SimpleNavUI implements IUI {
     private createElement(
         direction: EdgeDirection,
         name: string,
-        elements: { [direction: number]: INavigationElement },
+        elements: { [direction: number]: INavigation },
         preferred?: EdgeDirection): void {
 
-        let element: HTMLSpanElement = document.createElement("span");
-        element.className = `btn Direction Direction${name} DirectionHidden`;
+        let navigation: NavigationElement = new NavigationElement(document.createElement("span"), name);
 
         let subscription: rx.IDisposable = rx.Observable
-            .fromEvent<void>(element, "click")
+            .fromEvent<void>(navigation.element, "click")
             .subscribe(() => { this.navigator.moveDir(direction).first().subscribe(); });
 
-        elements[direction] = { element: element, preferred: preferred, subscription: subscription };
+        elements[direction] = { navigation: navigation, preferred: preferred, subscription: subscription };
     }
 }
 
