@@ -13,6 +13,17 @@ To install the latest version
 
 `npm install --save mapillary-js`
 
+## Documentation
+- [Developing mapillary-js](https://github.com/mapillary/mapillary-js/blob/master/docs/developing.md)
+- [Extending mapillary-js with plugins](https://github.com/mapillary/mapillary-js/blob/master/docs/plugins.md)
+- [Glossary](https://github.com/mapillary/mapillary-js/blob/master/docs/glossary.md)
+- [API Reference](https://mapillary.github.io/mapillary-js)
+
+## Examples
+- [mapillary-js + Leaflet + Tangram](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
+- [mapillary-js + Leaflet](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555)
+- [mapillary-js + Google Maps](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
+
 ## Quickstart
 
 Before you start using `mapillary-js` you need somewhere to display it, create an `index.html` file with the following structure
@@ -51,18 +62,6 @@ var mly = new Mapillary
             uis: ['simple', 'simplenav'] // UIs upon which the viewer will depend on
           })
 ```
-
-
-## Documentation
-- [Developing mapillary-js](https://github.com/mapillary/mapillary-js/blob/master/docs/developing.md)
-- [Extending mapillary-js with plugins](https://github.com/mapillary/mapillary-js/blob/master/docs/plugins.md)
-- [Glossary](https://github.com/mapillary/mapillary-js/blob/master/docs/glossary.md)
-- [API Reference](https://mapillary.github.io/mapillary-js)
-
-## Examples
-- [mapillary-js + Leaflet + Tangram](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
-- [mapillary-js + Leaflet](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555)
-- [mapillary-js + Google Maps](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
 
 ## Changelog
 
