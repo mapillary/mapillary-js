@@ -21,16 +21,18 @@ class NavigationElement {
         this.element.className = `btn Direction Direction${name} DirectionHidden`;
     }
 
-    public get hidden(): boolean {
-        return this.hasHiddenClass();
+    public get visible(): boolean {
+        return !this.hasHiddenClass();
     }
 
-    public set hidden(value: boolean) {
-        if (value && !this.hasHiddenClass()) {
-            this.element.className += " DirectionHidden";
-        } else if (!value) {
-            this.element.className = this.element.className.replace(/\DirectionHidden\b/, "");
+    public set visible(value: boolean) {
+        if (value !== this.hasHiddenClass()) {
+            return;
         }
+
+        this.element.className = value ?
+            this.element.className.replace(/\DirectionHidden\b/, "") :
+            this.element.className + " DirectionHidden";
     }
 
     private hasHiddenClass(): boolean {
@@ -87,7 +89,7 @@ export class SimpleNavUI implements IUI {
                 directions.push(direction);
                 keys.push(edge.to);
 
-                item.navigation.hidden = false;
+                item.navigation.visible = true;
             }
 
             for (let edge of node.edges) {
@@ -96,7 +98,7 @@ export class SimpleNavUI implements IUI {
                     continue;
                 }
 
-                item.navigation.hidden = false;
+                item.navigation.visible = true;
             }
         });
     }
@@ -122,7 +124,7 @@ export class SimpleNavUI implements IUI {
     private hideElements(elements: { [direction: number]: INavigation }): void {
         for (let k in elements) {
             if (elements.hasOwnProperty(k)) {
-                elements[k].navigation.hidden = true;
+                elements[k].navigation.visible = false;
             }
         }
     }
