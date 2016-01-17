@@ -1,3 +1,8 @@
+general:
+  branches:
+    only:
+      - master
+      - feature-*
 machine:
   node:
     version: 0.10.33
