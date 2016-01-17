@@ -104,23 +104,8 @@ export class SimpleNavUI implements IUI {
         this.subscription.dispose();
         this.subscription = null;
 
-        for (let k in this.elements) {
-             if (this.elements.hasOwnProperty(k)) {
-                this.elements[k].subscription.dispose();
-
-                this.element.removeChild(this.elements[k].navigation.element);
-                delete this.elements[k];
-             }
-        }
-
-        for (let k in this.sequenceElements) {
-             if (this.sequenceElements.hasOwnProperty(k)) {
-                this.sequenceElements[k].subscription.dispose();
-
-                this.element.removeChild(this.sequenceElements[k].navigation.element);
-                delete this.sequenceElements[k];
-             }
-        }
+        this.deleteNavigationElements(this.elements);
+        this.deleteNavigationElements(this.sequenceElements);
 
         this.container.element.removeChild(this.element);
         this.element = null;
@@ -128,9 +113,11 @@ export class SimpleNavUI implements IUI {
 
     private hideElements(elements: { [direction: number]: INavigation }): void {
         for (let k in elements) {
-            if (elements.hasOwnProperty(k)) {
-                elements[k].navigation.visible = false;
+            if (!elements.hasOwnProperty(k)) {
+                continue;
             }
+
+            elements[k].navigation.visible = false;
         }
     }
 
@@ -157,6 +144,19 @@ export class SimpleNavUI implements IUI {
             .subscribe(() => { this.navigator.moveDir(direction).first().subscribe(); });
 
         elements[direction] = { navigation: navigation, preferred: preferred, subscription: subscription };
+    }
+
+    private deleteNavigationElements(elements: { [direction: number]: INavigation }): void {
+        for (let k in elements) {
+            if (!elements.hasOwnProperty(k)) {
+                continue;
+            }
+
+            elements[k].subscription.dispose();
+
+            this.element.removeChild(elements[k].navigation.element);
+            delete elements[k];
+        }
     }
 }
 
