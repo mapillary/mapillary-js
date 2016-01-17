@@ -41,38 +41,35 @@ class NavigationElement {
 }
 
 export class SimpleNavUI implements IUI {
-    private disposable: rx.IDisposable;
-    private element: HTMLElement;
+    private container: Container;
     private navigator: Navigator;
+
+    private subscription: rx.IDisposable;
+    private element: HTMLDivElement;
 
     private elements: { [direction: number]: INavigation } = {};
     private sequenceElements: { [direction: number]: INavigation } = {};
 
     constructor(container: Container, navigator: Navigator) {
-        let uiContainer: HTMLElement = document.createElement("div");
-        uiContainer.className = "SimpleNavUI";
-        container.element.appendChild(uiContainer);
-
-        this.element = uiContainer;
+        this.container = container;
         this.navigator = navigator;
     }
 
     public activate(): void {
-        this.createElement(EdgeDirection.STEP_FORWARD, "Forward", this.elements);
-        this.createElement(EdgeDirection.STEP_BACKWARD, "Backward", this.elements);
-        this.createElement(EdgeDirection.STEP_LEFT, "Left", this.elements);
-        this.createElement(EdgeDirection.STEP_RIGHT, "Right", this.elements);
-        this.createElement(EdgeDirection.TURN_LEFT, "Turnleft", this.elements);
-        this.createElement(EdgeDirection.TURN_RIGHT, "Turnright", this.elements);
-        this.createElement(EdgeDirection.TURN_U, "Turnaround", this.elements);
+        this.createContainerElement();
 
-        this.createElement(EdgeDirection.NEXT, "Forward", this.sequenceElements, EdgeDirection.STEP_FORWARD);
-        this.createElement(EdgeDirection.PREV, "Backward", this.sequenceElements, EdgeDirection.STEP_BACKWARD);
+        this.createNavigationElement(EdgeDirection.STEP_FORWARD, "Forward", this.elements);
+        this.createNavigationElement(EdgeDirection.STEP_BACKWARD, "Backward", this.elements);
+        this.createNavigationElement(EdgeDirection.STEP_LEFT, "Left", this.elements);
+        this.createNavigationElement(EdgeDirection.STEP_RIGHT, "Right", this.elements);
+        this.createNavigationElement(EdgeDirection.TURN_LEFT, "Turnleft", this.elements);
+        this.createNavigationElement(EdgeDirection.TURN_RIGHT, "Turnright", this.elements);
+        this.createNavigationElement(EdgeDirection.TURN_U, "Turnaround", this.elements);
 
-        this.appendElements(this.elements);
-        this.appendElements(this.sequenceElements);
+        this.createNavigationElement(EdgeDirection.NEXT, "Forward", this.sequenceElements, EdgeDirection.STEP_FORWARD);
+        this.createNavigationElement(EdgeDirection.PREV, "Backward", this.sequenceElements, EdgeDirection.STEP_BACKWARD);
 
-        this.disposable = this.navigator.stateService.currentNode$.subscribe((node: Node): void => {
+        this.subscription = this.navigator.stateService.currentNode$.subscribe((node: Node): void => {
             this.hideElements(this.elements);
             this.hideElements(this.sequenceElements);
 
@@ -104,21 +101,29 @@ export class SimpleNavUI implements IUI {
     }
 
     public deactivate(): void {
-        this.disposable.dispose();
+        this.subscription.dispose();
+        this.subscription = null;
 
         for (let k in this.elements) {
              if (this.elements.hasOwnProperty(k)) {
                 this.elements[k].subscription.dispose();
-             }
-        }
-    }
 
-    private appendElements(elements: { [direction: number]: INavigation }): void {
-         for (let k in elements) {
-             if (elements.hasOwnProperty(k)) {
-                 this.element.appendChild(elements[k].navigation.element);
+                this.element.removeChild(this.elements[k].navigation.element);
+                delete this.elements[k];
              }
         }
+
+        for (let k in this.sequenceElements) {
+             if (this.sequenceElements.hasOwnProperty(k)) {
+                this.sequenceElements[k].subscription.dispose();
+
+                this.element.removeChild(this.sequenceElements[k].navigation.element);
+                delete this.sequenceElements[k];
+             }
+        }
+
+        this.container.element.removeChild(this.element);
+        this.element = null;
     }
 
     private hideElements(elements: { [direction: number]: INavigation }): void {
@@ -129,13 +134,23 @@ export class SimpleNavUI implements IUI {
         }
     }
 
-    private createElement(
+    private createContainerElement(): void {
+        let element: HTMLDivElement = document.createElement("div");
+        element.className = "SimpleNavUI";
+
+        this.container.element.appendChild(element);
+        this.element = element;
+    }
+
+    private createNavigationElement(
         direction: EdgeDirection,
         name: string,
         elements: { [direction: number]: INavigation },
         preferred?: EdgeDirection): void {
 
         let navigation: NavigationElement = new NavigationElement(document.createElement("span"), name);
+
+        this.element.appendChild(navigation.element);
 
         let subscription: rx.IDisposable = rx.Observable
             .fromEvent<void>(navigation.element, "click")
