@@ -16,8 +16,8 @@ interface INavigation {
 class NavigationElement {
     public element: HTMLSpanElement;
 
-    constructor(element: HTMLSpanElement, name: string) {
-        this.element = element;
+    constructor(name: string) {
+        this.element = document.createElement("span");
         this.element.className = `btn Direction Direction${name} DirectionHidden`;
     }
 
@@ -31,7 +31,7 @@ class NavigationElement {
         }
 
         this.element.className = value ?
-            this.element.className.replace(/\DirectionHidden\b/, "") :
+            this.element.className.replace(/\ DirectionHidden\b/, "") :
             this.element.className + " DirectionHidden";
     }
 
@@ -135,7 +135,7 @@ export class SimpleNavUI implements IUI {
         elements: { [direction: number]: INavigation },
         preferred?: EdgeDirection): void {
 
-        let navigation: NavigationElement = new NavigationElement(document.createElement("span"), name);
+        let navigation: NavigationElement = new NavigationElement(name);
 
         this.element.appendChild(navigation.element);
 
