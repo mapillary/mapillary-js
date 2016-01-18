@@ -39,7 +39,7 @@ export class LoadingService {
     public taskLoading$(task: string): rx.Observable<boolean> {
         return this._loaders$.map((loaders: {[key: string]: boolean}): boolean => {
             return !!loaders[task];
-        }).sample(rx.Observable.interval(50)).distinctUntilChanged();
+        }).debounce(100).distinctUntilChanged();
     }
 
     public startLoading(task: string): void {
