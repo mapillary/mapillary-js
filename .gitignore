@@ -9,6 +9,5 @@ build/
 debug/**/*.js
 debug/**/*.css
 docs-out/
-dist/mapillary-js.map
-dist/mapillary-js.min.js
+dist/
 docs/index.html
