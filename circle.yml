@@ -2,7 +2,10 @@ general:
   branches:
     only:
       - master
-      - feature-*
+      - /feature-.*/
+    ignore:
+      - gh-pages
+
 machine:
   node:
     version: 0.10.33
