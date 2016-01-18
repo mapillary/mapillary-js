@@ -1,10 +1,13 @@
 var gulp = require('gulp')
 
+var autoprefixer = require('gulp-autoprefixer')
 var browserify = require('browserify')
 var del = require('del')
 var exorcist = require('exorcist')
 var fs = require('fs')
 var KarmaServer = require('karma').Server
+var minifyCSS = require('gulp-minify-css')
+var rename = require('gulp-rename')
 var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
 var standard = require('gulp-standard')
@@ -164,7 +167,7 @@ function extendKarmaConfig (path, conf) {
   return conf
 }
 
-gulp.task('prepublish', ['ts-lint'], function () {
+gulp.task('prepublish', ['ts-lint', 'css'], function () {
   browserify(config.browserify)
     .plugin(tsify, config.ts)
     .transform('brfs')
@@ -193,4 +196,17 @@ gulp.task('ts', ['ts-lint'], function () {
     .pipe(exorcist(paths.sourceMaps))
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('./build'))
+})
+
+gulp.task('copy-style-assets', function () {
+  gulp.src('styles/**/!(*.css)')
+    .pipe(gulp.dest('dist'))
+})
+
+gulp.task('css', ['copy-style-assets'], function () {
+  gulp.src('styles/mapillary-js.css')
+    .pipe(minifyCSS())
+    .pipe(rename('mapillary-js.min.css'))
+    .pipe(autoprefixer('last 2 version', 'safari 7', 'ie 11'))
+    .pipe(gulp.dest('dist'))
 })
