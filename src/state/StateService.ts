@@ -12,6 +12,7 @@ import {
 
 export class StateService {
     private currentStateSubject: rx.Subject<ICurrentState>;
+    private currentNodeObservable: rx.ConnectableObservable<Node>;
 
     private context: IStateContext;
 
@@ -22,6 +23,12 @@ export class StateService {
         this.context = new StateContext();
         this.currentStateSubject = new rx.BehaviorSubject<ICurrentState>(this.context);
 
+        this.currentNodeObservable = this.currentStateSubject
+            .map<Node>((c: ICurrentState): Node => { return c.currentNode; })
+            .filter((n: Node): boolean => { return n != null; })
+            .distinctUntilChanged().publish();
+        this.currentNodeObservable.connect();
+
         this.frameGenerator = new FrameGenerator();
         this.frameGenerator.requestAnimationFrame(this.frame.bind(this));
     }
@@ -31,10 +38,7 @@ export class StateService {
     }
 
     public get currentNode(): rx.Observable<Node> {
-        return this.currentStateSubject
-            .map<Node>((c: ICurrentState): Node => { return c.currentNode; })
-            .filter((n: Node): boolean => { return n != null; })
-            .distinctUntilChanged();
+        return this.currentNodeObservable;
     }
 
     public dispose(): void {
