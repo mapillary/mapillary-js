@@ -23,7 +23,7 @@ export class SimpleUI implements IUI {
     }
 
     public activate(): void {
-        this.disposable = this.navigator.stateService.currentNode.subscribe((node: Node) => {
+        this.disposable = this.navigator.stateService.currentNode$.subscribe((node: Node) => {
             let ctx: any = this.canvas.getContext("2d");
 
             let cw: number = this.container.element.clientWidth;

@@ -19,11 +19,11 @@ export class EventUI implements IUI {
     }
 
     public activate(): void {
-        this.disposableLoading = this.navigator.loadingService.loading().subscribe((loading: boolean): void => {
+        this.disposableLoading = this.navigator.loadingService.loading$.subscribe((loading: boolean): void => {
             this.eventEmitter.fire("loadingchanged", loading);
         });
 
-        this.disposableState = this.navigator.stateService.currentNode.subscribe((node: Node): void => {
+        this.disposableState = this.navigator.stateService.currentNode$.subscribe((node: Node): void => {
             this.eventEmitter.fire("nodechanged", node);
         });
     }

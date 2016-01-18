@@ -11,61 +11,60 @@ import {
 } from "../State";
 
 export class StateService {
-    private currentStateSubject: rx.Subject<ICurrentState>;
-    private currentNodeObservable: rx.ConnectableObservable<Node>;
+    private _currentState$: rx.Subject<ICurrentState>;
+    private _currentNode$: rx.Observable<Node>;
 
-    private context: IStateContext;
+    private _context: IStateContext;
 
-    private frameGenerator: FrameGenerator;
-    private frameId: number;
+    private _frameGenerator: FrameGenerator;
+    private _frameId: number;
 
     constructor () {
-        this.context = new StateContext();
-        this.currentStateSubject = new rx.BehaviorSubject<ICurrentState>(this.context);
+        this._context = new StateContext();
+        this._currentState$ = new rx.BehaviorSubject<ICurrentState>(this._context);
 
-        this.currentNodeObservable = this.currentStateSubject
+        this._currentNode$ = this._currentState$
             .map<Node>((c: ICurrentState): Node => { return c.currentNode; })
             .filter((n: Node): boolean => { return n != null; })
-            .distinctUntilChanged().publish();
-        this.currentNodeObservable.connect();
+            .distinctUntilChanged();
 
-        this.frameGenerator = new FrameGenerator();
-        this.frameGenerator.requestAnimationFrame(this.frame.bind(this));
+        this._frameGenerator = new FrameGenerator();
+        this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
     }
 
-    public get currentState(): rx.Observable<ICurrentState> {
-        return this.currentStateSubject;
+    public get currentState$(): rx.Observable<ICurrentState> {
+        return this._currentState$;
     }
 
-    public get currentNode(): rx.Observable<Node> {
-        return this.currentNodeObservable;
+    public get currentNode$(): rx.Observable<Node> {
+        return this._currentNode$;
     }
 
     public dispose(): void {
-        this.frameGenerator.cancelAnimationFrame(this.frameId);
+        this._frameGenerator.cancelAnimationFrame(this._frameId);
     }
 
     public appendNodes(nodes: Node[]): void {
-        this.context.append(nodes);
+        this._context.append(nodes);
     }
 
     public removeNodes(n: number): void {
-        this.context.remove(n);
+        this._context.remove(n);
     }
 
     public cutNodes(): void {
-        this.context.cut();
+        this._context.cut();
     }
 
     public setNodes(nodes: Node[]): void {
-        this.context.set(nodes);
+        this._context.set(nodes);
     }
 
     private frame(time: number): void {
-        this.frameId = this.frameGenerator.requestAnimationFrame(this.frame.bind(this));
+        this._frameId = this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
 
-        this.context.update();
+        this._context.update();
 
-        this.currentStateSubject.onNext(this.context);
+        this._currentState$.onNext(this._context);
     }
 }

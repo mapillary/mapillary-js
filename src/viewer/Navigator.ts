@@ -25,7 +25,7 @@ export class Navigator {
 
     public moveToKey(key: string): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
-        return this.graphService.getNode(key).map<Node>((node: Node) => {
+        return this.graphService.node$(key).map<Node>((node: Node) => {
             this.loadingService.stopLoading("navigator");
             this.stateService.setNodes([node]);
             return node;
@@ -34,9 +34,9 @@ export class Navigator {
 
     public moveDir(dir: EdgeDirection): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
-        return this.stateService.currentNode.first()
+        return this.stateService.currentNode$.first()
             .flatMap<Node>((currentNode: Node) => {
-                return this.graphService.getNextNode(currentNode, dir)
+                return this.graphService.nextNode$(currentNode, dir)
                     .flatMap<Node>((node: Node) => {
                         return this.moveToKey(node.key);
                     });

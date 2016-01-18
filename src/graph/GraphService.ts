@@ -10,20 +10,20 @@ interface IGraphOperation extends Function {
 }
 
 export class GraphService {
-    public updates: rx.Subject<any> = new rx.Subject<any>();
+    private _updates$: rx.Subject<any> = new rx.Subject<any>();
 
-    public cache: rx.Subject<any> = new rx.Subject<any>();
-    public cachedNode: rx.Observable<Node>;
+    private _cache$: rx.Subject<any> = new rx.Subject<any>();
+    private _cachedNode$: rx.Observable<Node>;
 
-    public graph: rx.Observable<Graph>;
+    private _graph$: rx.Observable<Graph>;
 
-    public tilesService: TilesService;
+    private _tilesService: TilesService;
 
     constructor (apiV2: APIv2) {
-        this.tilesService = new TilesService(apiV2);
+        this._tilesService = new TilesService(apiV2);
 
         // operation pattern updating the graph
-        this.graph = this.updates
+        this._graph$ = this._updates$
             .scan<Graph>(
             (graph: Graph, operation: IGraphOperation): Graph => {
                 let newGraph: Graph = operation(graph);
@@ -34,48 +34,52 @@ export class GraphService {
             .shareReplay(1);
 
         // always keep the graph running also initiate it to empty
-        this.graph.subscribe();
-        this.updates.onNext((graph: Graph): Graph => {
+        this._graph$.subscribe();
+        this._updates$.onNext((graph: Graph): Graph => {
             return graph;
         });
 
         // stream of cached nodes, uses distinct to not cache a node more than once
-        this.cachedNode = this.cache.distinct((node: Node): string => {
+        this._cachedNode$ = this._cache$.distinct((node: Node): string => {
             return node.key + node.lastCacheEvict;
         }).flatMap<Node>((node: Node): rx.Observable<Node> => {
             return node.cacheAssets();
         });
 
         // make tilesservice aware of that a new node is beeing cached
-        this.cachedNode.subscribe(this.tilesService.cacheNode);
+        this._cachedNode$.subscribe(this._tilesService.cacheNode$);
 
         // save the cached node to the graph, cache its edges
-        this.cachedNode.map((node: Node) => {
+        this._cachedNode$.map((node: Node) => {
             return (graph: Graph): Graph => {
                 graph.cacheNode(node);
                 return graph;
             };
-        }).subscribe(this.updates);
+        }).subscribe(this._updates$);
 
         // feedback from tiles service adding fresh tiles to the graph
-        this.tilesService.tiles.map((data: IAPINavIm): IGraphOperation => {
+        this._tilesService.tiles$.map((data: IAPINavIm): IGraphOperation => {
             return (graph: Graph): Graph => {
                 graph.addNodesFromAPI(data);
                 return graph;
             };
-        }).subscribe(this.updates);
+        }).subscribe(this._updates$);
     }
 
-    public getNode(key: string): rx.Observable<Node> {
-        return this.graph.skipWhile((graph: Graph) => {
+    public get graph$(): rx.Observable<Graph> {
+        return this._graph$;
+    }
+
+    public node$(key: string): rx.Observable<Node> {
+        return this._graph$.skipWhile((graph: Graph) => {
             let node: Node = graph.getNode(key);
             if (node == null || !node.worthy) {
-                this.tilesService.cacheIm.onNext(key);
+                this._tilesService.cacheIm$.onNext(key);
                 return true;
             }
 
             if (!node.cached) {
-                this.cache.onNext(node);
+                this._cache$.onNext(node);
                 return true;
             }
 
@@ -85,12 +89,12 @@ export class GraphService {
         }).take(1);
     }
 
-    public getNextNode(node: Node, dir: number): rx.Observable<Node> {
+    public nextNode$(node: Node, dir: number): rx.Observable<Node> {
         if (!node.cached) {
             rx.Observable.throw<Node>(new Error("node is not yet cached"));
         }
 
-        return this.graph.map((graph: Graph): string => {
+        return this._graph$.map((graph: Graph): string => {
             let nextNode: Node = graph.nextNode(node, dir);
             if (nextNode == null) {
                 return null;
@@ -100,7 +104,7 @@ export class GraphService {
             if (key == null) {
                 return null; // rx.Observable.throw<Node>(new Error("there is no node in that direction"));
             }
-            return this.getNode(key);
+            return this.node$(key);
         });
     }
 }

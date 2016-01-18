@@ -32,7 +32,7 @@ export class DetectionsUI implements IUI {
 
         this.disposable = this.navigator
             .stateService
-            .currentNode.subscribe((node: Node): void => {
+            .currentNode$.subscribe((node: Node): void => {
                 this.setRectContainer(node.image.width, node.image.height);
                 this.removeRectsFromDOM();
 

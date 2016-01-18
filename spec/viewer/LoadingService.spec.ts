@@ -14,7 +14,7 @@ describe("LoadingService", () => {
 
         let i: number = 0;
         let ib: boolean[] = [false, true, false];
-        loadingService.loading().subscribe((loading: boolean) => {
+        loadingService.loading$.subscribe((loading: boolean) => {
             expect(loading).toBe(ib[i]);
             i++;
             done();
@@ -22,7 +22,7 @@ describe("LoadingService", () => {
 
         let k: number = 0;
         let kb: boolean[] = [false, true, false];
-        loadingService.taskLoading("test").subscribe((loading: boolean) => {
+        loadingService.taskLoading$("test").subscribe((loading: boolean) => {
             expect(loading).toBe(kb[k]);
             k++;
             done();

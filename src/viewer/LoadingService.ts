@@ -9,12 +9,11 @@ interface ILoader {
 }
 
 export class LoadingService {
-    public loaders: rx.Observable<{[key: string]: boolean}>;
-
-    private loadersSubject: rx.Subject<any> = new rx.Subject<any>();
+    private _loaders$: rx.Observable<{[key: string]: boolean}>;
+    private _loadersSubject$: rx.Subject<any> = new rx.Subject<any>();
 
     constructor () {
-        this.loaders = this.loadersSubject
+        this._loaders$ = this._loadersSubject$
             .scan<{[key: string]: boolean}>(
                 (loaders: {[key: string]: boolean}, loader: ILoader): {[key: string]: boolean} => {
                     if (loader.task !== undefined) {
@@ -26,8 +25,8 @@ export class LoadingService {
             .startWith({}).shareReplay(1);
     }
 
-    public loading(): rx.Observable<boolean> {
-        return this.loaders.map((loaders: {[key: string]: boolean}): boolean => {
+    public get loading$(): rx.Observable<boolean> {
+        return this._loaders$.map((loaders: {[key: string]: boolean}): boolean => {
             return _.reduce(
                 loaders,
                 (loader: boolean, acc: boolean) => {
@@ -37,18 +36,18 @@ export class LoadingService {
         }).distinctUntilChanged();
     }
 
-    public taskLoading(task: string): rx.Observable<boolean> {
-        return this.loaders.map((loaders: {[key: string]: boolean}): boolean => {
+    public taskLoading$(task: string): rx.Observable<boolean> {
+        return this._loaders$.map((loaders: {[key: string]: boolean}): boolean => {
             return !!loaders[task];
         }).sample(rx.Observable.interval(50)).distinctUntilChanged();
     }
 
     public startLoading(task: string): void {
-        this.loadersSubject.onNext({loading: true, task: task});
+        this._loadersSubject$.onNext({loading: true, task: task});
     }
 
     public stopLoading(task: string): void {
-        this.loadersSubject.onNext({loading: false, task: task});
+        this._loadersSubject$.onNext({loading: false, task: task});
     }
 }
 

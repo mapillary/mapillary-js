@@ -33,12 +33,12 @@ describe("TilesService", () => {
             return when(result);
         });
 
-        tilesService.cachedTiles.subscribe((tilesCache: {[key: string]: boolean}) => {
+        tilesService.cachedTiles$.subscribe((tilesCache: {[key: string]: boolean}) => {
             expect(tilesCache[h]).toBe(true);
             done();
         });
 
-        tilesService.cacheIm.onNext(key);
+        tilesService.cacheIm$.onNext(key);
     });
 
     it("cache h tile", (done) => {
@@ -55,11 +55,11 @@ describe("TilesService", () => {
             return when(result);
         });
 
-        tilesService.cachedTiles.subscribe((tilesCache: {[key: string]: boolean}) => {
+        tilesService.cachedTiles$.subscribe((tilesCache: {[key: string]: boolean}) => {
             expect(tilesCache[h]).toBe(true);
             done();
         });
 
-        tilesService.cacheH.onNext(h);
+        tilesService.cacheH$.onNext(h);
     });
 });

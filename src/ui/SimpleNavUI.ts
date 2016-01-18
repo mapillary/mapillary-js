@@ -45,7 +45,7 @@ export class SimpleNavUI implements IUI {
         this.appendElements(this.elements);
         this.appendElements(this.sequenceElements);
 
-        this.disposable = this.navigator.stateService.currentNode.subscribe((node: Node): void => {
+        this.disposable = this.navigator.stateService.currentNode$.subscribe((node: Node): void => {
             this.hideElements(this.elements);
             this.hideElements(this.sequenceElements);
 

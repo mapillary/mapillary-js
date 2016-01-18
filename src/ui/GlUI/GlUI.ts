@@ -62,7 +62,7 @@ export class GlUI implements IUI {
         this.perspectiveCamera = new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000);
         this.imagePlaneScene = new GlScene();
 
-        this.stateSubscription = this.navigator.stateService.currentState.subscribe(
+        this.stateSubscription = this.navigator.stateService.currentState$.subscribe(
             this.onStateChanged.bind(this));
     }
 

@@ -31,7 +31,7 @@ describe("GraphService", () => {
     });
 
     it("contains an empty graph from the start", (done) => {
-        graphService.graph.subscribe((graph: Graph) => {
+        graphService.graph$.subscribe((graph: Graph) => {
             done();
         })
     });

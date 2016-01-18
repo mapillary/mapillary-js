@@ -13,24 +13,24 @@ interface ITilesOperation extends Function {
 }
 
 export class TilesService {
-    public updates: rx.Subject<any> = new rx.Subject<any>();
+    private _updates$: rx.Subject<any> = new rx.Subject<any>();
 
-    public cacheH: rx.Subject<string> = new rx.Subject<string>();
-    public cacheIm: rx.Subject<string> = new rx.Subject<string>();
-    public cacheNode: rx.Subject<Node> = new rx.Subject<Node>();
+    private _cacheH$: rx.Subject<string> = new rx.Subject<string>();
+    private _cacheIm$: rx.Subject<string> = new rx.Subject<string>();
+    private _cacheNode$: rx.Subject<Node> = new rx.Subject<Node>();
 
-    public imTiles: rx.Observable<IAPINavIm>;
-    public hTiles: rx.Observable<IAPINavIm>;
-    public tiles: rx.ConnectableObservable<IAPINavIm>;
+    private _imTiles$: rx.Observable<IAPINavIm>;
+    private _hTiles$: rx.Observable<IAPINavIm>;
+    private _tiles$: rx.ConnectableObservable<IAPINavIm>;
 
-    public cachedTiles: rx.Observable<{[key: string]: boolean}>;
+    private _cachedTiles$: rx.Observable<{[key: string]: boolean}>;
 
-    public apiV2: APIv2;
+    private apiV2: APIv2;
 
     constructor (apiV2: APIv2) {
         this.apiV2 = apiV2;
 
-        this.cachedTiles = this.updates
+        this._cachedTiles$ = this._updates$
             .scan<{[key: string]: boolean}>(
             (tilesCache: {[key: string]: boolean}, operation: ITilesOperation): {[key: string]: boolean} => {
                 return operation(tilesCache);
@@ -38,18 +38,18 @@ export class TilesService {
             {})
             .shareReplay(1);
 
-        this.imTiles = this.cacheIm.distinct().flatMap<IAPINavIm>((im: string): rx.Observable<IAPINavIm> => {
+        this._imTiles$ = this._cacheIm$.distinct().flatMap<IAPINavIm>((im: string): rx.Observable<IAPINavIm> => {
             return rx.Observable.fromPromise(this.apiV2.nav.im(im));
         });
 
-        this.hTiles = this.cacheH.distinct().flatMap<IAPINavIm>((h: string): rx.Observable<IAPINavIm> => {
+        this._hTiles$ = this._cacheH$.distinct().flatMap<IAPINavIm>((h: string): rx.Observable<IAPINavIm> => {
             return rx.Observable.fromPromise(this.apiV2.nav.h(h));
         });
 
-        this.tiles = this.imTiles.merge(this.hTiles).publish();
-        this.tiles.connect();
+        this._tiles$ = this._imTiles$.merge(this._hTiles$).publish();
+        this._tiles$.connect();
 
-        this.tiles.map((data: IAPINavIm): ITilesOperation => {
+        this._tiles$.map((data: IAPINavIm): ITilesOperation => {
             return (tilesCache: {[key: string]: boolean}): {[key: string]: boolean} => {
                 if (data !== undefined) {
                     _.each(data.hs, (h: string) => {
@@ -59,9 +59,9 @@ export class TilesService {
 
                 return tilesCache;
             };
-        }).subscribe(this.updates);
+        }).subscribe(this._updates$);
 
-        this.cacheNode.flatMap<string>((node: Node): rx.Observable<string> => {
+        this._cacheNode$.flatMap<string>((node: Node): rx.Observable<string> => {
             let hs: string[] = [];
 
             let h: string = geohash.encode(node.latLon.lat, node.latLon.lon, 7);
@@ -72,8 +72,29 @@ export class TilesService {
             });
 
             return rx.Observable.from(hs);
-        }).subscribe(this.cacheH);
+        }).subscribe(this._cacheH$);
     }
+
+    public get cacheH$(): rx.Subject<string> {
+        return this._cacheH$;
+    }
+
+    public get cacheIm$(): rx.Subject<string> {
+        return this._cacheIm$;
+    }
+
+    public get cacheNode$(): rx.Subject<Node> {
+        return this._cacheNode$;
+    }
+
+    public get cachedTiles$(): rx.Observable<{[key: string]: boolean}> {
+        return this._cachedTiles$;
+    }
+
+    public get tiles$(): rx.ConnectableObservable<IAPINavIm> {
+        return this._tiles$;
+    }
+
 }
 
 export default TilesService;
