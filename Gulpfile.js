@@ -2,12 +2,12 @@ var gulp = require('gulp')
 
 var autoprefixer = require('gulp-autoprefixer')
 var browserify = require('browserify')
+var concat = require('gulp-concat')
 var del = require('del')
 var exorcist = require('exorcist')
 var fs = require('fs')
 var KarmaServer = require('karma').Server
 var minifyCSS = require('gulp-minify-css')
-var rename = require('gulp-rename')
 var source = require('vinyl-source-stream')
 var serve = require('gulp-serve')
 var standard = require('gulp-standard')
@@ -204,9 +204,12 @@ gulp.task('copy-style-assets', function () {
 })
 
 gulp.task('css', ['copy-style-assets'], function () {
-  gulp.src('styles/mapillary-js.css')
-    .pipe(minifyCSS())
-    .pipe(rename('mapillary-js.min.css'))
+  gulp.src([
+    'styles/mapillary-js.css',
+    'styles/**/!(mapillary-js)*.css'
+  ])
     .pipe(autoprefixer('last 2 version', 'safari 7', 'ie 11'))
+    .pipe(minifyCSS())
+    .pipe(concat('mapillary-js.min.css'))
     .pipe(gulp.dest('dist'))
 })
