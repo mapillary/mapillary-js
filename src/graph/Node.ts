@@ -106,6 +106,12 @@ export class Node {
         });
     }
 
+    public get loaded(): boolean {
+        return this.cached &&
+            this.image != null &&
+            this.merged === (this.mesh != null);
+    }
+
     public get merged(): boolean {
         return this.apiNavImIm != null &&
             this.apiNavImIm.merge_version != null &&

@@ -2,6 +2,7 @@
 
 import * as UnitBezier from "unitbezier";
 
+import {ParameterMapillaryError} from "../../Error";
 import {IState} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, Transform} from "../../Geo";
@@ -72,6 +73,10 @@ export class CompletingState implements IState {
 
         this.trajectory = this.trajectory.concat(trajectory);
         for (let node of trajectory) {
+            if (!node.loaded) {
+                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
+            }
+
             let transform: Transform = new Transform(node);
             this.trajectoryTransforms.push(transform);
             this.trajectoryCameras.push(new Camera(transform));
@@ -109,20 +114,20 @@ export class CompletingState implements IState {
         this.trajectoryCameras.length = 0;
         if (this.currentNode != null) {
             this.trajectory = [this.currentNode].concat(trajectory);
-            for (let node of this.trajectory) {
-                let transform: Transform = new Transform(node);
-                this.trajectoryTransforms.push(transform);
-                this.trajectoryCameras.push(new Camera(transform));
-            }
             this.currentIndex = 1;
         } else {
             this.trajectory = trajectory.slice();
-            for (let node of this.trajectory) {
-                let transform: Transform = new Transform(node);
-                this.trajectoryTransforms.push(transform);
-                this.trajectoryCameras.push(new Camera(transform));
-            }
             this.currentIndex = 0;
+        }
+
+        for (let node of this.trajectory) {
+            if (!node.loaded) {
+                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
+            }
+
+            let transform: Transform = new Transform(node);
+            this.trajectoryTransforms.push(transform);
+            this.trajectoryCameras.push(new Camera(transform));
         }
 
         this.alpha = 0;
