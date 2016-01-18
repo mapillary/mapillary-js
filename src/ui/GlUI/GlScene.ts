@@ -22,6 +22,10 @@ export class GlScene {
             this.sceneOld.remove(plane);
             plane.geometry.dispose();
             plane.material.dispose();
+            let texture: THREE.Texture = (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value;
+            if (texture != null) {
+                texture.dispose();
+            }
         }
 
         for (let plane of this.imagePlanes) {
