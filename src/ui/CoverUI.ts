@@ -17,12 +17,9 @@ export class CoverUI implements IUI {
 
         let button: HTMLElement = this.createButton("mapillary-js");
         this.coverContainer.appendChild(button);
-
-        console.log(this.coverContainer);
     }
 
     public activate(): void {
-        console.log("CoverUI activated");
         return;
     }
 
@@ -31,7 +28,6 @@ export class CoverUI implements IUI {
     }
 
     private activateAllUIs (): void {
-        console.log("All other UIs activated, CoverUI DOM node deleted");
         this.coverContainer.parentNode.removeChild(this.coverContainer);
     }
 
