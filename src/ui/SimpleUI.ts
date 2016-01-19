@@ -1,48 +1,68 @@
+/// <reference path="../../typings/virtual-dom/virtual-dom.d.ts" />
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
 import * as rx from "rx";
+import * as vd from "virtual-dom";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {IUI} from "../UI";
 
+interface ICanvasNode {
+    canvas: HTMLCanvasElement;
+    node: Node;
+}
+
 export class SimpleUI implements IUI {
-    private canvas: HTMLCanvasElement;
-    private disposable: rx.IDisposable;
     private navigator: Navigator;
     private container: Container;
 
-    constructor(container: Container, navigator: Navigator) {
-        this.navigator = navigator;
+    private canvasId: string;
+    private uiName: string;
 
-        this.canvas = document.createElement("canvas");
-        this.canvas.width = container.element.clientWidth;
-        this.canvas.height = container.element.clientHeight;
-        container.element.appendChild(this.canvas);
+    private disposable: rx.IDisposable;
+
+    constructor(container: Container, navigator: Navigator) {
+        this.canvasId = `${container.id}-simpleui`;
+        this.uiName = "simpleui";
+        this.navigator = navigator;
         this.container = container;
     }
 
     public activate(): void {
-        this.disposable = this.navigator.stateService.currentNode$.subscribe((node: Node) => {
-            let ctx: any = this.canvas.getContext("2d");
+        this.disposable = this.container.domRenderer.element$.combineLatest(
+            this.navigator.stateService.currentNode$,
+            (element: Element, node: Node): ICanvasNode => {
+                let canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById(this.canvasId);
+                return {canvas: canvas, node: node};
+            }).subscribe((canvasNode: ICanvasNode) => {
+                let canvas: HTMLCanvasElement = canvasNode.canvas;
+                let node: Node = canvasNode.node;
 
-            let cw: number = this.container.element.clientWidth;
-            let ch: number = this.container.element.clientHeight;
+                if (!node || !canvas) {
+                    return null;
+                }
 
-            ctx.fillStyle = "black"; // todo: This should be customizable by the end user
-            ctx.fillRect(0, 0, cw, ch);
+                let ctx: any = canvas.getContext("2d");
+                let cw: number = this.container.element.clientWidth;
+                let ch: number = this.container.element.clientHeight;
 
-            let imHeight: number = node.image.height;
-            let imWidth: number = node.image.width;
+                ctx.fillStyle = "black"; // todo: This should be customizable by the end user
+                ctx.fillRect(0, 0, cw, ch);
 
-            let w: number = ch / imHeight * imWidth;
-            let offsetLeft: number = (cw - w) / 2;
+                let imHeight: number = node.image.height;
+                let imWidth: number = node.image.width;
 
-            this.canvas.width = cw;
-            this.canvas.height = ch;
+                let w: number = ch / imHeight * imWidth;
+                let offsetLeft: number = (cw - w) / 2;
 
-            ctx.drawImage(node.image, offsetLeft, 0, w, ch);
-        });
+                canvas.width = cw;
+                canvas.height = ch;
+
+                ctx.drawImage(node.image, offsetLeft, 0, w, ch);
+            });
+
+        this.container.domRenderer.render$.onNext({name: this.uiName, vnode: vd.h(`canvas#${this.canvasId}`, [])});
     }
 
     public deactivate(): void {

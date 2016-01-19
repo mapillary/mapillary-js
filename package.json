@@ -71,6 +71,7 @@
     "three": "~0.73.0",
     "underscore": "~1.8.3",
     "unitbezier": "0.0.0",
+    "virtual-dom": "^2.1.1",
     "when": "~3.7.4"
   },
   "browser": {
