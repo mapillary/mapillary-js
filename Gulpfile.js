@@ -156,7 +156,7 @@ gulp.task('typescript-src', function () {
 })
 
 gulp.task('watch', [], function () {
-  gulp.watch([paths.ts.src, paths.ts.tests], ['ts', 'documentation'])
+  gulp.watch([paths.ts.src, paths.ts.tests], ['ts'])
 })
 
 gulp.task('default', ['serve', 'watch'])
