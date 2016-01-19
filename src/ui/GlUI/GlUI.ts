@@ -31,9 +31,13 @@ export class GlUI implements IUI {
     private currentKey: string;
     private previousKey: string;
 
+    private name: string;
+
     constructor (container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
+
+        this.name = "gl";
 
         this.currentKey = null;
         this.previousKey = null;
@@ -54,12 +58,13 @@ export class GlUI implements IUI {
                 this.updateImagePlanes(f.state);
                 this.updateAlphaOld(f.state.alpha);
 
-                return { name: "gl", render: { frameId: f.id, render: this.render.bind(this) } };
+                return { name: this.name, render: { frameId: f.id, render: this.render.bind(this) } };
             })
             .subscribe(this.container.glRenderer.render$);
     }
 
     public deactivate(): void {
+        this.container.glRenderer.clear$.onNext(this.name);
         this.stateSubscription.dispose();
     }
 

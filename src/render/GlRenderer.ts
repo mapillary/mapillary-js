@@ -51,6 +51,7 @@ export class GlRenderer {
     private _render$: rx.Subject<IRenderHash> = new rx.Subject<IRenderHash>();
     private _renderCollection$: rx.Observable<IRenderHashes>;
     private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
+    private _clear$: rx.Subject<string> = new rx.Subject<string>();
 
     constructor (element: HTMLElement) {
         this.element = element;
@@ -80,7 +81,18 @@ export class GlRenderer {
 
                     return hashes;
                 };
-            }).subscribe(this._renderOperation$);
+            })
+            .subscribe(this._renderOperation$);
+
+        this._clear$
+            .map<IRenderHashesOperation>((name: string) => {
+                return (hashes: IRenderHashes): IRenderHashes => {
+                    delete hashes[name];
+
+                    return hashes;
+                };
+            })
+            .subscribe(this._renderOperation$);
 
         this._updateCamera$
             .scan<ICamera>(
@@ -154,6 +166,10 @@ export class GlRenderer {
 
     public get render$(): rx.Subject<IRenderHash> {
         return this._render$;
+    }
+
+    public get clear$(): rx.Subject<string> {
+        return this._clear$;
     }
 }
 
