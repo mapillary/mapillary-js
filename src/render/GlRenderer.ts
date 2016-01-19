@@ -137,7 +137,7 @@ export class GlRenderer {
                     alpha: 0,
                     frameId: 0,
                     lastCamera: new Camera(),
-                    needsRender: true,
+                    needsRender: false,
                     perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000),
                 }
             )
@@ -147,6 +147,10 @@ export class GlRenderer {
                     return { camera: camera, hashes: hashes };
                 })
             .filter((cameraRender: ICameraRender) => {
+                if (!Object.keys(cameraRender.hashes).length) {
+                    return false;
+                }
+
                 let needsRender: boolean = cameraRender.camera.needsRender;
                 let frameId: number = cameraRender.camera.frameId;
 
