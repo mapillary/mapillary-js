@@ -1,7 +1,9 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 /// <reference path="../../typings/when/when.d.ts" />
+/// <reference path="../../typings/threejs/three.d.ts" />
 
 import * as when from "when";
+import * as THREE from "three";
 
 import {IAPINavIm} from "../../src/API";
 import {EdgeDirection} from "../../src/Edge";
@@ -13,6 +15,14 @@ describe("Viewer", () => {
 
     beforeEach(() => {
         spyOn(document, 'getElementById').and.callFake(() => { return document.createElement('div'); });
+        spyOn(window, 'requestAnimationFrame').and.callFake(() => { return () => {}; })
+        spyOn(THREE, 'WebGLRenderer').and.callFake(() => {
+            return {
+                 setSize: () => { },
+                 setClearColor: () => { },
+                 domElement: document.createElement('div'),
+            };
+        });
 
         viewer = new Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", {uis: ["none"], uiList: ["none"]})
     });

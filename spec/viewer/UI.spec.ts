@@ -1,4 +1,7 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../typings/threejs/three.d.ts" />
+
+import * as THREE from "three";
 
 import {Container, Navigator, UI} from "../../src/Viewer";
 import {IUI, NoneUI} from "../../src/UI";
@@ -19,6 +22,14 @@ describe("UI", () => {
 
     beforeEach(() => {
         spyOn(document, 'getElementById').and.callFake(() => { return document.createElement('div'); });
+        spyOn(window, 'requestAnimationFrame').and.callFake(() => { return () => {}; })
+        spyOn(THREE, 'WebGLRenderer').and.callFake(() => {
+            return {
+                 setSize: () => { },
+                 setClearColor: () => { },
+                 domElement: document.createElement('div'),
+            };
+        });
 
         container = new Container("fake");
         navigator = new Navigator("clientId");
