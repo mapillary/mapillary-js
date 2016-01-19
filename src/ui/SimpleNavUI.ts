@@ -39,6 +39,11 @@ export class SimpleNavUI implements IUI {
             let btns: vd.VNode[] = [];
 
             for (let edge of node.edges) {
+                let direction: EdgeDirection = edge.data.direction;
+                if (!(direction in this.dirNames)) {
+                    continue;
+                }
+
                 btns.push(this.createVNode(edge.data.direction));
             }
 
