@@ -8,7 +8,7 @@ import {IGPano} from "../../API";
 import {IUI, Shaders, GlScene} from "../../UI";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
-import {IRenderHash} from "../../Render";
+import {IRenderHash, RenderStage} from "../../Render";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
 
@@ -62,6 +62,7 @@ export class GlUI implements IUI {
                         frameId: frame.id,
                         needsRender: needsRender,
                         render: this.render.bind(this),
+                        stage: RenderStage.BACKGROUND,
                     },
                 };
             })

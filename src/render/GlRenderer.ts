@@ -7,6 +7,11 @@ import * as THREE from "three";
 import {IFrame} from "../State";
 import {Camera} from "../Geo";
 
+export enum RenderStage {
+    BACKGROUND,
+    FOREGROUND
+}
+
 export interface IRenderFunction extends Function {
     (
         alpha: number,
@@ -19,6 +24,7 @@ export interface IRender {
     frameId: number;
     needsRender: boolean;
     render: IRenderFunction;
+    stage: RenderStage;
 }
 
 export interface IRenderHash {
@@ -163,15 +169,33 @@ export class GlRenderer {
                     let alpha: number = cameraRender.camera.alpha;
                     let perspectiveCamera: THREE.PerspectiveCamera = cameraRender.camera.perspective;
 
-                    renderer.autoClear = false;
-                    renderer.clear();
+                    let backgroundRenders: IRenderFunction[] = [];
+                    let foregroundRenders: IRenderFunction[] = [];
 
                     for (let k in cameraRender.hashes) {
                         if (!cameraRender.hashes.hasOwnProperty(k)) {
                             continue;
                         }
 
-                        cameraRender.hashes[k].render(alpha, perspectiveCamera, renderer);
+                        let hash: IRender = cameraRender.hashes[k];
+                        if (hash.stage === RenderStage.BACKGROUND) {
+                            backgroundRenders.push(hash.render);
+                        } else if (hash.stage === RenderStage.FOREGROUND) {
+                            foregroundRenders.push(hash.render);
+                        }
+                    }
+
+                    renderer.autoClear = false;
+                    renderer.clear();
+
+                    for (let render of backgroundRenders) {
+                        render(alpha, perspectiveCamera, renderer);
+                    }
+
+                    renderer.clearDepth();
+
+                    for (let render of foregroundRenders) {
+                        render(alpha, perspectiveCamera, renderer);
                     }
 
                     return renderer;
