@@ -118,6 +118,11 @@ export class Node {
             this.apiNavImIm.merge_version > 0;
     }
 
+    public get pano(): boolean {
+        return this.apiNavImIm.gpano != null &&
+            this.apiNavImIm.gpano.FullPanoWidthPixels != null;
+    }
+
     public get fullPano(): boolean {
         return this.apiNavImIm.gpano != null &&
             this.apiNavImIm.gpano.CroppedAreaLeftPixels === 0 &&
