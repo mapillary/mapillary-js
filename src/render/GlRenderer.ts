@@ -57,6 +57,7 @@ export class GlRenderer {
     private element: HTMLElement;
 
     private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+    private _camera$: rx.Observable<ICamera>;
     private _render$: rx.Subject<IRenderHash> = new rx.Subject<IRenderHash>();
     private _renderCollection$: rx.Observable<IRenderHashes>;
     private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
@@ -103,7 +104,7 @@ export class GlRenderer {
             })
             .subscribe(this._renderOperation$);
 
-        this._frame$
+        this._camera$ = this._frame$
             .scan<ICamera>(
                 (cam: ICamera, frame: IFrame): ICamera => {
                     cam.frameId = frame.id;
@@ -139,9 +140,10 @@ export class GlRenderer {
                     lastCamera: new Camera(),
                     needsRender: false,
                     perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000),
-                }
-            )
-            .combineLatest(
+                });
+
+        rx.Observable.combineLatest(
+                this._camera$,
                 this._renderCollection$,
                 (camera: ICamera, hashes: IRenderHashes): ICameraRender => {
                     return { camera: camera, hashes: hashes };
