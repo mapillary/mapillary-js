@@ -18,7 +18,6 @@ export class GlUI implements IUI {
 
     private stateSubscription: rx.IDisposable;
 
-    private needsRender: boolean;
     private alphaOld: number;
     private fadeOutSpeed: number;
     private lastCamera: Camera;
@@ -42,8 +41,6 @@ export class GlUI implements IUI {
         this.currentKey = null;
         this.previousKey = null;
 
-        this.needsRender = false;
-
         this.alphaOld = 0;
         this.fadeOutSpeed = 0.05;
         this.lastCamera = new Camera();
@@ -54,11 +51,19 @@ export class GlUI implements IUI {
         this.imagePlaneScene = new GlScene();
 
         this.stateSubscription = this.navigator.stateService.currentState$
-            .map<IRenderHash>((f: IFrame): IRenderHash => {
-                this.updateImagePlanes(f.state);
-                this.updateAlphaOld(f.state.alpha);
+            .map<IRenderHash>((frame: IFrame): IRenderHash => {
+                let needsRender: boolean =
+                    this.updateImagePlanes(frame.state) ||
+                    this.updateAlphaOld(frame.state.alpha);
 
-                return { name: this.name, render: { frameId: f.id, render: this.render.bind(this) } };
+                return {
+                    name: this.name,
+                    render: {
+                        frameId: frame.id,
+                        needsRender: needsRender,
+                        render: this.render.bind(this),
+                    },
+                };
             })
             .subscribe(this.container.glRenderer.render$);
     }
@@ -68,18 +73,19 @@ export class GlUI implements IUI {
         this.stateSubscription.dispose();
     }
 
-    private updateAlphaOld(alpha: number): void {
+    private updateAlphaOld(alpha: number): boolean {
         if (alpha < 1 || this.alphaOld === 0) {
-            return;
+            return false;
         }
 
         this.alphaOld = Math.max(0, this.alphaOld - this.fadeOutSpeed);
-        this.needsRender = true;
+
+        return true;
     }
 
-    private updateImagePlanes(state: ICurrentState): void {
+    private updateImagePlanes(state: ICurrentState): boolean {
         if (state.currentNode == null || state.currentNode.key === this.currentKey) {
-            return;
+            return false;
         }
 
         this.previousKey = state.previousNode != null ? state.previousNode.key : null;
@@ -101,7 +107,8 @@ export class GlUI implements IUI {
         this.imagePlaneScene.updateImagePlanes([currentMesh]);
 
         this.alphaOld = 1;
-        this.needsRender = true;
+
+        return true;
     }
 
     private render(

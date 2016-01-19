@@ -17,6 +17,7 @@ export interface IRenderFunction extends Function {
 
 export interface IRender {
     frameId: number;
+    needsRender: boolean;
     render: IRenderFunction;
 }
 
@@ -32,6 +33,8 @@ interface IRenderHashes {
 interface ICamera {
     alpha: number;
     frameId: number;
+    lastCamera: Camera;
+    needsRender: boolean;
     perspective: THREE.PerspectiveCamera;
 }
 
@@ -97,7 +100,16 @@ export class GlRenderer {
         this._frame$
             .scan<ICamera>(
                 (cam: ICamera, frame: IFrame): ICamera => {
+                    cam.frameId = frame.id;
+
                     let current: Camera = frame.state.camera;
+
+                    if (cam.alpha === frame.state.alpha &&
+                        cam.lastCamera.diff(current) < 0.00001) {
+                        cam.needsRender = false;
+
+                        return cam;
+                    }
 
                     let aspect: number = 4 / 3;
                     let verticalFov: number = 2 * Math.atan(0.5 / aspect / current.focal) * 180 / Math.PI;
@@ -110,11 +122,18 @@ export class GlRenderer {
                     cam.perspective.lookAt(current.lookat);
 
                     cam.alpha = frame.state.alpha;
-                    cam.frameId = frame.id;
+                    cam.lastCamera.copy(current);
+                    cam.needsRender = true;
 
                     return cam;
                 },
-                { alpha: 0, frameId: 0, perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000) }
+                {
+                    alpha: 0,
+                    frameId: 0,
+                    lastCamera: new Camera(),
+                    needsRender: true,
+                    perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000),
+                }
             )
             .combineLatest(
                 this._renderCollection$,
@@ -122,6 +141,7 @@ export class GlRenderer {
                     return { camera: camera, hashes: hashes };
                 })
             .filter((cameraRender: ICameraRender) => {
+                let needsRender: boolean = cameraRender.camera.needsRender;
                 let frameId: number = cameraRender.camera.frameId;
 
                 for (let k in cameraRender.hashes) {
@@ -132,9 +152,11 @@ export class GlRenderer {
                     if (cameraRender.hashes[k].frameId !== frameId) {
                         return false;
                     }
+
+                    needsRender = needsRender || cameraRender.hashes[k].needsRender;
                 }
 
-                return true;
+                return needsRender;
             })
             .scan<THREE.WebGLRenderer>(
                 (renderer: THREE.WebGLRenderer, cameraRender: ICameraRender): THREE.WebGLRenderer => {
