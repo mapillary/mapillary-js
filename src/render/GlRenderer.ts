@@ -47,7 +47,7 @@ interface IRenderHashesOperation extends Function {
 export class GlRenderer {
     private element: HTMLElement;
 
-    private _updateCamera$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+    private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
     private _render$: rx.Subject<IRenderHash> = new rx.Subject<IRenderHash>();
     private _renderCollection$: rx.Observable<IRenderHashes>;
     private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
@@ -94,7 +94,7 @@ export class GlRenderer {
             })
             .subscribe(this._renderOperation$);
 
-        this._updateCamera$
+        this._frame$
             .scan<ICamera>(
                 (cam: ICamera, frame: IFrame): ICamera => {
                     let current: Camera = frame.state.camera;
@@ -160,8 +160,8 @@ export class GlRenderer {
             .connect();
     }
 
-    public get updateCamera$(): rx.Subject<IFrame> {
-        return this._updateCamera$;
+    public get frame$(): rx.Subject<IFrame> {
+        return this._frame$;
     }
 
     public get render$(): rx.Subject<IRenderHash> {
