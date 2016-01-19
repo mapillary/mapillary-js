@@ -10,8 +10,13 @@ import {
     StateContext,
 } from "../State";
 
+export interface IFrame {
+    id: number;
+    state: ICurrentState;
+}
+
 export class StateService {
-    private _currentState$: rx.Subject<ICurrentState>;
+    private _currentState$: rx.Subject<IFrame>;
     private _currentNode$: rx.Observable<Node>;
 
     private _context: IStateContext;
@@ -21,10 +26,10 @@ export class StateService {
 
     constructor () {
         this._context = new StateContext();
-        this._currentState$ = new rx.BehaviorSubject<ICurrentState>(this._context);
+        this._currentState$ = new rx.BehaviorSubject<IFrame>({ id: 0, state: this._context });
 
         this._currentNode$ = this._currentState$
-            .map<Node>((c: ICurrentState): Node => { return c.currentNode; })
+            .map<Node>((f: IFrame): Node => { return f.state.currentNode; })
             .filter((n: Node): boolean => { return n != null; })
             .distinctUntilChanged();
 
@@ -32,7 +37,7 @@ export class StateService {
         this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
     }
 
-    public get currentState$(): rx.Observable<ICurrentState> {
+    public get currentState$(): rx.Observable<IFrame> {
         return this._currentState$;
     }
 
@@ -65,6 +70,6 @@ export class StateService {
 
         this._context.update();
 
-        this._currentState$.onNext(this._context);
+        this._currentState$.onNext({ id: this._frameId, state: this._context });
     }
 }

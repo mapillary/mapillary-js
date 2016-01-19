@@ -4,7 +4,7 @@
 import * as rx from "rx";
 import * as THREE from "three";
 
-import {ICurrentState} from "../State";
+import {IFrame} from "../State";
 import {Camera} from "../Geo";
 
 export interface IRenderFunction extends Function {
@@ -15,21 +15,27 @@ export interface IRenderFunction extends Function {
     ): void;
 }
 
+export interface IRender {
+    frameId: number;
+    render: IRenderFunction;
+}
+
 interface ICamera {
     alpha: number;
+    frameId: number;
     perspective: THREE.PerspectiveCamera;
 }
 
 interface ICameraRender {
-    cam: ICamera;
-    render: IRenderFunction;
+    camera: ICamera;
+    render: IRender;
 }
 
 export class GlRenderer {
     private element: HTMLElement;
 
-    private _updateCamera$: rx.Subject<ICurrentState> = new rx.Subject<ICurrentState>();
-    private _render$: rx.Subject<IRenderFunction> = new rx.Subject<IRenderFunction>();
+    private _updateCamera$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+    private _render$: rx.Subject<IRender> = new rx.Subject<IRender>();
 
     constructor (element: HTMLElement) {
         this.element = element;
@@ -47,8 +53,8 @@ export class GlRenderer {
 
         this._updateCamera$
             .scan<ICamera>(
-                (cam: ICamera, state: ICurrentState): ICamera => {
-                    let current: Camera = state.camera;
+                (cam: ICamera, frame: IFrame): ICamera => {
+                    let current: Camera = frame.state.camera;
 
                     let aspect: number = 4 / 3;
                     let verticalFov: number = 2 * Math.atan(0.5 / aspect / current.focal) * 180 / Math.PI;
@@ -60,22 +66,26 @@ export class GlRenderer {
                     cam.perspective.position.copy(current.position);
                     cam.perspective.lookAt(current.lookat);
 
-                    cam.alpha = state.alpha;
+                    cam.alpha = frame.state.alpha;
+                    cam.frameId = frame.id;
 
                     return cam;
                 },
-                { alpha: 0, perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000) }
+                { alpha: 0, frameId: 0, perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000) }
             )
             .combineLatest(
                 this._render$,
-                (cam: ICamera, render: IRenderFunction): ICameraRender => {
-                    return { cam: cam, render: render };
+                (camera: ICamera, render: IRender): ICameraRender => {
+                    return { camera: camera, render: render };
                 })
+            .filter((cameraRender: ICameraRender) => {
+                return cameraRender.camera.frameId === cameraRender.render.frameId;
+            })
             .scan<THREE.WebGLRenderer>(
                 (renderer: THREE.WebGLRenderer, camRender: ICameraRender): THREE.WebGLRenderer => {
-                    let alpha: number = camRender.cam.alpha;
-                    let perspectiveCamera: THREE.PerspectiveCamera = camRender.cam.perspective;
-                    let render: IRenderFunction = camRender.render;
+                    let alpha: number = camRender.camera.alpha;
+                    let perspectiveCamera: THREE.PerspectiveCamera = camRender.camera.perspective;
+                    let render: IRenderFunction = camRender.render.render;
 
                     renderer.autoClear = false;
                     renderer.clear();
@@ -89,11 +99,11 @@ export class GlRenderer {
             .connect();
     }
 
-    public get updateCamera$(): rx.Subject<ICurrentState> {
+    public get updateCamera$(): rx.Subject<IFrame> {
         return this._updateCamera$;
     }
 
-    public get render$(): rx.Subject<IRenderFunction> {
+    public get render$(): rx.Subject<IRender> {
         return this._render$;
     }
 }
