@@ -14,7 +14,7 @@ export class Container {
         this.element = document.getElementById(id);
         this.element.classList.add("mapillary-js");
 
-        this.glRenderer = new GlRenderer();
+        this.glRenderer = new GlRenderer(this.element);
         this.domRenderer = new DOMRenderer(this.element);
     }
 }
