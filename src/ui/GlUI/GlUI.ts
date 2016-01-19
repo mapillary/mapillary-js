@@ -4,6 +4,7 @@
 import * as THREE from "three";
 import * as rx from "rx";
 
+import {IGPano} from "../../API";
 import {IUI, Shaders, GlScene} from "../../UI";
 import {ICurrentState} from "../../State";
 import {Container, Navigator} from "../../Viewer";
@@ -27,6 +28,7 @@ export class GlUI implements IUI {
     private imagePlaneScene: GlScene;
 
     private imagePlaneDepth: number = 200;
+    private imageSphereRadius: number = 200;
 
     private currentKey: string;
     private previousKey: string;
@@ -105,14 +107,20 @@ export class GlUI implements IUI {
         this.previousKey = state.previousNode != null ? state.previousNode.key : null;
         if (this.previousKey != null) {
             if (this.previousKey !== this.currentKey) {
-                this.imagePlaneScene.updateImagePlanes(
-                    [this.createImagePlane(this.previousKey, state.previousTransform, state.previousNode)]);
+                let previousMesh: THREE.Mesh = state.previousNode.pano ?
+                    this.createImageSphere(this.previousKey, state.previousTransform, state.previousNode) :
+                    this.createImagePlane(this.previousKey, state.previousTransform, state.previousNode);
+
+                this.imagePlaneScene.updateImagePlanes([previousMesh]);
             }
         }
 
         this.currentKey = state.currentNode.key;
-        this.imagePlaneScene.updateImagePlanes(
-            [this.createImagePlane(this.currentKey, state.currentTransform, state.currentNode)]);
+        let currentMesh: THREE.Mesh = state.currentNode.pano ?
+            this.createImageSphere(this.currentKey, state.currentTransform, state.currentNode) :
+            this.createImagePlane(this.currentKey, state.currentTransform, state.currentNode);
+
+        this.imagePlaneScene.updateImagePlanes([currentMesh]);
 
         this.alphaOld = 1;
         this.needsRender = true;
@@ -186,6 +194,53 @@ export class GlUI implements IUI {
         return mesh;
     }
 
+    private createImageSphere(key: string, transform: Transform, node: Node): THREE.Mesh {
+        let url: string = "https://d1cuyjsrcm0gby.cloudfront.net/" + key + "/thumb-320.jpg?origin=mapillary.webgl";
+
+        let gpano: IGPano = transform.gpano;
+        let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
+        let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
+
+        let materialParameters: THREE.ShaderMaterialParameters = {
+            depthWrite: false,
+            fragmentShader: Shaders.equirectangular.fragment,
+            side: THREE.DoubleSide,
+            transparent: true,
+            uniforms: {
+                opacity: {
+                    type: "f",
+                    value: 1,
+                },
+                phiLength: {
+                    type: "f",
+                    value: phiLength,
+                },
+                projectorMat: {
+                    type: "m4",
+                    value: transform.rt,
+                },
+                projectorTex: {
+                    type: "t",
+                    value: null,
+                },
+                thetaLength: {
+                    type: "f",
+                    value: thetaLength,
+                },
+            },
+            vertexShader: Shaders.equirectangular.vertex,
+        };
+
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        this.setTexture(material, url);
+
+        let geometry: THREE.Geometry = this.getImageSphereGeo(transform, node);
+        let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
+
+        return mesh;
+    }
+
     private createMaterialParameters(transform: Transform): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
@@ -252,6 +307,35 @@ export class GlUI implements IUI {
         return geometry;
     }
 
+    private getImageSphereGeo(transform: Transform, node: Node): THREE.Geometry {
+        if (node.mesh == null ||
+            transform.scale < 1e-2 ||
+            transform.scale > 50) {
+            return this.getFlatImageSphereGeo(transform);
+        }
+
+        let geometry: THREE.Geometry = new THREE.Geometry();
+        let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
+
+        // push everything at least 5 meters in front of the camera
+        let minZ: number = 5.0 * transform.scale;
+        let maxZ: number = this.imageSphereRadius * transform.scale;
+        for (let v of node.mesh.vertices) {
+            let l: number = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+            let z: number = Math.max(minZ, Math.min(l, maxZ));
+            let factor: number = z / l;
+            let p: THREE.Vector3 = new THREE.Vector3(v[0] * factor, v[1] * factor, v[2] * factor);
+            p.applyMatrix4(t);
+            geometry.vertices.push(p);
+        }
+
+        for (let f of node.mesh.faces) {
+            geometry.faces.push(new THREE.Face3(f[0], f[1], f[2]));
+        }
+
+        return geometry;
+    }
+
     private getFlatImagePlaneGeo(transform: Transform): THREE.Geometry {
         let width: number = transform.width;
         let height: number = transform.height;
@@ -267,6 +351,27 @@ export class GlUI implements IUI {
 
         geometry.vertices.push(tl, bl, br, tr);
         geometry.faces.push(new THREE.Face3(0, 1, 3), new THREE.Face3(1, 2, 3));
+
+        return geometry;
+    }
+
+    private getFlatImageSphereGeo(transform: Transform): THREE.Geometry {
+        let gpano: IGPano = transform.gpano;
+        let phiStart: number = 2 * Math.PI * gpano.CroppedAreaLeftPixels / gpano.FullPanoWidthPixels;
+        let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
+        let thetaStart: number = Math.PI * gpano.CroppedAreaTopPixels / gpano.FullPanoHeightPixels;
+        let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
+        let geometry: THREE.SphereGeometry = new THREE.SphereGeometry(
+            this.imageSphereRadius,
+            20,
+            40,
+            phiStart - Math.PI / 2,
+            phiLength,
+            thetaStart,
+            thetaLength
+        );
+
+        geometry.applyMatrix(new THREE.Matrix4().getInverse(transform.rt));
 
         return geometry;
     }
