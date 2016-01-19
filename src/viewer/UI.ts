@@ -3,6 +3,7 @@ import {
     CoverUI,
     GlUI,
     KeyboardUI,
+    LoadingUI,
     NoneUI,
     SimpleUI,
     SimpleCacheUI,
@@ -30,6 +31,7 @@ export class UI {
         UI.add("cover", CoverUI);
         UI.add("gl", GlUI);
         UI.add("keyboard", KeyboardUI);
+        UI.add("loading", LoadingUI);
         UI.add("none", NoneUI);
         UI.add("simple", SimpleUI);
         UI.add("simplecache", SimpleCacheUI);
