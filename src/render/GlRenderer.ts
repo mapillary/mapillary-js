@@ -40,12 +40,17 @@ interface ICameraRender {
     hashes: IRenderHashes;
 }
 
+interface IRenderHashesOperation extends Function {
+    (hashes: IRenderHashes): IRenderHashes;
+}
+
 export class GlRenderer {
     private element: HTMLElement;
 
     private _updateCamera$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
     private _render$: rx.Subject<IRenderHash> = new rx.Subject<IRenderHash>();
     private _renderCollection$: rx.Observable<IRenderHashes>;
+    private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
 
     constructor (element: HTMLElement) {
         this.element = element;
@@ -61,14 +66,21 @@ export class GlRenderer {
         webGLRenderer.domElement.style.height = "100%";
         element.appendChild(webGLRenderer.domElement);
 
-        this._renderCollection$ = this._render$
+        this._renderCollection$ = this._renderOperation$
             .scan<IRenderHashes>(
-                (hashes: IRenderHashes, hash: IRenderHash): IRenderHashes => {
+                (hashes: IRenderHashes, operation: IRenderHashesOperation): IRenderHashes => {
+                    return operation(hashes);
+                },
+                {});
+
+        this._render$
+            .map<IRenderHashesOperation>((hash: IRenderHash) => {
+                return (hashes: IRenderHashes): IRenderHashes => {
                     hashes[hash.name] = hash.render;
 
                     return hashes;
-                },
-                {});
+                };
+            }).subscribe(this._renderOperation$);
 
         this._updateCamera$
             .scan<ICamera>(
