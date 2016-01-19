@@ -20,6 +20,15 @@ export interface IRender {
     render: IRenderFunction;
 }
 
+export interface IRenderHash {
+    name: string;
+    render: IRender;
+}
+
+interface IRenderHashes {
+    [name: string]: IRender;
+}
+
 interface ICamera {
     alpha: number;
     frameId: number;
@@ -28,14 +37,15 @@ interface ICamera {
 
 interface ICameraRender {
     camera: ICamera;
-    render: IRender;
+    hashes: IRenderHashes;
 }
 
 export class GlRenderer {
     private element: HTMLElement;
 
     private _updateCamera$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
-    private _render$: rx.Subject<IRender> = new rx.Subject<IRender>();
+    private _render$: rx.Subject<IRenderHash> = new rx.Subject<IRenderHash>();
+    private _renderCollection$: rx.Observable<IRenderHashes>;
 
     constructor (element: HTMLElement) {
         this.element = element;
@@ -50,6 +60,15 @@ export class GlRenderer {
         webGLRenderer.domElement.style.width = "100%";
         webGLRenderer.domElement.style.height = "100%";
         element.appendChild(webGLRenderer.domElement);
+
+        this._renderCollection$ = this._render$
+            .scan<IRenderHashes>(
+                (hashes: IRenderHashes, hash: IRenderHash): IRenderHashes => {
+                    hashes[hash.name] = hash.render;
+
+                    return hashes;
+                },
+                {});
 
         this._updateCamera$
             .scan<ICamera>(
@@ -74,22 +93,40 @@ export class GlRenderer {
                 { alpha: 0, frameId: 0, perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000) }
             )
             .combineLatest(
-                this._render$,
-                (camera: ICamera, render: IRender): ICameraRender => {
-                    return { camera: camera, render: render };
+                this._renderCollection$,
+                (camera: ICamera, hashes: IRenderHashes): ICameraRender => {
+                    return { camera: camera, hashes: hashes };
                 })
             .filter((cameraRender: ICameraRender) => {
-                return cameraRender.camera.frameId === cameraRender.render.frameId;
+                let frameId: number = cameraRender.camera.frameId;
+
+                for (let k in cameraRender.hashes) {
+                    if (!cameraRender.hashes.hasOwnProperty(k)) {
+                        continue;
+                    }
+
+                    if (cameraRender.hashes[k].frameId !== frameId) {
+                        return false;
+                    }
+                }
+
+                return true;
             })
             .scan<THREE.WebGLRenderer>(
-                (renderer: THREE.WebGLRenderer, camRender: ICameraRender): THREE.WebGLRenderer => {
-                    let alpha: number = camRender.camera.alpha;
-                    let perspectiveCamera: THREE.PerspectiveCamera = camRender.camera.perspective;
-                    let render: IRenderFunction = camRender.render.render;
+                (renderer: THREE.WebGLRenderer, cameraRender: ICameraRender): THREE.WebGLRenderer => {
+                    let alpha: number = cameraRender.camera.alpha;
+                    let perspectiveCamera: THREE.PerspectiveCamera = cameraRender.camera.perspective;
 
                     renderer.autoClear = false;
                     renderer.clear();
-                    render(alpha, perspectiveCamera, renderer);
+
+                    for (let k in cameraRender.hashes) {
+                        if (!cameraRender.hashes.hasOwnProperty(k)) {
+                            continue;
+                        }
+
+                        cameraRender.hashes[k].render(alpha, perspectiveCamera, renderer);
+                    }
 
                     return renderer;
                 },
@@ -103,7 +140,7 @@ export class GlRenderer {
         return this._updateCamera$;
     }
 
-    public get render$(): rx.Subject<IRender> {
+    public get render$(): rx.Subject<IRenderHash> {
         return this._render$;
     }
 }

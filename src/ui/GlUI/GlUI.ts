@@ -8,7 +8,7 @@ import {IGPano} from "../../API";
 import {IUI, Shaders, GlScene} from "../../UI";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
-import {IRender} from "../../Render";
+import {IRenderHash} from "../../Render";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
 
@@ -50,11 +50,11 @@ export class GlUI implements IUI {
         this.imagePlaneScene = new GlScene();
 
         this.stateSubscription = this.navigator.stateService.currentState$
-            .map<IRender>((f: IFrame): IRender => {
+            .map<IRenderHash>((f: IFrame): IRenderHash => {
                 this.updateImagePlanes(f.state);
                 this.updateAlphaOld(f.state.alpha);
 
-                return { frameId: f.id, render: this.render.bind(this) };
+                return { name: "gl", render: { frameId: f.id, render: this.render.bind(this) } };
             })
             .subscribe(this.container.glRenderer.render$);
     }

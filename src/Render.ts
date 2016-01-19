@@ -1,2 +1,2 @@
 export {DOMRenderer, IVNodeHash} from "./render/DOMRenderer";
-export {GlRenderer, IRenderFunction, IRender} from "./render/GlRenderer";
+export {GlRenderer, IRenderFunction, IRender, IRenderHash} from "./render/GlRenderer";
