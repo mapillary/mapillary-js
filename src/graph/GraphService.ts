@@ -13,7 +13,7 @@ export class GraphService {
     private _updates$: rx.Subject<any> = new rx.Subject<any>();
 
     private _cache$: rx.Subject<any> = new rx.Subject<any>();
-    private _cachedNode$: rx.Observable<Node>;
+    private _cachedNode$: rx.ConnectableObservable<Node>;
 
     private _graph$: rx.Observable<Graph>;
 
@@ -44,7 +44,8 @@ export class GraphService {
             return node.key + node.lastCacheEvict;
         }).flatMap<Node>((node: Node): rx.Observable<Node> => {
             return node.cacheAssets();
-        });
+        }).publish();
+        this._cachedNode$.connect();
 
         // make tilesservice aware of that a new node is beeing cached
         this._cachedNode$.subscribe(this._tilesService.cacheNode$);
