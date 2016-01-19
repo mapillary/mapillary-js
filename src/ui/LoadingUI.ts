@@ -7,6 +7,8 @@ import * as rx from "rx";
 import {Container, Navigator} from "../Viewer";
 import {IUI} from "../UI";
 
+import {IVNodeHash} from "../Render";
+
 export class LoadingUI implements IUI {
     private container: Container;
     private navigator: Navigator;
@@ -19,25 +21,25 @@ export class LoadingUI implements IUI {
         this.navigator = navigator;
         this.loadingRemainder = 50;
         this.loadingContainer = { name: "loading", vnode: this.getBarVNode(this.loadingRemainder) };
+    }
+
+    public activate(): void {
 
         this.loadingSubscription = this.navigator
             .loadingService
             .loading$
-            .skip(1) // this ui should start as `loading`
-            .subscribe(this.onLoadingChange.bind(this));
+            .map((loading: boolean): IVNodeHash => {
+                return { name: "simplenavui", vnode: this.getBarVNode(this.loadingRemainder)};
+            })
+            .subscribe(this.container.domRenderer.render$);
 
-    }
-
-    public activate(): void {
-        this.container.domRenderer.render$
-            .onNext(this.loadingContainer);
     }
 
     public deactivate(): void {
         return;
     }
 
-    private getBarVNode(remainder: number): any {
+    private getBarVNode(remainder: number): vd.VNode {
         let percentage: number = 100 - remainder;
         let style: any = {};
         style.transition = "opacity 1000ms";
@@ -51,18 +53,6 @@ export class LoadingUI implements IUI {
         }
 
         return vd.h("div.Loading", { style: style }, []);
-    }
-
-    private onLoadingChange(loading: any): void {
-        if (loading) {
-            this.loadingRemainder = 50;
-        } else {
-            this.loadingRemainder = 0;
-        }
-
-        let newNode: any = this.getBarVNode(this.loadingRemainder);
-        let patches: any = vd.diff(this.loadingContainer.vnode, newNode);
-        this.loadingContainer.vnode = vd.patch(this.loadingContainer.vnode, patches);
     }
 }
 
