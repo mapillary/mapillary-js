@@ -14,5 +14,9 @@
 .Attribution span {
     color: white;
     text-decoration: none;
-    margin: 0 2px;
+    margin: 0 2px 4px;
+}
+
+.Attribution a:hover {
+    color: rgb(53, 175, 109);
 }
