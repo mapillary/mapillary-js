@@ -57,6 +57,7 @@ interface ISize {
 
 export class GlRenderer {
     private element: HTMLElement;
+    private _currentFrame$: rx.Observable<IFrame>;
 
     private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
     private _resize$: rx.Subject<void> = new rx.Subject<void>();
@@ -72,8 +73,9 @@ export class GlRenderer {
     private _rendererOperation$: rx.Subject<IGLRendererOperation> = new rx.Subject<IGLRendererOperation>();
     private _renderer$: rx.Observable<IGLRenderer>;
 
-    constructor (element: HTMLElement) {
+    constructor (element: HTMLElement, currentFrame$: rx.Observable<IFrame>) {
         this.element = element;
+        this._currentFrame$ = currentFrame$;
 
         this._renderer$ = this._rendererOperation$
             .scan<IGLRenderer>(
@@ -102,6 +104,13 @@ export class GlRenderer {
                 };
             })
             .subscribe(this._rendererOperation$);
+
+        this._render$
+            .first()
+            .map<void>((hash: IGLRenderHash): void => {
+                this._currentFrame$.subscribe(this._frame$);
+            })
+            .subscribe();
 
         this._renderCollection$ = this._renderOperation$
             .scan<IGLRenderHashes>(
@@ -267,10 +276,6 @@ export class GlRenderer {
                 })
                 .publish()
                 .connect();
-    }
-
-    public get frame$(): rx.Subject<IFrame> {
-        return this._frame$;
     }
 
     public get render$(): rx.Subject<IGLRenderHash> {
