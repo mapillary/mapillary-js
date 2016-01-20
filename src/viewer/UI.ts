@@ -9,6 +9,7 @@ import {
     SimpleNavUI,
     SimplePlayUI,
     DetectionsUI,
+    SphereUI,
 } from "../UI";
 import {Container, Navigator} from "../Viewer";
 import {ParameterMapillaryError} from "../Error";
@@ -36,6 +37,7 @@ export class UI {
         UI.add("simplenav", SimpleNavUI);
         UI.add("simpleplay", SimplePlayUI);
         UI.add("detections", DetectionsUI);
+        UI.add("sphere", SphereUI);
     }
 
     /**
