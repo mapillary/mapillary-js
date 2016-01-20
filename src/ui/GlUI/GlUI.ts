@@ -8,7 +8,7 @@ import {IGPano} from "../../API";
 import {IUI, Shaders, GlScene} from "../../UI";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
-import {IRenderHash, RenderStage} from "../../Render";
+import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
 
@@ -53,7 +53,7 @@ export class GlUI implements IUI {
         this.imagePlaneScene = new GlScene();
 
         this.stateSubscription = this.navigator.stateService.currentState$
-            .map<IRenderHash>((frame: IFrame): IRenderHash => {
+            .map<IGLRenderHash>((frame: IFrame): IGLRenderHash => {
                 let needsRender: boolean =
                     this.updateImagePlanes(frame.state) ||
                     this.updateAlpha(frame.state.alpha) ||
@@ -65,7 +65,7 @@ export class GlUI implements IUI {
                         frameId: frame.id,
                         needsRender: needsRender,
                         render: this.render.bind(this),
-                        stage: RenderStage.BACKGROUND,
+                        stage: GLRenderStage.BACKGROUND,
                     },
                 };
             })

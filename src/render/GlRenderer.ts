@@ -7,12 +7,12 @@ import * as THREE from "three";
 import {IFrame} from "../State";
 import {Camera} from "../Geo";
 
-export enum RenderStage {
+export enum GLRenderStage {
     BACKGROUND,
     FOREGROUND
 }
 
-export interface IRenderFunction extends Function {
+export interface IGLRenderFunction extends Function {
     (
         alpha: number,
         perspectiveCamera: THREE.PerspectiveCamera,
@@ -20,19 +20,19 @@ export interface IRenderFunction extends Function {
     ): void;
 }
 
-export interface IRender {
+export interface IGLRender {
     frameId: number;
     needsRender: boolean;
-    render: IRenderFunction;
-    stage: RenderStage;
+    render: IGLRenderFunction;
+    stage: GLRenderStage;
 }
 
-export interface IRenderHash {
+export interface IGLRenderHash {
     name: string;
-    render: IRender;
+    render: IGLRender;
 }
 
-interface IRenderer {
+interface IGLRenderer {
     needsRender: boolean;
     renderer: THREE.WebGLRenderer;
 }
@@ -46,26 +46,26 @@ interface ICamera {
     perspective: THREE.PerspectiveCamera;
 }
 
-interface IRenderHashes {
-    [name: string]: IRender;
+interface IGLRenderHashes {
+    [name: string]: IGLRender;
 }
 
-interface IRendererOperation {
-    (renderer: IRenderer): IRenderer;
+interface IGLRendererOperation {
+    (renderer: IGLRenderer): IGLRenderer;
 }
 
 interface ICameraOperation {
     (camera: ICamera): ICamera;
 }
 
-interface IRenderHashesOperation extends Function {
-    (hashes: IRenderHashes): IRenderHashes;
+interface IGLRenderHashesOperation extends Function {
+    (hashes: IGLRenderHashes): IGLRenderHashes;
 }
 
 interface ICombination {
     camera: ICamera;
-    hashes: IRenderHashes;
-    renderer: IRenderer;
+    hashes: IGLRenderHashes;
+    renderer: IGLRenderer;
 }
 
 interface ISize {
@@ -82,20 +82,20 @@ export class GlRenderer {
     private _cameraOperation$: rx.Subject<ICameraOperation> = new rx.Subject<ICameraOperation>();
     private _camera$: rx.Observable<ICamera>;
 
-    private _render$: rx.Subject<IRenderHash> = new rx.Subject<IRenderHash>();
+    private _render$: rx.Subject<IGLRenderHash> = new rx.Subject<IGLRenderHash>();
     private _clear$: rx.Subject<string> = new rx.Subject<string>();
-    private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
-    private _renderCollection$: rx.Observable<IRenderHashes>;
+    private _renderOperation$: rx.Subject<IGLRenderHashesOperation> = new rx.Subject<IGLRenderHashesOperation>();
+    private _renderCollection$: rx.Observable<IGLRenderHashes>;
 
-    private _rendererOperation$: rx.Subject<IRendererOperation> = new rx.Subject<IRendererOperation>();
-    private _renderer$: rx.Observable<IRenderer>;
+    private _rendererOperation$: rx.Subject<IGLRendererOperation> = new rx.Subject<IGLRendererOperation>();
+    private _renderer$: rx.Observable<IGLRenderer>;
 
     constructor (element: HTMLElement) {
         this.element = element;
 
         this._renderer$ = this._rendererOperation$
-            .scan<IRenderer>(
-                (renderer: IRenderer, operation: IRendererOperation): IRenderer => {
+            .scan<IGLRenderer>(
+                (renderer: IGLRenderer, operation: IGLRendererOperation): IGLRenderer => {
                     return operation(renderer);
                 },
                 null
@@ -103,8 +103,8 @@ export class GlRenderer {
 
         this._render$
             .first()
-            .map<IRendererOperation>((hash: IRenderHash): IRendererOperation => {
-                return (renderer: IRenderer): IRenderer => {
+            .map<IGLRendererOperation>((hash: IGLRenderHash): IGLRendererOperation => {
+                return (renderer: IGLRenderer): IGLRenderer => {
                     let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 
                     let elementWidth: number = this.element.offsetWidth;
@@ -122,15 +122,15 @@ export class GlRenderer {
             .subscribe(this._rendererOperation$);
 
         this._renderCollection$ = this._renderOperation$
-            .scan<IRenderHashes>(
-                (hashes: IRenderHashes, operation: IRenderHashesOperation): IRenderHashes => {
+            .scan<IGLRenderHashes>(
+                (hashes: IGLRenderHashes, operation: IGLRenderHashesOperation): IGLRenderHashes => {
                     return operation(hashes);
                 },
                 {});
 
         this._render$
-            .map<IRenderHashesOperation>((hash: IRenderHash) => {
-                return (hashes: IRenderHashes): IRenderHashes => {
+            .map<IGLRenderHashesOperation>((hash: IGLRenderHash) => {
+                return (hashes: IGLRenderHashes): IGLRenderHashes => {
                     hashes[hash.name] = hash.render;
 
                     return hashes;
@@ -139,8 +139,8 @@ export class GlRenderer {
             .subscribe(this._renderOperation$);
 
         this._clear$
-            .map<IRenderHashesOperation>((name: string) => {
-                return (hashes: IRenderHashes): IRenderHashes => {
+            .map<IGLRenderHashesOperation>((name: string) => {
+                return (hashes: IGLRenderHashes): IGLRenderHashes => {
                     delete hashes[name];
 
                     return hashes;
@@ -210,9 +210,9 @@ export class GlRenderer {
             })
             .subscribe(this._cameraOperation$);
 
-        this._size$.map<IRendererOperation>(
-            (size: ISize): IRendererOperation => {
-                return (renderer: IRenderer): IRenderer => {
+        this._size$.map<IGLRendererOperation>(
+            (size: ISize): IGLRendererOperation => {
+                return (renderer: IGLRenderer): IGLRenderer => {
                     if (renderer == null) {
                         return null;
                     }
@@ -229,7 +229,7 @@ export class GlRenderer {
                 this._camera$,
                 this._renderCollection$,
                 this._renderer$,
-                (camera: ICamera, hashes: IRenderHashes, renderer: IRenderer): ICombination => {
+                (camera: ICamera, hashes: IGLRenderHashes, renderer: IGLRenderer): ICombination => {
                     return { camera: camera, hashes: hashes, renderer: renderer };
                 })
             .filter((co: ICombination) => {
@@ -265,18 +265,18 @@ export class GlRenderer {
                     let alpha: number = co.camera.alpha;
                     let perspectiveCamera: THREE.PerspectiveCamera = co.camera.perspective;
 
-                    let backgroundRenders: IRenderFunction[] = [];
-                    let foregroundRenders: IRenderFunction[] = [];
+                    let backgroundRenders: IGLRenderFunction[] = [];
+                    let foregroundRenders: IGLRenderFunction[] = [];
 
                     for (let k in co.hashes) {
                         if (!co.hashes.hasOwnProperty(k)) {
                             continue;
                         }
 
-                        let hash: IRender = co.hashes[k];
-                        if (hash.stage === RenderStage.BACKGROUND) {
+                        let hash: IGLRender = co.hashes[k];
+                        if (hash.stage === GLRenderStage.BACKGROUND) {
                             backgroundRenders.push(hash.render);
-                        } else if (hash.stage === RenderStage.FOREGROUND) {
+                        } else if (hash.stage === GLRenderStage.FOREGROUND) {
                             foregroundRenders.push(hash.render);
                         }
                     }
@@ -304,7 +304,7 @@ export class GlRenderer {
         return this._frame$;
     }
 
-    public get render$(): rx.Subject<IRenderHash> {
+    public get render$(): rx.Subject<IGLRenderHash> {
         return this._render$;
     }
 
