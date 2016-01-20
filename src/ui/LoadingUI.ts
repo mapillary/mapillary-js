@@ -1,6 +1,7 @@
 /// <reference path="../../typings/virtual-dom/virtual-dom.d.ts" />
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
+import * as _ from "underscore";
 import * as vd from "virtual-dom";
 import * as rx from "rx";
 
@@ -24,23 +25,38 @@ export class LoadingUI implements IUI {
     }
 
     public activate(): void {
+        this.loadingSubscription = this.navigator.loadingService.loading$
+            .combineLatest(
+                this.navigator.graphService.imageLoadingService.loadstatus$,
+                (loading: boolean, loadStatus: any): IVNodeHash => {
+                    if (!loading) {
+                        return {name: "loading", vnode: this.getBarVNode(100)};
+                    }
 
-        this.loadingSubscription = this.navigator
-            .loadingService
-            .loading$
-            .map((loading: boolean): IVNodeHash => {
-                return { name: "simplenavui", vnode: this.getBarVNode(this.loadingRemainder)};
-            })
-            .subscribe(this.container.domRenderer.render$);
+                    let total: number = 0;
+                    let loaded: number = 0;
 
+                    for (let loadStat of _.values(loadStatus)) {
+                        if (loadStat.loaded !== loadStat.total) {
+                            loaded += loadStat.loaded;
+                            total += loadStat.total;
+                        }
+                    }
+
+                    let percentage: number = 100;
+                    if (total !== 0) {
+                        percentage = (loaded / total) * 100;
+                    }
+
+                    return {name: "loading", vnode: this.getBarVNode(percentage)};
+                }).subscribe(this.container.domRenderer.render$);
     }
 
     public deactivate(): void {
         return;
     }
 
-    private getBarVNode(remainder: number): vd.VNode {
-        let percentage: number = 100 - remainder;
+    private getBarVNode(percentage: number): vd.VNode {
         let style: any = {};
         style.transition = "opacity 1000ms";
 

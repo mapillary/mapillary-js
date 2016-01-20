@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {IAPINavIm, APIv2} from "../API";
-import {Graph, Node, TilesService} from "../Graph";
+import {Graph, ImageLoadingService, Node, TilesService} from "../Graph";
 
 interface IGraphOperation extends Function {
     (graph: Graph): Graph;
@@ -14,15 +14,17 @@ export class GraphService {
 
     private _cache$: rx.Subject<any> = new rx.Subject<any>();
     private _cachedNode$: rx.ConnectableObservable<Node>;
+    private _loadingNode$: rx.ConnectableObservable<Node>;
 
     private _graph$: rx.Observable<Graph>;
 
     private _tilesService: TilesService;
+    private _imageLoadingService: ImageLoadingService;
 
     constructor (apiV2: APIv2) {
         this._tilesService = new TilesService(apiV2);
+        this._imageLoadingService = new ImageLoadingService();
 
-        // operation pattern updating the graph
         this._graph$ = this._updates$
             .scan<Graph>(
             (graph: Graph, operation: IGraphOperation): Graph => {
@@ -33,24 +35,25 @@ export class GraphService {
             new Graph())
             .shareReplay(1);
 
-        // always keep the graph running also initiate it to empty
         this._graph$.subscribe();
         this._updates$.onNext((graph: Graph): Graph => {
             return graph;
         });
 
-        // stream of cached nodes, uses distinct to not cache a node more than once
-        this._cachedNode$ = this._cache$.distinct((node: Node): string => {
+        this._loadingNode$ = this._cache$.distinct((node: Node): string => {
             return node.key + node.lastCacheEvict;
         }).flatMap<Node>((node: Node): rx.Observable<Node> => {
             return node.cacheAssets();
         }).publish();
-        this._cachedNode$.connect();
+        this._loadingNode$.connect();
+        this._loadingNode$.subscribe(this._imageLoadingService.loadnode$);
 
-        // make tilesservice aware of that a new node is beeing cached
+        this._cachedNode$ = this._loadingNode$.filter((node: Node): boolean => {
+            return (!!node.image && !!node.mesh);
+        }).publish();
+        this._cachedNode$.connect();
         this._cachedNode$.subscribe(this._tilesService.cacheNode$);
 
-        // save the cached node to the graph, cache its edges
         this._cachedNode$.map((node: Node) => {
             return (graph: Graph): Graph => {
                 graph.cacheNode(node);
@@ -58,7 +61,6 @@ export class GraphService {
             };
         }).subscribe(this._updates$);
 
-        // feedback from tiles service adding fresh tiles to the graph
         this._tilesService.tiles$.map((data: IAPINavIm): IGraphOperation => {
             return (graph: Graph): Graph => {
                 graph.addNodesFromAPI(data);
@@ -69,6 +71,10 @@ export class GraphService {
 
     public get graph$(): rx.Observable<Graph> {
         return this._graph$;
+    }
+
+    public get imageLoadingService(): ImageLoadingService {
+        return this._imageLoadingService;
     }
 
     public node$(key: string): rx.Observable<Node> {

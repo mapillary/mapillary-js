@@ -33,7 +33,7 @@ export class LoadingService {
                     return (loader || acc);
                 },
                 false);
-        }).distinctUntilChanged();
+        }).debounce(100).distinctUntilChanged();
     }
 
     public taskLoading$(task: string): rx.Observable<boolean> {

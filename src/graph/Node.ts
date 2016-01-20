@@ -4,12 +4,15 @@
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
-import {ILatLon, IMesh} from "../Graph";
+import {ILatLon, IMesh, ILoadStatus} from "../Graph";
 import Sequence from "./Sequence";
 
 import * as rx from "rx";
-import * as rest from "rest";
-import * as mime from "rest/interceptor/mime";
+
+interface ILoadStatusObject {
+    loaded: ILoadStatus;
+    object: any;
+}
 
 export class Node {
     public key: string;
@@ -29,6 +32,8 @@ export class Node {
     public mesh: IMesh;
     public edges: IEdge[];
 
+    public loadStatus: ILoadStatus;
+
     constructor (
         key: string,
         ca: number,
@@ -47,62 +52,75 @@ export class Node {
         this.cached = false;
         this.lastCacheEvict = 0;
         this.lastUsed = new Date().getTime();
+
+        this.loadStatus = {loaded: 0, total: 100};
     }
 
     public cacheAssets(): rx.Observable<Node> {
-        return this.cacheImage().zip(this.cacheMesh(), (n1: Node, n2: Node): Node => {
-            return n1;
+        return this.cacheImage().combineLatest(this.cacheMesh(), (image: ILoadStatusObject, mesh: ILoadStatusObject): Node => {
+            this.loadStatus.loaded = 0;
+            this.loadStatus.total = 0;
+
+            if (mesh) {
+                this.mesh = mesh.object;
+                this.loadStatus.loaded += mesh.loaded.loaded;
+                this.loadStatus.total += mesh.loaded.total;
+            }
+            if (image) {
+                this.image = image.object;
+                this.loadStatus.loaded += image.loaded.loaded;
+                this.loadStatus.total += image.loaded.total;
+            }
+            return this;
         });
     }
 
-    public cacheImage(): rx.Observable<Node> {
-        return rx.Observable.create<Node>((observer: rx.Observer<Node>): void => {
+    public cacheImage(): rx.Observable<ILoadStatusObject> {
+        return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
             let img: HTMLImageElement = new Image();
-
-            if (process.env.MAPENV === "development") {
-                this.image = "fakeIm";
-                observer.onNext(this);
-                observer.onCompleted();
-                return;
-            }
-
             img.crossOrigin = "Anonymous";
 
-            img.onload = () => {
-                this.image = img;
-                observer.onNext(this);
-                observer.onCompleted();
-            };
-
-            img.onerror = (err: Event) => {
-                observer.onError(err);
-            };
-
-            img.src = "https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/thumb-320.jpg?origin=mapillary.webgl";
-        });
-    }
-
-    public cacheMesh(): rx.Observable<Node> {
-        return rx.Observable.create<Node>((observer: rx.Observer<Node>): void => {
             if (process.env.MAPENV === "development") {
-                this.mesh = { faces: [[-1]], vertices: [[-1]] };
-                observer.onNext(this);
+                observer.onNext({loaded: {loaded: 1, total: 1}, object: this.image});
                 observer.onCompleted();
                 return;
             }
 
-            let client: rest.Client = rest.wrap(mime);
-            client("https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/sfm/v1.0/atomic_mesh.json").entity().then(
-            (data: any) => {
-                this.mesh = <IMesh>JSON.parse(data)[this.key];
-                observer.onNext(this);
+            let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+            xmlHTTP.open("GET", "https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/thumb-320.jpg?origin=mapillary.webgl", true);
+            xmlHTTP.responseType = "arraybuffer";
+            xmlHTTP.onload = (e: any) => {
+                let blob: Blob = new Blob([xmlHTTP.response]);
+                img.src = window.URL.createObjectURL(blob);
+                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: img});
                 observer.onCompleted();
-            },
-            (error: Error) => {
-                observer.onNext(this);
+            };
+            xmlHTTP.onprogress = (e: any) => {
+                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: null});
+            };
+            xmlHTTP.send();
+        });
+    }
+
+    public cacheMesh(): rx.Observable<ILoadStatusObject> {
+        return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
+            if (process.env.MAPENV === "development") {
+                observer.onNext({loaded: {loaded: 1, total: 1}, object: { faces: [[-1]], vertices: [[-1]] }});
                 observer.onCompleted();
-            });
-            return;
+                return;
+            }
+
+            let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+            xmlHTTP.open("GET", "https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/sfm/v1.0/atomic_mesh.json", true);
+            xmlHTTP.responseType = "text";
+            xmlHTTP.onload = (e: any) => {
+                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: <IMesh>JSON.parse(xmlHTTP.responseText)[this.key]});
+                observer.onCompleted();
+            };
+            xmlHTTP.onprogress = (e: any) => {
+                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: null});
+            };
+            xmlHTTP.send();
         });
     }
 
