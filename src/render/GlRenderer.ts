@@ -38,6 +38,7 @@ interface IRenderHashes {
 
 interface ICamera {
     alpha: number;
+    aspectRatio: number;
     frameId: number;
     lastCamera: Camera;
     needsRender: boolean;
@@ -117,6 +118,7 @@ export class GlRenderer {
                 },
                 {
                     alpha: 0,
+                    aspectRatio: 4 / 3,
                     frameId: 0,
                     lastCamera: new Camera(),
                     needsRender: false,
@@ -137,8 +139,7 @@ export class GlRenderer {
                         return camera;
                     }
 
-                    let aspect: number = 4 / 3;
-                    let verticalFov: number = 2 * Math.atan(0.5 / aspect / current.focal) * 180 / Math.PI;
+                    let verticalFov: number = 2 * Math.atan(0.5 / camera.aspectRatio / current.focal) * 180 / Math.PI;
 
                     camera.perspective.fov = verticalFov;
                     camera.perspective.updateProjectionMatrix();
