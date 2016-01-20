@@ -18,6 +18,7 @@ export class GlUI implements IUI {
 
     private stateSubscription: rx.IDisposable;
 
+    private alpha: number;
     private alphaOld: number;
     private fadeOutSpeed: number;
     private lastCamera: Camera;
@@ -41,6 +42,7 @@ export class GlUI implements IUI {
         this.currentKey = null;
         this.previousKey = null;
 
+        this.alpha = 0;
         this.alphaOld = 0;
         this.fadeOutSpeed = 0.05;
         this.lastCamera = new Camera();
@@ -54,6 +56,7 @@ export class GlUI implements IUI {
             .map<IRenderHash>((frame: IFrame): IRenderHash => {
                 let needsRender: boolean =
                     this.updateImagePlanes(frame.state) ||
+                    this.updateAlpha(frame.state.alpha) ||
                     this.updateAlphaOld(frame.state.alpha);
 
                 return {
@@ -72,6 +75,16 @@ export class GlUI implements IUI {
     public deactivate(): void {
         this.container.glRenderer.clear$.onNext(this.name);
         this.stateSubscription.dispose();
+    }
+
+    private updateAlpha(alpha: number): boolean {
+        if (alpha === this.alpha) {
+            return false;
+        }
+
+        this.alpha = alpha;
+
+        return true;
     }
 
     private updateAlphaOld(alpha: number): boolean {

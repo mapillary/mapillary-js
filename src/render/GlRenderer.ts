@@ -169,9 +169,9 @@ export class GlRenderer {
 
                     let current: Camera = frame.state.camera;
 
-                    if (camera.alpha === frame.state.alpha &&
-                        camera.lastCamera.diff(current) < 0.00001) {
+                    camera.alpha = frame.state.alpha;
 
+                    if (camera.lastCamera.diff(current) < 0.00001) {
                         return camera;
                     }
 
@@ -184,7 +184,6 @@ export class GlRenderer {
                     camera.perspective.position.copy(current.position);
                     camera.perspective.lookAt(current.lookat);
 
-                    camera.alpha = frame.state.alpha;
                     camera.lastCamera.copy(current);
                     camera.needsRender = true;
 
