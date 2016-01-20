@@ -1,8 +1,10 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 /// <reference path="../../typings/threejs/three.d.ts" />
+/// <reference path="../../typings/underscore/underscore.d.ts" />
 
 import * as rx from "rx";
 import * as THREE from "three";
+import * as _ from "underscore";
 
 import {IFrame} from "../State";
 import {Camera} from "../Geo";
@@ -45,8 +47,8 @@ interface IGLRenderHashesOperation extends Function {
 
 interface ICombination {
     camera: ICamera;
-    hashes: IGLRenderHashes;
     renderer: IGLRenderer;
+    renders: IGLRender[];
 }
 
 interface ISize {
@@ -211,10 +213,10 @@ export class GlRenderer {
                 this._renderCollection$,
                 this._renderer$,
                 (camera: ICamera, hashes: IGLRenderHashes, renderer: IGLRenderer): ICombination => {
-                    return { camera: camera, hashes: hashes, renderer: renderer };
+                    return { camera: camera, renderer: renderer, renders: _.values(hashes) };
                 })
             .filter((co: ICombination) => {
-                if (!Object.keys(co.hashes).length) {
+                if (!co.renders.length) {
                     return false;
                 }
 
@@ -224,16 +226,12 @@ export class GlRenderer {
 
                 let frameId: number = co.camera.frameId;
 
-                for (let k in co.hashes) {
-                    if (!co.hashes.hasOwnProperty(k)) {
-                        continue;
-                    }
-
-                    if (co.hashes[k].frameId !== frameId) {
+                for (let render of co.renders) {
+                    if (render.frameId !== frameId) {
                         return false;
                     }
 
-                    needsRender = needsRender || co.hashes[k].needsRender;
+                    needsRender = needsRender || render.needsRender;
                 }
 
                 return needsRender;
@@ -249,16 +247,11 @@ export class GlRenderer {
                     let backgroundRenders: IGLRenderFunction[] = [];
                     let foregroundRenders: IGLRenderFunction[] = [];
 
-                    for (let k in co.hashes) {
-                        if (!co.hashes.hasOwnProperty(k)) {
-                            continue;
-                        }
-
-                        let hash: IGLRender = co.hashes[k];
-                        if (hash.stage === GLRenderStage.BACKGROUND) {
-                            backgroundRenders.push(hash.render);
-                        } else if (hash.stage === GLRenderStage.FOREGROUND) {
-                            foregroundRenders.push(hash.render);
+                    for (let render of co.renders) {
+                        if (render.stage === GLRenderStage.BACKGROUND) {
+                            backgroundRenders.push(render.render);
+                        } else if (render.stage === GLRenderStage.FOREGROUND) {
+                            foregroundRenders.push(render.render);
                         }
                     }
 
