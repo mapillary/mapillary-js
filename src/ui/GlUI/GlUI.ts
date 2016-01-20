@@ -126,10 +126,9 @@ export class GlUI implements IUI {
     }
 
     private render(
-        alpha: number,
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
-        let planeAlpha: number = this.imagePlaneScene.imagePlanesOld.length ? 1 : alpha;
+        let planeAlpha: number = this.imagePlaneScene.imagePlanesOld.length ? 1 : this.alpha;
 
         for (let plane of this.imagePlaneScene.imagePlanes) {
             (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = planeAlpha;
@@ -143,7 +142,7 @@ export class GlUI implements IUI {
         renderer.render(this.imagePlaneScene.sceneOld, perspectiveCamera);
 
         for (let plane of this.imagePlaneScene.imagePlanes) {
-            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = alpha;
+            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = this.alpha;
         }
 
         renderer.render(this.imagePlaneScene.scene, perspectiveCamera);

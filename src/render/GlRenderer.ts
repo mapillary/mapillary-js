@@ -21,7 +21,6 @@ interface IGLRenderer {
 }
 
 interface ICamera {
-    alpha: number;
     aspectRatio: number;
     frameId: number;
     lastCamera: Camera;
@@ -137,7 +136,6 @@ export class GlRenderer {
                     return operation(camera);
                 },
                 {
-                    alpha: 0,
                     aspectRatio: 4 / 3,
                     frameId: 0,
                     lastCamera: new Camera(),
@@ -151,8 +149,6 @@ export class GlRenderer {
                     camera.frameId = frame.id;
 
                     let current: Camera = frame.state.camera;
-
-                    camera.alpha = frame.state.alpha;
 
                     if (camera.lastCamera.diff(current) < 0.00001) {
                         return camera;
@@ -241,7 +237,6 @@ export class GlRenderer {
                     co.camera.needsRender = false;
                     co.renderer.needsRender = false;
 
-                    let alpha: number = co.camera.alpha;
                     let perspectiveCamera: THREE.PerspectiveCamera = co.camera.perspective;
 
                     let backgroundRenders: IGLRenderFunction[] = [];
@@ -261,13 +256,13 @@ export class GlRenderer {
                     renderer.clear();
 
                     for (let render of backgroundRenders) {
-                        render(alpha, perspectiveCamera, renderer);
+                        render(perspectiveCamera, renderer);
                     }
 
                     renderer.clearDepth();
 
                     for (let render of foregroundRenders) {
-                        render(alpha, perspectiveCamera, renderer);
+                        render(perspectiveCamera, renderer);
                     }
                 })
                 .publish()
