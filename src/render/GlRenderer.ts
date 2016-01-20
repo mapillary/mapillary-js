@@ -45,12 +45,6 @@ interface ICamera {
     perspective: THREE.PerspectiveCamera;
 }
 
-interface ICameraRender {
-    camera: ICamera;
-    hashes: IRenderHashes;
-    renderer: IRenderer;
-}
-
 interface ICameraOperation {
     (camera: ICamera): ICamera;
 }
@@ -71,6 +65,12 @@ interface IRenderer {
 
 interface IRendererOperation {
     (renderer: IRenderer): IRenderer;
+}
+
+interface ICombination {
+    camera: ICamera;
+    hashes: IRenderHashes;
+    renderer: IRenderer;
 }
 
 export class GlRenderer {
@@ -229,51 +229,51 @@ export class GlRenderer {
                 this._camera$,
                 this._renderCollection$,
                 this._renderer$,
-                (camera: ICamera, hashes: IRenderHashes, renderer: IRenderer): ICameraRender => {
+                (camera: ICamera, hashes: IRenderHashes, renderer: IRenderer): ICombination => {
                     return { camera: camera, hashes: hashes, renderer: renderer };
                 })
-            .filter((cameraRender: ICameraRender) => {
-                if (!Object.keys(cameraRender.hashes).length) {
+            .filter((co: ICombination) => {
+                if (!Object.keys(co.hashes).length) {
                     return false;
                 }
 
                 let needsRender: boolean =
-                    cameraRender.camera.needsRender ||
-                    cameraRender.renderer.needsRender;
+                    co.camera.needsRender ||
+                    co.renderer.needsRender;
 
-                let frameId: number = cameraRender.camera.frameId;
+                let frameId: number = co.camera.frameId;
 
-                for (let k in cameraRender.hashes) {
-                    if (!cameraRender.hashes.hasOwnProperty(k)) {
+                for (let k in co.hashes) {
+                    if (!co.hashes.hasOwnProperty(k)) {
                         continue;
                     }
 
-                    if (cameraRender.hashes[k].frameId !== frameId) {
+                    if (co.hashes[k].frameId !== frameId) {
                         return false;
                     }
 
-                    needsRender = needsRender || cameraRender.hashes[k].needsRender;
+                    needsRender = needsRender || co.hashes[k].needsRender;
                 }
 
                 return needsRender;
             })
             .map<void>(
-                (cameraRender: ICameraRender): void => {
-                    cameraRender.camera.needsRender = false;
-                    cameraRender.renderer.needsRender = false;
+                (co: ICombination): void => {
+                    co.camera.needsRender = false;
+                    co.renderer.needsRender = false;
 
-                    let alpha: number = cameraRender.camera.alpha;
-                    let perspectiveCamera: THREE.PerspectiveCamera = cameraRender.camera.perspective;
+                    let alpha: number = co.camera.alpha;
+                    let perspectiveCamera: THREE.PerspectiveCamera = co.camera.perspective;
 
                     let backgroundRenders: IRenderFunction[] = [];
                     let foregroundRenders: IRenderFunction[] = [];
 
-                    for (let k in cameraRender.hashes) {
-                        if (!cameraRender.hashes.hasOwnProperty(k)) {
+                    for (let k in co.hashes) {
+                        if (!co.hashes.hasOwnProperty(k)) {
                             continue;
                         }
 
-                        let hash: IRender = cameraRender.hashes[k];
+                        let hash: IRender = co.hashes[k];
                         if (hash.stage === RenderStage.BACKGROUND) {
                             backgroundRenders.push(hash.render);
                         } else if (hash.stage === RenderStage.FOREGROUND) {
@@ -281,7 +281,7 @@ export class GlRenderer {
                         }
                     }
 
-                    let renderer: THREE.WebGLRenderer = cameraRender.renderer.renderer;
+                    let renderer: THREE.WebGLRenderer = co.renderer.renderer;
 
                     renderer.autoClear = false;
                     renderer.clear();
