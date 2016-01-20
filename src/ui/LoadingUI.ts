@@ -57,18 +57,19 @@ export class LoadingUI implements IUI {
     }
 
     private getBarVNode(percentage: number): vd.VNode {
-        let style: any = {};
-        style.transition = "opacity 1000ms";
+        let loadingBarStyle: any = {};
+        let loadingContainerStyle: any = {};
 
         if (percentage !== 100) {
-            style.width = percentage.toFixed(0) + "%";
-            style.opacity = "1.0";
+            loadingBarStyle.width = percentage.toFixed(0) + "%";
+            loadingBarStyle.opacity = "1";
+
         } else {
-            style.width = "100%";
-            style.opacity = "0";
+            loadingBarStyle.width = "100%";
+            loadingBarStyle.opacity = "0";
         }
 
-        return vd.h("div.Loading", { style: style }, []);
+        return vd.h("div.Loading", { style: loadingContainerStyle }, [ vd.h("div.LoadingBar", {style: loadingBarStyle}, [])]);
     }
 }
 
