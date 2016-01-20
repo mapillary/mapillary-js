@@ -32,8 +32,9 @@ export interface IRenderHash {
     render: IRender;
 }
 
-interface IRenderHashes {
-    [name: string]: IRender;
+interface IRenderer {
+    needsRender: boolean;
+    renderer: THREE.WebGLRenderer;
 }
 
 interface ICamera {
@@ -45,6 +46,14 @@ interface ICamera {
     perspective: THREE.PerspectiveCamera;
 }
 
+interface IRenderHashes {
+    [name: string]: IRender;
+}
+
+interface IRendererOperation {
+    (renderer: IRenderer): IRenderer;
+}
+
 interface ICameraOperation {
     (camera: ICamera): ICamera;
 }
@@ -53,24 +62,15 @@ interface IRenderHashesOperation extends Function {
     (hashes: IRenderHashes): IRenderHashes;
 }
 
-interface ISize {
-    height: number;
-    width: number;
-}
-
-interface IRenderer {
-    needsRender: boolean;
-    renderer: THREE.WebGLRenderer;
-}
-
-interface IRendererOperation {
-    (renderer: IRenderer): IRenderer;
-}
-
 interface ICombination {
     camera: ICamera;
     hashes: IRenderHashes;
     renderer: IRenderer;
+}
+
+interface ISize {
+    height: number;
+    width: number;
 }
 
 export class GlRenderer {
