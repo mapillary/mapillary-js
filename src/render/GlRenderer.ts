@@ -4,13 +4,9 @@
 import * as rx from "rx";
 import * as THREE from "three";
 
+import {GLRenderStage} from "../Render";
 import {IFrame} from "../State";
 import {Camera} from "../Geo";
-
-export enum GLRenderStage {
-    BACKGROUND,
-    FOREGROUND
-}
 
 export interface IGLRenderFunction extends Function {
     (

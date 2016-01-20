@@ -1,8 +1,8 @@
 export {DOMRenderer, IVNodeHash} from "./render/DOMRenderer";
 export {
     GlRenderer,
-    GLRenderStage,
     IGLRenderFunction,
     IGLRender,
     IGLRenderHash,
 } from "./render/GlRenderer";
+export {GLRenderStage} from "./render/GLRenderStage";
