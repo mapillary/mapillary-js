@@ -6,11 +6,14 @@ export class Container {
     public id: string;
     public element: HTMLElement;
 
+    public initialPhotoId: string;
+
     public glRenderer: GlRenderer;
     public domRenderer: DOMRenderer;
 
-    constructor (id: string) {
+    constructor (id: string, initialPhotoId: string) {
         this.id = id;
+        this.initialPhotoId = initialPhotoId;
         this.element = document.getElementById(id);
         this.element.classList.add("mapillary-js");
 

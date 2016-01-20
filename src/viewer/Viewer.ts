@@ -27,7 +27,7 @@ export class Viewer extends EventEmitter {
      */
     constructor (id: string, clientId: string, options: IViewerOptions) {
         this.navigator = new Navigator(clientId);
-        this.container = new Container(id);
+        this.container = new Container(id, options.key);
 
         for (let name of options.uis) {
             let ui: IUI = UI.get(name, this.container, this.navigator);

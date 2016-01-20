@@ -15,7 +15,7 @@ export class CoverUI implements IUI {
     }
 
     public activate(): void {
-        this.container.domRenderer.render$.onNext({name: "cover", vnode: this.createButton()});
+        this.container.domRenderer.render$.onNext({name: "cover", vnode: this.getCoverButtonVNode()});
     }
 
     public deactivate(): void {
@@ -23,22 +23,24 @@ export class CoverUI implements IUI {
     }
 
     private removeCover(): void {
-        let url: string = "url(https://d1cuyjsrcm0gby.cloudfront.net/ffR697jcoDXhCPae91QqtA/thumb-320.jpg)";
-        let node: any = vd.h("div.CoverBackground", {style: { backgroundImage: url }}, []);
-
         this.container.domRenderer
             .render$
-            .onNext({name: "cover", vnode: vd.h("div.Cover.CoverDone", [ node ])});
+            .onNext({name: "cover", vnode: vd.h("div.Cover.CoverDone", [ this.getCoverBackgroundVNode() ])});
     }
 
-    private createButton (): vd.VNode {
-        let url: string = "url(https://d1cuyjsrcm0gby.cloudfront.net/ffR697jcoDXhCPae91QqtA/thumb-320.jpg)";
+    private getCoverButtonVNode(): vd.VNode {
         return vd.h("div.Cover", [
-            vd.h("div.CoverBackground", { style: { backgroundImage: url }}, []),
+            this.getCoverBackgroundVNode(),
             vd.h("button.CoverButton", {onclick: this.removeCover.bind(this)}, [
                 vd.h("span.CoverButtonIcon", {}, [])
             ]),
         ]);
+    }
+
+    private getCoverBackgroundVNode(): vd.VNode {
+        let url: string = `url(https://d1cuyjsrcm0gby.cloudfront.net/${this.container.initialPhotoId}/thumb-320.jpg)`;
+
+        return vd.h("div.CoverBackground", { style: { backgroundImage: url }}, []);
     }
 }
 

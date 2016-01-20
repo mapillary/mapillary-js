@@ -20,7 +20,7 @@ describe("UI", () => {
     beforeEach(() => {
         spyOn(document, 'getElementById').and.callFake(() => { return document.createElement('div'); });
 
-        container = new Container("fake");
+        container = new Container("fake", "initialPhotoId");
         navigator = new Navigator("clientId");
     });
 
