@@ -48,7 +48,7 @@ interface ICamera {
 interface ICameraRender {
     camera: ICamera;
     hashes: IRenderHashes;
-    renderer: THREE.WebGLRenderer;
+    renderer: IRenderer;
 }
 
 interface ICameraOperation {
@@ -64,8 +64,13 @@ interface ISize {
     width: number;
 }
 
+interface IRenderer {
+    needsRender: boolean;
+    renderer: THREE.WebGLRenderer;
+}
+
 interface IRendererOperation {
-    (renderer: THREE.WebGLRenderer): THREE.WebGLRenderer;
+    (renderer: IRenderer): IRenderer;
 }
 
 export class GlRenderer {
@@ -83,14 +88,14 @@ export class GlRenderer {
     private _renderCollection$: rx.Observable<IRenderHashes>;
 
     private _rendererOperation$: rx.Subject<IRendererOperation> = new rx.Subject<IRendererOperation>();
-    private _renderer$: rx.Observable<THREE.WebGLRenderer>;
+    private _renderer$: rx.Observable<IRenderer>;
 
     constructor (element: HTMLElement) {
         this.element = element;
 
         this._renderer$ = this._rendererOperation$
-            .scan<THREE.WebGLRenderer>(
-                (renderer: THREE.WebGLRenderer, operation: IRendererOperation): THREE.WebGLRenderer => {
+            .scan<IRenderer>(
+                (renderer: IRenderer, operation: IRendererOperation): IRenderer => {
                     return operation(renderer);
                 },
                 null
@@ -99,7 +104,7 @@ export class GlRenderer {
         this._render$
             .first()
             .map<IRendererOperation>((hash: IRenderHash): IRendererOperation => {
-                return (renderer: THREE.WebGLRenderer): THREE.WebGLRenderer => {
+                return (renderer: IRenderer): IRenderer => {
                     let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 
                     let elementWidth: number = this.element.offsetWidth;
@@ -111,7 +116,7 @@ export class GlRenderer {
                     webGLRenderer.domElement.style.height = "100%";
                     this.element.appendChild(webGLRenderer.domElement);
 
-                    return webGLRenderer;
+                    return { needsRender: true, renderer: webGLRenderer };
                 };
             })
             .subscribe(this._rendererOperation$);
@@ -207,13 +212,14 @@ export class GlRenderer {
             .subscribe(this._cameraOperation$);
 
         this._size$.map<IRendererOperation>(
-            (size: ISize) => {
-                return (renderer: THREE.WebGLRenderer): THREE.WebGLRenderer => {
+            (size: ISize): IRendererOperation => {
+                return (renderer: IRenderer): IRenderer => {
                     if (renderer == null) {
                         return null;
                     }
 
-                    renderer.setSize(size.width, size.height);
+                    renderer.renderer.setSize(size.width, size.height);
+                    renderer.needsRender = true;
 
                     return renderer;
                 };
@@ -224,7 +230,7 @@ export class GlRenderer {
                 this._camera$,
                 this._renderCollection$,
                 this._renderer$,
-                (camera: ICamera, hashes: IRenderHashes, renderer: THREE.WebGLRenderer): ICameraRender => {
+                (camera: ICamera, hashes: IRenderHashes, renderer: IRenderer): ICameraRender => {
                     return { camera: camera, hashes: hashes, renderer: renderer };
                 })
             .filter((cameraRender: ICameraRender) => {
@@ -232,7 +238,10 @@ export class GlRenderer {
                     return false;
                 }
 
-                let needsRender: boolean = cameraRender.camera.needsRender;
+                let needsRender: boolean =
+                    cameraRender.camera.needsRender ||
+                    cameraRender.renderer.needsRender;
+
                 let frameId: number = cameraRender.camera.frameId;
 
                 for (let k in cameraRender.hashes) {
@@ -252,6 +261,7 @@ export class GlRenderer {
             .map<void>(
                 (cameraRender: ICameraRender): void => {
                     cameraRender.camera.needsRender = false;
+                    cameraRender.renderer.needsRender = false;
 
                     let alpha: number = cameraRender.camera.alpha;
                     let perspectiveCamera: THREE.PerspectiveCamera = cameraRender.camera.perspective;
@@ -272,7 +282,7 @@ export class GlRenderer {
                         }
                     }
 
-                    let renderer: THREE.WebGLRenderer = cameraRender.renderer;
+                    let renderer: THREE.WebGLRenderer = cameraRender.renderer.renderer;
 
                     renderer.autoClear = false;
                     renderer.clear();
