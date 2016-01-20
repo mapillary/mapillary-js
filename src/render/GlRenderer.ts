@@ -141,7 +141,6 @@ export class GlRenderer {
 
                     if (camera.alpha === frame.state.alpha &&
                         camera.lastCamera.diff(current) < 0.00001) {
-                        camera.needsRender = false;
 
                         return camera;
                     }
@@ -174,6 +173,7 @@ export class GlRenderer {
         this._size$.map<ICameraOperation>((size: ISize) => {
                 return (camera: ICamera): ICamera => {
                     camera.aspectRatio = size.width / size.height;
+                    camera.needsRender = true;
 
                     return camera;
                 };
@@ -210,6 +210,8 @@ export class GlRenderer {
             })
             .scan<THREE.WebGLRenderer>(
                 (renderer: THREE.WebGLRenderer, cameraRender: ICameraRender): THREE.WebGLRenderer => {
+                    cameraRender.camera.needsRender = false;
+
                     let alpha: number = cameraRender.camera.alpha;
                     let perspectiveCamera: THREE.PerspectiveCamera = cameraRender.camera.perspective;
 
