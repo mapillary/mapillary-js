@@ -49,6 +49,10 @@ interface ICameraRender {
     hashes: IRenderHashes;
 }
 
+interface ICameraOperation {
+    (camera: ICamera): ICamera;
+}
+
 interface IRenderHashesOperation extends Function {
     (hashes: IRenderHashes): IRenderHashes;
 }
@@ -57,11 +61,13 @@ export class GlRenderer {
     private element: HTMLElement;
 
     private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+    private _cameraOperation$: rx.Subject<ICameraOperation> = new rx.Subject<ICameraOperation>();
     private _camera$: rx.Observable<ICamera>;
+
     private _render$: rx.Subject<IRenderHash> = new rx.Subject<IRenderHash>();
-    private _renderCollection$: rx.Observable<IRenderHashes>;
-    private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
     private _clear$: rx.Subject<string> = new rx.Subject<string>();
+    private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
+    private _renderCollection$: rx.Observable<IRenderHashes>;
 
     constructor (element: HTMLElement) {
         this.element = element;
@@ -104,35 +110,10 @@ export class GlRenderer {
             })
             .subscribe(this._renderOperation$);
 
-        this._camera$ = this._frame$
+        this._camera$ = this._cameraOperation$
             .scan<ICamera>(
-                (cam: ICamera, frame: IFrame): ICamera => {
-                    cam.frameId = frame.id;
-
-                    let current: Camera = frame.state.camera;
-
-                    if (cam.alpha === frame.state.alpha &&
-                        cam.lastCamera.diff(current) < 0.00001) {
-                        cam.needsRender = false;
-
-                        return cam;
-                    }
-
-                    let aspect: number = 4 / 3;
-                    let verticalFov: number = 2 * Math.atan(0.5 / aspect / current.focal) * 180 / Math.PI;
-
-                    cam.perspective.fov = verticalFov;
-                    cam.perspective.updateProjectionMatrix();
-
-                    cam.perspective.up.copy(current.up);
-                    cam.perspective.position.copy(current.position);
-                    cam.perspective.lookAt(current.lookat);
-
-                    cam.alpha = frame.state.alpha;
-                    cam.lastCamera.copy(current);
-                    cam.needsRender = true;
-
-                    return cam;
+                (camera: ICamera, operation: ICameraOperation): ICamera => {
+                    return operation(camera);
                 },
                 {
                     alpha: 0,
@@ -141,6 +122,39 @@ export class GlRenderer {
                     needsRender: false,
                     perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000),
                 });
+
+        this._frame$
+            .map<ICameraOperation>((frame: IFrame) => {
+                return (camera: ICamera): ICamera => {
+                    camera.frameId = frame.id;
+
+                    let current: Camera = frame.state.camera;
+
+                    if (camera.alpha === frame.state.alpha &&
+                        camera.lastCamera.diff(current) < 0.00001) {
+                        camera.needsRender = false;
+
+                        return camera;
+                    }
+
+                    let aspect: number = 4 / 3;
+                    let verticalFov: number = 2 * Math.atan(0.5 / aspect / current.focal) * 180 / Math.PI;
+
+                    camera.perspective.fov = verticalFov;
+                    camera.perspective.updateProjectionMatrix();
+
+                    camera.perspective.up.copy(current.up);
+                    camera.perspective.position.copy(current.position);
+                    camera.perspective.lookAt(current.lookat);
+
+                    camera.alpha = frame.state.alpha;
+                    camera.lastCamera.copy(current);
+                    camera.needsRender = true;
+
+                    return camera;
+                };
+            })
+            .subscribe(this._cameraOperation$);
 
         rx.Observable.combineLatest(
                 this._camera$,
