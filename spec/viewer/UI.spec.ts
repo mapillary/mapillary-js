@@ -1,7 +1,9 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
 /// <reference path="../../typings/threejs/three.d.ts" />
+/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
 import * as THREE from "three";
+import * as rx from "rx";
 
 import {Container, Navigator, UI} from "../../src/Viewer";
 import {IUI, NoneUI} from "../../src/UI";
@@ -31,7 +33,9 @@ describe("UI", () => {
             };
         });
 
-        container = new Container("fake");
+        let observable: rx.Observable<any> = new rx.Subject<any>();
+
+        container = new Container("fake", observable);
         navigator = new Navigator("clientId");
     });
 
