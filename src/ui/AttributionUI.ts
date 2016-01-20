@@ -33,12 +33,13 @@ export class AttributionUI implements IUI {
     }
 
     private getAttributionNode(username: string, photoId: string): vd.VNode {
-        return vd.h("span.Attribution", {}, [
+        return vd.h("div.Attribution", {}, [
             vd.h("a", {href: `https://www.mapillary.com/profile/${username}`,
                        innerText: `@${username}`,
                        target: "_blank",
                       },
                  []),
+            vd.h("span", {innerText: "|"}, []),
             vd.h("a", {href: `https://www.mapillary.com/map/im/${photoId}/photo`,
                        innerText: "mapillary.com",
                        target: "_blank",
