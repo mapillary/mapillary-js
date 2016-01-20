@@ -5,15 +5,10 @@ import * as rx from "rx";
 import {Node} from "../Graph";
 import {
     FrameGenerator,
-    ICurrentState,
     IStateContext,
+    IFrame,
     StateContext,
 } from "../State";
-
-export interface IFrame {
-    id: number;
-    state: ICurrentState;
-}
 
 export class StateService {
     private _currentState$: rx.Subject<IFrame>;
