@@ -194,7 +194,8 @@ export class GlRenderer {
                 return { height: width * 3 / 4, width: width };
             });
 
-        this._size$.map<ICameraOperation>((size: ISize) => {
+        this._size$.map<ICameraOperation>(
+            (size: ISize) => {
                 return (camera: ICamera): ICamera => {
                     camera.aspectRatio = size.width / size.height;
                     camera.needsRender = true;
@@ -203,6 +204,20 @@ export class GlRenderer {
                 };
             })
             .subscribe(this._cameraOperation$);
+
+        this._size$.map<IRendererOperation>(
+            (size: ISize) => {
+                return (renderer: THREE.WebGLRenderer): THREE.WebGLRenderer => {
+                    if (renderer == null) {
+                        return null;
+                    }
+
+                    renderer.setSize(size.width, size.height);
+
+                    return renderer;
+                };
+            })
+            .subscribe(this._rendererOperation$);
 
         rx.Observable.combineLatest(
                 this._camera$,
