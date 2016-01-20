@@ -4,29 +4,14 @@
 import * as rx from "rx";
 import * as THREE from "three";
 
-import {GLRenderStage} from "../Render";
 import {IFrame} from "../State";
 import {Camera} from "../Geo";
-
-export interface IGLRenderFunction extends Function {
-    (
-        alpha: number,
-        perspectiveCamera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer
-    ): void;
-}
-
-export interface IGLRender {
-    frameId: number;
-    needsRender: boolean;
-    render: IGLRenderFunction;
-    stage: GLRenderStage;
-}
-
-export interface IGLRenderHash {
-    name: string;
-    render: IGLRender;
-}
+import {
+    GLRenderStage,
+    IGLRenderFunction,
+    IGLRender,
+    IGLRenderHash,
+} from "../Render";
 
 interface IGLRenderer {
     needsRender: boolean;
