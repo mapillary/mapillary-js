@@ -241,7 +241,7 @@ export class GlRenderer {
 
                 return needsRender;
             })
-            .map<void>(
+            .subscribe(
                 (co: ICombination): void => {
                     co.camera.needsRender = false;
                     co.renderer.needsRender = false;
@@ -273,9 +273,7 @@ export class GlRenderer {
                     for (let render of foregroundRenders) {
                         render(perspectiveCamera, renderer);
                     }
-                })
-                .publish()
-                .connect();
+                });
     }
 
     public get render$(): rx.Subject<IGLRenderHash> {
