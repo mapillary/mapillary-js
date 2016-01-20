@@ -54,10 +54,9 @@ export class GlUI implements IUI {
 
         this.stateSubscription = this.navigator.stateService.currentState$
             .map<IGLRenderHash>((frame: IFrame): IGLRenderHash => {
-                let needsRender: boolean =
-                    this.updateImagePlanes(frame.state) ||
-                    this.updateAlpha(frame.state.alpha) ||
-                    this.updateAlphaOld(frame.state.alpha);
+                let needsRender: boolean = this.updateImagePlanes(frame.state);
+                needsRender = this.updateAlpha(frame.state.alpha) || needsRender;
+                needsRender = this.updateAlphaOld(frame.state.alpha) || needsRender;
 
                 return {
                     name: this.name,
