@@ -58,10 +58,17 @@ interface IRenderHashesOperation extends Function {
     (hashes: IRenderHashes): IRenderHashes;
 }
 
+interface ISize {
+    height: number;
+    width: number;
+}
+
 export class GlRenderer {
     private element: HTMLElement;
 
     private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+    private _resize$: rx.Subject<void> = new rx.Subject<void>();
+    private _size$: rx.Observable<ISize>;
     private _cameraOperation$: rx.Subject<ICameraOperation> = new rx.Subject<ICameraOperation>();
     private _camera$: rx.Observable<ICamera>;
 
@@ -75,8 +82,8 @@ export class GlRenderer {
 
         let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 
-        let width: number = element.offsetWidth;
-        webGLRenderer.setSize(width, width * 3 / 4);
+        let elementWidth: number = element.offsetWidth;
+        webGLRenderer.setSize(elementWidth, elementWidth * 3 / 4);
         webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
         webGLRenderer.sortObjects = false;
 
@@ -151,6 +158,22 @@ export class GlRenderer {
                     camera.alpha = frame.state.alpha;
                     camera.lastCamera.copy(current);
                     camera.needsRender = true;
+
+                    return camera;
+                };
+            })
+            .subscribe(this._cameraOperation$);
+
+        this._size$ = this._resize$
+            .map<ISize>((): ISize => {
+                let width: number = element.offsetWidth;
+
+                return { height: width * 3 / 4, width: width };
+            });
+
+        this._size$.map<ICameraOperation>((size: ISize) => {
+                return (camera: ICamera): ICamera => {
+                    camera.aspectRatio = size.width / size.height;
 
                     return camera;
                 };
@@ -237,6 +260,10 @@ export class GlRenderer {
 
     public get clear$(): rx.Subject<string> {
         return this._clear$;
+    }
+
+    public get resize$(): rx.Subject<void> {
+        return this._resize$;
     }
 }
 
