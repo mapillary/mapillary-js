@@ -1,3 +1,4 @@
+export {AttributionUI} from "./ui/AttributionUI"
 export {CoverUI} from "./ui/CoverUI"
 export {EventUI} from "./ui/EventUI"
 export {KeyboardUI} from "./ui/KeyboardUI"

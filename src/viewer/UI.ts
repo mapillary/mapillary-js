@@ -1,4 +1,5 @@
 import {
+    AttributionUI,
     IUI,
     CoverUI,
     GlUI,
@@ -28,6 +29,7 @@ export class UI {
      * @static
      */
     public static initialize(): void {
+        UI.add("attribution", AttributionUI);
         UI.add("cover", CoverUI);
         UI.add("gl", GlUI);
         UI.add("keyboard", KeyboardUI);
