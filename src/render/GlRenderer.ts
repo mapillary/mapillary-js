@@ -63,6 +63,10 @@ interface ISize {
     width: number;
 }
 
+interface IRendererOperation {
+    (renderer: THREE.WebGLRenderer): THREE.WebGLRenderer;
+}
+
 export class GlRenderer {
     private element: HTMLElement;
 
@@ -77,23 +81,39 @@ export class GlRenderer {
     private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
     private _renderCollection$: rx.Observable<IRenderHashes>;
 
-    private _renderer$: rx.BehaviorSubject<THREE.WebGLRenderer>;
+    private _rendererOperation$: rx.Subject<IRendererOperation> = new rx.Subject<IRendererOperation>();
+    private _renderer$: rx.Observable<THREE.WebGLRenderer>;
 
     constructor (element: HTMLElement) {
         this.element = element;
 
-        let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+        this._renderer$ = this._rendererOperation$
+            .scan<THREE.WebGLRenderer>(
+                (renderer: THREE.WebGLRenderer, operation: IRendererOperation): THREE.WebGLRenderer => {
+                    return operation(renderer);
+                },
+                null
+            );
 
-        let elementWidth: number = element.offsetWidth;
-        webGLRenderer.setSize(elementWidth, elementWidth * 3 / 4);
-        webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
-        webGLRenderer.sortObjects = false;
+        this._render$
+            .first()
+            .map<IRendererOperation>((hash: IRenderHash): IRendererOperation => {
+                return (renderer: THREE.WebGLRenderer): THREE.WebGLRenderer => {
+                    let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 
-        webGLRenderer.domElement.style.width = "100%";
-        webGLRenderer.domElement.style.height = "100%";
-        element.appendChild(webGLRenderer.domElement);
+                    let elementWidth: number = this.element.offsetWidth;
+                    webGLRenderer.setSize(elementWidth, elementWidth * 3 / 4);
+                    webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
+                    webGLRenderer.sortObjects = false;
 
-        this._renderer$ = new rx.BehaviorSubject<THREE.WebGLRenderer>(webGLRenderer);
+                    webGLRenderer.domElement.style.width = "100%";
+                    webGLRenderer.domElement.style.height = "100%";
+                    this.element.appendChild(webGLRenderer.domElement);
+
+                    return webGLRenderer;
+                };
+            })
+            .subscribe(this._rendererOperation$);
 
         this._renderCollection$ = this._renderOperation$
             .scan<IRenderHashes>(
