@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="256px" height="256px" viewBox="0 0 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.4.4 (17249) - http://www.bohemiancoding.com/sketch -->
+    <title>pano</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="pano" sketch:type="MSArtboardGroup">
+            <path d="M236,216 C236,216 184.371094,201.010742 128,201.010742 C71.6289062,201.010742 20,216 20,216 L20,54 C20,54 68.353247,70 128,70 C187.646753,70 236,54 236,54 L236,216 Z" id="Rectangle-1" stroke="#000000" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" sketch:type="MSShapeGroup"></path>
+            <path d="M236,216 C236,216 184.371094,201.010742 128,201.010742 C71.6289062,201.010742 20,216 20,216 L20,54 C20,54 68.353247,70 128,70 C187.646753,70 236,54 236,54 L236,216 Z" id="Rectangle-1-Copy" stroke="#FFFFFF" stroke-width="11" stroke-linecap="square" sketch:type="MSShapeGroup"></path>
+            <path d="M123.745243,201.038857 C125.159979,201.020274 126.578482,201.010742 128,201.010742 C184.371094,201.010742 236,216 236,216 L236,188.073131 L176.341797,132 L141.501953,173.619141 L101,145.347656 L61.4804688,173.619141 L44.1523438,158.421875 L21.6953125,187.058594 L20.6308594,209.22168 L28.5660284,213.751921 C44.6886835,209.773527 81.5583834,201.837394 121.772196,201.070641 L123.88559,200.854636 L123.745243,201.038857 L123.745243,201.038857 Z" id="Rectangle-1-Copy-2" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+            <circle id="Oval-1" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="58.5" cy="101.5" r="19.5"></circle>
+        </g>
+    </g>
+</svg>

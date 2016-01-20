@@ -47,27 +47,66 @@
     left: 0;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 100;
+    overflow: hidden;
+    cursor: pointer;
+    transition: visibility linear 500ms;
+}
+
+.CoverBackground {
+    transition: all ease-in-out 250ms, filter ease-in-out 100ms;
+    filter: blur(3px);
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    bottom: -50px;
+    left: -50px;
+    background-size: cover;
+    z-index: -11;
+
+}
+
+.Cover:hover .CoverBackground {
+    filter: blur(0);
+}
+
+.Cover.CoverDone > .CoverBackground {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.CoverDone {
+    visibility: hidden;
 }
 
 .CoverButton {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 100px;
+    width: 60px;
     height: 40px;
-    margin-left: -50px;
+    margin-left: -30px;
     margin-top: -20px;
 
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     color: white;
 
     border-radius: 6px;
     border: none;
-    padding: 10px;
+    padding: 5px;
+}
+
+.CoverButtonIcon {
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    background: url(./pano.svg);
+    background-size: contain;
 }
 
 .CoverButton:hover {
-    background-color: lime;
-    color: black;
+    background-color: rgba(0, 0, 0, 0.8);
     cursor: pointer;
 }
