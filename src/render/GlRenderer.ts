@@ -77,6 +77,8 @@ export class GlRenderer {
     private _renderOperation$: rx.Subject<IRenderHashesOperation> = new rx.Subject<IRenderHashesOperation>();
     private _renderCollection$: rx.Observable<IRenderHashes>;
 
+    private _renderer$: rx.BehaviorSubject<THREE.WebGLRenderer>;
+
     constructor (element: HTMLElement) {
         this.element = element;
 
@@ -90,6 +92,8 @@ export class GlRenderer {
         webGLRenderer.domElement.style.width = "100%";
         webGLRenderer.domElement.style.height = "100%";
         element.appendChild(webGLRenderer.domElement);
+
+        this._renderer$ = new rx.BehaviorSubject<THREE.WebGLRenderer>(webGLRenderer);
 
         this._renderCollection$ = this._renderOperation$
             .scan<IRenderHashes>(
@@ -208,8 +212,9 @@ export class GlRenderer {
 
                 return needsRender;
             })
-            .scan<THREE.WebGLRenderer>(
-                (renderer: THREE.WebGLRenderer, cameraRender: ICameraRender): THREE.WebGLRenderer => {
+            .combineLatest(
+                this._renderer$,
+                (cameraRender: ICameraRender, renderer: THREE.WebGLRenderer): void => {
                     cameraRender.camera.needsRender = false;
 
                     let alpha: number = cameraRender.camera.alpha;
@@ -243,13 +248,9 @@ export class GlRenderer {
                     for (let render of foregroundRenders) {
                         render(alpha, perspectiveCamera, renderer);
                     }
-
-                    return renderer;
-                },
-                webGLRenderer
-            )
-            .publish()
-            .connect();
+                })
+                .publish()
+                .connect();
     }
 
     public get frame$(): rx.Subject<IFrame> {
