@@ -48,6 +48,7 @@ interface ICamera {
 interface ICameraRender {
     camera: ICamera;
     hashes: IRenderHashes;
+    renderer: THREE.WebGLRenderer;
 }
 
 interface ICameraOperation {
@@ -222,8 +223,9 @@ export class GlRenderer {
         rx.Observable.combineLatest(
                 this._camera$,
                 this._renderCollection$,
-                (camera: ICamera, hashes: IRenderHashes): ICameraRender => {
-                    return { camera: camera, hashes: hashes };
+                this._renderer$,
+                (camera: ICamera, hashes: IRenderHashes, renderer: THREE.WebGLRenderer): ICameraRender => {
+                    return { camera: camera, hashes: hashes, renderer: renderer };
                 })
             .filter((cameraRender: ICameraRender) => {
                 if (!Object.keys(cameraRender.hashes).length) {
@@ -247,9 +249,8 @@ export class GlRenderer {
 
                 return needsRender;
             })
-            .combineLatest(
-                this._renderer$,
-                (cameraRender: ICameraRender, renderer: THREE.WebGLRenderer): void => {
+            .map<void>(
+                (cameraRender: ICameraRender): void => {
                     cameraRender.camera.needsRender = false;
 
                     let alpha: number = cameraRender.camera.alpha;
@@ -270,6 +271,8 @@ export class GlRenderer {
                             foregroundRenders.push(hash.render);
                         }
                     }
+
+                    let renderer: THREE.WebGLRenderer = cameraRender.renderer;
 
                     renderer.autoClear = false;
                     renderer.clear();
