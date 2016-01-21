@@ -6,8 +6,9 @@ import * as rx from "rx";
 
 import {IGPano} from "../../API";
 import {IUI, Shaders, GlScene} from "../../UI";
-import {ICurrentState} from "../../State";
+import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
+import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
 
@@ -17,14 +18,11 @@ export class GlUI implements IUI {
 
     private stateSubscription: rx.IDisposable;
 
-    private renderer: THREE.WebGLRenderer;
-    private needsRender: boolean;
-    private lastAlpha: number;
+    private alpha: number;
     private alphaOld: number;
     private fadeOutSpeed: number;
     private lastCamera: Camera;
     private epsilon: number;
-    private perspectiveCamera: THREE.PerspectiveCamera;
     private imagePlaneScene: GlScene;
 
     private imagePlaneDepth: number = 200;
@@ -33,16 +31,18 @@ export class GlUI implements IUI {
     private currentKey: string;
     private previousKey: string;
 
+    private name: string;
+
     constructor (container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
 
+        this.name = "gl";
+
         this.currentKey = null;
         this.previousKey = null;
 
-        this.needsRender = false;
-
-        this.lastAlpha = 0;
+        this.alpha = 0;
         this.alphaOld = 0;
         this.fadeOutSpeed = 0.05;
         this.lastCamera = new Camera();
@@ -50,58 +50,55 @@ export class GlUI implements IUI {
     }
 
     public activate(): void {
-        this.renderer = new THREE.WebGLRenderer();
-
-        let width: number = this.container.element.offsetWidth;
-        this.renderer.setSize(width, width * 3 / 4);
-        this.renderer.setClearColor(new THREE.Color(0x202020), 1.0);
-        this.renderer.sortObjects = false;
-
-        this.renderer.domElement.style.width = "100%";
-        this.renderer.domElement.style.height = "100%";
-        this.container.element.appendChild(this.renderer.domElement);
-
-        this.perspectiveCamera = new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000);
         this.imagePlaneScene = new GlScene();
 
-        this.stateSubscription = this.navigator.stateService.currentState$.subscribe(
-            this.onStateChanged.bind(this));
+        this.stateSubscription = this.navigator.stateService.currentState$
+            .map<IGLRenderHash>((frame: IFrame): IGLRenderHash => {
+                let needsRender: boolean = this.updateImagePlanes(frame.state);
+                needsRender = this.updateAlpha(frame.state.alpha) || needsRender;
+                needsRender = this.updateAlphaOld(frame.state.alpha) || needsRender;
+
+                return {
+                    name: this.name,
+                    render: {
+                        frameId: frame.id,
+                        needsRender: needsRender,
+                        render: this.render.bind(this),
+                        stage: GLRenderStage.BACKGROUND,
+                    },
+                };
+            })
+            .subscribe(this.container.glRenderer.render$);
     }
 
     public deactivate(): void {
+        this.container.glRenderer.clear$.onNext(this.name);
         this.stateSubscription.dispose();
     }
 
-    private onStateChanged(state: ICurrentState): void {
-        this.updateImagePlanes(state);
-        this.updateAlpha(state.alpha);
-        this.updateAlphaOld(state.alpha);
-        this.updateCamera(state.camera);
-
-        this.render(state.alpha);
-    }
-
-    private updateAlpha(alpha: number): void {
-        if (this.lastAlpha === alpha) {
-            return;
+    private updateAlpha(alpha: number): boolean {
+        if (alpha === this.alpha) {
+            return false;
         }
 
-        this.lastAlpha = alpha;
-        this.needsRender = true;
+        this.alpha = alpha;
+
+        return true;
     }
 
-    private updateAlphaOld(alpha: number): void {
+    private updateAlphaOld(alpha: number): boolean {
         if (alpha < 1 || this.alphaOld === 0) {
-            return;
+            return false;
         }
 
         this.alphaOld = Math.max(0, this.alphaOld - this.fadeOutSpeed);
-        this.needsRender = true;
+
+        return true;
     }
 
-    private updateImagePlanes(state: ICurrentState): void {
+    private updateImagePlanes(state: ICurrentState): boolean {
         if (state.currentNode == null || state.currentNode.key === this.currentKey) {
-            return;
+            return false;
         }
 
         this.previousKey = state.previousNode != null ? state.previousNode.key : null;
@@ -123,42 +120,14 @@ export class GlUI implements IUI {
         this.imagePlaneScene.updateImagePlanes([currentMesh]);
 
         this.alphaOld = 1;
-        this.needsRender = true;
+
+        return true;
     }
 
-    private getVerticalFov(aspect: number, camera: Camera): number {
-        let focal: number = camera.focal;
-        let verticalFov: number = 2 * Math.atan(0.5 / aspect / focal) * 180 / Math.PI;
-
-        return verticalFov;
-    }
-
-    private updateCamera(camera: Camera): void {
-        if (this.lastCamera.diff(camera) < this.epsilon) {
-            return;
-        }
-
-        let verticalFov: number = this.getVerticalFov(4 / 3, camera);
-
-        this.perspectiveCamera.fov = verticalFov;
-        this.perspectiveCamera.updateProjectionMatrix();
-
-        this.perspectiveCamera.up.copy(camera.up);
-        this.perspectiveCamera.position.copy(camera.position);
-        this.perspectiveCamera.lookAt(camera.lookat);
-
-        this.lastCamera.copy(camera);
-        this.needsRender = true;
-    }
-
-    private render(alpha: number): void {
-        if (!this.needsRender) {
-            return;
-        }
-
-        this.needsRender = false;
-
-        let planeAlpha: number = this.imagePlaneScene.imagePlanesOld.length ? 1 : alpha;
+    private render(
+        perspectiveCamera: THREE.PerspectiveCamera,
+        renderer: THREE.WebGLRenderer): void {
+        let planeAlpha: number = this.imagePlaneScene.imagePlanesOld.length ? 1 : this.alpha;
 
         for (let plane of this.imagePlaneScene.imagePlanes) {
             (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = planeAlpha;
@@ -168,16 +137,14 @@ export class GlUI implements IUI {
             (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = this.alphaOld;
         }
 
-        this.renderer.autoClear = false;
-        this.renderer.clear();
-        this.renderer.render(this.imagePlaneScene.scene, this.perspectiveCamera);
-        this.renderer.render(this.imagePlaneScene.sceneOld, this.perspectiveCamera);
+        renderer.render(this.imagePlaneScene.scene, perspectiveCamera);
+        renderer.render(this.imagePlaneScene.sceneOld, perspectiveCamera);
 
         for (let plane of this.imagePlaneScene.imagePlanes) {
-            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = alpha;
+            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = this.alpha;
         }
 
-        this.renderer.render(this.imagePlaneScene.scene, this.perspectiveCamera);
+        renderer.render(this.imagePlaneScene.scene, perspectiveCamera);
     }
 
     private createImagePlane(key: string, transform: Transform, node: Node): THREE.Mesh {

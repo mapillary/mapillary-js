@@ -1,4 +1,9 @@
 /// <reference path="../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../typings/threejs/three.d.ts" />
+/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+
+import * as THREE from "three";
+import * as rx from "rx";
 
 import {Container, Navigator, UI} from "../../src/Viewer";
 import {IUI, NoneUI} from "../../src/UI";
@@ -19,8 +24,18 @@ describe("UI", () => {
 
     beforeEach(() => {
         spyOn(document, 'getElementById').and.callFake(() => { return document.createElement('div'); });
+        spyOn(window, 'requestAnimationFrame').and.callFake(() => { return () => {}; })
+        spyOn(THREE, 'WebGLRenderer').and.callFake(() => {
+            return {
+                 setSize: () => { },
+                 setClearColor: () => { },
+                 domElement: document.createElement('div'),
+            };
+        });
 
-        container = new Container("fake", "initialPhotoId");
+        let observable: rx.Observable<any> = new rx.Subject<any>();
+
+        container = new Container("fake", "initialPhotoId", observable);
         navigator = new Navigator("clientId");
     });
 

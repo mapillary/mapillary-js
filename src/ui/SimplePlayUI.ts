@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
-import {ICurrentState} from "../State";
+import {IFrame} from "../State";
 import {IUI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
@@ -21,15 +21,15 @@ export class SimplePlayUI implements IUI {
     }
 
     public activate(): void {
-        this.disposable = this.navigator.stateService.currentState$.subscribe((currentState: ICurrentState) => {
+        this.disposable = this.navigator.stateService.currentState$.subscribe((frame: IFrame) => {
             if (!this.playing) {
                 return;
             }
-            if (currentState != null && currentState.currentNode != null) {
-                let l: number = currentState.trajectory.length;
-                if (l - currentState.currentIndex < 5) {
-                    this.currentNode = currentState.currentNode;
-                    this.getNbrNexts(currentState.trajectory[l - 1]);
+            if (frame.state != null && frame.state.currentNode != null) {
+                let l: number = frame.state.trajectory.length;
+                if (l - frame.state.currentIndex < 5) {
+                    this.currentNode = frame.state.currentNode;
+                    this.getNbrNexts(frame.state.trajectory[l - 1]);
                 }
             }
         });

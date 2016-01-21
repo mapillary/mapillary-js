@@ -9,6 +9,7 @@ export {DetectionsUI} from "./ui/DetectionsUI"
 export {SimpleCacheUI} from "./ui/SimpleCacheUI"
 export {SimpleNavUI} from "./ui/SimpleNavUI"
 export {SimplePlayUI} from "./ui/SimplePlayUI"
+export {SphereUI} from "./ui/SphereUI";
 export {GlUI} from "./ui/GlUI/GlUI"
 export {GlScene} from "./ui/GlUI/GlScene"
 export {Shaders} from "./ui/GlUI/Shaders"
