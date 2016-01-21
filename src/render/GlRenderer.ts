@@ -55,7 +55,7 @@ interface ISize {
     width: number;
 }
 
-export class GlRenderer {
+export class GLRenderer {
     private _element: HTMLElement;
     private _currentFrame$: rx.Observable<IFrame>;
 
@@ -289,4 +289,4 @@ export class GlRenderer {
     }
 }
 
-export default GlRenderer;
+export default GLRenderer;

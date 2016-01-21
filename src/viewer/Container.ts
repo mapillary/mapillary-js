@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {GlRenderer, DOMRenderer} from "../Render";
+import {GLRenderer, DOMRenderer} from "../Render";
 import {IFrame} from "../State";
 
 export class Container {
@@ -11,7 +11,7 @@ export class Container {
 
     public initialPhotoId: string;
 
-    public glRenderer: GlRenderer;
+    public glRenderer: GLRenderer;
     public domRenderer: DOMRenderer;
 
     constructor (id: string, initialPhotoId: string, currentFrame$: rx.Observable<IFrame>) {
@@ -20,7 +20,7 @@ export class Container {
         this.element = document.getElementById(id);
         this.element.classList.add("mapillary-js");
 
-        this.glRenderer = new GlRenderer(this.element, currentFrame$);
+        this.glRenderer = new GLRenderer(this.element, currentFrame$);
         this.domRenderer = new DOMRenderer(this.element);
     }
 }
