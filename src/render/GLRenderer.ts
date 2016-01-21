@@ -141,6 +141,20 @@ export class GLRenderer {
             })
             .subscribe(this._renderOperation$);
 
+        this._clear$
+            .map<IGLRendererOperation>((name: string) => {
+                return (renderer: IGLRenderer): IGLRenderer => {
+                    if (renderer.renderer == null) {
+                        return renderer;
+                    }
+
+                    renderer.needsRender = true;
+
+                    return renderer;
+                };
+            })
+            .subscribe(this._rendererOperation$);
+
         this._camera$ = this._cameraOperation$
             .scan<ICamera>(
                 (camera: ICamera, operation: ICameraOperation): ICamera => {
@@ -223,10 +237,6 @@ export class GLRenderer {
                     return { camera: camera, renderer: renderer, renders: _.values(hashes) };
                 })
             .filter((co: ICombination) => {
-                if (!co.renders.length) {
-                    return false;
-                }
-
                 let needsRender: boolean =
                     co.camera.needsRender ||
                     co.renderer.needsRender;
