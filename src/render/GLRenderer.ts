@@ -110,11 +110,7 @@ export class GLRenderer {
                 });
             });
 
-        this._render$
-            .first()
-            .subscribe((hash: IGLRenderHash): void => {
-                this._frameSubscription = this._currentFrame$.subscribe(this._frame$);
-            });
+        this._frameSubscribe();
 
         this._renderCollection$ = this._renderOperation$
             .scan<IGLRenderHashes>(
@@ -166,11 +162,7 @@ export class GLRenderer {
                 this._frameSubscription.dispose();
                 this._frameSubscription = null;
 
-                this._render$
-                    .first()
-                    .subscribe((hash: IGLRenderHash): void => {
-                        this._frameSubscription = this._currentFrame$.subscribe(this._frame$);
-                    });
+                this._frameSubscribe();
             });
 
         this._camera$ = this._cameraOperation$
@@ -319,6 +311,14 @@ export class GLRenderer {
 
     public resize(): void {
         return this._resize$.onNext(null);
+    }
+
+    private _frameSubscribe(): void {
+        this._render$
+            .first()
+            .subscribe((hash: IGLRenderHash): void => {
+                this._frameSubscription = this._currentFrame$.subscribe(this._frame$);
+            });
     }
 }
 
