@@ -12,7 +12,7 @@ import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
 
-export class GlUI implements IUI {
+export class GLUI implements IUI {
     private container: Container;
     private navigator: Navigator;
 
@@ -344,4 +344,4 @@ export class GlUI implements IUI {
     }
 }
 
-export default GlUI;
+export default GLUI;
