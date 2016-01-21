@@ -74,6 +74,8 @@ export class GLRenderer {
     private _rendererOperation$: rx.Subject<IGLRendererOperation> = new rx.Subject<IGLRendererOperation>();
     private _renderer$: rx.Observable<IGLRenderer>;
 
+    private _frameSubscription: rx.IDisposable;
+
     constructor (element: HTMLElement, currentFrame$: rx.Observable<IFrame>) {
         this._element = element;
         this._currentFrame$ = currentFrame$;
@@ -111,7 +113,7 @@ export class GLRenderer {
         this._render$
             .first()
             .subscribe((hash: IGLRenderHash): void => {
-                this._currentFrame$.subscribe(this._frame$);
+                this._frameSubscription = this._currentFrame$.subscribe(this._frame$);
             });
 
         this._renderCollection$ = this._renderOperation$
@@ -154,6 +156,22 @@ export class GLRenderer {
                 };
             })
             .subscribe(this._rendererOperation$);
+
+        this._renderCollection$
+            .subscribe((hashes: IGLRenderHashes): void => {
+                if (Object.keys(hashes).length || this._frameSubscription == null) {
+                    return;
+                }
+
+                this._frameSubscription.dispose();
+                this._frameSubscription = null;
+
+                this._render$
+                    .first()
+                    .subscribe((hash: IGLRenderHash): void => {
+                        this._frameSubscription = this._currentFrame$.subscribe(this._frame$);
+                    });
+            });
 
         this._camera$ = this._cameraOperation$
             .scan<ICamera>(
