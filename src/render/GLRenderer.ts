@@ -83,7 +83,7 @@ export class GLRenderer {
                 (renderer: IGLRenderer, operation: IGLRendererOperation): IGLRenderer => {
                     return operation(renderer);
                 },
-                null
+                { needsRender: false, renderer: null }
             );
 
         this._render$
@@ -101,7 +101,10 @@ export class GLRenderer {
                     webGLRenderer.domElement.style.height = "100%";
                     this._element.appendChild(webGLRenderer.domElement);
 
-                    return { needsRender: true, renderer: webGLRenderer };
+                    renderer.needsRender = true;
+                    renderer.renderer = webGLRenderer;
+
+                    return renderer;
                 });
             });
 
@@ -200,8 +203,8 @@ export class GLRenderer {
         this._size$.map<IGLRendererOperation>(
             (size: ISize): IGLRendererOperation => {
                 return (renderer: IGLRenderer): IGLRenderer => {
-                    if (renderer == null) {
-                        return null;
+                    if (renderer.renderer == null) {
+                        return renderer;
                     }
 
                     renderer.renderer.setSize(size.width, size.height);
