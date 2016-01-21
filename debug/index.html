@@ -29,8 +29,8 @@
     <script>
         var viewerCover = new Mapillary.Viewer('viewerCover', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['loading', 'cover', 'simple', 'simplenav', 'simplecache', 'keyboard', 'attribution'] })
 
-        var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['loading', 'simple', 'simplenav', 'simplecache', 'keyboard', 'loading'] })
-        var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['loading', 'cover', 'gl', 'simplenav', 'simplecache', 'keyboard'] })
+        var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['loading', 'simple', 'simplenav', 'simplecache', 'keyboard', 'loading', 'directions'] })
+        var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['loading', 'cover', 'gl', 'simplenav', 'simplecache', 'keyboard', 'directions'] })
 
         viewerSimple.on("nodechanged", function (node) {
             console.log(node.key);

@@ -2,6 +2,7 @@ import {
     AttributionUI,
     IUI,
     CoverUI,
+    DirectionsUI,
     GLUI,
     KeyboardUI,
     LoadingUI,
@@ -32,6 +33,7 @@ export class UI {
     public static initialize(): void {
         UI.add("attribution", AttributionUI);
         UI.add("cover", CoverUI);
+        UI.add("directions", DirectionsUI);
         UI.add("gl", GLUI);
         UI.add("keyboard", KeyboardUI);
         UI.add("loading", LoadingUI);

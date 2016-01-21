@@ -1,0 +1,28 @@
+.Directions {
+    display: block;
+    position: absolute;
+    width: 165px;
+    height: 165px;
+    bottom: -10px;
+    left: 50%;
+    margin-left: -82px;
+    pointer-events: none;
+}
+
+.DirectionsArrow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -27px;
+    margin-top: -27px;
+    width: 54px;
+    height: 54px;
+    background: url(./arrow-up.svg);
+    background-size: contain;
+    pointer-events: all;
+}
+
+.DirectionsArrow:hover {
+    cursor: pointer;
+    cursor: hand;
+}
