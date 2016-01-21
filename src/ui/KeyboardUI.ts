@@ -13,7 +13,7 @@ interface INavigationElement {
 
 export class KeyboardUI implements IUI {
     private container: Container;
-    private disposable: rx.IDisposable;
+    private keySubscription: rx.IDisposable;
     private navigator: Navigator;
 
     constructor(container: Container, navigator: Navigator) {
@@ -22,17 +22,19 @@ export class KeyboardUI implements IUI {
     }
 
     public activate(): void {
-        rx.Observable.fromEvent(document, "keydown").subscribe((event: KeyboardEvent): void => {
-            if (event.keyCode === 40) {
-                this.navigator.moveDir(EdgeDirection.STEP_BACKWARD).subscribe();
-            } else if (event.keyCode === 38) {
-                this.navigator.moveDir(EdgeDirection.STEP_FORWARD).subscribe();
-            }
-        });
+        this.keySubscription = rx.Observable
+            .fromEvent(document, "keydown")
+            .subscribe((event: KeyboardEvent): void => {
+                if (event.keyCode === 40) {
+                    this.navigator.moveDir(EdgeDirection.STEP_BACKWARD).subscribe();
+                } else if (event.keyCode === 38) {
+                    this.navigator.moveDir(EdgeDirection.STEP_FORWARD).subscribe();
+                }
+            });
     }
 
     public deactivate(): void {
-        this.disposable.dispose();
+        this.keySubscription.dispose();
     }
 }
 
