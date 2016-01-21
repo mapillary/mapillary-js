@@ -375,6 +375,121 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.rotation).toBeCloseTo(theta, epsilon);
     });
 
+    it("should have 0 world motion azimuth", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let r1: number[] = [0, 0, 0];
+        let r2: number[] = [0, 0, 0];
+
+        let node: Node = createNode(key, sequence, r1, [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, r2, [1, 0, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(0, epsilon);
+    });
+
+    it("should have 90 degress world motion azimuth", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let r1: number[] = [0, 0, 0];
+        let r2: number[] = [0, 0, 0];
+
+        let node: Node = createNode(key, sequence, r1, [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, r2, [0, 1, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should have 180 degress world motion azimuth", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let r1: number[] = [0, 0, 0];
+        let r2: number[] = [0, 0, 0];
+
+        let node: Node = createNode(key, sequence, r1, [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, r2, [-1, 0, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(Math.abs(potentialEdge.worldMotionAzimuth)).toBeCloseTo(Math.PI, epsilon);
+    });
+
+    it("should have minus 90 degress world motion azimuth", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let r1: number[] = [0, 0, 0];
+        let r2: number[] = [0, 0, 0];
+
+        let node: Node = createNode(key, sequence, r1, [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, r2, [0, -1, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(-Math.PI / 2, epsilon);
+    });
+
+    it("should have 45 degress world motion azimuth", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let r1: number[] = [0, 0, 0];
+        let r2: number[] = [0, 0, 0];
+
+        let node: Node = createNode(key, sequence, r1, [0, 0, 0])
+        let edgeNode: Node = createNode(edgeKey, sequence, r2, [1, 1, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+
+        let potentialEdge: IPotentialEdge = potentialEdges[0];
+
+        expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
+        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(Math.PI / 4, epsilon);
+    });
+
     it("should be same sequence", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";

@@ -105,7 +105,7 @@ export class EdgeCalculator {
                 potential.apiNavImIm.rotation);
 
             let worldMotionAzimuth: number =
-                this.spatial.angleBetweenVector2(1, 0, direction.x, direction.y);
+                this.spatial.angleBetweenVector2(1, 0, motion.x, motion.y);
 
             let sameSequence: boolean = potential.sequence != null &&
                 node.sequence != null &&
