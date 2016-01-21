@@ -13,4 +13,5 @@ export {SphereUI} from "./ui/SphereUI";
 export {GLUI} from "./ui/GLUI/GLUI"
 export {ImagePlaneScene} from "./ui/GLUI/ImagePlaneScene"
 export {Shaders} from "./ui/GLUI/Shaders"
+export * from "./ui/GLUI/interfaces/interfaces"
 export * from "./ui/interfaces/interfaces"

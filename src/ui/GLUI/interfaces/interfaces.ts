@@ -1,0 +1,1 @@
+export {IShader} from "./IShader"
