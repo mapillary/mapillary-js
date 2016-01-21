@@ -18,15 +18,7 @@ export class ImagePlaneScene {
     }
 
     public updateImagePlanes(planes: THREE.Mesh[]): void {
-        for (let plane of this.imagePlanesOld) {
-            this.sceneOld.remove(plane);
-            plane.geometry.dispose();
-            plane.material.dispose();
-            let texture: THREE.Texture = (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value;
-            if (texture != null) {
-                texture.dispose();
-            }
-        }
+        this.dispose(this.imagePlanesOld, this.sceneOld);
 
         for (let plane of this.imagePlanes) {
             this.scene.remove(plane);
@@ -45,6 +37,23 @@ export class ImagePlaneScene {
         for (let plane of planes) {
             this.scene.add(plane);
             this.imagePlanes.push(plane);
+        }
+    }
+
+    public clear(): void {
+        this.dispose(this.imagePlanesOld, this.sceneOld);
+        this.dispose(this.imagePlanes, this.scene);
+    }
+
+    private dispose(planes: THREE.Mesh[], scene: THREE.Scene): void {
+        for (let plane of planes) {
+            scene.remove(plane);
+            plane.geometry.dispose();
+            plane.material.dispose();
+            let texture: THREE.Texture = (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value;
+            if (texture != null) {
+                texture.dispose();
+            }
         }
     }
 }

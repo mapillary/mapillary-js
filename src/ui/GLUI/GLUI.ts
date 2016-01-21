@@ -38,7 +38,9 @@ export class GLUI implements IUI {
         this.navigator = navigator;
 
         this.name = "gl";
+    }
 
+    public activate(): void {
         this.currentKey = null;
         this.previousKey = null;
 
@@ -47,9 +49,7 @@ export class GLUI implements IUI {
         this.fadeOutSpeed = 0.05;
         this.lastCamera = new Camera();
         this.epsilon = 0.000001;
-    }
 
-    public activate(): void {
         this.imagePlaneScene = new ImagePlaneScene();
 
         this.stateSubscription = this.navigator.stateService.currentState$
@@ -72,6 +72,7 @@ export class GLUI implements IUI {
     }
 
     public deactivate(): void {
+        this.imagePlaneScene.clear();
         this.container.glRenderer.clear(this.name);
         this.stateSubscription.dispose();
     }
