@@ -2,7 +2,7 @@
 
 import * as THREE from "three";
 
-export class GlScene {
+export class ImagePlaneScene {
     public scene: THREE.Scene;
     public sceneOld: THREE.Scene;
 
@@ -48,3 +48,5 @@ export class GlScene {
         }
     }
 }
+
+export default ImagePlaneScene;

@@ -5,7 +5,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 
 import {IGPano} from "../../API";
-import {IUI, Shaders, GlScene} from "../../UI";
+import {IUI, Shaders, ImagePlaneScene} from "../../UI";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
@@ -23,7 +23,7 @@ export class GLUI implements IUI {
     private fadeOutSpeed: number;
     private lastCamera: Camera;
     private epsilon: number;
-    private imagePlaneScene: GlScene;
+    private imagePlaneScene: ImagePlaneScene;
 
     private imagePlaneDepth: number = 200;
     private imageSphereRadius: number = 200;
@@ -50,7 +50,7 @@ export class GLUI implements IUI {
     }
 
     public activate(): void {
-        this.imagePlaneScene = new GlScene();
+        this.imagePlaneScene = new ImagePlaneScene();
 
         this.stateSubscription = this.navigator.stateService.currentState$
             .map<IGLRenderHash>((frame: IFrame): IGLRenderHash => {
