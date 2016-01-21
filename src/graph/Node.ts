@@ -4,8 +4,8 @@
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
-import {ILatLon, IMesh, ILoadStatus} from "../Graph";
-import Sequence from "./Sequence";
+import {ILatLon, IMesh, ILoadStatus, Sequence} from "../Graph";
+import {Urls} from "../Utils";
 
 import * as rx from "rx";
 
@@ -87,7 +87,7 @@ export class Node {
             }
 
             let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", "https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/thumb-320.jpg?origin=mapillary.webgl", true);
+            xmlHTTP.open("GET", Urls.image(this.key, 640), true);
             xmlHTTP.responseType = "arraybuffer";
             xmlHTTP.onload = (e: any) => {
                 let blob: Blob = new Blob([xmlHTTP.response]);
@@ -111,7 +111,7 @@ export class Node {
             }
 
             let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", "https://d1cuyjsrcm0gby.cloudfront.net/" + this.key + "/sfm/v1.0/atomic_mesh.json", true);
+            xmlHTTP.open("GET", Urls.mesh(this.key), true);
             xmlHTTP.responseType = "text";
             xmlHTTP.onload = (e: any) => {
                 observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: <IMesh>JSON.parse(xmlHTTP.responseText)[this.key]});

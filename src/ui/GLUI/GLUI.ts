@@ -11,6 +11,7 @@ import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
+import {Urls} from "../../Utils";
 
 export class GLUI implements IUI {
     private container: Container;
@@ -149,7 +150,7 @@ export class GLUI implements IUI {
     }
 
     private createImagePlane(key: string, transform: Transform, node: Node): THREE.Mesh {
-        let url: string = "https://d1cuyjsrcm0gby.cloudfront.net/" + key + "/thumb-320.jpg?origin=mapillary.webgl";
+        let url: string = Urls.image(key, 640);
 
         let materialParameters: THREE.ShaderMaterialParameters = this.createMaterialParameters(transform);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
@@ -163,7 +164,7 @@ export class GLUI implements IUI {
     }
 
     private createImageSphere(key: string, transform: Transform, node: Node): THREE.Mesh {
-        let url: string = "https://d1cuyjsrcm0gby.cloudfront.net/" + key + "/thumb-320.jpg?origin=mapillary.webgl";
+        let url: string = Urls.image(key, 640);
 
         let gpano: IGPano = transform.gpano;
         let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
