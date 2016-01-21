@@ -56,7 +56,7 @@ interface ISize {
 }
 
 export class GlRenderer {
-    private element: HTMLElement;
+    private _element: HTMLElement;
     private _currentFrame$: rx.Observable<IFrame>;
 
     private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
@@ -74,7 +74,7 @@ export class GlRenderer {
     private _renderer$: rx.Observable<IGLRenderer>;
 
     constructor (element: HTMLElement, currentFrame$: rx.Observable<IFrame>) {
-        this.element = element;
+        this._element = element;
         this._currentFrame$ = currentFrame$;
 
         this._renderer$ = this._rendererOperation$
@@ -91,14 +91,14 @@ export class GlRenderer {
                 return (renderer: IGLRenderer): IGLRenderer => {
                     let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 
-                    let elementWidth: number = this.element.offsetWidth;
+                    let elementWidth: number = this._element.offsetWidth;
                     webGLRenderer.setSize(elementWidth, elementWidth * 3 / 4);
                     webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
                     webGLRenderer.sortObjects = false;
 
                     webGLRenderer.domElement.style.width = "100%";
                     webGLRenderer.domElement.style.height = "100%";
-                    this.element.appendChild(webGLRenderer.domElement);
+                    this._element.appendChild(webGLRenderer.domElement);
 
                     return { needsRender: true, renderer: webGLRenderer };
                 };
