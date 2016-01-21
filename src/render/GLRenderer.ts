@@ -88,8 +88,8 @@ export class GLRenderer {
 
         this._render$
             .first()
-            .map<IGLRendererOperation>((hash: IGLRenderHash): IGLRendererOperation => {
-                return (renderer: IGLRenderer): IGLRenderer => {
+            .subscribe((hash: IGLRenderHash): void => {
+                this._rendererOperation$.onNext((renderer: IGLRenderer): IGLRenderer => {
                     let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 
                     let elementWidth: number = this._element.offsetWidth;
@@ -102,9 +102,8 @@ export class GLRenderer {
                     this._element.appendChild(webGLRenderer.domElement);
 
                     return { needsRender: true, renderer: webGLRenderer };
-                };
-            })
-            .subscribe(this._rendererOperation$);
+                });
+            });
 
         this._render$
             .first()
