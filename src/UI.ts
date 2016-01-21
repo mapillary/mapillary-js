@@ -11,6 +11,6 @@ export {SimpleNavUI} from "./ui/SimpleNavUI"
 export {SimplePlayUI} from "./ui/SimplePlayUI"
 export {SphereUI} from "./ui/SphereUI";
 export {GLUI} from "./ui/GlUI/GLUI"
-export {ImagePlaneScene} from "./ui/GlUI/GlScene"
+export {ImagePlaneScene} from "./ui/GlUI/ImagePlaneScene"
 export {Shaders} from "./ui/GlUI/Shaders"
 export * from "./ui/interfaces/interfaces"
