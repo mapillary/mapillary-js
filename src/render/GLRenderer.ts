@@ -108,10 +108,9 @@ export class GLRenderer {
 
         this._render$
             .first()
-            .map<void>((hash: IGLRenderHash): void => {
+            .subscribe((hash: IGLRenderHash): void => {
                 this._currentFrame$.subscribe(this._frame$);
-            })
-            .subscribe();
+            });
 
         this._renderCollection$ = this._renderOperation$
             .scan<IGLRenderHashes>(
