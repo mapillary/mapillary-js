@@ -72,7 +72,7 @@ export class GLUI implements IUI {
     }
 
     public deactivate(): void {
-        this.container.glRenderer.clear$.onNext(this.name);
+        this.container.glRenderer.clear(this.name);
         this.stateSubscription.dispose();
     }
 

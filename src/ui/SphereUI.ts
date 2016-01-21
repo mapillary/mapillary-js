@@ -70,7 +70,7 @@ export class SphereUI implements IUI {
     public deactivate(): void {
         // clear this UI from the rendering pipeline to ensure
         // does not stall.
-        this.container.glRenderer.clear$.onNext(this.name);
+        this.container.glRenderer.clear(this.name);
         this.stateSubscription.dispose();
     }
 

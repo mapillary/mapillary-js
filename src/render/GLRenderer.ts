@@ -59,9 +59,10 @@ export class GLRenderer {
     private _element: HTMLElement;
     private _currentFrame$: rx.Observable<IFrame>;
 
-    private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
     private _resize$: rx.Subject<void> = new rx.Subject<void>();
     private _size$: rx.Observable<ISize>;
+
+    private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
     private _cameraOperation$: rx.Subject<ICameraOperation> = new rx.Subject<ICameraOperation>();
     private _camera$: rx.Observable<ICamera>;
 
@@ -280,12 +281,12 @@ export class GLRenderer {
         return this._render$;
     }
 
-    public get clear$(): rx.Subject<string> {
-        return this._clear$;
+    public clear(name: string): void {
+        return this._clear$.onNext(name);
     }
 
-    public get resize$(): rx.Subject<void> {
-        return this._resize$;
+    public resize(): void {
+        return this._resize$.onNext(null);
     }
 }
 
