@@ -68,8 +68,11 @@ export class SphereUI implements IUI {
     }
 
     public deactivate(): void {
+        // release memory
+        this.disposeSphere();
+
         // clear this UI from the rendering pipeline to ensure
-        // does not stall.
+        // it does not stall.
         this.container.glRenderer.clear(this.name);
         this.stateSubscription.dispose();
     }
@@ -93,13 +96,8 @@ export class SphereUI implements IUI {
 
         this.key = node.key;
 
-        if (this.sphere != null) {
-            // dispose the old sphere.
-            this.scene.remove(this.sphere);
-            this.sphere.geometry.dispose();
-            this.sphere.material.dispose();
-            this.sphere = null;
-        }
+        // dispose the old sphere.
+        this.disposeSphere();
 
         // create a new sphere for each new node and place
         // it 10 meters in front of the current camera.
@@ -139,5 +137,14 @@ export class SphereUI implements IUI {
         let sphere: THREE.Mesh = new THREE.Mesh(geometry, material);
 
         return sphere;
+    }
+
+    private disposeSphere(): void {
+        if (this.sphere != null) {
+            this.scene.remove(this.sphere);
+            this.sphere.geometry.dispose();
+            this.sphere.material.dispose();
+            this.sphere = null;
+        }
     }
 }
