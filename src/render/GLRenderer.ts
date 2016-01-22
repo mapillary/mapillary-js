@@ -264,6 +264,7 @@ export class GLRenderer {
 
                 return needsRender;
             })
+            .distinctUntilChanged((co: ICombination): number => { return co.camera.frameId; })
             .subscribe(
                 (co: ICombination): void => {
                     co.camera.needsRender = false;
