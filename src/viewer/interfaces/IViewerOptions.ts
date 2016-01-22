@@ -9,16 +9,23 @@ export interface IViewerOptions {
     /**
      * Initial Mapillary image key to start viewer from
      * @member Mapillary.IViewerOptions#key
-     * @type {Node}
+     * @type {string}
      */
     key?: string;
 
     /**
      * Type of ui to use
      * @member Mapillary.IViewerOptions#ui
-     * @type {Node}
+     * @type {string[]}
      */
     uis?: string[];
+
+    /**
+     * Default size of the thumbnail used in the viewer
+     * @member Mapillary.IViewerOptions#baseImageSize
+     * @type {number}
+     */
+    baseImageSize?: number;
 
     uiList?: string[];
 

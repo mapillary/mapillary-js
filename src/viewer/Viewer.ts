@@ -1,7 +1,7 @@
 import {EdgeDirection} from "../Edge";
 import {IViewerOptions, Container, Navigator, UI} from "../Viewer";
 import {EventUI, IUI} from "../UI";
-import {EventEmitter} from "../Utils";
+import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {
     /**
@@ -28,6 +28,8 @@ export class Viewer extends EventEmitter {
     constructor (id: string, clientId: string, options: IViewerOptions) {
         this.navigator = new Navigator(clientId);
         this.container = new Container(id, options.key, this.navigator.stateService.currentState$);
+
+        Settings.setOptions({});
 
         for (let name of options.uis) {
             let ui: IUI = UI.get(name, this.container, this.navigator);

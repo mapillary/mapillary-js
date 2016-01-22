@@ -5,7 +5,7 @@
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
 import {ILatLon, IMesh, ILoadStatus, Sequence} from "../Graph";
-import {Urls} from "../Utils";
+import {Settings, Urls} from "../Utils";
 
 import * as rx from "rx";
 
@@ -87,7 +87,7 @@ export class Node {
             }
 
             let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", Urls.image(this.key, 640), true);
+            xmlHTTP.open("GET", Urls.image(this.key, Settings.baseImageSize), true);
             xmlHTTP.responseType = "arraybuffer";
             xmlHTTP.onload = (e: any) => {
                 let blob: Blob = new Blob([xmlHTTP.response]);
