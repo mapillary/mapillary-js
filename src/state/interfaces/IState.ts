@@ -1,5 +1,6 @@
 import {Node} from "../../Graph";
 import {Camera, Transform} from "../../Geo";
+import {IRotationDelta} from "../../State";
 
 export interface IState {
     alpha: number;
@@ -16,4 +17,6 @@ export interface IState {
     remove(n: number): void;
     cut(): void;
     set(nodes: Node[]): void;
+
+    rotate(delta: IRotationDelta): void;
 }

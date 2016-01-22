@@ -7,6 +7,7 @@ import {
     FrameGenerator,
     IStateContext,
     IFrame,
+    IRotationDelta,
     StateContext,
 } from "../State";
 
@@ -58,6 +59,10 @@ export class StateService {
 
     public setNodes(nodes: Node[]): void {
         this._context.set(nodes);
+    }
+
+    public rotate(delta: IRotationDelta): void {
+        this._context.rotate(delta);
     }
 
     private frame(time: number): void {

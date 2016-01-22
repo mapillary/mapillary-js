@@ -1,4 +1,4 @@
-import {IStateContext, IState, CompletingState} from "../State";
+import {IStateContext, IState, CompletingState, IRotationDelta} from "../State";
 import {Node} from "../Graph";
 import {Camera, Transform} from "../Geo";
 
@@ -59,5 +59,9 @@ export class StateContext implements IStateContext {
 
     public set(nodes: Node[]): void {
         this.state.set(nodes);
+    }
+
+    public rotate(delta: IRotationDelta): void {
+        this.state.rotate(delta);
     }
 }

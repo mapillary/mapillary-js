@@ -1,11 +1,45 @@
+/// <reference path="../../../typings/threejs/three.d.ts" />
 /// <reference path="../../../typings/unitbezier/unitbezier.d.ts" />
 
+import * as THREE from "three";
 import * as UnitBezier from "unitbezier";
 
 import {ParameterMapillaryError} from "../../Error";
-import {IState} from "../../State";
+import {IState, IRotationDelta} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, Transform} from "../../Geo";
+
+class RotationDelta implements IRotationDelta {
+    private _phi: number;
+    private _theta: number;
+
+    constructor(phi: number, theta: number) {
+        this._phi = phi;
+        this._theta = theta;
+    }
+
+    public get phi(): number {
+        return this._phi;
+    }
+
+    public get theta(): number {
+        return this._theta;
+    }
+
+    public get isZero(): boolean {
+        return this._phi === 0 && this._theta === 0;
+    }
+
+    public copy(delta: IRotationDelta): void {
+        this._phi = delta.phi;
+        this._theta = delta.theta;
+    }
+
+    public reset(): void {
+        this._phi = 0;
+        this._theta = 0;
+    }
+}
 
 export class CompletingState implements IState {
     public alpha: number;
@@ -27,6 +61,8 @@ export class CompletingState implements IState {
     private previousCamera: Camera;
 
     private unitBezier: UnitBezier;
+
+    private rotationDelta: RotationDelta;
 
     constructor (trajectory: Node[]) {
         this.alpha = trajectory.length > 0 ? 0 : 1;
@@ -52,6 +88,8 @@ export class CompletingState implements IState {
 
         this.currentCamera = trajectory.length > 0 ? this.trajectoryCameras[this.currentIndex] : new Camera();
         this.previousCamera = this.currentCamera;
+
+        this.rotationDelta = new RotationDelta(0, 0);
     }
 
     public append(trajectory: Node[]): void {
@@ -142,6 +180,14 @@ export class CompletingState implements IState {
             this.currentCamera;
     }
 
+    public rotate(rotationDelta: IRotationDelta): void {
+        if (this.currentNode == null || !this.currentNode.fullPano) {
+            return;
+        }
+
+        this.rotationDelta.copy(rotationDelta);
+    }
+
     public update(): void {
         if (this.alpha === 1 && this.currentIndex + this.alpha < this.trajectory.length) {
             this.alpha = 0;
@@ -164,6 +210,10 @@ export class CompletingState implements IState {
             this.alpha = this.unitBezier.solve(this.baseAlpha);
         }
 
+        this._applyRotation(this.previousCamera);
+        this._applyRotation(this.currentCamera);
+        this._clearRotation();
+
         this.camera.lerpCameras(this.previousCamera, this.currentCamera, this.alpha);
     }
 
@@ -175,5 +225,37 @@ export class CompletingState implements IState {
     public get previousTransform(): Transform {
         return this.trajectoryTransforms.length > 0 && this.currentIndex > 0 ?
             this.trajectoryTransforms[this.currentIndex] : null;
+    }
+
+    private _applyRotation(camera: Camera): void {
+        if (camera == null) {
+            return;
+        }
+
+        let q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3( 0, 0, 1 ));
+        let qInverse: THREE.Quaternion = q.clone().inverse();
+
+        let offset: THREE.Vector3 = new THREE.Vector3();
+        offset.copy(camera.lookat).sub(camera.position);
+        offset.applyQuaternion(q);
+        let length: number = offset.length();
+
+        let phi: number = Math.atan2(offset.y, offset.x);
+        phi += this.rotationDelta.phi;
+
+        let theta: number = Math.atan2(Math.sqrt(offset.x * offset.x + offset.y * offset.y), offset.z);
+        theta += this.rotationDelta.theta;
+        theta = Math.max(0.1, Math.min(Math.PI - 0.1, theta));
+
+        offset.x = Math.sin(theta) * Math.cos(phi);
+        offset.y = Math.sin(theta) * Math.sin(phi);
+        offset.z = Math.cos(theta);
+        offset.applyQuaternion(qInverse);
+
+        camera.lookat.copy(camera.position).add(offset.multiplyScalar(length));
+    }
+
+    private _clearRotation(): void {
+        this.rotationDelta.reset();
     }
 }
