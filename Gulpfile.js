@@ -171,7 +171,7 @@ gulp.task('typescript-src', function () {
   return stream
 })
 
-gulp.task('watch', [], function () {
+gulp.task('watch', ['css'], function () {
   gulp.watch([paths.ts.src, paths.ts.tests], ['ts'])
   gulp.watch([paths.css], ['css'])
 })
