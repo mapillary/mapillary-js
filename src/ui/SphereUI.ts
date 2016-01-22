@@ -8,7 +8,7 @@ import {IUI} from "../UI";
 import {IFrame, ICurrentState} from "../State";
 import {Camera} from "../Geo";
 import {Container, Navigator} from "../Viewer";
-import {IGLRenderHash, GLRenderStage} from "../Render";
+import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../Render";
 import {Node} from "../Graph";
 
 export class SphereUI implements IUI {
@@ -41,6 +41,8 @@ export class SphereUI implements IUI {
         this.alpha = 0;
         this.camera = new Camera();
 
+        let render: IGLRenderFunction = this.render.bind(this);
+
         // subscribe to current state - updates will arrive for each
         // requested frame.
         this.stateSubscription = this.navigator.stateService.currentState$
@@ -59,7 +61,7 @@ export class SphereUI implements IUI {
                     render: {
                         frameId: frame.id,
                         needsRender: needsRender,
-                        render: this.render.bind(this),
+                        render: render,
                         stage: GLRenderStage.FOREGROUND,
                     },
                 };
