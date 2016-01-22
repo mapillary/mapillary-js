@@ -23,6 +23,8 @@ export class SimpleNavUI implements IUI {
     private dirNames: {[dir: number]: string};
     private seqDirs: {[dir: number]: ISequenceDir};
 
+    private name: string;
+
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
@@ -40,6 +42,8 @@ export class SimpleNavUI implements IUI {
         this.seqDirs = {};
         this.seqDirs[EdgeDirection.NEXT] = {name: "Forward", preferred: EdgeDirection.STEP_FORWARD};
         this.seqDirs[EdgeDirection.PREV] = {name: "Backward", preferred: EdgeDirection.STEP_BACKWARD};
+
+        this.name = "simplenavui";
     }
 
     public activate(): void {
@@ -76,12 +80,13 @@ export class SimpleNavUI implements IUI {
                 btns.push(this.createVNode(direction, seqDir.name));
             }
 
-            return {name: "simplenavui", vnode: vd.h(`div.SimpleNavUI`, btns)};
+            return {name: this.name, vnode: vd.h(`div.SimpleNavUI`, btns)};
         }).subscribe(this.container.domRenderer.render$);
     }
 
     public deactivate(): void {
         this.subscription.dispose();
+        this.container.domRenderer.clear(this.name);
     }
 
     private createVNode(direction: EdgeDirection, name: string): vd.VNode {

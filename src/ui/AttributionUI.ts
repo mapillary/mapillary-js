@@ -15,21 +15,25 @@ export class AttributionUI implements IUI {
     private navigator: Navigator;
     private subscription: rx.IDisposable;
 
+    private name: string;
+
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
+
+        this.name = "attribution";
     }
 
     public activate(): void {
         this.subscription = this.navigator.stateService.currentNode$.map((node: Node): IVNodeHash => {
-            return {name: "attribution", vnode: this.getAttributionNode(node.user, node.key)};
+            return {name: this.name, vnode: this.getAttributionNode(node.user, node.key)};
         }).subscribe(this.container.domRenderer.render$);
 
     }
 
     public deactivate(): void {
         this.subscription.dispose();
-        console.log("AttributionUI is gone");
+        this.container.domRenderer.clear(this.name);
     }
 
     private getAttributionNode(username: string, photoId: string): vd.VNode {

@@ -32,7 +32,11 @@ export class DOMRenderer {
         this._vNode$ = this._render$
             .scan<IVNodeHashes>(
             (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
-                vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+                if (vNodeHash.vnode == null) {
+                    delete vNodeHashes[vNodeHash.name];
+                } else {
+                    vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+                }
                 return vNodeHashes;
             },
             {})
@@ -67,6 +71,10 @@ export class DOMRenderer {
 
     public get render$(): rx.Subject<any> {
         return this._render$;
+    }
+
+    public clear(name: string): void {
+        return this._render$.onNext({name: name, vnode: null});
     }
 }
 

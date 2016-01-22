@@ -16,17 +16,17 @@ interface ICanvasNode {
 export class SimpleUI implements IUI {
     private navigator: Navigator;
     private container: Container;
-
     private canvasId: string;
-    private uiName: string;
-
     private disposable: rx.IDisposable;
 
+    private name: string;
+
     constructor(container: Container, navigator: Navigator) {
-        this.canvasId = `${container.id}-simpleui`;
-        this.uiName = "simpleui";
         this.navigator = navigator;
         this.container = container;
+
+        this.name = "simpleui";
+        this.canvasId = `${container.id}-${this.name}`;
     }
 
     public activate(): void {
@@ -62,11 +62,12 @@ export class SimpleUI implements IUI {
                 ctx.drawImage(node.image, offsetLeft, 0, w, ch);
             });
 
-        this.container.domRenderer.render$.onNext({name: this.uiName, vnode: vd.h(`canvas#${this.canvasId}`, [])});
+        this.container.domRenderer.render$.onNext({name: this.name, vnode: vd.h(`canvas#${this.canvasId}`, [])});
     }
 
     public deactivate(): void {
         this.disposable.dispose();
+        this.container.domRenderer.clear(this.name);
     }
 }
 

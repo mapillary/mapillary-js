@@ -13,19 +13,19 @@ import {IVNodeHash} from "../Render";
 export class LoadingUI implements IUI {
     private container: Container;
     private navigator: Navigator;
-    private loadingSubscription: rx.IDisposable;
-    private loadingRemainder: number;
-    private loadingContainer: any;
+    private subscription: rx.IDisposable;
+
+    private name: string;
 
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
-        this.loadingRemainder = 50;
-        this.loadingContainer = { name: "loading", vnode: this.getBarVNode(this.loadingRemainder) };
+
+        this.name = "loading";
     }
 
     public activate(): void {
-        this.loadingSubscription = this.navigator.loadingService.loading$
+        this.subscription = this.navigator.loadingService.loading$
             .combineLatest(
                 this.navigator.graphService.imageLoadingService.loadstatus$,
                 (loading: boolean, loadStatus: any): IVNodeHash => {
@@ -48,12 +48,13 @@ export class LoadingUI implements IUI {
                         percentage = (loaded / total) * 100;
                     }
 
-                    return {name: "loading", vnode: this.getBarVNode(percentage)};
+                    return {name: this.name, vnode: this.getBarVNode(percentage)};
                 }).subscribe(this.container.domRenderer.render$);
     }
 
     public deactivate(): void {
-        return;
+        this.subscription.dispose();
+        this.container.domRenderer.clear(this.name);
     }
 
     private getBarVNode(percentage: number): vd.VNode {
