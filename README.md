@@ -22,6 +22,8 @@ To install the latest version
 ## Examples
 - [mapillary-js + Leaflet + Tangram](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
 - [mapillary-js + Leaflet](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555)
+- [mapillary-js + mapbox-gl-js](http://bl.ocks.org/knikel/4ec4de69a0fc29318675)
+- [mapillary-js + Esri Leaflet](http://bl.ocks.org/knikel/e85b802e97fd3390668f)
 - [mapillary-js + Google Maps](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
 
 ## Quickstart
