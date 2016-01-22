@@ -35,6 +35,25 @@ class RotationDelta implements IRotationDelta {
         this._theta = delta.theta;
     }
 
+    public lerp(other: IRotationDelta, alpha: number): void {
+        this._phi =  (1 - alpha) * this._phi + alpha * other.phi;
+        this._theta =  (1 - alpha) * this._theta + alpha * other.theta;
+    }
+
+    public multiply(value: number): void {
+        this._phi *= value;
+        this._theta *= value;
+    }
+
+    public threshold(value: number): void {
+        this._phi = Math.abs(this._phi) > value ? this._phi : 0;
+        this._theta = Math.abs(this._theta) > value ? this._theta : 0;
+    }
+
+    public lengthSquared(): number {
+        return this._phi * this._phi + this._theta * this._theta;
+    }
+
     public reset(): void {
         this._phi = 0;
         this._theta = 0;
@@ -63,6 +82,10 @@ export class CompletingState implements IState {
     private unitBezier: UnitBezier;
 
     private rotationDelta: RotationDelta;
+    private requestedRotationDelta: RotationDelta;
+    private rotationAcceleration: number;
+    private rotationAlpha: number;
+    private rotationThreshold: number;
 
     constructor (trajectory: Node[]) {
         this.alpha = trajectory.length > 0 ? 0 : 1;
@@ -90,6 +113,10 @@ export class CompletingState implements IState {
         this.previousCamera = this.currentCamera;
 
         this.rotationDelta = new RotationDelta(0, 0);
+        this.requestedRotationDelta = null;
+        this.rotationAcceleration = 0.9;
+        this.rotationAlpha = 0.25;
+        this.rotationThreshold = 0.001;
     }
 
     public append(trajectory: Node[]): void {
@@ -185,7 +212,7 @@ export class CompletingState implements IState {
             return;
         }
 
-        this.rotationDelta.copy(rotationDelta);
+        this.requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
     }
 
     public update(): void {
@@ -210,9 +237,9 @@ export class CompletingState implements IState {
             this.alpha = this.unitBezier.solve(this.baseAlpha);
         }
 
+        this._updateRotation();
         this._applyRotation(this.previousCamera);
         this._applyRotation(this.currentCamera);
-        this._clearRotation();
 
         this.camera.lerpCameras(this.previousCamera, this.currentCamera, this.alpha);
     }
@@ -255,7 +282,27 @@ export class CompletingState implements IState {
         camera.lookat.copy(camera.position).add(offset.multiplyScalar(length));
     }
 
-    private _clearRotation(): void {
-        this.rotationDelta.reset();
+    private _updateRotation(): void {
+        if (this.requestedRotationDelta != null) {
+            let length: number = this.rotationDelta.lengthSquared();
+            let requestedLength: number = this.requestedRotationDelta.lengthSquared();
+
+            if (requestedLength === 0) {
+                this.rotationDelta.reset();
+            } else if (requestedLength >= length) {
+                this.rotationDelta.lerp(this.requestedRotationDelta, this.rotationAlpha);
+            } else {
+                this.rotationDelta.copy(this.requestedRotationDelta);
+            }
+
+            this.requestedRotationDelta = null;
+        }
+
+        if (this.rotationDelta.isZero) {
+            return;
+        }
+
+        this.rotationDelta.multiply(this.rotationAcceleration);
+        this.rotationDelta.threshold(this.rotationThreshold);
     }
 }
