@@ -9,13 +9,15 @@ var fs = require('fs')
 var KarmaServer = require('karma').Server
 var minifyCSS = require('gulp-minify-css')
 var source = require('vinyl-source-stream')
-var serve = require('gulp-serve')
 var standard = require('gulp-standard')
 var shell = require('gulp-shell')
 var ts = require('gulp-typescript')
 var tsify = require('tsify')
 var tslint = require('gulp-tslint')
+var watchify = require('watchify')
 var argv = require('yargs').argv
+
+var browserSync = require('browser-sync').create()
 
 var paths = {
   mapillaryjs: 'mapillaryjs',
@@ -38,7 +40,9 @@ var config = {
   browserify: {
     entries: ['./src/Mapillary.ts'],
     debug: true,
-    standalone: 'Mapillary'
+    standalone: 'Mapillary',
+    cache: {},
+    packageCache: {}
   },
   uglifyify: {
     global: true,
@@ -91,7 +95,18 @@ gulp.task('js-lint', function () {
     }))
 })
 
-gulp.task('serve', ['ts'], serve('.'))
+gulp.task('serve', ['ts'], function () {
+  browserSync.init({
+    server: {
+      baseDir: './debug',
+      routes: {
+        '/dist': 'dist',
+        '/build': 'build'
+      }
+    },
+    logFileChanges: false
+  })
+})
 
 gulp.task('test', function (done) {
   var config
@@ -184,7 +199,8 @@ gulp.task('prepublish', ['ts-lint', 'css'], function () {
 
 // TODO: Refine this task
 gulp.task('ts', ['ts-lint'], function () {
-  browserify(config.browserify)
+  return browserify(config.browserify)
+    .plugin(watchify)
     .plugin(tsify, config.ts)
     .transform('brfs')
     .transform('envify')
@@ -196,6 +212,7 @@ gulp.task('ts', ['ts-lint'], function () {
     .pipe(exorcist(paths.sourceMaps))
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('./build'))
+    .pipe(browserSync.stream())
 })
 
 gulp.task('copy-style-assets', function () {

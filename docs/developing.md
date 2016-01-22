@@ -17,7 +17,7 @@ Development mode
 $ gulp
 ```
 
-Then head to `http://localhost:3000/debug/` to debug
+Then head to `http://localhost:3000/` to debug (in case it did not open automatically)
 
 ## Gulp Commands
 
@@ -27,7 +27,7 @@ Then head to `http://localhost:3000/debug/` to debug
 ```
 .
 ├── build/               - Development folder
-├── debug/               - Access at localhost:3000/debug after `gulp`
+├── debug/               - Access at localhost:3000 after `gulp`
 ├── dist/                - Distribution: CSS and other assets
 ├── spec/                - Tests
 │   ├── Viewer.spec.ts

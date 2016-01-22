@@ -23,6 +23,7 @@
   "homepage": "https://github.com/mapillary/mapillary-js#readme",
   "devDependencies": {
     "brfs": "^1.4.1",
+    "browser-sync": "2.11.1",
     "browserify": "12.0.1",
     "del": "~2.0.2",
     "envify": "^3.4.0",
@@ -34,7 +35,6 @@
     "gulp-documentation": "2.0.0",
     "gulp-minify-css": "1.2.3",
     "gulp-rename": "1.2.2",
-    "gulp-serve": "1.2.0",
     "gulp-shell": "0.5.1",
     "gulp-standard": "5.2.2",
     "gulp-tsd": "0.0.4",
@@ -54,6 +54,7 @@
     "typescript": "1.7.3",
     "uglifyify": "3.0.1",
     "vinyl-source-stream": "1.1.0",
+    "watchify": "3.7.0",
     "yargs": "3.29.0"
   },
   "config": {
