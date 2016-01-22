@@ -21,6 +21,7 @@ var browserSync = require('browser-sync').create()
 
 var paths = {
   mapillaryjs: 'mapillaryjs',
+  css: './styles/**/*.css',
   build: './build',
   ts: {
     src: './src/**/*.ts',
@@ -172,6 +173,7 @@ gulp.task('typescript-src', function () {
 
 gulp.task('watch', [], function () {
   gulp.watch([paths.ts.src, paths.ts.tests], ['ts'])
+  gulp.watch([paths.css], ['css'])
 })
 
 gulp.task('default', ['serve', 'watch'])
@@ -229,4 +231,5 @@ gulp.task('css', ['copy-style-assets'], function () {
     .pipe(minifyCSS())
     .pipe(concat('mapillary-js.min.css'))
     .pipe(gulp.dest('dist'))
+    .pipe(browserSync.stream())
 })
