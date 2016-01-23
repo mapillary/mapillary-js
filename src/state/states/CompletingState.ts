@@ -287,15 +287,15 @@ export class CompletingState implements IState {
             let length: number = this.rotationDelta.lengthSquared();
             let requestedLength: number = this.requestedRotationDelta.lengthSquared();
 
-            if (requestedLength === 0) {
-                this.rotationDelta.reset();
-            } else if (requestedLength >= length) {
+            if (requestedLength > length) {
                 this.rotationDelta.lerp(this.requestedRotationDelta, this.rotationAlpha);
             } else {
                 this.rotationDelta.copy(this.requestedRotationDelta);
             }
 
             this.requestedRotationDelta = null;
+
+            return;
         }
 
         if (this.rotationDelta.isZero) {
