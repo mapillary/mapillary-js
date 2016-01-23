@@ -5,7 +5,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 
 import {IGPano} from "../../API";
-import {IUI, Shaders, ImagePlaneScene} from "../../UI";
+import {UI, Shaders, ImagePlaneScene} from "../../UI";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../../Render";
@@ -13,11 +13,9 @@ import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
 import {Settings, Urls} from "../../Utils";
 
-export class GLUI implements IUI {
-    private container: Container;
-    private navigator: Navigator;
-
-    private stateSubscription: rx.IDisposable;
+export class GLUI extends UI {
+    public static uiName: string = "gl";
+    private _disposable: rx.IDisposable;
 
     private alpha: number;
     private alphaOld: number;
@@ -32,16 +30,11 @@ export class GLUI implements IUI {
     private currentKey: string;
     private previousKey: string;
 
-    private name: string;
-
-    constructor (container: Container, navigator: Navigator) {
-        this.container = container;
-        this.navigator = navigator;
-
-        this.name = "gl";
+    constructor (name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
     }
 
-    public activate(): void {
+    protected _activate(): void {
         this.currentKey = null;
         this.previousKey = null;
 
@@ -55,14 +48,14 @@ export class GLUI implements IUI {
 
         let render: IGLRenderFunction = this.render.bind(this);
 
-        this.stateSubscription = this.navigator.stateService.currentState$
+        this._disposable = this._navigator.stateService.currentState$
             .map<IGLRenderHash>((frame: IFrame): IGLRenderHash => {
                 let needsRender: boolean = this.updateImagePlanes(frame.state);
                 needsRender = this.updateAlpha(frame.state.alpha) || needsRender;
                 needsRender = this.updateAlphaOld(frame.state.alpha) || needsRender;
 
                 return {
-                    name: this.name,
+                    name: this._name,
                     render: {
                         frameId: frame.id,
                         needsRender: needsRender,
@@ -71,13 +64,12 @@ export class GLUI implements IUI {
                     },
                 };
             })
-            .subscribe(this.container.glRenderer.render$);
+            .subscribe(this._container.glRenderer.render$);
     }
 
-    public deactivate(): void {
+    protected _deactivate(): void {
         this.imagePlaneScene.clear();
-        this.container.glRenderer.clear(this.name);
-        this.stateSubscription.dispose();
+        this._disposable.dispose();
     }
 
     private updateAlpha(alpha: number): boolean {

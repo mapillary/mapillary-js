@@ -1,6 +1,6 @@
 import {EdgeDirection} from "../Edge";
-import {IViewerOptions, Container, Navigator, UI} from "../Viewer";
-import {EventUI, IUI} from "../UI";
+import {IViewerOptions, Container, Navigator, UIService} from "../Viewer";
+// import {EventUI, IUI} from "../UI";
 import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {
@@ -19,6 +19,13 @@ export class Viewer extends EventEmitter {
     private navigator: Navigator;
 
     /**
+     * Service used to keep track of UIs
+     * @private
+     * @type {Navigator}
+     */
+    private uiService: UIService;
+
+    /**
      * Creates a viewer instance
      * @class Viewer
      * @param {string} id - `id` of an DOM element which will be transformed into the viewer
@@ -28,20 +35,20 @@ export class Viewer extends EventEmitter {
     constructor (id: string, clientId: string, options: IViewerOptions) {
         this.navigator = new Navigator(clientId);
         this.container = new Container(id, options.key, this.navigator.stateService.currentState$);
+        this.uiService = new UIService(this, this.container, this.navigator);
 
         Settings.setOptions({});
 
         for (let name of options.uis) {
-            let ui: IUI = UI.get(name, this.container, this.navigator);
-            ui.activate();
+            this.uiService.activate(name);
         }
+
+        this.uiService.get("event").configure({eventEmitter: this});
+        this.uiService.activate("event");
 
         if (options.key != null) {
             this.moveToKey(options.key);
         }
-
-        let eventUI: EventUI = new EventUI(this, this.container, this.navigator);
-        eventUI.activate();
 
         super();
     }

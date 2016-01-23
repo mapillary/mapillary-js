@@ -7,64 +7,57 @@ import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
-import {IUI} from "../UI";
+import {UI} from "../UI";
 import {IVNodeHash} from "../Render";
 
-export class DirectionsUI implements IUI {
-    private navigator: Navigator;
-    private container: Container;
-    private subscription: rx.IDisposable;
-    private dirNames: {[dir: number]: string};
-    private cssOffset: number;
+export class DirectionsUI extends UI {
+    public static uiName: string = "directions";
 
-    // { direction: angle }
-    private staticArrows: {[dir: number]: number};
+    private _disposable: rx.IDisposable;
+    private _dirNames: {[dir: number]: string};
+    private _cssOffset: number;
 
-    constructor(container: Container, navigator: Navigator) {
-        this.container = container;
-        this.navigator = navigator;
+    private _staticArrows: {[dir: number]: number};
 
-        // cssOffset is a magic number in px
-        this.cssOffset = 62;
+    constructor(name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
 
-        this.dirNames = {};
-        this.dirNames[EdgeDirection.STEP_FORWARD] = "Forward";
-        this.dirNames[EdgeDirection.STEP_BACKWARD] = "Backward";
-        this.dirNames[EdgeDirection.STEP_LEFT] = "Left";
-        this.dirNames[EdgeDirection.STEP_RIGHT] = "Right";
+        this._cssOffset = 62;
 
-        this.staticArrows = {};
-        this.staticArrows[EdgeDirection.STEP_FORWARD] = 0;
-        this.staticArrows[EdgeDirection.STEP_BACKWARD] = 180;
-        this.staticArrows[EdgeDirection.STEP_LEFT] = 3 * 180 / 2;
-        this.staticArrows[EdgeDirection.STEP_RIGHT] = 180 / 2;
+        this._dirNames = {};
+        this._dirNames[EdgeDirection.STEP_FORWARD] = "Forward";
+        this._dirNames[EdgeDirection.STEP_BACKWARD] = "Backward";
+        this._dirNames[EdgeDirection.STEP_LEFT] = "Left";
+        this._dirNames[EdgeDirection.STEP_RIGHT] = "Right";
 
+        this._staticArrows = {};
+        this._staticArrows[EdgeDirection.STEP_FORWARD] = 0;
+        this._staticArrows[EdgeDirection.STEP_BACKWARD] = 180;
+        this._staticArrows[EdgeDirection.STEP_LEFT] = 3 * 180 / 2;
+        this._staticArrows[EdgeDirection.STEP_RIGHT] = 180 / 2;
     }
 
-    public activate(): void {
-        this.subscription = this.navigator.stateService
-            .currentNode$.map((node: Node): IVNodeHash => {
-
+    protected _activate(): void {
+        this._disposable = this._navigator.stateService.currentNode$.map((node: Node): IVNodeHash => {
                 let btns: vd.VNode[] = [];
 
                 for (let edge of node.edges) {
 
                     let direction: EdgeDirection = edge.data.direction;
-                    let name: string = this.dirNames[direction];
+                    let name: string = this._dirNames[direction];
 
                     if (name == null) { continue; }
 
-                    let angle: number = this.staticArrows[direction];
+                    let angle: number = this._staticArrows[direction];
                     btns.push(this.createVNode(direction, angle));
                 }
 
                 return {name: "directions", vnode: this.getVNodeContainer(btns)};
-
-            }).subscribe(this.container.domRenderer.render$);
+            }).subscribe(this._container.domRenderer.render$);
     }
 
-    public deactivate(): void {
-        return;
+    protected _deactivate(): void {
+        this._disposable.dispose();
     }
 
     private calcTranslation(angle: number): Array<number> {
@@ -77,8 +70,8 @@ export class DirectionsUI implements IUI {
 
     private createVNode(direction: EdgeDirection, angle: number): vd.VNode {
         let translation: Array<number> = this.calcTranslation(angle);
-        let translationWithOffsetX: number = this.cssOffset * translation[0];
-        let translationWithOffsetY: number = this.cssOffset * translation[1];
+        let translationWithOffsetX: number = this._cssOffset * translation[0];
+        let translationWithOffsetY: number = this._cssOffset * translation[1];
 
         let dropShadowOffset: number = 3; // px
         let dropShadowTranslatedY: number = -dropShadowOffset * translation[1];
@@ -93,16 +86,15 @@ export class DirectionsUI implements IUI {
 
         return vd.h(`div.DirectionsArrow.`,
                     {
-                        onclick: (ev: Event): void => { this.navigator.moveDir(direction).first().subscribe(); },
+                        onclick: (ev: Event): void => { this._navigator.moveDir(direction).first().subscribe(); },
                         style: style,
                     },
                     []);
     }
 
     private getVNodeContainer(children: any): any {
-        // todo: change the rotateX value for panoramas
         let style: any = {
-            transform: "perspective(375px) rotateX(65deg) rotateZ(0deg)"
+            transform: "perspective(375px) rotateX(65deg) rotateZ(0deg)" // todo: change the rotateX value for panoramas
         };
 
         return vd.h("div.Directions", {style: style}, children);

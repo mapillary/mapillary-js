@@ -4,20 +4,16 @@
 import * as THREE from "three";
 import * as rx from "rx";
 
-import {IUI} from "../UI";
+import {UI} from "../UI";
 import {IFrame, ICurrentState} from "../State";
 import {Camera} from "../Geo";
 import {Container, Navigator} from "../Viewer";
 import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../Render";
 import {Node} from "../Graph";
 
-export class SphereUI implements IUI {
-    private container: Container;
-    private navigator: Navigator;
-
-    private stateSubscription: rx.IDisposable;
-
-    private name: string;
+export class SphereUI extends UI {
+    public static uiName: string = "sphere";
+    private _disposable: rx.IDisposable;
 
     private scene: THREE.Scene;
     private sphere: THREE.Mesh;
@@ -26,15 +22,11 @@ export class SphereUI implements IUI {
     private alpha: number;
     private camera: Camera;
 
-    constructor (container: Container, navigator: Navigator) {
-        this.container = container;
-        this.navigator = navigator;
-
-        // give our UI a unique name.
-        this.name = "sphere";
+    constructor (name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
     }
 
-    public activate(): void {
+    protected _activate(): void {
         // initialize scene specific properties.
         this.scene = new THREE.Scene();
         this.key = "";
@@ -45,7 +37,7 @@ export class SphereUI implements IUI {
 
         // subscribe to current state - updates will arrive for each
         // requested frame.
-        this.stateSubscription = this.navigator.stateService.currentState$
+        this._disposable = this._navigator.stateService.currentState$
             .map<IGLRenderHash>((frame: IFrame): IGLRenderHash => {
                 let state: ICurrentState = frame.state;
 
@@ -57,7 +49,7 @@ export class SphereUI implements IUI {
                 // return render hash with render function and
                 // render in foreground.
                 return {
-                    name: this.name,
+                    name: this._name,
                     render: {
                         frameId: frame.id,
                         needsRender: needsRender,
@@ -66,17 +58,13 @@ export class SphereUI implements IUI {
                     },
                 };
             })
-            .subscribe(this.container.glRenderer.render$);
+            .subscribe(this._container.glRenderer.render$);
     }
 
-    public deactivate(): void {
+    protected _deactivate(): void {
         // release memory
         this.disposeSphere();
-
-        // clear this UI from the rendering pipeline to ensure
-        // it does not stall.
-        this.container.glRenderer.clear(this.name);
-        this.stateSubscription.dispose();
+        this._disposable.dispose();
     }
 
     private updateAlpha(alpha: number): boolean {

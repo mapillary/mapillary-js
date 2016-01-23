@@ -4,34 +4,29 @@
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
+import {UI} from "../UI";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {IUI} from "../UI";
 
 interface ICanvasNode {
     canvas: HTMLCanvasElement;
     node: Node;
 }
 
-export class SimpleUI implements IUI {
-    private navigator: Navigator;
-    private container: Container;
+export class SimpleUI extends UI {
+    public static uiName: string = "simple";
+
     private canvasId: string;
-    private disposable: rx.IDisposable;
+    private _disposable: rx.IDisposable;
 
-    private name: string;
-
-    constructor(container: Container, navigator: Navigator) {
-        this.navigator = navigator;
-        this.container = container;
-
-        this.name = "simpleui";
-        this.canvasId = `${container.id}-${this.name}`;
+    constructor(name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
+        this.canvasId = `${container.id}-${this._name}`;
     }
 
-    public activate(): void {
-        this.disposable = this.container.domRenderer.element$.combineLatest(
-            this.navigator.stateService.currentNode$,
+    protected _activate(): void {
+        this._disposable = this._container.domRenderer.element$.combineLatest(
+            this._navigator.stateService.currentNode$,
             (element: Element, node: Node): ICanvasNode => {
                 let canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById(this.canvasId);
                 return {canvas: canvas, node: node};
@@ -44,8 +39,8 @@ export class SimpleUI implements IUI {
                 }
 
                 let ctx: any = canvas.getContext("2d");
-                let cw: number = this.container.element.clientWidth;
-                let ch: number = this.container.element.clientHeight;
+                let cw: number = this._container.element.clientWidth;
+                let ch: number = this._container.element.clientHeight;
 
                 ctx.fillStyle = "black"; // todo: This should be customizable by the end user
                 ctx.fillRect(0, 0, cw, ch);
@@ -62,12 +57,11 @@ export class SimpleUI implements IUI {
                 ctx.drawImage(node.image, offsetLeft, 0, w, ch);
             });
 
-        this.container.domRenderer.render$.onNext({name: this.name, vnode: vd.h(`canvas#${this.canvasId}`, [])});
+        this._container.domRenderer.render$.onNext({name: this._name, vnode: vd.h(`canvas#${this.canvasId}`, [])});
     }
 
-    public deactivate(): void {
-        this.disposable.dispose();
-        this.container.domRenderer.clear(this.name);
+    protected _deactivate(): void {
+        this._disposable.dispose();
     }
 }
 

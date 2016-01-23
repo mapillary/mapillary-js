@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {EdgeDirection} from "../Edge";
-import {IUI} from "../UI";
+import {UI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
 interface INavigationElement {
@@ -11,30 +11,26 @@ interface INavigationElement {
     subscription: rx.IDisposable;
 }
 
-export class KeyboardUI implements IUI {
-    private container: Container;
-    private keySubscription: rx.IDisposable;
-    private navigator: Navigator;
+export class KeyboardUI extends UI {
+    public static uiName: string = "keyboard";
+    private _disposable: rx.IDisposable;
 
-    constructor(container: Container, navigator: Navigator) {
-        this.container = container;
-        this.navigator = navigator;
+    constructor(name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
     }
 
-    public activate(): void {
-        this.keySubscription = rx.Observable
-            .fromEvent(document, "keydown")
-            .subscribe((event: KeyboardEvent): void => {
-                if (event.keyCode === 40) {
-                    this.navigator.moveDir(EdgeDirection.STEP_BACKWARD).subscribe();
-                } else if (event.keyCode === 38) {
-                    this.navigator.moveDir(EdgeDirection.STEP_FORWARD).subscribe();
-                }
-            });
+    protected _activate(): void {
+        this._disposable = rx.Observable.fromEvent(document, "keydown").subscribe((event: KeyboardEvent): void => {
+            if (event.keyCode === 40) {
+                this._navigator.moveDir(EdgeDirection.STEP_BACKWARD).subscribe();
+            } else if (event.keyCode === 38) {
+                this._navigator.moveDir(EdgeDirection.STEP_FORWARD).subscribe();
+            }
+        });
     }
 
-    public deactivate(): void {
-        this.keySubscription.dispose();
+    protected _deactivate(): void {
+        this._disposable.dispose();
     }
 }
 

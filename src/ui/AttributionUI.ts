@@ -7,33 +7,25 @@ import * as vd from "virtual-dom";
 import {Container, Navigator} from "../Viewer";
 import {Node} from "../Graph";
 
-import {IUI} from "../UI";
+import {UI} from "../UI";
 import {IVNodeHash} from "../Render";
 
-export class AttributionUI implements IUI {
-    private container: Container;
-    private navigator: Navigator;
-    private subscription: rx.IDisposable;
+export class AttributionUI extends UI {
+    public static uiName: string = "attribution";
+    private _disposable: rx.IDisposable;
 
-    private name: string;
-
-    constructor(container: Container, navigator: Navigator) {
-        this.container = container;
-        this.navigator = navigator;
-
-        this.name = "attribution";
+    constructor(name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
     }
 
-    public activate(): void {
-        this.subscription = this.navigator.stateService.currentNode$.map((node: Node): IVNodeHash => {
-            return {name: this.name, vnode: this.getAttributionNode(node.user, node.key)};
-        }).subscribe(this.container.domRenderer.render$);
-
+    protected _activate(): void {
+        this._disposable = this._navigator.stateService.currentNode$.map((node: Node): IVNodeHash => {
+            return {name: this._name, vnode: this.getAttributionNode(node.user, node.key)};
+        }).subscribe(this._container.domRenderer.render$);
     }
 
-    public deactivate(): void {
-        this.subscription.dispose();
-        this.container.domRenderer.clear(this.name);
+    protected _deactivate(): void {
+        this._disposable.dispose();
     }
 
     private getAttributionNode(username: string, photoId: string): vd.VNode {

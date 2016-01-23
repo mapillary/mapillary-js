@@ -1,11 +1,13 @@
-import {IUI} from "../UI";
+import {UI} from "../UI";
 
-export class NoneUI implements IUI {
-    public activate(): void {
+export class NoneUI extends UI {
+    public static uiName: string = "none";
+
+    protected _activate(): void {
         return;
     }
 
-    public deactivate(): void {
+    protected _deactivate(): void {
         return;
     }
 }

@@ -3,29 +3,27 @@
 import * as vd from "virtual-dom";
 
 import {Container, Navigator} from "../Viewer";
-import {IUI} from "../UI";
+import {UI} from "../UI";
 
-export class CoverUI implements IUI {
-    private container: Container;
-    private navigator: Navigator;
+export class CoverUI extends UI {
+    public static uiName: string = "cover";
 
-    constructor(container: Container, navigator: Navigator) {
-        this.container = container;
-        this.navigator = navigator;
+    constructor(name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
     }
 
-    public activate(): void {
-        this.container.domRenderer.render$.onNext({name: "cover", vnode: this.getCoverButtonVNode()});
+    public _activate(): void {
+        this._container.domRenderer.render$.onNext({name: this._name, vnode: this.getCoverButtonVNode()});
     }
 
-    public deactivate(): void {
+    public _deactivate(): void {
         return;
     }
 
     private removeCover(): void {
-        this.container.domRenderer
+        this._container.domRenderer
             .render$
-            .onNext({name: "cover", vnode: vd.h("div.Cover.CoverDone", [ this.getCoverBackgroundVNode() ])});
+            .onNext({name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this.getCoverBackgroundVNode() ])});
     }
 
     private getCoverButtonVNode(): vd.VNode {
@@ -38,7 +36,7 @@ export class CoverUI implements IUI {
     }
 
     private getCoverBackgroundVNode(): vd.VNode {
-        let url: string = `url(https://d1cuyjsrcm0gby.cloudfront.net/${this.container.initialPhotoId}/thumb-320.jpg)`;
+        let url: string = `url(https://d1cuyjsrcm0gby.cloudfront.net/${this._container.initialPhotoId}/thumb-320.jpg)`;
 
         return vd.h("div.CoverBackground", { style: { backgroundImage: url }}, []);
     }

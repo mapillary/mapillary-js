@@ -7,30 +7,29 @@ import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {APIv2} from "../API";
 
-import {IUI, IRect} from "../UI";
+import {UI, IRect} from "../UI";
 
-export class DetectionsUI implements IUI {
-    private disposable: rx.IDisposable;
-    private navigator: Navigator;
-    private container: Container;
+export class DetectionsUI extends UI {
+    public static uiName: string = "detections";
+    private _disposable: rx.IDisposable;
+
     private rectContainer: HTMLElement;
     private detectionData: any;
     private apiV2: APIv2;
 
-    constructor(container: Container, navigator: Navigator) {
-        this.container = container;
-        this.navigator = navigator;
+    constructor(name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
         this.apiV2 = navigator.apiV2;
     }
 
-    public activate(): void {
+    protected _activate(): void {
         let child: HTMLElement = document.createElement("div");
         child.className = "rectContainer";
 
         this.rectContainer = child;
-        this.container.element.appendChild(this.rectContainer);
+        this._container.element.appendChild(this.rectContainer);
 
-        this.disposable = this.navigator
+        this._disposable = this._navigator
             .stateService
             .currentNode$.subscribe((node: Node): void => {
                 this.setRectContainer(node.image.width, node.image.height);
@@ -43,10 +42,10 @@ export class DetectionsUI implements IUI {
             });
     }
 
-    public deactivate(): void {
-        this.disposable.dispose();
+    protected _deactivate(): void {
         this.rectContainer = undefined;
         this.detectionData = undefined;
+        this._disposable.dispose();
     }
 
    /**
@@ -113,8 +112,8 @@ export class DetectionsUI implements IUI {
      * Sets the rectContainer size to match ratio of currently displayed photo
      */
     private setRectContainer (w: number, h: number): void {
-        let cw: number = this.container.element.clientWidth;
-        let ch: number = this.container.element.clientHeight;
+        let cw: number = this._container.element.clientWidth;
+        let ch: number = this._container.element.clientHeight;
 
         let ratioW: number = (ch / h * w);
 

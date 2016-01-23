@@ -6,28 +6,22 @@ import * as vd from "virtual-dom";
 import * as rx from "rx";
 
 import {Container, Navigator} from "../Viewer";
-import {IUI} from "../UI";
+import {UI} from "../UI";
 
 import {IVNodeHash} from "../Render";
 
-export class LoadingUI implements IUI {
-    private container: Container;
-    private navigator: Navigator;
-    private subscription: rx.IDisposable;
+export class LoadingUI extends UI {
+    public static uiName: string = "loading";
+    private _disposable: rx.IDisposable;
 
-    private name: string;
-
-    constructor(container: Container, navigator: Navigator) {
-        this.container = container;
-        this.navigator = navigator;
-
-        this.name = "loading";
+    constructor(name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
     }
 
-    public activate(): void {
-        this.subscription = this.navigator.loadingService.loading$
+    protected _activate(): void {
+        this._disposable = this._navigator.loadingService.loading$
             .combineLatest(
-                this.navigator.graphService.imageLoadingService.loadstatus$,
+                this._navigator.graphService.imageLoadingService.loadstatus$,
                 (loading: boolean, loadStatus: any): IVNodeHash => {
                     if (!loading) {
                         return {name: "loading", vnode: this.getBarVNode(100)};
@@ -48,13 +42,12 @@ export class LoadingUI implements IUI {
                         percentage = (loaded / total) * 100;
                     }
 
-                    return {name: this.name, vnode: this.getBarVNode(percentage)};
-                }).subscribe(this.container.domRenderer.render$);
+                    return {name: this._name, vnode: this.getBarVNode(percentage)};
+                }).subscribe(this._container.domRenderer.render$);
     }
 
-    public deactivate(): void {
-        this.subscription.dispose();
-        this.container.domRenderer.clear(this.name);
+    protected _deactivate(): void {
+        this._disposable.dispose();
     }
 
     private getBarVNode(percentage: number): vd.VNode {

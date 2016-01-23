@@ -5,35 +5,35 @@ import * as rx from "rx";
 
 import {IEdge, EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
-import {IUI} from "../UI";
+import {UI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
-export class SimpleCacheUI implements IUI {
-    private disposable: rx.IDisposable;
-    private navigator: Navigator;
+export class SimpleCacheUI extends UI {
+    public static uiName: string = "simplecache";
+    private _disposable: rx.IDisposable;
 
-    constructor (container: Container, navigator: Navigator) {
-        this.navigator = navigator;
+    constructor(name: string, container: Container, navigator: Navigator) {
+        super(name, container, navigator);
     }
 
-    public activate(): void {
-        this.disposable = this.navigator.stateService.currentNode$.subscribe((node: Node) => {
+    protected _activate(): void {
+        this._disposable = this._navigator.stateService.currentNode$.subscribe((node: Node) => {
             _.map(node.edges, (edge: IEdge): void => {
                 if (edge.data.direction === EdgeDirection.NEXT) {
-                    this.navigator.graphService.node$(edge.to).first().subscribe((node2: Node) => {
+                    this._navigator.graphService.node$(edge.to).first().subscribe((node2: Node) => {
                         _.map(node2.edges, (edge2: IEdge): void => {
                             if (edge2.data.direction === EdgeDirection.NEXT) {
-                                this.navigator.graphService.node$(edge2.to).first().subscribe();
+                                this._navigator.graphService.node$(edge2.to).first().subscribe();
                             }
                         });
                     });
                 }
 
                 if (edge.data.direction === EdgeDirection.PREV) {
-                    this.navigator.graphService.node$(edge.to).first().subscribe((node2: Node) => {
+                    this._navigator.graphService.node$(edge.to).first().subscribe((node2: Node) => {
                         _.map(node2.edges, (edge2: IEdge): void => {
                             if (edge2.data.direction === EdgeDirection.PREV) {
-                                this.navigator.graphService.node$(edge2.to).first().subscribe();
+                                this._navigator.graphService.node$(edge2.to).first().subscribe();
                             }
                         });
                     });
@@ -42,8 +42,8 @@ export class SimpleCacheUI implements IUI {
         });
     }
 
-    public deactivate(): void {
-        this.disposable.dispose();
+    protected _deactivate(): void {
+        this._disposable.dispose();
     }
 }
 
