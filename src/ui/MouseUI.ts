@@ -23,10 +23,14 @@ export class MouseUI implements IUI {
                 let height: number = this._container.element.offsetHeight;
 
                 let size: number = Math.max(width, height);
+
+                let w: number = width / size;
+                let h: number = height / size;
+
                 let max: number = Math.PI / 2;
 
-                let phi: number = max * e.movementX / size;
-                let theta: number = -max * e.movementY / size;
+                let phi: number = w * max * e.movementX / size;
+                let theta: number = -h * max * e.movementY / size;
 
                 this._navigator.stateService.rotate({ phi: phi, theta: theta });
             });
