@@ -12,6 +12,7 @@ export class MouseService {
 
     private _mouseDragStart$: rx.Observable<MouseEvent>;
     private _mouseDrag$: rx.Observable<MouseEvent>;
+    private _mouseDragEnd$: rx.Observable<MouseEvent>;
 
     constructor(element: HTMLElement) {
         this._element = element;
@@ -35,6 +36,11 @@ export class MouseService {
                 return this._mouseMove$
                     .skip(1)
                     .takeUntil(dragStop$);
+            });
+
+        this._mouseDragEnd$ = this._mouseDragStart$
+            .selectMany<MouseEvent>((e: MouseEvent): rx.Observable<MouseEvent> => {
+                return dragStop$.first();
             });
     }
 
@@ -60,6 +66,10 @@ export class MouseService {
 
     public get mouseDrag$(): rx.Observable<MouseEvent> {
         return this._mouseDrag$;
+    }
+
+    public get mouseDragEnd$(): rx.Observable<MouseEvent> {
+        return this._mouseDragEnd$;
     }
 }
 
