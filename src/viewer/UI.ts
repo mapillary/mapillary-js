@@ -11,6 +11,7 @@ import {
     SimpleCacheUI,
     SimpleNavUI,
     SimplePlayUI,
+    MouseUI,
     DetectionsUI,
     SphereUI,
 } from "../UI";
@@ -43,6 +44,7 @@ export class UI {
         UI.add("simplenav", SimpleNavUI);
         UI.add("simpleplay", SimplePlayUI);
         UI.add("detections", DetectionsUI);
+        UI.add("mouse", MouseUI);
         UI.add("sphere", SphereUI);
     }
 
