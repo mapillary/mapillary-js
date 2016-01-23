@@ -28,7 +28,8 @@ export class MouseService {
         this._mouseDragStart$ = this._mouseDown$
             .selectMany<MouseEvent>((e: MouseEvent): rx.Observable<MouseEvent> => {
                 return this._mouseMove$
-                    .first();
+                    .takeUntil(dragStop$)
+                    .take(1);
             });
 
         this._mouseDrag$ = this._mouseDown$
