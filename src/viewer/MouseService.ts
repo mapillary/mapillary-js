@@ -10,6 +10,8 @@ export class MouseService {
     private _mouseLeave$: rx.Observable<MouseEvent>;
     private _mouseUp$: rx.Observable<MouseEvent>;
 
+    private _mouseDrag$: rx.Observable<MouseEvent>;
+
     constructor(element: HTMLElement) {
         this._element = element;
 
@@ -17,6 +19,14 @@ export class MouseService {
         this._mouseMove$ = rx.Observable.fromEvent<MouseEvent>(element, "mousemove");
         this._mouseLeave$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseleave");
         this._mouseUp$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseup");
+
+        let dragStop$: rx.Observable<MouseEvent> = rx.Observable
+            .merge<MouseEvent>([this._mouseLeave$, this._mouseUp$]);
+
+        this._mouseDrag$ = this._mouseDown$
+            .selectMany<MouseEvent>((e: MouseEvent): rx.Observable<MouseEvent> => {
+                return this._mouseMove$.takeUntil(dragStop$);
+            });
     }
 
     public get mouseDown$(): rx.Observable<MouseEvent> {
@@ -33,6 +43,10 @@ export class MouseService {
 
     public get mouseUp$(): rx.Observable<MouseEvent> {
         return this._mouseUp$;
+    }
+
+    public get mouseDrag$(): rx.Observable<MouseEvent> {
+        return this._mouseDrag$;
     }
 }
 
