@@ -39,10 +39,10 @@ export class DirectionsUI implements IUI {
         this.dirNames[EdgeDirection.STEP_RIGHT] = "Right";
 
         this.staticArrows = {};
-        this.staticArrows[EdgeDirection.STEP_FORWARD] = 0;
-        this.staticArrows[EdgeDirection.STEP_BACKWARD] = 180;
-        this.staticArrows[EdgeDirection.STEP_LEFT] = 3 * 180 / 2;
-        this.staticArrows[EdgeDirection.STEP_RIGHT] = 180 / 2;
+        this.staticArrows[EdgeDirection.STEP_FORWARD] = Math.PI / 2;
+        this.staticArrows[EdgeDirection.STEP_BACKWARD] = 3 * Math.PI / 2;
+        this.staticArrows[EdgeDirection.STEP_LEFT] = Math.PI;
+        this.staticArrows[EdgeDirection.STEP_RIGHT] = 0;
     }
 
     public activate(): void {
@@ -100,27 +100,26 @@ export class DirectionsUI implements IUI {
         return btns;
     }
 
-    private calcTranslation(angle: number, rotation: number = -90): Array<number> {
-        let radianAngle: number = (angle + rotation) * Math.PI / 180;
-        let x: number = Math.cos(radianAngle);
-        let y: number = Math.sin(radianAngle);
+    private calcTranslation(angle: number): Array<number> {
+        let x: number = Math.cos(angle);
+        let y: number = Math.sin(angle);
 
         return [x, y];
     }
 
     private createPanoVNode(azimuth: number, toKey: string): vd.VNode {
-        let azimuthDeg: number = 180 * azimuth / Math.PI;
+        let translation: number[] = this.calcTranslation(azimuth);
+        let translationX: number = this.cssOffset * translation[0];
+        let translationY: number = this.cssOffset * translation[1];
 
-        let translation: number[] = this.calcTranslation(azimuthDeg);
-        let translationWithOffsetX: number = this.cssOffset * translation[0];
-        let translationWithOffsetY: number = this.cssOffset * translation[1];
+        let azimuthDeg: number = 180 * azimuth / Math.PI;
 
         return vd.h(
             "div.DirectionsArrow.",
             {
                 onclick: (ev: Event): void => { this.navigator.moveToKey(toKey).first().subscribe(); },
                 style: {
-                    transform: `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${azimuthDeg}deg)`
+                    transform: `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`
                 },
             },
             []);
@@ -129,17 +128,19 @@ export class DirectionsUI implements IUI {
     private createVNode(direction: EdgeDirection, angle: number): vd.VNode {
         let translation: Array<number> = this.calcTranslation(angle);
         let translationWithOffsetX: number = this.cssOffset * translation[0];
-        let translationWithOffsetY: number = this.cssOffset * translation[1];
+        let translationWithOffsetY: number = -this.cssOffset * translation[1];
 
         let dropShadowOffset: number = 3; // px
-        let dropShadowTranslatedY: number = -dropShadowOffset * translation[1];
+        let dropShadowTranslatedY: number = dropShadowOffset * translation[1];
         let dropShadowTranslatedX: number = dropShadowOffset * translation[0];
         let filterValue: string = `drop-shadow(${dropShadowTranslatedX}px ${dropShadowTranslatedY}px 3px rgba(0,0,0,0.8))`;
+
+        let angleDeg: number = -180 * (angle - Math.PI / 2) / Math.PI;
 
         let style: any = {
             "-webkit-filter": filterValue,
             filter: filterValue,
-            transform: `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${angle}deg)`,
+            transform: `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${angleDeg}deg)`,
         };
 
         return vd.h(`div.DirectionsArrow.`,
