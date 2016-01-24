@@ -56,18 +56,7 @@ export class DirectionsUI implements IUI {
 
                 this.currentKey = node.key;
 
-                let btns: vd.VNode[] = [];
-
-                for (let edge of node.edges) {
-
-                    let direction: EdgeDirection = edge.data.direction;
-                    let name: string = this.dirNames[direction];
-
-                    if (name == null) { continue; }
-
-                    let angle: number = this.staticArrows[direction];
-                    btns.push(this.createVNode(direction, angle));
-                }
+                let btns: vd.VNode[] = this.createStaticStepArrows(node);
 
                 return {name: "directions", vnode: this.getVNodeContainer(btns)};
             })
@@ -77,6 +66,23 @@ export class DirectionsUI implements IUI {
 
     public deactivate(): void {
         return;
+    }
+
+    private createStaticStepArrows(node: Node): Array<vd.VNode> {
+        let btns: vd.VNode[] = [];
+
+        for (let edge of node.edges) {
+
+            let direction: EdgeDirection = edge.data.direction;
+            let name: string = this.dirNames[direction];
+
+            if (name == null) { continue; }
+
+            let angle: number = this.staticArrows[direction];
+            btns.push(this.createVNode(direction, angle));
+        }
+
+        return btns;
     }
 
     private calcTranslation(angle: number): Array<number> {
