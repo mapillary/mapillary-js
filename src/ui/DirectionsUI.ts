@@ -57,6 +57,7 @@ export class DirectionsUI implements IUI {
                 this.currentKey = node.key;
 
                 let btns: vd.VNode[] = this.createStaticStepArrows(node);
+                btns = btns.concat(this.createPanoArrows(node));
 
                 return {name: "directions", vnode: this.getVNodeContainer(btns)};
             })
@@ -69,7 +70,7 @@ export class DirectionsUI implements IUI {
     }
 
     private createStaticStepArrows(node: Node): Array<vd.VNode> {
-        let btns: vd.VNode[] = [];
+        let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
 
@@ -85,12 +86,44 @@ export class DirectionsUI implements IUI {
         return btns;
     }
 
-    private calcTranslation(angle: number): Array<number> {
-        let radianAngle: number = (angle - 90) * Math.PI / 180;
+    private createPanoArrows(node: Node): Array<vd.VNode> {
+        let btns: Array<vd.VNode> = [];
+
+        for (let edge of node.edges) {
+            if (edge.data.direction !== EdgeDirection.PANO) {
+                continue;
+            }
+
+            btns.push(this.createPanoVNode(edge.data.worldMotionAzimuth, edge.to));
+        }
+
+        return btns;
+    }
+
+    private calcTranslation(angle: number, rotation: number = -90): Array<number> {
+        let radianAngle: number = (angle + rotation) * Math.PI / 180;
         let x: number = Math.cos(radianAngle);
         let y: number = Math.sin(radianAngle);
 
         return [x, y];
+    }
+
+    private createPanoVNode(azimuth: number, toKey: string): vd.VNode {
+        let azimuthDeg: number = 180 * azimuth / Math.PI;
+
+        let translation: number[] = this.calcTranslation(azimuthDeg);
+        let translationWithOffsetX: number = this.cssOffset * translation[0];
+        let translationWithOffsetY: number = this.cssOffset * translation[1];
+
+        return vd.h(
+            "div.DirectionsArrow.",
+            {
+                onclick: (ev: Event): void => { this.navigator.moveToKey(toKey).first().subscribe(); },
+                style: {
+                    transform: `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${azimuthDeg}deg)`
+                },
+            },
+            []);
     }
 
     private createVNode(direction: EdgeDirection, angle: number): vd.VNode {
