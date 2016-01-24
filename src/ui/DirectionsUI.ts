@@ -6,6 +6,7 @@ import * as vd from "virtual-dom";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
+import {IFrame} from "../State";
 
 import {IUI} from "../UI";
 import {IVNodeHash} from "../Render";
@@ -17,12 +18,16 @@ export class DirectionsUI implements IUI {
     private dirNames: {[dir: number]: string};
     private cssOffset: number;
 
+    private currentKey: string;
+
     // { direction: angle }
     private staticArrows: {[dir: number]: number};
 
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
+
+        this.currentKey = null;
 
         // cssOffset is a magic number in px
         this.cssOffset = 62;
@@ -38,12 +43,18 @@ export class DirectionsUI implements IUI {
         this.staticArrows[EdgeDirection.STEP_BACKWARD] = 180;
         this.staticArrows[EdgeDirection.STEP_LEFT] = 3 * 180 / 2;
         this.staticArrows[EdgeDirection.STEP_RIGHT] = 180 / 2;
-
     }
 
     public activate(): void {
-        this.subscription = this.navigator.stateService
-            .currentNode$.map((node: Node): IVNodeHash => {
+        this.subscription = this.navigator.stateService.currentState$
+            .map((frame: IFrame): IVNodeHash => {
+                let node: Node = frame.state.currentNode;
+
+                if (node == null || node.key === this.currentKey) {
+                    return null;
+                }
+
+                this.currentKey = node.key;
 
                 let btns: vd.VNode[] = [];
 
@@ -59,8 +70,9 @@ export class DirectionsUI implements IUI {
                 }
 
                 return {name: "directions", vnode: this.getVNodeContainer(btns)};
-
-            }).subscribe(this.container.domRenderer.render$);
+            })
+            .filter((hash: IVNodeHash): boolean => { return hash != null; })
+            .subscribe(this.container.domRenderer.render$);
     }
 
     public deactivate(): void {
