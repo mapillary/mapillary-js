@@ -27,7 +27,7 @@ export class DirectionsUI implements IUI {
     private spatial: Spatial;
 
     private subscription: rx.IDisposable;
-    private dirNames: {[dir: number]: string};
+
     private cssOffset: number;
     private dropShadowOffset: number;
 
@@ -35,8 +35,7 @@ export class DirectionsUI implements IUI {
     private currentDirection: THREE.Vector3;
     private directionEpsilon: number;
 
-    // { direction: angle }
-    private staticArrows: {[dir: number]: number};
+    private steps: Array<EdgeDirection>;
 
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
@@ -52,17 +51,12 @@ export class DirectionsUI implements IUI {
         this.cssOffset = 62;
         this.dropShadowOffset = 3;
 
-        this.dirNames = {};
-        this.dirNames[EdgeDirection.STEP_FORWARD] = "Forward";
-        this.dirNames[EdgeDirection.STEP_BACKWARD] = "Backward";
-        this.dirNames[EdgeDirection.STEP_LEFT] = "Left";
-        this.dirNames[EdgeDirection.STEP_RIGHT] = "Right";
-
-        this.staticArrows = {};
-        this.staticArrows[EdgeDirection.STEP_FORWARD] = 0;
-        this.staticArrows[EdgeDirection.STEP_LEFT] = Math.PI / 2;
-        this.staticArrows[EdgeDirection.STEP_BACKWARD] = Math.PI;
-        this.staticArrows[EdgeDirection.STEP_RIGHT] = 3 * Math.PI / 2;
+        this.steps = [
+            EdgeDirection.STEP_FORWARD,
+            EdgeDirection.STEP_BACKWARD,
+            EdgeDirection.STEP_LEFT,
+            EdgeDirection.STEP_RIGHT,
+        ];
     }
 
     public activate(): void {
@@ -82,10 +76,14 @@ export class DirectionsUI implements IUI {
                 this.currentKey = node.key;
                 this.currentDirection.copy(direction);
 
-                let phi: number = node.pano ? this.rotationFromCamera(frame.state.camera).phi : 0;
+                let phi: number = this.rotationFromCamera(frame.state.camera).phi;
 
-                let btns: vd.VNode[] = this.createStaticStepArrows(node, phi);
-                btns = btns.concat(this.createPanoArrows(node, phi));
+                let btns: vd.VNode[] = [];
+                if (node.pano) {
+                    btns = btns.concat(this.createPanoArrows(node, phi));
+                } else {
+                    btns = btns.concat(this.createStepArrows(node, phi));
+                }
 
                 return {name: "directions", vnode: this.getVNodeContainer(btns, phi)};
             })
@@ -97,18 +95,16 @@ export class DirectionsUI implements IUI {
         return;
     }
 
-    private createStaticStepArrows(node: Node, phi: number): Array<vd.VNode> {
+    private createStepArrows(node: Node, phi: number): Array<vd.VNode> {
         let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
-
             let direction: EdgeDirection = edge.data.direction;
-            let name: string = this.dirNames[direction];
+            if (this.steps.indexOf(direction) === -1) {
+                continue;
+            }
 
-            if (name == null) { continue; }
-
-            let angle: number = this.staticArrows[direction];
-            btns.push(this.createVNodeByDirection(angle, phi, direction));
+            btns.push(this.createVNodeByDirection(edge.data.worldMotionAzimuth, phi, direction));
         }
 
         return btns;
