@@ -46,7 +46,7 @@ export class DirectionsUI implements IUI {
 
         this.currentKey = null;
         this.currentDirection = new THREE.Vector3();
-        this.directionEpsilon = 0.025;
+        this.directionEpsilon = 0.015;
 
         // cssOffset is a magic number in px
         this.cssOffset = 62;
@@ -141,16 +141,13 @@ export class DirectionsUI implements IUI {
     }
 
     private calcTranslation(angle: number): Array<number> {
-        let x: number = Math.cos(angle);
-        let y: number = Math.sin(angle);
-
-        return [x, y];
+        return [Math.cos(angle), Math.sin(angle)];
     }
 
     private calcShadowTranslation(azimuth: number, phi: number): Array<number> {
         let angle: number = this.spatial.wrapAngle(azimuth - phi);
 
-        return [Math.cos(angle), Math.sin(angle)];
+        return this.calcTranslation(angle);
     }
 
     private createVNodeByKey(azimuth: number, phi: number, key: string): vd.VNode {
@@ -178,7 +175,7 @@ export class DirectionsUI implements IUI {
         let shadowTranslationX: number = -this.dropShadowOffset * shadowTranslation[1];
         let shadowTranslationY: number = this.dropShadowOffset * shadowTranslation[0];
 
-        let azimuthDeg: number = -180 * azimuth / Math.PI;
+        let azimuthDeg: number = -this.spatial.radToDeg(azimuth);
 
         let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 3px rgba(0,0,0,0.8))`;
         let transform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
