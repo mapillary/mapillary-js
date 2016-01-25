@@ -50,10 +50,10 @@ export class DirectionsUI implements IUI {
         this.dirNames[EdgeDirection.STEP_RIGHT] = "Right";
 
         this.staticArrows = {};
-        this.staticArrows[EdgeDirection.STEP_FORWARD] = Math.PI / 2;
-        this.staticArrows[EdgeDirection.STEP_BACKWARD] = 3 * Math.PI / 2;
-        this.staticArrows[EdgeDirection.STEP_LEFT] = Math.PI;
-        this.staticArrows[EdgeDirection.STEP_RIGHT] = 0;
+        this.staticArrows[EdgeDirection.STEP_FORWARD] = 0;
+        this.staticArrows[EdgeDirection.STEP_LEFT] = Math.PI / 2;
+        this.staticArrows[EdgeDirection.STEP_BACKWARD] = Math.PI;
+        this.staticArrows[EdgeDirection.STEP_RIGHT] = 3 * Math.PI / 2;
     }
 
     public activate(): void {
@@ -154,15 +154,15 @@ export class DirectionsUI implements IUI {
 
     private createVNode(direction: EdgeDirection, angle: number): vd.VNode {
         let translation: Array<number> = this.calcTranslation(angle);
-        let translationWithOffsetX: number = this.cssOffset * translation[0];
-        let translationWithOffsetY: number = -this.cssOffset * translation[1];
+        let translationWithOffsetX: number = -this.cssOffset * translation[1];
+        let translationWithOffsetY: number = -this.cssOffset * translation[0];
 
         let dropShadowOffset: number = 3; // px
-        let dropShadowTranslatedY: number = dropShadowOffset * translation[1];
-        let dropShadowTranslatedX: number = dropShadowOffset * translation[0];
+        let dropShadowTranslatedY: number = dropShadowOffset * translation[0];
+        let dropShadowTranslatedX: number = -dropShadowOffset * translation[1];
         let filterValue: string = `drop-shadow(${dropShadowTranslatedX}px ${dropShadowTranslatedY}px 3px rgba(0,0,0,0.8))`;
 
-        let angleDeg: number = -180 * (angle - Math.PI / 2) / Math.PI;
+        let angleDeg: number = -180 * angle / Math.PI;
 
         let style: any = {
             "-webkit-filter": filterValue,
