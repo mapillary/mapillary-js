@@ -95,7 +95,7 @@ export class DirectionsUI implements IUI {
             if (name == null) { continue; }
 
             let angle: number = this.staticArrows[direction];
-            btns.push(this.createVNode(direction, angle, phi));
+            btns.push(this.createVNodeByDirection(angle, phi, direction));
         }
 
         return btns;
@@ -109,7 +109,7 @@ export class DirectionsUI implements IUI {
                 continue;
             }
 
-            btns.push(this.createPanoVNode(edge.data.worldMotionAzimuth, phi, edge.to));
+            btns.push(this.createVNodeByKey(edge.data.worldMotionAzimuth, phi, edge.to));
         }
 
         return btns;
@@ -140,8 +140,21 @@ export class DirectionsUI implements IUI {
         return [Math.cos(angle), Math.sin(angle)];
     }
 
+    private createVNodeByKey(azimuth: number, phi: number, key: string): vd.VNode {
+        let onClick: (e: Event) => void =
+            (e: Event): void => { this.navigator.moveToKey(key).first().subscribe(); };
 
-    private createPanoVNode(azimuth: number, phi: number, toKey: string): vd.VNode {
+        return this.createVNode(azimuth, phi, onClick);
+    }
+
+    private createVNodeByDirection(azimuth: number, phi: number, direction: EdgeDirection): vd.VNode {
+        let onClick: (e: Event) => void =
+            (e: Event): void => { this.navigator.moveDir(direction).first().subscribe(); };
+
+        return this.createVNode(azimuth, phi, onClick);
+    }
+
+    private createVNode(azimuth: number, phi: number, onClick: (e: Event) => void): vd.VNode {
         let translation: Array<number> = this.calcTranslation(azimuth);
 
         // rotate 90 degrees clockwise and flip over X-axis
@@ -160,7 +173,7 @@ export class DirectionsUI implements IUI {
         return vd.h(
             "div.DirectionsArrow.",
             {
-                onclick: (ev: Event): void => { this.navigator.moveToKey(toKey).first().subscribe(); },
+                onclick: onClick,
                 style: {
                     "-webkit-filter": filter,
                     filter: filter,
@@ -168,34 +181,6 @@ export class DirectionsUI implements IUI {
                 },
             },
             []);
-    }
-
-    private createVNode(direction: EdgeDirection, angle: number, phi: number): vd.VNode {
-        let translation: Array<number> = this.calcTranslation(angle);
-
-        // rotate 90 degrees clockwise and flip over X-axis
-        let translationWithOffsetX: number = -this.cssOffset * translation[1];
-        let translationWithOffsetY: number = -this.cssOffset * translation[0];
-
-        let shadowTranslation: Array<number> = this.calcShadowTranslation(angle, phi);
-        let shadowTranslationX: number = -this.dropShadowOffset * shadowTranslation[1];
-        let shadowTranslationY: number = this.dropShadowOffset * shadowTranslation[0];
-
-        let angleDeg: number = -180 * angle / Math.PI;
-
-        let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 3px rgba(0,0,0,0.8))`;
-        let transform: string = `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${angleDeg}deg)`;
-
-        return vd.h(`div.DirectionsArrow.`,
-                    {
-                        onclick: (ev: Event): void => { this.navigator.moveDir(direction).first().subscribe(); },
-                        style: {
-                            "-webkit-filter": filter,
-                            filter: filter,
-                            transform: transform,
-                        },
-                    },
-                    []);
     }
 
     private getVNodeContainer(children: any, rotateZ: number): any {
