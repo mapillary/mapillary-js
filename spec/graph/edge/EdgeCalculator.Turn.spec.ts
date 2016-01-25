@@ -41,6 +41,14 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge.distance = settings.turnMaxDistance / 2;
     });
 
+    it("should not have any edges because potential is pano", () => {
+        potentialEdge.fullPano = true;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(0);
+    });
+
     it("should have a turn left edge", () => {
         potentialEdge.directionChange = Math.PI / 2;
 
