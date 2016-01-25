@@ -36,6 +36,8 @@ export class DirectionsUI implements IUI {
     private directionEpsilon: number;
 
     private steps: Array<EdgeDirection>;
+    private turns: Array<EdgeDirection>;
+    private turnNames: {[dir: number]: string};
 
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
@@ -57,6 +59,15 @@ export class DirectionsUI implements IUI {
             EdgeDirection.STEP_LEFT,
             EdgeDirection.STEP_RIGHT,
         ];
+
+        this.turns = [
+            EdgeDirection.TURN_LEFT,
+            EdgeDirection.TURN_RIGHT,
+        ];
+
+        this.turnNames = {};
+        this.turnNames[EdgeDirection.TURN_LEFT] = "TurnLeft";
+        this.turnNames[EdgeDirection.TURN_RIGHT] = "TurnRight";
     }
 
     public activate(): void {
@@ -79,13 +90,15 @@ export class DirectionsUI implements IUI {
                 let phi: number = this.rotationFromCamera(frame.state.camera).phi;
 
                 let btns: vd.VNode[] = [];
+                let turns: vd.VNode[] = [];
                 if (node.pano) {
                     btns = btns.concat(this.createPanoArrows(node, phi));
                 } else {
                     btns = btns.concat(this.createStepArrows(node, phi));
+                    turns = turns.concat(this.createTurnArrows(node));
                 }
 
-                return {name: "directions", vnode: this.getVNodeContainer(btns, phi)};
+                return {name: "directions", vnode: this.getVNodeContainer(btns, turns, phi)};
             })
             .filter((hash: IVNodeHash): boolean => { return hash != null; })
             .subscribe(this.container.domRenderer.render$);
@@ -124,6 +137,23 @@ export class DirectionsUI implements IUI {
         return btns;
     }
 
+    private createTurnArrows(node: Node): Array<vd.VNode> {
+        let turns: Array<vd.VNode> = [];
+
+        for (let edge of node.edges) {
+            let direction: EdgeDirection = edge.data.direction;
+            let name: string = this.turnNames[direction];
+
+            if (this.turns.indexOf(direction) === -1) {
+                continue;
+            }
+
+            turns.push(this.createVNodeByTurn(name, direction));
+        }
+
+        return turns;
+    }
+
     private rotationFromCamera(camera: Camera): IRotation {
         let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
 
@@ -160,6 +190,15 @@ export class DirectionsUI implements IUI {
         return this.createVNode(azimuth, phi, onClick);
     }
 
+    private createVNodeByTurn(name: string, direction: EdgeDirection): vd.VNode {
+        let onClick: (e: Event) => void =
+            (e: Event): void => { this.navigator.moveDir(direction).first().subscribe(); };
+
+        return vd.h(`div.${name}`,
+                    {onclick: onClick},
+                    []);
+    }
+
     private createVNode(azimuth: number, phi: number, onClick: (e: Event) => void): vd.VNode {
         let translation: Array<number> = this.calcTranslation(azimuth);
 
@@ -189,7 +228,7 @@ export class DirectionsUI implements IUI {
             []);
     }
 
-    private getVNodeContainer(children: any, rotateZ: number): any {
+    private getVNodeContainer(buttons: any, turns: any, rotateZ: number): any {
         let rotateZDeg: number = 180 * rotateZ / Math.PI;
 
         // todo: change the rotateX value for panoramas
@@ -197,7 +236,10 @@ export class DirectionsUI implements IUI {
             transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZDeg}deg)`
         };
 
-        return vd.h("div.Directions", {style: style}, children);
+        return vd.h("div.DirectionsWrapper", {},
+                    [turns,
+                     vd.h("div.Directions", {style: style}, buttons),
+                    ]);
     }
 }
 
