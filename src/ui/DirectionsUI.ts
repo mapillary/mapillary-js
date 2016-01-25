@@ -1,6 +1,9 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../typings/threejs/three.d.ts" />
+/// <reference path="../../typings/virtual-dom/virtual-dom.d.ts" />
 
 import * as rx from "rx";
+import * as THREE from "three";
 import * as vd from "virtual-dom";
 
 import {EdgeDirection} from "../Edge";
@@ -29,6 +32,8 @@ export class DirectionsUI implements IUI {
     private dropShadowOffset: number;
 
     private currentKey: string;
+    private currentDirection: THREE.Vector3;
+    private directionEpsilon: number;
 
     // { direction: angle }
     private staticArrows: {[dir: number]: number};
@@ -40,6 +45,8 @@ export class DirectionsUI implements IUI {
         this.spatial = new Spatial();
 
         this.currentKey = null;
+        this.currentDirection = new THREE.Vector3();
+        this.directionEpsilon = 0.025;
 
         // cssOffset is a magic number in px
         this.cssOffset = 62;
@@ -63,11 +70,17 @@ export class DirectionsUI implements IUI {
             .map((frame: IFrame): IVNodeHash => {
                 let node: Node = frame.state.currentNode;
 
-                if (node == null || node.key === this.currentKey) {
+                let camera: Camera = frame.state.camera;
+                let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+
+                if (node == null ||
+                    (node.key === this.currentKey &&
+                    this.currentDirection.distanceToSquared(direction) < this.directionEpsilon)) {
                     return null;
                 }
 
                 this.currentKey = node.key;
+                this.currentDirection.copy(direction);
 
                 let phi: number = node.pano ? this.rotationFromCamera(frame.state.camera).phi : 0;
 
