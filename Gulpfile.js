@@ -206,7 +206,6 @@ gulp.task('ts', ['ts-lint'], function () {
     .plugin(tsify, config.ts)
     .transform('brfs')
     .transform('envify')
-    .transform(config.uglifyify, 'uglifyify')
     .bundle()
     .on('error', function (error) {
       console.error(error.toString())
