@@ -26,6 +26,7 @@ export class DirectionsUI implements IUI {
     private subscription: rx.IDisposable;
     private dirNames: {[dir: number]: string};
     private cssOffset: number;
+    private dropShadowOffset: number;
 
     private currentKey: string;
 
@@ -42,6 +43,7 @@ export class DirectionsUI implements IUI {
 
         // cssOffset is a magic number in px
         this.cssOffset = 62;
+        this.dropShadowOffset = 3;
 
         this.dirNames = {};
         this.dirNames[EdgeDirection.STEP_FORWARD] = "Forward";
@@ -67,10 +69,10 @@ export class DirectionsUI implements IUI {
 
                 this.currentKey = node.key;
 
-                let btns: vd.VNode[] = this.createStaticStepArrows(node);
-                btns = btns.concat(this.createPanoArrows(node));
-
                 let phi: number = node.pano ? this.rotationFromCamera(frame.state.camera).phi : 0;
+
+                let btns: vd.VNode[] = this.createStaticStepArrows(node);
+                btns = btns.concat(this.createPanoArrows(node, phi));
 
                 return {name: "directions", vnode: this.getVNodeContainer(btns, phi)};
             })
@@ -99,7 +101,7 @@ export class DirectionsUI implements IUI {
         return btns;
     }
 
-    private createPanoArrows(node: Node): Array<vd.VNode> {
+    private createPanoArrows(node: Node, phi: number): Array<vd.VNode> {
         let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
@@ -107,7 +109,7 @@ export class DirectionsUI implements IUI {
                 continue;
             }
 
-            btns.push(this.createPanoVNode(edge.data.worldMotionAzimuth, edge.to));
+            btns.push(this.createPanoVNode(edge.data.worldMotionAzimuth, phi, edge.to));
         }
 
         return btns;
@@ -132,21 +134,37 @@ export class DirectionsUI implements IUI {
         return [x, y];
     }
 
-    private createPanoVNode(azimuth: number, toKey: string): vd.VNode {
-        let translation: number[] = this.calcTranslation(azimuth);
+    private calcShadowTranslation(azimuth: number, phi: number): Array<number> {
+        let angle: number = this.spatial.wrapAngle(azimuth - phi);
+
+        return [Math.cos(angle), Math.sin(angle)];
+    }
+
+
+    private createPanoVNode(azimuth: number, phi: number, toKey: string): vd.VNode {
+        let translation: Array<number> = this.calcTranslation(azimuth);
 
         // rotate 90 degrees clockwise and flip over X-axis
         let translationX: number = -this.cssOffset * translation[1];
         let translationY: number = -this.cssOffset * translation[0];
 
+        let shadowTranslation: Array<number> = this.calcShadowTranslation(azimuth, phi);
+        let shadowTranslationX: number = -this.dropShadowOffset * shadowTranslation[1];
+        let shadowTranslationY: number = this.dropShadowOffset * shadowTranslation[0];
+
         let azimuthDeg: number = -180 * azimuth / Math.PI;
+
+        let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 3px rgba(0,0,0,0.8))`;
+        let transform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
 
         return vd.h(
             "div.DirectionsArrow.",
             {
                 onclick: (ev: Event): void => { this.navigator.moveToKey(toKey).first().subscribe(); },
                 style: {
-                    transform: `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`
+                    "-webkit-filter": filter,
+                    filter: filter,
+                    transform: transform,
                 },
             },
             []);
@@ -154,26 +172,25 @@ export class DirectionsUI implements IUI {
 
     private createVNode(direction: EdgeDirection, angle: number): vd.VNode {
         let translation: Array<number> = this.calcTranslation(angle);
+
+        // rotate 90 degrees clockwise and flip over X-axis
         let translationWithOffsetX: number = -this.cssOffset * translation[1];
         let translationWithOffsetY: number = -this.cssOffset * translation[0];
 
-        let dropShadowOffset: number = 3; // px
-        let dropShadowTranslatedY: number = dropShadowOffset * translation[0];
-        let dropShadowTranslatedX: number = -dropShadowOffset * translation[1];
-        let filterValue: string = `drop-shadow(${dropShadowTranslatedX}px ${dropShadowTranslatedY}px 3px rgba(0,0,0,0.8))`;
+        let dropShadowTranslationX: number = -this.dropShadowOffset * translation[1];
+        let dropShadowTranslationY: number = this.dropShadowOffset * translation[0];
+        let filter: string = `drop-shadow(${dropShadowTranslationX}px ${dropShadowTranslationY}px 3px rgba(0,0,0,0.8))`;
 
         let angleDeg: number = -180 * angle / Math.PI;
-
-        let style: any = {
-            "-webkit-filter": filterValue,
-            filter: filterValue,
-            transform: `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${angleDeg}deg)`,
-        };
 
         return vd.h(`div.DirectionsArrow.`,
                     {
                         onclick: (ev: Event): void => { this.navigator.moveDir(direction).first().subscribe(); },
-                        style: style,
+                        style: {
+                            "-webkit-filter": filter,
+                            filter: filter,
+                            transform: `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${angleDeg}deg)`,
+                        },
                     },
                     []);
     }
