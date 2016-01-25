@@ -7,13 +7,22 @@ import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {IFrame} from "../State";
+import {Spatial, Camera} from "../Geo";
 
 import {IUI} from "../UI";
 import {IVNodeHash} from "../Render";
 
+interface IRotation {
+    phi: number;
+    theta: number;
+}
+
 export class DirectionsUI implements IUI {
     private navigator: Navigator;
     private container: Container;
+
+    private spatial: Spatial;
+
     private subscription: rx.IDisposable;
     private dirNames: {[dir: number]: string};
     private cssOffset: number;
@@ -26,6 +35,8 @@ export class DirectionsUI implements IUI {
     constructor(container: Container, navigator: Navigator) {
         this.container = container;
         this.navigator = navigator;
+
+        this.spatial = new Spatial();
 
         this.currentKey = null;
 
@@ -59,7 +70,9 @@ export class DirectionsUI implements IUI {
                 let btns: vd.VNode[] = this.createStaticStepArrows(node);
                 btns = btns.concat(this.createPanoArrows(node));
 
-                return {name: "directions", vnode: this.getVNodeContainer(btns)};
+                let phi: number = node.pano ? this.rotationFromCamera(frame.state.camera).phi : 0;
+
+                return {name: "directions", vnode: this.getVNodeContainer(btns, phi)};
             })
             .filter((hash: IVNodeHash): boolean => { return hash != null; })
             .subscribe(this.container.domRenderer.render$);
@@ -100,6 +113,18 @@ export class DirectionsUI implements IUI {
         return btns;
     }
 
+    private rotationFromCamera(camera: Camera): IRotation {
+        let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+
+        let upProjection: number = direction.clone().dot(camera.up);
+        let planeProjection: THREE.Vector3 = direction.clone().sub(camera.up.clone().multiplyScalar(upProjection));
+
+        let phi: number = Math.atan2(planeProjection.y, planeProjection.x);
+        let theta: number = Math.PI / 2 - this.spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
+
+        return { phi: phi, theta: theta };
+    }
+
     private calcTranslation(angle: number): Array<number> {
         let x: number = Math.cos(angle);
         let y: number = Math.sin(angle);
@@ -109,10 +134,12 @@ export class DirectionsUI implements IUI {
 
     private createPanoVNode(azimuth: number, toKey: string): vd.VNode {
         let translation: number[] = this.calcTranslation(azimuth);
-        let translationX: number = this.cssOffset * translation[0];
-        let translationY: number = this.cssOffset * translation[1];
 
-        let azimuthDeg: number = 180 * azimuth / Math.PI;
+        // rotate 90 degrees clockwise and flip over X-axis
+        let translationX: number = -this.cssOffset * translation[1];
+        let translationY: number = -this.cssOffset * translation[0];
+
+        let azimuthDeg: number = -180 * azimuth / Math.PI;
 
         return vd.h(
             "div.DirectionsArrow.",
@@ -151,10 +178,12 @@ export class DirectionsUI implements IUI {
                     []);
     }
 
-    private getVNodeContainer(children: any): any {
+    private getVNodeContainer(children: any, rotateZ: number): any {
+        let rotateZDeg: number = 180 * rotateZ / Math.PI;
+
         // todo: change the rotateX value for panoramas
         let style: any = {
-            transform: "perspective(375px) rotateX(65deg) rotateZ(0deg)"
+            transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZDeg}deg)`
         };
 
         return vd.h("div.Directions", {style: style}, children);
