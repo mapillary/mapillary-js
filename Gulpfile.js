@@ -14,6 +14,7 @@ var shell = require('gulp-shell')
 var ts = require('gulp-typescript')
 var tsify = require('tsify')
 var tslint = require('gulp-tslint')
+var util = require('gulp-util')
 var watchify = require('watchify')
 var argv = require('yargs').argv
 
@@ -201,9 +202,17 @@ gulp.task('prepublish', ['ts-lint', 'css'], function () {
 
 // TODO: Refine this task
 gulp.task('ts', ['ts-lint'], function () {
-  return browserify(config.browserify)
-    .plugin(watchify)
-    .plugin(tsify, config.ts)
+  var bundler = browserify(config.browserify)
+
+  bundler.plugin(tsify, config.ts)
+
+  if (util.env.env === 'TEST') {
+    // skip watchify in test environment
+  } else {
+    bundler.plugin(watchify)
+  }
+
+  bundler
     .transform('brfs')
     .transform('envify')
     .bundle()
@@ -215,7 +224,7 @@ gulp.task('ts', ['ts-lint'], function () {
     .pipe(gulp.dest('./build'))
 })
 
-gulp.task('dev:ts', ['ts --env=DEV'], function () {
+gulp.task('dev:ts', ['ts'], function () {
   browserSync.reload()
 })
 

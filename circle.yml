@@ -19,5 +19,5 @@ dependencies:
 test:
   override:
     - gulp tsd
-    - gulp ts
+    - gulp ts --env=TEST
     - gulp test

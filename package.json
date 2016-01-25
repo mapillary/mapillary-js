@@ -41,6 +41,7 @@
     "gulp-tslint": "^4.2.2",
     "gulp-typedoc": "1.2.1",
     "gulp-typescript": "2.9.2",
+    "gulp-util": "3.0.7",
     "jasmine-core": "2.3.4",
     "karma": "^0.13.19",
     "karma-browserify": "4.4.1",
