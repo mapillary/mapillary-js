@@ -564,3 +564,69 @@ describe("Spatial.angleToPlane", () => {
         expect(theta).toBeCloseTo(0, epsilon);
     });
 });
+
+describe("Spatial.degToRad", () => {
+    let spatial: Spatial;
+    let epsilon: number = 1e-8;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should be 0 radiansa when 0 degress", () => {
+        let deg: number = 0;
+
+        let rad: number = spatial.degToRad(deg);
+
+        expect(rad).toBeCloseTo(0, epsilon);
+    });
+
+    it("should be PI / 2 radians when 90 degress", () => {
+        let deg: number = 90;
+
+        let rad: number = spatial.degToRad(deg);
+
+        expect(rad).toBeCloseTo(Math.PI / 2, epsilon);
+    });
+
+    it("should be minus PI / 2 radians when minus 90 degress", () => {
+        let deg: number = -90;
+
+        let rad: number = spatial.degToRad(deg);
+
+        expect(rad).toBeCloseTo(-Math.PI / 2, epsilon);
+    });
+});
+
+describe("Spatial.radToDeg", () => {
+    let spatial: Spatial;
+    let epsilon: number = 1e-8;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should be 0 degrees when 0 radians", () => {
+        let rad: number = 0;
+
+        let deg: number = spatial.radToDeg(rad);
+
+        expect(deg).toBeCloseTo(0, epsilon);
+    });
+
+    it("should be 90 degrees when PI / 2 radians", () => {
+        let rad: number = Math.PI / 2;
+
+        let deg: number = spatial.radToDeg(rad);
+
+        expect(deg).toBeCloseTo(90, epsilon);
+    });
+
+    it("should be minus 90 degrees when minus PI / 2 radians", () => {
+        let rad: number = -Math.PI / 2;
+
+        let deg: number = spatial.radToDeg(rad);
+
+        expect(deg).toBeCloseTo(-90, epsilon);
+    });
+});
