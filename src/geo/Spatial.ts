@@ -11,6 +11,24 @@ export class Spatial {
     private epsilon: number = 1e-9;
 
     /**
+     * Converts degrees to radians
+     *
+     * @param {number} deg Degrees
+     */
+    public degToRad(deg: number): number {
+        return Math.PI * deg / 180;
+    }
+
+    /**
+     * Converts radians to degrees
+     *
+     * @param {number} rad Radians
+     */
+    public radToDeg(rad: number): number {
+        return 180 * rad / Math.PI;
+    }
+
+    /**
      * Creates a rotation matrix from an angle-axis vector
      *
      * @param {Array<number>} angleAxis Angle-axis representation of a rotation

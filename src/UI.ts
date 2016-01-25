@@ -10,6 +10,7 @@ export {SimpleUI} from "./ui/SimpleUI"
 export {DetectionsUI} from "./ui/DetectionsUI"
 export {SimpleCacheUI} from "./ui/SimpleCacheUI"
 export {SimpleNavUI} from "./ui/SimpleNavUI"
+export {MouseUI} from "./ui/MouseUI"
 export {SphereUI} from "./ui/SphereUI";
 export {GLUI} from "./ui/GLUI/GLUI"
 export {ImagePlaneScene} from "./ui/GLUI/ImagePlaneScene"

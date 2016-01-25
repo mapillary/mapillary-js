@@ -7,6 +7,7 @@ import {
     GLUI,
     KeyboardUI,
     LoadingUI,
+    MouseUI,
     NoneUI,
     SimpleCacheUI,
     SimpleNavUI,
@@ -36,6 +37,7 @@ export class UIService {
         UIService.register(GLUI);
         UIService.register(KeyboardUI);
         UIService.register(LoadingUI);
+        UIService.register(MouseUI);
         UIService.register(NoneUI);
         UIService.register(SimpleCacheUI);
         UIService.register(SimpleNavUI);

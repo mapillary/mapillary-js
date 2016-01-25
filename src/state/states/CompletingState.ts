@@ -84,7 +84,8 @@ export class CompletingState implements IState {
     private rotationDelta: RotationDelta;
     private requestedRotationDelta: RotationDelta;
     private rotationAcceleration: number;
-    private rotationAlpha: number;
+    private rotationIncreaseAlpha: number;
+    private rotationDecreaseAlpha: number;
     private rotationThreshold: number;
 
     constructor (trajectory: Node[]) {
@@ -114,8 +115,9 @@ export class CompletingState implements IState {
 
         this.rotationDelta = new RotationDelta(0, 0);
         this.requestedRotationDelta = null;
-        this.rotationAcceleration = 0.9;
-        this.rotationAlpha = 0.25;
+        this.rotationAcceleration = 0.86;
+        this.rotationIncreaseAlpha = 0.25;
+        this.rotationDecreaseAlpha = 0.9;
         this.rotationThreshold = 0.001;
     }
 
@@ -205,6 +207,15 @@ export class CompletingState implements IState {
         this.previousCamera = this.currentIndex > 0 ?
             this.trajectoryCameras[this.currentIndex - 1] :
             this.currentCamera;
+
+        if (this.previousNode != null) {
+            let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
+            this.previousCamera.lookat.copy(lookat.clone().add(this.previousCamera.position));
+
+            if (this.currentNode.pano) {
+                this.currentCamera.lookat.copy(lookat.clone().add(this.currentCamera.position));
+            }
+        }
     }
 
     public rotate(rotationDelta: IRotationDelta): void {
@@ -228,6 +239,15 @@ export class CompletingState implements IState {
             this.previousCamera = this.currentIndex > 0 ?
                 this.trajectoryCameras[this.currentIndex - 1] :
                 this.currentCamera;
+
+            if (this.previousNode != null) {
+                let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
+                this.previousCamera.lookat.copy(lookat.clone().add(this.previousCamera.position));
+
+                if (this.currentNode.pano) {
+                    this.currentCamera.lookat.copy(lookat.clone().add(this.currentCamera.position));
+                }
+            }
         }
 
         this.baseAlpha = Math.min(1, this.baseAlpha + this.animationSpeed);
@@ -287,15 +307,15 @@ export class CompletingState implements IState {
             let length: number = this.rotationDelta.lengthSquared();
             let requestedLength: number = this.requestedRotationDelta.lengthSquared();
 
-            if (requestedLength === 0) {
-                this.rotationDelta.reset();
-            } else if (requestedLength >= length) {
-                this.rotationDelta.lerp(this.requestedRotationDelta, this.rotationAlpha);
+            if (requestedLength > length) {
+                this.rotationDelta.lerp(this.requestedRotationDelta, this.rotationIncreaseAlpha);
             } else {
-                this.rotationDelta.copy(this.requestedRotationDelta);
+                this.rotationDelta.lerp(this.requestedRotationDelta, this.rotationDecreaseAlpha);
             }
 
             this.requestedRotationDelta = null;
+
+            return;
         }
 
         if (this.rotationDelta.isZero) {

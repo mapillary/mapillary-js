@@ -97,6 +97,14 @@ describe("EdgeCalculator.computeStepEdges", () => {
         expect(stepEdge.data.direction).toBe(EdgeDirection.STEP_BACKWARD);
     });
 
+    it("should not have any edges because potential is pano", () => {
+        potentialEdge.fullPano = true;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+
+        expect(stepEdges.length).toBe(0);
+    });
+
     it("should not have any edges because of max distance", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
 

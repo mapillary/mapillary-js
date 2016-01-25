@@ -198,6 +198,7 @@ export class Graph {
                 node.findNextKeyInSequence()));
 
         edges = edges.concat(this.edgeCalculator.computeTurnEdges(node, potentialEdges));
+        edges = edges.concat(this.edgeCalculator.computePanoEdges(node, potentialEdges));
 
         this.addEdgesToNode(node, edges);
 

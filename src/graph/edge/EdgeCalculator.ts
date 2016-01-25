@@ -202,6 +202,10 @@ export class EdgeCalculator {
             let fallback: IPotentialEdge = null;
 
             for (let potential of potentialEdges) {
+                if (potential.fullPano) {
+                    continue;
+                }
+
                 if (Math.abs(potential.directionChange) > this.settings.stepMaxDirectionChange) {
                     continue;
                 }
@@ -285,6 +289,10 @@ export class EdgeCalculator {
             let edge: IPotentialEdge = null;
 
             for (let potential of potentialEdges) {
+                if (potential.fullPano) {
+                    continue;
+                }
+
                 if (potential.distance > this.settings.turnMaxDistance) {
                     continue;
                 }
