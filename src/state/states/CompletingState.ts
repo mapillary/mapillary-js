@@ -207,6 +207,15 @@ export class CompletingState implements IState {
         this.previousCamera = this.currentIndex > 0 ?
             this.trajectoryCameras[this.currentIndex - 1] :
             this.currentCamera;
+
+        if (this.previousNode != null) {
+            let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
+            this.previousCamera.lookat.copy(lookat.clone().add(this.previousCamera.position));
+
+            if (this.currentNode.pano) {
+                this.currentCamera.lookat.copy(lookat.clone().add(this.currentCamera.position));
+            }
+        }
     }
 
     public rotate(rotationDelta: IRotationDelta): void {
@@ -230,6 +239,15 @@ export class CompletingState implements IState {
             this.previousCamera = this.currentIndex > 0 ?
                 this.trajectoryCameras[this.currentIndex - 1] :
                 this.currentCamera;
+
+            if (this.previousNode != null) {
+                let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
+                this.previousCamera.lookat.copy(lookat.clone().add(this.previousCamera.position));
+
+                if (this.currentNode.pano) {
+                    this.currentCamera.lookat.copy(lookat.clone().add(this.currentCamera.position));
+                }
+            }
         }
 
         this.baseAlpha = Math.min(1, this.baseAlpha + this.animationSpeed);
