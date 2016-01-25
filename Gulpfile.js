@@ -172,7 +172,7 @@ gulp.task('typescript-src', function () {
 })
 
 gulp.task('watch', ['css'], function () {
-  gulp.watch([paths.ts.src, paths.ts.tests], ['ts'])
+  gulp.watch([paths.ts.src, paths.ts.tests], ['dev:ts'])
   gulp.watch([paths.css], ['css'])
 })
 
@@ -214,7 +214,10 @@ gulp.task('ts', ['ts-lint'], function () {
     .pipe(exorcist(paths.sourceMaps))
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('./build'))
-    .pipe(browserSync.stream())
+})
+
+gulp.task('dev:ts', ['ts --env=DEV'], function () {
+  browserSync.reload()
 })
 
 gulp.task('copy-style-assets', function () {
