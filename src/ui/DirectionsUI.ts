@@ -71,7 +71,7 @@ export class DirectionsUI implements IUI {
 
                 let phi: number = node.pano ? this.rotationFromCamera(frame.state.camera).phi : 0;
 
-                let btns: vd.VNode[] = this.createStaticStepArrows(node);
+                let btns: vd.VNode[] = this.createStaticStepArrows(node, phi);
                 btns = btns.concat(this.createPanoArrows(node, phi));
 
                 return {name: "directions", vnode: this.getVNodeContainer(btns, phi)};
@@ -84,7 +84,7 @@ export class DirectionsUI implements IUI {
         return;
     }
 
-    private createStaticStepArrows(node: Node): Array<vd.VNode> {
+    private createStaticStepArrows(node: Node, phi: number): Array<vd.VNode> {
         let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
@@ -95,7 +95,7 @@ export class DirectionsUI implements IUI {
             if (name == null) { continue; }
 
             let angle: number = this.staticArrows[direction];
-            btns.push(this.createVNode(direction, angle));
+            btns.push(this.createVNode(direction, angle, phi));
         }
 
         return btns;
@@ -170,18 +170,21 @@ export class DirectionsUI implements IUI {
             []);
     }
 
-    private createVNode(direction: EdgeDirection, angle: number): vd.VNode {
+    private createVNode(direction: EdgeDirection, angle: number, phi: number): vd.VNode {
         let translation: Array<number> = this.calcTranslation(angle);
 
         // rotate 90 degrees clockwise and flip over X-axis
         let translationWithOffsetX: number = -this.cssOffset * translation[1];
         let translationWithOffsetY: number = -this.cssOffset * translation[0];
 
-        let dropShadowTranslationX: number = -this.dropShadowOffset * translation[1];
-        let dropShadowTranslationY: number = this.dropShadowOffset * translation[0];
-        let filter: string = `drop-shadow(${dropShadowTranslationX}px ${dropShadowTranslationY}px 3px rgba(0,0,0,0.8))`;
+        let shadowTranslation: Array<number> = this.calcShadowTranslation(angle, phi);
+        let shadowTranslationX: number = -this.dropShadowOffset * shadowTranslation[1];
+        let shadowTranslationY: number = this.dropShadowOffset * shadowTranslation[0];
 
         let angleDeg: number = -180 * angle / Math.PI;
+
+        let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 3px rgba(0,0,0,0.8))`;
+        let transform: string = `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${angleDeg}deg)`;
 
         return vd.h(`div.DirectionsArrow.`,
                     {
@@ -189,7 +192,7 @@ export class DirectionsUI implements IUI {
                         style: {
                             "-webkit-filter": filter,
                             filter: filter,
-                            transform: `translate(${translationWithOffsetX}px, ${translationWithOffsetY}px) rotate(${angleDeg}deg)`,
+                            transform: transform,
                         },
                     },
                     []);
