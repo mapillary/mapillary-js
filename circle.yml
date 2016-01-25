@@ -3,8 +3,6 @@ general:
     only:
       - master
       - /feature-.*/
-    ignore:
-      - gh-pages
 
 machine:
   node:
@@ -14,7 +12,6 @@ dependencies:
   pre:
     - npm install -g gulp
     - export DISPLAY=:99.0
-    - sleep 5
 
 test:
   override:
