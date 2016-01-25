@@ -24,9 +24,11 @@ export class DirectionsUI implements IUI {
     private navigator: Navigator;
     private container: Container;
 
+    private name: string;
+
     private spatial: Spatial;
 
-    private subscription: rx.IDisposable;
+    private stateSubscription: rx.IDisposable;
 
     private cssOffset: number;
     private dropShadowOffset: number;
@@ -43,11 +45,13 @@ export class DirectionsUI implements IUI {
         this.container = container;
         this.navigator = navigator;
 
+        this.name = "directions";
+
         this.spatial = new Spatial();
 
         this.currentKey = null;
         this.currentDirection = new THREE.Vector3();
-        this.directionEpsilon = 0.015;
+        this.directionEpsilon = 0.01;
 
         // cssOffset is a magic number in px
         this.cssOffset = 62;
@@ -71,7 +75,7 @@ export class DirectionsUI implements IUI {
     }
 
     public activate(): void {
-        this.subscription = this.navigator.stateService.currentState$
+        this.stateSubscription = this.navigator.stateService.currentState$
             .map((frame: IFrame): IVNodeHash => {
                 let node: Node = frame.state.currentNode;
 
@@ -98,14 +102,15 @@ export class DirectionsUI implements IUI {
                     turns = turns.concat(this.createTurnArrows(node));
                 }
 
-                return {name: "directions", vnode: this.getVNodeContainer(btns, turns, phi)};
+                return {name: this.name, vnode: this.getVNodeContainer(btns, turns, phi)};
             })
             .filter((hash: IVNodeHash): boolean => { return hash != null; })
             .subscribe(this.container.domRenderer.render$);
     }
 
     public deactivate(): void {
-        return;
+        this.container.domRenderer.clear(this.name);
+        this.stateSubscription.dispose();
     }
 
     private createStepArrows(node: Node, phi: number): Array<vd.VNode> {
