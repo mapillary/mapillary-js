@@ -31,8 +31,9 @@ export class DirectionsUI extends UI {
     private dropShadowOffset: number;
 
     private currentKey: string;
-    private currentDirection: THREE.Vector3;
-    private directionEpsilon: number;
+    private currentPlaneRotation: number;
+    private currentUpRotation: number;
+    private rotationEpsilon: number;
 
     private steps: Array<EdgeDirection>;
     private turns: Array<EdgeDirection>;
@@ -44,8 +45,9 @@ export class DirectionsUI extends UI {
         this.spatial = new Spatial();
 
         this.currentKey = null;
-        this.currentDirection = new THREE.Vector3();
-        this.directionEpsilon = 0.01;
+        this.currentPlaneRotation = 0;
+        this.currentUpRotation = 0;
+        this.rotationEpsilon = 0.5 * Math.PI / 180;
 
         // cssOffset is a magic number in px
         this.cssOffset = 62;
@@ -74,16 +76,21 @@ export class DirectionsUI extends UI {
                 let node: Node = frame.state.currentNode;
 
                 let camera: Camera = frame.state.camera;
-                let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+                let lookat: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+
+                let planeRotation: number = Math.atan2(lookat.y, lookat.x);
+                let upRotation: number = this.spatial.angleToPlane(lookat.toArray(), [0, 0, 1]);
 
                 if (node == null ||
                     (node.key === this.currentKey &&
-                    this.currentDirection.distanceToSquared(direction) < this.directionEpsilon)) {
+                    Math.abs(this.currentPlaneRotation - planeRotation) < this.rotationEpsilon &&
+                    Math.abs(this.currentUpRotation - upRotation) < this.rotationEpsilon)) {
                     return null;
                 }
 
                 this.currentKey = node.key;
-                this.currentDirection.copy(direction);
+                this.currentPlaneRotation = planeRotation;
+                this.currentUpRotation = upRotation;
 
                 let phi: number = this.rotationFromCamera(frame.state.camera).phi;
 
