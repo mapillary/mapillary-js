@@ -9,6 +9,8 @@ machine:
     version: 0.10.33
 
 dependencies:
+  cache_directories:
+    - node_modules
   pre:
     - npm install -g gulp
     - export DISPLAY=:99.0
