@@ -1,9 +1,11 @@
 /// <reference path="../../typings/graphlib/graphlib.d.ts" />
 /// <reference path="../../typings/rbush/rbush.d.ts" />
+/// <reference path="../../typings/threejs/three.d.ts" />
 
 import * as _ from "underscore";
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
+import * as THREE from "three";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
@@ -82,6 +84,10 @@ export class Graph {
             }
 
             let latLon: ILatLon = {lat: lat, lon: lon};
+
+            if (im.rotation == null) {
+                im.rotation = this.computeRotation(im.ca, im.orientation);
+            }
 
             let translation: number[] = this.computeTranslation(im, latLon);
 
@@ -260,12 +266,51 @@ export class Graph {
     }
 
     /**
+     * Compute rotation
+     * @param {number} compassAngle
+     * @return {Array<number>}
+     */
+    private computeRotation(compassAngle: number, orientation: number): number[] {
+        let x: number = 0;
+        let y: number = 0;
+        let z: number = 0;
+
+        switch (orientation) {
+            case 1:
+                x = Math.PI / 2;
+                break;
+            case 3:
+                x = -Math.PI / 2;
+                z = Math.PI;
+                break;
+            case 6:
+                y = -Math.PI / 2;
+                z = -Math.PI / 2;
+                break;
+            case 8:
+                y = Math.PI / 2;
+                z = Math.PI / 2;
+                break;
+            default:
+                break;
+        }
+
+        let rz: THREE.Matrix4 = new THREE.Matrix4().makeRotationZ(z);
+        let euler: THREE.Euler = new THREE.Euler(x, y, compassAngle * Math.PI / 180, "XYZ");
+        let re: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(euler);
+
+        let rotation: THREE.Vector4 = new THREE.Vector4().setAxisAngleFromRotationMatrix(re.multiply(rz));
+
+        return rotation.multiplyScalar(rotation.w).toArray().slice(0, 3);
+    }
+
+    /**
      * Compute translation
      * @param {IAPINavImIm} im
      * @param {ILatLon} latLon
      * @return {number}
      */
-    public computeTranslation(im: IAPINavImIm, latLon: ILatLon): number[] {
+    private computeTranslation(im: IAPINavImIm, latLon: ILatLon): number[] {
         let alt: number = im.calt == null ? this.defaultAlt : im.calt;
 
         if (this.referenceLatLonAlt == null) {
