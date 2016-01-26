@@ -186,14 +186,14 @@ export class DirectionsUI extends UI {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveToKey(key).first().subscribe(); };
 
-        return this.createVNode(azimuth, phi, onClick);
+        return this.createVNode(azimuth, phi, onClick, "DirectionsArrowPano");
     }
 
     private createVNodeByDirection(azimuth: number, phi: number, direction: EdgeDirection): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).first().subscribe(); };
 
-        return this.createVNode(azimuth, phi, onClick);
+        return this.createVNode(azimuth, phi, onClick, "DirectionsArrowStep");
     }
 
     private createVNodeByTurn(name: string, direction: EdgeDirection): vd.VNode {
@@ -205,7 +205,7 @@ export class DirectionsUI extends UI {
                     []);
     }
 
-    private createVNode(azimuth: number, phi: number, onClick: (e: Event) => void): vd.VNode {
+    private createVNode(azimuth: number, phi: number, onClick: (e: Event) => void, className: string): vd.VNode {
         let translation: Array<number> = this.calcTranslation(azimuth);
 
         // rotate 90 degrees clockwise and flip over X-axis
@@ -222,7 +222,7 @@ export class DirectionsUI extends UI {
         let transform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
 
         return vd.h(
-            "div.DirectionsArrow.",
+            "div." + className,
             {
                 onclick: onClick,
                 style: {

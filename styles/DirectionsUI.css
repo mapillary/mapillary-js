@@ -17,7 +17,9 @@
     bottom: 0;
 }
 
-.DirectionsArrow {
+.DirectionsArrowStep,
+.DirectionsArrowPano,
+.DirectionsArrowDisabled {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -25,12 +27,29 @@
     margin-top: -27px;
     width: 54px;
     height: 54px;
-    background: url(./arrow-up.svg);
-    background-size: contain;
     pointer-events: all;
 }
 
-.DirectionsArrow:hover {
+.DirectionsArrowStep,
+.DirectionsArrowDisabled
+ {
+    background: url(./arrow-up-white.svg);
+    background-size: contain;
+}
+
+.DirectionsArrowDisabled
+ {
+    opacity: 0.2;
+}
+
+.DirectionsArrowPano {
+    background: url(./arrow-up-wheat.svg);
+    background-size: contain;
+}
+
+.DirectionsArrowStep:hover,
+.DirectionsArrowPano:hover
+ {
     cursor: pointer;
     cursor: hand;
 }
