@@ -186,14 +186,14 @@ export class DirectionsUI extends UI {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveToKey(key).first().subscribe(); };
 
-        return this.createVNode(azimuth, phi, onClick, "DirectionsArrowPano");
+        return this.createVNode(azimuth, phi, "DirectionsArrowPano", onClick);
     }
 
     private createVNodeByDirection(azimuth: number, phi: number, direction: EdgeDirection): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).first().subscribe(); };
 
-        return this.createVNode(azimuth, phi, onClick, "DirectionsArrowStep");
+        return this.createVNode(azimuth, phi, "DirectionsArrowStep", onClick);
     }
 
     private createVNodeByTurn(name: string, direction: EdgeDirection): vd.VNode {
@@ -205,7 +205,7 @@ export class DirectionsUI extends UI {
                     []);
     }
 
-    private createVNode(azimuth: number, phi: number, onClick: (e: Event) => void, className: string): vd.VNode {
+    private createVNode(azimuth: number, phi: number, className: string, onClick?: (e: Event) => void): vd.VNode {
         let translation: Array<number> = this.calcTranslation(azimuth);
 
         // rotate 90 degrees clockwise and flip over X-axis
@@ -221,17 +221,19 @@ export class DirectionsUI extends UI {
         let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 3px rgba(0,0,0,0.8))`;
         let transform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
 
-        return vd.h(
-            "div." + className,
-            {
-                onclick: onClick,
-                style: {
+        let properties: any = {
+            style: {
                     "-webkit-filter": filter,
                     filter: filter,
                     transform: transform,
-                },
             },
-            []);
+        };
+
+        if (onClick != null) {
+            properties.onclick = onClick;
+        }
+
+        return vd.h("div." + className, properties, []);
     }
 
     private getVNodeContainer(buttons: any, turns: any, rotateZ: number): any {
