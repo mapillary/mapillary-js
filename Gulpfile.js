@@ -185,7 +185,7 @@ function extendKarmaConfig (path, conf) {
   return conf
 }
 
-gulp.task('prepublish', ['ts-lint', 'css'], function () {
+gulp.task('prepublish', ['tsd', 'ts-lint', 'css'], function () {
   browserify(config.browserify)
     .plugin(tsify, config.ts)
     .transform('brfs')
