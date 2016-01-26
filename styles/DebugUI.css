@@ -1,0 +1,26 @@
+.Debug {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 30em;
+    background-color: lime;
+    font-size: 12px;
+    padding: 1em;
+    font-family: Input, Menlo, monospace;
+}
+
+.DebugButton {
+    background-color: lime;
+    color: white;
+    border: 1px solid white;
+    border-radius: 2px;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.DebugButtonFixed {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+}

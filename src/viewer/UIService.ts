@@ -3,6 +3,7 @@ import {Node} from "../Graph";
 import {
     AttributionUI,
     CoverUI,
+    DebugUI,
     DetectionsUI,
     DirectionsUI,
     EventUI,
@@ -37,6 +38,7 @@ export class UIService {
     public static initialize(): void {
         UIService.register(AttributionUI);
         UIService.register(CoverUI);
+        UIService.register(DebugUI);
         UIService.register(DetectionsUI);
         UIService.register(DirectionsUI);
         UIService.register(EventUI);

@@ -1,6 +1,7 @@
 export {UI} from "./ui/UI"
 export {AttributionUI} from "./ui/AttributionUI"
 export {CoverUI} from "./ui/CoverUI"
+export {DebugUI} from "./ui/DebugUI"
 export {DirectionsUI} from "./ui/DirectionsUI"
 export {EventUI} from "./ui/EventUI"
 export {KeyboardUI} from "./ui/KeyboardUI"
