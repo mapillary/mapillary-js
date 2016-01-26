@@ -14,6 +14,13 @@ export interface IViewerOptions {
     key?: string;
 
     /**
+     * CoverUI to use, if not set default coverUI will be used
+     * @member Mapillary.IViewerOptions#coverUI
+     * @type {string[]}
+     */
+    coverUI?: string;
+
+    /**
      * Type of ui to use
      * @member Mapillary.IViewerOptions#ui
      * @type {string[]}
@@ -26,14 +33,6 @@ export interface IViewerOptions {
      * @type {number}
      */
     baseImageSize?: number;
-
-    uiList?: string[];
-
-    stepThr?: IViewerOptionsStepThr;
-    enablePanoNavigation?: boolean;
-    enablePanoPlaying?: boolean;
-    enablePanoArrowAlignment?: boolean;
-    gamingNavigation?: boolean;
 }
 
 export default IViewerOptions;

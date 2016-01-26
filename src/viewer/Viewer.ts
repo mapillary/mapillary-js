@@ -34,21 +34,10 @@ export class Viewer extends EventEmitter {
      */
     constructor (id: string, clientId: string, options: IViewerOptions) {
         this.navigator = new Navigator(clientId);
-        this.container = new Container(id, options.key, this.navigator.stateService.currentState$);
-        this.uiService = new UIService(this, this.container, this.navigator);
+        this.container = new Container(id, this.navigator.stateService.currentState$);
+        this.uiService = new UIService(this.container, this.navigator, options.coverUI, options.uis, options.key);
 
         Settings.setOptions({});
-
-        for (let name of options.uis) {
-            this.uiService.activate(name);
-        }
-
-        this.uiService.get("event").configure({eventEmitter: this});
-        this.uiService.activate("event");
-
-        if (options.key != null) {
-            this.moveToKey(options.key);
-        }
 
         super();
     }
@@ -85,24 +74,6 @@ export class Viewer extends EventEmitter {
 
 export default Viewer;
 
-
-/**
- * Move end event.
- *
- * @event moveend
- * @memberof Viewer
- * @type {Object}
- * @property {TODO} TODO
- */
-
-/**
- * Move start event.
- *
- * @event movestart
- * @memberof Viewer
- * @type {Object}
- * @property {TODO} TODO
- */
 
 /**
  * Node change event

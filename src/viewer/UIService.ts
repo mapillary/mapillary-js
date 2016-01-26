@@ -1,3 +1,5 @@
+import {ParameterMapillaryError} from "../Error";
+import {Node} from "../Graph";
 import {
     AttributionUI,
     CoverUI,
@@ -15,18 +17,22 @@ import {
     SphereUI,
     UI,
 } from "../UI";
-import {Container, Navigator, Viewer} from "../Viewer";
-import {ParameterMapillaryError} from "../Error";
+import {Container, Navigator} from "../Viewer";
+
 
 import * as _ from "underscore";
 
 export class UIService {
     private static registeredUIs: {[key: string]: typeof UI} = {};
+
     private uis: {[key: string]: UI} = {};
+    private _activeUIs: string[];
 
     private _container: Container;
     private _navigator: Navigator;
-    private _viewer: Viewer;
+
+    private _key: string;
+    private _coverUI: string;
 
     public static initialize(): void {
         UIService.register(AttributionUI);
@@ -45,13 +51,35 @@ export class UIService {
         UIService.register(SphereUI);
     }
 
-    constructor (viewer: Viewer, container: Container, navigator: Navigator) {
-        this._viewer = viewer;
+    constructor (container: Container, navigator: Navigator, coverUI: string, activeUIs: string[], key: string) {
         this._container = container;
         this._navigator = navigator;
 
         for (let ui of _.values(UIService.registeredUIs)) {
             this.uis[ui.uiName] = new ui(ui.uiName, container, navigator);
+        }
+
+        this._coverUI = coverUI;
+        this._activeUIs = activeUIs;
+        this._key = key;
+
+        if (this._coverUI != null) {
+            let cUI: UI = this.get(this._coverUI);
+            cUI.configure({key: key});
+
+            cUI.on("coverButtonPressed", (e: Event) => {
+                this.get("loading").activate();
+                this._navigator.moveToKey(this._key).first().subscribe((node: Node) => {
+                    this.deactivateCover();
+                });
+            });
+
+            this.activateCover();
+        } else {
+            this.get("loading").activate();
+            this._navigator.moveToKey(this._key).first().subscribe((node: Node) => {
+                this.deactivateCover();
+            });
         }
     }
 
@@ -71,6 +99,24 @@ export class UIService {
             throw new ParameterMapillaryError(`UI does not exist: ${name}`);
         }
         this.uis[name].deactivate();
+    }
+
+    public activateCover(): void {
+        if (this._coverUI != null) {
+            this.get(this._coverUI).activate();
+        }
+        for (let name of this._activeUIs) {
+            this.deactivate(name);
+        }
+    }
+
+    public deactivateCover(): void {
+        if (this._coverUI != null) {
+            this.get(this._coverUI).deactivate();
+        }
+        for (let name of this._activeUIs) {
+            this.activate(name);
+        }
     }
 
     public get(name: string): UI {

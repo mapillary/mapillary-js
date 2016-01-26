@@ -10,16 +10,13 @@ export class Container {
     public id: string;
     public element: HTMLElement;
 
-    public initialPhotoId: string;
-
     public glRenderer: GLRenderer;
     public domRenderer: DOMRenderer;
 
     public mouseService: MouseService;
 
-    constructor (id: string, initialPhotoId: string, currentFrame$: rx.Observable<IFrame>) {
+    constructor (id: string, currentFrame$: rx.Observable<IFrame>) {
         this.id = id;
-        this.initialPhotoId = initialPhotoId;
         this.element = document.getElementById(id);
         this.element.classList.add("mapillary-js");
 
