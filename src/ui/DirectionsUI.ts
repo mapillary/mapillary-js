@@ -133,11 +133,13 @@ export class DirectionsUI extends UI {
         let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
-            if (edge.data.direction !== EdgeDirection.PANO) {
-                continue;
-            }
+            let direction: EdgeDirection = edge.data.direction;
 
-            btns.push(this.createVNodeByKey(edge.data.worldMotionAzimuth, phi, edge.to));
+            if (direction === EdgeDirection.PANO) {
+                btns.push(this.createVNodeByKey(edge.data.worldMotionAzimuth, phi, edge.to, "DirectionsArrowPano"));
+            } else if (this.steps.indexOf(direction) > -1) {
+                btns.push(this.createPanoToPerspectiveArrow(edge.data.worldMotionAzimuth, phi, direction, edge.to));
+            }
         }
 
         return btns;
@@ -158,6 +160,32 @@ export class DirectionsUI extends UI {
         }
 
         return turns;
+    }
+
+    private createPanoToPerspectiveArrow(azimuth: number, phi: number, direction: EdgeDirection, key: string): vd.VNode {
+        let threshold: number = Math.PI / 8;
+
+        let rotation: number = phi;
+
+        switch (direction) {
+            case EdgeDirection.STEP_BACKWARD:
+                rotation = phi - Math.PI;
+                break;
+            case EdgeDirection.STEP_LEFT:
+                rotation = phi + Math.PI / 2;
+                break;
+            case EdgeDirection.STEP_RIGHT:
+                rotation = phi - Math.PI / 2;
+                break;
+            default:
+                break;
+        }
+
+        if (Math.abs(this.spatial.wrapAngle(azimuth - rotation)) < threshold) {
+            return this.createVNodeByKey(azimuth, phi, key, "DirectionsArrowStep");
+        }
+
+        return this.createVNodeDisabled(azimuth, phi);
     }
 
     private rotationFromCamera(camera: Camera): IRotation {
@@ -182,11 +210,15 @@ export class DirectionsUI extends UI {
         return this.calcTranslation(angle);
     }
 
-    private createVNodeByKey(azimuth: number, phi: number, key: string): vd.VNode {
+    private createVNodeByKey(azimuth: number, phi: number, key: string, className: string): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveToKey(key).first().subscribe(); };
 
-        return this.createVNode(azimuth, phi, "DirectionsArrowPano", onClick);
+        return this.createVNode(azimuth, phi, className, onClick);
+    }
+
+    private createVNodeDisabled(azimuth: number, phi: number): vd.VNode {
+        return this.createVNode(azimuth, phi, "DirectionsArrowDisabled");
     }
 
     private createVNodeByDirection(azimuth: number, phi: number, direction: EdgeDirection): vd.VNode {
