@@ -11,6 +11,7 @@ machine:
 dependencies:
   cache_directories:
     - node_modules
+    - typings
   pre:
     - npm install -g gulp
     - export DISPLAY=:99.0
