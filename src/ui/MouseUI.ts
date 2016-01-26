@@ -15,8 +15,11 @@ export class MouseUI extends UI {
     }
 
     protected _activate(): void {
-        this._mouseDragSubscription = this._container.mouseService.mouseDrag$
-            .subscribe((e: MouseEvent): void => {
+        this._container.mouseService.claimMouse(this._name, 0);
+        this._mouseDragSubscription = this._container.mouseService
+            .filteredMouseEvent$(this._name, this._container.mouseService.mouseDrag$)
+            .subscribe((a: any): void => {
+                let e: MouseEvent = a.e;
                 let width: number = this._container.element.offsetWidth;
                 let height: number = this._container.element.offsetHeight;
 
@@ -35,6 +38,7 @@ export class MouseUI extends UI {
     }
 
     protected _deactivate(): void {
+        this._container.mouseService.unclaimMouse(this._name);
         this._mouseDragSubscription.dispose();
     }
 }
