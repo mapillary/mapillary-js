@@ -153,11 +153,19 @@ export class GLUI extends UI {
     }
 
     private createImageSphere(key: string, transform: Transform, node: Node): THREE.Mesh {
+        let texture: THREE.Texture = this.createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters = this.createSphereMaterialParameters(transform, texture);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+        let geometry: THREE.Geometry = this.getImageSphereGeo(transform, node);
+        let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
+
+        return mesh;
+    }
+
+    private createSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let gpano: IGPano = transform.gpano;
         let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
         let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
-
-        let texture: THREE.Texture = this.createTexture(node.image);
 
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
@@ -189,11 +197,7 @@ export class GLUI extends UI {
             vertexShader: Shaders.equirectangular.vertex,
         };
 
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-        let geometry: THREE.Geometry = this.getImageSphereGeo(transform, node);
-        let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
-
-        return mesh;
+        return materialParameters;
     }
 
     private createMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
