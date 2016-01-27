@@ -90,10 +90,17 @@ export class Node {
             xmlHTTP.open("GET", Urls.image(this.key, Settings.baseImageSize), true);
             xmlHTTP.responseType = "arraybuffer";
             xmlHTTP.onload = (e: any) => {
+                img.onload = () => {
+                    observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: img});
+                    observer.onCompleted();
+                };
+
+                img.onerror = (err: Event) => {
+                    observer.onError(err);
+                };
+
                 let blob: Blob = new Blob([xmlHTTP.response]);
                 img.src = window.URL.createObjectURL(blob);
-                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: img});
-                observer.onCompleted();
             };
             xmlHTTP.onprogress = (e: any) => {
                 observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: null});
