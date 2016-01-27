@@ -59,7 +59,7 @@ export class DebugUI extends UI {
         let loading: number = 0;
 
         for (let loadStat of _.values(loadStatus)) {
-            total += loadStat.total;
+            total += loadStat.loaded;
             if (loadStat.loaded !== loadStat.total) {
                 loading++;
             } else {
