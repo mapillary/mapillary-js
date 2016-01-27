@@ -1,6 +1,5 @@
 import {EdgeDirection} from "../Edge";
 import {IViewerOptions, Container, Navigator, UIService} from "../Viewer";
-// import {EventUI, IUI} from "../UI";
 import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {
@@ -29,13 +28,18 @@ export class Viewer extends EventEmitter {
      * Creates a viewer instance
      * @class Viewer
      * @param {string} id - `id` of an DOM element which will be transformed into the viewer
-     * @param {string} clientId -  Mapillary API Client ID
+     * @param {string} clientId - Mapillary API Client ID
+     * @param {string} key - Image key to start from
      * @param {IViewerOptions} options - Like `imageKey`, etc.
      */
-    constructor (id: string, clientId: string, options: IViewerOptions) {
+    constructor (id: string, clientId: string, key: string, options: IViewerOptions) {
+        if (options === undefined) {
+            options = {};
+        }
+
         this.navigator = new Navigator(clientId);
         this.container = new Container(id, this.navigator.stateService.currentState$);
-        this.uiService = new UIService(this.container, this.navigator, options.coverUI, options.uis, options.key);
+        this.uiService = new UIService(this.container, this.navigator, key, options);
 
         Settings.setOptions({});
 

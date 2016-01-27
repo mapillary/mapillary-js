@@ -8,37 +8,27 @@
     <link rel='stylesheet' href='dist/mapillary-js.min.css' />
     <style>
         body { margin: 0; padding: 0; }
-        html, body, #map { height: 100%; }
+        html, body, #viewer { width: 640px; height: 480px; }
     </style>
 </head>
 <body style="padding: 2em;">
-    <div id='viewerCover'></div>
-    <div id='viewerSimple'></div>
-    <div id='viewerSimpleLoading'></div>
-    <div id='viewerGl'></div>
-    <div id='viewerNewUi'></div>
-    <div id='viewerNewUiPortrait'></div>
+    <div id='viewer'></div>
 
     <script src='build/bundle.js'></script>
     <script>
-        var viewerCover = new Mapillary.Viewer('viewerCover', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'ffR697jcoDXhCPae91QqtA', uis: ['loading', 'simple', 'simplenav', 'simplecache', 'keyboard', 'attribution', 'debug']})
+      var viewer = new Mapillary.Viewer("viewer", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", "zarcRdNFZwg3FkXNcsFeGw",
+                                        {"cover": true, "debug": true});
 
-        var viewerSimple = new Mapillary.Viewer('viewerSimple', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'FD0hfVLfbrkCqWHIBsZDqw', uis: ['loading', 'simple', 'simplecache', 'keyboard', 'loading', 'directions'], coverUI: "cover" })
-        var viewerGl = new Mapillary.Viewer('viewerGl', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'W--QSJkuqa-F0GMFk5v3Mw', uis: ['loading', 'gl', 'simplecache', 'keyboard', 'directions', 'mouse'], coverUI: "cover" })
-
-        viewerSimple.on("nodechanged", function (node) {
+        viewer.on("nodechanged", function (node) {
             console.log(node.key);
         });
-        viewerSimple.on("loadingchanged", function (loading) {
+        viewer.on("loadingchanged", function (loading) {
             if (loading) {
                 document.getElementById("viewerSimpleLoading").innerHTML = "Loading";
             } else {
                 document.getElementById("viewerSimpleLoading").innerHTML = "Not Loading";
             }
         });
-
-        var viewerNewUi = new Mapillary.Viewer('viewerNewUi', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'dIPzva8vuKfAq0n_o7YuUA', uis: ['simple', 'simplenav', 'keyboard', 'detections'], coverUI: "cover" })
-        var viewerNewUiPortrait = new Mapillary.Viewer('viewerNewUiPortrait', 'MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4', { key: 'RSf7Ww9YMHMndq1GEN4v0A', uis: ['simple', 'simplenav', 'keyboard', 'detections'], coverUI: "cover"})
     </script>
 </body>
 </html>

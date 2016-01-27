@@ -24,7 +24,7 @@ describe("Viewer", () => {
             };
         });
 
-        viewer = new Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", {uis: ["none"]})
+        viewer = new Viewer("mapillary", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", "A", {})
     });
 
     it("exists", () => {

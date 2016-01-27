@@ -18,7 +18,7 @@ import {
     SphereUI,
     UI,
 } from "../UI";
-import {Container, Navigator} from "../Viewer";
+import {Container, IViewerOptions, Navigator} from "../Viewer";
 
 
 import * as _ from "underscore";
@@ -53,7 +53,7 @@ export class UIService {
         UIService.register(SphereUI);
     }
 
-    constructor (container: Container, navigator: Navigator, coverUI: string, activeUIs: string[], key: string) {
+    constructor (container: Container, navigator: Navigator, key: string, options: IViewerOptions) {
         this._container = container;
         this._navigator = navigator;
 
@@ -61,9 +61,16 @@ export class UIService {
             this.uis[ui.uiName] = new ui(ui.uiName, container, navigator);
         }
 
-        this._coverUI = coverUI;
-        this._activeUIs = activeUIs;
+        this._activeUIs = ["gl", "loading", "attribution", "simplecache", "directions", "mouse"];
         this._key = key;
+
+        if (options.cover) {
+            this._coverUI = "cover";
+        }
+
+        if (options.debug) {
+            this._activeUIs.push("debug");
+        }
 
         if (this._coverUI != null) {
             let cUI: UI = this.get(this._coverUI);

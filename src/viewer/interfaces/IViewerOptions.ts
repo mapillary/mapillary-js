@@ -7,25 +7,18 @@ interface IViewerOptionsStepThr {
 
 export interface IViewerOptions {
     /**
-     * Initial Mapillary image key to start viewer from
-     * @member Mapillary.IViewerOptions#key
-     * @type {string}
+     * Use a cover and avoid loading initial data from Mapillary.
+     * @member Mapillary.IViewerOptions#useCover
+     * @type {boolean}
      */
-    key?: string;
+    cover?: boolean;
 
     /**
-     * CoverUI to use, if not set default coverUI will be used
-     * @member Mapillary.IViewerOptions#coverUI
-     * @type {string[]}
+     * Show debug interface
+     * @member Mapillary.IViewerOptions#debug
+     * @type {boolean}
      */
-    coverUI?: string;
-
-    /**
-     * Type of ui to use
-     * @member Mapillary.IViewerOptions#ui
-     * @type {string[]}
-     */
-    uis?: string[];
+    debug?: boolean;
 
     /**
      * Default size of the thumbnail used in the viewer
@@ -33,6 +26,15 @@ export interface IViewerOptions {
      * @type {number}
      */
     baseImageSize?: number;
+
+    /**
+     * The max size of an image shown in the viewer
+     * will be used when user pauses.
+     * @member Mapillary.IViewerOptions#maxImageSize
+     * @type {number}
+     */
+    maxImageSize?: number;
+
 }
 
 export default IViewerOptions;
