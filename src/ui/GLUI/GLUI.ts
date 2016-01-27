@@ -11,7 +11,6 @@ import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../../Render";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
-import {Settings, Urls} from "../../Utils";
 
 export class GLUI extends UI {
     public static uiName: string = "gl";
@@ -144,13 +143,9 @@ export class GLUI extends UI {
     }
 
     private createImagePlane(key: string, transform: Transform, node: Node): THREE.Mesh {
-        let url: string = Urls.image(key, Settings.baseImageSize);
-
-        let materialParameters: THREE.ShaderMaterialParameters = this.createMaterialParameters(transform);
+        let texture: THREE.Texture = this.createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters = this.createMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        this.setTexture(material, url);
-
         let geometry: THREE.Geometry = this.getImagePlaneGeo(transform, node);
         let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
@@ -158,11 +153,11 @@ export class GLUI extends UI {
     }
 
     private createImageSphere(key: string, transform: Transform, node: Node): THREE.Mesh {
-        let url: string = Urls.image(key, Settings.baseImageSize);
-
         let gpano: IGPano = transform.gpano;
         let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
         let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
+
+        let texture: THREE.Texture = this.createTexture(node.image);
 
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
@@ -184,7 +179,7 @@ export class GLUI extends UI {
                 },
                 projectorTex: {
                     type: "t",
-                    value: null,
+                    value: texture,
                 },
                 thetaLength: {
                     type: "f",
@@ -195,16 +190,13 @@ export class GLUI extends UI {
         };
 
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        this.setTexture(material, url);
-
         let geometry: THREE.Geometry = this.getImageSphereGeo(transform, node);
         let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
         return mesh;
     }
 
-    private createMaterialParameters(transform: Transform): THREE.ShaderMaterialParameters {
+    private createMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
             fragmentShader: Shaders.perspective.fragment,
@@ -221,7 +213,7 @@ export class GLUI extends UI {
                 },
                 projectorTex: {
                     type: "t",
-                    value: null,
+                    value: texture,
                 },
             },
             vertexShader: Shaders.perspective.vertex,
@@ -230,16 +222,12 @@ export class GLUI extends UI {
         return materialParameters;
     }
 
-    private setTexture(material: THREE.ShaderMaterial, url: string): void {
-        material.visible = false;
+    private createTexture(image: HTMLImageElement): THREE.Texture {
+        let texture: THREE.Texture = new THREE.Texture(image);
+        texture.minFilter = THREE.LinearFilter;
+        texture.needsUpdate = true;
 
-        let textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
-        textureLoader.crossOrigin = "Anonymous";
-        textureLoader.load(url, (texture: THREE.Texture) => {
-            texture.minFilter = THREE.LinearFilter;
-            material.uniforms.projectorTex.value = texture;
-            material.visible = true;
-        });
+        return texture;
     }
 
     private getImagePlaneGeo(transform: Transform, node: Node): THREE.Geometry {
