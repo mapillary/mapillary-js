@@ -34,14 +34,16 @@ export class CoverUI extends UI {
 
     private getCoverButtonVNode(loading: boolean): vd.VNode {
         let coverBtn: string = "span.CoverButtonIcon";
+        let children: Array<vd.VNode> = [];
         if (loading) {
-            coverBtn = "span.CoverButtonLoading";
+            coverBtn = "div.uil-ripple-css";
+            children.push(vd.h("div", {}, []));
         }
 
         return vd.h("div.Cover", [
             this.getCoverBackgroundVNode(),
             vd.h("button.CoverButton", {onclick: this.coverButtonPressed.bind(this)}, [
-                vd.h(coverBtn, {}, [])
+                vd.h(coverBtn, {}, children)
             ]),
         ]);
     }
