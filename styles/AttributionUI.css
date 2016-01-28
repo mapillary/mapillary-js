@@ -6,7 +6,7 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    z-index: 1000;
+    z-index: 10;
     padding: 4px 2px;
 }
 

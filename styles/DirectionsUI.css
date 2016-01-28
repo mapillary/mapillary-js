@@ -31,16 +31,14 @@
 }
 
 .DirectionsArrowStep,
-.DirectionsArrowDisabled
- {
+.DirectionsArrowDisabled {
     background: url(./arrow-up-white.svg);
     background-size: contain;
 }
 
-.DirectionsArrowDisabled
-{
+.DirectionsArrowDisabled {
     opacity: 0.2;
-    z-index: -1;
+    z-index: -10;
 }
 
 .DirectionsArrowPano {
@@ -49,8 +47,7 @@
 }
 
 .DirectionsArrowStep:hover,
-.DirectionsArrowPano:hover
- {
+.DirectionsArrowPano:hover {
     cursor: pointer;
     cursor: hand;
 }

@@ -8,6 +8,7 @@
     font-size: 12px;
     padding: 1em;
     font-family: Input, Menlo, monospace;
+    z-index: 100;
 }
 
 .DebugButton {
