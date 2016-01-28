@@ -18,7 +18,7 @@ export class CoverUI extends UI {
     }
 
     public _activate(): void {
-        this._container.domRenderer.render$.onNext({name: "coverOverlay", vnode: this.getCoverButtonVNode()});
+        this._container.domRenderer.render$.onNext({name: "coverOverlay", vnode: this.getCoverButtonVNode(false)});
     }
 
     public _deactivate(): void {
@@ -28,14 +28,20 @@ export class CoverUI extends UI {
     }
 
     private coverButtonPressed(): void {
+        this._container.domRenderer.render$.onNext({name: "coverOverlay", vnode: this.getCoverButtonVNode(true)});
         this.fire("coverButtonPressed", true);
     }
 
-    private getCoverButtonVNode(): vd.VNode {
+    private getCoverButtonVNode(loading: boolean): vd.VNode {
+        let coverBtn: string = "span.CoverButtonIcon";
+        if (loading) {
+            coverBtn += ".loading";
+        }
+
         return vd.h("div.Cover", [
             this.getCoverBackgroundVNode(),
             vd.h("button.CoverButton", {onclick: this.coverButtonPressed.bind(this)}, [
-                vd.h("span.CoverButtonIcon", {}, [])
+                vd.h(coverBtn, {}, [])
             ]),
         ]);
     }
