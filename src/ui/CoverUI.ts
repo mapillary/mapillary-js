@@ -35,7 +35,7 @@ export class CoverUI extends UI {
     private getCoverButtonVNode(loading: boolean): vd.VNode {
         let coverBtn: string = "span.CoverButtonIcon";
         if (loading) {
-            coverBtn += ".loading";
+            coverBtn = "span.CoverButtonLoading";
         }
 
         return vd.h("div.Cover", [
