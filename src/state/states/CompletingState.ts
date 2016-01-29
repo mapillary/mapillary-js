@@ -111,7 +111,7 @@ export class CompletingState implements IState {
         this.previousNode = null;
 
         this.currentCamera = trajectory.length > 0 ? this.trajectoryCameras[this.currentIndex] : new Camera();
-        this.previousCamera = this.currentCamera;
+        this.previousCamera = this.currentCamera.clone();
 
         this.rotationDelta = new RotationDelta(0, 0);
         this.requestedRotationDelta = null;
@@ -243,7 +243,7 @@ export class CompletingState implements IState {
         this.currentCamera = this.trajectoryCameras[this.currentIndex];
         this.previousCamera = this.currentIndex > 0 ?
             this.trajectoryCameras[this.currentIndex - 1] :
-            this.currentCamera;
+            this.currentCamera.clone();
 
         if (this.previousNode != null) {
             let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
