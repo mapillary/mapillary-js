@@ -185,6 +185,31 @@ export class Spatial {
 
         return Math.asin(projection / norm);
     }
+
+    /**
+     * Calculates the distance between two coordinates
+     * (latitude longitude pairs) in meters according to
+     * the haversine formula.
+     *
+     * @param {number} lat1 The latitude of the first coordinate
+     * @param {number} lon1 The longitude of the first coordinate
+     * @param {number} lat2 The latitude of the second coordinate
+     * @param {number} lon2 The longitude of the second coordinate
+     */
+    public distanceFromLatLon(lat1: number, lon1: number, lat2: number, lon2: number): number {
+        let r: number = 6371000;
+        let dLat: number = this.degToRad(lat2 - lat1);
+        let dLon: number = this.degToRad(lon2 - lon1);
+
+        let hav: number =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1) * Math.cos(lat2) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        let d: number = 2 * r * Math.atan2(Math.sqrt(hav), Math.sqrt(1 - hav));
+
+        return d;
+    }
 }
 
 export default Spatial;
