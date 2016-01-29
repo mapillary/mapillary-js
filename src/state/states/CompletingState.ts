@@ -7,7 +7,7 @@ import * as UnitBezier from "unitbezier";
 import {ParameterMapillaryError} from "../../Error";
 import {IState, IRotationDelta} from "../../State";
 import {Node} from "../../Graph";
-import {Camera, Transform} from "../../Geo";
+import {Camera, Transform, Spatial} from "../../Geo";
 
 class RotationDelta implements IRotationDelta {
     private _phi: number;
@@ -61,8 +61,8 @@ class RotationDelta implements IRotationDelta {
 }
 
 export class CompletingState implements IState {
-    public alpha: number;
     public camera: Camera;
+    public motionless: boolean;
 
     public trajectory: Node[];
     public currentIndex: number;
@@ -70,6 +70,9 @@ export class CompletingState implements IState {
     public currentNode: Node;
     public previousNode: Node;
 
+    private _spatial: Spatial;
+
+    private _alpha: number;
     private _baseAlpha: number;
     private _animationSpeed: number;
 
@@ -89,12 +92,15 @@ export class CompletingState implements IState {
     private _rotationThreshold: number;
 
     constructor (trajectory: Node[]) {
-        this.alpha = trajectory.length > 0 ? 0 : 1;
-        this._baseAlpha = this.alpha;
+        this._spatial = new Spatial();
+
+        this._alpha = trajectory.length > 0 ? 0 : 1;
+        this._baseAlpha = this._alpha;
         this._animationSpeed = 0.025;
         this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
 
         this.camera = new Camera();
+        this.motionless = false;
 
         this.trajectory = trajectory.slice();
         this._trajectoryTransforms = [];
@@ -203,7 +209,7 @@ export class CompletingState implements IState {
     }
 
     public update(): void {
-        if (this.alpha === 1 && this.currentIndex + this.alpha < this.trajectory.length) {
+        if (this._alpha === 1 && this.currentIndex + this._alpha < this.trajectory.length) {
             this.currentIndex += 1;
 
             this._setNodes();
@@ -211,9 +217,9 @@ export class CompletingState implements IState {
 
         this._baseAlpha = Math.min(1, this._baseAlpha + this._animationSpeed);
         if (this.currentIndex + 1 < this.trajectory.length) {
-            this.alpha = this._baseAlpha;
+            this._alpha = this._baseAlpha;
         } else {
-            this.alpha = this._unitBezier.solve(this._baseAlpha);
+            this._alpha = this._unitBezier.solve(this._baseAlpha);
         }
 
         this._updateRotation();
@@ -233,8 +239,12 @@ export class CompletingState implements IState {
             this._trajectoryTransforms[this.currentIndex] : null;
     }
 
+    public get alpha(): number {
+        return this.motionless ? Math.ceil(this._alpha) : this._alpha;
+    }
+
     private _setNodes(): void {
-        this.alpha = 0;
+        this._alpha = 0;
         this._baseAlpha = 0;
 
         this.currentNode = this.trajectory[this.currentIndex];
@@ -253,6 +263,15 @@ export class CompletingState implements IState {
                 this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
             }
         }
+
+        let nodesSet: boolean = this.currentNode != null && this.previousNode != null;
+
+        this.motionless = nodesSet && !(
+            this.currentNode.merged &&
+            this.previousNode.merged &&
+            this._withinOriginalDistance() &&
+            this._sameConnectedComponent()
+        );
     }
 
     private _applyRotation(camera: Camera): void {
@@ -305,5 +324,37 @@ export class CompletingState implements IState {
 
         this._rotationDelta.multiply(this._rotationAcceleration);
         this._rotationDelta.threshold(this._rotationThreshold);
+    }
+
+    private _sameConnectedComponent(): boolean {
+        let current: Node = this.currentNode;
+        let previous: Node = this.previousNode;
+
+        if (!current ||
+            !current.apiNavImIm.merge_cc ||
+            !previous ||
+            !previous.apiNavImIm.merge_cc) {
+            return true;
+        }
+
+        return current.apiNavImIm.merge_cc === previous.apiNavImIm.merge_cc;
+    }
+
+    private _withinOriginalDistance(): boolean {
+        let current: Node = this.currentNode;
+        let previous: Node = this.previousNode;
+
+        if (!current || !previous) {
+            return true;
+        }
+
+        // 50 km/h moves 28m in 2s
+        let distance: number = this._spatial.distanceFromLatLon(
+            current.apiNavImIm.lat,
+            current.apiNavImIm.lon,
+            previous.apiNavImIm.lat,
+            previous.apiNavImIm.lon);
+
+        return distance < 25;
     }
 }
