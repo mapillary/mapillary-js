@@ -132,9 +132,7 @@ export class Node {
     }
 
     public get loaded(): boolean {
-        return this.cached &&
-            this.image != null &&
-            this.merged === (this.mesh != null);
+        return this.cached && this.image != null;
     }
 
     public get merged(): boolean {
