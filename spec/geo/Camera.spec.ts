@@ -168,6 +168,38 @@ describe("Camera.copy", () => {
     });
 });
 
+describe("Camera.clone", () => {
+    it("should clone properties of other camera", () => {
+        let camera: Camera = new Camera();
+
+        let position: number[] = [5, 10, -15];
+        let lookat: number[] = [-5, 5, 6];
+        let up: number[] = [0.6, 0.2, -0.4];
+        let focal: number = 0.75;
+
+        camera.position.fromArray(position);
+        camera.lookat.fromArray(lookat);
+        camera.up.fromArray(up);
+        camera.focal = focal;
+
+        let result: Camera = camera.clone();
+
+        expect(result.position.x).toBe(position[0]);
+        expect(result.position.y).toBe(position[1]);
+        expect(result.position.z).toBe(position[2]);
+
+        expect(result.lookat.x).toBe(lookat[0]);
+        expect(result.lookat.y).toBe(lookat[1]);
+        expect(result.lookat.z).toBe(lookat[2]);
+
+        expect(result.up.x).toBe(up[0]);
+        expect(result.up.y).toBe(up[1]);
+        expect(result.up.z).toBe(up[2]);
+
+        expect(result.focal).toBe(focal);
+    });
+});
+
 describe("Camera.diff", () => {
     let epsilon: number = 10e-8;
 

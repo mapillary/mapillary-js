@@ -38,6 +38,17 @@ export class Camera {
         this.focal = other.focal;
     }
 
+    public clone(): Camera {
+        let camera: Camera = new Camera();
+
+        camera.position.copy(this.position);
+        camera.lookat.copy(this.lookat);
+        camera.up.copy(this.up);
+        camera.focal = this.focal;
+
+        return camera;
+    }
+
     public diff(other: Camera): number {
         let pd: number = this.position.distanceToSquared(other.position);
         let ld: number = this.lookat.distanceToSquared(other.lookat);
