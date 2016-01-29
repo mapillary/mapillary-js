@@ -261,6 +261,10 @@
     padding: 5px;
 }
 
+.CoverButton:focus {
+    outline:0;
+}
+
 .CoverButtonIcon {
     display: inline-block;
     height: 60px;
