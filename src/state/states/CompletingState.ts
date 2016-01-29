@@ -127,15 +127,9 @@ export class CompletingState implements IState {
         }
 
         if (this.trajectory.length === 0) {
-            this.alpha = 0;
-            this.baseAlpha = 0;
-
             this.currentIndex = 0;
-            this.currentNode = trajectory[this.currentIndex];
-            this.previousNode = null;
 
-            this.currentCamera = this.trajectoryCameras[this.currentIndex];
-            this.previousCamera = this.currentCamera;
+            this._setNodes();
         }
 
         this.trajectory = this.trajectory.concat(trajectory);
@@ -197,25 +191,7 @@ export class CompletingState implements IState {
             this.trajectoryCameras.push(new Camera(transform));
         }
 
-        this.alpha = 0;
-        this.baseAlpha = 0;
-
-        this.currentNode = this.trajectory[this.currentIndex];
-        this.previousNode = this.trajectory[this.currentIndex - 1];
-
-        this.currentCamera = this.trajectoryCameras[this.currentIndex];
-        this.previousCamera = this.currentIndex > 0 ?
-            this.trajectoryCameras[this.currentIndex - 1] :
-            this.currentCamera;
-
-        if (this.previousNode != null) {
-            let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
-            this.previousCamera.lookat.copy(lookat.clone().add(this.previousCamera.position));
-
-            if (this.currentNode.pano) {
-                this.currentCamera.lookat.copy(lookat.clone().add(this.currentCamera.position));
-            }
-        }
+        this._setNodes();
     }
 
     public rotate(rotationDelta: IRotationDelta): void {
@@ -228,26 +204,9 @@ export class CompletingState implements IState {
 
     public update(): void {
         if (this.alpha === 1 && this.currentIndex + this.alpha < this.trajectory.length) {
-            this.alpha = 0;
-            this.baseAlpha = 0;
-
             this.currentIndex += 1;
-            this.currentNode = this.trajectory[this.currentIndex];
-            this.previousNode = this.trajectory[this.currentIndex - 1];
 
-            this.currentCamera = this.trajectoryCameras[this.currentIndex];
-            this.previousCamera = this.currentIndex > 0 ?
-                this.trajectoryCameras[this.currentIndex - 1] :
-                this.currentCamera;
-
-            if (this.previousNode != null) {
-                let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
-                this.previousCamera.lookat.copy(lookat.clone().add(this.previousCamera.position));
-
-                if (this.currentNode.pano) {
-                    this.currentCamera.lookat.copy(lookat.clone().add(this.currentCamera.position));
-                }
-            }
+            this._setNodes();
         }
 
         this.baseAlpha = Math.min(1, this.baseAlpha + this.animationSpeed);
@@ -272,6 +231,28 @@ export class CompletingState implements IState {
     public get previousTransform(): Transform {
         return this.trajectoryTransforms.length > 0 && this.currentIndex > 0 ?
             this.trajectoryTransforms[this.currentIndex] : null;
+    }
+
+    private _setNodes(): void {
+        this.alpha = 0;
+        this.baseAlpha = 0;
+
+        this.currentNode = this.trajectory[this.currentIndex];
+        this.previousNode = this.currentIndex > 0 ? this.trajectory[this.currentIndex - 1] : null;
+
+        this.currentCamera = this.trajectoryCameras[this.currentIndex];
+        this.previousCamera = this.currentIndex > 0 ?
+            this.trajectoryCameras[this.currentIndex - 1] :
+            this.currentCamera;
+
+        if (this.previousNode != null) {
+            let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
+            this.previousCamera.lookat.copy(lookat.clone().add(this.previousCamera.position));
+
+            if (this.currentNode.pano) {
+                this.currentCamera.lookat.copy(lookat.clone().add(this.currentCamera.position));
+            }
+        }
     }
 
     private _applyRotation(camera: Camera): void {
