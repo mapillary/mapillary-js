@@ -16,8 +16,8 @@
 
     <script src='build/bundle.js'></script>
     <script>
-      var viewer = new Mapillary.Viewer("viewer", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", "zarcRdNFZwg3FkXNcsFeGw",
-                                        {"cover": true, "debug": true});
+        var viewer = new Mapillary.Viewer("viewer", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", "zarcRdNFZwg3FkXNcsFeGw",
+                                          {"debug": true, "cover": true, "gl": true});
 
         viewer.on("nodechanged", function (node) {
             console.log(node.key);

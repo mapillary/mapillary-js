@@ -63,6 +63,7 @@ export class DOMRenderer {
             .shareReplay(1)
             .publish();
         this._element$.connect();
+        this._element$.subscribe();
     }
 
     public get element$(): rx.Observable<Element> {

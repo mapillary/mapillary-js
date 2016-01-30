@@ -5,11 +5,11 @@ import * as rx from "rx";
 
 import {IEdge, EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
-export class SimpleCacheUI extends UI {
-    public static uiName: string = "simplecache";
+export class CacheUI extends UI {
+    public static uiName: string = "cache";
     private _disposable: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -47,4 +47,5 @@ export class SimpleCacheUI extends UI {
     }
 }
 
-export default SimpleCacheUI;
+UIService.register(CacheUI);
+export default CacheUI;

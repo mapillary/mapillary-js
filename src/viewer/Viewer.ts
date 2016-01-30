@@ -1,5 +1,6 @@
 import {EdgeDirection} from "../Edge";
-import {IViewerOptions, Container, Navigator, UIService} from "../Viewer";
+import {IViewerOptions, Container, Navigator, UIController} from "../Viewer";
+import {IUIConfiguration, UIService} from "../UI";
 import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {
@@ -8,21 +9,28 @@ export class Viewer extends EventEmitter {
      * @private
      * @type {Container}
      */
-    private container: Container;
+    private _container: Container;
 
     /**
      * Navigator used to Navigate the vast seas of Mapillary
      * @private
      * @type {Navigator}
      */
-    private navigator: Navigator;
+    private _navigator: Navigator;
+
+    /**
+     * Commands the the UIService
+     * @private
+     * @type {UIController}
+     */
+    private _uiController: UIController;
 
     /**
      * Service used to keep track of UIs
      * @private
-     * @type {Navigator}
+     * @type {UIService}
      */
-    private uiService: UIService;
+    private _uiService: UIService;
 
     /**
      * Creates a viewer instance
@@ -30,16 +38,17 @@ export class Viewer extends EventEmitter {
      * @param {string} id - `id` of an DOM element which will be transformed into the viewer
      * @param {string} clientId - Mapillary API Client ID
      * @param {string} key - Image key to start from
-     * @param {IViewerOptions} options - Like `imageKey`, etc.
+     * @param {IViewerOptions} options
      */
     constructor (id: string, clientId: string, key: string, options: IViewerOptions) {
         if (options === undefined) {
             options = {};
         }
 
-        this.navigator = new Navigator(clientId);
-        this.container = new Container(id, this.navigator.stateService.currentState$);
-        this.uiService = new UIService(this.container, this.navigator, key, options);
+        this._navigator = new Navigator(clientId);
+        this._container = new Container(id, this._navigator.stateService.currentState$);
+        this._uiService = new UIService(this._container, this._navigator);
+        this._uiController = new UIController(this._container, this._navigator, this._uiService, key, options);
 
         Settings.setOptions({});
 
@@ -53,7 +62,7 @@ export class Viewer extends EventEmitter {
      * @throws {ParamaterMapillaryError} If no key is provided
      */
     public moveToKey(key: string): void {
-        this.navigator.moveToKey(key).first().subscribe();
+        this._navigator.moveToKey(key).first().subscribe();
     }
 
     /**
@@ -62,7 +71,7 @@ export class Viewer extends EventEmitter {
      * @param {Direction} dir - Direction towards which to move
      */
     public moveDir(dir: EdgeDirection): void {
-        this.navigator.moveDir(dir).first().subscribe();
+        this._navigator.moveDir(dir).first().subscribe();
     }
 
     /**
@@ -72,12 +81,21 @@ export class Viewer extends EventEmitter {
      * @param {Number} lon - Longitude
      */
     public moveCloseTo(lat: number, lon: number): void {
-        this.navigator.moveCloseTo(lat, lon).first().subscribe();
+        this._navigator.moveCloseTo(lat, lon).first().subscribe();
+    }
+
+    public activateHandler(name: string): void {
+        this._uiService.activate(name);
+    }
+
+    public deactivateHandler(name: string): void {
+        this._uiService.deactivate(name);
+    }
+
+    public configureHandler(name: string, conf: IUIConfiguration): void {
+        this._uiService.configure(name, conf);
     }
 }
-
-export default Viewer;
-
 
 /**
  * Node change event

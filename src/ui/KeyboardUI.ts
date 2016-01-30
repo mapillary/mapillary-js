@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {EdgeDirection} from "../Edge";
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
 interface INavigationElement {
@@ -34,4 +34,5 @@ export class KeyboardUI extends UI {
     }
 }
 
+UIService.register(KeyboardUI);
 export default KeyboardUI;

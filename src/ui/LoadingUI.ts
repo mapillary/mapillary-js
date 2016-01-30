@@ -6,7 +6,7 @@ import * as vd from "virtual-dom";
 import * as rx from "rx";
 
 import {Container, Navigator} from "../Viewer";
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 
 import {IVNodeHash} from "../Render";
 
@@ -67,4 +67,5 @@ export class LoadingUI extends UI {
     }
 }
 
+UIService.register(LoadingUI);
 export default LoadingUI;

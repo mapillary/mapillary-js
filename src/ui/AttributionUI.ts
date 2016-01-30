@@ -7,7 +7,7 @@ import * as vd from "virtual-dom";
 import {Container, Navigator} from "../Viewer";
 import {Node} from "../Graph";
 
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 import {IVNodeHash} from "../Render";
 
 export class AttributionUI extends UI {
@@ -45,4 +45,5 @@ export class AttributionUI extends UI {
     }
 }
 
+UIService.register(AttributionUI);
 export default AttributionUI;

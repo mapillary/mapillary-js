@@ -1,4 +1,4 @@
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 
 export class NoneUI extends UI {
     public static uiName: string = "none";
@@ -12,4 +12,5 @@ export class NoneUI extends UI {
     }
 }
 
+UIService.register(NoneUI);
 export default NoneUI;

@@ -12,7 +12,7 @@ import {Container, Navigator} from "../Viewer";
 import {IFrame} from "../State";
 import {Spatial, Camera} from "../Geo";
 
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 import {IVNodeHash} from "../Render";
 
 interface IRotation {
@@ -283,4 +283,5 @@ export class DirectionsUI extends UI {
     }
 }
 
+UIService.register(DirectionsUI);
 export default DirectionsUI;

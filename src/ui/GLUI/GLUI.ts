@@ -5,7 +5,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 
 import {IGPano} from "../../API";
-import {UI, Shaders, ImagePlaneScene} from "../../UI";
+import {UIService, UI, Shaders, ImagePlaneScene} from "../../UI";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../../Render";
@@ -332,4 +332,5 @@ export class GLUI extends UI {
     }
 }
 
+UIService.register(GLUI);
 export default GLUI;

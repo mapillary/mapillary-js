@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 import {EventEmitter} from "../Utils";
 
 export class EventUI extends UI {
@@ -16,10 +16,6 @@ export class EventUI extends UI {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
         this._eventEmitter = null;
-    }
-
-    public configure(options: any): void {
-        this._eventEmitter = options.eventEmitter;
     }
 
     protected _activate(): void {
@@ -38,4 +34,5 @@ export class EventUI extends UI {
     }
 }
 
+UIService.register(EventUI);
 export default EventUI;

@@ -4,7 +4,7 @@
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
@@ -13,8 +13,8 @@ interface ICanvasNode {
     node: Node;
 }
 
-export class SimpleUI extends UI {
-    public static uiName: string = "simple";
+export class ImageUI extends UI {
+    public static uiName: string = "image";
 
     private canvasId: string;
     private _disposable: rx.IDisposable;
@@ -65,4 +65,5 @@ export class SimpleUI extends UI {
     }
 }
 
-export default SimpleUI;
+UIService.register(ImageUI);
+export default ImageUI;

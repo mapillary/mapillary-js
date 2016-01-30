@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import * as rx from "rx";
 
-import {UI} from "../UI";
+import {UIService, UI} from "../UI";
 import {IFrame, ICurrentState} from "../State";
 import {Camera} from "../Geo";
 import {Container, Navigator} from "../Viewer";
@@ -138,3 +138,6 @@ export class SphereUI extends UI {
         }
     }
 }
+
+UIService.register(SphereUI);
+export default SphereUI;
