@@ -18,7 +18,6 @@ export class CoverUI extends UI {
 
     public _activate(): void {
         this._disposable = this._configuration$.map((conf: ICoverUIConfiguration): IVNodeHash => {
-            console.log(conf);
             if (!conf.visible) {
                 return {name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this.getCoverBackgroundVNode(conf) ])};
             }

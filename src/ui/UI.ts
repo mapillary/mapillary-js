@@ -30,6 +30,7 @@ export abstract class UI {
                     return conf;
                 }).shareReplay(1).publish();
         this._configuration$.connect();
+        this._configurationSubject$.onNext(this.defaultConfiguration);
     }
 
     public activate(): void {

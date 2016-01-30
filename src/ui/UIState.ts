@@ -57,6 +57,10 @@ export class UIState {
         return this._uis[name];
     }
 
+    public get uis(): {[key: string]: UI} {
+        return this._uis;
+    }
+
     private checkName(name: string): void {
         if (!(name in this._uis)) {
             throw new ParameterMapillaryError(`UI does not exist: ${name}`);

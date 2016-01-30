@@ -18,6 +18,7 @@
     border-radius: 2px;
     cursor: pointer;
     cursor: hand;
+    z-index: 100;
 }
 
 .DebugButtonFixed {

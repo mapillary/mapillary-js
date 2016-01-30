@@ -21,6 +21,8 @@ export class UIController {
 
         this.uTrue(options.cover, "cover");
         this._uiService.configure("cover", {buttonClicked: this.handleCoverClick, key: key, loading: false, that: this, visible: true});
+        this.uFalse(this._options.debug, "debug");
+        this._uiService.configure("debug", {uiState$: this._uiService.uiState$});
     }
 
     public uFalse(option: boolean, name: string): void {
@@ -38,7 +40,6 @@ export class UIController {
         this._uiService.deactivate(name);
     }
 
-
     private handleCoverClick(conf: ICoverUIConfiguration): void {
         let that: any = conf.that;
         that._uiService.configure("cover", {loading: true});
@@ -46,7 +47,6 @@ export class UIController {
             that._uiService.configure("cover", {visible: false});
             that.uTrue(that._options.attribution, "attribution");
             that.uTrue(that._options.cache, "cache");
-            that.uFalse(that._options.debug, "debug");
             that.uTrue(that._options.directions, "directions");
             that.uTrue(that._options.keyboard, "keyboard");
             that.uTrue(that._options.loading, "loading");
