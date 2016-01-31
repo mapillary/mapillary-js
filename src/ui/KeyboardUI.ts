@@ -47,16 +47,16 @@ export class KeyboardUI extends UI {
 
         switch (event.keyCode) {
             case 37: // left
-                direction = EdgeDirection.STEP_LEFT;
+                direction = event.shiftKey ? EdgeDirection.TURN_LEFT : EdgeDirection.STEP_LEFT;
                 break;
             case 38: // up
                 direction = EdgeDirection.STEP_FORWARD;
                 break;
             case 39: // right
-                direction = EdgeDirection.STEP_RIGHT;
+                direction = event.shiftKey ? EdgeDirection.TURN_RIGHT : EdgeDirection.STEP_RIGHT;
                 break;
             case 40: // down
-                direction = EdgeDirection.STEP_BACKWARD;
+                direction = event.shiftKey ? EdgeDirection.TURN_U : EdgeDirection.STEP_BACKWARD;
                 break;
             default:
                 break;
