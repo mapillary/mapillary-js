@@ -63,8 +63,7 @@ export class EdgeCalculator {
         let potentialEdges: IPotentialEdge[] = [];
 
         for (let potential of nodes) {
-            if (!potential.worthy ||
-                !potential.merged ||
+            if (!potential.merged ||
                 potential.key === node.key) {
                 continue;
             }

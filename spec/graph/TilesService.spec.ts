@@ -69,11 +69,7 @@ describe("TilesService", () => {
         let hash = tileFactory.createHash({ x: 0, y: 0, nodes: 1 });
 
         spyOn(apiV2.nav, 'h').and.callFake((h: string) => {
-            console.log(h);
-
             let tile: IAPINavIm = tileFactory.create(h);
-
-            console.log(tile);
 
             return when(tile);
         });
