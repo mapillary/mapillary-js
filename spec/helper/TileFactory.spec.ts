@@ -32,6 +32,24 @@ export class TileFactory {
         this._originCoords = { alt: 0, lat: 0, lon: 0 };
     }
 
+    public getNeighbours(hash: string): string[] {
+        let tile: ITile = this._parseHash(hash);
+
+        let neighbours: string[] = [];
+
+        for (let x: number = tile.x - 1; x <= tile.x + 1; x++) {
+            for (let y: number = tile.y - 1; y <= tile.y + 1; y++) {
+                if (x === tile.x && y === tile.y) {
+                    continue;
+                }
+
+                neighbours.push(this.createHash({ x: x, y: y, nodes: tile.nodes }));
+            }
+        }
+
+        return neighbours;
+    }
+
     public getBounds(hash: string): ITileBounds {
         let tile: ITile = this._parseHash(hash);
 
