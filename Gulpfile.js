@@ -57,7 +57,8 @@ var config = {
   ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions,
   typedoc: {
     includes: [
-      './src/Mapillary.ts'
+      './src/viewer/Viewer.ts',
+      './src/viewer/interfaces/IViewerOptions.ts'
     ],
     options: {
       target: 'ES5',
@@ -65,7 +66,8 @@ var config = {
       theme: 'minimal',
       mode: 'file',
       out: './docs-out',
-      name: 'mapillary-js'
+      name: 'mapillary-js',
+      excludeExternals: ''
     }
   }
 }
