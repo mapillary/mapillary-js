@@ -32,6 +32,24 @@ export class TileFactory {
         this._originCoords = { alt: 0, lat: 0, lon: 0 };
     }
 
+    public encode(latLon: ILatLon, nodes: number): string {
+        let topocentric: number[] = this._geoCoords.topocentric_from_lla(
+            latLon.lat,
+            latLon.lon,
+            0,
+            this._originCoords.lat,
+            this._originCoords.lon,
+            this._originCoords.alt
+        );
+
+        let x: number = Math.floor(topocentric[0] / (nodes * this._nodeDistance));
+        let y: number = Math.floor(-topocentric[1] / (nodes * this._nodeDistance));
+
+        let hash: string = this.createHash({ x: x, y: y, nodes: nodes});
+
+        return hash;
+    }
+
     public getNeighbours(hash: string): string[] {
         let tile: ITile = this._parseHash(hash);
 
@@ -54,7 +72,7 @@ export class TileFactory {
         let tile: ITile = this._parseHash(hash);
 
         let leftX: number = tile.nodes * this._nodeDistance * tile.x;
-        let topY: number = tile.nodes * this._nodeDistance * tile.y;
+        let topY: number = -tile.nodes * this._nodeDistance * tile.y;
         let rightX: number = leftX + tile.nodes * this._nodeDistance;
         let bottomY: number = topY - tile.nodes * this._nodeDistance;
 
