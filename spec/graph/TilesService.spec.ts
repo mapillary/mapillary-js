@@ -66,7 +66,7 @@ describe("TilesService", () => {
 
     it("cache generated h tile", (done) => {
         let tileFactory: TileFactory = new TileFactory();
-        let hash = tileFactory.createHash({ x: 0, y: 0, nodes: 1 });
+        let hash = tileFactory.createHash({ row: 0, col: 0, size: 1 });
 
         spyOn(apiV2.nav, 'h').and.callFake((h: string) => {
             let tile: IAPINavIm = tileFactory.create(h);

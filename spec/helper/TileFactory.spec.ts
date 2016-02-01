@@ -7,9 +7,9 @@ import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../src/API";
 import {ILatLonAlt, ILatLon} from "../../src/Graph";
 
 export interface ITile {
-    x: number;
-    y: number;
-    nodes: number;
+    row: number;
+    col: number;
+    size: number;
 }
 
 export interface ITileBounds {
@@ -32,7 +32,7 @@ export class TileFactory {
         this._originCoords = { alt: 0, lat: 0, lon: 0 };
     }
 
-    public encode(latLon: ILatLon, nodes: number): string {
+    public encode(latLon: ILatLon, size: number): string {
         let topocentric: number[] = this._geoCoords.topocentric_from_lla(
             latLon.lat,
             latLon.lon,
@@ -42,10 +42,10 @@ export class TileFactory {
             this._originCoords.alt
         );
 
-        let x: number = Math.floor(topocentric[0] / (nodes * this._nodeDistance));
-        let y: number = Math.floor(-topocentric[1] / (nodes * this._nodeDistance));
+        let row: number = Math.floor(-topocentric[1] / (size * this._nodeDistance));
+        let col: number = Math.floor(topocentric[0] / (size * this._nodeDistance));
 
-        let hash: string = this.createHash({ x: x, y: y, nodes: nodes});
+        let hash: string = this.createHash({ col: col, row: row, size: size });
 
         return hash;
     }
@@ -55,13 +55,13 @@ export class TileFactory {
 
         let neighbours: string[] = [];
 
-        for (let x: number = tile.x - 1; x <= tile.x + 1; x++) {
-            for (let y: number = tile.y - 1; y <= tile.y + 1; y++) {
-                if (x === tile.x && y === tile.y) {
+        for (let row: number = tile.row - 1; row <= tile.row + 1; row++) {
+            for (let col: number = tile.col - 1; col <= tile.col + 1; col++) {
+                if (row === tile.row && col === tile.col) {
                     continue;
                 }
 
-                neighbours.push(this.createHash({ x: x, y: y, nodes: tile.nodes }));
+                neighbours.push(this.createHash({ row: row, col: col, size: tile.size }));
             }
         }
 
@@ -98,7 +98,7 @@ export class TileFactory {
     }
 
     public createHash(tile: ITile): string {
-        return tile.y.toString() + ":" + tile.x.toString() + ":" + tile.nodes.toString();
+        return tile.row.toString() + ":" + tile.col.toString() + ":" + tile.size.toString();
     }
 
     public create(hash: string): IAPINavIm {
@@ -110,8 +110,8 @@ export class TileFactory {
         let ims: IAPINavImIm[] = [];
         let ss: IAPINavImS[] = [];
 
-        for (let i: number = 0; i < tile.nodes; i++) {
-            for (let j: number = 0; j < tile.nodes; j++) {
+        for (let i: number = 0; i < tile.size; i++) {
+            for (let j: number = 0; j < tile.size; j++) {
                 let x: number = leftX + this._nodeDistance / 2 + i * this._nodeDistance;
                 let y: number = topY - this._nodeDistance / 2 - j * this._nodeDistance;
 
@@ -163,19 +163,19 @@ export class TileFactory {
 
 
     private _leftX(tile: ITile): number {
-        return tile.nodes * this._nodeDistance * tile.x;
+        return tile.size * this._nodeDistance * tile.col;
     }
 
     private _rightX(tile: ITile): number {
-        return tile.nodes * this._nodeDistance * (tile.x + 1);
+        return tile.size * this._nodeDistance * (tile.col + 1);
     }
 
     private _topY(tile: ITile): number {
-        return -tile.nodes * this._nodeDistance * tile.y;
+        return -tile.size * this._nodeDistance * tile.row;
     }
 
     private _bottomY(tile: ITile): number {
-         return -tile.nodes * this._nodeDistance * (tile.y + 1);
+         return -tile.size * this._nodeDistance * (tile.row + 1);
     }
 
     private _parseHash(hash: string): ITile {
@@ -186,17 +186,17 @@ export class TileFactory {
             });
 
         if (coords.length !== 3) {
-            throw Error("Tile format must be on the form col:row:nodes");
+            throw Error("Tile format must be on the form col:row:size");
         }
 
         if (coords[2] < 1) {
             throw Error("Node number must be a positive integer");
         }
 
-        let x: number = coords[1];
-        let y: number = coords[0];
-        let nodes: number = coords[2];
+        let row: number = coords[0];
+        let col: number = coords[1];
+        let size: number = coords[2];
 
-        return { x: x, y: y, nodes: nodes };
+        return { col: col, row: row, size: size };
     }
 }
