@@ -71,10 +71,10 @@ export class TileFactory {
     public getBounds(hash: string): ITileBounds {
         let tile: ITile = this._parseHash(hash);
 
-        let leftX: number = tile.nodes * this._nodeDistance * tile.x;
-        let topY: number = -tile.nodes * this._nodeDistance * tile.y;
-        let rightX: number = leftX + tile.nodes * this._nodeDistance;
-        let bottomY: number = topY - tile.nodes * this._nodeDistance;
+        let leftX: number = this._leftX(tile);
+        let topY: number = this._topY(tile);
+        let rightX: number = this._rightX(tile);
+        let bottomY: number = this._bottomY(tile);
 
         let bl: number[] =
             this._geoCoords.lla_from_topocentric(
@@ -104,8 +104,8 @@ export class TileFactory {
     public create(hash: string): IAPINavIm {
         let tile: ITile = this._parseHash(hash);
 
-        let leftX: number = tile.nodes * this._nodeDistance * tile.x;
-        let topY: number = tile.nodes * this._nodeDistance * tile.y;
+        let leftX: number = this._leftX(tile);
+        let topY: number = this._topY(tile);
 
         let ims: IAPINavImIm[] = [];
         let ss: IAPINavImS[] = [];
@@ -159,6 +159,23 @@ export class TileFactory {
         };
 
         return result;
+    }
+
+
+    private _leftX(tile: ITile): number {
+        return tile.nodes * this._nodeDistance * tile.x;
+    }
+
+    private _rightX(tile: ITile): number {
+        return tile.nodes * this._nodeDistance * (tile.x + 1);
+    }
+
+    private _topY(tile: ITile): number {
+        return -tile.nodes * this._nodeDistance * tile.y;
+    }
+
+    private _bottomY(tile: ITile): number {
+         return -tile.nodes * this._nodeDistance * (tile.y + 1);
     }
 
     private _parseHash(hash: string): ITile {
