@@ -7,18 +7,13 @@ import * as _ from "underscore";
 import {EdgeDirection, IEdge} from "../Edge";
 import {UI} from "../UI";
 import {Container, Navigator} from "../Viewer";
-import {IFrame} from "../State";
+import {IFrame, IRotation} from "../State";
 import {Node} from "../Graph";
 import {Spatial, Camera} from "../Geo";
 
 interface IKeyboardFrame {
     event: KeyboardEvent;
     frame: IFrame;
-}
-
-interface IRotation {
-    phi: number;
-    theta: number;
 }
 
 export class KeyboardUI extends UI {
