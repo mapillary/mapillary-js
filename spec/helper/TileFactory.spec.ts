@@ -6,6 +6,12 @@ import {GeoCoords} from "../../src/Geo";
 import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../src/API";
 import {ILatLonAlt} from "../../src/Graph";
 
+export interface ITile {
+    x: number;
+    y: number;
+    nodes: number;
+}
+
 export class TileFactory {
     private _geoCoords: GeoCoords;
 
@@ -21,38 +27,43 @@ export class TileFactory {
         this._originCoords = { alt: 0, lat: 0, lon: 0 };
     }
 
-    public createHash(tileX: number, tileY: number): string {
-        return tileY.toString() + ":" + tileX.toString();
+    public createHash(tile: ITile): string {
+        return tile.y.toString() + ":" + tile.x.toString() + ":" + tile.nodes.toString();
     }
 
-    public create(hash: string, nodes: number): IAPINavIm {
+    public create(hash: string): IAPINavIm {
         let coords: number[] = hash
             .split(":")
             .map((coord: string): number => {
                 return parseInt(coord);
             });
 
-        if (coords.length !== 2) {
-            throw Error("Tile format must be on the form col:row");
+        if (coords.length !== 3) {
+            throw Error("Tile format must be on the form col:row:nodes");
         }
 
-        let tileX: number = coords[1];
-        let tileY: number = coords[0];
+        if (coords[2] < 1) {
+            throw Error("Node number must be a positive integer");
+        }
 
-        return this._createTile(tileX, tileY, nodes);
+        let x: number = coords[1];
+        let y: number = coords[0];
+        let nodes: number = coords[2];
+
+        return this._createTile({ x: x, y: y, nodes: nodes });
     }
 
-    private _createTile(tileX: number, tileY: number, nodes: number): IAPINavIm {
-        let startX: number = nodes * this._nodeDistance * tileX;
-        let startY: number = nodes * this._nodeDistance * tileY;
-        let endX: number = startX + nodes * this._nodeDistance;
-        let endY: number = startY + nodes * this._nodeDistance;
+    private _createTile(tile: ITile): IAPINavIm {
+        let startX: number = tile.nodes * this._nodeDistance * tile.x;
+        let startY: number = tile.nodes * this._nodeDistance * tile.y;
+        let endX: number = startX + tile.nodes * this._nodeDistance;
+        let endY: number = startY + tile.nodes * this._nodeDistance;
 
         let ims: IAPINavImIm[] = [];
         let ss: IAPINavImS[] = [];
 
-        for (let i: number = 0; i < nodes; i++) {
-            for (let j: number = 0; j < nodes; j++) {
+        for (let i: number = 0; i < tile.nodes; i++) {
+            for (let j: number = 0; j < tile.nodes; j++) {
                 let x: number = startX + this._nodeDistance / 2 + i * this._nodeDistance;
                 let y: number = startY + this._nodeDistance / 2 + j * this._nodeDistance;
 
@@ -71,7 +82,7 @@ export class TileFactory {
                     calt: coords[2],
                     cfocal: 1,
                     height: 1,
-                    key: this.createHash(tileX, tileY) + "_" + j.toString() + ":" + i.toString(),
+                    key: this.createHash(tile) + "_" + j.toString() + ":" + i.toString(),
                     lat: coords[0],
                     lon: coords[1],
                     merge_version: 7,
@@ -93,12 +104,12 @@ export class TileFactory {
             }
         }
 
-        let tile: IAPINavIm = {
-            hs: [this.createHash(tileX, tileY)],
+        let result: IAPINavIm = {
+            hs: [this.createHash(tile)],
             ims: ims,
             ss: ss,
         };
 
-        return tile;
+        return result;
     }
 }
