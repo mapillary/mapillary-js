@@ -1,6 +1,6 @@
-export interface IRotationDelta {
+export interface IRotation {
     phi: number;
     theta: number;
 }
 
-export default IRotationDelta;
+export default IRotation;

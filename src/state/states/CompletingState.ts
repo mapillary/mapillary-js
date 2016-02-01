@@ -5,11 +5,11 @@ import * as THREE from "three";
 import * as UnitBezier from "unitbezier";
 
 import {ParameterMapillaryError} from "../../Error";
-import {IState, IRotationDelta} from "../../State";
+import {IState, IRotation} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, Transform, Spatial} from "../../Geo";
 
-class RotationDelta implements IRotationDelta {
+class RotationDelta implements IRotation {
     private _phi: number;
     private _theta: number;
 
@@ -30,12 +30,12 @@ class RotationDelta implements IRotationDelta {
         return this._phi === 0 && this._theta === 0;
     }
 
-    public copy(delta: IRotationDelta): void {
+    public copy(delta: IRotation): void {
         this._phi = delta.phi;
         this._theta = delta.theta;
     }
 
-    public lerp(other: IRotationDelta, alpha: number): void {
+    public lerp(other: IRotation, alpha: number): void {
         this._phi =  (1 - alpha) * this._phi + alpha * other.phi;
         this._theta =  (1 - alpha) * this._theta + alpha * other.theta;
     }
@@ -201,7 +201,7 @@ export class CompletingState implements IState {
         this._clearRotation();
     }
 
-    public rotate(rotationDelta: IRotationDelta): void {
+    public rotate(rotationDelta: IRotation): void {
         if (this.currentNode == null || !this.currentNode.fullPano) {
             return;
         }
