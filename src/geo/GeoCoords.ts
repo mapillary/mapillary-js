@@ -35,23 +35,6 @@ export class GeoCoords {
         return this.lla_from_ecef(ex, ey, ez);
     }
 
-    // from: http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
-    public distanceFromLatLonApprox(lat1: number, lon1: number, lat2: number, lon2: number): number {
-        let lat1Rad: number = lat1 * Math.PI / 180;
-        let lon1Rad: number = lon1 * Math.PI / 180;
-        let lat2Rad: number = lat2 * Math.PI / 180;
-        let lon2Rad: number = lon2 * Math.PI / 180;
-        let R: number = 6371000; // radius of the earth in km
-        let dLat: number = lat2Rad - lat1Rad;
-        let dLon: number = lon2Rad - lon1Rad;
-        let a: number = (Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2));
-        let c: number = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c; // distance in m
-    }
-
     private ecef_from_lla(lat: number, lon: number, alt: number): number[] {
         // compute ECEF XYZ from latitude, longitude and altitude.
         // all using the WGS94 model.
