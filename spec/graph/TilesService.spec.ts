@@ -5,6 +5,7 @@ import * as when from "when";
 
 import {IAPINavIm, APIv2} from "../../src/API";
 import {TilesService} from "../../src/Graph";
+import {TileFactory} from "../helper/TileFactory.spec";
 
 describe("TilesService", () => {
     var tilesService: TilesService;
@@ -61,5 +62,23 @@ describe("TilesService", () => {
         });
 
         tilesService.cacheH$.onNext(h);
+    });
+
+    it("cache generated h tile", (done) => {
+        let tileFactory: TileFactory = new TileFactory();
+        let hash = tileFactory.createHash({ x: 0, y: 0, nodes: 1 });
+
+        spyOn(apiV2.nav, 'h').and.callFake((h: string) => {
+            let tile: IAPINavIm = tileFactory.create(h);
+
+            return when(tile);
+        });
+
+        tilesService.cachedTiles$.subscribe((tilesCache: {[key: string]: boolean}) => {
+            expect(tilesCache[hash]).toBe(true);
+            done();
+        });
+
+        tilesService.cacheH$.onNext(hash);
     });
 });

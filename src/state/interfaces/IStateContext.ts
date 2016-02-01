@@ -1,4 +1,4 @@
-import {ICurrentState, IRotationDelta} from "../../State";
+import {ICurrentState, IRotation} from "../../State";
 import {Node} from "../../Graph";
 
 export interface IStateContext extends ICurrentState {
@@ -8,5 +8,5 @@ export interface IStateContext extends ICurrentState {
     cut(): void;
     set(nodes: Node[]): void;
 
-    rotate(delta: IRotationDelta): void;
+    rotate(delta: IRotation): void;
 }

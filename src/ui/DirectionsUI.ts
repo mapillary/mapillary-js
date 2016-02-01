@@ -9,16 +9,11 @@ import * as vd from "virtual-dom";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {IFrame} from "../State";
+import {IFrame, IRotation} from "../State";
 import {Spatial, Camera} from "../Geo";
 
 import {UIService, UI} from "../UI";
 import {IVNodeHash} from "../Render";
-
-interface IRotation {
-    phi: number;
-    theta: number;
-}
 
 export class DirectionsUI extends UI {
     public static uiName: string = "directions";
