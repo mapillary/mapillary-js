@@ -9,20 +9,30 @@ import {UI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 import {IFrame} from "../State";
 import {Node} from "../Graph";
+import {Spatial, Camera} from "../Geo";
 
 interface IKeyboardFrame {
     event: KeyboardEvent;
     frame: IFrame;
 }
 
+interface IRotation {
+    phi: number;
+    theta: number;
+}
+
 export class KeyboardUI extends UI {
     public static uiName: string = "keyboard";
+
+    private _spatial: Spatial;
 
     private _disposable: rx.IDisposable;
     private _perspectiveDirections: EdgeDirection[];
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._spatial = new Spatial();
 
         this._perspectiveDirections = [
             EdgeDirection.STEP_FORWARD,
@@ -45,7 +55,9 @@ export class KeyboardUI extends UI {
                 })
             .subscribe((kf: IKeyboardFrame): void => {
                 if (!kf.frame.state.currentNode.pano) {
-                    this.navigatePerspective(kf.event, kf.frame.state.currentNode);
+                    this._navigatePerspective(kf.event, kf.frame.state.currentNode);
+                } else {
+                    this._navigatePanorama(kf.event, kf.frame.state.currentNode, kf.frame.state.camera);
                 }
             });
     }
@@ -54,7 +66,75 @@ export class KeyboardUI extends UI {
         this._disposable.dispose();
     }
 
-    private navigatePerspective(event: KeyboardEvent, node: Node): void {
+    private _navigatePanorama(event: KeyboardEvent, node: Node, camera: Camera): void {
+        let navigationAngle: number = 0;
+        let stepDirection: EdgeDirection = null;
+
+        let phi: number = this._rotationFromCamera(camera).phi;
+
+        switch (event.keyCode) {
+            case 37: // left
+                navigationAngle = Math.PI / 2 + phi;
+                stepDirection = EdgeDirection.STEP_LEFT;
+                break;
+            case 38: // up
+                navigationAngle = phi;
+                stepDirection = EdgeDirection.STEP_FORWARD;
+                break;
+            case 39: // right
+                navigationAngle = -Math.PI / 2 + phi;
+                stepDirection = EdgeDirection.STEP_RIGHT;
+                break;
+            case 40: // down
+                navigationAngle = Math.PI + phi;
+                stepDirection = EdgeDirection.STEP_BACKWARD;
+                break;
+            default:
+                return;
+        }
+
+        navigationAngle = this._spatial.wrapAngle(navigationAngle);
+
+        let threshold: number = Math.PI / 4;
+
+        let edges: IEdge[] = node.edges.filter(
+            (e: IEdge): boolean => {
+                return e.data.direction === EdgeDirection.PANO ||
+                    e.data.direction === stepDirection;
+            });
+
+        let smallestAngle: number = Number.MAX_VALUE;
+        let toKey: string = null;
+
+        for (let edge of edges) {
+            let angle: number = Math.abs(this._spatial.wrapAngle(edge.data.worldMotionAzimuth - navigationAngle));
+
+            if (angle < Math.min(smallestAngle, threshold)) {
+                smallestAngle = angle;
+                toKey = edge.to;
+            }
+        }
+
+        if (toKey == null) {
+            return;
+        }
+
+        this._navigator.moveToKey(toKey).subscribe();
+    }
+
+    private _rotationFromCamera(camera: Camera): IRotation {
+        let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+
+        let upProjection: number = direction.clone().dot(camera.up);
+        let planeProjection: THREE.Vector3 = direction.clone().sub(camera.up.clone().multiplyScalar(upProjection));
+
+        let phi: number = Math.atan2(planeProjection.y, planeProjection.x);
+        let theta: number = Math.PI / 2 - this._spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
+
+        return { phi: phi, theta: theta };
+    }
+
+    private _navigatePerspective(event: KeyboardEvent, node: Node): void {
         let direction: EdgeDirection = null;
 
         switch (event.keyCode) {
@@ -74,7 +154,7 @@ export class KeyboardUI extends UI {
                 break;
         }
 
-        direction = this.checkExistence(direction, node);
+        direction = this._checkExistence(direction, node);
 
         if (direction == null) {
             return;
@@ -83,7 +163,7 @@ export class KeyboardUI extends UI {
         this._navigator.moveDir(direction).subscribe();
     }
 
-    private checkExistence(direction: EdgeDirection, node: Node): EdgeDirection {
+    private _checkExistence(direction: EdgeDirection, node: Node): EdgeDirection {
         if (direction == null) {
             return null;
         }
@@ -99,14 +179,14 @@ export class KeyboardUI extends UI {
             if (directionExist) {
                 return direction;
             } else {
-                return this.fallbackToSequence(direction, node);
+                return this._fallbackToSequence(direction, node);
             }
         } else {
             return directionExist ? direction : null;
         }
     }
 
-    private fallbackToSequence(direction: EdgeDirection, node: Node): EdgeDirection {
+    private _fallbackToSequence(direction: EdgeDirection, node: Node): EdgeDirection {
         let sequenceDirection: EdgeDirection = null;
 
         switch (direction) {
