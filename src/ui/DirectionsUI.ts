@@ -151,7 +151,17 @@ export class DirectionsUI extends UI {
                 continue;
             }
 
-            turns.push(this.createVNodeByTurn(name, direction));
+            let style: any = {};
+            style.perspective = "365px";
+
+            if (name === "TurnRight") {
+                style.perspective = "365px";
+                style.transform = "rotateX(60deg) scaleX(-1)";
+            } else {
+                style.transform = "rotateX(60deg)";
+            }
+
+            turns.push(this.createVNodeByTurn(name, direction, style));
         }
 
         return turns;
@@ -230,12 +240,14 @@ export class DirectionsUI extends UI {
         return this.createVNode(azimuth, phi, "DirectionsArrowStep", onClick);
     }
 
-    private createVNodeByTurn(name: string, direction: EdgeDirection): vd.VNode {
+    private createVNodeByTurn(name: string, direction: EdgeDirection, style: any): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).first().subscribe(); };
 
         return vd.h(`div.${name}`,
-                    {onclick: onClick},
+                    {onclick: onClick,
+                     style,
+                    },
                     []);
     }
 

@@ -65,8 +65,8 @@
 .TurnRight {
     opacity: 0.8;
     position: absolute;
-    height: 40px;
-    width: 40px;
+    height: 54px;
+    width: 54px;
     bottom: 30px;
     filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.8));
     cursor: pointer;
