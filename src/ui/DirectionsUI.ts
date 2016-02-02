@@ -282,6 +282,14 @@ export class DirectionsUI extends UI {
         return vd.h("div." + className, properties, []);
     }
 
+    private getVNodePanoIndication(panorama: boolean): vd.VNode {
+        if (panorama) {
+            return vd.h("div.PanoIndication", {}, []);
+        } else {
+            return undefined;
+        }
+    }
+
     private getVNodeContainer(buttons: any, turns: any, rotateZ: number): any {
         let rotateZDeg: number = 180 * rotateZ / Math.PI;
 
@@ -298,6 +306,7 @@ export class DirectionsUI extends UI {
 
         return vd.h("div", {},
                     [prevNextArrows,
+                     this.getVNodePanoIndication(true),
                      vd.h("div.DirectionsWrapper", {}, [
                          vd.h("div.TurnAround",
                               {
