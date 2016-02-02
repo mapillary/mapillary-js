@@ -80,7 +80,7 @@ export class UIService {
         let coverUI: UI = uiS.get("cover");
         coverUI.configure({key: key});
         coverUI.on("coverButtonPressed", (e: Event) => {
-            this._navigator.moveToKey(key).first().subscribe((node: Node) => {
+            this._navigator.moveToKey(key).subscribe((node: Node) => {
                 this.deactivateCover();
             });
         });
@@ -122,7 +122,7 @@ export class UIService {
         // this.uFalse(options.player, "player");
         // this.uTrue(options.gl, "gl");
 
-        this._navigator.moveToKey(key).first().subscribe((node: Node) => {
+        this._navigator.moveToKey(key).subscribe((node: Node) => {
             this.deactivateCover();
             this.uTrue(options.attribution, "attribution");
             this.uTrue(options.cache, "cache");

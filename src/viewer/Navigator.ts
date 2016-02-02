@@ -25,16 +25,19 @@ export class Navigator {
 
     public moveToKey(key: string): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
-        return this.graphService.node$(key).map<Node>((node: Node) => {
-            this.loadingService.stopLoading("navigator");
-            this.stateService.setNodes([node]);
-            return node;
-        });
+        return this.graphService.node$(key)
+            .map<Node>((node: Node) => {
+                this.loadingService.stopLoading("navigator");
+                this.stateService.setNodes([node]);
+                return node;
+            })
+            .first();
     }
 
     public moveDir(dir: EdgeDirection): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
-        return this.stateService.currentNode$.first()
+        return this.stateService.currentNode$
+            .first()
             .flatMap<Node>((currentNode: Node) => {
                 return this.graphService.nextNode$(currentNode, dir)
                     .flatMap<Node>((node: Node) => {
@@ -42,15 +45,18 @@ export class Navigator {
                             rx.Observable.just<Node>(null) :
                             this.moveToKey(node.key);
                     });
-            });
+            })
+            .first();
     }
 
     public moveCloseTo(lat: number, lon: number): rx.Observable<Node> {
         this.loadingService.startLoading("navigator");
-        return rx.Observable.fromPromise(this.apiV2.search.im.close2(lat, lon))
+        return rx.Observable
+            .fromPromise(this.apiV2.search.im.close2(lat, lon))
             .flatMap<Node>((data: IAPISearchImClose2): rx.Observable<Node> => {
                 return this.moveToKey(data.key);
-            });
+            })
+            .first();
     }
 }
 

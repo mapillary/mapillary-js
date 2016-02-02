@@ -62,7 +62,7 @@ export class Viewer extends EventEmitter {
      * @throws {ParamaterMapillaryError} If no key is provided
      */
     public moveToKey(key: string): void {
-        this._navigator.moveToKey(key).first().subscribe();
+        this._navigator.moveToKey(key).subscribe();
     }
 
     /**
@@ -71,7 +71,7 @@ export class Viewer extends EventEmitter {
      * @param {Direction} dir - Direction towards which to move
      */
     public moveDir(dir: EdgeDirection): void {
-        this._navigator.moveDir(dir).first().subscribe();
+        this._navigator.moveDir(dir).subscribe();
     }
 
     /**
@@ -81,7 +81,7 @@ export class Viewer extends EventEmitter {
      * @param {Number} lon - Longitude
      */
     public moveCloseTo(lat: number, lon: number): void {
-        this._navigator.moveCloseTo(lat, lon).first().subscribe();
+        this._navigator.moveCloseTo(lat, lon).subscribe();
     }
 
     public activateHandler(name: string): void {
