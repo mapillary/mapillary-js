@@ -98,7 +98,7 @@ export class DirectionsUI extends UI {
                     turns = turns.concat(this.createTurnArrows(node));
                 }
 
-                return {name: this._name, vnode: this.getVNodeContainer(btns, turns, phi)};
+                return {name: this._name, vnode: this.getVNodeContainer(btns, turns, phi, node.pano)};
             })
             .filter((hash: IVNodeHash): boolean => { return hash != null; })
             .subscribe(this._container.domRenderer.render$);
@@ -290,7 +290,7 @@ export class DirectionsUI extends UI {
         }
     }
 
-    private getVNodeContainer(buttons: any, turns: any, rotateZ: number): any {
+    private getVNodeContainer(buttons: any, turns: any, rotateZ: number, pano: boolean): any {
         let rotateZDeg: number = 180 * rotateZ / Math.PI;
 
         // todo: change the rotateX value for panoramas
@@ -306,7 +306,7 @@ export class DirectionsUI extends UI {
 
         return vd.h("div", {},
                     [prevNextArrows,
-                     this.getVNodePanoIndication(true),
+                     this.getVNodePanoIndication(pano),
                      vd.h("div.DirectionsWrapper", {}, [
                          vd.h("div.TurnAround",
                               {
