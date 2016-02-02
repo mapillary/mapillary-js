@@ -91,7 +91,7 @@ export class GraphService {
             }
 
             return false;
-        }).map((graph: Graph): Node => {
+        }).map<Node>((graph: Graph): Node => {
             return graph.getNode(key);
         }).take(1);
     }
@@ -101,18 +101,19 @@ export class GraphService {
             rx.Observable.throw<Node>(new Error("node is not yet cached"));
         }
 
-        return this._graph$.map((graph: Graph): string => {
-            let nextNode: Node = graph.nextNode(node, dir);
-            if (nextNode == null) {
-                return null;
-            }
-            return nextNode.key;
-        }).distinct().flatMap((key: string): rx.Observable<Node> => {
-            if (key == null) {
-                return null; // rx.Observable.throw<Node>(new Error("there is no node in that direction"));
-            }
-            return this.node$(key);
-        });
+        return this._graph$
+            .map<string>(
+                (graph: Graph): string => {
+                    let nextNode: Node = graph.nextNode(node, dir);
+                    return nextNode == null ? null : nextNode.key;
+                })
+            .distinct()
+            .flatMap<Node>(
+                (key: string): rx.Observable<Node> => {
+                    return key == null ?
+                        rx.Observable.just<Node>(null) :
+                        this.node$(key);
+                });
     }
 }
 

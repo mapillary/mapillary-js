@@ -38,7 +38,9 @@ export class Navigator {
             .flatMap<Node>((currentNode: Node) => {
                 return this.graphService.nextNode$(currentNode, dir)
                     .flatMap<Node>((node: Node) => {
-                        return this.moveToKey(node.key);
+                        return node == null ?
+                            rx.Observable.just<Node>(null) :
+                            this.moveToKey(node.key);
                     });
             });
     }
