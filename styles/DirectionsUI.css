@@ -62,12 +62,13 @@
 
 
 .TurnLeft,
-.TurnRight {
+.TurnRight,
+.TurnAround {
     opacity: 0.8;
     position: absolute;
     height: 54px;
     width: 54px;
-    bottom: 30px;
+    bottom: 40px;
     filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.8));
     cursor: pointer;
     cursor: hand;
@@ -91,19 +92,26 @@
     transform: scaleX(-1);
 }
 
+.TurnAround {
+    left: 5px;
+    bottom: -5px;
+    background: url(./arrow-left.svg);
+    background-size: contain;
+}
+
 .InSeq {
     position: absolute;
     top: 0;
-    bottom: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 33%,rgba(0,0,0,0.65) 50%,rgba(0,0,0,0) 66%);
-    width: 26px;
-    padding-top: 29%;
+    height: 120px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 10%,rgba(0,0,0,0.65) 50%,rgba(0,0,0,0) 90%);
+    width: 24px;
 }
 
 .NextInSeq:hover,
 .PrevInSeq:hover {
     opacity: 1;
 }
+
 .NextInSeq,
 .PrevInSeq {
     background: url(./next-prev.svg);
@@ -114,6 +122,10 @@
     cursor: pointer;
     cursor: hand;
     filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
+}
+
+.NextInSeq {
+    margin-top: 14px;
 }
 
 .PrevInSeq {

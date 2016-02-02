@@ -290,11 +290,20 @@ export class DirectionsUI extends UI {
             transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZDeg}deg)`
         };
 
+        let turnAroundStyle: any = {
+            transform: `perspective(375px) rotateX(50deg) rotate(270deg)`
+        };
+
         let prevNextArrows: vd.VNode = this.createPrevNextArrows();
 
         return vd.h("div", {},
                     [prevNextArrows,
                      vd.h("div.DirectionsWrapper", {}, [
+                         vd.h("div.TurnAround",
+                              {
+                                  style: turnAroundStyle
+                              },
+                              []),
                          turns,
                          vd.h("div.Directions", {style: style}, buttons),
                      ]),
