@@ -183,6 +183,13 @@ export class DirectionsUI extends UI {
         return this.createVNodeDisabled(azimuth, phi);
     }
 
+    private createPrevNextArrows(): vd.VNode {
+        return vd.h("div.InSeq", {}, [
+            vd.h("div.NextInSeq", {}, []),
+            vd.h("div.PrevInSeq.InSeqDisabled", {}, []),
+        ]);
+    }
+
     private rotationFromCamera(camera: Camera): IRotation {
         let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
 
@@ -271,9 +278,14 @@ export class DirectionsUI extends UI {
             transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZDeg}deg)`
         };
 
-        return vd.h("div.DirectionsWrapper", {},
-                    [turns,
-                     vd.h("div.Directions", {style: style}, buttons),
+        let prevNextArrows: vd.VNode = this.createPrevNextArrows();
+
+        return vd.h("div", {},
+                    [prevNextArrows,
+                     vd.h("div.DirectionsWrapper", {}, [
+                         turns,
+                         vd.h("div.Directions", {style: style}, buttons),
+                     ]),
                     ]);
     }
 }
