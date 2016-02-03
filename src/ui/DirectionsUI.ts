@@ -22,7 +22,8 @@ export class DirectionsUI extends UI {
 
     private _disposable: rx.IDisposable;
 
-    private cssOffset: number;
+    private arrowOffset: number;
+    private innerArrowOffset: number;
     private dropShadowOffset: number;
 
     private currentKey: string;
@@ -38,7 +39,8 @@ export class DirectionsUI extends UI {
         super(name, container, navigator);
 
         // cssOffset is a magic number in px
-        this.cssOffset = 62;
+        this.arrowOffset = 62;
+        this.innerArrowOffset = 25;
         this.dropShadowOffset = 3;
 
         this.steps = [
@@ -97,6 +99,7 @@ export class DirectionsUI extends UI {
                 if (node.pano) {
                     btns = btns.concat(this.createPanoArrows(node, phi));
                 } else {
+                    btns = btns.concat(this.createPerspectiveToPanoArrows(node, phi));
                     btns = btns.concat(this.createStepArrows(node, phi));
                     turns = turns.concat(this.createTurnArrows(node));
                 }
@@ -128,6 +131,20 @@ export class DirectionsUI extends UI {
         return btns;
     }
 
+    private createPerspectiveToPanoArrows(node: Node, phi: number): Array<vd.VNode> {
+        let btns: Array<vd.VNode> = [];
+
+        for (let edge of node.edges) {
+            if (edge.data.direction !== EdgeDirection.PANO) {
+                continue;
+            }
+
+            btns.push(this.createVNodeByKey(edge.data.worldMotionAzimuth, phi, this.innerArrowOffset, edge.to, "DirectionsArrowPano"));
+        }
+
+        return btns;
+    }
+
     private createPanoArrows(node: Node, phi: number): Array<vd.VNode> {
         let btns: Array<vd.VNode> = [];
 
@@ -135,7 +152,7 @@ export class DirectionsUI extends UI {
             let direction: EdgeDirection = edge.data.direction;
 
             if (direction === EdgeDirection.PANO) {
-                btns.push(this.createVNodeByKey(edge.data.worldMotionAzimuth, phi, edge.to, "DirectionsArrowPano"));
+                btns.push(this.createVNodeByKey(edge.data.worldMotionAzimuth, phi, this.arrowOffset, edge.to, "DirectionsArrowPano"));
             } else if (this.steps.indexOf(direction) > -1) {
                 btns.push(this.createPanoToPerspectiveArrow(edge.data.worldMotionAzimuth, phi, direction, edge.to));
             }
@@ -191,7 +208,7 @@ export class DirectionsUI extends UI {
         }
 
         if (Math.abs(this.spatial.wrapAngle(azimuth - rotation)) < threshold) {
-            return this.createVNodeByKey(azimuth, phi, key, "DirectionsArrowStep");
+            return this.createVNodeByKey(azimuth, phi, this.arrowOffset, key, "DirectionsArrowStep");
         }
 
         return this.createVNodeDisabled(azimuth, phi);
@@ -242,22 +259,22 @@ export class DirectionsUI extends UI {
         return this.calcTranslation(angle);
     }
 
-    private createVNodeByKey(azimuth: number, phi: number, key: string, className: string): vd.VNode {
+    private createVNodeByKey(azimuth: number, phi: number, offset: number, key: string, className: string): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveToKey(key).subscribe(); };
 
-        return this.createVNode(azimuth, phi, className, onClick);
+        return this.createVNode(azimuth, phi, offset, className, onClick);
     }
 
     private createVNodeDisabled(azimuth: number, phi: number): vd.VNode {
-        return this.createVNode(azimuth, phi, "DirectionsArrowDisabled");
+        return this.createVNode(azimuth, phi, this.arrowOffset, "DirectionsArrowDisabled");
     }
 
     private createVNodeByDirection(azimuth: number, phi: number, direction: EdgeDirection): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
-        return this.createVNode(azimuth, phi, "DirectionsArrowStep", onClick);
+        return this.createVNode(azimuth, phi, this.arrowOffset, "DirectionsArrowStep", onClick);
     }
 
     private createVNodeByTurn(name: string, direction: EdgeDirection, style: any): vd.VNode {
@@ -271,12 +288,12 @@ export class DirectionsUI extends UI {
                     []);
     }
 
-    private createVNode(azimuth: number, phi: number, className: string, onClick?: (e: Event) => void): vd.VNode {
+    private createVNode(azimuth: number, phi: number, offset: number, className: string, onClick?: (e: Event) => void): vd.VNode {
         let translation: Array<number> = this.calcTranslation(azimuth);
 
         // rotate 90 degrees clockwise and flip over X-axis
-        let translationX: number = -this.cssOffset * translation[1];
-        let translationY: number = -this.cssOffset * translation[0];
+        let translationX: number = -offset * translation[1];
+        let translationY: number = -offset * translation[0];
 
         let shadowTranslation: Array<number> = this.calcShadowTranslation(azimuth, phi);
         let shadowTranslationX: number = -this.dropShadowOffset * shadowTranslation[1];
