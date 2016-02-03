@@ -32,6 +32,8 @@ export class Node {
     public mesh: IMesh;
     public edges: IEdge[];
 
+    public hs: string[];
+
     public loadStatus: ILoadStatus;
 
     constructor (
@@ -41,7 +43,8 @@ export class Node {
         worthy: boolean,
         sequence: Sequence,
         apiNavImIm: IAPINavImIm,
-        translation: number[]) {
+        translation: number[],
+        hs: string[]) {
         this.key = key;
         this.ca = ca;
         this.latLon = latLon;
@@ -52,6 +55,8 @@ export class Node {
         this.cached = false;
         this.lastCacheEvict = 0;
         this.lastUsed = new Date().getTime();
+
+        this.hs = hs;
 
         this.loadStatus = {loaded: 0, total: 100};
     }

@@ -16,7 +16,7 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r }, t);
+        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r }, t, []);
 
         let transform: Transform = new Transform(node);
         let Rt: THREE.Matrix4 = transform.rt;
@@ -46,7 +46,7 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, Math.PI];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t);
+        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t, []);
 
         let transform: Transform = new Transform(node);
         let Rt: THREE.Matrix4 = transform.rt;
@@ -76,7 +76,7 @@ describe("Transform.rt", () => {
         let r: number[] = [Math.PI / 2, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t);
+        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t, []);
 
         let transform: Transform = new Transform(node);
         let Rt: THREE.Matrix4 = transform.rt;
@@ -106,7 +106,7 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t);
+        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t, []);
 
         let transform: Transform = new Transform(node);
         let Rt: THREE.Matrix4 = transform.rt;
@@ -140,7 +140,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 1 }, t);
+        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 1 }, t, []);
 
         let transform: Transform = new Transform(node);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -170,7 +170,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, Math.PI / 2, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 3 }, t);
+        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 3 }, t, []);
 
         let transform: Transform = new Transform(node);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -200,7 +200,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [-10, 20, -30];
 
-        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 0.5 }, t);
+        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 0.5 }, t, []);
 
         let transform: Transform = new Transform(node);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -232,7 +232,7 @@ describe("Transform.width", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -245,7 +245,7 @@ describe("Transform.width", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { width: width, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -258,7 +258,7 @@ describe("Transform.height", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { height: -1, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -271,7 +271,7 @@ describe("Transform.height", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { height: height, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -284,7 +284,7 @@ describe("Transform.focal", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -297,7 +297,7 @@ describe("Transform.focal", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { cfocal: focal, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -310,7 +310,7 @@ describe("Transform.orientation", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -323,7 +323,7 @@ describe("Transform.orientation", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { orientation: orientation, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -336,7 +336,7 @@ describe("Transform.scale", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -349,7 +349,7 @@ describe("Transform.scale", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { atomic_scale: scale, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -362,7 +362,7 @@ describe("Transform.gpano", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -382,7 +382,7 @@ describe("Transform.gpano", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { gpano: gpano, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -403,7 +403,7 @@ describe("Transform.pixelToVertex", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -418,7 +418,7 @@ describe("Transform.pixelToVertex", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [10, -20, 30]);
+            [10, -20, 30], []);
 
         let transform: Transform = new Transform(node);
 
@@ -437,7 +437,7 @@ describe("Transform.pixelToVertex", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: r },
-            t);
+            t, []);
 
         let transform: Transform = new Transform(node);
 
@@ -452,7 +452,7 @@ describe("Transform.pixelToVertex", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0]);
+            [0, 0, 0], []);
 
         let transform: Transform = new Transform(node);
 
@@ -472,7 +472,7 @@ describe("Transform.pixelToVertex", () => {
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: r },
-            t);
+            t, []);
 
         let transform: Transform = new Transform(node);
 

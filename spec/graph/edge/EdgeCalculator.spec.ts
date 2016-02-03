@@ -49,7 +49,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         apiNavImIm = apiNavImIm == null ?
             { key: key, rotation: r, merge_version: 1, merge_cc: merge_cc } :
             apiNavImIm;
-        let node: Node = new Node(key, 0, latLon, true, sequence, apiNavImIm, t);
+        let node: Node = new Node(key, 0, latLon, true, sequence, apiNavImIm, t, []);
 
         return node;
     };
@@ -73,7 +73,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
     });
 
     it("should return empty array when node is not worthy", () => {
-        let node: Node = new Node("key", 0, null, false, null, null, null);
+        let node: Node = new Node("key", 0, null, false, null, null, null, null);
 
         let result: IPotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, null, []);

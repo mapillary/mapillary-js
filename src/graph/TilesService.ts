@@ -54,8 +54,7 @@ export class TilesService {
         this._cacheNodeH$.distinct((node: Node) => {
             return node.key;
         }).flatMap<string>((node: Node): rx.Observable<string> => {
-            let hs: string[] = this._spatialLib.worthyHs(node.latLon);
-            return rx.Observable.from(hs);
+            return rx.Observable.from<string>(node.hs);
         }).subscribe(this._cacheH$);
 
         this._tiles$ = this._imTiles$.merge(this._hTiles$).publish();

@@ -1,16 +1,29 @@
 /// <reference path="../../typings/graphlib/graphlib.d.ts" />
 /// <reference path="../../typings/rbush/rbush.d.ts" />
 /// <reference path="../../typings/threejs/three.d.ts" />
+/// <reference path="../../typings/latlon-geohash/latlon-geohash.d.ts" />
 
 import * as _ from "underscore";
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 import * as THREE from "three";
+import * as geohash from "latlon-geohash";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
 import {Spatial, GeoCoords} from "../Geo";
 import {ILatLon, ILatLonAlt, Node, Sequence} from "../Graph";
+
+class GeoHashDirections {
+    public static n: string = "n";
+    public static nw: string = "nw";
+    public static w: string = "w";
+    public static sw: string = "sw";
+    public static s: string = "s";
+    public static se: string = "se";
+    public static e: string = "e";
+    public static ne: string = "ne";
+}
 
 export class Graph {
     public referenceLatLonAlt: ILatLonAlt = null;
@@ -57,6 +70,10 @@ export class Graph {
             return;
         }
 
+        let h: string = data.hs[0];
+        let bounds: any = geohash.bounds(h);
+        let neighbours: { [key: string]: string } = geohash.neighbours(h);
+
         let nodes: Node[];
         let sequences: Sequence[];
         let sequenceHash: {[key: string]: Sequence} = {};
@@ -93,6 +110,8 @@ export class Graph {
 
             let translation: number[] = this.computeTranslation(im, latLon);
 
+            let hs: string[] = this.computeHs(latLon, bounds.sw, bounds.ne, h, neighbours);
+
             let node: Node = new Node(
                 im.key,
                 ca,
@@ -100,7 +119,8 @@ export class Graph {
                 false,
                 sequenceHash[im.key],
                 im,
-                translation
+                translation,
+                hs
             );
 
             node.user = im.user;
@@ -118,12 +138,11 @@ export class Graph {
 
     public makeNodesWorthy(tiles: {[key: string]: boolean}): void {
         let worthy: boolean;
-
         for (let key in this.unWorthyNodes) {
             if (this.unWorthyNodes.hasOwnProperty(key)) {
                 if (this.unWorthyNodes[key]) {
                     let node: Node = this.getNode(key);
-                    let hs: string[] = this.spatialLib.worthyHs(node.latLon);
+                    let hs: string[] = node.hs;
 
                     worthy = true;
                     _.each(hs, (h: string): void => {
@@ -292,6 +311,79 @@ export class Graph {
         }
 
         return null;
+    }
+
+    private computeHs(
+        latLon: ILatLon,
+        sw: ILatLon,
+        ne: ILatLon,
+        h: string,
+        neighbours: { [key: string]: string }): string[] {
+
+        let hs: string[] = [h];
+
+        let bl: number[] = [0, 0, 0];
+        let tr: number[] =
+            this.geoCoords.topocentric_from_lla(
+                ne.lat,
+                ne.lon,
+                0,
+                sw.lat,
+                sw.lon,
+                0);
+
+        let position: number[] =
+            this.geoCoords.topocentric_from_lla(
+                latLon.lat,
+                latLon.lon,
+                0,
+                sw.lat,
+                sw.lon,
+                0);
+
+        let left: number = position[0] - bl[0];
+        let right: number = tr[0] - position[0];
+        let bottom: number = position[1] - bl[1];
+        let top: number = tr[1] - position[1];
+
+        let l: boolean = left < 20;
+        let r: boolean = right < 20;
+        let b: boolean = bottom < 20;
+        let t: boolean = top < 20;
+
+        if (t) {
+            hs.push(neighbours[GeoHashDirections.n]);
+        }
+
+        if (t && l) {
+            hs.push(neighbours[GeoHashDirections.nw]);
+        }
+
+        if (l) {
+            hs.push(neighbours[GeoHashDirections.w]);
+        }
+
+        if (l && b) {
+            hs.push(neighbours[GeoHashDirections.sw]);
+        }
+
+        if (b) {
+            hs.push(neighbours[GeoHashDirections.s]);
+        }
+
+        if (b && r) {
+            hs.push(neighbours[GeoHashDirections.se]);
+        }
+
+        if (r) {
+            hs.push(neighbours[GeoHashDirections.e]);
+        }
+
+        if (r && t) {
+            hs.push(neighbours[GeoHashDirections.ne]);
+        }
+
+        return hs;
     }
 
     /**
