@@ -71,6 +71,11 @@ export class KeyboardUI extends UI {
                 stepDirection = EdgeDirection.STEP_LEFT;
                 break;
             case 38: // up
+                if (event.altKey) {
+                    this._navigator.moveDir(EdgeDirection.NEXT).subscribe();
+                    return;
+                }
+
                 navigationAngle = phi;
                 stepDirection = EdgeDirection.STEP_FORWARD;
                 break;
@@ -79,6 +84,11 @@ export class KeyboardUI extends UI {
                 stepDirection = EdgeDirection.STEP_RIGHT;
                 break;
             case 40: // down
+                if (event.altKey) {
+                    this._navigator.moveDir(EdgeDirection.PREV).subscribe();
+                    return;
+                }
+
                 navigationAngle = Math.PI + phi;
                 stepDirection = EdgeDirection.STEP_BACKWARD;
                 break;
@@ -135,12 +145,22 @@ export class KeyboardUI extends UI {
                 direction = event.shiftKey ? EdgeDirection.TURN_LEFT : EdgeDirection.STEP_LEFT;
                 break;
             case 38: // up
+                if (event.altKey) {
+                    this._navigator.moveDir(EdgeDirection.NEXT).subscribe();
+                    return;
+                }
+
                 direction = EdgeDirection.STEP_FORWARD;
                 break;
             case 39: // right
                 direction = event.shiftKey ? EdgeDirection.TURN_RIGHT : EdgeDirection.STEP_RIGHT;
                 break;
             case 40: // down
+                if (event.altKey) {
+                    this._navigator.moveDir(EdgeDirection.PREV).subscribe();
+                    return;
+                }
+
                 direction = event.shiftKey ? EdgeDirection.TURN_U : EdgeDirection.STEP_BACKWARD;
                 break;
             default:
