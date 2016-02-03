@@ -59,10 +59,8 @@ Since we've gathered all the required data, in our `<script>..</script>` tag we 
 var mly = new Mapillary
   .Viewer('mly', // container id
           'cjJ1SUtVOEMtdy11b21JM0tyYTZIQTo2ZmVjNTQ3YWQ0OWI2Yjgx', // your Client ID
-          {
-            key: 'Xo3DR9FUdP3nh0jHZhgeig',  // photoId at which the viewer initializes
-            uis: ['simple', 'simplenav'] // UIs upon which the viewer will depend on
-          })
+          'Xo3DR9FUdP3nh0jHZhgeig'  // photoId at which the viewer initializes
+          )
 ```
 
 ## Changelog
