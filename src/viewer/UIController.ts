@@ -66,9 +66,19 @@ export class UIController {
     }
 
     private uFalse(option: boolean, name: string): void {
-        if (option === undefined || option === false) {
+        if (option === undefined) {
             this._uiService.deactivate(name);
+            return;
         }
+        if (typeof option === "boolean") {
+            if (option) {
+                this._uiService.activate(name);
+            } else {
+                this._uiService.deactivate(name);
+            }
+            return;
+        }
+        this._uiService.configure(name, option);
         this._uiService.activate(name);
     }
 
