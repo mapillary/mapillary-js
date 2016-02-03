@@ -233,6 +233,7 @@ export class Graph {
 
         edges = edges.concat(this.edgeCalculator.computeTurnEdges(node, potentialEdges));
         edges = edges.concat(this.edgeCalculator.computePanoEdges(node, potentialEdges));
+        edges = edges.concat(this.edgeCalculator.computePerspectiveToPanoEdges(node, potentialEdges));
 
         this.addEdgesToNode(node, edges);
 
