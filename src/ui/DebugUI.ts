@@ -6,7 +6,7 @@ import * as vd from "virtual-dom";
 
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
-import {IDebugUIConfiguration, UIState, UIService, UI} from "../UI";
+import {UI, UIService} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
 export class DebugUI extends UI {
@@ -15,7 +15,7 @@ export class DebugUI extends UI {
     private _displaying: boolean;
     private _disposable: rx.IDisposable;
 
-    private _open$: rx.Subject<boolean> = new rx.Subject<boolean>();
+    private _open$: rx.BehaviorSubject<boolean> = new rx.BehaviorSubject<boolean>(false);
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -23,25 +23,19 @@ export class DebugUI extends UI {
     }
 
     public _activate(): void {
-        let uiState$: rx.Observable<UIState> =
-            this.configuration$.flatMap<UIState>((conf: IDebugUIConfiguration): rx.Observable<UIState> => {
-                return conf.uiState$;
-            });
-
         this._disposable = this._navigator.stateService.currentState$
-            .combineLatest(this._open$, this._navigator.graphService.imageLoadingService.loadstatus$, uiState$,
-                           (frame: IFrame, open: boolean, loadStatus: any, uiState: UIState): IVNodeHash => {
-                               return {name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame, uiState, loadStatus))};
+            .combineLatest(this._open$, this._navigator.graphService.imageLoadingService.loadstatus$,
+                           (frame: IFrame, open: boolean, loadStatus: any): IVNodeHash => {
+                               return {name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame, loadStatus))};
                            })
             .subscribe(this._container.domRenderer.render$);
-        this._open$.onNext(false);
     }
 
     public _deactivate(): void {
         this._disposable.dispose();
     }
 
-    private _getDebugInfo(frame: IFrame, uiState: UIState, loadStatus: any): vd.VNode[] {
+    private _getDebugInfo(frame: IFrame, loadStatus: any): vd.VNode[] {
         let ret: vd.VNode[] = [];
 
         ret.push(vd.h("h2", "Node"));
@@ -72,16 +66,6 @@ export class DebugUI extends UI {
         ret.push(vd.h("p", `Loaded Images: ${loaded}`));
         ret.push(vd.h("p", `Loading Images: ${loading}`));
         ret.push(vd.h("p", `Total bytes loaded: ${total}`));
-
-        ret.push(vd.h("h2", "UI"));
-        if (uiState) {
-            for (let key in uiState.uis) {
-                if (uiState.uis.hasOwnProperty(key)) {
-                    let ui: UI = uiState.uis[key];
-                    ret.push(vd.h("p", `${key}: ${ui.activated}`));
-                }
-            }
-        }
 
         ret.push(vd.h("h2", "Camera"));
 
