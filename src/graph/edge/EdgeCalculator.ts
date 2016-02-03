@@ -140,6 +140,10 @@ export class EdgeCalculator {
      * @param {Node} node Source node
      */
     public computeSequenceEdges(node: Node): IEdge[] {
+        if (!node.worthy) {
+            return [];
+        }
+
         let edges: IEdge[] = [];
 
         let nextKey: string = node.findNextKeyInSequence();
