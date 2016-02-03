@@ -76,22 +76,45 @@ export class Viewer extends EventEmitter {
         this._navigator.moveCloseTo(lat, lon).subscribe();
     }
 
+    /**
+     * Activate a Component
+     * @method
+     * @param {string} name - Name of component
+     */
     public activateComponent(name: string): void {
         this._uiController.activate(name);
     }
 
+    /**
+     * Deactivate a Component
+     * @method
+     * @param {string} name - Name of component
+     */
     public deactivateComponent(name: string): void {
         this._uiController.deactivate(name);
     }
 
+    /**
+     * Get a Component
+     * @method
+     * @param {string} name - Name of component
+     */
     public getComponent(name: string): UI {
         return this._uiController.get(name);
     }
 
+    /**
+     * Activate the Cover (deactivates all other components)
+     * @method
+     */
     public activateCover(): void {
         this._uiController.activateCover();
     }
 
+    /**
+     * Deactivate the Cover (activates all components marked as active)
+     * @method
+     */
     public deactivateCover(): void {
         this._uiController.deactivateCover();
     }

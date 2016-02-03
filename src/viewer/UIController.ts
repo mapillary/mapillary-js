@@ -14,13 +14,8 @@ export class UIController {
         this._navigator = navigator;
         this._uiService = new UIService(this._container, this._navigator);
 
-        if (options.cover === undefined || options.cover) {
-            this._uiService.activateCover();
-        } else {
-            this._uiService.deactivateCover();
-        }
-
         this.uFalse(options.debug, "debug");
+        this.uFalse(options.player, "player");
         this.uTrue(options.attribution, "attribution");
         this.uTrue(options.cache, "cache");
         this.uTrue(options.directions, "directions");
@@ -30,7 +25,14 @@ export class UIController {
         this.uTrue(options.gl, "gl");
 
         this._coverUI = <CoverUI> this._uiService.getCover();
-        this._coverUI.configure({key: key, loading: false, visible: true});
+
+        this._coverUI.configure({key: key});
+        if (options.cover === undefined || options.cover) {
+            this.activateCover();
+        } else {
+            this.deactivateCover();
+        }
+
         this._coverUI.configuration$.subscribe((conf: ICoverUIConfiguration) => {
             if (conf.loading) {
                 this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
