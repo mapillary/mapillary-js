@@ -1,5 +1,4 @@
 export {UI} from "./ui/UI"
-export {UIState, IUIStateOperation, IUIActivateCommand, IUIConfigureCommand} from "./ui/UIState";
 export {UIService} from "./ui/UIService";
 export {AttributionUI} from "./ui/AttributionUI"
 export {CacheUI} from "./ui/CacheUI"

@@ -20,7 +20,7 @@ export class DirectionsUI extends UI {
 
     private spatial: Spatial;
 
-    private stateSubscription: rx.IDisposable;
+    private _disposable: rx.IDisposable;
 
     private cssOffset: number;
     private dropShadowOffset: number;
@@ -36,13 +36,6 @@ export class DirectionsUI extends UI {
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
-
-        this.spatial = new Spatial();
-
-        this.currentKey = null;
-        this.currentPlaneRotation = 0;
-        this.currentUpRotation = 0;
-        this.rotationEpsilon = 0.5 * Math.PI / 180;
 
         // cssOffset is a magic number in px
         this.cssOffset = 62;
@@ -63,10 +56,18 @@ export class DirectionsUI extends UI {
         this.turnNames = {};
         this.turnNames[EdgeDirection.TURN_LEFT] = "TurnLeft";
         this.turnNames[EdgeDirection.TURN_RIGHT] = "TurnRight";
+
     }
 
     protected _activate(): void {
-        this.stateSubscription = this._navigator.stateService.currentState$
+        this.spatial = new Spatial();
+
+        this.currentKey = null;
+        this.currentPlaneRotation = 0;
+        this.currentUpRotation = 0;
+        this.rotationEpsilon = 0.5 * Math.PI / 180;
+
+        this._disposable = this._navigator.stateService.currentState$
             .map((frame: IFrame): IVNodeHash => {
                 let node: Node = frame.state.currentNode;
 
@@ -105,8 +106,7 @@ export class DirectionsUI extends UI {
     }
 
     protected _deactivate(): void {
-        this._container.domRenderer.clear(this._name);
-        this.stateSubscription.dispose();
+        this._disposable.dispose();
     }
 
     private createStepArrows(node: Node, phi: number): Array<vd.VNode> {
@@ -224,7 +224,7 @@ export class DirectionsUI extends UI {
 
     private createVNodeByKey(azimuth: number, phi: number, key: string, className: string): vd.VNode {
         let onClick: (e: Event) => void =
-            (e: Event): void => { this._navigator.moveToKey(key).first().subscribe(); };
+            (e: Event): void => { this._navigator.moveToKey(key).subscribe(); };
 
         return this.createVNode(azimuth, phi, className, onClick);
     }
@@ -235,14 +235,14 @@ export class DirectionsUI extends UI {
 
     private createVNodeByDirection(azimuth: number, phi: number, direction: EdgeDirection): vd.VNode {
         let onClick: (e: Event) => void =
-            (e: Event): void => { this._navigator.moveDir(direction).first().subscribe(); };
+            (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
         return this.createVNode(azimuth, phi, "DirectionsArrowStep", onClick);
     }
 
     private createVNodeByTurn(name: string, direction: EdgeDirection, style: any): vd.VNode {
         let onClick: (e: Event) => void =
-            (e: Event): void => { this._navigator.moveDir(direction).first().subscribe(); };
+            (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
         return vd.h(`div.${name}`,
                     {onclick: onClick,

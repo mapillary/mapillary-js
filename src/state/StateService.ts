@@ -27,7 +27,9 @@ export class StateService {
         this._currentNode$ = this._currentState$
             .map<Node>((f: IFrame): Node => { return f.state.currentNode; })
             .filter((n: Node): boolean => { return n != null; })
-            .distinctUntilChanged();
+            .distinctUntilChanged()
+            .shareReplay(1);
+        this._currentNode$.subscribe();
 
         this._frameGenerator = new FrameGenerator();
         this._frameGenerator.requestAnimationFrame(this.frame.bind(this));

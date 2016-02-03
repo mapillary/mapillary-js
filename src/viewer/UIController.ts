@@ -1,57 +1,91 @@
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ICoverUIConfiguration, UIService, UIState} from "../UI";
+import {CoverUI, UIService, ICoverUIConfiguration, UI} from "../UI";
 import {IViewerOptions} from "../Viewer";
 
 export class UIController {
     private _container: Container;
+    private _coverUI: CoverUI;
     private _navigator: Navigator;
     private _uiService: UIService;
-    private _options: IViewerOptions;
 
-    constructor(container: Container, navigator: Navigator, uiService: UIService, key: string, options: IViewerOptions) {
+    constructor(container: Container, navigator: Navigator, key: string, options: IViewerOptions) {
         this._container = container;
         this._navigator = navigator;
-        this._uiService = uiService;
-        this._options = options;
+        this._uiService = new UIService(this._container, this._navigator);
 
-        this._uiService.uiState$.subscribe((uiState: UIState): void => {
-            return;
+        this.uFalse(options.debug, "debug");
+        this.uFalse(options.player, "player");
+        this.uTrue(options.attribution, "attribution");
+        this.uTrue(options.cache, "cache");
+        this.uTrue(options.directions, "directions");
+        this.uTrue(options.keyboard, "keyboard");
+        this.uTrue(options.loading, "loading");
+        this.uTrue(options.mouse, "mouse");
+        this.uTrue(options.gl, "gl");
+
+        this._coverUI = <CoverUI> this._uiService.getCover();
+
+        this._coverUI.configure({key: key});
+        if (options.cover === undefined || options.cover) {
+            this.activateCover();
+        } else {
+            this.deactivateCover();
+        }
+
+        this._coverUI.configuration$.subscribe((conf: ICoverUIConfiguration) => {
+            if (conf.loading) {
+                this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
+                    this._coverUI.configure({loading: false, visible: false});
+                    this._uiService.deactivateCover();
+                });
+            } else if (conf.visible) {
+                this._uiService.activateCover();
+            }
         });
-
-        this.uTrue(options.cover, "cover");
-        this._uiService.configure("cover", {buttonClicked: this.handleCoverClick, key: key, loading: false, that: this, visible: true});
-        this.uFalse(this._options.debug, "debug");
-        this._uiService.configure("debug", {uiState$: this._uiService.uiState$});
     }
 
-    public uFalse(option: boolean, name: string): void {
+    public activateCover(): void {
+        this._coverUI.configure({loading: false, visible: true});
+    }
+
+    public deactivateCover(): void {
+        this._coverUI.configure({loading: true, visible: true});
+    }
+
+    public activate(name: string): void {
+        this._uiService.activate(name);
+    }
+
+    public deactivate(name: string): void {
+        this._uiService.deactivate(name);
+    }
+
+    public get(name: string): UI {
+        return this._uiService.get(name);
+    }
+
+    private uFalse(option: boolean, name: string): void {
         if (option === undefined || option === false) {
             this._uiService.deactivate(name);
         }
         this._uiService.activate(name);
     }
 
-    public uTrue(option: boolean, name: string): void {
-        if (option === undefined || option === true) {
+    private uTrue(option: boolean, name: string): void {
+        if (option === undefined) {
             this._uiService.activate(name);
             return;
         }
-        this._uiService.deactivate(name);
-    }
-
-    private handleCoverClick(conf: ICoverUIConfiguration): void {
-        let that: any = conf.that;
-        that._uiService.configure("cover", {loading: true});
-        that._navigator.moveToKey(conf.key).subscribe((node: Node) => {
-            that._uiService.configure("cover", {visible: false});
-            that.uTrue(that._options.attribution, "attribution");
-            that.uTrue(that._options.cache, "cache");
-            that.uTrue(that._options.directions, "directions");
-            that.uTrue(that._options.keyboard, "keyboard");
-            that.uTrue(that._options.loading, "loading");
-            that.uTrue(that._options.mouse, "mouse");
-            that.uTrue(that._options.gl, "gl");
-        });
+        if (typeof option === "boolean") {
+            if (option) {
+                this._uiService.activate(name);
+            } else {
+                this._uiService.deactivate(name);
+            }
+            return;
+        }
+        this._uiService.configure(name, option);
+        this._uiService.activate(name);
     }
 }

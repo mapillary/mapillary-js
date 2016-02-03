@@ -6,7 +6,7 @@ import {ILoadStatus, Node} from "../Graph";
 
 export class ImageLoadingService {
     private _loadnode$: rx.Subject<Node> = new rx.Subject<Node>();
-    private _loadstatus$: rx.ConnectableObservable<{[key: string]: ILoadStatus}>;
+    private _loadstatus$: rx.Observable<{[key: string]: ILoadStatus}>;
 
     constructor () {
         this._loadstatus$ = this._loadnode$.scan<{[key: string]: ILoadStatus}>(
@@ -14,8 +14,8 @@ export class ImageLoadingService {
             nodes[node.key] = node.loadStatus;
             return nodes;
         },
-        {}).publish();
-        this._loadstatus$.connect();
+        {}).shareReplay(1);
+        this._loadstatus$.subscribe();
     }
 
     public get loadnode$(): rx.Subject<Node> {

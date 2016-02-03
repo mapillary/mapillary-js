@@ -3,21 +3,31 @@
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
+import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ICoverUIConfiguration, UIService, UI} from "../UI";
+import {ICoverUIConfiguration, IUIConfiguration, UIService, UI} from "../UI";
 
 import {IVNodeHash} from "../Render";
 
 export class CoverUI extends UI {
     public static uiName: string = "cover";
+
     private _disposable: rx.IDisposable;
+    private _keyDisposable: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     public _activate(): void {
+        this._keyDisposable = this._navigator.stateService.currentNode$.map((node: Node): IUIConfiguration => {
+            return {key: node.key};
+        }).subscribe(this._configurationSubject$);
+
         this._disposable = this._configuration$.map((conf: ICoverUIConfiguration): IVNodeHash => {
+            if (!conf.key) {
+                return {name: this._name, vnode: vd.h("div", [])};
+            }
             if (!conf.visible) {
                 return {name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this.getCoverBackgroundVNode(conf) ])};
             }
@@ -27,6 +37,11 @@ export class CoverUI extends UI {
 
     public _deactivate(): void {
         this._disposable.dispose();
+        this._keyDisposable.dispose();
+    }
+
+    public get defaultConfiguration(): IUIConfiguration {
+        return {"loading": false, "visible": true};
     }
 
     private getCoverButtonVNode(conf: ICoverUIConfiguration): vd.VNode {
@@ -39,7 +54,7 @@ export class CoverUI extends UI {
 
         return vd.h("div.Cover", [
             this.getCoverBackgroundVNode(conf),
-            vd.h("button.CoverButton", {onclick: (): void => { conf.buttonClicked(conf); }}, [
+            vd.h("button.CoverButton", {onclick: (): void => { this.configure({loading: true}); }}, [
                 vd.h(coverBtn, {}, children)
             ]),
         ]);
@@ -51,5 +66,5 @@ export class CoverUI extends UI {
     }
 }
 
-UIService.register(CoverUI);
+UIService.registerCover(CoverUI);
 export default CoverUI;

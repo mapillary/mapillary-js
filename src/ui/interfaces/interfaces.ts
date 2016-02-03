@@ -1,4 +1,4 @@
 export {IRect} from "./IRect"
 export {ICoverUIConfiguration} from "./ICoverUIConfiguration"
-export {IDebugUIConfiguration} from "./IDebugUIConfiguration"
+export {IPlayerUIConfiguration} from "./IPlayerUIConfiguration"
 export {IUIConfiguration} from "./IUIConfiguration"

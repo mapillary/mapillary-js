@@ -1,6 +1,6 @@
 import {EdgeDirection} from "../Edge";
 import {IViewerOptions, Container, Navigator, UIController} from "../Viewer";
-import {IUIConfiguration, UIService} from "../UI";
+import {UI} from "../UI";
 import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {
@@ -19,18 +19,11 @@ export class Viewer extends EventEmitter {
     private _navigator: Navigator;
 
     /**
-     * Commands the the UIService
+     * Commands UIs
      * @private
      * @type {UIController}
      */
     private _uiController: UIController;
-
-    /**
-     * Service used to keep track of UIs
-     * @private
-     * @type {UIService}
-     */
-    private _uiService: UIService;
 
     /**
      * Creates a viewer instance
@@ -47,8 +40,7 @@ export class Viewer extends EventEmitter {
 
         this._navigator = new Navigator(clientId);
         this._container = new Container(id, this._navigator.stateService.currentState$);
-        this._uiService = new UIService(this._container, this._navigator);
-        this._uiController = new UIController(this._container, this._navigator, this._uiService, key, options);
+        this._uiController = new UIController(this._container, this._navigator, key, options);
 
         Settings.setOptions({});
 
@@ -62,7 +54,7 @@ export class Viewer extends EventEmitter {
      * @throws {ParamaterMapillaryError} If no key is provided
      */
     public moveToKey(key: string): void {
-        this._navigator.moveToKey(key).first().subscribe();
+        this._navigator.moveToKey(key).subscribe();
     }
 
     /**
@@ -71,7 +63,7 @@ export class Viewer extends EventEmitter {
      * @param {Direction} dir - Direction towards which to move
      */
     public moveDir(dir: EdgeDirection): void {
-        this._navigator.moveDir(dir).first().subscribe();
+        this._navigator.moveDir(dir).subscribe();
     }
 
     /**
@@ -81,19 +73,50 @@ export class Viewer extends EventEmitter {
      * @param {Number} lon - Longitude
      */
     public moveCloseTo(lat: number, lon: number): void {
-        this._navigator.moveCloseTo(lat, lon).first().subscribe();
+        this._navigator.moveCloseTo(lat, lon).subscribe();
     }
 
-    public activateHandler(name: string): void {
-        this._uiService.activate(name);
+    /**
+     * Activate a Component
+     * @method
+     * @param {string} name - Name of component
+     */
+    public activateComponent(name: string): void {
+        this._uiController.activate(name);
     }
 
-    public deactivateHandler(name: string): void {
-        this._uiService.deactivate(name);
+    /**
+     * Deactivate a Component
+     * @method
+     * @param {string} name - Name of component
+     */
+    public deactivateComponent(name: string): void {
+        this._uiController.deactivate(name);
     }
 
-    public configureHandler(name: string, conf: IUIConfiguration): void {
-        this._uiService.configure(name, conf);
+    /**
+     * Get a Component
+     * @method
+     * @param {string} name - Name of component
+     */
+    public getComponent(name: string): UI {
+        return this._uiController.get(name);
+    }
+
+    /**
+     * Activate the Cover (deactivates all other components)
+     * @method
+     */
+    public activateCover(): void {
+        this._uiController.activateCover();
+    }
+
+    /**
+     * Deactivate the Cover (activates all components marked as active)
+     * @method
+     */
+    public deactivateCover(): void {
+        this._uiController.deactivateCover();
     }
 }
 
