@@ -99,7 +99,9 @@ export class DirectionsUI extends UI {
                     turns = turns.concat(this.createTurnArrows(node));
                 }
 
-                return {name: this._name, vnode: this.getVNodeContainer(btns, turns, phi, node.pano)};
+                let sequence: vd.VNode[] = this.createSequenceArrows(node);
+
+                return {name: this._name, vnode: this.getVNodeContainer(btns, turns, sequence, phi, node.pano)};
             })
             .filter((hash: IVNodeHash): boolean => { return hash != null; })
             .subscribe(this._container.domRenderer.render$);
@@ -193,11 +195,27 @@ export class DirectionsUI extends UI {
         return this.createVNodeDisabled(azimuth, phi);
     }
 
-    private createPrevNextArrows(): vd.VNode {
-        return vd.h("div.InSeq", {}, [
-            vd.h("div.NextInSeq", {}, []),
-            vd.h("div.PrevInSeq.InSeqDisabled", {}, []),
-        ]);
+    private createSequenceArrows(node: Node): vd.VNode[] {
+        let nextExist: boolean = false;
+        let prevExist: boolean = false;
+
+        for (let edge of node.edges) {
+            if (edge.data.direction === EdgeDirection.NEXT) {
+                nextExist = true;
+            }
+
+            if (edge.data.direction === EdgeDirection.PREV) {
+                prevExist = true;
+            }
+        }
+
+        let next: string = "div.NextInSeq" + (nextExist ? "" : ".InSeqDisabled");
+        let prev: string = "div.PrevInSeq" + (prevExist ? "" : ".InSeqDisabled");
+
+        return [
+            vd.h(next, { onclick: (e: Event): void => { this._navigator.moveDir(EdgeDirection.NEXT).subscribe(); } }, []),
+            vd.h(prev, { onclick: (e: Event): void => { this._navigator.moveDir(EdgeDirection.PREV).subscribe(); } }, []),
+        ];
     }
 
     private rotationFromCamera(camera: Camera): IRotation {
@@ -290,7 +308,7 @@ export class DirectionsUI extends UI {
         }
     }
 
-    private getVNodeContainer(buttons: any, turns: any, rotateZ: number, pano: boolean): any {
+    private getVNodeContainer(buttons: any, turns: any, sequence: any, rotateZ: number, pano: boolean): any {
         let rotateZDeg: number = 180 * rotateZ / Math.PI;
 
         // todo: change the rotateX value for panoramas
@@ -302,10 +320,8 @@ export class DirectionsUI extends UI {
             transform: `perspective(375px) rotateX(50deg) rotate(270deg)`
         };
 
-        let prevNextArrows: vd.VNode = this.createPrevNextArrows();
-
         return vd.h("div", {},
-                    [prevNextArrows,
+                    [vd.h("div.InSeq", {}, sequence),
                      this.getVNodePanoIndication(pano),
                      vd.h("div.DirectionsWrapper", {}, [
                          vd.h("div.TurnAround",
