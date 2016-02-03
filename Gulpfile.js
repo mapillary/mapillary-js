@@ -2,19 +2,21 @@ var gulp = require('gulp')
 
 var autoprefixer = require('gulp-autoprefixer')
 var browserify = require('browserify')
+var buffer = require('vinyl-buffer')
 var concat = require('gulp-concat')
 var del = require('del')
-var exorcist = require('exorcist')
 var fs = require('fs')
 var KarmaServer = require('karma').Server
 var minifyCSS = require('gulp-minify-css')
 var source = require('vinyl-source-stream')
 var standard = require('gulp-standard')
 var shell = require('gulp-shell')
+var sourcemaps = require('gulp-sourcemaps')
 var ts = require('gulp-typescript')
 var tsify = require('tsify')
 var tslint = require('gulp-tslint')
 var util = require('gulp-util')
+var uglify = require('gulp-uglify')
 var watchify = require('watchify')
 var argv = require('yargs').argv
 
@@ -45,14 +47,6 @@ var config = {
     standalone: 'Mapillary',
     cache: {},
     packageCache: {}
-  },
-  uglifyify: {
-    global: true,
-    ignore: ['**/node_modules/rest/*',
-             '**/node_modules/rest/**/*',
-             '**/node_modules/when/*',
-             '**/node_modules/when/**/*'
-            ]
   },
   ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions,
   typedoc: {
@@ -192,13 +186,15 @@ gulp.task('prepublish', ['tsd', 'ts-lint', 'css'], function () {
     .plugin(tsify, config.ts)
     .transform('brfs')
     .transform('envify')
-    .transform(config.uglifyify, 'uglifyify')
     .bundle()
     .on('error', function (error) {
       console.error(error.toString())
     })
-    .pipe(exorcist(paths.sourceMapsDist))
     .pipe(source('mapillary-js.min.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({loadMaps: true}))
+    .pipe(uglify())
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./dist'))
 })
 
@@ -221,8 +217,10 @@ gulp.task('ts', ['ts-lint'], function () {
     .on('error', function (error) {
       console.error(error.toString())
     })
-    .pipe(exorcist(paths.sourceMaps))
     .pipe(source('bundle.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({loadMaps: true}))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./build'))
 })
 
