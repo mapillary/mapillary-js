@@ -6,6 +6,7 @@ import * as geohash from "latlon-geohash";
 import * as rx from "rx";
 
 import {IAPINavIm, APIv2} from "../API";
+import {Spatial} from "../Geo";
 import {Node} from "../Graph";
 
 interface ITilesOperation extends Function {
@@ -16,6 +17,7 @@ export class TilesService {
     private _updates$: rx.Subject<any> = new rx.Subject<any>();
 
     private _cacheH$: rx.Subject<string> = new rx.Subject<string>();
+    private _cacheNodeH$: rx.Subject<Node> = new rx.Subject<Node>();
     private _cacheIm$: rx.Subject<string> = new rx.Subject<string>();
     private _cacheNode$: rx.Subject<Node> = new rx.Subject<Node>();
 
@@ -25,10 +27,13 @@ export class TilesService {
 
     private _cachedTiles$: rx.Observable<{[key: string]: boolean}>;
 
-    private apiV2: APIv2;
+    private _spatialLib: Spatial;
+
+    private _apiV2: APIv2;
 
     constructor (apiV2: APIv2) {
-        this.apiV2 = apiV2;
+        this._spatialLib = new Spatial();
+        this._apiV2 = apiV2;
 
         this._cachedTiles$ = this._updates$
             .scan<{[key: string]: boolean}>(
@@ -39,12 +44,19 @@ export class TilesService {
             .shareReplay(1);
 
         this._imTiles$ = this._cacheIm$.distinct().flatMap<IAPINavIm>((im: string): rx.Observable<IAPINavIm> => {
-            return rx.Observable.fromPromise(this.apiV2.nav.im(im));
+            return rx.Observable.fromPromise(this._apiV2.nav.im(im));
         });
 
         this._hTiles$ = this._cacheH$.distinct().flatMap<IAPINavIm>((h: string): rx.Observable<IAPINavIm> => {
-            return rx.Observable.fromPromise(this.apiV2.nav.h(h));
+            return rx.Observable.fromPromise(this._apiV2.nav.h(h));
         });
+
+        this._cacheNodeH$.distinct((node: Node) => {
+            return node.key;
+        }).flatMap<string>((node: Node): rx.Observable<string> => {
+            let hs: string[] = this._spatialLib.worthyHs(node.latLon);
+            return rx.Observable.from(hs);
+        }).subscribe(this._cacheH$);
 
         this._tiles$ = this._imTiles$.merge(this._hTiles$).publish();
         this._tiles$.connect();
@@ -77,6 +89,10 @@ export class TilesService {
 
     public get cacheH$(): rx.Subject<string> {
         return this._cacheH$;
+    }
+
+    public get cacheNodeH$(): rx.Subject<Node> {
+        return this._cacheNodeH$;
     }
 
     public get cacheIm$(): rx.Subject<string> {

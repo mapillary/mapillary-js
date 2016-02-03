@@ -61,11 +61,19 @@ export class GraphService {
             };
         }).subscribe(this._updates$);
 
-        this._tilesService.tiles$.map((data: IAPINavIm): IGraphOperation => {
-            return (graph: Graph): Graph => {
-                graph.addNodesFromAPI(data);
-                return graph;
-            };
+        // fixme keep this value inside state (find correct combiner instead of combineLatest)
+        let lastData: IAPINavIm;
+        this._tilesService.tiles$
+            .combineLatest(this._tilesService.cachedTiles$, (data: IAPINavIm, tiles: {[key: string]: boolean}): IGraphOperation => {
+                return (graph: Graph): Graph => {
+                    if (lastData === data) {
+                        return graph;
+                    }
+                    lastData = data;
+
+                    graph.addNodesFromAPI(data, tiles);
+                    return graph;
+                };
         }).subscribe(this._updates$);
     }
 
@@ -80,8 +88,13 @@ export class GraphService {
     public node$(key: string): rx.Observable<Node> {
         return this._graph$.skipWhile((graph: Graph) => {
             let node: Node = graph.getNode(key);
-            if (node == null || !node.worthy) {
+            if (node == null) {
                 this._tilesService.cacheIm$.onNext(key);
+                return true;
+            }
+
+            if (!node.worthy) {
+                this._tilesService.cacheNodeH$.onNext(node);
                 return true;
             }
 
