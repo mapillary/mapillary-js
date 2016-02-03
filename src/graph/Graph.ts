@@ -24,6 +24,7 @@ export class Graph {
     private spatial: any;
 
     private cachedNodes: {[key: string]: boolean};
+    private unWorthyNodes: {[key: string]: boolean};
 
     private boxWidth: number = 0.001;
     private defaultAlt: number = 2;
@@ -41,6 +42,7 @@ export class Graph {
         this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);
         this.graph = new graphlib.Graph({multigraph: true});
         this.cachedNodes = {};
+        this.unWorthyNodes = {};
         this.edgeCalculator = new EdgeCalculator();
         this.spatialLib = new Spatial();
         this.geoCoords = new GeoCoords();
@@ -50,7 +52,7 @@ export class Graph {
      * Add nodes from an API call
      * @param {IAPINavIm} data - todo
      */
-    public addNodesFromAPI(data: IAPINavIm): void {
+    public addNodesFromAPI(data: IAPINavIm, tiles: {[key: string]: boolean}): void {
         if (data === undefined) {
             return;
         }
@@ -95,7 +97,7 @@ export class Graph {
                 im.key,
                 ca,
                 latLon,
-                true,
+                false,
                 sequenceHash[im.key],
                 im,
                 translation
@@ -104,11 +106,37 @@ export class Graph {
             node.user = im.user;
             node.capturedAt = im.captured_at;
 
+            this.unWorthyNodes[im.key] = true;
+
             return node;
         });
 
         this.insertNodes(nodes);
         this.insertSequences(sequences);
+        this.makeNodesWorthy(tiles);
+    }
+
+    public makeNodesWorthy(tiles: {[key: string]: boolean}): void {
+        let worthy: boolean;
+
+        for (let key in this.unWorthyNodes) {
+            if (this.unWorthyNodes.hasOwnProperty(key)) {
+                if (this.unWorthyNodes[key]) {
+                    let node: Node = this.getNode(key);
+                    let hs: string[] = this.spatialLib.worthyHs(node.latLon);
+
+                    worthy = true;
+                    _.each(hs, (h: string): void => {
+                        worthy = worthy && !!tiles[h];
+                    });
+
+                    if (worthy) {
+                        node.worthy = true;
+                        this.unWorthyNodes[key] = false;
+                    }
+                }
+            }
+        }
     }
 
     /**

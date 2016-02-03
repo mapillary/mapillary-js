@@ -1,5 +1,9 @@
 /// <reference path="../../typings/threejs/three.d.ts" />
 
+import {ILatLon} from "../Graph";
+
+import * as _ from "underscore";
+import * as geohash from "latlon-geohash";
 import * as THREE from "three";
 
 export class Spatial {
@@ -9,6 +13,19 @@ export class Spatial {
      */
 
     private epsilon: number = 1e-9;
+
+    public worthyHs(latLon: ILatLon): string[] {
+        let hs: string[] = [];
+        let h: string = geohash.encode(latLon.lat, latLon.lon, 7);
+
+        hs.push(h);
+
+        _.each(geohash.neighbours(h), (nh: string): void => {
+            hs.push(nh);
+        });
+
+        return hs;
+    }
 
     /**
      * Converts degrees to radians
