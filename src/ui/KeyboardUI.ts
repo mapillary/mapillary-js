@@ -150,7 +150,7 @@ export class KeyboardUI extends UI {
                     return;
                 }
 
-                direction = EdgeDirection.STEP_FORWARD;
+                direction = event.shiftKey ? EdgeDirection.PANO : EdgeDirection.STEP_FORWARD;
                 break;
             case 39: // right
                 direction = event.shiftKey ? EdgeDirection.TURN_RIGHT : EdgeDirection.STEP_RIGHT;
