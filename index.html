@@ -945,20 +945,23 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a href="index.html#viewer._uicontroller" class="tsd-kind-icon">_ui<wbr>Controller</a>
 				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a href="index.html#viewer._uiservice" class="tsd-kind-icon">_ui<wbr>Service</a>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="index.html#viewer.activatecomponent" class="tsd-kind-icon">activate<wbr>Component</a>
 				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class">
-					<a href="index.html#viewer.activatehandler" class="tsd-kind-icon">activate<wbr>Handler</a>
+					<a href="index.html#viewer.activatecover" class="tsd-kind-icon">activate<wbr>Cover</a>
 				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class">
-					<a href="index.html#viewer.configurehandler" class="tsd-kind-icon">configure<wbr>Handler</a>
+					<a href="index.html#viewer.deactivatecomponent" class="tsd-kind-icon">deactivate<wbr>Component</a>
 				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class">
-					<a href="index.html#viewer.deactivatehandler" class="tsd-kind-icon">deactivate<wbr>Handler</a>
+					<a href="index.html#viewer.deactivatecover" class="tsd-kind-icon">deactivate<wbr>Cover</a>
 				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a href="index.html#viewer.fire" class="tsd-kind-icon">fire</a>
+				</li>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="index.html#viewer.getcomponent" class="tsd-kind-icon">get<wbr>Component</a>
 				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class">
 					<a href="index.html#viewer.movecloseto" class="tsd-kind-icon">move<wbr>Close<wbr>To</a>
@@ -1186,7 +1189,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 							<aside class="tsd-sources">
 								<p>Overwrites EventEmitter.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L33">Viewer.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L26">Viewer.ts:26</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1288,7 +1291,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Commands the the UIService</p>
+							<p>Commands UIs</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>type</dt>
@@ -1297,43 +1300,35 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						</dl>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="viewer._uiservice" class="tsd-anchor"></a>
-					<h3>_ui<wbr>Service</h3>
-					<div class="tsd-signature tsd-kind-icon">_ui<wbr>Service<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">UIService</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L33">Viewer.ts:33</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Service used to keep track of UIs</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>type</dt>
-							<dd><p>{UIService}</p>
-							</dd>
-						</dl>
-					</div>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="viewer.activatehandler" class="tsd-anchor"></a>
-					<h3>activate<wbr>Handler</h3>
+					<a name="viewer.activatecomponent" class="tsd-anchor"></a>
+					<h3>activate<wbr>Component</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">activate<wbr>Handler<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">activate<wbr>Component<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L87">Viewer.ts:87</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L84">Viewer.ts:84</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Activate a Component</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>method</dt>
+									<dd></dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of component</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1341,25 +1336,60 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="viewer.configurehandler" class="tsd-anchor"></a>
-					<h3>configure<wbr>Handler</h3>
+					<a name="viewer.activatecover" class="tsd-anchor"></a>
+					<h3>activate<wbr>Cover</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">configure<wbr>Handler<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, conf<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IUIConfiguration</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">activate<wbr>Cover<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L95">Viewer.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L110">Viewer.ts:110</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Activate the Cover (deactivates all other components)</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>method</dt>
+									<dd></dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="viewer.deactivatecomponent" class="tsd-anchor"></a>
+					<h3>deactivate<wbr>Component</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">deactivate<wbr>Component<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L93">Viewer.ts:93</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Deactivate a Component</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>method</dt>
+									<dd></dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5>conf: <span class="tsd-signature-type">IUIConfiguration</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of component</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1367,24 +1397,27 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="viewer.deactivatehandler" class="tsd-anchor"></a>
-					<h3>deactivate<wbr>Handler</h3>
+					<a name="viewer.deactivatecover" class="tsd-anchor"></a>
+					<h3>deactivate<wbr>Cover</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">deactivate<wbr>Handler<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">deactivate<wbr>Cover<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L91">Viewer.ts:91</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L118">Viewer.ts:118</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>name: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Deactivate the Cover (activates all components marked as active)</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>method</dt>
+									<dd></dd>
+								</dl>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -1417,6 +1450,41 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="viewer.getcomponent" class="tsd-anchor"></a>
+					<h3>get<wbr>Component</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Component<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">UI</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L102">Viewer.ts:102</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get a Component</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>method</dt>
+									<dd></dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of component</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">UI</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="viewer.movecloseto" class="tsd-anchor"></a>
 					<h3>move<wbr>Close<wbr>To</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1426,7 +1494,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L83">Viewer.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L75">Viewer.ts:75</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1467,7 +1535,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L73">Viewer.ts:73</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L65">Viewer.ts:65</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1502,7 +1570,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L64">Viewer.ts:64</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L56">Viewer.ts:56</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
