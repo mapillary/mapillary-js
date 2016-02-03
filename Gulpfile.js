@@ -16,7 +16,7 @@ var ts = require('gulp-typescript')
 var tsify = require('tsify')
 var tslint = require('gulp-tslint')
 var util = require('gulp-util')
-var uglify = require('gulp-uglify')
+// var uglify = require('gulp-uglify')
 var watchify = require('watchify')
 var argv = require('yargs').argv
 
@@ -191,10 +191,10 @@ gulp.task('prepublish', ['tsd', 'ts-lint', 'css'], function () {
       console.error(error.toString())
     })
     .pipe(source('mapillary-js.min.js'))
-    .pipe(buffer())
-    .pipe(sourcemaps.init({loadMaps: true}))
-    .pipe(uglify())
-    .pipe(sourcemaps.write('./'))
+    // .pipe(buffer())
+    // .pipe(sourcemaps.init({loadMaps: true}))
+    // .pipe(uglify())
+    // .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./dist'))
 })
 
