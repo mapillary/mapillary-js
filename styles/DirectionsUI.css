@@ -69,7 +69,7 @@
     height: 54px;
     width: 54px;
     bottom: 40px;
-    filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.8));
+    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.8));
     cursor: pointer;
     cursor: hand;
 }
@@ -121,7 +121,7 @@
     height: 48px;
     cursor: pointer;
     cursor: hand;
-    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.8));
 }
 
 .NextInSeq {

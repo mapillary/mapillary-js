@@ -301,7 +301,7 @@ export class DirectionsUI extends UI {
 
         let azimuthDeg: number = -this.spatial.radToDeg(azimuth);
 
-        let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 3px rgba(0,0,0,0.8))`;
+        let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 1px rgba(0,0,0,0.8))`;
         let transform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
 
         let properties: any = {
