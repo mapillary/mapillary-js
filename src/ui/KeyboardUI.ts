@@ -1,8 +1,6 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
-/// <reference path="../../typings/underscore/underscore.d.ts" />
 
 import * as rx from "rx";
-import * as _ from "underscore";
 
 import {EdgeDirection, IEdge} from "../Edge";
 import {UIService, UI} from "../UI";
@@ -149,78 +147,11 @@ export class KeyboardUI extends UI {
                 break;
         }
 
-        direction = this._checkExistence(direction, node);
-
         if (direction == null) {
             return;
         }
 
         this._navigator.moveDir(direction).subscribe();
-    }
-
-    private _checkExistence(direction: EdgeDirection, node: Node): EdgeDirection {
-        if (direction == null) {
-            return null;
-        }
-
-        let directionExist: boolean = _.any(
-            node.edges,
-            (e: IEdge): boolean => {
-                return e.data.direction === direction;
-            });
-
-        if (direction === EdgeDirection.STEP_FORWARD ||
-            direction === EdgeDirection.STEP_BACKWARD) {
-            if (directionExist) {
-                return direction;
-            } else {
-                return this._fallbackToSequence(direction, node);
-            }
-        } else {
-            return directionExist ? direction : null;
-        }
-    }
-
-    private _fallbackToSequence(direction: EdgeDirection, node: Node): EdgeDirection {
-        let sequenceDirection: EdgeDirection = null;
-
-        switch (direction) {
-            case EdgeDirection.STEP_FORWARD:
-                sequenceDirection = EdgeDirection.NEXT;
-                break;
-            case EdgeDirection.STEP_BACKWARD:
-                sequenceDirection = EdgeDirection.PREV;
-                break;
-            default:
-                break;
-        }
-
-        if (sequenceDirection == null) {
-            return null;
-        }
-
-        let sequenceEdge: IEdge = _.find(
-            node.edges,
-            (e: IEdge): boolean => {
-                return e.data.direction === sequenceDirection;
-            });
-
-        if (sequenceEdge == null) {
-            return null;
-        }
-
-        let perspectiveEdges: IEdge[] = node.edges.filter(
-            (e: IEdge): boolean => {
-                return this._perspectiveDirections.indexOf(e.data.direction) > -1;
-            });
-
-        for (let edge of perspectiveEdges) {
-            if (edge.to === sequenceEdge.to) {
-                return null;
-            }
-        }
-
-        return sequenceDirection;
     }
 }
 
