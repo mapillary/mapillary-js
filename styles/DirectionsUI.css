@@ -39,6 +39,11 @@
 }
 
 .DirectionsArrowStep,
+.DirectionsArrowPano {
+    opacity: 0.8;
+}
+
+.DirectionsArrowStep,
 .DirectionsArrowDisabled {
     background: url(./arrow-up-white.svg);
     background-size: contain;
@@ -58,6 +63,7 @@
 .DirectionsArrowPano:hover {
     cursor: pointer;
     cursor: hand;
+    opacity: 1;
 }
 
 
@@ -75,7 +81,8 @@
 }
 
 .TurnLeft:hover,
-.TurnRight:hover {
+.TurnRight:hover,
+.TurnAround:hover {
     opacity: 1;
 }
 
