@@ -93,8 +93,8 @@
 }
 
 .TurnAround {
-    left: 5px;
-    bottom: -5px;
+    left: 10px;
+    bottom: 0px;
     background: url(./arrow-left.svg);
     background-size: contain;
 }

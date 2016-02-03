@@ -51,11 +51,13 @@ export class DirectionsUI extends UI {
         this.turns = [
             EdgeDirection.TURN_LEFT,
             EdgeDirection.TURN_RIGHT,
+            EdgeDirection.TURN_U,
         ];
 
         this.turnNames = {};
         this.turnNames[EdgeDirection.TURN_LEFT] = "TurnLeft";
         this.turnNames[EdgeDirection.TURN_RIGHT] = "TurnRight";
+        this.turnNames[EdgeDirection.TURN_U] = "TurnAround";
 
     }
 
@@ -154,13 +156,13 @@ export class DirectionsUI extends UI {
             }
 
             let style: any = {};
-            style.perspective = "365px";
 
             if (name === "TurnRight") {
-                style.perspective = "365px";
-                style.transform = "rotateX(60deg) scaleX(-1)";
-            } else {
-                style.transform = "rotateX(60deg)";
+                style.transform = "perspective(375px) rotateX(60deg) scaleX(-1)";
+            } else if (name === "TurnLeft") {
+                style.transform = "perspective(375px) rotateX(60deg)";
+            } else if (name === "TurnAround") {
+                style.transform = "perspective(375px) rotateX(60deg) rotate(270deg) scale(1.15, 1.15)";
             }
 
             turns.push(this.createVNodeByTurn(name, direction, style));
@@ -316,19 +318,10 @@ export class DirectionsUI extends UI {
             transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZDeg}deg)`
         };
 
-        let turnAroundStyle: any = {
-            transform: `perspective(375px) rotateX(50deg) rotate(270deg)`
-        };
-
         return vd.h("div", {},
                     [vd.h("div.InSeq", {}, sequence),
                      this.getVNodePanoIndication(pano),
                      vd.h("div.DirectionsWrapper", {}, [
-                         vd.h("div.TurnAround",
-                              {
-                                  style: turnAroundStyle
-                              },
-                              []),
                          turns,
                          vd.h("div.Directions", {style: style}, buttons),
                      ]),
