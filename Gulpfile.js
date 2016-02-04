@@ -51,8 +51,7 @@ var config = {
   ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions,
   typedoc: {
     includes: [
-      './src/viewer/Viewer.ts',
-      './src/viewer/interfaces/IViewerOptions.ts'
+      './src/Mapillary.ts'
     ],
     options: {
       target: 'ES5',
