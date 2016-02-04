@@ -1,5 +1,5 @@
 import {EdgeDirection} from "../Edge";
-import {IViewerOptions, Container, Navigator, UIController} from "../Viewer";
+import {IViewerOptions, Container, Navigator, UIController, EventLauncher} from "../Viewer";
 import {UI} from "../UI";
 import {EventEmitter, Settings} from "../Utils";
 
@@ -20,6 +20,11 @@ export class Viewer extends EventEmitter {
     private _uiController: UIController;
 
     /**
+     * Private EventLauncher object which fires events on behalf of the viewer
+     */
+    private _eventLauncher: EventLauncher;
+
+    /**
      * Create a new viewer instance
      * @class Viewer
      * @param {string} id - required `id` of an DOM element which will be transformed into the viewer
@@ -35,6 +40,7 @@ export class Viewer extends EventEmitter {
         this._navigator = new Navigator(clientId);
         this._container = new Container(id, this._navigator.stateService.currentState$);
         this._uiController = new UIController(this._container, this._navigator, key, options);
+        this._eventLauncher = new EventLauncher(this, this._navigator.loadingService, this._navigator.stateService);
 
         Settings.setOptions({});
 

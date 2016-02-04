@@ -18,8 +18,12 @@
     <button onclick="player.play()">Play</button><button onclick="player.stop()">Stop</button>
     <script src='build/bundle.js'></script>
     <script>
-        var viewer = new Mapillary.Viewer("viewer", "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4", "zarcRdNFZwg3FkXNcsFeGw",
-                                          {"debug": true, "cover": false, "gl": true});
+        var viewer = new Mapillary.Viewer(
+            "viewer",
+            "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4",
+            "zarcRdNFZwg3FkXNcsFeGw",
+            { "debug": true, "cover": false, "gl": true }
+        );
 
         viewer.activateComponent("player");
         var player = viewer.getComponent("player");
@@ -27,12 +31,9 @@
         viewer.on("nodechanged", function (node) {
             console.log(node.key);
         });
+
         viewer.on("loadingchanged", function (loading) {
-            if (loading) {
-                document.getElementById("viewerSimpleLoading").innerHTML = "Loading";
-            } else {
-                document.getElementById("viewerSimpleLoading").innerHTML = "Not Loading";
-            }
+            console.log("loading:", loading);
         });
     </script>
 </body>
