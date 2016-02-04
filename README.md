@@ -51,7 +51,7 @@ Before you start using `mapillary-js` you need somewhere to display it, create a
 `mapillary-js` requires a HTML element to initialize into, in our case it's a div with id `mly`. Next step is to initialize the viewer.
 
 1. Since we'll be using Mapillary API, it's a requirement to obtain an API key. One can get it after signing up to Mapillary, and then going to [Settings/Integrations](https://www.mapillary.com/map/settings/integrations) and registering a new application (we don't need to select any scope permissions, since we only want read access to the data). We are interested in the `Client ID`'s value.
-2. The viewer has to start somewhere, so we need to find a photoId that interests us. Each photo in on mapillary.com has a photo ID assigned to it. You can either copy the part from the url after `/im/` or select _Photo details_ and copy the photoId from there. In our case, a photoId to this beautiful photo will do: `Xo3DR9FUdP3nh0jHZhgeig`.
+2. The viewer has to start somewhere, so we need to find a photoId that interests us. Each photo in on mapillary.com has a photo ID assigned to it. You can either copy the part from the url after `/im/` or select _Photo details_ and copy the photoId from there. Try a panorama photo `wrYPZbWnxYVF88-bTi6ZDQ` from 's-Hertogenbosch, The Netherlands or a perspective photo from Helsingborg, Sweden: `zarcRdNFZwg3FkXNcsFeGw`.
 
 Since we've gathered all the required data, in our `<script>..</script>` tag we need to initialize the viewer. We do so by constructing an new `Mapillary.Viewer` and setting required parameters.
 
@@ -59,7 +59,7 @@ Since we've gathered all the required data, in our `<script>..</script>` tag we 
 var mly = new Mapillary
   .Viewer('mly', // container id
           'cjJ1SUtVOEMtdy11b21JM0tyYTZIQTo2ZmVjNTQ3YWQ0OWI2Yjgx', // your Client ID
-          'Xo3DR9FUdP3nh0jHZhgeig'  // photoId at which the viewer initializes
+          'wrYPZbWnxYVF88-bTi6ZDQ'  // photoId at which the viewer initializes
           )
 ```
 
