@@ -37,6 +37,13 @@ export interface IViewerOptions {
     directions?: boolean;
 
     /**
+     * Show static navigation arrows in the corners.
+     * @member Mapillary.IViewerOptions#navigation
+     * @type {boolean=false}
+     */
+    navigation?: boolean;
+
+    /**
      * Use gl viewer, if gl is not supported there will be an automatic fallback to none gl viewer.
      * @member Mapillary.IViewerOptions#gl
      * @type {boolean=true}

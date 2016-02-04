@@ -16,6 +16,7 @@ export class UIController {
 
         this.uFalse(options.debug, "debug");
         this.uFalse(options.player, "player");
+        this.uFalse(options.navigation, "navigation");
         this.uTrue(options.attribution, "attribution");
         this.uTrue(options.cache, "cache");
         this.uTrue(options.directions, "directions");

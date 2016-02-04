@@ -10,6 +10,7 @@ export {ImageUI} from "./ui/ImageUI"
 export {KeyboardUI} from "./ui/KeyboardUI"
 export {LoadingUI} from "./ui/LoadingUI"
 export {MouseUI} from "./ui/MouseUI"
+export {NavigationUI} from "./ui/NavigationUI";
 export {NoneUI} from "./ui/NoneUI"
 export {PlayerUI} from "./ui/PlayerUI"
 export {SphereUI} from "./ui/SphereUI";
