@@ -235,7 +235,7 @@ export class GLUI extends UI {
     }
 
     private getImagePlaneGeo(transform: Transform, node: Node): THREE.Geometry {
-        if (node.mesh == null ||
+        if (!node.mesh.populated ||
             transform.scale < 1e-2 ||
             transform.scale > 50) {
             return this.getFlatImagePlaneGeo(transform);
@@ -263,7 +263,7 @@ export class GLUI extends UI {
     }
 
     private getImageSphereGeo(transform: Transform, node: Node): THREE.Geometry {
-        if (node.mesh == null ||
+        if (!node.mesh.populated ||
             transform.scale < 1e-2 ||
             transform.scale > 50) {
             return this.getFlatImageSphereGeo(transform);

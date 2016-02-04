@@ -1,4 +1,5 @@
 export interface IMesh {
+    populated: boolean;
     vertices: Array<number[]>;
     faces: Array<number[]>;
 }

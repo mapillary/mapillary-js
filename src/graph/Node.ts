@@ -126,7 +126,14 @@ export class Node {
             xmlHTTP.open("GET", Urls.mesh(this.key), true);
             xmlHTTP.responseType = "text";
             xmlHTTP.onload = (e: any) => {
-                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: <IMesh>JSON.parse(xmlHTTP.responseText)[this.key]});
+                let mesh: IMesh = <IMesh>JSON.parse(xmlHTTP.responseText)[this.key];
+                if (mesh == null) {
+                    mesh = { faces: [], populated: false, vertices: [] };
+                } else {
+                    mesh.populated = true;
+                }
+
+                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: mesh });
                 observer.onCompleted();
             };
             xmlHTTP.onprogress = (e: any) => {
