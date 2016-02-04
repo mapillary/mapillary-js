@@ -4,4 +4,5 @@ export {LoadingService} from "./viewer/LoadingService";
 export {Navigator} from "./viewer/Navigator";
 export {UIController} from "./viewer/UIController";
 export {Viewer} from "./viewer/Viewer";
+export {ImageSize} from "./viewer/ImageSize";
 export * from "./viewer/interfaces/interfaces";

@@ -1,9 +1,4 @@
-export enum IMAGE_WIDTH {
-    WIDTH_320,
-    WIDTH_640,
-    WIDTH_1024,
-    WIDTH_2048
-}
+import {ImageSize} from "../../Viewer";
 
 export interface IViewerOptions {
     /**
@@ -79,17 +74,17 @@ export interface IViewerOptions {
     /**
      * Default size of the thumbnail used in the viewer
      * @member Mapillary.IViewerOptions#baseImageSize
-     * @type {IMAGE_WIDTH}
+     * @type {ImageSize}
      */
-    baseImageSize?: IMAGE_WIDTH;
+    baseImageSize?: ImageSize;
 
     /**
      * The max size of an image shown in the viewer
      * will be used when user pauses.
      * @member Mapillary.IViewerOptions#maxImageSize
-     * @type {IMAGE_WIDTH}
+     * @type {ImageSize}
      */
-    maxImageSize?: IMAGE_WIDTH;
+    maxImageSize?: ImageSize;
 }
 
 export default IViewerOptions;
