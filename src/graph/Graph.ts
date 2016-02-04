@@ -71,7 +71,7 @@ export class Graph {
         }
 
         let h: string = data.hs[0];
-        let bounds: any = geohash.bounds(h);
+        let bounds: geohash.IBounds = geohash.bounds(h);
         let neighbours: { [key: string]: string } = geohash.neighbours(h);
 
         let nodes: Node[];

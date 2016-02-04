@@ -82,7 +82,7 @@ export class TilesService {
                 hs.push(nh);
             });
 
-            return rx.Observable.from(hs);
+            return rx.Observable.from<string>(hs);
         }).subscribe(this._cacheH$);
     }
 
