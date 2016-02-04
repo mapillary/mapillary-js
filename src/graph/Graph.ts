@@ -138,23 +138,34 @@ export class Graph {
 
     public makeNodesWorthy(tiles: {[key: string]: boolean}): void {
         let worthy: boolean;
+        let worthyKeys: string[] = [];
         for (let key in this.unWorthyNodes) {
-            if (this.unWorthyNodes.hasOwnProperty(key)) {
-                if (this.unWorthyNodes[key]) {
-                    let node: Node = this.getNode(key);
-                    let hs: string[] = node.hs;
-
-                    worthy = true;
-                    _.each(hs, (h: string): void => {
-                        worthy = worthy && !!tiles[h];
-                    });
-
-                    if (worthy) {
-                        node.worthy = true;
-                        this.unWorthyNodes[key] = false;
-                    }
-                }
+            if (!this.unWorthyNodes.hasOwnProperty(key)) {
+                continue;
             }
+
+            if (!this.unWorthyNodes[key]) {
+                worthyKeys.push(key);
+                continue;
+            }
+
+            let node: Node = this.getNode(key);
+            let hs: string[] = node.hs;
+
+            worthy = true;
+            _.each(hs, (h: string): void => {
+                worthy = worthy && !!tiles[h];
+            });
+
+            if (worthy) {
+                node.worthy = true;
+                this.unWorthyNodes[key] = false;
+                worthyKeys.push(key);
+            }
+        }
+
+        for (let key of worthyKeys) {
+            delete this.unWorthyNodes[key];
         }
     }
 
