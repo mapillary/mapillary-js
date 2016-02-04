@@ -83,6 +83,7 @@ export class CompletingState implements IState {
     private _previousCamera: Camera;
 
     private _unitBezier: UnitBezier;
+    private _useBezier: boolean;
 
     private _rotationDelta: RotationDelta;
     private _requestedRotationDelta: RotationDelta;
@@ -98,6 +99,7 @@ export class CompletingState implements IState {
         this._baseAlpha = this._alpha;
         this._animationSpeed = 0.025;
         this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
+        this._useBezier = true;
 
         this.camera = new Camera();
         this.motionless = false;
@@ -217,15 +219,18 @@ export class CompletingState implements IState {
         if (this._alpha === 1 && this.currentIndex + this._alpha < this.trajectory.length) {
             this.currentIndex += 1;
 
+            this._useBezier = this.trajectory.length < 3 &&
+                this.currentIndex + 1 === this.trajectory.length;
+
             this._setNodes();
             this._clearRotation();
         }
 
         this._baseAlpha = Math.min(1, this._baseAlpha + this._animationSpeed);
-        if (this.currentIndex + 1 < this.trajectory.length) {
-            this._alpha = this._baseAlpha;
-        } else {
+        if (this._useBezier) {
             this._alpha = this._unitBezier.solve(this._baseAlpha);
+        } else {
+            this._alpha = this._baseAlpha;
         }
 
         this._updateRotation();
