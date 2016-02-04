@@ -122,6 +122,14 @@ export class Node {
                 return;
             }
 
+            if (!this.merged) {
+                let mesh: IMesh = { faces: [], populated: false, vertices: [] };
+                observer.onNext({ loaded: { loaded: 0, total: 0 }, object: mesh });
+                observer.onCompleted();
+
+                return;
+            }
+
             let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
             xmlHTTP.open("GET", Urls.mesh(this.key), true);
             xmlHTTP.responseType = "text";
@@ -133,12 +141,14 @@ export class Node {
                     mesh.populated = true;
                 }
 
-                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: mesh });
+                observer.onNext({ loaded: {loaded: e.loaded, total: e.total }, object: mesh });
                 observer.onCompleted();
             };
+
             xmlHTTP.onprogress = (e: any) => {
-                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: null});
+                observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: null});
             };
+
             xmlHTTP.send();
         });
     }
