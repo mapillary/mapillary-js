@@ -8,15 +8,18 @@ import {IFrame} from "../State";
 import {IUIConfiguration, IPlayerUIConfiguration, UIService, UI} from "../UI";
 import {Container, Navigator} from "../Viewer";
 
-interface IFrameConf {
-    conf: IPlayerUIConfiguration;
-    frame: IFrame;
+interface IConfigurationOperation {
+    (configuration: IPlayerUIConfiguration): IPlayerUIConfiguration;
 }
 
 export class PlayerUI extends UI {
     public static uiName: string = "player";
 
-    private _disposable: rx.IDisposable;
+    private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
+    private _stop$: rx.Subject<void> = new rx.Subject<void>();
+
+    private _configurationSubscription: rx.IDisposable;
+    private _playingSubscription: rx.IDisposable;
 
     private nodesAhead: number = 5;
 
@@ -25,44 +28,89 @@ export class PlayerUI extends UI {
     }
 
     protected _activate(): void {
-        return;
+        this._configurationSubscription = this._configurationOperation$
+            .scan<IPlayerUIConfiguration>(
+                (configuration: IPlayerUIConfiguration, operation: IConfigurationOperation): IPlayerUIConfiguration => {
+                    return operation(configuration);
+                },
+                { playing: false })
+            .subscribe();
+
+        this._configuration$
+            .map<IConfigurationOperation>(
+                (newConfiguration: IPlayerUIConfiguration) => {
+                    return (configuration: IPlayerUIConfiguration): IPlayerUIConfiguration => {
+                        if (newConfiguration.playing !== configuration.playing) {
+
+                            this._navigator.stateService.cutNodes();
+
+                            if (newConfiguration.playing) {
+                                this._play();
+                            } else {
+                                this._stop();
+                            }
+                        }
+
+                        configuration.playing = newConfiguration.playing;
+
+                        return configuration;
+                    };
+                })
+            .subscribe(this._configurationOperation$);
+
+        this._stop$
+            .map<IConfigurationOperation>(
+                () => {
+                    return (configuration: IPlayerUIConfiguration): IPlayerUIConfiguration => {
+                        if (configuration.playing) {
+                            this._stop();
+                        }
+
+                        configuration.playing = false;
+
+                        return configuration;
+                    };
+                })
+            .subscribe(this._configurationOperation$);
     }
 
     protected _deactivate(): void {
-        this._disposable.dispose();
+        this._configurationSubscription.dispose();
+        this._playingSubscription.dispose();
     }
 
     public get defaultConfiguration(): IUIConfiguration {
-        return {playing: false};
+        return { playing: false };
     }
 
     public play(): void {
-        this.configure({playing: true});
+        this.configure({ playing: true });
+    }
 
-        this._disposable = rx.Observable
-            .combineLatest<IFrame, IPlayerUIConfiguration, IFrameConf>(
-                this._navigator.stateService.currentState$,
-                this._configuration$,
-                (frame: IFrame, conf: IPlayerUIConfiguration): IFrameConf => {
-                    return { conf: conf, frame: frame };
-                })
+    public stop(): void {
+        this.configure({ playing: false });
+    }
+
+    private _play(): void {
+        this._playingSubscription = this._navigator.stateService.currentState$
             .filter(
-                (fc: IFrameConf): boolean => {
-                    return fc.conf.playing &&
-                        fc.frame.state.trajectory.length - 1 - fc.frame.state.currentIndex < this.nodesAhead;
+                (frame: IFrame): boolean => {
+                    let nodesAhead: number = frame.state.trajectory.length - 1 - frame.state.currentIndex;
+
+                    return nodesAhead < this.nodesAhead;
                 })
             .selectMany<Node>(
-                (fc: IFrameConf): rx.Observable<Node> => {
+                (frame: IFrame): rx.Observable<Node> => {
                     return this._navigator.graphService
                         .nextNode$(
-                            fc.frame.state.trajectory[fc.frame.state.trajectory.length - 1],
+                            frame.state.trajectory[frame.state.trajectory.length - 1],
                             EdgeDirection.NEXT)
                         .first();
                 })
             .filter(
                 (node: Node): boolean => {
                     if (node == null) {
-                        this._stop();
+                        this._stop$.onNext(null);
                     }
 
                     return node != null;
@@ -77,14 +125,8 @@ export class PlayerUI extends UI {
                 });
     }
 
-    public stop(): void {
-        this._navigator.stateService.cutNodes();
-    }
-
     private _stop(): void {
-        this.configure({playing: false});
-
-        this._disposable.dispose();
+        this._playingSubscription.dispose();
     }
 }
 
