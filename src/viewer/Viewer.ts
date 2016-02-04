@@ -5,33 +5,27 @@ import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {
     /**
-     * Container handling the space occupied by the viewer
-     * @private
-     * @type {Container}
+     * Private Container object which maintains the DOM Element, renderers and relevant services
      */
     private _container: Container;
 
     /**
-     * Navigator used to Navigate the vast seas of Mapillary
-     * @private
-     * @type {Navigator}
+     * Private Navigator object which controls navigation throught the vast seas of Mapillary
      */
     private _navigator: Navigator;
 
     /**
-     * Commands UIs
-     * @private
-     * @type {UIController}
+     * Private UIController object which manages UI/Component states
      */
     private _uiController: UIController;
 
     /**
-     * Creates a viewer instance
+     * Create a new viewer instance
      * @class Viewer
-     * @param {string} id - `id` of an DOM element which will be transformed into the viewer
-     * @param {string} clientId - Mapillary API Client ID
-     * @param {string} key - Image key to start from
-     * @param {IViewerOptions} options
+     * @param {string} id - required `id` of an DOM element which will be transformed into the viewer
+     * @param {string} clientId - required `Mapillary API ClientID`, can be obtained from http://www.mapillary.com/map/settings/integrations
+     * @param {string} key - required `photoId` to start from, can be any Mapillary photo
+     * @param {IViewerOptions} options - optional configuration object specifing Viewer's initial setup
      */
     constructor (id: string, clientId: string, key: string, options: IViewerOptions) {
         if (options === undefined) {
@@ -48,9 +42,8 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Move to a photo key
-     * @method
-     * @param {string} key Mapillary photo key to move to
+     * Navigate to a given photo key
+     * @param {string} key - a valid Mapillary photo key
      * @throws {ParamaterMapillaryError} If no key is provided
      */
     public moveToKey(key: string): void {
@@ -59,8 +52,12 @@ export class Viewer extends EventEmitter {
 
     /**
      * Move in a given direction
-     * @method
-     * @param {Direction} dir - Direction towards which to move
+     *
+     * This method has to be called through EdgeDirection enumeration as in the example.
+     *
+     * @param {EdgeDirection} dir - Direction towards which to move
+     * @example
+     * `viewer.moveToDir(Mapillary.EdgeDirection['NEXT'])`
      */
     public moveDir(dir: EdgeDirection): void {
         this._navigator.moveDir(dir).subscribe();
@@ -68,7 +65,6 @@ export class Viewer extends EventEmitter {
 
     /**
      * Move close to given latitude and longitude
-     * @method
      * @param {Number} lat - Latitude
      * @param {Number} lon - Longitude
      */
@@ -78,8 +74,7 @@ export class Viewer extends EventEmitter {
 
     /**
      * Activate a Component
-     * @method
-     * @param {string} name - Name of component
+     * @param {string} name - Name of the component which will become active
      */
     public activateComponent(name: string): void {
         this._uiController.activate(name);
@@ -87,8 +82,7 @@ export class Viewer extends EventEmitter {
 
     /**
      * Deactivate a Component
-     * @method
-     * @param {string} name - Name of component
+     * @param {string} name - Name of component which become inactive
      */
     public deactivateComponent(name: string): void {
         this._uiController.deactivate(name);
@@ -96,7 +90,6 @@ export class Viewer extends EventEmitter {
 
     /**
      * Get a Component
-     * @method
      * @param {string} name - Name of component
      */
     public getComponent(name: string): UI {
@@ -105,7 +98,6 @@ export class Viewer extends EventEmitter {
 
     /**
      * Activate the Cover (deactivates all other components)
-     * @method
      */
     public activateCover(): void {
         this._uiController.activateCover();
@@ -113,7 +105,6 @@ export class Viewer extends EventEmitter {
 
     /**
      * Deactivate the Cover (activates all components marked as active)
-     * @method
      */
     public deactivateCover(): void {
         this._uiController.deactivateCover();

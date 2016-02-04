@@ -51,7 +51,9 @@ var config = {
   ts: JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions,
   typedoc: {
     includes: [
-      './src/Mapillary.ts'
+      './src/viewer/Viewer.ts',
+      './src/viewer/interfaces/IViewerOptions.ts',
+      './src/graph/edge/EdgeDirection.ts'
     ],
     options: {
       target: 'ES5',
