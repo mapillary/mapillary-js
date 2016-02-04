@@ -163,12 +163,16 @@ export class CompletingState implements IState {
 
         for (let i: number = 0; i < n; i++) {
             this.trajectory.pop();
+            this._trajectoryTransforms.pop();
+            this._trajectoryCameras.pop();
         }
     }
 
     public cut(): void {
         while (this.trajectory.length - 1 > this.currentIndex) {
             this.trajectory.pop();
+            this._trajectoryTransforms.pop();
+            this._trajectoryCameras.pop();
         }
     }
 
