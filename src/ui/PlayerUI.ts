@@ -12,6 +12,11 @@ interface IConfigurationOperation {
     (configuration: IPlayerUIConfiguration): IPlayerUIConfiguration;
 }
 
+interface INodes {
+    last: Node;
+    next: Node;
+}
+
 export class PlayerUI extends UI {
     public static uiName: string = "player";
 
@@ -101,11 +106,28 @@ export class PlayerUI extends UI {
                 })
             .selectMany<Node>(
                 (frame: IFrame): rx.Observable<Node> => {
+                    let originalLast: Node = frame.state.trajectory[frame.state.trajectory.length - 1];
+
                     return this._navigator.graphService
                         .nextNode$(
-                            frame.state.trajectory[frame.state.trajectory.length - 1],
+                            originalLast,
                             EdgeDirection.NEXT)
-                        .first();
+                        .withLatestFrom<IFrame, INodes>(
+                            this._navigator.stateService.currentState$,
+                            (next: Node, nextFrame: IFrame): INodes => {
+                                let last: Node = nextFrame.state.trajectory[frame.state.trajectory.length - 1];
+
+                                return  { last: last, next: next };
+                            })
+                        .first()
+                        .filter(
+                            (nodes: INodes): boolean => {
+                                return nodes.last.key === originalLast.key;
+                            })
+                        .map<Node>(
+                            (nodes: INodes): Node => {
+                                return nodes.next;
+                            });
                 })
             .filter(
                 (node: Node): boolean => {
