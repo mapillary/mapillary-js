@@ -115,7 +115,7 @@ export class PlayerUI extends UI {
 
                     return node != null;
                 })
-            .distinct(
+            .distinctUntilChanged(
                 (node: Node): string => {
                     return node.key;
                 })
