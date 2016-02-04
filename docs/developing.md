@@ -33,7 +33,6 @@ Then head to `http://localhost:3000/` to debug (in case it did not open automati
 │   ├── Viewer.spec.ts
 │   └── viewer
 │       ├── OptionsParser.spec.ts
-│       └── Prefetcher.spec.ts
 ├── src/
 │   ├── Mapillary.ts   - Main file
 │   ├── Utils.ts       - Utility classes
