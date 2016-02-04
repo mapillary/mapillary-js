@@ -327,7 +327,13 @@ export class DirectionsUI extends UI {
         }
     }
 
-    private getVNodeContainer(buttons: any, turns: any, sequence: any, rotateZ: number, pano: boolean): any {
+    private getVNodeContainer(
+        buttons: vd.VNode[],
+        turns: vd.VNode[],
+        sequence: vd.VNode[],
+        rotateZ: number,
+        pano: boolean): any {
+
         let rotateZDeg: number = 180 * rotateZ / Math.PI;
 
         // todo: change the rotateX value for panoramas
