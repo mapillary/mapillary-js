@@ -100,6 +100,10 @@ export class PlayerUI extends UI {
         this._playingSubscription = this._navigator.stateService.currentState$
             .filter(
                 (frame: IFrame): boolean => {
+                    return frame.id % 5 === 0;
+                })
+            .filter(
+                (frame: IFrame): boolean => {
                     let nodesAhead: number = frame.state.trajectory.length - 1 - frame.state.currentIndex;
 
                     return nodesAhead < this.nodesAhead;
