@@ -15,8 +15,8 @@ import {Spatial, Camera} from "../Geo";
 import {ComponentService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
-export class DirectionsUI extends Component {
-    public static componentName: string = "directions";
+export class DirectionComponent extends Component {
+    public static componentName: string = "direction";
 
     private spatial: Spatial;
 
@@ -352,5 +352,5 @@ export class DirectionsUI extends Component {
     }
 }
 
-ComponentService.register(DirectionsUI);
-export default DirectionsUI;
+ComponentService.register(DirectionComponent);
+export default DirectionComponent;

@@ -31,10 +31,10 @@ export interface IViewerOptions {
 
     /**
      * Show direction arrows for navigation.
-     * @member Mapillary.IViewerOptions#directions
+     * @member Mapillary.IViewerOptions#direction
      * @type {boolean=true}
      */
-    directions?: boolean;
+    direction?: boolean;
 
     /**
      * Show static navigation arrows in the corners.

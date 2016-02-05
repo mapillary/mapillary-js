@@ -19,7 +19,7 @@ export class ComponentController {
         this.uFalse(options.navigation, "navigation");
         this.uTrue(options.attribution, "attribution");
         this.uTrue(options.cache, "cache");
-        this.uTrue(options.directions, "directions");
+        this.uTrue(options.direction, "direction");
         this.uTrue(options.keyboard, "keyboard");
         this.uTrue(options.loading, "loading");
         this.uTrue(options.mouse, "mouse");
