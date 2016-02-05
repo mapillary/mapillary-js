@@ -1,4 +1,4 @@
-import {IRect} from "../../Component";
+import {IRect} from "../../API";
 
 export interface IAPIImOr {
     ca: number;

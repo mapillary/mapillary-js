@@ -5,3 +5,4 @@ export {IAPINavImS} from "./IAPINavImS";
 export {IAPISearchImClose2} from "./IAPISearchImClose2";
 
 export {IGPano} from "./IGPano";
+export {IRect} from "./IRect";

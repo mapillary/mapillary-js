@@ -1,13 +1,12 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 
-
 import * as rx from "rx";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {APIv2} from "../API";
+import {APIv2, IRect} from "../API";
 
-import {UIService, UI, IRect} from "../Component";
+import {UIService, UI} from "../Component";
 
 export class DetectionsUI extends UI {
     public static uiName: string = "detections";
