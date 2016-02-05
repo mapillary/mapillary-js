@@ -8,8 +8,8 @@ import {APIv2, IRect} from "../API";
 
 import {ComponentService, Component} from "../Component";
 
-export class DetectionsUI extends Component {
-    public static componentName: string = "detections";
+export class DetectionComponent extends Component {
+    public static componentName: string = "detection";
     private _disposable: rx.IDisposable;
 
     private rectContainer: HTMLElement;
@@ -124,5 +124,5 @@ export class DetectionsUI extends Component {
 
 }
 
-ComponentService.register(DetectionsUI);
-export default DetectionsUI;
+ComponentService.register(DetectionComponent);
+export default DetectionComponent;
