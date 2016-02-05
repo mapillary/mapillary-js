@@ -8,6 +8,8 @@ export interface ICurrentState {
     previousNode: Node;
     trajectory: Node[];
     currentIndex: number;
+    lastNode: Node;
+    nodesAhead: number;
     currentTransform: Transform;
     previousTransform: Transform;
 }

@@ -41,6 +41,14 @@ export class StateContext implements IStateContext {
         return this.state.currentIndex;
     }
 
+    public get lastNode(): Node {
+        return this.state.trajectory[this.state.trajectory.length - 1];
+    }
+
+    public get nodesAhead(): number {
+        return this.state.trajectory.length - 1 - this.state.currentIndex;
+    }
+
     public update(): void {
         this.state.update();
     }
