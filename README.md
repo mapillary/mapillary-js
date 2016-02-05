@@ -3,8 +3,8 @@
 WebGL JavaScript library for displaying street level imagery from [Mapillary](https://www.mapillary.com)
 
 
-<img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-01.jpg" />
-<img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-02-detections-ui.jpg" />
+<img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-01-perspective.jpg" />
+<img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-02-pano.jpg" />
 
 > **ATTENTION! This is an early alpha release, expect the APIs to change and some things to break.**
 
