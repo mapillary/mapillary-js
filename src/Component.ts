@@ -8,7 +8,7 @@ export {DetectionComponent} from "./component/DetectionComponent"
 export {DirectionComponent} from "./component/DirectionComponent"
 export {ImageComponent} from "./component/ImageComponent"
 export {KeyboardComponent} from "./component/KeyboardComponent"
-export {LoadingUI} from "./component/LoadingUI"
+export {LoadingComponent} from "./component/LoadingComponent"
 export {MouseUI} from "./component/MouseUI"
 export {NavigationUI} from "./component/NavigationUI";
 export {NoneUI} from "./component/NoneUI"

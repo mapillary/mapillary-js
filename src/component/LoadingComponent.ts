@@ -10,7 +10,7 @@ import {ComponentService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
-export class LoadingUI extends Component {
+export class LoadingComponent extends Component {
     public static componentName: string = "loading";
     private _disposable: rx.IDisposable;
 
@@ -67,5 +67,5 @@ export class LoadingUI extends Component {
     }
 }
 
-ComponentService.register(LoadingUI);
-export default LoadingUI;
+ComponentService.register(LoadingComponent);
+export default LoadingComponent;
