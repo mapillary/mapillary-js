@@ -15,7 +15,7 @@
     <div id='viewer'></div>
     <button onclick="viewer.activateCover()">Activate Cover</button><button onclick="viewer.deactivateCover()">Deactivate Cover</button>
     <br>
-    <button onclick="player.play()">Play</button><button onclick="player.stop()">Stop</button>
+    <button onclick="play()">Play</button><button onclick="stop()">Stop</button>
     <script src='build/bundle.js'></script>
     <script>
         var viewer = new Mapillary.Viewer(
@@ -26,7 +26,18 @@
         );
 
         viewer.activateComponent("player");
+
         var player = viewer.getComponent("player");
+
+        function play() {
+            viewer.deactivateComponent("cache");
+            player.play();
+        }
+
+        function stop() {
+            viewer.activateComponent("cache");
+            player.stop();
+        }
 
         viewer.on("nodechanged", function (node) {
             console.log(node.key);
