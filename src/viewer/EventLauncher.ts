@@ -4,29 +4,28 @@ import * as rx from "rx";
 
 import {Node} from "../Graph";
 import {EventEmitter} from "../Utils";
-import {StateService} from "../State";
-import {LoadingService} from "../Viewer";
+import {Navigator} from "../Viewer";
 
 export class EventLauncher {
     private _stateSubscription: rx.IDisposable;
     private _loadingSubscription: rx.IDisposable;
 
     private _eventEmitter: EventEmitter;
-    private _loadingService: LoadingService;
-    private _stateService: StateService;
+    private _navigator: Navigator;
 
-    constructor(eventEmitter: EventEmitter, loadingService: LoadingService, stateService: StateService) {
+    constructor(eventEmitter: EventEmitter, navigator: Navigator) {
         this._eventEmitter = eventEmitter;
-        this._loadingService = loadingService;
-        this._stateService = stateService;
+        this._navigator = navigator;
 
-        this._loadingSubscription = this._loadingService.loading$.subscribe((loading: boolean): void => {
-            this._eventEmitter.fire("loadingchanged", loading);
-        });
+        this._loadingSubscription = this._navigator.loadingService.loading$
+            .subscribe((loading: boolean): void => {
+                this._eventEmitter.fire("loadingchanged", loading);
+            });
 
-        this._stateSubscription = this._stateService.currentNode$.subscribe((node: Node): void => {
-            this._eventEmitter.fire("nodechanged", node);
-        });
+        this._stateSubscription = this._navigator.stateService.currentNode$
+            .subscribe((node: Node): void => {
+                this._eventEmitter.fire("nodechanged", node);
+            });
     }
 
     public dispose(): void {

@@ -40,7 +40,7 @@ export class Viewer extends EventEmitter {
         this._navigator = new Navigator(clientId);
         this._container = new Container(id, this._navigator.stateService.currentState$);
         this._componentController = new ComponentController(this._container, this._navigator, key, options);
-        this._eventLauncher = new EventLauncher(this, this._navigator.loadingService, this._navigator.stateService);
+        this._eventLauncher = new EventLauncher(this, this._navigator);
 
         Settings.setOptions({});
 
