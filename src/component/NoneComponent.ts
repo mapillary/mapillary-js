@@ -1,6 +1,6 @@
 import {ComponentService, Component} from "../Component";
 
-export class NoneUI extends Component {
+export class NoneComponent extends Component {
     public static componentName: string = "none";
 
     protected _activate(): void {
@@ -12,5 +12,5 @@ export class NoneUI extends Component {
     }
 }
 
-ComponentService.register(NoneUI);
-export default NoneUI;
+ComponentService.register(NoneComponent);
+export default NoneComponent;

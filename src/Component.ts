@@ -11,7 +11,7 @@ export {KeyboardComponent} from "./component/KeyboardComponent"
 export {LoadingComponent} from "./component/LoadingComponent"
 export {MouseComponent} from "./component/MouseComponent"
 export {NavigationComponent} from "./component/NavigationComponent";
-export {NoneUI} from "./component/NoneUI"
+export {NoneComponent} from "./component/NoneComponent"
 export {PlayerUI} from "./component/PlayerUI"
 export {SphereUI} from "./component/SphereUI";
 export {GLUI} from "./component/GLUI/GLUI"
