@@ -1,1 +1,0 @@
-export {IShader} from "./IShader"
