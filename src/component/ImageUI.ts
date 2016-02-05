@@ -14,7 +14,7 @@ interface ICanvasNode {
 }
 
 export class ImageUI extends Component {
-    public static uiName: string = "image";
+    public static componentName: string = "image";
 
     private canvasId: string;
     private _disposable: rx.IDisposable;

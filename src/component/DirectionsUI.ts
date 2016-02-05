@@ -16,7 +16,7 @@ import {UIService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
 export class DirectionsUI extends Component {
-    public static uiName: string = "directions";
+    public static componentName: string = "directions";
 
     private spatial: Spatial;
 

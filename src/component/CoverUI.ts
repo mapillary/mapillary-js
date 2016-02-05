@@ -10,7 +10,7 @@ import {ICoverUIConfiguration, IUIConfiguration, UIService, Component} from "../
 import {IVNodeHash} from "../Render";
 
 export class CoverUI extends Component {
-    public static uiName: string = "cover";
+    public static componentName: string = "cover";
 
     private _disposable: rx.IDisposable;
     private _keyDisposable: rx.IDisposable;

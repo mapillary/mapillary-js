@@ -10,7 +10,7 @@ import {Component, UIService} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 export class DebugUI extends Component {
-    public static uiName: string = "debug";
+    public static componentName: string = "debug";
 
     private _displaying: boolean;
     private _disposable: rx.IDisposable;

@@ -11,7 +11,7 @@ import {UIService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
 export class AttributionUI extends Component {
-    public static uiName: string = "attribution";
+    public static componentName: string = "attribution";
     private _disposable: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {

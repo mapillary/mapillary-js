@@ -9,7 +9,7 @@ import {APIv2, IRect} from "../API";
 import {UIService, Component} from "../Component";
 
 export class DetectionsUI extends Component {
-    public static uiName: string = "detections";
+    public static componentName: string = "detections";
     private _disposable: rx.IDisposable;
 
     private rectContainer: HTMLElement;

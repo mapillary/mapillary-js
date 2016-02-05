@@ -24,7 +24,10 @@ export class UIService {
         this._navigator = navigator;
 
         for (let component of _.values(UIService.registeredUIs)) {
-            this._components[component.uiName] = {active: false, component: new component(component.uiName, container, navigator)};
+            this._components[component.componentName] = {
+                active: false,
+                component: new component(component.componentName, container, navigator),
+            };
         }
 
         this._coverUI = new UIService.registeredCoverUI("cover", container, navigator);
@@ -33,8 +36,8 @@ export class UIService {
     }
 
     public static register(component: typeof Component): void {
-        if (UIService.registeredUIs[component.uiName] === undefined) {
-            UIService.registeredUIs[component.uiName] = component;
+        if (UIService.registeredUIs[component.componentName] === undefined) {
+            UIService.registeredUIs[component.componentName] = component;
         }
     }
 

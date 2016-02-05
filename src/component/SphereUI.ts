@@ -12,7 +12,7 @@ import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../Render";
 import {Node} from "../Graph";
 
 export class SphereUI extends Component {
-    public static uiName: string = "sphere";
+    public static componentName: string = "sphere";
     private _disposable: rx.IDisposable;
 
     private scene: THREE.Scene;

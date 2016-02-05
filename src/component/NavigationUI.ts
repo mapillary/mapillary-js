@@ -12,7 +12,7 @@ import {UIService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
 export class NavigationUI extends Component {
-    public static uiName: string = "navigation";
+    public static componentName: string = "navigation";
 
     private _disposable: rx.IDisposable;
 

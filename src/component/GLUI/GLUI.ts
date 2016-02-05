@@ -13,7 +13,7 @@ import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
 
 export class GLUI extends Component {
-    public static uiName: string = "gl";
+    public static componentName: string = "gl";
     private _disposable: rx.IDisposable;
 
     private alpha: number;

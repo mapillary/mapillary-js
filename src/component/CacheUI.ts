@@ -9,7 +9,7 @@ import {UIService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 export class CacheUI extends Component {
-    public static uiName: string = "cache";
+    public static componentName: string = "cache";
     private _disposable: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {

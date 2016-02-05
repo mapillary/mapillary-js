@@ -1,7 +1,7 @@
 import {UIService, Component} from "../Component";
 
 export class NoneUI extends Component {
-    public static uiName: string = "none";
+    public static componentName: string = "none";
 
     protected _activate(): void {
         return;

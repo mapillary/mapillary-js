@@ -4,7 +4,7 @@ import {Container, Navigator} from "../Viewer";
 import * as rx from "rx";
 
 export abstract class Component {
-    public static uiName: string = "not_worthy";
+    public static componentName: string = "not_worthy";
 
     protected _activated: boolean;
     protected _configurationSubject$: rx.Subject<IUIConfiguration> = new rx.Subject<IUIConfiguration>();

@@ -18,7 +18,7 @@ interface INodes {
 }
 
 export class PlayerUI extends Component {
-    public static uiName: string = "player";
+    public static componentName: string = "player";
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
     private _stop$: rx.Subject<void> = new rx.Subject<void>();

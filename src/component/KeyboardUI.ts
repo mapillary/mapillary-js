@@ -15,7 +15,7 @@ interface IKeyboardFrame {
 }
 
 export class KeyboardUI extends Component {
-    public static uiName: string = "keyboard";
+    public static componentName: string = "keyboard";
 
     private _spatial: Spatial;
 

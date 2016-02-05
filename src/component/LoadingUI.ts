@@ -11,7 +11,7 @@ import {UIService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
 export class LoadingUI extends Component {
-    public static uiName: string = "loading";
+    public static componentName: string = "loading";
     private _disposable: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
