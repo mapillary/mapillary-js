@@ -13,7 +13,7 @@ interface ICanvasNode {
     node: Node;
 }
 
-export class ImageUI extends Component {
+export class ImageComponent extends Component {
     public static componentName: string = "image";
 
     private canvasId: string;
@@ -65,5 +65,5 @@ export class ImageUI extends Component {
     }
 }
 
-ComponentService.register(ImageUI);
-export default ImageUI;
+ComponentService.register(ImageComponent);
+export default ImageComponent;
