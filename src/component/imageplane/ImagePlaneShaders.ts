@@ -5,7 +5,7 @@ import * as path from "path";
 
 import {IShader} from "../../Component";
 
-export class Shaders {
+export class ImagePlaneShaders {
     public static equirectangular: IShader = {
         fragment: fs.readFileSync(path.join(__dirname, "./shaders/equirectangular.fragment.glsl"), "utf8"),
         vertex: fs.readFileSync(path.join(__dirname, "./shaders/equirectangular.vertex.glsl"), "utf8"),

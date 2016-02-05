@@ -5,7 +5,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 
 import {IGPano} from "../../API";
-import {ComponentService, Component, Shaders, ImagePlaneScene} from "../../Component";
+import {ComponentService, Component, ImagePlaneShaders, ImagePlaneScene} from "../../Component";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../../Render";
@@ -169,7 +169,7 @@ export class ImagePlaneComponent extends Component {
 
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
-            fragmentShader: Shaders.equirectangular.fragment,
+            fragmentShader: ImagePlaneShaders.equirectangular.fragment,
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
@@ -194,7 +194,7 @@ export class ImagePlaneComponent extends Component {
                     value: thetaLength,
                 },
             },
-            vertexShader: Shaders.equirectangular.vertex,
+            vertexShader: ImagePlaneShaders.equirectangular.vertex,
         };
 
         return materialParameters;
@@ -203,7 +203,7 @@ export class ImagePlaneComponent extends Component {
     private createMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
-            fragmentShader: Shaders.perspective.fragment,
+            fragmentShader: ImagePlaneShaders.perspective.fragment,
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
@@ -220,7 +220,7 @@ export class ImagePlaneComponent extends Component {
                     value: texture,
                 },
             },
-            vertexShader: Shaders.perspective.vertex,
+            vertexShader: ImagePlaneShaders.perspective.vertex,
         };
 
         return materialParameters;

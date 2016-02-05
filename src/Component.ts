@@ -16,6 +16,6 @@ export {PlayerComponent} from "./component/PlayerComponent"
 export {SphereComponent} from "./component/SphereComponent";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent"
 export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene"
-export {Shaders} from "./component/imageplane/Shaders"
+export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders"
 export * from "./component/interfaces/interfaces"
 export * from "./component/imageplane/interfaces/interfaces"
