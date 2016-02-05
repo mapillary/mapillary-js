@@ -1,6 +1,6 @@
 import {ParameterMapillaryError} from "../Error";
 import {Container, Navigator} from "../Viewer";
-import {CoverUI, Component, IComponentConfiguration} from "../Component";
+import {CoverComponent, Component, IComponentConfiguration} from "../Component";
 
 import * as _ from "underscore";
 
@@ -10,12 +10,12 @@ interface IActiveComponent {
 }
 
 export class ComponentService {
-    public static registeredCoverUI: typeof CoverUI;
+    public static registeredCoverComponent: typeof CoverComponent;
     public static registeredComponents: {[key: string]: typeof Component} = {};
 
     private _container: Container;
     private _coverActivated: boolean;
-    private _coverUI: CoverUI;
+    private _coverComponent: CoverComponent;
     private _navigator: Navigator;
     private _components: {[key: string]: IActiveComponent} = {};
 
@@ -30,8 +30,8 @@ export class ComponentService {
             };
         }
 
-        this._coverUI = new ComponentService.registeredCoverUI("cover", container, navigator);
-        this._coverUI.activate();
+        this._coverComponent = new ComponentService.registeredCoverComponent("cover", container, navigator);
+        this._coverComponent.activate();
         this._coverActivated = true;
     }
 
@@ -41,8 +41,8 @@ export class ComponentService {
         }
     }
 
-    public static registerCover(coverUI: typeof CoverUI): void {
-        ComponentService.registeredCoverUI = coverUI;
+    public static registerCover(coverComponent: typeof CoverComponent): void {
+        ComponentService.registeredCoverComponent = coverComponent;
     }
 
     public activateCover(): void {
@@ -98,8 +98,8 @@ export class ComponentService {
         return this._components[name].component;
     }
 
-    public getCover(): CoverUI {
-        return this._coverUI;
+    public getCover(): CoverComponent {
+        return this._coverComponent;
     }
 
     private checkName(name: string): void {

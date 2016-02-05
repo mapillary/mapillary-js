@@ -9,7 +9,7 @@ import {ICoverConfiguration, IComponentConfiguration, ComponentService, Componen
 
 import {IVNodeHash} from "../Render";
 
-export class CoverUI extends Component {
+export class CoverComponent extends Component {
     public static componentName: string = "cover";
 
     private _disposable: rx.IDisposable;
@@ -66,5 +66,5 @@ export class CoverUI extends Component {
     }
 }
 
-ComponentService.registerCover(CoverUI);
-export default CoverUI;
+ComponentService.registerCover(CoverComponent);
+export default CoverComponent;

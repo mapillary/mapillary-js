@@ -1,11 +1,11 @@
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {CoverUI, ComponentService, ICoverConfiguration, Component} from "../Component";
+import {CoverComponent, ComponentService, ICoverConfiguration, Component} from "../Component";
 import {IViewerOptions} from "../Viewer";
 
 export class ComponentController {
     private _container: Container;
-    private _coverUI: CoverUI;
+    private _coverComponent: CoverComponent;
     private _navigator: Navigator;
     private _componentService: ComponentService;
 
@@ -25,19 +25,19 @@ export class ComponentController {
         this.uTrue(options.mouse, "mouse");
         this.uTrue(options.gl, "gl");
 
-        this._coverUI = <CoverUI> this._componentService.getCover();
+        this._coverComponent = <CoverComponent> this._componentService.getCover();
 
-        this._coverUI.configure({key: key});
+        this._coverComponent.configure({key: key});
         if (options.cover === undefined || options.cover) {
             this.activateCover();
         } else {
             this.deactivateCover();
         }
 
-        this._coverUI.configuration$.subscribe((conf: ICoverConfiguration) => {
+        this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
                 this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
-                    this._coverUI.configure({loading: false, visible: false});
+                    this._coverComponent.configure({loading: false, visible: false});
                     this._componentService.deactivateCover();
                 });
             } else if (conf.visible) {
@@ -47,11 +47,11 @@ export class ComponentController {
     }
 
     public activateCover(): void {
-        this._coverUI.configure({loading: false, visible: true});
+        this._coverComponent.configure({loading: false, visible: true});
     }
 
     public deactivateCover(): void {
-        this._coverUI.configure({loading: true, visible: true});
+        this._coverComponent.configure({loading: true, visible: true});
     }
 
     public activate(name: string): void {
