@@ -183,6 +183,8 @@ export class CompletingState implements IState {
             throw Error("Trajectory can not be empty");
         }
 
+        this._useBezier = true;
+
         this._trajectoryTransforms.length = 0;
         this._trajectoryCameras.length = 0;
         if (this.currentNode != null) {
