@@ -3,16 +3,16 @@ import {Container, Navigator} from "../Viewer";
 import {CoverUI, ComponentService, ICoverUIConfiguration, Component} from "../Component";
 import {IViewerOptions} from "../Viewer";
 
-export class UIController {
+export class ComponentController {
     private _container: Container;
     private _coverUI: CoverUI;
     private _navigator: Navigator;
-    private _uiService: ComponentService;
+    private _componentService: ComponentService;
 
     constructor(container: Container, navigator: Navigator, key: string, options: IViewerOptions) {
         this._container = container;
         this._navigator = navigator;
-        this._uiService = new ComponentService(this._container, this._navigator);
+        this._componentService = new ComponentService(this._container, this._navigator);
 
         this.uFalse(options.debug, "debug");
         this.uFalse(options.player, "player");
@@ -25,7 +25,7 @@ export class UIController {
         this.uTrue(options.mouse, "mouse");
         this.uTrue(options.gl, "gl");
 
-        this._coverUI = <CoverUI> this._uiService.getCover();
+        this._coverUI = <CoverUI> this._componentService.getCover();
 
         this._coverUI.configure({key: key});
         if (options.cover === undefined || options.cover) {
@@ -38,10 +38,10 @@ export class UIController {
             if (conf.loading) {
                 this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
                     this._coverUI.configure({loading: false, visible: false});
-                    this._uiService.deactivateCover();
+                    this._componentService.deactivateCover();
                 });
             } else if (conf.visible) {
-                this._uiService.activateCover();
+                this._componentService.activateCover();
             }
         });
     }
@@ -55,48 +55,48 @@ export class UIController {
     }
 
     public activate(name: string): void {
-        this._uiService.activate(name);
+        this._componentService.activate(name);
     }
 
     public deactivate(name: string): void {
-        this._uiService.deactivate(name);
+        this._componentService.deactivate(name);
     }
 
     public get(name: string): Component {
-        return this._uiService.get(name);
+        return this._componentService.get(name);
     }
 
     private uFalse(option: boolean, name: string): void {
         if (option === undefined) {
-            this._uiService.deactivate(name);
+            this._componentService.deactivate(name);
             return;
         }
         if (typeof option === "boolean") {
             if (option) {
-                this._uiService.activate(name);
+                this._componentService.activate(name);
             } else {
-                this._uiService.deactivate(name);
+                this._componentService.deactivate(name);
             }
             return;
         }
-        this._uiService.configure(name, option);
-        this._uiService.activate(name);
+        this._componentService.configure(name, option);
+        this._componentService.activate(name);
     }
 
     private uTrue(option: boolean, name: string): void {
         if (option === undefined) {
-            this._uiService.activate(name);
+            this._componentService.activate(name);
             return;
         }
         if (typeof option === "boolean") {
             if (option) {
-                this._uiService.activate(name);
+                this._componentService.activate(name);
             } else {
-                this._uiService.deactivate(name);
+                this._componentService.deactivate(name);
             }
             return;
         }
-        this._uiService.configure(name, option);
-        this._uiService.activate(name);
+        this._componentService.configure(name, option);
+        this._componentService.activate(name);
     }
 }

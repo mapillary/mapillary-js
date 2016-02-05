@@ -1,5 +1,5 @@
 import {EdgeDirection} from "../Edge";
-import {IViewerOptions, Container, Navigator, UIController, EventLauncher} from "../Viewer";
+import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher} from "../Viewer";
 import {Component} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
 
@@ -15,9 +15,9 @@ export class Viewer extends EventEmitter {
     private _navigator: Navigator;
 
     /**
-     * Private UIController object which manages component states
+     * Private ComponentController object which manages component states
      */
-    private _uiController: UIController;
+    private _componentController: ComponentController;
 
     /**
      * Private EventLauncher object which fires events on behalf of the viewer
@@ -39,7 +39,7 @@ export class Viewer extends EventEmitter {
 
         this._navigator = new Navigator(clientId);
         this._container = new Container(id, this._navigator.stateService.currentState$);
-        this._uiController = new UIController(this._container, this._navigator, key, options);
+        this._componentController = new ComponentController(this._container, this._navigator, key, options);
         this._eventLauncher = new EventLauncher(this, this._navigator.loadingService, this._navigator.stateService);
 
         Settings.setOptions({});
@@ -83,7 +83,7 @@ export class Viewer extends EventEmitter {
      * @param {string} name - Name of the component which will become active
      */
     public activateComponent(name: string): void {
-        this._uiController.activate(name);
+        this._componentController.activate(name);
     }
 
     /**
@@ -91,7 +91,7 @@ export class Viewer extends EventEmitter {
      * @param {string} name - Name of component which become inactive
      */
     public deactivateComponent(name: string): void {
-        this._uiController.deactivate(name);
+        this._componentController.deactivate(name);
     }
 
     /**
@@ -99,21 +99,21 @@ export class Viewer extends EventEmitter {
      * @param {string} name - Name of component
      */
     public getComponent(name: string): Component {
-        return this._uiController.get(name);
+        return this._componentController.get(name);
     }
 
     /**
      * Activate the Cover (deactivates all other components)
      */
     public activateCover(): void {
-        this._uiController.activateCover();
+        this._componentController.activateCover();
     }
 
     /**
      * Deactivate the Cover (activates all components marked as active)
      */
     public deactivateCover(): void {
-        this._uiController.deactivateCover();
+        this._componentController.deactivateCover();
     }
 }
 
