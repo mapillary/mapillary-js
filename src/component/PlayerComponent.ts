@@ -39,6 +39,13 @@ export class PlayerComponent extends Component {
                     return operation(configuration);
                 },
                 { playing: false })
+            .finally(
+                (): void => {
+                    if (this._playingSubscription != null) {
+                        this._navigator.stateService.cutNodes();
+                        this._stop();
+                    }
+                })
             .subscribe();
 
         this._configuration$
@@ -80,8 +87,9 @@ export class PlayerComponent extends Component {
     }
 
     protected _deactivate(): void {
+        this.stop();
+
         this._configurationSubscription.dispose();
-        this._playingSubscription.dispose();
     }
 
     public get defaultConfiguration(): IComponentConfiguration {
@@ -153,6 +161,7 @@ export class PlayerComponent extends Component {
 
     private _stop(): void {
         this._playingSubscription.dispose();
+        this._playingSubscription = null;
     }
 }
 
