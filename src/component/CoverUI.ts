@@ -5,7 +5,7 @@ import * as vd from "virtual-dom";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ICoverUIConfiguration, IComponentConfiguration, ComponentService, Component} from "../Component";
+import {ICoverConfiguration, IComponentConfiguration, ComponentService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
@@ -24,7 +24,7 @@ export class CoverUI extends Component {
             return {key: node.key};
         }).subscribe(this._configurationSubject$);
 
-        this._disposable = this._configuration$.map((conf: ICoverUIConfiguration): IVNodeHash => {
+        this._disposable = this._configuration$.map((conf: ICoverConfiguration): IVNodeHash => {
             if (!conf.key) {
                 return {name: this._name, vnode: vd.h("div", [])};
             }
@@ -44,7 +44,7 @@ export class CoverUI extends Component {
         return {"loading": false, "visible": true};
     }
 
-    private getCoverButtonVNode(conf: ICoverUIConfiguration): vd.VNode {
+    private getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
         let coverBtn: string = "span.CoverButtonIcon";
         let children: Array<vd.VNode> = [];
         if (conf.loading) {
@@ -60,7 +60,7 @@ export class CoverUI extends Component {
         ]);
     }
 
-    private getCoverBackgroundVNode(conf: ICoverUIConfiguration): vd.VNode {
+    private getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
         let url: string = `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-320.jpg)`;
         return vd.h("div.CoverBackground", { style: { backgroundImage: url }}, []);
     }

@@ -1,6 +1,6 @@
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {CoverUI, ComponentService, ICoverUIConfiguration, Component} from "../Component";
+import {CoverUI, ComponentService, ICoverConfiguration, Component} from "../Component";
 import {IViewerOptions} from "../Viewer";
 
 export class ComponentController {
@@ -34,7 +34,7 @@ export class ComponentController {
             this.deactivateCover();
         }
 
-        this._coverUI.configuration$.subscribe((conf: ICoverUIConfiguration) => {
+        this._coverUI.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
                 this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
                     this._coverUI.configure({loading: false, visible: false});
