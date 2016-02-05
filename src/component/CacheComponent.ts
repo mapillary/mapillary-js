@@ -8,7 +8,7 @@ import {Node} from "../Graph";
 import {ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-export class CacheUI extends Component {
+export class CacheComponent extends Component {
     public static componentName: string = "cache";
     private _disposable: rx.IDisposable;
 
@@ -47,5 +47,5 @@ export class CacheUI extends Component {
     }
 }
 
-ComponentService.register(CacheUI);
-export default CacheUI;
+ComponentService.register(CacheComponent);
+export default CacheComponent;
