@@ -1,6 +1,6 @@
-import {IUIConfiguration} from "../../Component";
+import {IComponentConfiguration} from "../../Component";
 
-export interface IPlayerUIConfiguration extends IUIConfiguration {
+export interface IPlayerUIConfiguration extends IComponentConfiguration {
     playing?: boolean;
 }
 

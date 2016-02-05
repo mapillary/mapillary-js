@@ -1,6 +1,6 @@
 import {ParameterMapillaryError} from "../Error";
 import {Container, Navigator} from "../Viewer";
-import {CoverUI, Component, IUIConfiguration} from "../Component";
+import {CoverUI, Component, IComponentConfiguration} from "../Component";
 
 import * as _ from "underscore";
 
@@ -81,7 +81,7 @@ export class ComponentService {
         }
     }
 
-    public configure(name: string, conf: IUIConfiguration): void {
+    public configure(name: string, conf: IComponentConfiguration): void {
         this.checkName(name);
         this.get(name).configure(conf);
     }

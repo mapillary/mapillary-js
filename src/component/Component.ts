@@ -1,4 +1,4 @@
-import {IUIConfiguration} from "../Component";
+import {IComponentConfiguration} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 import * as rx from "rx";
@@ -7,8 +7,8 @@ export abstract class Component {
     public static componentName: string = "not_worthy";
 
     protected _activated: boolean;
-    protected _configurationSubject$: rx.Subject<IUIConfiguration> = new rx.Subject<IUIConfiguration>();
-    protected _configuration$: rx.Observable<IUIConfiguration>;
+    protected _configurationSubject$: rx.Subject<IComponentConfiguration> = new rx.Subject<IComponentConfiguration>();
+    protected _configuration$: rx.Observable<IComponentConfiguration>;
     protected _container: Container;
     protected _name: string;
     protected _navigator: Navigator;
@@ -20,8 +20,8 @@ export abstract class Component {
         this._name = name;
 
         this._configuration$ =
-            this._configurationSubject$.scan<IUIConfiguration>(
-                (conf: IUIConfiguration, newConf: IUIConfiguration): IUIConfiguration => {
+            this._configurationSubject$.scan<IComponentConfiguration>(
+                (conf: IComponentConfiguration, newConf: IComponentConfiguration): IComponentConfiguration => {
                     for (let key in newConf) {
                         if (newConf.hasOwnProperty(key)) {
                             conf[key] = <any>newConf[key];
@@ -32,7 +32,7 @@ export abstract class Component {
         this._configuration$.subscribe();
     }
 
-    public activate(conf?: IUIConfiguration): void {
+    public activate(conf?: IComponentConfiguration): void {
         if (this._activated) {
             return;
         }
@@ -66,15 +66,15 @@ export abstract class Component {
         return this._activated;
     }
 
-    public configure(conf: IUIConfiguration): void {
+    public configure(conf: IComponentConfiguration): void {
         this._configurationSubject$.onNext(conf);
     }
 
-    public get defaultConfiguration(): IUIConfiguration {
+    public get defaultConfiguration(): IComponentConfiguration {
         return {};
     }
 
-    public get configuration$(): rx.Observable<IUIConfiguration> {
+    public get configuration$(): rx.Observable<IComponentConfiguration> {
         return this._configuration$;
     }
 }

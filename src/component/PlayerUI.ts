@@ -5,7 +5,7 @@ import * as rx from "rx";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {IFrame} from "../State";
-import {IUIConfiguration, IPlayerUIConfiguration, ComponentService, Component} from "../Component";
+import {IComponentConfiguration, IPlayerUIConfiguration, ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 interface IConfigurationOperation {
@@ -84,7 +84,7 @@ export class PlayerUI extends Component {
         this._playingSubscription.dispose();
     }
 
-    public get defaultConfiguration(): IUIConfiguration {
+    public get defaultConfiguration(): IComponentConfiguration {
         return { playing: false };
     }
 

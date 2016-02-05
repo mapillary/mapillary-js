@@ -5,7 +5,7 @@ import * as vd from "virtual-dom";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ICoverUIConfiguration, IUIConfiguration, ComponentService, Component} from "../Component";
+import {ICoverUIConfiguration, IComponentConfiguration, ComponentService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
@@ -20,7 +20,7 @@ export class CoverUI extends Component {
     }
 
     public _activate(): void {
-        this._keyDisposable = this._navigator.stateService.currentNode$.map((node: Node): IUIConfiguration => {
+        this._keyDisposable = this._navigator.stateService.currentNode$.map((node: Node): IComponentConfiguration => {
             return {key: node.key};
         }).subscribe(this._configurationSubject$);
 
@@ -40,7 +40,7 @@ export class CoverUI extends Component {
         this._keyDisposable.dispose();
     }
 
-    public get defaultConfiguration(): IUIConfiguration {
+    public get defaultConfiguration(): IComponentConfiguration {
         return {"loading": false, "visible": true};
     }
 
