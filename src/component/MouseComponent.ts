@@ -5,7 +5,7 @@ import * as rx from "rx";
 import {ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-export class MouseUI extends Component {
+export class MouseComponent extends Component {
     public static componentName: string = "mouse";
 
     private _mouseDragSubscription: rx.IDisposable;
@@ -43,5 +43,5 @@ export class MouseUI extends Component {
     }
 }
 
-ComponentService.register(MouseUI);
-export default MouseUI;
+ComponentService.register(MouseComponent);
+export default MouseComponent;

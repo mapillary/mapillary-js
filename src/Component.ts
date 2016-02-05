@@ -9,7 +9,7 @@ export {DirectionComponent} from "./component/DirectionComponent"
 export {ImageComponent} from "./component/ImageComponent"
 export {KeyboardComponent} from "./component/KeyboardComponent"
 export {LoadingComponent} from "./component/LoadingComponent"
-export {MouseUI} from "./component/MouseUI"
+export {MouseComponent} from "./component/MouseComponent"
 export {NavigationUI} from "./component/NavigationUI";
 export {NoneUI} from "./component/NoneUI"
 export {PlayerUI} from "./component/PlayerUI"
