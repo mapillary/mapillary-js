@@ -10,7 +10,7 @@ export {ImageComponent} from "./component/ImageComponent"
 export {KeyboardComponent} from "./component/KeyboardComponent"
 export {LoadingComponent} from "./component/LoadingComponent"
 export {MouseComponent} from "./component/MouseComponent"
-export {NavigationUI} from "./component/NavigationUI";
+export {NavigationComponent} from "./component/NavigationComponent";
 export {NoneUI} from "./component/NoneUI"
 export {PlayerUI} from "./component/PlayerUI"
 export {SphereUI} from "./component/SphereUI";

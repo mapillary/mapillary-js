@@ -11,7 +11,7 @@ import {ComponentService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
-export class NavigationUI extends Component {
+export class NavigationComponent extends Component {
     public static componentName: string = "navigation";
 
     private _disposable: rx.IDisposable;
@@ -45,7 +45,7 @@ export class NavigationUI extends Component {
                 btns.push(this.createVNode(direction, name));
             }
 
-            return {name: this._name, vnode: vd.h(`div.NavigationUI`, btns)};
+            return {name: this._name, vnode: vd.h(`div.NavigationComponent`, btns)};
         }).subscribe(this._container.domRenderer.render$);
     }
 
@@ -60,5 +60,5 @@ export class NavigationUI extends Component {
     }
 }
 
-ComponentService.register(NavigationUI);
-export default NavigationUI;
+ComponentService.register(NavigationComponent);
+export default NavigationComponent;
