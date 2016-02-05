@@ -32,7 +32,7 @@ export class StateService {
         this._currentNode$.subscribe();
 
         this._frameGenerator = new FrameGenerator();
-        this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
+        this._frameId = null;
     }
 
     public get currentState$(): rx.Observable<IFrame> {
@@ -44,7 +44,20 @@ export class StateService {
     }
 
     public dispose(): void {
-        this._frameGenerator.cancelAnimationFrame(this._frameId);
+        this.stop();
+    }
+
+    public start(): void {
+        if (this._frameId == null) {
+            this._frameId = this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
+        }
+    }
+
+    public stop(): void {
+        if (this._frameId != null) {
+            this._frameGenerator.cancelAnimationFrame(this._frameId);
+            this._frameId = null;
+        }
     }
 
     public appendNodes(nodes: Node[]): void {
