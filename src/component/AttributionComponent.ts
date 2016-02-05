@@ -10,7 +10,7 @@ import {Node} from "../Graph";
 import {ComponentService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
-export class AttributionUI extends Component {
+export class AttributionComponent extends Component {
     public static componentName: string = "attribution";
     private _disposable: rx.IDisposable;
 
@@ -45,5 +45,5 @@ export class AttributionUI extends Component {
     }
 }
 
-ComponentService.register(AttributionUI);
-export default AttributionUI;
+ComponentService.register(AttributionComponent);
+export default AttributionComponent;
