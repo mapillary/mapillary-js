@@ -17,7 +17,7 @@ interface INodes {
     next: Node;
 }
 
-export class PlayerUI extends Component {
+export class PlayerComponent extends Component {
     public static componentName: string = "player";
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
@@ -156,5 +156,5 @@ export class PlayerUI extends Component {
     }
 }
 
-ComponentService.register(PlayerUI);
-export default PlayerUI;
+ComponentService.register(PlayerComponent);
+export default PlayerComponent;

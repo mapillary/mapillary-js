@@ -12,7 +12,7 @@ export {LoadingComponent} from "./component/LoadingComponent"
 export {MouseComponent} from "./component/MouseComponent"
 export {NavigationComponent} from "./component/NavigationComponent";
 export {NoneComponent} from "./component/NoneComponent"
-export {PlayerUI} from "./component/PlayerUI"
+export {PlayerComponent} from "./component/PlayerComponent"
 export {SphereUI} from "./component/SphereUI";
 export {GLUI} from "./component/GLUI/GLUI"
 export {ImagePlaneScene} from "./component/GLUI/ImagePlaneScene"
