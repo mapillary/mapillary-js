@@ -12,8 +12,8 @@ import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../../Render";
 import {Transform, Camera} from "../../Geo";
 import {Node} from "../../Graph";
 
-export class GLUI extends Component {
-    public static componentName: string = "gl";
+export class ImagePlaneComponent extends Component {
+    public static componentName: string = "imageplane";
     private _disposable: rx.IDisposable;
 
     private alpha: number;
@@ -332,5 +332,5 @@ export class GLUI extends Component {
     }
 }
 
-ComponentService.register(GLUI);
-export default GLUI;
+ComponentService.register(ImagePlaneComponent);
+export default ImagePlaneComponent;

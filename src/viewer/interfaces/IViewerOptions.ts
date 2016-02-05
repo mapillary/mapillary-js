@@ -44,11 +44,11 @@ export interface IViewerOptions {
     navigation?: boolean;
 
     /**
-     * Use gl viewer, if gl is not supported there will be an automatic fallback to none gl viewer.
+     * Show image planes in 3D using WebGL.
      * @member Mapillary.IViewerOptions#gl
      * @type {boolean=true}
      */
-    gl?: boolean;
+    imageplane?: boolean;
 
     /**
      * Enable use of keyboard commands.

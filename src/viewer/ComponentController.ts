@@ -23,7 +23,7 @@ export class ComponentController {
         this.uTrue(options.keyboard, "keyboard");
         this.uTrue(options.loading, "loading");
         this.uTrue(options.mouse, "mouse");
-        this.uTrue(options.gl, "gl");
+        this.uTrue(options.imageplane, "imageplane");
 
         this._coverComponent = <CoverComponent> this._componentService.getCover();
 
