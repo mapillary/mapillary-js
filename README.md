@@ -20,11 +20,11 @@ To install the latest version
 - [API Reference](https://mapillary.github.io/mapillary-js)
 
 ## Examples
-- [mapillary-js + Leaflet + Tangram](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
-- [mapillary-js + Leaflet](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555)
-- [mapillary-js + mapbox-gl-js](http://bl.ocks.org/knikel/4ec4de69a0fc29318675)
-- [mapillary-js + Esri Leaflet](http://bl.ocks.org/knikel/e85b802e97fd3390668f)
-- [mapillary-js + Google Maps](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
+- mapillary-js + Leaflet [Panorama](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555) [Perspective photo](http://bl.ocks.org/knikel/151a77df042cd3890502)
+- mapillary-js + Leaflet + Tangram [Panorama](http://bl.ocks.org/knikel/0f297c5b1fcfd14e38ba) [Perspective photo](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
+- mapillary-js + mapbox-gl-js [Panorama](http://bl.ocks.org/knikel/4ec4de69a0fc29318675) [Perspective photo](http://bl.ocks.org/knikel/010115b08ebe30baba86)
+- mapillary-js + Esri Leaflet [Panorama](http://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c) [Perspective photo](http://bl.ocks.org/knikel/e85b802e97fd3390668f)
+- mapillary-js + Google Maps [Panorama](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
 
 ## Quickstart
 
