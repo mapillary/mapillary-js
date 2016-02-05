@@ -14,8 +14,8 @@ export {NavigationComponent} from "./component/NavigationComponent";
 export {NoneComponent} from "./component/NoneComponent"
 export {PlayerComponent} from "./component/PlayerComponent"
 export {SphereComponent} from "./component/SphereComponent";
-export {GLUI} from "./component/GLUI/GLUI"
-export {ImagePlaneScene} from "./component/GLUI/ImagePlaneScene"
-export {Shaders} from "./component/GLUI/Shaders"
+export {GLUI} from "./component/imageplane/GLUI"
+export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene"
+export {Shaders} from "./component/imageplane/Shaders"
 export * from "./component/interfaces/interfaces"
-export * from "./component/GLUI/interfaces/interfaces"
+export * from "./component/imageplane/interfaces/interfaces"
