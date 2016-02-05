@@ -5,7 +5,7 @@ import * as rx from "rx";
 
 import {IEdge, EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
-import {UIService, UI} from "../UI";
+import {UIService, UI} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 export class CacheUI extends UI {

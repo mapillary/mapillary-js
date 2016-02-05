@@ -1,6 +1,6 @@
 import {EdgeDirection} from "../Edge";
 import {IViewerOptions, Container, Navigator, UIController, EventLauncher} from "../Viewer";
-import {UI} from "../UI";
+import {UI} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {

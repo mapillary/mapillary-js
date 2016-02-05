@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import * as rx from "rx";
 
-import {UIService, UI} from "../UI";
+import {UIService, UI} from "../Component";
 import {IFrame, ICurrentState} from "../State";
 import {Camera} from "../Geo";
 import {Container, Navigator} from "../Viewer";

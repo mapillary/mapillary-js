@@ -1,6 +1,6 @@
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {CoverUI, UIService, ICoverUIConfiguration, UI} from "../UI";
+import {CoverUI, UIService, ICoverUIConfiguration, UI} from "../Component";
 import {IViewerOptions} from "../Viewer";
 
 export class UIController {

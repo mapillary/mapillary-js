@@ -7,7 +7,7 @@ import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {APIv2} from "../API";
 
-import {UIService, UI, IRect} from "../UI";
+import {UIService, UI, IRect} from "../Component";
 
 export class DetectionsUI extends UI {
     public static uiName: string = "detections";

@@ -7,7 +7,7 @@ import * as vd from "virtual-dom";
 import {Container, Navigator} from "../Viewer";
 import {Node} from "../Graph";
 
-import {UIService, UI} from "../UI";
+import {UIService, UI} from "../Component";
 import {IVNodeHash} from "../Render";
 
 export class AttributionUI extends UI {

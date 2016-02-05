@@ -4,7 +4,7 @@
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {UIService, UI} from "../UI";
+import {UIService, UI} from "../Component";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 

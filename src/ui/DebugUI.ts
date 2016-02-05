@@ -6,7 +6,7 @@ import * as vd from "virtual-dom";
 
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
-import {UI, UIService} from "../UI";
+import {UI, UIService} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 export class DebugUI extends UI {

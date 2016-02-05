@@ -5,7 +5,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 
 import {IGPano} from "../../API";
-import {UIService, UI, Shaders, ImagePlaneScene} from "../../UI";
+import {UIService, UI, Shaders, ImagePlaneScene} from "../../Component";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../../Render";

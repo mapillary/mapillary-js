@@ -5,7 +5,7 @@ import * as rx from "rx";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {IFrame} from "../State";
-import {IUIConfiguration, IPlayerUIConfiguration, UIService, UI} from "../UI";
+import {IUIConfiguration, IPlayerUIConfiguration, UIService, UI} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 interface IConfigurationOperation {

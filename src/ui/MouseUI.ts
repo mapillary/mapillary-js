@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {UIService, UI} from "../UI";
+import {UIService, UI} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 export class MouseUI extends UI {

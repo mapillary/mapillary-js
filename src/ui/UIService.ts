@@ -1,6 +1,6 @@
 import {ParameterMapillaryError} from "../Error";
 import {Container, Navigator} from "../Viewer";
-import {CoverUI, UI, IUIConfiguration} from "../UI";
+import {CoverUI, UI, IUIConfiguration} from "../Component";
 
 import * as _ from "underscore";
 

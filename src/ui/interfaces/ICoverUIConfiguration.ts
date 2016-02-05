@@ -1,4 +1,4 @@
-import {IUIConfiguration} from "../../UI";
+import {IUIConfiguration} from "../../Component";
 
 export interface ICoverUIConfiguration extends IUIConfiguration {
     key?: string;

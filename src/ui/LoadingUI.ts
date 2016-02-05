@@ -6,7 +6,7 @@ import * as vd from "virtual-dom";
 import * as rx from "rx";
 
 import {Container, Navigator} from "../Viewer";
-import {UIService, UI} from "../UI";
+import {UIService, UI} from "../Component";
 
 import {IVNodeHash} from "../Render";
 

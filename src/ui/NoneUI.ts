@@ -1,4 +1,4 @@
-import {UIService, UI} from "../UI";
+import {UIService, UI} from "../Component";
 
 export class NoneUI extends UI {
     public static uiName: string = "none";

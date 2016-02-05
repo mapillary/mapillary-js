@@ -5,7 +5,7 @@ import * as vd from "virtual-dom";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ICoverUIConfiguration, IUIConfiguration, UIService, UI} from "../UI";
+import {ICoverUIConfiguration, IUIConfiguration, UIService, UI} from "../Component";
 
 import {IVNodeHash} from "../Render";
 

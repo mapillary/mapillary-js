@@ -12,7 +12,7 @@ import {Container, Navigator} from "../Viewer";
 import {IFrame, IRotation} from "../State";
 import {Spatial, Camera} from "../Geo";
 
-import {UIService, UI} from "../UI";
+import {UIService, UI} from "../Component";
 import {IVNodeHash} from "../Render";
 
 export class DirectionsUI extends UI {

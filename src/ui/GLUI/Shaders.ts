@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import {IShader} from "../../UI";
+import {IShader} from "../../Component";
 
 export class Shaders {
     public static equirectangular: IShader = {

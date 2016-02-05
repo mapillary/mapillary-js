@@ -1,4 +1,4 @@
-import {IUIConfiguration} from "../UI";
+import {IUIConfiguration} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 import * as rx from "rx";
