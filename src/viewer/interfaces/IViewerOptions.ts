@@ -44,8 +44,15 @@ export interface IViewerOptions {
     navigation?: boolean;
 
     /**
+     * Show static images without transitions.
+     * @member Mapillary.IViewerOptions#image
+     * @type {boolean=true}
+     */
+    image?: boolean;
+
+    /**
      * Show image planes in 3D using WebGL.
-     * @member Mapillary.IViewerOptions#gl
+     * @member Mapillary.IViewerOptions#imageplane
      * @type {boolean=true}
      */
     imageplane?: boolean;
