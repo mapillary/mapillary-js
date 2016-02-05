@@ -63,7 +63,7 @@
 .DirectionsArrowPano:hover {
     cursor: pointer;
     cursor: hand;
-    opacity: 1;
+    opacity: 1 !important;
 }
 
 

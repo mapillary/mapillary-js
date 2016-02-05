@@ -92,21 +92,25 @@ export class DirectionComponent extends Component {
                 this.currentPlaneRotation = planeRotation;
                 this.currentUpRotation = upRotation;
 
-                let phi: number = this.rotationFromCamera(frame.state.camera).phi;
+                let rotation: IRotation = this.rotationFromCamera(frame.state.camera);
+
+                let x: number = 15 * Math.PI / 32 - rotation.theta;
+                let opacity: number = Math.min(0.8, Math.max(0.6, -1.8 * x / Math.PI + 0.8));
 
                 let btns: vd.VNode[] = [];
                 let turns: vd.VNode[] = [];
+
                 if (node.pano) {
-                    btns = btns.concat(this.createPanoArrows(node, phi));
+                    btns = btns.concat(this.createPanoArrows(node, rotation, opacity));
                 } else {
-                    btns = btns.concat(this.createPerspectiveToPanoArrows(node, phi));
-                    btns = btns.concat(this.createStepArrows(node, phi));
+                    btns = btns.concat(this.createPerspectiveToPanoArrows(node, rotation, opacity));
+                    btns = btns.concat(this.createStepArrows(node, rotation, opacity));
                     turns = turns.concat(this.createTurnArrows(node));
                 }
 
                 let sequence: vd.VNode[] = this.createSequenceArrows(node);
 
-                return {name: this._name, vnode: this.getVNodeContainer(btns, turns, sequence, phi, node.pano)};
+                return {name: this._name, vnode: this.getVNodeContainer(btns, turns, sequence, rotation, node.pano)};
             })
             .filter((hash: IVNodeHash): boolean => { return hash != null; })
             .subscribe(this._container.domRenderer.render$);
@@ -116,7 +120,7 @@ export class DirectionComponent extends Component {
         this._disposable.dispose();
     }
 
-    private createStepArrows(node: Node, phi: number): Array<vd.VNode> {
+    private createStepArrows(node: Node, rotation: IRotation, opacity: number): Array<vd.VNode> {
         let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
@@ -125,13 +129,13 @@ export class DirectionComponent extends Component {
                 continue;
             }
 
-            btns.push(this.createVNodeByDirection(edge.data.worldMotionAzimuth, phi, direction));
+            btns.push(this.createVNodeByDirection(edge.data.worldMotionAzimuth, rotation, opacity, direction));
         }
 
         return btns;
     }
 
-    private createPerspectiveToPanoArrows(node: Node, phi: number): Array<vd.VNode> {
+    private createPerspectiveToPanoArrows(node: Node, rotation: IRotation, opacity: number): Array<vd.VNode> {
         let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
@@ -139,22 +143,42 @@ export class DirectionComponent extends Component {
                 continue;
             }
 
-            btns.push(this.createVNodeByKey(edge.data.worldMotionAzimuth, phi, this.innerArrowOffset, edge.to, "DirectionsArrowPano"));
+            btns.push(
+                this.createVNodeByKey(
+                    edge.data.worldMotionAzimuth,
+                    rotation,
+                    opacity,
+                    this.innerArrowOffset,
+                    edge.to,
+                    "DirectionsArrowPano"));
         }
 
         return btns;
     }
 
-    private createPanoArrows(node: Node, phi: number): Array<vd.VNode> {
+    private createPanoArrows(node: Node, rotation: IRotation, opacity: number): Array<vd.VNode> {
         let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
             let direction: EdgeDirection = edge.data.direction;
 
             if (direction === EdgeDirection.PANO) {
-                btns.push(this.createVNodeByKey(edge.data.worldMotionAzimuth, phi, this.arrowOffset, edge.to, "DirectionsArrowPano"));
+                btns.push(
+                    this.createVNodeByKey(
+                        edge.data.worldMotionAzimuth,
+                        rotation,
+                        opacity,
+                        this.arrowOffset,
+                        edge.to,
+                        "DirectionsArrowPano"));
             } else if (this.steps.indexOf(direction) > -1) {
-                btns.push(this.createPanoToPerspectiveArrow(edge.data.worldMotionAzimuth, phi, direction, edge.to));
+                btns.push(
+                    this.createPanoToPerspectiveArrow(
+                        edge.data.worldMotionAzimuth,
+                        rotation,
+                        opacity,
+                        direction,
+                        edge.to));
             }
         }
 
@@ -188,30 +212,42 @@ export class DirectionComponent extends Component {
         return turns;
     }
 
-    private createPanoToPerspectiveArrow(azimuth: number, phi: number, direction: EdgeDirection, key: string): vd.VNode {
+    private createPanoToPerspectiveArrow(
+        azimuth: number,
+        rotation: IRotation,
+        opacity: number,
+        direction: EdgeDirection,
+        key: string): vd.VNode {
+
         let threshold: number = Math.PI / 8;
 
-        let rotation: number = phi;
+        let relativePhi: number = rotation.phi;
 
         switch (direction) {
             case EdgeDirection.STEP_BACKWARD:
-                rotation = phi - Math.PI;
+                relativePhi = rotation.phi - Math.PI;
                 break;
             case EdgeDirection.STEP_LEFT:
-                rotation = phi + Math.PI / 2;
+                relativePhi = rotation.phi + Math.PI / 2;
                 break;
             case EdgeDirection.STEP_RIGHT:
-                rotation = phi - Math.PI / 2;
+                relativePhi = rotation.phi - Math.PI / 2;
                 break;
             default:
                 break;
         }
 
-        if (Math.abs(this.spatial.wrapAngle(azimuth - rotation)) < threshold) {
-            return this.createVNodeByKey(azimuth, phi, this.arrowOffset, key, "DirectionsArrowStep");
+        if (Math.abs(this.spatial.wrapAngle(azimuth - relativePhi)) < threshold) {
+            return this.createVNodeByKey(
+                azimuth,
+                rotation,
+                opacity,
+                this.arrowOffset,
+                key,
+                "DirectionsArrowStep");
         }
 
-        return this.createVNodeDisabled(azimuth, phi);
+        return this.createVNodeDisabled(azimuth, rotation, opacity);
     }
 
     private createSequenceArrows(node: Node): vd.VNode[] {
@@ -259,22 +295,29 @@ export class DirectionComponent extends Component {
         return this.calcTranslation(angle);
     }
 
-    private createVNodeByKey(azimuth: number, phi: number, offset: number, key: string, className: string): vd.VNode {
+    private createVNodeByKey(
+        azimuth: number,
+        rotation: IRotation,
+        opacity: number,
+        offset: number,
+        key: string,
+        className: string): vd.VNode {
+
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveToKey(key).subscribe(); };
 
-        return this.createVNode(azimuth, phi, offset, className, onClick);
+        return this.createVNode(azimuth, rotation, opacity, offset, className, onClick);
     }
 
-    private createVNodeDisabled(azimuth: number, phi: number): vd.VNode {
-        return this.createVNode(azimuth, phi, this.arrowOffset, "DirectionsArrowDisabled");
+    private createVNodeDisabled(azimuth: number, rotation: IRotation, opacity: number): vd.VNode {
+        return this.createVNode(azimuth, rotation, opacity , this.arrowOffset, "DirectionsArrowDisabled");
     }
 
-    private createVNodeByDirection(azimuth: number, phi: number, direction: EdgeDirection): vd.VNode {
+    private createVNodeByDirection(azimuth: number, rotation: IRotation, opacity: number, direction: EdgeDirection): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
-        return this.createVNode(azimuth, phi, this.arrowOffset, "DirectionsArrowStep", onClick);
+        return this.createVNode(azimuth, rotation, opacity, this.arrowOffset, "DirectionsArrowStep", onClick);
     }
 
     private createVNodeByTurn(name: string, direction: EdgeDirection, style: any): vd.VNode {
@@ -288,14 +331,21 @@ export class DirectionComponent extends Component {
                     []);
     }
 
-    private createVNode(azimuth: number, phi: number, offset: number, className: string, onClick?: (e: Event) => void): vd.VNode {
+    private createVNode(
+        azimuth: number,
+        rotation: IRotation,
+        opacity: number,
+        offset: number,
+        className: string,
+        onClick?: (e: Event) => void): vd.VNode {
+
         let translation: Array<number> = this.calcTranslation(azimuth);
 
         // rotate 90 degrees clockwise and flip over X-axis
         let translationX: number = -offset * translation[1];
         let translationY: number = -offset * translation[0];
 
-        let shadowTranslation: Array<number> = this.calcShadowTranslation(azimuth, phi);
+        let shadowTranslation: Array<number> = this.calcShadowTranslation(azimuth, rotation.phi);
         let shadowTranslationX: number = -this.dropShadowOffset * shadowTranslation[1];
         let shadowTranslationY: number = this.dropShadowOffset * shadowTranslation[0];
 
@@ -308,6 +358,7 @@ export class DirectionComponent extends Component {
             style: {
                     "-webkit-filter": filter,
                     filter: filter,
+                    opacity: `${opacity}`,
                     transform: transform,
             },
         };
@@ -331,14 +382,14 @@ export class DirectionComponent extends Component {
         buttons: vd.VNode[],
         turns: vd.VNode[],
         sequence: vd.VNode[],
-        rotateZ: number,
+        rotation: IRotation,
         pano: boolean): any {
 
-        let rotateZDeg: number = 180 * rotateZ / Math.PI;
+        let rotateZ: number = this.spatial.radToDeg(rotation.phi);
 
         // todo: change the rotateX value for panoramas
         let style: any = {
-            transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZDeg}deg)`
+            transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZ}deg)`
         };
 
         return vd.h("div", {},
