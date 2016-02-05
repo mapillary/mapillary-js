@@ -3,7 +3,7 @@ export {ComponentService} from "./component/ComponentService";
 export {AttributionComponent} from "./component/AttributionComponent"
 export {CacheComponent} from "./component/CacheComponent"
 export {CoverComponent} from "./component/CoverComponent"
-export {DebugUI} from "./component/DebugUI"
+export {DebugComponent} from "./component/DebugComponent"
 export {DetectionsUI} from "./component/DetectionsUI"
 export {DirectionsUI} from "./component/DirectionsUI"
 export {ImageUI} from "./component/ImageUI"

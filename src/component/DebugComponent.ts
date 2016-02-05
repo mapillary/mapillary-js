@@ -9,7 +9,7 @@ import {IFrame} from "../State";
 import {Component, ComponentService} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-export class DebugUI extends Component {
+export class DebugComponent extends Component {
     public static componentName: string = "debug";
 
     private _displaying: boolean;
@@ -120,5 +120,5 @@ export class DebugUI extends Component {
     }
 }
 
-ComponentService.register(DebugUI);
-export default DebugUI;
+ComponentService.register(DebugComponent);
+export default DebugComponent;
