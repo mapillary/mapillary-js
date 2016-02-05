@@ -13,7 +13,7 @@ export {MouseComponent} from "./component/MouseComponent"
 export {NavigationComponent} from "./component/NavigationComponent";
 export {NoneComponent} from "./component/NoneComponent"
 export {PlayerComponent} from "./component/PlayerComponent"
-export {SphereUI} from "./component/SphereUI";
+export {SphereComponent} from "./component/SphereComponent";
 export {GLUI} from "./component/GLUI/GLUI"
 export {ImagePlaneScene} from "./component/GLUI/ImagePlaneScene"
 export {Shaders} from "./component/GLUI/Shaders"

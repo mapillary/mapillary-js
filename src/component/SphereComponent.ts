@@ -11,7 +11,7 @@ import {Container, Navigator} from "../Viewer";
 import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../Render";
 import {Node} from "../Graph";
 
-export class SphereUI extends Component {
+export class SphereComponent extends Component {
     public static componentName: string = "sphere";
     private _disposable: rx.IDisposable;
 
@@ -139,5 +139,5 @@ export class SphereUI extends Component {
     }
 }
 
-ComponentService.register(SphereUI);
-export default SphereUI;
+ComponentService.register(SphereComponent);
+export default SphereComponent;
