@@ -14,7 +14,7 @@ interface IKeyboardFrame {
     frame: IFrame;
 }
 
-export class KeyboardUI extends Component {
+export class KeyboardComponent extends Component {
     public static componentName: string = "keyboard";
 
     private _spatial: Spatial;
@@ -175,5 +175,5 @@ export class KeyboardUI extends Component {
     }
 }
 
-ComponentService.register(KeyboardUI);
-export default KeyboardUI;
+ComponentService.register(KeyboardComponent);
+export default KeyboardComponent;

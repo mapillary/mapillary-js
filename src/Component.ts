@@ -7,7 +7,7 @@ export {DebugComponent} from "./component/DebugComponent"
 export {DetectionComponent} from "./component/DetectionComponent"
 export {DirectionComponent} from "./component/DirectionComponent"
 export {ImageComponent} from "./component/ImageComponent"
-export {KeyboardUI} from "./component/KeyboardUI"
+export {KeyboardComponent} from "./component/KeyboardComponent"
 export {LoadingUI} from "./component/LoadingUI"
 export {MouseUI} from "./component/MouseUI"
 export {NavigationUI} from "./component/NavigationUI";
