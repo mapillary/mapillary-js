@@ -1,3 +1,3 @@
 export {ICoverConfiguration} from "./ICoverConfiguration"
-export {IPlayerUIConfiguration} from "./IPlayerUIConfiguration"
+export {IPlayerConfiguration} from "./IPlayerConfiguration"
 export {IComponentConfiguration} from "./IComponentConfiguration"

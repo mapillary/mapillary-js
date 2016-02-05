@@ -5,11 +5,11 @@ import * as rx from "rx";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {IFrame} from "../State";
-import {IComponentConfiguration, IPlayerUIConfiguration, ComponentService, Component} from "../Component";
+import {IComponentConfiguration, IPlayerConfiguration, ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 interface IConfigurationOperation {
-    (configuration: IPlayerUIConfiguration): IPlayerUIConfiguration;
+    (configuration: IPlayerConfiguration): IPlayerConfiguration;
 }
 
 interface INodes {
@@ -34,8 +34,8 @@ export class PlayerUI extends Component {
 
     protected _activate(): void {
         this._configurationSubscription = this._configurationOperation$
-            .scan<IPlayerUIConfiguration>(
-                (configuration: IPlayerUIConfiguration, operation: IConfigurationOperation): IPlayerUIConfiguration => {
+            .scan<IPlayerConfiguration>(
+                (configuration: IPlayerConfiguration, operation: IConfigurationOperation): IPlayerConfiguration => {
                     return operation(configuration);
                 },
                 { playing: false })
@@ -43,8 +43,8 @@ export class PlayerUI extends Component {
 
         this._configuration$
             .map<IConfigurationOperation>(
-                (newConfiguration: IPlayerUIConfiguration) => {
-                    return (configuration: IPlayerUIConfiguration): IPlayerUIConfiguration => {
+                (newConfiguration: IPlayerConfiguration) => {
+                    return (configuration: IPlayerConfiguration): IPlayerConfiguration => {
                         if (newConfiguration.playing !== configuration.playing) {
 
                             this._navigator.stateService.cutNodes();
@@ -66,7 +66,7 @@ export class PlayerUI extends Component {
         this._stop$
             .map<IConfigurationOperation>(
                 () => {
-                    return (configuration: IPlayerUIConfiguration): IPlayerUIConfiguration => {
+                    return (configuration: IPlayerConfiguration): IPlayerConfiguration => {
                         if (configuration.playing) {
                             this._stop();
                         }
