@@ -37,10 +37,12 @@ export class ComponentController {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
                 this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
+                    this._navigator.stateService.start();
                     this._coverComponent.configure({loading: false, visible: false});
                     this._componentService.deactivateCover();
                 });
             } else if (conf.visible) {
+                this._navigator.stateService.stop();
                 this._componentService.activateCover();
             }
         });
