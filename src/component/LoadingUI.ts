@@ -6,11 +6,11 @@ import * as vd from "virtual-dom";
 import * as rx from "rx";
 
 import {Container, Navigator} from "../Viewer";
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
-export class LoadingUI extends UI {
+export class LoadingUI extends Component {
     public static uiName: string = "loading";
     private _disposable: rx.IDisposable;
 

@@ -4,7 +4,7 @@
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
@@ -13,7 +13,7 @@ interface ICanvasNode {
     node: Node;
 }
 
-export class ImageUI extends UI {
+export class ImageUI extends Component {
     public static uiName: string = "image";
 
     private canvasId: string;

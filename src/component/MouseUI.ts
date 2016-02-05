@@ -2,10 +2,10 @@
 
 import * as rx from "rx";
 
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-export class MouseUI extends UI {
+export class MouseUI extends Component {
     public static uiName: string = "mouse";
 
     private _mouseDragSubscription: rx.IDisposable;

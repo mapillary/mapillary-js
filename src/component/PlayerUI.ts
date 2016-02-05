@@ -5,7 +5,7 @@ import * as rx from "rx";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {IFrame} from "../State";
-import {IUIConfiguration, IPlayerUIConfiguration, UIService, UI} from "../Component";
+import {IUIConfiguration, IPlayerUIConfiguration, UIService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 interface IConfigurationOperation {
@@ -17,7 +17,7 @@ interface INodes {
     next: Node;
 }
 
-export class PlayerUI extends UI {
+export class PlayerUI extends Component {
     public static uiName: string = "player";
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();

@@ -7,11 +7,11 @@ import * as vd from "virtual-dom";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
-export class NavigationUI extends UI {
+export class NavigationUI extends Component {
     public static uiName: string = "navigation";
 
     private _disposable: rx.IDisposable;

@@ -3,7 +3,7 @@ import {Container, Navigator} from "../Viewer";
 
 import * as rx from "rx";
 
-export abstract class UI {
+export abstract class Component {
     public static uiName: string = "not_worthy";
 
     protected _activated: boolean;
@@ -79,4 +79,4 @@ export abstract class UI {
     }
 }
 
-export default UI;
+export default Component;

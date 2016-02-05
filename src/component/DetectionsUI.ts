@@ -6,9 +6,9 @@ import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {APIv2, IRect} from "../API";
 
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 
-export class DetectionsUI extends UI {
+export class DetectionsUI extends Component {
     public static uiName: string = "detections";
     private _disposable: rx.IDisposable;
 

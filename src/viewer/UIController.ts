@@ -1,6 +1,6 @@
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {CoverUI, UIService, ICoverUIConfiguration, UI} from "../Component";
+import {CoverUI, UIService, ICoverUIConfiguration, Component} from "../Component";
 import {IViewerOptions} from "../Viewer";
 
 export class UIController {
@@ -62,7 +62,7 @@ export class UIController {
         this._uiService.deactivate(name);
     }
 
-    public get(name: string): UI {
+    public get(name: string): Component {
         return this._uiService.get(name);
     }
 

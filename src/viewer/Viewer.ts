@@ -1,6 +1,6 @@
 import {EdgeDirection} from "../Edge";
 import {IViewerOptions, Container, Navigator, UIController, EventLauncher} from "../Viewer";
-import {UI} from "../Component";
+import {Component} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {
@@ -15,7 +15,7 @@ export class Viewer extends EventEmitter {
     private _navigator: Navigator;
 
     /**
-     * Private UIController object which manages UI/Component states
+     * Private UIController object which manages component states
      */
     private _uiController: UIController;
 
@@ -98,7 +98,7 @@ export class Viewer extends EventEmitter {
      * Get a Component
      * @param {string} name - Name of component
      */
-    public getComponent(name: string): UI {
+    public getComponent(name: string): Component {
         return this._uiController.get(name);
     }
 

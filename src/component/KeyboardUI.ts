@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {EdgeDirection, IEdge} from "../Edge";
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 import {IFrame, IRotation} from "../State";
 import {Node} from "../Graph";
@@ -14,7 +14,7 @@ interface IKeyboardFrame {
     frame: IFrame;
 }
 
-export class KeyboardUI extends UI {
+export class KeyboardUI extends Component {
     public static uiName: string = "keyboard";
 
     private _spatial: Spatial;

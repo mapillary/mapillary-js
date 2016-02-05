@@ -1,6 +1,6 @@
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 
-export class NoneUI extends UI {
+export class NoneUI extends Component {
     public static uiName: string = "none";
 
     protected _activate(): void {

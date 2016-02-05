@@ -12,10 +12,10 @@ import {Container, Navigator} from "../Viewer";
 import {IFrame, IRotation} from "../State";
 import {Spatial, Camera} from "../Geo";
 
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
-export class DirectionsUI extends UI {
+export class DirectionsUI extends Component {
     public static uiName: string = "directions";
 
     private spatial: Spatial;

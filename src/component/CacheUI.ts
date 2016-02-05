@@ -5,10 +5,10 @@ import * as rx from "rx";
 
 import {IEdge, EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-export class CacheUI extends UI {
+export class CacheUI extends Component {
     public static uiName: string = "cache";
     private _disposable: rx.IDisposable;
 

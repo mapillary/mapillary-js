@@ -7,10 +7,10 @@ import * as vd from "virtual-dom";
 import {Container, Navigator} from "../Viewer";
 import {Node} from "../Graph";
 
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
-export class AttributionUI extends UI {
+export class AttributionUI extends Component {
     public static uiName: string = "attribution";
     private _disposable: rx.IDisposable;
 

@@ -1,4 +1,4 @@
-export {UI} from "./component/UI"
+export {Component} from "./component/Component"
 export {UIService} from "./component/UIService";
 export {AttributionUI} from "./component/AttributionUI"
 export {CacheUI} from "./component/CacheUI"

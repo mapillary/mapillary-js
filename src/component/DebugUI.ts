@@ -6,10 +6,10 @@ import * as vd from "virtual-dom";
 
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
-import {UI, UIService} from "../Component";
+import {Component, UIService} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-export class DebugUI extends UI {
+export class DebugUI extends Component {
     public static uiName: string = "debug";
 
     private _displaying: boolean;

@@ -4,14 +4,14 @@
 import * as THREE from "three";
 import * as rx from "rx";
 
-import {UIService, UI} from "../Component";
+import {UIService, Component} from "../Component";
 import {IFrame, ICurrentState} from "../State";
 import {Camera} from "../Geo";
 import {Container, Navigator} from "../Viewer";
 import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../Render";
 import {Node} from "../Graph";
 
-export class SphereUI extends UI {
+export class SphereUI extends Component {
     public static uiName: string = "sphere";
     private _disposable: rx.IDisposable;
 
