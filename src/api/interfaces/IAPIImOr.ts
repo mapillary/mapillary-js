@@ -1,4 +1,4 @@
-import IRect from "../../ui/interfaces/IRect";
+import {IRect} from "../../Component";
 
 export interface IAPIImOr {
     ca: number;
@@ -11,8 +11,3 @@ export interface IAPIImOr {
 }
 
 export default IAPIImOr;
-
-
-
-
-
