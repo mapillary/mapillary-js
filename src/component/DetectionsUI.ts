@@ -6,7 +6,7 @@ import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {APIv2, IRect} from "../API";
 
-import {UIService, Component} from "../Component";
+import {ComponentService, Component} from "../Component";
 
 export class DetectionsUI extends Component {
     public static componentName: string = "detections";
@@ -124,5 +124,5 @@ export class DetectionsUI extends Component {
 
 }
 
-UIService.register(DetectionsUI);
+ComponentService.register(DetectionsUI);
 export default DetectionsUI;

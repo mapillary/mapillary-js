@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {EdgeDirection, IEdge} from "../Edge";
-import {UIService, Component} from "../Component";
+import {ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 import {IFrame, IRotation} from "../State";
 import {Node} from "../Graph";
@@ -175,5 +175,5 @@ export class KeyboardUI extends Component {
     }
 }
 
-UIService.register(KeyboardUI);
+ComponentService.register(KeyboardUI);
 export default KeyboardUI;

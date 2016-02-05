@@ -5,7 +5,7 @@ import * as rx from "rx";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {IFrame} from "../State";
-import {IUIConfiguration, IPlayerUIConfiguration, UIService, Component} from "../Component";
+import {IUIConfiguration, IPlayerUIConfiguration, ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 interface IConfigurationOperation {
@@ -156,5 +156,5 @@ export class PlayerUI extends Component {
     }
 }
 
-UIService.register(PlayerUI);
+ComponentService.register(PlayerUI);
 export default PlayerUI;

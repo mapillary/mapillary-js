@@ -1,5 +1,5 @@
 export {Component} from "./component/Component"
-export {UIService} from "./component/UIService";
+export {ComponentService} from "./component/ComponentService";
 export {AttributionUI} from "./component/AttributionUI"
 export {CacheUI} from "./component/CacheUI"
 export {CoverUI} from "./component/CoverUI"

@@ -4,45 +4,45 @@ import {CoverUI, Component, IUIConfiguration} from "../Component";
 
 import * as _ from "underscore";
 
-interface IActiveUI {
+interface IActiveComponent {
     active: boolean;
     component: Component;
 }
 
-export class UIService {
+export class ComponentService {
     public static registeredCoverUI: typeof CoverUI;
-    public static registeredUIs: {[key: string]: typeof Component} = {};
+    public static registeredComponents: {[key: string]: typeof Component} = {};
 
     private _container: Container;
     private _coverActivated: boolean;
     private _coverUI: CoverUI;
     private _navigator: Navigator;
-    private _components: {[key: string]: IActiveUI} = {};
+    private _components: {[key: string]: IActiveComponent} = {};
 
     constructor (container: Container, navigator: Navigator) {
         this._container = container;
         this._navigator = navigator;
 
-        for (let component of _.values(UIService.registeredUIs)) {
+        for (let component of _.values(ComponentService.registeredComponents)) {
             this._components[component.componentName] = {
                 active: false,
                 component: new component(component.componentName, container, navigator),
             };
         }
 
-        this._coverUI = new UIService.registeredCoverUI("cover", container, navigator);
+        this._coverUI = new ComponentService.registeredCoverUI("cover", container, navigator);
         this._coverUI.activate();
         this._coverActivated = true;
     }
 
     public static register(component: typeof Component): void {
-        if (UIService.registeredUIs[component.componentName] === undefined) {
-            UIService.registeredUIs[component.componentName] = component;
+        if (ComponentService.registeredComponents[component.componentName] === undefined) {
+            ComponentService.registeredComponents[component.componentName] = component;
         }
     }
 
     public static registerCover(coverUI: typeof CoverUI): void {
-        UIService.registeredCoverUI = coverUI;
+        ComponentService.registeredCoverUI = coverUI;
     }
 
     public activateCover(): void {
@@ -51,9 +51,9 @@ export class UIService {
         }
         this._coverActivated = true;
 
-        for (let activeUI of _.values(this._components)) {
-            if (activeUI.active) {
-                activeUI.component.deactivate();
+        for (let component of _.values(this._components)) {
+            if (component.active) {
+                component.component.deactivate();
             }
         }
         return;
@@ -65,9 +65,9 @@ export class UIService {
         }
         this._coverActivated = false;
 
-        for (let activeUI of _.values(this._components)) {
-            if (activeUI.active) {
-                activeUI.component.activate();
+        for (let component of _.values(this._components)) {
+            if (component.active) {
+                component.component.activate();
             }
         }
         return;
@@ -109,4 +109,4 @@ export class UIService {
     }
 }
 
-export default UIService;
+export default ComponentService;

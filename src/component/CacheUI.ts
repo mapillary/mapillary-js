@@ -5,7 +5,7 @@ import * as rx from "rx";
 
 import {IEdge, EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
-import {UIService, Component} from "../Component";
+import {ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 export class CacheUI extends Component {
@@ -47,5 +47,5 @@ export class CacheUI extends Component {
     }
 }
 
-UIService.register(CacheUI);
+ComponentService.register(CacheUI);
 export default CacheUI;

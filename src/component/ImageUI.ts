@@ -4,7 +4,7 @@
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {UIService, Component} from "../Component";
+import {ComponentService, Component} from "../Component";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
@@ -65,5 +65,5 @@ export class ImageUI extends Component {
     }
 }
 
-UIService.register(ImageUI);
+ComponentService.register(ImageUI);
 export default ImageUI;

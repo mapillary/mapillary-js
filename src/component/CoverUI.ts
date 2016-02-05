@@ -5,7 +5,7 @@ import * as vd from "virtual-dom";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ICoverUIConfiguration, IUIConfiguration, UIService, Component} from "../Component";
+import {ICoverUIConfiguration, IUIConfiguration, ComponentService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
@@ -66,5 +66,5 @@ export class CoverUI extends Component {
     }
 }
 
-UIService.registerCover(CoverUI);
+ComponentService.registerCover(CoverUI);
 export default CoverUI;

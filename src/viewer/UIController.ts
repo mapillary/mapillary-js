@@ -1,18 +1,18 @@
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {CoverUI, UIService, ICoverUIConfiguration, Component} from "../Component";
+import {CoverUI, ComponentService, ICoverUIConfiguration, Component} from "../Component";
 import {IViewerOptions} from "../Viewer";
 
 export class UIController {
     private _container: Container;
     private _coverUI: CoverUI;
     private _navigator: Navigator;
-    private _uiService: UIService;
+    private _uiService: ComponentService;
 
     constructor(container: Container, navigator: Navigator, key: string, options: IViewerOptions) {
         this._container = container;
         this._navigator = navigator;
-        this._uiService = new UIService(this._container, this._navigator);
+        this._uiService = new ComponentService(this._container, this._navigator);
 
         this.uFalse(options.debug, "debug");
         this.uFalse(options.player, "player");

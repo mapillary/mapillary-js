@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {UIService, Component} from "../Component";
+import {ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 export class MouseUI extends Component {
@@ -43,5 +43,5 @@ export class MouseUI extends Component {
     }
 }
 
-UIService.register(MouseUI);
+ComponentService.register(MouseUI);
 export default MouseUI;

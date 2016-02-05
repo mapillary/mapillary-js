@@ -7,7 +7,7 @@ import * as vd from "virtual-dom";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {UIService, Component} from "../Component";
+import {ComponentService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
@@ -60,5 +60,5 @@ export class NavigationUI extends Component {
     }
 }
 
-UIService.register(NavigationUI);
+ComponentService.register(NavigationUI);
 export default NavigationUI;

@@ -1,4 +1,4 @@
-import {UIService, Component} from "../Component";
+import {ComponentService, Component} from "../Component";
 
 export class NoneUI extends Component {
     public static componentName: string = "none";
@@ -12,5 +12,5 @@ export class NoneUI extends Component {
     }
 }
 
-UIService.register(NoneUI);
+ComponentService.register(NoneUI);
 export default NoneUI;
