@@ -43,6 +43,7 @@ export class MouseService {
 
         this._mouseDrag$ = this._mouseDown$
             .selectMany<MouseEvent>((e: MouseEvent): rx.Observable<MouseEvent> => {
+                e.preventDefault(); // prevents selection of the content outside of the viewer
                 return this._mouseMove$
                     .skip(1)
                     .takeUntil(dragStop$);
