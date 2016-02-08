@@ -1,12 +1,12 @@
 # mapillary-js [![Build Status](https://circleci.com/gh/mapillary/mapillary-js.svg?style=svg)](https://circleci.com/gh/mapillary/mapillary-js)
 
-WebGL JavaScript library for displaying street level imagery from [Mapillary](https://www.mapillary.com)
+WebGL JavaScript library for displaying street level photos from [Mapillary](https://www.mapillary.com)
 
 
 <a href="http://bl.ocks.org/knikel/151a77df042cd3890502" target="_blank"><img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-01-perspective.jpg" /></a>
 <a href="http://bl.ocks.org/knikel/151a77df042cd3890502" target="_blank"><img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-02-pano.jpg" /></a>
 
-> **ATTENTION! This is an early alpha release, expect the APIs to change and some things to break.**
+> **ATTENTION! This is a beta release
 
 ## Using mapillary-js
 
