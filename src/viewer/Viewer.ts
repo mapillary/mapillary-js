@@ -30,10 +30,10 @@ export class Viewer extends EventEmitter {
      * @class Viewer
      * @param {string} id - required `id` of an DOM element which will be transformed into the viewer
      * @param {string} clientId - required `Mapillary API ClientID`, can be obtained from http://www.mapillary.com/map/settings/integrations
-     * @param {string} key - required `photoId` to start from, can be any Mapillary photo
+     * @param {string} key - optional `photoId` to start from, can be any Mapillary photo, if null no image is loaded
      * @param {IViewerOptions} options - optional configuration object specifing Viewer's initial setup
      */
-    constructor (id: string, clientId: string, key: string, options: IViewerOptions) {
+    constructor (id: string, clientId: string, key?: string, options?: IViewerOptions) {
         if (options === undefined) {
             options = {};
         }
