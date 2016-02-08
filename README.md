@@ -36,7 +36,7 @@ Before you start using `mapillary-js` you need somewhere to display it, create a
   <head>
     <meta charset=utf-8>
     <title>mapillary-js preview</title>
-    <link rel="stylesheet" href="../node_modules/mapillary-js/dist/mapillary-js.css" />
+    <link rel="stylesheet" href="../node_modules/mapillary-js/dist/mapillary-js.min.css" />
   </head>
   <body>
     <div id="mly"></div>
