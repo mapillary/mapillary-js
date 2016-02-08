@@ -17,6 +17,8 @@ Development mode
 $ gulp
 ```
 
+If for some reason the `tsd` task fails during installation, please run it again manually before running `gulp`.
+
 Then head to `http://localhost:3000/` to debug (in case it did not open automatically)
 
 ## Gulp Commands
