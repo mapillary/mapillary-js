@@ -54,7 +54,9 @@ export class Navigator {
         return rx.Observable
             .fromPromise(this.apiV2.search.im.close2(lat, lon))
             .flatMap<Node>((data: IAPISearchImClose2): rx.Observable<Node> => {
-                return this.moveToKey(data.key);
+                return data.key == null ?
+                    <rx.Observable<Node>> rx.Observable.throw(new Error("no Image found")) :
+                    this.moveToKey(data.key);
             })
             .first();
     }

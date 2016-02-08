@@ -124,7 +124,7 @@ export class GraphService {
             .flatMap<Node>(
                 (key: string): rx.Observable<Node> => {
                     return key == null ?
-                        rx.Observable.just<Node>(null) :
+                        <rx.Observable<Node>> rx.Observable.throw(new Error("no Image in direction")) :
                         this.node$(key);
                 });
     }

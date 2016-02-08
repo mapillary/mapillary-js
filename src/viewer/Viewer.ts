@@ -1,4 +1,5 @@
 import {EdgeDirection} from "../Edge";
+import {Node} from "../Graph";
 import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher} from "../Viewer";
 import {Component} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
@@ -53,7 +54,14 @@ export class Viewer extends EventEmitter {
      * @throws {ParamaterMapillaryError} If no key is provided
      */
     public moveToKey(key: string): void {
-        this._navigator.moveToKey(key).subscribe();
+        this._navigator.moveToKey(key).subscribe(
+            (node: Node): void => {
+                return;
+            },
+            (error: Error): void => {
+                return;
+            }
+        );
     }
 
     /**
@@ -66,7 +74,14 @@ export class Viewer extends EventEmitter {
      * `viewer.moveToDir(Mapillary.EdgeDirection['NEXT'])`
      */
     public moveDir(dir: EdgeDirection): void {
-        this._navigator.moveDir(dir).subscribe();
+        this._navigator.moveDir(dir).subscribe(
+            (node: Node): void => {
+                return;
+            },
+            (error: Error): void => {
+                return;
+            }
+        );
     }
 
     /**
@@ -75,7 +90,14 @@ export class Viewer extends EventEmitter {
      * @param {Number} lon - Longitude
      */
     public moveCloseTo(lat: number, lon: number): void {
-        this._navigator.moveCloseTo(lat, lon).subscribe();
+        this._navigator.moveCloseTo(lat, lon).subscribe(
+            (node: Node): void => {
+                return;
+            },
+            (error: Error): void => {
+                return;
+            }
+        );
     }
 
     /**
