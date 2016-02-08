@@ -1,58 +1,38 @@
-## Developing mapillary-js
+## Get started with mapillary-js
 
-The following tools are required on any platform to develop `mapillary-js`.
+The best way to consume `mapillary-js` is through `npm`. `npm install mapillary-js` has you covered.
 
-- git
-- node.js
+Before you start using `mapillary-js` you need somewhere to display it, create an `index.html` file with the following structure
 
-To install dependencies
-
+```html
+<!doctype html>
+<html>
+  <head>
+    <meta charset=utf-8>
+    <title>mapillary-js preview</title>
+    <link rel="stylesheet" href="../node_modules/mapillary-js/dist/mapillary-js.min.css" />
+  </head>
+  <body>
+    <div id="mly"></div>
+    <script src="../node_modules/mapillary-js/dist/mapillary-js.min.js"></script>
+    <script>
+      // Our JavaScript lands here
+    </script>
+  </body>
+</html>
 ```
-$ npm install
-```
 
-Development mode
+`mapillary-js` requires a HTML element to initialize into, in our case it's a div with id `mly`. Next step is to initialize the viewer.
 
-```
-$ gulp
-```
+1. Since we'll be using Mapillary API, it's a requirement to obtain an API key. One can get it after signing up to Mapillary, and then going to [Settings/Integrations](https://www.mapillary.com/map/settings/integrations) and registering a new application (we don't need to select any scope permissions, since we only want read access to the data). We are interested in the `Client ID`'s value.
+2. The viewer has to start somewhere, so we need to find a photoId that interests us. Each photo in on mapillary.com has a photo ID assigned to it. You can either copy the part from the url after `/im/` or select _Photo details_ and copy the photoId from there. If you'd like to start right away, try a panorama photo `ytfE1_iD_N-jmHfTHkj1Ug` from Saint-Denis, France or a perspective photo from Helsingborg, Sweden: `zarcRdNFZwg3FkXNcsFeGw`.
 
-If for some reason the `tsd` task fails during installation, please run it again manually before running `gulp`.
+Since we've gathered all the required data, in our `<script>..</script>` tag we need to initialize the viewer. We do so by constructing an new `Mapillary.Viewer` and setting required parameters.
 
-Then head to `http://localhost:3000/` to debug (in case it did not open automatically)
-
-## Gulp Commands
-
-@TODO
-
-## Project Structure
-```
-.
-├── build/               - Development folder
-├── debug/               - Access at localhost:3000 after `gulp`
-├── dist/                - Distribution: CSS and other assets
-├── spec/                - Tests
-│   ├── Viewer.spec.ts
-│   └── viewer
-│       ├── OptionsParser.spec.ts
-├── src/
-│   ├── Mapillary.ts   - Main file
-│   ├── Utils.ts       - Utility classes
-│   ├── *.ts           - One file per class
-│   └── api            - One folder per class
-│       ├── interfaces
-│       │   ├── IAPINavIm.ts
-│       │   ├── IAPINavImIm.ts
-│       │   ├── IAPINavImS.ts
-│       │   └── interfaces.ts
-│       ├── APINav.ts
-│       ├── APIv2.ts
-│       └── APIv2Call.ts
-├── typings/
-├── Gulpfile.js
-├── karma.conf.js
-├── package.json
-├── tsd.json
-├── tslint.json
-└── README.md
+```js
+var mly = new Mapillary
+  .Viewer('mly', // container id
+          'cjJ1SUtVOEMtdy11b21JM0tyYTZIQTo2ZmVjNTQ3YWQ0OWI2Yjgx', // your Client ID
+          'ytfE1_iD_N-jmHfTHkj1Ug'  // photoId at which the viewer initializes
+          )
 ```
