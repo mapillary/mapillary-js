@@ -1,4 +1,4 @@
-## Developing mapillary-js
+# Contribute to mapillary-js
 
 The following tools are required on any platform to develop `mapillary-js`.
 

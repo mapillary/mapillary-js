@@ -1,4 +1,4 @@
-## Get started with mapillary-js
+# Developing with mapillary-js
 
 The best way to consume `mapillary-js` is through `npm`. `npm install mapillary-js` has you covered.
 
