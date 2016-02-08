@@ -150,7 +150,7 @@ export class EdgeCalculator {
         if (nextKey != null) {
             edges.push({
                 data: {
-                    direction: EdgeDirection.NEXT,
+                    direction: EdgeDirection.Next,
                     worldMotionAzimuth: Number.NaN,
                 },
                 from: node.apiNavImIm.key,
@@ -162,7 +162,7 @@ export class EdgeCalculator {
         if (prevKey != null) {
             edges.push({
                 data: {
-                    direction: EdgeDirection.PREV,
+                    direction: EdgeDirection.Prev,
                     worldMotionAzimuth: Number.NaN,
                 },
                 from: node.apiNavImIm.key,
@@ -301,7 +301,7 @@ export class EdgeCalculator {
                 }
 
                 let rig: boolean =
-                    turn.direction !== EdgeDirection.TURN_U &&
+                    turn.direction !== EdgeDirection.TurnU &&
                     potential.distance < this.settings.turnMaxRigDistance &&
                     Math.abs(potential.directionChange) > this.settings.turnMinRigDirectionChange;
 
@@ -394,7 +394,7 @@ export class EdgeCalculator {
 
         return [{
             data: {
-                direction: EdgeDirection.PANO,
+                direction: EdgeDirection.Pano,
                 worldMotionAzimuth: edge.worldMotionAzimuth,
             },
             from: node.key,
@@ -560,7 +560,7 @@ export class EdgeCalculator {
                 occupiedAngles.push(edge.motionChange);
                 panoEdges.push({
                     data: {
-                        direction: EdgeDirection.PANO,
+                        direction: EdgeDirection.Pano,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     from: node.key,
@@ -572,11 +572,11 @@ export class EdgeCalculator {
         }
 
         let occupiedStepAngles: {[direction: string]: number[] } = {};
-        occupiedStepAngles[EdgeDirection.PANO] = occupiedAngles;
-        occupiedStepAngles[EdgeDirection.STEP_FORWARD] = [];
-        occupiedStepAngles[EdgeDirection.STEP_LEFT] = [];
-        occupiedStepAngles[EdgeDirection.STEP_BACKWARD] = [];
-        occupiedStepAngles[EdgeDirection.STEP_RIGHT] = [];
+        occupiedStepAngles[EdgeDirection.Pano] = occupiedAngles;
+        occupiedStepAngles[EdgeDirection.StepForward] = [];
+        occupiedStepAngles[EdgeDirection.StepLeft] = [];
+        occupiedStepAngles[EdgeDirection.StepBackward] = [];
+        occupiedStepAngles[EdgeDirection.StepRight] = [];
 
         for (let stepAngle of stepAngles) {
             let occupations: [EdgeDirection, IPotentialEdge][] = [];
@@ -588,7 +588,7 @@ export class EdgeCalculator {
 
                 let pano: IPano = this.directions.panos[k];
 
-                let allOccupiedAngles: number[] = occupiedStepAngles[EdgeDirection.PANO]
+                let allOccupiedAngles: number[] = occupiedStepAngles[EdgeDirection.Pano]
                     .concat(occupiedStepAngles[pano.direction])
                     .concat(occupiedStepAngles[pano.prev])
                     .concat(occupiedStepAngles[pano.next]);

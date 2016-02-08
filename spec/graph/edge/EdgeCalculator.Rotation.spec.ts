@@ -52,7 +52,7 @@ describe("EdgeCalculator.computeRotationEdges", () => {
         let rotationEdge: IEdge = rotationEdges[0];
 
         expect(rotationEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(rotationEdge.data.direction).toBe(EdgeDirection.ROTATE_LEFT);
+        expect(rotationEdge.data.direction).toBe(EdgeDirection.RotateLeft);
     });
 
         it("should have a rotate right edge", () => {
@@ -65,6 +65,6 @@ describe("EdgeCalculator.computeRotationEdges", () => {
         let rotationEdge: IEdge = rotationEdges[0];
 
         expect(rotationEdge.to).toBe(potentialEdge.apiNavImIm.key);
-        expect(rotationEdge.data.direction).toBe(EdgeDirection.ROTATE_RIGHT);
+        expect(rotationEdge.data.direction).toBe(EdgeDirection.RotateRight);
     });
 });

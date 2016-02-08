@@ -19,20 +19,20 @@ export class CacheComponent extends Component {
     protected _activate(): void {
         this._disposable = this._navigator.stateService.currentNode$.subscribe((node: Node) => {
             _.map(node.edges, (edge: IEdge): void => {
-                if (edge.data.direction === EdgeDirection.NEXT) {
+                if (edge.data.direction === EdgeDirection.Next) {
                     this._navigator.graphService.node$(edge.to).first().subscribe((node2: Node) => {
                         _.map(node2.edges, (edge2: IEdge): void => {
-                            if (edge2.data.direction === EdgeDirection.NEXT) {
+                            if (edge2.data.direction === EdgeDirection.Next) {
                                 this._navigator.graphService.node$(edge2.to).first().subscribe();
                             }
                         });
                     });
                 }
 
-                if (edge.data.direction === EdgeDirection.PREV) {
+                if (edge.data.direction === EdgeDirection.Prev) {
                     this._navigator.graphService.node$(edge.to).first().subscribe((node2: Node) => {
                         _.map(node2.edges, (edge2: IEdge): void => {
-                            if (edge2.data.direction === EdgeDirection.PREV) {
+                            if (edge2.data.direction === EdgeDirection.Prev) {
                                 this._navigator.graphService.node$(edge2.to).first().subscribe();
                             }
                         });

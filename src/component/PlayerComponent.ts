@@ -127,7 +127,7 @@ export class PlayerComponent extends Component {
                     return this._navigator.graphService
                         .nextNode$(
                             node,
-                            EdgeDirection.NEXT)
+                            EdgeDirection.Next)
                         .withLatestFrom<IFrame, INodes>(
                             this._navigator.stateService.currentState$,
                             (next: Node, frame: IFrame): INodes => {

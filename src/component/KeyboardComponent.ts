@@ -28,13 +28,13 @@ export class KeyboardComponent extends Component {
         this._spatial = new Spatial();
 
         this._perspectiveDirections = [
-            EdgeDirection.STEP_FORWARD,
-            EdgeDirection.STEP_BACKWARD,
-            EdgeDirection.STEP_LEFT,
-            EdgeDirection.STEP_RIGHT,
-            EdgeDirection.TURN_LEFT,
-            EdgeDirection.TURN_RIGHT,
-            EdgeDirection.TURN_U,
+            EdgeDirection.StepForward,
+            EdgeDirection.StepBackward,
+            EdgeDirection.StepLeft,
+            EdgeDirection.StepRight,
+            EdgeDirection.TurnLeft,
+            EdgeDirection.TurnRight,
+            EdgeDirection.TurnU,
         ];
     }
 
@@ -68,29 +68,29 @@ export class KeyboardComponent extends Component {
         switch (event.keyCode) {
             case 37: // left
                 navigationAngle = Math.PI / 2 + phi;
-                stepDirection = EdgeDirection.STEP_LEFT;
+                stepDirection = EdgeDirection.StepLeft;
                 break;
             case 38: // up
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.NEXT).subscribe();
+                    this._navigator.moveDir(EdgeDirection.Next).subscribe();
                     return;
                 }
 
                 navigationAngle = phi;
-                stepDirection = EdgeDirection.STEP_FORWARD;
+                stepDirection = EdgeDirection.StepForward;
                 break;
             case 39: // right
                 navigationAngle = -Math.PI / 2 + phi;
-                stepDirection = EdgeDirection.STEP_RIGHT;
+                stepDirection = EdgeDirection.StepRight;
                 break;
             case 40: // down
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.PREV).subscribe();
+                    this._navigator.moveDir(EdgeDirection.Prev).subscribe();
                     return;
                 }
 
                 navigationAngle = Math.PI + phi;
-                stepDirection = EdgeDirection.STEP_BACKWARD;
+                stepDirection = EdgeDirection.StepBackward;
                 break;
             default:
                 return;
@@ -102,7 +102,7 @@ export class KeyboardComponent extends Component {
 
         let edges: IEdge[] = node.edges.filter(
             (e: IEdge): boolean => {
-                return e.data.direction === EdgeDirection.PANO ||
+                return e.data.direction === EdgeDirection.Pano ||
                     e.data.direction === stepDirection;
             });
 
@@ -142,26 +142,26 @@ export class KeyboardComponent extends Component {
 
         switch (event.keyCode) {
             case 37: // left
-                direction = event.shiftKey ? EdgeDirection.TURN_LEFT : EdgeDirection.STEP_LEFT;
+                direction = event.shiftKey ? EdgeDirection.TurnLeft : EdgeDirection.StepLeft;
                 break;
             case 38: // up
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.NEXT).subscribe();
+                    this._navigator.moveDir(EdgeDirection.Next).subscribe();
                     return;
                 }
 
-                direction = event.shiftKey ? EdgeDirection.PANO : EdgeDirection.STEP_FORWARD;
+                direction = event.shiftKey ? EdgeDirection.Pano : EdgeDirection.StepForward;
                 break;
             case 39: // right
-                direction = event.shiftKey ? EdgeDirection.TURN_RIGHT : EdgeDirection.STEP_RIGHT;
+                direction = event.shiftKey ? EdgeDirection.TurnRight : EdgeDirection.StepRight;
                 break;
             case 40: // down
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.PREV).subscribe();
+                    this._navigator.moveDir(EdgeDirection.Prev).subscribe();
                     return;
                 }
 
-                direction = event.shiftKey ? EdgeDirection.TURN_U : EdgeDirection.STEP_BACKWARD;
+                direction = event.shiftKey ? EdgeDirection.TurnU : EdgeDirection.StepBackward;
                 break;
             default:
                 break;

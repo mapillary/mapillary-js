@@ -44,22 +44,22 @@ export class DirectionComponent extends Component {
         this.dropShadowOffset = 3;
 
         this.steps = [
-            EdgeDirection.STEP_FORWARD,
-            EdgeDirection.STEP_BACKWARD,
-            EdgeDirection.STEP_LEFT,
-            EdgeDirection.STEP_RIGHT,
+            EdgeDirection.StepForward,
+            EdgeDirection.StepBackward,
+            EdgeDirection.StepLeft,
+            EdgeDirection.StepRight,
         ];
 
         this.turns = [
-            EdgeDirection.TURN_LEFT,
-            EdgeDirection.TURN_RIGHT,
-            EdgeDirection.TURN_U,
+            EdgeDirection.TurnLeft,
+            EdgeDirection.TurnRight,
+            EdgeDirection.TurnU,
         ];
 
         this.turnNames = {};
-        this.turnNames[EdgeDirection.TURN_LEFT] = "TurnLeft";
-        this.turnNames[EdgeDirection.TURN_RIGHT] = "TurnRight";
-        this.turnNames[EdgeDirection.TURN_U] = "TurnAround";
+        this.turnNames[EdgeDirection.TurnLeft] = "TurnLeft";
+        this.turnNames[EdgeDirection.TurnRight] = "TurnRight";
+        this.turnNames[EdgeDirection.TurnU] = "TurnAround";
 
     }
 
@@ -139,7 +139,7 @@ export class DirectionComponent extends Component {
         let btns: Array<vd.VNode> = [];
 
         for (let edge of node.edges) {
-            if (edge.data.direction !== EdgeDirection.PANO) {
+            if (edge.data.direction !== EdgeDirection.Pano) {
                 continue;
             }
 
@@ -162,7 +162,7 @@ export class DirectionComponent extends Component {
         for (let edge of node.edges) {
             let direction: EdgeDirection = edge.data.direction;
 
-            if (direction === EdgeDirection.PANO) {
+            if (direction === EdgeDirection.Pano) {
                 btns.push(
                     this.createVNodeByKey(
                         edge.data.worldMotionAzimuth,
@@ -224,13 +224,13 @@ export class DirectionComponent extends Component {
         let relativePhi: number = rotation.phi;
 
         switch (direction) {
-            case EdgeDirection.STEP_BACKWARD:
+            case EdgeDirection.StepBackward:
                 relativePhi = rotation.phi - Math.PI;
                 break;
-            case EdgeDirection.STEP_LEFT:
+            case EdgeDirection.StepLeft:
                 relativePhi = rotation.phi + Math.PI / 2;
                 break;
-            case EdgeDirection.STEP_RIGHT:
+            case EdgeDirection.StepRight:
                 relativePhi = rotation.phi - Math.PI / 2;
                 break;
             default:
@@ -255,11 +255,11 @@ export class DirectionComponent extends Component {
         let prevExist: boolean = false;
 
         for (let edge of node.edges) {
-            if (edge.data.direction === EdgeDirection.NEXT) {
+            if (edge.data.direction === EdgeDirection.Next) {
                 nextExist = true;
             }
 
-            if (edge.data.direction === EdgeDirection.PREV) {
+            if (edge.data.direction === EdgeDirection.Prev) {
                 prevExist = true;
             }
         }
@@ -268,8 +268,8 @@ export class DirectionComponent extends Component {
         let prev: string = "div.PrevInSeq" + (prevExist ? "" : ".InSeqDisabled");
 
         return [
-            vd.h(next, { onclick: (e: Event): void => { this._navigator.moveDir(EdgeDirection.NEXT).subscribe(); } }, []),
-            vd.h(prev, { onclick: (e: Event): void => { this._navigator.moveDir(EdgeDirection.PREV).subscribe(); } }, []),
+            vd.h(next, { onclick: (e: Event): void => { this._navigator.moveDir(EdgeDirection.Next).subscribe(); } }, []),
+            vd.h(prev, { onclick: (e: Event): void => { this._navigator.moveDir(EdgeDirection.Prev).subscribe(); } }, []),
         ];
     }
 

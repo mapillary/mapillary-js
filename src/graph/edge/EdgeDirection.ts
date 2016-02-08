@@ -10,60 +10,60 @@ export enum EdgeDirection {
     /**
      * Next node in the sequence
      */
-    NEXT = 0,
+    Next,
 
     /**
      * Previous node in the sequence
      */
-    PREV = 3,
+    Prev,
 
     /**
      * Step to the left keeping viewing direction
      */
-    STEP_LEFT,
+    StepLeft,
 
     /**
      * Step to the right keeping viewing direction
      */
-    STEP_RIGHT,
+    StepRight,
 
     /**
      * Step forward keeping viewing direction
      */
-    STEP_FORWARD,
+    StepForward,
 
     /**
      * Step backward keeping viewing direction
      */
-    STEP_BACKWARD,
+    StepBackward,
 
     /**
      * Turn 90 degrees counter clockwise
      */
-    TURN_LEFT,
+    TurnLeft,
 
     /**
      * Turn 90 degrees clockwise
      */
-    TURN_RIGHT,
+    TurnRight,
 
     /**
      * Turn 180 degrees
      */
-    TURN_U,
+    TurnU,
 
     /**
      * Rotate with small counter clockwise angle change
      */
-    ROTATE_LEFT,
+    RotateLeft,
 
     /**
      * Rotate with small clockwise angle change
      */
-    ROTATE_RIGHT,
+    RotateRight,
 
     /**
      * Panorama in general direction
      */
-    PANO
+    Pano
 };

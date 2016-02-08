@@ -22,13 +22,13 @@ export class NavigationComponent extends Component {
         super(name, container, navigator);
 
         this._dirNames = {};
-        this._dirNames[EdgeDirection.STEP_FORWARD] = "Forward";
-        this._dirNames[EdgeDirection.STEP_BACKWARD] = "Backward";
-        this._dirNames[EdgeDirection.STEP_LEFT] = "Left";
-        this._dirNames[EdgeDirection.STEP_RIGHT] = "Right";
-        this._dirNames[EdgeDirection.TURN_LEFT] = "Turnleft";
-        this._dirNames[EdgeDirection.TURN_RIGHT] = "Turnright";
-        this._dirNames[EdgeDirection.TURN_U] = "Turnaround";
+        this._dirNames[EdgeDirection.StepForward] = "Forward";
+        this._dirNames[EdgeDirection.StepBackward] = "Backward";
+        this._dirNames[EdgeDirection.StepLeft] = "Left";
+        this._dirNames[EdgeDirection.StepRight] = "Right";
+        this._dirNames[EdgeDirection.TurnLeft] = "Turnleft";
+        this._dirNames[EdgeDirection.TurnRight] = "Turnright";
+        this._dirNames[EdgeDirection.TurnU] = "Turnaround";
     }
 
     protected _activate(): void {
