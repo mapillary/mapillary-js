@@ -18,13 +18,14 @@ export class MouseComponent extends Component {
         this._container.mouseService.claimMouse(this._name, 0);
         this._mouseDragSubscription = this._container.mouseService
             .filteredMouseEvent$(this._name, this._container.mouseService.mouseDrag$)
+            .merge(this._container.mouseService.mouseDragEnd$)
             .pairwise()
             .subscribe((pair: any): void => {
                 let prev: MouseEvent = pair[0].e;
                 let e: MouseEvent = pair[1].e;
 
-                let movementX: number = e.screenX - prev.screenX;
-                let movementY: number = e.screenY - prev.screenY;
+                let movementX: number = (prev && e) ? e.screenX - prev.screenX : 1;
+                let movementY: number = (prev && e) ? e.screenY - prev.screenY : 1;
 
                 let width: number = this._container.element.offsetWidth;
                 let height: number = this._container.element.offsetHeight;
