@@ -6,6 +6,18 @@ import {EventEmitter, Settings} from "../Utils";
 
 export class Viewer extends EventEmitter {
     /**
+     * Fired every time the viewer goes to a new node (photo)
+     * @event
+     */
+    public static nodechanged: string = "nodechanged";
+
+    /**
+     * Fired when the viewer is loading more data
+     * @event
+     */
+    public static loadingchanged: string = "loadingchanged";
+
+    /**
      * Private Container object which maintains the DOM Element, renderers and relevant services
      */
     private _container: Container;
@@ -138,30 +150,3 @@ export class Viewer extends EventEmitter {
         this._componentController.deactivateCover();
     }
 }
-
-/**
- * Node change event
- *
- * @event nodechange
- * @memberof Viewer
- * @type {Object}
- * @property {TODO} TODO
- */
-
-/**
- * The loading state changed
- *
- * @event loadingchanged
- * @memberof Viewer
- * @type {Object}
- * @property {TODO} TODO
- */
-
-/**
- * Load event
- *
- * @event load
- * @memberof Viewer
- * @type {Object}
- * @property {TODO} TODO
- */

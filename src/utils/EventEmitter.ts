@@ -5,6 +5,13 @@ export class EventEmitter {
         this.events = {};
     }
 
+    /**
+     * Subscribe to an event by its name
+     * @param event The name of the event to subscribe for
+     * @param The handler called when the event occurs
+     * @event
+     */
+
     public on(eventType: string, fn: any): void {
         this.events[eventType] = this.events[eventType] || [];
         this.events[eventType].push(fn);
