@@ -977,6 +977,15 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 					<a href="index.html#viewer.constructor" class="tsd-kind-icon">constructor</a>
 				</li>
+				<li class=" tsd-kind-event tsd-parent-kind-class tsd-is-inherited">
+					<a href="index.html#viewer.on" class="tsd-kind-icon">on</a>
+				</li>
+				<li class=" tsd-kind-event tsd-parent-kind-class tsd-is-static">
+					<a href="index.html#viewer.loadingchanged" class="tsd-kind-icon">loadingchanged</a>
+				</li>
+				<li class=" tsd-kind-event tsd-parent-kind-class tsd-is-static">
+					<a href="index.html#viewer.nodechanged" class="tsd-kind-icon">nodechanged</a>
+				</li>
 				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a href="index.html#viewer._componentcontroller" class="tsd-kind-icon">_component<wbr>Controller</a>
 				</li>
@@ -1018,9 +1027,6 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a href="index.html#viewer.off" class="tsd-kind-icon">off</a>
-				</li>
-				<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a href="index.html#viewer.on" class="tsd-kind-icon">on</a>
 				</li>
 			</ul>
 		</li>
@@ -1077,15 +1083,28 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 	<div class="content-wrap">
 		<div class="tsd-panel tsd-typography">
 			<h1 id="mapillary-js-build-status-https-circleci-com-gh-mapillary-mapillary-js-svg-style-svg-https-circleci-com-gh-mapillary-mapillary-js-">mapillary-js <a href="https://circleci.com/gh/mapillary/mapillary-js"><img src="https://circleci.com/gh/mapillary/mapillary-js.svg?style=svg" alt="Build Status"></a></h1>
-			<p>WebGL JavaScript library for displaying street level imagery from <a href="https://www.mapillary.com">Mapillary</a></p>
+			<p>WebGL JavaScript library for displaying street level photos from <a href="https://www.mapillary.com">Mapillary</a></p>
 			<p><a href="http://bl.ocks.org/knikel/151a77df042cd3890502" target="_blank"><img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-01-perspective.jpg" /></a>
 			<a href="http://bl.ocks.org/knikel/151a77df042cd3890502" target="_blank"><img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-02-pano.jpg" /></a></p>
 			<blockquote>
-				<p><strong>ATTENTION! This is an early alpha release, expect the APIs to change and some things to break.</strong></p>
+				<p>**ATTENTION! This is a beta release</p>
 			</blockquote>
-			<h2 id="installation">Installation</h2>
-			<p>To install the latest version</p>
-			<p><code>npm install --save mapillary-js</code></p>
+			<h2 id="using-mapillary-js">Using mapillary-js</h2>
+			<p>Include via HTML tags:</p>
+			<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"https://npmcdn.com/mapillary-js@0.0.5/dist/mapillary-js.min.css"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"https://npmcdn.com/mapillary-js@0.0.5/dist/mapillary-js.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+</code></pre>
+			<p>Make sure to check out <a href="https://github.com/mapillary/mapillary-js#examples">Examples</a> section below or <a href="https://mapillary.github.io/mapillary-js">API Documentation</a> for more information.</p>
+			<p>Alternatively, you can <code>npm install mapillary-js</code> to use it with module loader/bundler of your choice.</p>
+			<h2 id="examples">Examples</h2>
+			<ul>
+				<li><a href="https://bl.ocks.org/knikel/4615432968a33f1fcd6b">Simple mapillary-js embedding</a></li>
+				<li>mapillary-js + Leaflet - <a href="http://bl.ocks.org/knikel/f04c4656d1adeaaf1555">Panorama</a> - <a href="http://bl.ocks.org/knikel/151a77df042cd3890502">Perspective photo</a></li>
+				<li>mapillary-js + Leaflet + Tangram - <a href="http://bl.ocks.org/knikel/0f297c5b1fcfd14e38ba">Panorama</a> - <a href="http://bl.ocks.org/knikel/fbeda1c8f89c97612b10">Perspective photo</a></li>
+				<li>mapillary-js + mapbox-gl-js - <a href="http://bl.ocks.org/knikel/4ec4de69a0fc29318675">Panorama</a> - <a href="http://bl.ocks.org/knikel/010115b08ebe30baba86">Perspective photo</a></li>
+				<li>mapillary-js + Esri Leaflet -  <a href="http://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c">Panorama</a> - <a href="http://bl.ocks.org/knikel/e85b802e97fd3390668f">Perspective photo</a></li>
+				<li>mapillary-js + Google Maps - <a href="http://bl.ocks.org/knikel/451e2ee5d76ae72e669f">Panorama</a></li>
+			</ul>
 			<h2 id="documentation">Documentation</h2>
 			<ul>
 				<li><a href="https://github.com/mapillary/mapillary-js/blob/master/docs/developing.md">Developing mapillary-js</a></li>
@@ -1093,44 +1112,6 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				<li><a href="https://github.com/mapillary/mapillary-js/blob/master/docs/glossary.md">Glossary</a></li>
 				<li><a href="https://mapillary.github.io/mapillary-js">API Reference</a></li>
 			</ul>
-			<h2 id="examples">Examples</h2>
-			<ul>
-				<li>mapillary-js + Leaflet - <a href="http://bl.ocks.org/knikel/f04c4656d1adeaaf1555">Panorama</a> - <a href="http://bl.ocks.org/knikel/151a77df042cd3890502">Perspective photo</a></li>
-				<li>mapillary-js + Leaflet + Tangram - <a href="http://bl.ocks.org/knikel/0f297c5b1fcfd14e38ba">Panorama</a> - <a href="http://bl.ocks.org/knikel/fbeda1c8f89c97612b10">Perspective photo</a></li>
-				<li>mapillary-js + mapbox-gl-js - <a href="http://bl.ocks.org/knikel/4ec4de69a0fc29318675">Panorama</a> - <a href="http://bl.ocks.org/knikel/010115b08ebe30baba86">Perspective photo</a></li>
-				<li>mapillary-js + Esri Leaflet -  <a href="http://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c">Panorama</a> - <a href="http://bl.ocks.org/knikel/e85b802e97fd3390668f">Perspective photo</a></li>
-				<li>mapillary-js + Google Maps - <a href="http://bl.ocks.org/knikel/451e2ee5d76ae72e669f">Panorama</a></li>
-			</ul>
-			<h2 id="quickstart">Quickstart</h2>
-			<p>Before you start using <code>mapillary-js</code> you need somewhere to display it, create an <code>index.html</code> file with the following structure</p>
-			<pre><code class="lang-html"><span class="hljs-doctype">&lt;!doctype html&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">charset</span>=<span class="hljs-value">utf-8</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>mapillary-js preview<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"../node_modules/mapillary-js/dist/mapillary-js.min.css"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"mly"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"../node_modules/mapillary-js/dist/mapillary-js.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-title">script</span>&gt;</span><span class="actionscript">
-      <span class="hljs-comment">// Our JavaScript lands here</span>
-    </span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
-<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span>
-</code></pre>
-			<p><code>mapillary-js</code> requires a HTML element to initialize into, in our case it&#39;s a div with id <code>mly</code>. Next step is to initialize the viewer.</p>
-			<ol>
-				<li>Since we&#39;ll be using Mapillary API, it&#39;s a requirement to obtain an API key. One can get it after signing up to Mapillary, and then going to <a href="https://www.mapillary.com/map/settings/integrations">Settings/Integrations</a> and registering a new application (we don&#39;t need to select any scope permissions, since we only want read access to the data). We are interested in the <code>Client ID</code>&#39;s value.</li>
-				<li>The viewer has to start somewhere, so we need to find a photoId that interests us. Each photo in on mapillary.com has a photo ID assigned to it. You can either copy the part from the url after <code>/im/</code> or select <em>Photo details</em> and copy the photoId from there. If you&#39;d like to start right away, try a panorama photo <code>ytfE1_iD_N-jmHfTHkj1Ug</code> from Saint-Denis, France or a perspective photo from Helsingborg, Sweden: <code>zarcRdNFZwg3FkXNcsFeGw</code>.</li>
-			</ol>
-			<p>Since we&#39;ve gathered all the required data, in our <code>&lt;script&gt;..&lt;/script&gt;</code> tag we need to initialize the viewer. We do so by constructing an new <code>Mapillary.Viewer</code> and setting required parameters.</p>
-			<pre><code class="lang-js"><span class="hljs-keyword">var</span> mly = <span class="hljs-keyword">new</span> Mapillary
-  .Viewer(<span class="hljs-string">'mly'</span>, <span class="hljs-comment">// container id</span>
-          <span class="hljs-string">'cjJ1SUtVOEMtdy11b21JM0tyYTZIQTo2ZmVjNTQ3YWQ0OWI2Yjgx'</span>, <span class="hljs-comment">// your Client ID</span>
-          <span class="hljs-string">'ytfE1_iD_N-jmHfTHkj1Ug'</span>  <span class="hljs-comment">// photoId at which the viewer initializes</span>
-          )
-</code></pre>
 			<h2 id="changelog">Changelog</h2>
 			<p>Every release is described on the GitHub <a href="https://github.com/mapillary/mapillary-js/releases">Releases</a> page.</p>
 			<h2 id="license">License</h2>
@@ -1465,21 +1446,21 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				<div class="tsd-signature tsd-kind-icon">Viewer<span class="tsd-signature-symbol">:</span> </div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L6">viewer/Viewer.ts:6</a></li>
+						<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L7">viewer/Viewer.ts:7</a></li>
 					</ul>
 				</aside>
 				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 					<a name="viewer.constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Viewer<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, clientId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">: </span><a href="index.html#ivieweroptions" class="tsd-signature-type">IViewerOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.html#viewer" class="tsd-signature-type">Viewer</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Viewer<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, clientId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><a href="index.html#ivieweroptions" class="tsd-signature-type">IViewerOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="index.html#viewer" class="tsd-signature-type">Viewer</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overwrites EventEmitter.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L25">viewer/Viewer.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L38">viewer/Viewer.ts:38</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1511,15 +1492,15 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 									</div>
 								</li>
 								<li>
-									<h5>key: <span class="tsd-signature-type">string</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> key: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>required <code>photoId</code> to start from, can be any Mapillary photo</p>
+											<p>optional <code>photoId</code> to start from, can be any Mapillary photo, if null no image is loaded</p>
 										</div>
 									</div>
 								</li>
 								<li>
-									<h5>options: <a href="index.html#ivieweroptions" class="tsd-signature-type">IViewerOptions</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="index.html#ivieweroptions" class="tsd-signature-type">IViewerOptions</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
 											<p>optional configuration object specifing Viewer&#39;s initial setup</p>
@@ -1531,13 +1512,75 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class tsd-is-inherited">
+					<a name="viewer.on" class="tsd-anchor"></a>
+					<h3>on</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">(</span>eventType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from EventEmitter.on</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/utils/EventEmitter.ts#L15">utils/EventEmitter.ts:15</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Subscribe to an event by its name</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>eventType: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>fn: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class tsd-is-static">
+					<a name="viewer.loadingchanged" class="tsd-anchor"></a>
+					<h3>loadingchanged</h3>
+					<div class="tsd-signature tsd-kind-icon">loadingchanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L18">viewer/Viewer.ts:18</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Fired when the viewer is loading more data</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class tsd-is-static">
+					<a name="viewer.nodechanged" class="tsd-anchor"></a>
+					<h3>nodechanged</h3>
+					<div class="tsd-signature tsd-kind-icon">nodechanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L12">viewer/Viewer.ts:12</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Fired every time the viewer goes to a new node (photo)</p>
+						</div>
+					</div>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="viewer._componentcontroller" class="tsd-anchor"></a>
 					<h3>_component<wbr>Controller</h3>
 					<div class="tsd-signature tsd-kind-icon">_component<wbr>Controller<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ComponentController</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L20">viewer/Viewer.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L33">viewer/Viewer.ts:33</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1552,7 +1595,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">_container<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Container</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L10">viewer/Viewer.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L23">viewer/Viewer.ts:23</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1567,7 +1610,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">_event<wbr>Launcher<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">EventLauncher</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L25">viewer/Viewer.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L38">viewer/Viewer.ts:38</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1582,7 +1625,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">_navigator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Navigator</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L15">viewer/Viewer.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L28">viewer/Viewer.ts:28</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1601,7 +1644,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L85">viewer/Viewer.ts:85</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L119">viewer/Viewer.ts:119</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1632,7 +1675,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L108">viewer/Viewer.ts:108</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L142">viewer/Viewer.ts:142</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1654,7 +1697,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L93">viewer/Viewer.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L127">viewer/Viewer.ts:127</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1685,7 +1728,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L115">viewer/Viewer.ts:115</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L149">viewer/Viewer.ts:149</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1708,7 +1751,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.fire</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/utils/EventEmitter.ts#L35">utils/EventEmitter.ts:35</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/utils/EventEmitter.ts#L42">utils/EventEmitter.ts:42</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1734,7 +1777,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L101">viewer/Viewer.ts:101</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L135">viewer/Viewer.ts:135</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1765,7 +1808,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L77">viewer/Viewer.ts:77</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L104">viewer/Viewer.ts:104</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1802,7 +1845,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L68">viewer/Viewer.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L88">viewer/Viewer.ts:88</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1839,7 +1882,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L55">viewer/Viewer.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L68">viewer/Viewer.ts:68</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1876,34 +1919,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.off</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/utils/EventEmitter.ts#L14">utils/EventEmitter.ts:14</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>eventType: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5>fn: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="viewer.on" class="tsd-anchor"></a>
-					<h3>on</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">(</span>eventType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from EventEmitter.on</p>
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/utils/EventEmitter.ts#L8">utils/EventEmitter.ts:8</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/utils/EventEmitter.ts#L21">utils/EventEmitter.ts:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
