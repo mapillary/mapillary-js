@@ -1,6 +1,7 @@
 export {Component} from "./component/Component"
 export {ComponentService} from "./component/ComponentService";
 export {AttributionComponent} from "./component/AttributionComponent"
+export {BackgroundComponent} from "./component/BackgroundComponent"
 export {CacheComponent} from "./component/CacheComponent"
 export {CoverComponent} from "./component/CoverComponent"
 export {DebugComponent} from "./component/DebugComponent"

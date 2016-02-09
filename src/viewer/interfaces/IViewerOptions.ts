@@ -86,6 +86,8 @@ export interface IViewerOptions {
      */
     maxImageSize?: ImageSize;
 
+    background?: boolean;
+
     route?: boolean;
 }
 

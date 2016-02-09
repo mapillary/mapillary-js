@@ -1,0 +1,22 @@
+.BackgroundWrapper {
+    background-color: black;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    color: white;
+    font-family: Helvetica, Arial, sans-serif;
+    text-align: center;
+    padding-top: 30%;
+}
+
+.Background p {
+    position: relative;
+    padding: 5px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.75);
+}
+

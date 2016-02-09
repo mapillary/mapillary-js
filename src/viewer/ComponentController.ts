@@ -60,6 +60,7 @@ export class ComponentController {
         this.uFalse(options.image, "image");
         this.uFalse(options.route, "route");
         this.uTrue(options.attribution, "attribution");
+        this.uTrue(options.background, "background");
         this.uTrue(options.cache, "cache");
         this.uTrue(options.direction, "direction");
         this.uTrue(options.keyboard, "keyboard");
