@@ -31,14 +31,14 @@ export class AttributionComponent extends Component {
     private getAttributionNode(username: string, photoId: string): vd.VNode {
         return vd.h("div.Attribution", {}, [
             vd.h("a", {href: `https://www.mapillary.com/profile/${username}`,
-                       innerText: `@${username}`,
                        target: "_blank",
+                       textContent: `@${username}`,
                       },
                  []),
-            vd.h("span", {innerText: "|"}, []),
+            vd.h("span", {textContent: "|"}, []),
             vd.h("a", {href: `https://www.mapillary.com/map/im/${photoId}/photo`,
-                       innerText: "mapillary.com",
                        target: "_blank",
+                       textContent: "mapillary.com",
                       },
                  []),
         ]);
