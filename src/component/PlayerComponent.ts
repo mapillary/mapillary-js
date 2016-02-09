@@ -143,18 +143,14 @@ export class PlayerComponent extends Component {
                                return nodes.next;
                             });
                 })
-            .filter(
-                (node: Node): boolean => {
-                    if (node == null) {
-                        this._stop$.onNext(null);
-                    }
-
-                    return node != null;
-                })
             .subscribe(
                 (node: Node): void => {
                     this._navigator.stateService.appendNodes([node]);
-                });
+                },
+                (error: Error): void => {
+                    this._stop$.onNext(null);
+                }
+            );
     }
 
     private _stop(): void {
