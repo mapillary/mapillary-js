@@ -13,6 +13,7 @@ export {MouseComponent} from "./component/MouseComponent"
 export {NavigationComponent} from "./component/NavigationComponent";
 export {NoneComponent} from "./component/NoneComponent"
 export {PlayerComponent} from "./component/PlayerComponent"
+export {RouteComponent} from "./component/RouteComponent"
 export {SphereComponent} from "./component/SphereComponent";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent"
 export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene"

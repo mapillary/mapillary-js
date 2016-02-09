@@ -85,6 +85,8 @@ export interface IViewerOptions {
      * @default {ImageSize}
      */
     maxImageSize?: ImageSize;
+
+    route?: boolean;
 }
 
 export default IViewerOptions;

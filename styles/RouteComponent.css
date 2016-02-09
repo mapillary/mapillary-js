@@ -1,0 +1,21 @@
+.RouteFrame {
+    background-color: rgba(0, 0, 0, 0.5);
+    outline: 1px solid rgba(255, 255, 255, 0.5);
+    width: 80%;
+    height: 30px;
+    text-align: center;
+    color: white;
+    margin: 0 auto;
+    position: absolute;
+    z-index: 40;
+    bottom: 30%;
+    left: 10%;
+}
+
+.RouteFrame p {
+    margin: 0;
+    padding: 5px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.75);
+}

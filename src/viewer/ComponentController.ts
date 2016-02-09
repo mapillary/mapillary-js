@@ -58,6 +58,7 @@ export class ComponentController {
         this.uFalse(options.player, "player");
         this.uFalse(options.navigation, "navigation");
         this.uFalse(options.image, "image");
+        this.uFalse(options.route, "route");
         this.uTrue(options.attribution, "attribution");
         this.uTrue(options.cache, "cache");
         this.uTrue(options.direction, "direction");
