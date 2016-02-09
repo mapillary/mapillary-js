@@ -18,8 +18,14 @@ export class MouseComponent extends Component {
         this._container.mouseService.claimMouse(this._name, 0);
         this._mouseDragSubscription = this._container.mouseService
             .filteredMouseEvent$(this._name, this._container.mouseService.mouseDrag$)
-            .subscribe((a: any): void => {
-                let e: MouseEvent = a.e;
+            .pairwise()
+            .subscribe((pair: any): void => {
+                let prev: MouseEvent = pair[0].e;
+                let e: MouseEvent = pair[1].e;
+
+                let movementX: number = e.screenX - prev.screenX;
+                let movementY: number = e.screenY - prev.screenY;
+
                 let width: number = this._container.element.offsetWidth;
                 let height: number = this._container.element.offsetHeight;
 
@@ -30,8 +36,8 @@ export class MouseComponent extends Component {
 
                 let max: number = Math.PI / 2;
 
-                let phi: number = w * max * e.movementX / size;
-                let theta: number = -h * max * e.movementY / size;
+                let phi: number = w * max * movementX / size;
+                let theta: number = -h * max * movementY / size;
 
                 this._navigator.stateService.rotate({ phi: phi, theta: theta });
             });
