@@ -18,6 +18,12 @@ import {IFrame} from "../State";
 interface IRtAndFrame {
     routeTrack: RouteTrack;
     frame: IFrame;
+    conf: IRouteConfiguration;
+}
+
+interface IConfAndNode {
+    conf: IRouteConfiguration;
+    node: Node;
 }
 
 interface INodeInstruction {
@@ -39,6 +45,7 @@ class RouteState {
     public routeTrack: RouteTrack;
     public currentNode: Node;
     public lastNode: Node;
+    public playing: boolean;
 }
 
 class RouteTrack {
@@ -59,7 +66,7 @@ export class RouteComponent extends Component {
         let _slowedStream$: rx.Observable<IFrame>;
 
         _slowedStream$ = this._navigator.stateService.currentState$.filter((frame: IFrame) => {
-            return (frame.id % 20) === 0;
+            return (frame.id % 2) === 0;
         }).filter((frame: IFrame) => {
             return frame.state.nodesAhead < 15;
         }).distinctUntilChanged((frame: IFrame): string => {
@@ -105,6 +112,7 @@ export class RouteComponent extends Component {
                 }
                 i++;
             }
+
             return instructionPlaces;
         }).scan<RouteTrack>(
             (routeTrack: RouteTrack, instructionPlaces: IInstructionPlace[]): RouteTrack => {
@@ -115,18 +123,28 @@ export class RouteComponent extends Component {
                 return routeTrack;
             },
             new RouteTrack());
+
         this._disposable = _slowedStream$
-            .combineLatest(_routeTrack$, (frame: IFrame, routeTrack: RouteTrack): IRtAndFrame => {
-                return {frame: frame, routeTrack: routeTrack};
-            }).scan<RouteState>(
-                (routeState: RouteState, rtAndFrame: IRtAndFrame): RouteState => {
-                    routeState.routeTrack = rtAndFrame.routeTrack;
-                    routeState.currentNode = rtAndFrame.frame.state.currentNode;
-                    routeState.lastNode = rtAndFrame.frame.state.lastNode;
-                    return routeState;
-                },
-                new RouteState())
+            .combineLatest(_routeTrack$, this.configuration$,
+                           (frame: IFrame, routeTrack: RouteTrack, conf: IRouteConfiguration): IRtAndFrame => {
+                               return {conf: conf, frame: frame, routeTrack: routeTrack};
+                           }).scan<RouteState>(
+                               (routeState: RouteState, rtAndFrame: IRtAndFrame): RouteState => {
+                                   if (rtAndFrame.conf.playing === undefined || rtAndFrame.conf.playing) {
+                                       routeState.routeTrack = rtAndFrame.routeTrack;
+                                       routeState.currentNode = rtAndFrame.frame.state.currentNode;
+                                       routeState.lastNode = rtAndFrame.frame.state.lastNode;
+                                       routeState.playing = true;
+                                   } else {
+                                       this._navigator.stateService.cutNodes();
+                                       routeState.playing = false;
+                                   }
+                                   return routeState;
+                               },
+                               new RouteState())
             .filter((routeState: RouteState): boolean => {
+                return routeState.playing;
+            }).filter((routeState: RouteState): boolean => {
                 for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
                     if (!nodeInstruction) {
                         continue;
@@ -153,22 +171,29 @@ export class RouteComponent extends Component {
                 }
 
                 return this._navigator.graphService.node$(nextInstruction.key);
-            }).filter((node: Node) => {
-                return node !== null;
-            }).subscribe(this._navigator.stateService.appendNode$);
+            }).combineLatest(this.configuration$, (node: Node, conf: IRouteConfiguration): IConfAndNode => {
+                return {conf: conf, node: node};
+            }).filter((cAN: IConfAndNode) => {
+                return cAN.node !== null && cAN.conf.playing;
+            }).pluck<Node>("node").subscribe(this._navigator.stateService.appendNode$);
 
         this._disposableDescription = this._navigator.stateService.currentNode$
-            .combineLatest(_routeTrack$, (node: Node, routeTrack: RouteTrack): string => {
-                let description: string = null;
+            .combineLatest(_routeTrack$, this.configuration$,
+                           (node: Node, routeTrack: RouteTrack, conf: IRouteConfiguration): string => {
+                               if (conf.playing !== undefined && !conf.playing) {
+                                   return "quit";
+                               }
 
-                for (let nodeInstruction of routeTrack.nodeInstructions) {
-                    if (nodeInstruction.key === node.key) {
-                        description = nodeInstruction.description;
-                        break;
-                    }
-                }
+                               let description: string = null;
 
-                return description;
+                               for (let nodeInstruction of routeTrack.nodeInstructions) {
+                                   if (nodeInstruction.key === node.key) {
+                                       description = nodeInstruction.description;
+                                       break;
+                                   }
+                               }
+
+                               return description;
             }).scan<DescriptionState>(
                 (descriptionState: DescriptionState, description: string): DescriptionState => {
                     if (description !== descriptionState.description && description !== null) {
@@ -176,6 +201,10 @@ export class RouteComponent extends Component {
                         descriptionState.showsLeft = 6;
                     } else {
                         descriptionState.showsLeft--;
+                    }
+
+                    if (description === "quit") {
+                        descriptionState.description = null;
                     }
 
                     return descriptionState;
@@ -193,6 +222,14 @@ export class RouteComponent extends Component {
     protected _deactivate(): void {
         this._disposable.dispose();
         this._disposableDescription.dispose();
+    }
+
+    public play(): void {
+        this.configure({ playing: true });
+    }
+
+    public stop(): void {
+        this.configure({ playing: false });
     }
 
     private getRouteAnnotationNode(description: string): vd.VNode {

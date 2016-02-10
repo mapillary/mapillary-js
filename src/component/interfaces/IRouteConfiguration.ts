@@ -14,6 +14,7 @@ export interface IRoutePath {
 
 export interface IRouteConfiguration extends IComponentConfiguration {
     paths: IRoutePath[];
+    playing?: boolean;
 }
 
 export default IRouteConfiguration;

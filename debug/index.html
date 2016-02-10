@@ -16,6 +16,7 @@
     <button onclick="viewer.activateCover()">Activate Cover</button><button onclick="viewer.deactivateCover()">Deactivate Cover</button>
     <br>
     <button onclick="play()">Play</button><button onclick="stop()">Stop</button>
+    <button onclick="playRoute()">Play Route</button><button onclick="stopRoute()">Stop Route</button>
     <script src='build/bundle.js'></script>
     <script>
         var viewer = new Mapillary.Viewer(
@@ -111,8 +112,9 @@
                  {key: "ZimS6e9sNXvT30y9b1sZeQ", description: "With mapillary-js."}
              ]
             }
-        ]});
-        // viewer.activateComponent("route");
+        ], playing: true});
+        viewer.activateComponent("route");
+        viewer.deactivateComponent("cache");
 
         function play() {
             viewer.deactivateComponent("cache");
@@ -122,6 +124,16 @@
         function stop() {
             viewer.activateComponent("cache");
             player.stop();
+        }
+
+        function playRoute() {
+            viewer.deactivateComponent("cache");
+            route.play();
+        }
+
+        function stopRoute() {
+            viewer.activateComponent("cache");
+            route.stop();
         }
 
         viewer.on("nodechanged", function (node) {
