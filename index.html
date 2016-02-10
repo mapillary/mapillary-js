@@ -1037,6 +1037,9 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<a href="index.html#ivieweroptions.attribution" class="tsd-kind-icon">attribution</a>
 				</li>
 				<li class=" tsd-kind-property tsd-parent-kind-interface">
+					<a href="index.html#ivieweroptions.background" class="tsd-kind-icon">background</a>
+				</li>
+				<li class=" tsd-kind-property tsd-parent-kind-interface">
 					<a href="index.html#ivieweroptions.baseimagesize" class="tsd-kind-icon">base<wbr>Image<wbr>Size</a>
 				</li>
 				<li class=" tsd-kind-property tsd-parent-kind-interface">
@@ -1075,6 +1078,9 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				<li class=" tsd-kind-property tsd-parent-kind-interface">
 					<a href="index.html#ivieweroptions.player" class="tsd-kind-icon">player</a>
 				</li>
+				<li class=" tsd-kind-property tsd-parent-kind-interface">
+					<a href="index.html#ivieweroptions.route" class="tsd-kind-icon">route</a>
+				</li>
 			</ul>
 		</li>
 	</ul>
@@ -1099,6 +1105,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 			<h2 id="examples">Examples</h2>
 			<ul>
 				<li><a href="https://bl.ocks.org/knikel/4615432968a33f1fcd6b">Simple mapillary-js embedding</a></li>
+				<li><a href="http://bl.ocks.org/knikel/630c2d6fa37a8a0e082a">Storytelling with mapillary-js</a></li>
 				<li>mapillary-js + Leaflet - <a href="http://bl.ocks.org/knikel/f04c4656d1adeaaf1555">Panorama</a> - <a href="http://bl.ocks.org/knikel/151a77df042cd3890502">Perspective photo</a></li>
 				<li>mapillary-js + Leaflet + Tangram - <a href="http://bl.ocks.org/knikel/0f297c5b1fcfd14e38ba">Panorama</a> - <a href="http://bl.ocks.org/knikel/fbeda1c8f89c97612b10">Perspective photo</a></li>
 				<li>mapillary-js + mapbox-gl-js - <a href="http://bl.ocks.org/knikel/4ec4de69a0fc29318675">Panorama</a> - <a href="http://bl.ocks.org/knikel/010115b08ebe30baba86">Perspective photo</a></li>
@@ -1969,12 +1976,32 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ivieweroptions.background" class="tsd-anchor"></a>
+					<h3>background</h3>
+					<div class="tsd-signature tsd-kind-icon">background<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L14">viewer/interfaces/IViewerOptions.ts:14</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Display a background if no key is set.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>true</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="ivieweroptions.baseimagesize" class="tsd-anchor"></a>
 					<h3>base<wbr>Image<wbr>Size</h3>
 					<div class="tsd-signature tsd-kind-icon">base<wbr>Image<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="index.html#imagesize" class="tsd-signature-type">ImageSize</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L80">viewer/interfaces/IViewerOptions.ts:80</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L92">viewer/interfaces/IViewerOptions.ts:92</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1994,7 +2021,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L14">viewer/interfaces/IViewerOptions.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L20">viewer/interfaces/IViewerOptions.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2014,7 +2041,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">cover<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L20">viewer/interfaces/IViewerOptions.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L26">viewer/interfaces/IViewerOptions.ts:26</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2034,7 +2061,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">debug<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L26">viewer/interfaces/IViewerOptions.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L32">viewer/interfaces/IViewerOptions.ts:32</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2054,7 +2081,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">direction<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L32">viewer/interfaces/IViewerOptions.ts:32</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L38">viewer/interfaces/IViewerOptions.ts:38</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2074,7 +2101,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">image<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L44">viewer/interfaces/IViewerOptions.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L50">viewer/interfaces/IViewerOptions.ts:50</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2094,7 +2121,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">imageplane<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L50">viewer/interfaces/IViewerOptions.ts:50</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L56">viewer/interfaces/IViewerOptions.ts:56</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2114,7 +2141,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">keyboard<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L56">viewer/interfaces/IViewerOptions.ts:56</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L62">viewer/interfaces/IViewerOptions.ts:62</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2134,7 +2161,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">loading<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L62">viewer/interfaces/IViewerOptions.ts:62</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L68">viewer/interfaces/IViewerOptions.ts:68</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2154,7 +2181,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Image<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="index.html#imagesize" class="tsd-signature-type">ImageSize</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L87">viewer/interfaces/IViewerOptions.ts:87</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L99">viewer/interfaces/IViewerOptions.ts:99</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2175,7 +2202,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">mouse<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L68">viewer/interfaces/IViewerOptions.ts:68</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L74">viewer/interfaces/IViewerOptions.ts:74</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2195,7 +2222,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">navigation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L38">viewer/interfaces/IViewerOptions.ts:38</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L44">viewer/interfaces/IViewerOptions.ts:44</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -2215,12 +2242,32 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">player<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L74">viewer/interfaces/IViewerOptions.ts:74</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L80">viewer/interfaces/IViewerOptions.ts:80</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Add play ability to the viewer.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>false</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ivieweroptions.route" class="tsd-anchor"></a>
+					<h3>route</h3>
+					<div class="tsd-signature tsd-kind-icon">route<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/interfaces/IViewerOptions.ts#L86">viewer/interfaces/IViewerOptions.ts:86</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Create a route with a story inside mapillary js</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
