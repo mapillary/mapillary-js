@@ -10,6 +10,8 @@ export {DirectionComponent} from "./component/DirectionComponent"
 export {ImageComponent} from "./component/ImageComponent"
 export {KeyboardComponent} from "./component/KeyboardComponent"
 export {LoadingComponent} from "./component/LoadingComponent"
+export {Marker} from "./component/marker/Marker"
+export {MarkerComponent} from "./component/marker/MarkerComponent"
 export {MouseComponent} from "./component/MouseComponent"
 export {NavigationComponent} from "./component/NavigationComponent";
 export {NoneComponent} from "./component/NoneComponent"

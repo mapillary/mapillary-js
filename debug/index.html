@@ -23,7 +23,7 @@
             "viewer",
             "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4",
             "2yFbES2-ogx4Cz8IOsaThQ",
-            { "debug": false, "cover": true, "direction": false }
+            { "debug": true, "cover": false, "marker": true }
         );
 
         viewer.activateComponent("player");
@@ -113,8 +113,8 @@
              ]
             }
         ], playing: true});
-        viewer.activateComponent("route");
-        viewer.deactivateComponent("cache");
+        // viewer.activateComponent("route");
+        // viewer.deactivateComponent("cache");
 
         function play() {
             viewer.deactivateComponent("cache");
@@ -136,8 +136,17 @@
             route.stop();
         }
 
+        var marker = viewer.getComponent("marker");
+        var first = true;
         viewer.on("nodechanged", function (node) {
-            console.log(node.key);
+            if (first) {
+                first = false;
+                for (var i = 0; i < 4; i++) {
+                    for (var k = 0; k < 4; k++) {
+                        marker.addMarker(marker.createMarker(node.latLon.lat + (0.0001 * i), node.latLon.lon + (0.0001 * k), 0.0))
+                    }
+                }
+            }
         });
 
         viewer.on("loadingchanged", function (loading) {

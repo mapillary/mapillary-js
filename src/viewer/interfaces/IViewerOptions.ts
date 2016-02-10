@@ -68,6 +68,12 @@ export interface IViewerOptions {
     loading?: boolean;
 
     /**
+     * Enable an interface for showing markers in the viewer
+     * @default true
+     */
+    marker?: boolean;
+
+    /**
      * Enable mouse interface (needed for panorama navigation)
      * @default true
      */
