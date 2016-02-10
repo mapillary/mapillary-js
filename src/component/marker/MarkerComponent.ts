@@ -2,48 +2,51 @@
 /// <reference path="../../../typings/threejs/three.d.ts" />
 /// <reference path="../../../node_modules/rx/ts/rx.all.d.ts" />
 
+import * as _ from "underscore";
 import * as THREE from "three";
+import * as rbush from "rbush";
 import * as rx from "rx";
 
 import {Marker, ComponentService, Component} from "../../Component";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {Graph, ILatLonAlt} from "../../Graph";
+import {Graph, ILatLonAlt, Node} from "../../Graph";
 import {GeoCoords} from "../../Geo";
 
 interface IMarkerOperation extends Function {
-    (markers: Marker[]): Marker[];
+    (markers: any): any;
 }
 
 interface IUpdateArgs {
     graph: Graph;
     frame: IFrame;
-    markers: Marker[];
+    markers: any;
 }
 
 export class MarkerSet {
     private _create$: rx.Subject<Marker> = new rx.Subject<Marker>();
     private _remove$: rx.Subject<Marker> = new rx.Subject<Marker>();
     private _update$: rx.Subject<any> = new rx.Subject<any>();
-    private _markers$: rx.Observable<Marker[]>;
+    private _markers$: rx.Observable<any>;
 
     constructor() {
         // markers list stream is the result of applying marker updates.
         this._markers$ = this._update$
             .scan(
-                (markers: Marker[], operation: IMarkerOperation): Marker[] => {
+                (markers: any, operation: IMarkerOperation): any => {
                     return operation(markers);
                 },
-                []
+                rbush(20000, [".lon", ".lat", ".lon", ".lat"])
             )
             .shareReplay(1);
 
         // creation stream generate creation updates from given markers.
         this._create$
             .map(function(marker: Marker): IMarkerOperation {
-                return (markers: Marker[]) => {
-                    return markers.concat(marker);
+                return (markers: any) => {
+                    markers.insert({lat: marker.lat, lon: marker.lon, marker: marker});
+                    return markers;
                 };
             })
             .subscribe(this._update$);
@@ -51,11 +54,8 @@ export class MarkerSet {
         // creation stream generate creation updates from given markers.
         this._remove$
             .map(function(marker: Marker): IMarkerOperation {
-                return (markers: Marker[]) => {
-                    let index: number = markers.indexOf(marker);
-                    if (index > -1) {
-                        markers.splice(index, 1);
-                    }
+                return (markers: any) => {
+                    markers.remove(marker);
                     return markers;
                 };
             })
@@ -99,7 +99,7 @@ export class MarkerComponent extends Component {
             this._navigator.graphService.graph$,
             this._navigator.stateService.currentState$,
             this._markerSet.markers$,
-            (graph: Graph, frame: IFrame, markers: Marker[]): IUpdateArgs => {
+            (graph: Graph, frame: IFrame, markers: any): IUpdateArgs => {
                 return { frame: frame, graph: graph, markers: markers };
             })
             .distinctUntilChanged((args: IUpdateArgs) => {
@@ -157,9 +157,22 @@ export class MarkerComponent extends Component {
 
         let needRender: boolean = false;
         let oldObjects: { [hash: number]: THREE.Object3D } = this._markerObjects;
+        let node: Node = args.frame.state.currentNode;
         this._markerObjects = {};
-        for (let i: number = 0; i < args.markers.length; ++i) {
-            let marker: Marker = args.markers[i];
+
+        let boxWidth: number = 0.001;
+
+        let minLon: number = node.latLon.lon - boxWidth / 2;
+        let minLat: number = node.latLon.lat - boxWidth / 2;
+
+        let maxLon: number = node.latLon.lon + boxWidth / 2;
+        let maxLat: number = node.latLon.lat + boxWidth / 2;
+
+        let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: any) => {
+            return <Marker>item.marker;
+        });
+
+        for (let marker of markers) {
             if (marker.hash in oldObjects) {
                 this._markerObjects[marker.hash] = oldObjects[marker.hash];
                 delete oldObjects[marker.hash];
