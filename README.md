@@ -22,6 +22,7 @@ Alternatively, you can `npm install mapillary-js` to use it with module loader/b
 
 ## Examples
 - [Simple mapillary-js embedding](https://bl.ocks.org/knikel/4615432968a33f1fcd6b)
+- [Storytelling with mapillary-js](http://bl.ocks.org/knikel/630c2d6fa37a8a0e082a)
 - mapillary-js + Leaflet - [Panorama](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555) - [Perspective photo](http://bl.ocks.org/knikel/151a77df042cd3890502)
 - mapillary-js + Leaflet + Tangram - [Panorama](http://bl.ocks.org/knikel/0f297c5b1fcfd14e38ba) - [Perspective photo](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
 - mapillary-js + mapbox-gl-js - [Panorama](http://bl.ocks.org/knikel/4ec4de69a0fc29318675) - [Perspective photo](http://bl.ocks.org/knikel/010115b08ebe30baba86)
