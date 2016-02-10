@@ -2,7 +2,7 @@
     background-color: rgba(0, 0, 0, 0.5);
     outline: 1px solid rgba(255, 255, 255, 0.5);
     width: 80%;
-    height: 30px;
+    height: 40px;
     text-align: center;
     color: white;
     margin: 0 auto;
@@ -14,8 +14,8 @@
 
 .RouteFrame p {
     margin: 0;
-    padding: 5px;
+    padding: 10px;
     font-family: Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.75);
 }

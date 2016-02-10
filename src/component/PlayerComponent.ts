@@ -21,8 +21,6 @@ export class PlayerComponent extends Component {
     public static componentName: string = "player";
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
-    private _stop$: rx.Subject<void> = new rx.Subject<void>();
-
     private _configurationSubscription: rx.IDisposable;
     private _playingSubscription: rx.IDisposable;
 
@@ -64,21 +62,6 @@ export class PlayerComponent extends Component {
                         }
 
                         configuration.playing = newConfiguration.playing;
-
-                        return configuration;
-                    };
-                })
-            .subscribe(this._configurationOperation$);
-
-        this._stop$
-            .map<IConfigurationOperation>(
-                () => {
-                    return (configuration: IPlayerConfiguration): IPlayerConfiguration => {
-                        if (configuration.playing) {
-                            this._stop();
-                        }
-
-                        configuration.playing = false;
 
                         return configuration;
                     };
@@ -148,7 +131,7 @@ export class PlayerComponent extends Component {
                     this._navigator.stateService.appendNodes([node]);
                 },
                 (error: Error): void => {
-                    this._stop$.onNext(null);
+                    this.configure({ playing: false });
                 }
             );
     }

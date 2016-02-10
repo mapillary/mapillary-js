@@ -54,19 +54,19 @@ export class ComponentController {
     private initializeComponents(): void {
         let options: IViewerOptions = this._options;
 
+        this.uFalse(options.background, "background");
         this.uFalse(options.debug, "debug");
-        this.uFalse(options.player, "player");
-        this.uFalse(options.navigation, "navigation");
         this.uFalse(options.image, "image");
+        this.uFalse(options.navigation, "navigation");
+        this.uFalse(options.player, "player");
         this.uFalse(options.route, "route");
         this.uTrue(options.attribution, "attribution");
-        this.uTrue(options.background, "background");
         this.uTrue(options.cache, "cache");
         this.uTrue(options.direction, "direction");
+        this.uTrue(options.imageplane, "imageplane");
         this.uTrue(options.keyboard, "keyboard");
         this.uTrue(options.loading, "loading");
         this.uTrue(options.mouse, "mouse");
-        this.uTrue(options.imageplane, "imageplane");
 
         this._coverComponent = <CoverComponent> this._componentService.getCover();
 

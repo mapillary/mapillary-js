@@ -12,6 +12,7 @@ import {
 } from "../State";
 
 export class StateService {
+    private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
     private _currentState$: rx.Subject<IFrame>;
     private _currentNode$: rx.Observable<Node>;
 
@@ -33,6 +34,11 @@ export class StateService {
 
         this._frameGenerator = new FrameGenerator();
         this._frameId = null;
+
+        // fixme we should probably implement all functions in a more reactive way
+        this._appendNode$.subscribe((node: Node) => {
+            this.appendNodes([node]);
+        });
     }
 
     public get currentState$(): rx.Observable<IFrame> {
@@ -78,6 +84,10 @@ export class StateService {
 
     public rotate(delta: IRotation): void {
         this._context.rotate(delta);
+    }
+
+    public get appendNode$(): rx.Subject<Node> {
+        return this._appendNode$;
     }
 
     private frame(time: number): void {

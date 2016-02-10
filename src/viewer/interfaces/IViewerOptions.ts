@@ -8,6 +8,12 @@ export interface IViewerOptions {
     attribution?: boolean;
 
     /**
+     * Display a background if no key is set.
+     * @default true
+     */
+    background?: boolean;
+
+    /**
      * Cache images ahead.
      * @default true
      */
@@ -74,6 +80,12 @@ export interface IViewerOptions {
     player?: boolean;
 
     /**
+     * Create a route with a story inside mapillary js
+     * @default false
+     */
+    route?: boolean;
+
+    /**
      * Default size of the thumbnail used in the viewer
      * @default {ImageSize}
      */
@@ -85,10 +97,6 @@ export interface IViewerOptions {
      * @default {ImageSize}
      */
     maxImageSize?: ImageSize;
-
-    background?: boolean;
-
-    route?: boolean;
 }
 
 export default IViewerOptions;

@@ -453,6 +453,15 @@ export class Graph {
             };
         }
 
+        // fixme this will fix referance on long jumps, but will keep bad cache
+        if (Math.abs((latLon.lon - this.referenceLatLonAlt.lon)) > 0.1) {
+            this.referenceLatLonAlt = {
+                alt: alt,
+                lat: latLon.lat,
+                lon: latLon.lon,
+            };
+        }
+
         let C: number[] = this.geoCoords.topocentric_from_lla(
             latLon.lat,
             latLon.lon,

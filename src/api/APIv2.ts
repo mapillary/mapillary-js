@@ -1,10 +1,12 @@
 import APIIm from "./APIIm";
 import APINav from "./APINav";
 import APISearch from "./APISearch";
+import APIS from "./APIS";
 
 export class APIv2 {
     public im: APIIm;
     public nav: APINav;
+    public s: APIS;
     public search: APISearch;
 
     private clientId: string;
@@ -21,6 +23,7 @@ export class APIv2 {
 
         this.im = new APIIm(clientId);
         this.nav = new APINav(clientId);
+        this.s = new APIS(clientId);
         this.search = new APISearch(clientId);
     };
 }
