@@ -7,6 +7,7 @@ export abstract class Component {
     public static componentName: string = "not_worthy";
 
     protected _activated: boolean;
+    protected _activated$: rx.BehaviorSubject<boolean> = new rx.BehaviorSubject<boolean>(false);
     protected _configurationSubject$: rx.Subject<IComponentConfiguration> = new rx.Subject<IComponentConfiguration>();
     protected _configuration$: rx.Observable<IComponentConfiguration>;
     protected _container: Container;
@@ -45,6 +46,7 @@ export abstract class Component {
 
         this._activate();
         this._activated = true;
+        this._activated$.onNext(true);
     };
 
     protected abstract _activate(): void;
@@ -58,12 +60,17 @@ export abstract class Component {
         this._container.glRenderer.clear(this._name);
         this._deactivate();
         this._activated = false;
+        this._activated$.onNext(false);
     };
 
     protected abstract _deactivate(): void;
 
     public get activated(): boolean {
         return this._activated;
+    }
+
+    public get activated$(): rx.Observable<boolean> {
+        return this._activated$;
     }
 
     public configure(conf: IComponentConfiguration): void {
