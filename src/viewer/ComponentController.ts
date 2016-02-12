@@ -21,13 +21,14 @@ export class ComponentController {
         if (key) {
             this.initializeComponents();
         } else {
-            this._navigator.keyRequested$.filter((k: string) => { return k !== null; }).first().subscribe((k: string) => {
-                this._navigator.stateService.start();
-                this._navigator.stateService.currentNode$.first().subscribe((node: Node) => {
-                    this._key = node.key;
-                    this.initializeComponents();
+            this._navigator.loadingService.loading$
+                .filter((loading: boolean) => { return loading; }).first().subscribe((loading: boolean) => {
+                    this._navigator.stateService.start();
+                    this._navigator.stateService.currentNode$.first().subscribe((node: Node) => {
+                        this._key = node.key;
+                        this.initializeComponents();
+                    });
                 });
-            });
         }
     }
 
