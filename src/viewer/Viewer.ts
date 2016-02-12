@@ -4,6 +4,8 @@ import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher
 import {Component} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
 
+import * as when from "when";
+
 export class Viewer extends EventEmitter {
     /**
      * Fired every time the viewer goes to a new node (photo)
@@ -65,15 +67,17 @@ export class Viewer extends EventEmitter {
      * @param {string} key - a valid Mapillary photo key
      * @throws {ParamaterMapillaryError} If no key is provided
      */
-    public moveToKey(key: string): void {
-        this._navigator.moveToKey(key).subscribe(
-            (node: Node): void => {
-                return;
-            },
-            (error: Error): void => {
-                return;
-            }
-        );
+    public moveToKey(key: string): when.Promise<Node> {
+        return when.promise<Node>((resolve: any, reject: any): void => {
+            this._navigator.moveToKey(key).subscribe(
+                (node: Node): void => {
+                    resolve(node);
+                },
+                (error: Error): void => {
+                    reject(error);
+                }
+            );
+        });
     }
 
     /**
@@ -85,15 +89,17 @@ export class Viewer extends EventEmitter {
      * @example
      * `viewer.moveToDir(Mapillary.EdgeDirection['NEXT'])`
      */
-    public moveDir(dir: EdgeDirection): void {
-        this._navigator.moveDir(dir).subscribe(
-            (node: Node): void => {
-                return;
-            },
-            (error: Error): void => {
-                return;
-            }
-        );
+    public moveDir(dir: EdgeDirection): when.Promise<Node> {
+        return when.promise<Node>((resolve: any, reject: any): void => {
+            this._navigator.moveDir(dir).subscribe(
+                (node: Node): void => {
+                    resolve(node);
+                },
+                (error: Error): void => {
+                    reject(error);
+                }
+            );
+        });
     }
 
     /**
@@ -101,15 +107,17 @@ export class Viewer extends EventEmitter {
      * @param {Number} lat - Latitude
      * @param {Number} lon - Longitude
      */
-    public moveCloseTo(lat: number, lon: number): void {
-        this._navigator.moveCloseTo(lat, lon).subscribe(
-            (node: Node): void => {
-                return;
-            },
-            (error: Error): void => {
-                return;
-            }
-        );
+    public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
+        return when.promise<Node>((resolve: any, reject: any): void => {
+            this._navigator.moveCloseTo(lat, lon).subscribe(
+                (node: Node): void => {
+                    resolve(node);
+                },
+                (error: Error): void => {
+                    reject(error);
+                }
+            );
+        });
     }
 
     /**
