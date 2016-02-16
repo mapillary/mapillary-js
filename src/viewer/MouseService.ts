@@ -4,10 +4,15 @@ import {IMouseClaim} from "../Viewer";
 
 import * as rx from "rx";
 
+interface IMouseMoveOperation {
+    (e: MouseEvent): MouseEvent;
+}
+
 export class MouseService {
     private _element: HTMLElement;
 
     private _mouseDown$: rx.Observable<MouseEvent>;
+    private _mouseMoveOperation$: rx.Subject<IMouseMoveOperation> = new rx.Subject<IMouseMoveOperation>();
     private _mouseMove$: rx.Observable<MouseEvent>;
     private _mouseLeave$: rx.Observable<MouseEvent>;
     private _mouseUp$: rx.Observable<MouseEvent>;
@@ -25,7 +30,27 @@ export class MouseService {
         this._element = element;
 
         this._mouseDown$ = rx.Observable.fromEvent<MouseEvent>(element, "mousedown");
-        this._mouseMove$ = rx.Observable.fromEvent<MouseEvent>(element, "mousemove");
+
+        this._mouseMove$ = this._mouseMoveOperation$
+            .scan<MouseEvent>(
+                (e: MouseEvent, operation: IMouseMoveOperation): MouseEvent => {
+                    return operation(e);
+                },
+                new MouseEvent("mousemove"));
+
+        rx.Observable
+            .fromEvent<MouseEvent>(element, "mousemove")
+            .map<IMouseMoveOperation>(
+                (e: MouseEvent) => {
+                    return (previous: MouseEvent): MouseEvent => {
+                        e.movementX = e.offsetX - previous.offsetX;
+                        e.movementY = e.offsetY - previous.offsetY;
+
+                        return e;
+                    };
+                })
+            .subscribe(this._mouseMoveOperation$);
+
         this._mouseLeave$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseleave");
         this._mouseUp$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseup");
 
