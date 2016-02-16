@@ -16,6 +16,7 @@ export class MouseService {
     private _mouseMove$: rx.Observable<MouseEvent>;
     private _mouseLeave$: rx.Observable<MouseEvent>;
     private _mouseUp$: rx.Observable<MouseEvent>;
+    private _mouseOver$: rx.Observable<MouseEvent>;
 
     private _mouseWheel$: rx.Observable<MouseWheelEvent>;
 
@@ -59,11 +60,12 @@ export class MouseService {
 
         this._mouseLeave$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseleave");
         this._mouseUp$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseup");
+        this._mouseOver$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseover");
 
         this._mouseWheel$ = rx.Observable.fromEvent<MouseWheelEvent>(element, "wheel");
 
         let dragStop$: rx.Observable<MouseEvent> = rx.Observable
-            .merge<MouseEvent>([this._mouseLeave$, this._mouseUp$]);
+            .merge<MouseEvent>([this._mouseLeave$, this._mouseUp$, this._mouseOver$]);
 
         this._mouseDragStart$ = this._mouseDown$
             .selectMany<MouseEvent>((e: MouseEvent): rx.Observable<MouseEvent> => {
