@@ -21,7 +21,7 @@ interface IGLRenderer {
 }
 
 interface ICamera {
-    aspectRatio: number;
+    focal: number;
     frameId: number;
     lastCamera: Camera;
     needsRender: boolean;
@@ -94,13 +94,13 @@ export class GLRenderer {
                 this._rendererOperation$.onNext((renderer: IGLRenderer): IGLRenderer => {
                     let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 
-                    let elementWidth: number = this._element.offsetWidth;
-                    webGLRenderer.setSize(elementWidth, elementWidth * 3 / 4);
+                    webGLRenderer.setSize(this._element.offsetWidth, this._element.offsetHeight);
                     webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
                     webGLRenderer.sortObjects = false;
 
                     webGLRenderer.domElement.style.width = "100%";
                     webGLRenderer.domElement.style.height = "100%";
+
                     this._element.appendChild(webGLRenderer.domElement);
 
                     renderer.needsRender = true;
@@ -171,11 +171,15 @@ export class GLRenderer {
                     return operation(camera);
                 },
                 {
-                    aspectRatio: 4 / 3,
+                    focal: 1,
                     frameId: 0,
                     lastCamera: new Camera(),
                     needsRender: false,
-                    perspective: new THREE.PerspectiveCamera(50, 4 / 3, 0.4, 10000),
+                    perspective: new THREE.PerspectiveCamera(
+                        50,
+                        this._element.offsetWidth / this._element.offsetHeight,
+                        0.4,
+                        10000),
                 });
 
         this._frame$
@@ -189,7 +193,9 @@ export class GLRenderer {
                         return camera;
                     }
 
-                    let verticalFov: number = 2 * Math.atan(0.5 / camera.aspectRatio / current.focal) * 180 / Math.PI;
+                    camera.focal = current.focal;
+
+                    let verticalFov: number = 2 * Math.atan(0.5 / camera.perspective.aspect / camera.focal) * 180 / Math.PI;
 
                     camera.perspective.fov = verticalFov;
                     camera.perspective.updateProjectionMatrix();
@@ -208,16 +214,20 @@ export class GLRenderer {
 
         this._size$ = this._resize$
             .map<ISize>((): ISize => {
-                let width: number = element.offsetWidth;
-
-                return { height: width * 3 / 4, width: width };
+                return { height: this._element.offsetHeight, width: this._element.offsetWidth };
             })
             .publish();
 
         this._size$.map<ICameraOperation>(
             (size: ISize) => {
                 return (camera: ICamera): ICamera => {
-                    camera.aspectRatio = size.width / size.height;
+                    camera.perspective.aspect = size.width / size.height;
+
+                    let verticalFov: number = 2 * Math.atan(0.5 / camera.perspective.aspect / camera.focal) * 180 / Math.PI;
+
+                    camera.perspective.fov = verticalFov;
+                    camera.perspective.updateProjectionMatrix();
+
                     camera.needsRender = true;
 
                     return camera;
