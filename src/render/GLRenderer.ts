@@ -26,6 +26,7 @@ interface ICamera {
     frameId: number;
     lastCamera: Camera;
     needsRender: boolean;
+    orientation: number;
     perspective: THREE.PerspectiveCamera;
 }
 
@@ -177,6 +178,7 @@ export class GLRenderer {
                     frameId: 0,
                     lastCamera: new Camera(),
                     needsRender: false,
+                    orientation: 1,
                     perspective: new THREE.PerspectiveCamera(
                         50,
                         this._element.offsetWidth / this._element.offsetHeight,
@@ -197,6 +199,7 @@ export class GLRenderer {
 
                     camera.aspect = frame.state.currentTransform.aspect;
                     camera.focal = current.focal;
+                    camera.orientation = frame.state.currentTransform.orientation;
 
                     camera.perspective.fov = this._getVerticalFov(camera);
                     camera.perspective.updateProjectionMatrix();
@@ -332,9 +335,13 @@ export class GLRenderer {
     }
 
     private _getVerticalFov(camera: ICamera): number {
+        let coeff: number = camera.orientation < 5 ?
+            1 :
+            1 / camera.aspect / camera.aspect;
+
         let aspect: number = camera.aspect > camera.perspective.aspect ?
-            camera.perspective.aspect :
-            camera.aspect;
+            coeff * camera.perspective.aspect :
+            coeff * camera.aspect;
 
         let verticalFov: number = 2 * Math.atan(0.5 / aspect / camera.focal) * 180 / Math.PI;
 
