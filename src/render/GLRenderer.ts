@@ -9,6 +9,7 @@ import * as _ from "underscore";
 import {IFrame} from "../State";
 import {Camera, Transform} from "../Geo";
 import {
+    GLRenderMode,
     GLRenderStage,
     IGLRenderFunction,
     IGLRender,
@@ -24,6 +25,7 @@ class CameraState {
     public needsRender: boolean;
     public previousAspect: number;
     public previousOrientation: number;
+    public renderMode: GLRenderMode;
 
     private _lastCamera: Camera;
     private _perspective: THREE.PerspectiveCamera;
@@ -37,6 +39,7 @@ class CameraState {
         this.needsRender = false;
         this.previousAspect = 1;
         this.previousOrientation = 1;
+        this.renderMode = GLRenderMode.Letterbox;
 
         this._lastCamera = new Camera();
         this._perspective = new THREE.PerspectiveCamera(
@@ -84,7 +87,11 @@ class CameraState {
             1 :
             1 / nodeAspect / nodeAspect;
 
-        let aspect: number = nodeAspect > perspectiveCameraAspect ?
+        let usePerspective: boolean = this.renderMode === GLRenderMode.Letterbox ?
+            nodeAspect > perspectiveCameraAspect :
+            nodeAspect < perspectiveCameraAspect;
+
+        let aspect: number = usePerspective ?
             coeff * perspectiveCameraAspect :
             coeff * nodeAspect;
 
@@ -130,6 +137,8 @@ export class GLRenderer {
 
     private _resize$: rx.Subject<void> = new rx.Subject<void>();
     private _size$: rx.ConnectableObservable<ISize>;
+
+    private _renderMode$: rx.Subject<GLRenderMode> = new rx.Subject<GLRenderMode>();
 
     private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
     private _cameraStateOperation$: rx.Subject<ICameraStateOperation> = new rx.Subject<ICameraStateOperation>();
@@ -312,6 +321,20 @@ export class GLRenderer {
             })
             .subscribe(this._rendererOperation$);
 
+        this._renderMode$
+            .map<ICameraStateOperation>(
+                (renderMode: GLRenderMode) => {
+                    return (cs: CameraState): CameraState => {
+                        cs.renderMode = renderMode;
+
+                        cs.updateProjection();
+                        cs.needsRender = true;
+
+                        return cs;
+                    };
+                })
+            .subscribe(this._cameraStateOperation$);
+
         rx.Observable.combineLatest(
                 this._cameraState$,
                 this._renderCollection$,
@@ -379,11 +402,15 @@ export class GLRenderer {
     }
 
     public clear(name: string): void {
-        return this._clear$.onNext(name);
+        this._clear$.onNext(name);
     }
 
     public resize(): void {
-        return this._resize$.onNext(null);
+        this._resize$.onNext(null);
+    }
+
+    public setRenderMode(renderMode: GLRenderMode): void {
+        this._renderMode$.onNext(renderMode);
     }
 
     private _frameSubscribe(): void {
