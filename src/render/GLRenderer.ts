@@ -15,22 +15,80 @@ import {
     IGLRenderHash,
 } from "../Render";
 
+class CameraState {
+    public alpha: number;
+    public currentAspect: number;
+    public currentOrientation: number;
+    public focal: number;
+    public frameId: number;
+    public needsRender: boolean;
+    public previousAspect: number;
+    public previousOrientation: number;
+
+    private _lastCamera: Camera;
+    private _perspective: THREE.PerspectiveCamera;
+
+    constructor(perspectiveCameraAspect: number) {
+        this.alpha = 0;
+        this.currentAspect = 1;
+        this.currentOrientation = 1;
+        this.focal = 1;
+        this.frameId = 0;
+        this.needsRender = false;
+        this.previousAspect = 1;
+        this.previousOrientation = 1;
+
+        this._lastCamera = new Camera();
+        this._perspective = new THREE.PerspectiveCamera(
+            50,
+            perspectiveCameraAspect,
+            0.4,
+            10000);
+    }
+
+    public get perspective(): THREE.PerspectiveCamera {
+        return this._perspective;
+    }
+
+    public get lastCamera(): Camera {
+        return this._lastCamera;
+    }
+
+    public updateProjection(): void {
+        let currentAspect: number = this._getAspect(
+            this.currentAspect,
+            this.currentOrientation,
+            this.perspective.aspect);
+
+        let previousAspect: number = this._getAspect(
+            this.previousAspect,
+            this.previousOrientation,
+            this.perspective.aspect);
+
+        let aspect: number = (1 - this.alpha) * previousAspect + this.alpha * currentAspect;
+
+        let verticalFov: number = 2 * Math.atan(0.5 / aspect / this.focal) * 180 / Math.PI;
+
+        this._perspective.fov = verticalFov;
+        this._perspective.updateProjectionMatrix();
+    }
+
+    private _getAspect(nodeAspect: number, orientation: number, perspectiveCameraAspect: number): number {
+        let coeff: number = orientation < 5 ?
+            1 :
+            1 / nodeAspect / nodeAspect;
+
+        let aspect: number = nodeAspect > perspectiveCameraAspect ?
+            coeff * perspectiveCameraAspect :
+            coeff * nodeAspect;
+
+        return aspect;
+    }
+}
+
 interface IGLRenderer {
     needsRender: boolean;
     renderer: THREE.WebGLRenderer;
-}
-
-interface ICamera {
-    alpha: number;
-    currentAspect: number;
-    currentOrientation: number;
-    focal: number;
-    frameId: number;
-    lastCamera: Camera;
-    needsRender: boolean;
-    perspective: THREE.PerspectiveCamera;
-    previousAspect: number;
-    previousOrientation: number;
 }
 
 interface IGLRenderHashes {
@@ -41,8 +99,8 @@ interface IGLRendererOperation {
     (renderer: IGLRenderer): IGLRenderer;
 }
 
-interface ICameraOperation {
-    (camera: ICamera): ICamera;
+interface ICameraStateOperation {
+    (camera: CameraState): CameraState;
 }
 
 interface IGLRenderHashesOperation extends Function {
@@ -50,7 +108,7 @@ interface IGLRenderHashesOperation extends Function {
 }
 
 interface ICombination {
-    camera: ICamera;
+    cameraState: CameraState;
     renderer: IGLRenderer;
     renders: IGLRender[];
 }
@@ -68,8 +126,8 @@ export class GLRenderer {
     private _size$: rx.ConnectableObservable<ISize>;
 
     private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
-    private _cameraOperation$: rx.Subject<ICameraOperation> = new rx.Subject<ICameraOperation>();
-    private _camera$: rx.Observable<ICamera>;
+    private _cameraStateOperation$: rx.Subject<ICameraStateOperation> = new rx.Subject<ICameraStateOperation>();
+    private _cameraState$: rx.Observable<CameraState>;
 
     private _render$: rx.Subject<IGLRenderHash> = new rx.Subject<IGLRenderHash>();
     private _clear$: rx.Subject<string> = new rx.Subject<string>();
@@ -170,40 +228,25 @@ export class GLRenderer {
                 this._frameSubscribe();
             });
 
-        this._camera$ = this._cameraOperation$
-            .scan<ICamera>(
-                (camera: ICamera, operation: ICameraOperation): ICamera => {
-                    return operation(camera);
+        this._cameraState$ = this._cameraStateOperation$
+            .scan<CameraState>(
+                (cs: CameraState, operation: ICameraStateOperation): CameraState => {
+                    return operation(cs);
                 },
-                {
-                    alpha: 0,
-                    currentAspect: 1,
-                    currentOrientation: 1,
-                    focal: 1,
-                    frameId: 0,
-                    lastCamera: new Camera(),
-                    needsRender: false,
-                    perspective: new THREE.PerspectiveCamera(
-                        50,
-                        this._element.offsetWidth / this._element.offsetHeight,
-                        0.4,
-                        10000),
-                    previousAspect: 1,
-                    previousOrientation: 1,
-                });
+                new CameraState(this._element.offsetWidth / this._element.offsetHeight));
 
         this._frame$
-            .map<ICameraOperation>((frame: IFrame) => {
-                return (camera: ICamera): ICamera => {
-                    camera.frameId = frame.id;
+            .map<ICameraStateOperation>((frame: IFrame) => {
+                return (cs: CameraState): CameraState => {
+                    cs.frameId = frame.id;
 
                     let current: Camera = frame.state.camera;
 
-                    if (camera.lastCamera.diff(current) < 0.00001) {
-                        return camera;
+                    if (cs.lastCamera.diff(current) < 0.00001) {
+                        return cs;
                     }
 
-                    camera.alpha = frame.state.alpha;
+                    cs.alpha = frame.state.alpha;
 
                     let currentTransform: Transform = frame.state.currentTransform;
                     let previousTransform: Transform = frame.state.previousTransform;
@@ -212,26 +255,25 @@ export class GLRenderer {
                         previousTransform = frame.state.currentTransform;
                     }
 
-                    camera.currentAspect = currentTransform.aspect;
-                    camera.currentOrientation = currentTransform.orientation;
-                    camera.focal = current.focal;
-                    camera.previousAspect = previousTransform.aspect;
-                    camera.previousOrientation = previousTransform.orientation;
+                    cs.currentAspect = currentTransform.aspect;
+                    cs.currentOrientation = currentTransform.orientation;
+                    cs.focal = current.focal;
+                    cs.previousAspect = previousTransform.aspect;
+                    cs.previousOrientation = previousTransform.orientation;
 
-                    camera.perspective.fov = this._getVerticalFov(camera);
-                    camera.perspective.updateProjectionMatrix();
+                    cs.updateProjection();
 
-                    camera.perspective.up.copy(current.up);
-                    camera.perspective.position.copy(current.position);
-                    camera.perspective.lookAt(current.lookat);
+                    cs.perspective.up.copy(current.up);
+                    cs.perspective.position.copy(current.position);
+                    cs.perspective.lookAt(current.lookat);
 
-                    camera.lastCamera.copy(current);
-                    camera.needsRender = true;
+                    cs.lastCamera.copy(current);
+                    cs.needsRender = true;
 
-                    return camera;
+                    return cs;
                 };
             })
-            .subscribe(this._cameraOperation$);
+            .subscribe(this._cameraStateOperation$);
 
         this._size$ = this._resize$
             .map<ISize>((): ISize => {
@@ -239,20 +281,18 @@ export class GLRenderer {
             })
             .publish();
 
-        this._size$.map<ICameraOperation>(
+        this._size$.map<ICameraStateOperation>(
             (size: ISize) => {
-                return (camera: ICamera): ICamera => {
-                    camera.perspective.aspect = size.width / size.height;
+                return (cs: CameraState): CameraState => {
+                    cs.perspective.aspect = size.width / size.height;
 
-                    camera.perspective.fov = this._getVerticalFov(camera);
-                    camera.perspective.updateProjectionMatrix();
+                    cs.updateProjection();
+                    cs.needsRender = true;
 
-                    camera.needsRender = true;
-
-                    return camera;
+                    return cs;
                 };
             })
-            .subscribe(this._cameraOperation$);
+            .subscribe(this._cameraStateOperation$);
 
         this._size$.map<IGLRendererOperation>(
             (size: ISize): IGLRendererOperation => {
@@ -270,18 +310,18 @@ export class GLRenderer {
             .subscribe(this._rendererOperation$);
 
         rx.Observable.combineLatest(
-                this._camera$,
+                this._cameraState$,
                 this._renderCollection$,
                 this._renderer$,
-                (camera: ICamera, hashes: IGLRenderHashes, renderer: IGLRenderer): ICombination => {
-                    return { camera: camera, renderer: renderer, renders: _.values(hashes) };
+                (cs: CameraState, hashes: IGLRenderHashes, renderer: IGLRenderer): ICombination => {
+                    return { cameraState: cs, renderer: renderer, renders: _.values(hashes) };
                 })
             .filter((co: ICombination) => {
                 let needsRender: boolean =
-                    co.camera.needsRender ||
+                    co.cameraState.needsRender ||
                     co.renderer.needsRender;
 
-                let frameId: number = co.camera.frameId;
+                let frameId: number = co.cameraState.frameId;
 
                 for (let render of co.renders) {
                     if (render.frameId !== frameId) {
@@ -293,13 +333,13 @@ export class GLRenderer {
 
                 return needsRender;
             })
-            .distinctUntilChanged((co: ICombination): number => { return co.camera.frameId; })
+            .distinctUntilChanged((co: ICombination): number => { return co.cameraState.frameId; })
             .subscribe(
                 (co: ICombination): void => {
-                    co.camera.needsRender = false;
+                    co.cameraState.needsRender = false;
                     co.renderer.needsRender = false;
 
-                    let perspectiveCamera: THREE.PerspectiveCamera = co.camera.perspective;
+                    let perspectiveCamera: THREE.PerspectiveCamera = co.cameraState.perspective;
 
                     let backgroundRenders: IGLRenderFunction[] = [];
                     let foregroundRenders: IGLRenderFunction[] = [];
@@ -349,36 +389,6 @@ export class GLRenderer {
             .subscribe((hash: IGLRenderHash): void => {
                 this._frameSubscription = this._currentFrame$.subscribe(this._frame$);
             });
-    }
-
-    private _getVerticalFov(camera: ICamera): number {
-        let currentAspect: number = this._getAspect(
-            camera.currentAspect,
-            camera.currentOrientation,
-            camera.perspective.aspect);
-
-        let previousAspect: number = this._getAspect(
-            camera.previousAspect,
-            camera.previousOrientation,
-            camera.perspective.aspect);
-
-        let aspect: number = (1 - camera.alpha) * previousAspect + camera.alpha * currentAspect;
-
-        let verticalFov: number = 2 * Math.atan(0.5 / aspect / camera.focal) * 180 / Math.PI;
-
-        return verticalFov;
-    }
-
-    private _getAspect(nodeAspect: number, orientation: number, perspectiveCameraAspect: number): number {
-        let coeff: number = orientation < 5 ?
-            1 :
-            1 / nodeAspect / nodeAspect;
-
-        let aspect: number = nodeAspect > perspectiveCameraAspect ?
-            coeff * perspectiveCameraAspect :
-            coeff * nodeAspect;
-
-        return aspect;
     }
 }
 
