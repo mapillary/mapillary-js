@@ -73,6 +73,12 @@ class CameraState {
         this._perspective.updateProjectionMatrix();
     }
 
+    public updatePerspective(camera: Camera): void {
+        this._perspective.up.copy(camera.up);
+        this._perspective.position.copy(camera.position);
+        this._perspective.lookAt(camera.lookat);
+    }
+
     private _getAspect(nodeAspect: number, orientation: number, perspectiveCameraAspect: number): number {
         let coeff: number = orientation < 5 ?
             1 :
@@ -247,6 +253,7 @@ export class GLRenderer {
                     }
 
                     cs.alpha = frame.state.alpha;
+                    cs.focal = current.focal;
 
                     let currentTransform: Transform = frame.state.currentTransform;
                     let previousTransform: Transform = frame.state.previousTransform;
@@ -257,15 +264,11 @@ export class GLRenderer {
 
                     cs.currentAspect = currentTransform.aspect;
                     cs.currentOrientation = currentTransform.orientation;
-                    cs.focal = current.focal;
                     cs.previousAspect = previousTransform.aspect;
                     cs.previousOrientation = previousTransform.orientation;
 
                     cs.updateProjection();
-
-                    cs.perspective.up.copy(current.up);
-                    cs.perspective.position.copy(current.position);
-                    cs.perspective.lookAt(current.lookat);
+                    cs.updatePerspective(current);
 
                     cs.lastCamera.copy(current);
                     cs.needsRender = true;
