@@ -7,7 +7,7 @@ import * as THREE from "three";
 import * as _ from "underscore";
 
 import {IFrame} from "../State";
-import {Camera} from "../Geo";
+import {Camera, Transform} from "../Geo";
 import {
     GLRenderStage,
     IGLRenderFunction,
@@ -21,13 +21,16 @@ interface IGLRenderer {
 }
 
 interface ICamera {
-    aspect: number;
+    alpha: number;
+    currentAspect: number;
+    currentOrientation: number;
     focal: number;
     frameId: number;
     lastCamera: Camera;
     needsRender: boolean;
-    orientation: number;
     perspective: THREE.PerspectiveCamera;
+    previousAspect: number;
+    previousOrientation: number;
 }
 
 interface IGLRenderHashes {
@@ -173,17 +176,20 @@ export class GLRenderer {
                     return operation(camera);
                 },
                 {
-                    aspect: 1,
+                    alpha: 0,
+                    currentAspect: 1,
+                    currentOrientation: 1,
                     focal: 1,
                     frameId: 0,
                     lastCamera: new Camera(),
                     needsRender: false,
-                    orientation: 1,
                     perspective: new THREE.PerspectiveCamera(
                         50,
                         this._element.offsetWidth / this._element.offsetHeight,
                         0.4,
                         10000),
+                    previousAspect: 1,
+                    previousOrientation: 1,
                 });
 
         this._frame$
@@ -197,9 +203,20 @@ export class GLRenderer {
                         return camera;
                     }
 
-                    camera.aspect = frame.state.currentTransform.aspect;
+                    camera.alpha = frame.state.alpha;
+
+                    let currentTransform: Transform = frame.state.currentTransform;
+                    let previousTransform: Transform = frame.state.previousTransform;
+
+                    if (previousTransform == null) {
+                        previousTransform = frame.state.currentTransform;
+                    }
+
+                    camera.currentAspect = currentTransform.aspect;
+                    camera.currentOrientation = currentTransform.orientation;
                     camera.focal = current.focal;
-                    camera.orientation = frame.state.currentTransform.orientation;
+                    camera.previousAspect = previousTransform.aspect;
+                    camera.previousOrientation = previousTransform.orientation;
 
                     camera.perspective.fov = this._getVerticalFov(camera);
                     camera.perspective.updateProjectionMatrix();
@@ -335,17 +352,33 @@ export class GLRenderer {
     }
 
     private _getVerticalFov(camera: ICamera): number {
-        let coeff: number = camera.orientation < 5 ?
-            1 :
-            1 / camera.aspect / camera.aspect;
+        let currentAspect: number = this._getAspect(
+            camera.currentAspect,
+            camera.currentOrientation,
+            camera.perspective.aspect);
 
-        let aspect: number = camera.aspect > camera.perspective.aspect ?
-            coeff * camera.perspective.aspect :
-            coeff * camera.aspect;
+        let previousAspect: number = this._getAspect(
+            camera.previousAspect,
+            camera.previousOrientation,
+            camera.perspective.aspect);
+
+        let aspect: number = (1 - camera.alpha) * previousAspect + camera.alpha * currentAspect;
 
         let verticalFov: number = 2 * Math.atan(0.5 / aspect / camera.focal) * 180 / Math.PI;
 
         return verticalFov;
+    }
+
+    private _getAspect(nodeAspect: number, orientation: number, perspectiveCameraAspect: number): number {
+        let coeff: number = orientation < 5 ?
+            1 :
+            1 / nodeAspect / nodeAspect;
+
+        let aspect: number = nodeAspect > perspectiveCameraAspect ?
+            coeff * perspectiveCameraAspect :
+            coeff * nodeAspect;
+
+        return aspect;
     }
 }
 

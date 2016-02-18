@@ -248,8 +248,8 @@ export class CompletingState implements IState {
     }
 
     public get previousTransform(): Transform {
-        return this._trajectoryTransforms.length > 0 && this.currentIndex > 0 ?
-            this._trajectoryTransforms[this.currentIndex] : null;
+        return this._trajectoryTransforms.length > 1 && this.currentIndex > 0 ?
+            this._trajectoryTransforms[this.currentIndex - 1] : null;
     }
 
     public get alpha(): number {
