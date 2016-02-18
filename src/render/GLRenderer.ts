@@ -21,6 +21,7 @@ interface IGLRenderer {
 }
 
 interface ICamera {
+    aspect: number;
     focal: number;
     frameId: number;
     lastCamera: Camera;
@@ -171,6 +172,7 @@ export class GLRenderer {
                     return operation(camera);
                 },
                 {
+                    aspect: 1,
                     focal: 1,
                     frameId: 0,
                     lastCamera: new Camera(),
@@ -193,11 +195,10 @@ export class GLRenderer {
                         return camera;
                     }
 
+                    camera.aspect = frame.state.currentTransform.aspect;
                     camera.focal = current.focal;
 
-                    let verticalFov: number = 2 * Math.atan(0.5 / camera.perspective.aspect / camera.focal) * 180 / Math.PI;
-
-                    camera.perspective.fov = verticalFov;
+                    camera.perspective.fov = this._getVerticalFov(camera);
                     camera.perspective.updateProjectionMatrix();
 
                     camera.perspective.up.copy(current.up);
@@ -223,9 +224,7 @@ export class GLRenderer {
                 return (camera: ICamera): ICamera => {
                     camera.perspective.aspect = size.width / size.height;
 
-                    let verticalFov: number = 2 * Math.atan(0.5 / camera.perspective.aspect / camera.focal) * 180 / Math.PI;
-
-                    camera.perspective.fov = verticalFov;
+                    camera.perspective.fov = this._getVerticalFov(camera);
                     camera.perspective.updateProjectionMatrix();
 
                     camera.needsRender = true;
@@ -330,6 +329,16 @@ export class GLRenderer {
             .subscribe((hash: IGLRenderHash): void => {
                 this._frameSubscription = this._currentFrame$.subscribe(this._frame$);
             });
+    }
+
+    private _getVerticalFov(camera: ICamera): number {
+        let aspect: number = camera.aspect > camera.perspective.aspect ?
+            camera.perspective.aspect :
+            camera.aspect;
+
+        let verticalFov: number = 2 * Math.atan(0.5 / aspect / camera.focal) * 180 / Math.PI;
+
+        return verticalFov;
     }
 }
 
