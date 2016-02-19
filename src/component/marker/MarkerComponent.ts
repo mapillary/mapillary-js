@@ -142,7 +142,7 @@ export class MarkerComponent extends Component {
                 frameId: args.frame.id,
                 needsRender: needsRender,
                 render: this.render.bind(this),
-                stage: GLRenderStage.FOREGROUND,
+                stage: GLRenderStage.Foreground,
             },
         };
     }

@@ -54,7 +54,7 @@ export class SphereComponent extends Component {
                         frameId: frame.id,
                         needsRender: needsRender,
                         render: render,
-                        stage: GLRenderStage.FOREGROUND,
+                        stage: GLRenderStage.Foreground,
                     },
                 };
             })

@@ -371,9 +371,9 @@ export class GLRenderer {
                     let foregroundRenders: IGLRenderFunction[] = [];
 
                     for (let render of co.renders) {
-                        if (render.stage === GLRenderStage.BACKGROUND) {
+                        if (render.stage === GLRenderStage.Background) {
                             backgroundRenders.push(render.render);
-                        } else if (render.stage === GLRenderStage.FOREGROUND) {
+                        } else if (render.stage === GLRenderStage.Foreground) {
                             foregroundRenders.push(render.render);
                         }
                     }

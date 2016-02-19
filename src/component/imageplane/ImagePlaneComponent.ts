@@ -59,7 +59,7 @@ export class ImagePlaneComponent extends Component {
                         frameId: frame.id,
                         needsRender: needsRender,
                         render: render,
-                        stage: GLRenderStage.BACKGROUND,
+                        stage: GLRenderStage.Background,
                     },
                 };
             })
