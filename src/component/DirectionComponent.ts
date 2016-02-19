@@ -247,7 +247,7 @@ export class DirectionComponent extends Component {
                 "DirectionsArrowStep");
         }
 
-        return this.createVNodeDisabled(azimuth, rotation, opacity);
+        return this.createVNodeDisabled(azimuth, rotation);
     }
 
     private createSequenceArrows(node: Node): vd.VNode[] {
@@ -309,8 +309,8 @@ export class DirectionComponent extends Component {
         return this.createVNode(azimuth, rotation, opacity, offset, className, onClick);
     }
 
-    private createVNodeDisabled(azimuth: number, rotation: IRotation, opacity: number): vd.VNode {
-        return this.createVNode(azimuth, rotation, opacity , this.arrowOffset, "DirectionsArrowDisabled");
+    private createVNodeDisabled(azimuth: number, rotation: IRotation): vd.VNode {
+        return this.createVNode(azimuth, rotation, 0.2 , this.arrowOffset, "DirectionsArrowDisabled");
     }
 
     private createVNodeByDirection(azimuth: number, rotation: IRotation, opacity: number, direction: EdgeDirection): vd.VNode {
