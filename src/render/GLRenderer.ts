@@ -20,11 +20,13 @@ class CameraState {
     public alpha: number;
     public currentAspect: number;
     public currentOrientation: number;
+    public currentPano: boolean;
     public focal: number;
     public frameId: number;
     public needsRender: boolean;
     public previousAspect: number;
     public previousOrientation: number;
+    public previousPano: boolean;
     public renderMode: GLRenderMode;
 
     private _lastCamera: Camera;
@@ -34,11 +36,13 @@ class CameraState {
         this.alpha = 0;
         this.currentAspect = 1;
         this.currentOrientation = 1;
+        this.currentPano = false;
         this.focal = 1;
         this.frameId = 0;
         this.needsRender = false;
         this.previousAspect = 1;
         this.previousOrientation = 1;
+        this.previousPano = false;
         this.renderMode = GLRenderMode.Letterbox;
 
         this._lastCamera = new Camera();
@@ -61,11 +65,13 @@ class CameraState {
         let currentAspect: number = this._getAspect(
             this.currentAspect,
             this.currentOrientation,
+            this.currentPano,
             this.perspective.aspect);
 
         let previousAspect: number = this._getAspect(
             this.previousAspect,
             this.previousOrientation,
+            this.previousPano,
             this.perspective.aspect);
 
         let aspect: number = (1 - this.alpha) * previousAspect + this.alpha * currentAspect;
@@ -82,7 +88,16 @@ class CameraState {
         this._perspective.lookAt(camera.lookat);
     }
 
-    private _getAspect(nodeAspect: number, orientation: number, perspectiveCameraAspect: number): number {
+    private _getAspect(
+        nodeAspect: number,
+        orientation: number,
+        pano: boolean,
+        perspectiveCameraAspect: number): number {
+
+        if (pano) {
+            return 4 / 3 > perspectiveCameraAspect ? perspectiveCameraAspect : 4 / 3;
+        }
+
         let coeff: number = orientation < 5 ?
             1 :
             1 / nodeAspect / nodeAspect;
@@ -257,7 +272,7 @@ export class GLRenderer {
 
                     let current: Camera = frame.state.camera;
 
-                    if (cs.lastCamera.diff(current) < 0.00001) {
+                    if (cs.lastCamera.diff(current) < 0.00001 && cs.alpha === frame.state.alpha) {
                         return cs;
                     }
 
@@ -273,8 +288,10 @@ export class GLRenderer {
 
                     cs.currentAspect = currentTransform.aspect;
                     cs.currentOrientation = currentTransform.orientation;
+                    cs.currentPano = frame.state.currentNode.fullPano;
                     cs.previousAspect = previousTransform.aspect;
                     cs.previousOrientation = previousTransform.orientation;
+                    cs.previousPano = frame.state.previousNode != null && frame.state.previousNode.fullPano;
 
                     cs.updateProjection();
                     cs.updatePerspective(current);
