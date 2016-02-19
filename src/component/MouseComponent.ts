@@ -26,8 +26,8 @@ export class MouseComponent extends Component {
 
                 let size: number = Math.max(width, height);
 
-                let w: number = width / size;
-                let h: number = height / size;
+                let w: number = Math.max(2 / 3, width / size);
+                let h: number = Math.max(2 / 3, height / size);
 
                 let max: number = 3 * Math.PI / 4;
 
