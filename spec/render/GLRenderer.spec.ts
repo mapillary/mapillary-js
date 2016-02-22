@@ -177,4 +177,25 @@ describe("GLRenderer.renderer", () => {
         glRenderer.clear("mock");
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(2);
     });
+
+
+    it("should not render frame if not needed", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "clear");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let frameId: number = 1;
+        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
+        let glRenderer: GLRenderer = createGLRenderer(frame$);
+
+        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+
+        frameId = 2;
+        frame$.onNext(createFrame(frameId));
+        glRenderer.render$.onNext(createGLRenderHash(frameId, false));
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+    });
 });
