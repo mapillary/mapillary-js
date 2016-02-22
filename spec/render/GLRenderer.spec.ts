@@ -86,6 +86,11 @@ describe("GLRenderer.renderer", () => {
             previousTransform: null,
         }
 
+        spyOn(state, "currentNode").and.returnValue({ });
+        spyOn(state, "currentTransform").and.returnValue({ });
+        spyOn(state, "previousNode").and.returnValue({ });
+        spyOn(state, "previousTransform").and.returnValue({ });
+
         return { id: frameId, state: state };
     }
 
@@ -181,7 +186,7 @@ describe("GLRenderer.renderer", () => {
 
     it("should not render frame if not needed", () => {
         let rendererMock: RendererMock = new RendererMock();
-        spyOn(rendererMock, "clear");
+        spyOn(rendererMock, "render");
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
         let frameId: number = 1;
@@ -190,12 +195,35 @@ describe("GLRenderer.renderer", () => {
 
         glRenderer.render$.onNext(createGLRenderHash(frameId, true));
 
-        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
         frameId = 2;
         frame$.onNext(createFrame(frameId));
         glRenderer.render$.onNext(createGLRenderHash(frameId, false));
 
-        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
+    });
+
+    it("should render frame if camera has changed", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "render");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let frameId: number = 1;
+        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
+        let glRenderer: GLRenderer = createGLRenderer(frame$);
+
+        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
+
+        frameId = 2;
+        let frame: IFrame = createFrame(frameId);
+        frame.state.camera.position.copy(new THREE.Vector3(1, 1, 1));
+
+        frame$.onNext(frame);
+        glRenderer.render$.onNext(createGLRenderHash(frameId, false));
+
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
     });
 });
