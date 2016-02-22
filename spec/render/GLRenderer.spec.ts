@@ -47,7 +47,6 @@ describe("GLRenderer.ctor", () => {
 describe("GLRenderer.renderer", () => {
     it("should be created on first render", () => {
         let rendererMock: RendererMock = new RendererMock();
-
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
         let element: HTMLDivElement = document.createElement("div");
@@ -69,5 +68,62 @@ describe("GLRenderer.renderer", () => {
         glRenderer.render$.onNext(renderHash);
 
         expect(THREE.WebGLRenderer).toHaveBeenCalled();
+    });
+
+    it("should render", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "render");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let element: HTMLDivElement = document.createElement("div");
+
+        let glRenderer: GLRenderer = new GLRenderer(element, rx.Observable.empty<IFrame>());
+
+        let renderFunction: IGLRenderFunction = (pc: THREE.PerspectiveCamera, r: THREE.WebGLRenderer): void => {
+            r.render(new THREE.Scene(), pc);
+        };
+        let render: IGLRender = {
+            frameId: 0,
+            needsRender: false,
+            render: renderFunction,
+            stage: GLRenderStage.Background,
+        }
+        let renderHash: IGLRenderHash = {
+            name: "mock",
+            render: render,
+        }
+
+        glRenderer.render$.onNext(renderHash);
+
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
+    });
+
+    it("should only render once for the same frame id", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "render");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let element: HTMLDivElement = document.createElement("div");
+
+        let glRenderer: GLRenderer = new GLRenderer(element, rx.Observable.empty<IFrame>());
+
+        let renderFunction: IGLRenderFunction = (pc: THREE.PerspectiveCamera, r: THREE.WebGLRenderer): void => {
+            r.render(new THREE.Scene(), pc);
+        };
+        let render: IGLRender = {
+            frameId: 0,
+            needsRender: false,
+            render: renderFunction,
+            stage: GLRenderStage.Background,
+        }
+        let renderHash: IGLRenderHash = {
+            name: "mock",
+            render: render,
+        }
+
+        glRenderer.render$.onNext(renderHash);
+        glRenderer.render$.onNext(renderHash);
+
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
     });
 });
