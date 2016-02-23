@@ -183,6 +183,23 @@ describe("GLRenderer.renderer", () => {
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(2);
     });
 
+    it("should not clear or render on frames when no renders registered", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "clear");
+        spyOn(rendererMock, "render");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(1));
+        let glRenderer: GLRenderer = createGLRenderer(frame$);
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
+
+        frame$.onNext(createFrame(2));
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
+    });
 
     it("should not render frame if not needed", () => {
         let rendererMock: RendererMock = new RendererMock();
@@ -222,6 +239,28 @@ describe("GLRenderer.renderer", () => {
         frame.state.camera.position.copy(new THREE.Vector3(1, 1, 1));
 
         frame$.onNext(frame);
+        glRenderer.render$.onNext(createGLRenderHash(frameId, false));
+
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
+    });
+
+    it("should render on resize", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "render");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let frameId: number = 1;
+        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
+        let glRenderer: GLRenderer = createGLRenderer(frame$);
+
+        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
+
+        glRenderer.resize();
+
+        frameId = 2;
+        frame$.onNext(createFrame(frameId));
         glRenderer.render$.onNext(createGLRenderHash(frameId, false));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
