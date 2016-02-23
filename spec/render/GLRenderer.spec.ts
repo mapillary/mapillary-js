@@ -8,6 +8,7 @@ import * as THREE from "three";
 import {
     GLRenderer,
     GLRenderStage,
+    GLRenderMode,
     IGLRender,
     IGLRenderFunction,
     IGLRenderHash,
@@ -258,6 +259,28 @@ describe("GLRenderer.renderer", () => {
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
         glRenderer.resize();
+
+        frameId = 2;
+        frame$.onNext(createFrame(frameId));
+        glRenderer.render$.onNext(createGLRenderHash(frameId, false));
+
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
+    });
+
+    it("should render on changed render mode", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "render");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let frameId: number = 1;
+        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
+        let glRenderer: GLRenderer = createGLRenderer(frame$);
+
+        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
+
+        glRenderer.setRenderMode(GLRenderMode.Fill);
 
         frameId = 2;
         frame$.onNext(createFrame(frameId));
