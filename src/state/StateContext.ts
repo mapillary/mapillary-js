@@ -3,73 +3,73 @@ import {Node} from "../Graph";
 import {Camera, Transform} from "../Geo";
 
 export class StateContext implements IStateContext {
-    private state: IState;
+    private _state: IState;
 
     constructor() {
-        this.state = new CompletingState([]);
+        this._state = new CompletingState([]);
     }
 
     public get alpha(): number {
-        return this.state.alpha;
+        return this._state.alpha;
     }
 
     public get camera(): Camera {
-        return this.state.camera;
+        return this._state.camera;
     }
 
     public get currentNode(): Node {
-        return this.state.currentNode;
+        return this._state.currentNode;
     }
 
     public get previousNode(): Node {
-        return this.state.previousNode;
+        return this._state.previousNode;
     }
 
     public get currentTransform(): Transform {
-        return this.state.currentTransform;
+        return this._state.currentTransform;
     }
 
     public get previousTransform(): Transform {
-        return this.state.previousTransform;
+        return this._state.previousTransform;
     }
 
     public get trajectory(): Node[] {
-        return this.state.trajectory;
+        return this._state.trajectory;
     }
 
     public get currentIndex(): number {
-        return this.state.currentIndex;
+        return this._state.currentIndex;
     }
 
     public get lastNode(): Node {
-        return this.state.trajectory[this.state.trajectory.length - 1];
+        return this._state.trajectory[this._state.trajectory.length - 1];
     }
 
     public get nodesAhead(): number {
-        return this.state.trajectory.length - 1 - this.state.currentIndex;
+        return this._state.trajectory.length - 1 - this._state.currentIndex;
     }
 
     public update(): void {
-        this.state.update();
+        this._state.update();
     }
 
     public append(nodes: Node[]): void {
-        this.state.append(nodes);
+        this._state.append(nodes);
     }
 
     public remove(n: number): void {
-        this.state.remove(n);
+        this._state.remove(n);
     }
 
     public cut(): void {
-        this.state.cut();
+        this._state.cut();
     }
 
     public set(nodes: Node[]): void {
-        this.state.set(nodes);
+        this._state.set(nodes);
     }
 
     public rotate(delta: IRotation): void {
-        this.state.rotate(delta);
+        this._state.rotate(delta);
     }
 }
