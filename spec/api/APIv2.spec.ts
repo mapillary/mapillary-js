@@ -3,7 +3,7 @@
 
 import * as when from "when";
 
-import {APIv2, IAPINavIm} from "../../src/API";
+import {APIv2, IAPINavIm, IAPIImOr} from "../../src/API";
 
 describe("APIv2", () => {
     var apiV2: APIv2;
@@ -16,7 +16,18 @@ describe("APIv2", () => {
         expect(apiV2).toBeDefined();
     });
 
-    it("calls h", (done) => {
+    it("calls im or", (done) => {
+        spyOn(apiV2.im, "callApi").and.returnValue(when(null));
+
+        let im: string = "key";
+        apiV2.im.callOr(im).then((response: IAPIImOr) => {
+            expect(apiV2.im.callApi).toHaveBeenCalledWith("im/" + im + "/or");
+
+            done();
+        });
+    });
+
+    it("calls nav h", (done) => {
         spyOn(apiV2.nav, "callApi").and.returnValue(when(null));
 
         let h: string = "hash";
@@ -27,7 +38,7 @@ describe("APIv2", () => {
         });
     });
 
-    it("calls im", (done) => {
+    it("calls nav im", (done) => {
         spyOn(apiV2.nav, "callApi").and.returnValue(when(null));
 
         let im: string = "key";
