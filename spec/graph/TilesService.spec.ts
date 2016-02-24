@@ -12,7 +12,7 @@ describe("TilesService", () => {
     var apiV2: APIv2;
 
     beforeEach(() => {
-        apiV2 = new APIv2("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4")
+        apiV2 = new APIv2("clientId")
         tilesService = new TilesService(apiV2);
     });
 
