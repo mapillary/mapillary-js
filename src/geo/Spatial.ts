@@ -8,7 +8,7 @@ export class Spatial {
      * @class Spatial
      */
 
-    private epsilon: number = 1e-9;
+    private _epsilon: number = 1e-9;
 
     /**
      * Converts degrees to radians
@@ -177,7 +177,7 @@ export class Spatial {
         let v: THREE.Vector3 = new THREE.Vector3().fromArray(vector);
         let norm: number = v.length();
 
-        if (norm < this.epsilon) {
+        if (norm < this._epsilon) {
             return 0;
         }
 

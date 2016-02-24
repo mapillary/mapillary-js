@@ -6,50 +6,86 @@ import {IGPano} from "../API";
 import {Node} from "../Graph";
 
 export class Transform {
-    public width: number;
-    public height: number;
-    public focal: number;
-    public orientation: number;
-    public scale: number;
-    public aspect: number;
+    private _width: number;
+    private _height: number;
+    private _focal: number;
+    private _orientation: number;
+    private _scale: number;
+    private _aspect: number;
 
-    public gpano: IGPano;
+    private _gpano: IGPano;
 
-    public rt: THREE.Matrix4;
-    public srt: THREE.Matrix4;
+    private _rt: THREE.Matrix4;
+    private _srt: THREE.Matrix4;
 
     constructor(node: Node) {
-        this.width = this.getValue(node.apiNavImIm.width, 4);
-        this.height = this.getValue(node.apiNavImIm.height, 3);
-        this.focal = this.getValue(node.apiNavImIm.cfocal, 1);
-        this.orientation = this.getValue(node.apiNavImIm.orientation, 1);
-        this.scale = this.getValue(node.apiNavImIm.atomic_scale, 1);
-        this.aspect = this.orientation < 5 ?
-            this.width / this.height :
-            this.height / this.width;
+        this._width = this._getValue(node.apiNavImIm.width, 4);
+        this._height = this._getValue(node.apiNavImIm.height, 3);
+        this._focal = this._getValue(node.apiNavImIm.cfocal, 1);
+        this._orientation = this._getValue(node.apiNavImIm.orientation, 1);
+        this._scale = this._getValue(node.apiNavImIm.atomic_scale, 1);
+        this._aspect = this._orientation < 5 ?
+            this._width / this._height :
+            this._height / this._width;
 
-        this.gpano = node.apiNavImIm.gpano ? node.apiNavImIm.gpano : null;
+        this._gpano = node.apiNavImIm.gpano ? node.apiNavImIm.gpano : null;
 
-        this.rt = this.getRt(node);
-        this.srt = this.getSrt(this.rt, this.scale);
+        this._rt = this._getRt(node);
+        this._srt = this._getSrt(this._rt, this._scale);
+    }
+
+    public get width(): number {
+        return this._width;
+    }
+
+    public get height(): number {
+        return this._height;
+    }
+
+    public get focal(): number {
+        return this._focal;
+    }
+
+    public get orientation(): number {
+        return this._orientation;
+    }
+
+    public get scale(): number {
+        return this._scale;
+    }
+
+    public get aspect(): number {
+        return this._aspect;
+    }
+
+    public get gpano(): IGPano {
+        return this._gpano;
+    }
+
+    public get rt(): THREE.Matrix4 {
+        return this._rt;
+    }
+
+    public get srt(): THREE.Matrix4 {
+        return this._srt;
     }
 
     public pixelToVertex(x: number, y: number, depth: number): THREE.Vector3 {
         let v: THREE.Vector4 = new THREE.Vector4(
-            x / this.focal * depth,
-            y / this.focal * depth,
+            x / this._focal * depth,
+            y / this._focal * depth,
             depth,
             1);
 
-        v.applyMatrix4(new THREE.Matrix4().getInverse(this.rt));
+        v.applyMatrix4(new THREE.Matrix4().getInverse(this._rt));
 
         return new THREE.Vector3(v.x / v.w, v.y / v.w, v.z / v.w);
     }
 
     public upVector(): THREE.Vector3 {
-        let rte: Float32Array = this.rt.elements;
+        let rte: Float32Array = this._rt.elements;
 
-        switch (this.orientation) {
+        switch (this._orientation) {
             case 1:
                 return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
             case 3:
@@ -64,9 +100,9 @@ export class Transform {
     }
 
     public projectorMatrix(): THREE.Matrix4 {
-        let projector: THREE.Matrix4 = this.normalizedToTextureMatrix();
+        let projector: THREE.Matrix4 = this._normalizedToTextureMatrix();
 
-        let f: number = this.focal;
+        let f: number = this._focal;
         let projection: THREE.Matrix4 = new THREE.Matrix4().set(
             f, 0, 0, 0,
             0, f, 0, 0,
@@ -75,16 +111,16 @@ export class Transform {
         );
 
         projector.multiply(projection);
-        projector.multiply(this.rt);
+        projector.multiply(this._rt);
 
         return projector;
     }
 
-    private getValue(value: number, fallback: number): number {
+    private _getValue(value: number, fallback: number): number {
         return value != null && value > 0 ? value : fallback;
     }
 
-    private getRt(node: Node): THREE.Matrix4 {
+    private _getRt(node: Node): THREE.Matrix4 {
         let axis: THREE.Vector3 = new THREE.Vector3(
             node.apiNavImIm.rotation[0],
             node.apiNavImIm.rotation[1],
@@ -102,7 +138,7 @@ export class Transform {
         return rt;
     }
 
-    private getSrt(rt: THREE.Matrix4, scale: number): THREE.Matrix4 {
+    private _getSrt(rt: THREE.Matrix4, scale: number): THREE.Matrix4 {
         let srt: THREE.Matrix4 = rt.clone();
         let elements: Float32Array = srt.elements;
 
@@ -115,11 +151,11 @@ export class Transform {
         return srt;
     }
 
-    private normalizedToTextureMatrix(): THREE.Matrix4 {
-        let size: number = Math.max(this.width, this.height);
-        let w: number = size / this.width;
-        let h: number = size / this.height;
-        switch (this.orientation) {
+    private _normalizedToTextureMatrix(): THREE.Matrix4 {
+        let size: number = Math.max(this._width, this._height);
+        let w: number = size / this._width;
+        let h: number = size / this._height;
+        switch (this._orientation) {
             case 1:
                 return new THREE.Matrix4().set(w, 0, 0, 0.5, 0, -h, 0, 0.5, 0, 0, 1, 0, 0, 0, 0, 1);
             case 3:
