@@ -44,6 +44,12 @@ export interface IViewerOptions {
     navigation?: boolean;
 
     /**
+     * Show sequence navigation arrows.
+     * @default true
+     */
+    sequence?: boolean;
+
+    /**
      * Show static images without transitions.
      * @default true
      */

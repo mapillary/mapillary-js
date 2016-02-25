@@ -108,9 +108,7 @@ export class DirectionComponent extends Component {
                     turns = turns.concat(this.createTurnArrows(node));
                 }
 
-                let sequence: vd.VNode[] = this.createSequenceArrows(node);
-
-                return {name: this._name, vnode: this.getVNodeContainer(btns, turns, sequence, rotation, node.pano)};
+                return {name: this._name, vnode: this.getVNodeContainer(btns, turns, rotation, node.pano)};
             })
             .filter((hash: IVNodeHash): boolean => { return hash != null; })
             .subscribe(this._container.domRenderer.render$);
@@ -250,29 +248,6 @@ export class DirectionComponent extends Component {
         return this.createVNodeDisabled(azimuth, rotation);
     }
 
-    private createSequenceArrows(node: Node): vd.VNode[] {
-        let nextExist: boolean = false;
-        let prevExist: boolean = false;
-
-        for (let edge of node.edges) {
-            if (edge.data.direction === EdgeDirection.Next) {
-                nextExist = true;
-            }
-
-            if (edge.data.direction === EdgeDirection.Prev) {
-                prevExist = true;
-            }
-        }
-
-        let next: string = "div.NextInSeq" + (nextExist ? "" : ".InSeqDisabled");
-        let prev: string = "div.PrevInSeq" + (prevExist ? "" : ".InSeqDisabled");
-
-        return [
-            vd.h(next, { onclick: (e: Event): void => { this._navigator.moveDir(EdgeDirection.Next).subscribe(); } }, []),
-            vd.h(prev, { onclick: (e: Event): void => { this._navigator.moveDir(EdgeDirection.Prev).subscribe(); } }, []),
-        ];
-    }
-
     private rotationFromCamera(camera: Camera): IRotation {
         let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
 
@@ -381,7 +356,6 @@ export class DirectionComponent extends Component {
     private getVNodeContainer(
         buttons: vd.VNode[],
         turns: vd.VNode[],
-        sequence: vd.VNode[],
         rotation: IRotation,
         pano: boolean): any {
 
@@ -393,8 +367,7 @@ export class DirectionComponent extends Component {
         };
 
         return vd.h("div", {},
-                    [vd.h("div.InSeq", {}, sequence),
-                     this.getVNodePanoIndication(pano),
+                    [this.getVNodePanoIndication(pano),
                      vd.h("div.DirectionsWrapper", {}, [
                          turns,
                          vd.h("div.Directions", {style: style}, buttons),
