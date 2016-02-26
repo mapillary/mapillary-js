@@ -1,17 +1,56 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 /// <reference path="../../typings/rest/rest.d.ts" />
 /// <reference path="../../typings/when/when.d.ts" />
+/// <reference path="../../typings/pbf/pbf.d.ts" />
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
 import {ILatLon, IMesh, ILoadStatus, Sequence} from "../Graph";
 import {Settings, Urls} from "../Utils";
 
+import * as pbf from "pbf";
 import * as rx from "rx";
 
 interface ILoadStatusObject {
     loaded: ILoadStatus;
     object: any;
+}
+
+function readMesh(pbf: any): IMesh {
+    "use strict";
+    let flatMesh: any = pbf.readFields(readMeshField, {"vertices": [], "triangles": []});
+    return flatMeshToMesh(flatMesh);
+}
+
+function readMeshField(tag: any, mesh: any, pbf: any): any {
+    "use strict";
+    if (tag === 1) {
+        mesh.vertices.push(pbf.readFloat());
+    } else if (tag === 2) {
+        mesh.triangles.push(pbf.readVarint());
+    }
+}
+
+function flatMeshToMesh(flatMesh: any): IMesh {
+    "use strict";
+    let mesh: IMesh = { faces: [], populated: true, vertices: [] };
+    let numVertices: number = flatMesh.vertices.length / 3;
+    for (let i: number = 0; i < numVertices; ++i) {
+        mesh.vertices.push([
+            flatMesh.vertices[3 * i + 0],
+            flatMesh.vertices[3 * i + 1],
+            flatMesh.vertices[3 * i + 2],
+        ]);
+    }
+    let numFaces: number = flatMesh.triangles.length / 3;
+    for (let i: number = 0; i < numFaces; ++i) {
+        mesh.faces.push([
+            flatMesh.triangles[3 * i + 0],
+            flatMesh.triangles[3 * i + 1],
+            flatMesh.triangles[3 * i + 2],
+        ]);
+    }
+    return mesh;
 }
 
 export class Node {
@@ -131,16 +170,12 @@ export class Node {
             }
 
             let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", Urls.mesh(this.key), true);
-            xmlHTTP.responseType = "text";
+            xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
+            xmlHTTP.responseType = "arraybuffer";
             xmlHTTP.onload = (e: any) => {
-                let mesh: IMesh = <IMesh>JSON.parse(xmlHTTP.responseText)[this.key];
-                if (mesh == null) {
-                    mesh = { faces: [], populated: false, vertices: [] };
-                } else {
-                    mesh.populated = true;
-                }
-
+                // todo(pau): handle errors
+                let pbfMesh: any = new pbf(new Buffer(xmlHTTP.response));
+                let mesh: IMesh = readMesh(pbfMesh);
                 observer.onNext({ loaded: {loaded: e.loaded, total: e.total }, object: mesh });
                 observer.onCompleted();
             };
@@ -149,7 +184,7 @@ export class Node {
                 observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: null});
             };
 
-            xmlHTTP.send();
+            xmlHTTP.send(null);
         });
     }
 
