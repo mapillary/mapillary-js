@@ -8,7 +8,7 @@ export class Urls {
     }
 
     public static proto_mesh(key: string): string {
-        return `http://127.0.0.1:5000/mesh/${key}`;
+        return `http://mapillary-mesh2pbf.mapillary.io/mesh/${key}`;
     }
 }
 
