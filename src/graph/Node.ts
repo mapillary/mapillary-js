@@ -33,7 +33,7 @@ function readMeshField(tag: any, mesh: any, pbf: any): any {
 
 function flatMeshToMesh(flatMesh: any): IMesh {
     "use strict";
-    let mesh: IMesh = { faces: [], populated: true, vertices: [] };
+    let mesh: IMesh = { faces: [], populated: false, vertices: [] };
     let numVertices: number = flatMesh.vertices.length / 3;
     for (let i: number = 0; i < numVertices; ++i) {
         mesh.vertices.push([
@@ -177,6 +177,7 @@ export class Node {
                 if (xmlHTTP.status === 200) {
                     let pbfMesh: any = new pbf(new Buffer(xmlHTTP.response));
                     mesh = readMesh(pbfMesh);
+                    mesh.populated = (mesh.vertices.length > 0);
                 } else {
                     mesh = { faces: [], populated: false, vertices: [] };
                 }
