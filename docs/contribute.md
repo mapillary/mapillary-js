@@ -17,7 +17,7 @@ Development mode
 $ gulp
 ```
 
-If for some reason the `tsd` task fails during installation, please run it again manually before running `gulp`.
+If for some reason the `typings` task fails during installation, please run it again manually before running `gulp`.
 
 Then head to `http://localhost:3000/` to debug (in case it did not open automatically)
 
@@ -52,7 +52,7 @@ Then head to `http://localhost:3000/` to debug (in case it did not open automati
 ├── Gulpfile.js
 ├── karma.conf.js
 ├── package.json
-├── tsd.json
+├── typings.json
 ├── tslint.json
 └── README.md
 ```

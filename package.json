@@ -37,7 +37,6 @@
     "gulp-shell": "0.5.1",
     "gulp-sourcemaps": "1.6.0",
     "gulp-standard": "5.2.2",
-    "gulp-tsd": "0.0.4",
     "gulp-tslint": "^4.2.2",
     "gulp-typedoc": "1.2.1",
     "gulp-typescript": "2.9.2",
