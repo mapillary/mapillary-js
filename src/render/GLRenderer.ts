@@ -151,7 +151,7 @@ export class GLRenderer {
     private _currentFrame$: rx.Observable<IFrame>;
 
     private _resize$: rx.Subject<void> = new rx.Subject<void>();
-    private _size$: rx.ConnectableObservable<ISize>;
+    private _size$: rx.Observable<ISize>;
 
     private _renderMode$: rx.Subject<GLRenderMode> = new rx.Subject<GLRenderMode>();
 
@@ -305,10 +305,11 @@ export class GLRenderer {
             .subscribe(this._cameraStateOperation$);
 
         this._size$ = this._resize$
-            .map<ISize>((): ISize => {
-                return { height: this._element.offsetHeight, width: this._element.offsetWidth };
-            })
-            .publish();
+            .map<ISize>(
+                (): ISize => {
+                    return { height: this._element.offsetHeight, width: this._element.offsetWidth };
+                })
+            .share();
 
         this._size$.map<ICameraStateOperation>(
             (size: ISize) => {
@@ -410,8 +411,6 @@ export class GLRenderer {
                         render(perspectiveCamera, renderer);
                     }
                 });
-
-        this._size$.connect();
     }
 
     public get render$(): rx.Subject<IGLRenderHash> {
