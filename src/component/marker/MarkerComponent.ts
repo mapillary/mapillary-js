@@ -1,5 +1,4 @@
 /// <reference path="../../../typings/browser.d.ts" />
-/// <reference path="../../../typings/rbush/rbush.d.ts" />
 
 import * as _ from "underscore";
 import * as THREE from "three";

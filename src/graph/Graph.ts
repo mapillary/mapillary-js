@@ -1,7 +1,4 @@
 /// <reference path="../../typings/browser.d.ts" />
-/// <reference path="../../typings/graphlib/graphlib.d.ts" />
-/// <reference path="../../typings/rbush/rbush.d.ts" />
-/// <reference path="../../typings/latlon-geohash/latlon-geohash.d.ts" />
 
 import * as _ from "underscore";
 import * as graphlib from "graphlib";

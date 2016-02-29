@@ -1,5 +1,4 @@
 /// <reference path="../../../typings/browser.d.ts" />
-/// <reference path="../../../typings/unitbezier/unitbezier.d.ts" />
 
 import * as THREE from "three";
 import * as UnitBezier from "unitbezier";

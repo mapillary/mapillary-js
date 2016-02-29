@@ -1,4 +1,4 @@
-/// <reference path="../../typings/lib/lib.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 export class FrameGenerator {
     private _requestAnimationFrame: (callback: FrameRequestCallback) => number;
