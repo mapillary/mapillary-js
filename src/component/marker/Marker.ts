@@ -1,5 +1,4 @@
-/// <reference path="../../../typings/node/node.d.ts" />
-/// <reference path="../../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../../typings/browser.d.ts" />
 
 import * as rx from "rx";
 

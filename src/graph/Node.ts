@@ -1,13 +1,11 @@
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
-/// <reference path="../../typings/rest/rest.d.ts" />
-/// <reference path="../../typings/when/when.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
+
+import * as rx from "rx";
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
 import {ILatLon, IMesh, ILoadStatus, Sequence} from "../Graph";
 import {Settings, Urls} from "../Utils";
-
-import * as rx from "rx";
 
 interface ILoadStatusObject {
     loaded: ILoadStatus;

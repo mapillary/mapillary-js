@@ -1,4 +1,4 @@
-/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import {IAPINavImIm} from "../../src/API";
 import {Node, Sequence} from "../../src/Graph";

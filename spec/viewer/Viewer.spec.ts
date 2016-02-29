@@ -1,6 +1,4 @@
-/// <reference path="../../typings/jasmine/jasmine.d.ts" />
-/// <reference path="../../typings/when/when.d.ts" />
-/// <reference path="../../typings/threejs/three.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as when from "when";
 import * as THREE from "three";
