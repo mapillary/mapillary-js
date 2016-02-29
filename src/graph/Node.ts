@@ -173,9 +173,14 @@ export class Node {
             xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
             xmlHTTP.responseType = "arraybuffer";
             xmlHTTP.onload = (e: any) => {
-                // todo(pau): handle errors
-                let pbfMesh: any = new pbf(new Buffer(xmlHTTP.response));
-                let mesh: IMesh = readMesh(pbfMesh);
+                let mesh: IMesh;
+                if (xmlHTTP.status === 200) {
+                    let pbfMesh: any = new pbf(new Buffer(xmlHTTP.response));
+                    mesh = readMesh(pbfMesh);
+                } else {
+                    mesh = { faces: [], populated: false, vertices: [] };
+                }
+
                 observer.onNext({ loaded: {loaded: e.loaded, total: e.total }, object: mesh });
                 observer.onCompleted();
             };
