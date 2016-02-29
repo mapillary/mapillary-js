@@ -45,8 +45,8 @@ describe("GLRenderer.ctor", () => {
 });
 
 describe("GLRenderer.renderer", () => {
-    let createGLRenderer = (frame$?: rx.Observable<IFrame>): GLRenderer => {
-        let element: HTMLDivElement = document.createElement("div");
+    let createGLRenderer = (frame$?: rx.Observable<IFrame>, element?: HTMLElement): GLRenderer => {
+        element = element != null ? element : document.createElement("div");
         let glRenderer: GLRenderer = new GLRenderer(element, !!frame$ ? frame$ : rx.Observable.empty<IFrame>());
 
         return glRenderer;
@@ -265,6 +265,41 @@ describe("GLRenderer.renderer", () => {
         glRenderer.render$.onNext(createGLRenderHash(frameId, false));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
+    });
+
+    it("should check width and height only once on resize", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let frameId: number = 1;
+        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
+        let element: any = {
+            get offsetHeight(): number {
+                return this.getOffsetHeight();
+            },
+            getOffsetHeight(): number {
+                return 0;
+            },
+            get offsetWidth(): number {
+                return this.getOffsetWidth();
+            },
+            getOffsetWidth(): number {
+                return 0;
+            },
+            appendChild(element: HTMLElement): void { }
+        };
+
+        let glRenderer: GLRenderer = createGLRenderer(frame$, element);
+
+        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+
+        spyOn(element, "getOffsetHeight");
+        spyOn(element, "getOffsetWidth");
+
+        glRenderer.resize();
+
+        expect((<jasmine.Spy>element.getOffsetHeight).calls.count()).toBe(1);
+        expect((<jasmine.Spy>element.getOffsetWidth).calls.count()).toBe(1);
     });
 
     it("should render on changed render mode", () => {
