@@ -363,7 +363,7 @@ export class DirectionComponent extends Component {
 
         // todo: change the rotateX value for panoramas
         let style: any = {
-            transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZ}deg)`
+            transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZ}deg)`,
         };
 
         return vd.h("div", {},

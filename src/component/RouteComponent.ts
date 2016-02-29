@@ -234,7 +234,7 @@ export class RouteComponent extends Component {
 
     private getRouteAnnotationNode(description: string): vd.VNode {
         return vd.h("div.RouteFrame", {}, [
-            vd.h("p", {textContent: description}, [])
+            vd.h("p", {textContent: description}, []),
         ]);
     }
 }

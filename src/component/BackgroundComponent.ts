@@ -26,7 +26,7 @@ export class BackgroundComponent extends Component {
     private getBackgroundNode(notice: string): vd.VNode {
         // todo: add condition for when to display the DOM node
         return vd.h("div.BackgroundWrapper", {}, [
-            vd.h("p", {textContent: notice}, [])
+            vd.h("p", {textContent: notice}, []),
         ]);
     }
 }

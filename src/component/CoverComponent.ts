@@ -55,7 +55,7 @@ export class CoverComponent extends Component {
         return vd.h("div.Cover", [
             this.getCoverBackgroundVNode(conf),
             vd.h("button.CoverButton", {onclick: (): void => { this.configure({loading: true}); }}, [
-                vd.h(coverBtn, {}, children)
+                vd.h(coverBtn, {}, children),
             ]),
         ]);
     }
