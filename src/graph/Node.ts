@@ -1,56 +1,17 @@
 /// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
 /// <reference path="../../typings/rest/rest.d.ts" />
 /// <reference path="../../typings/when/when.d.ts" />
-/// <reference path="../../typings/pbf/pbf.d.ts" />
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
-import {ILatLon, IMesh, ILoadStatus, Sequence} from "../Graph";
+import {ILatLon, IMesh, ILoadStatus, MeshReader, Sequence} from "../Graph";
 import {Settings, Urls} from "../Utils";
 
-import * as pbf from "pbf";
 import * as rx from "rx";
 
 interface ILoadStatusObject {
     loaded: ILoadStatus;
     object: any;
-}
-
-function readMesh(pbf: any): IMesh {
-    "use strict";
-    let flatMesh: any = pbf.readFields(readMeshField, {"vertices": [], "triangles": []});
-    return flatMeshToMesh(flatMesh);
-}
-
-function readMeshField(tag: any, mesh: any, pbf: any): any {
-    "use strict";
-    if (tag === 1) {
-        mesh.vertices.push(pbf.readFloat());
-    } else if (tag === 2) {
-        mesh.triangles.push(pbf.readVarint());
-    }
-}
-
-function flatMeshToMesh(flatMesh: any): IMesh {
-    "use strict";
-    let mesh: IMesh = { faces: [], populated: false, vertices: [] };
-    let numVertices: number = flatMesh.vertices.length / 3;
-    for (let i: number = 0; i < numVertices; ++i) {
-        mesh.vertices.push([
-            flatMesh.vertices[3 * i + 0],
-            flatMesh.vertices[3 * i + 1],
-            flatMesh.vertices[3 * i + 2],
-        ]);
-    }
-    let numFaces: number = flatMesh.triangles.length / 3;
-    for (let i: number = 0; i < numFaces; ++i) {
-        mesh.faces.push([
-            flatMesh.triangles[3 * i + 0],
-            flatMesh.triangles[3 * i + 1],
-            flatMesh.triangles[3 * i + 2],
-        ]);
-    }
-    return mesh;
 }
 
 export class Node {
@@ -175,8 +136,7 @@ export class Node {
             xmlHTTP.onload = (e: any) => {
                 let mesh: IMesh;
                 if (xmlHTTP.status === 200) {
-                    let pbfMesh: any = new pbf(new Buffer(xmlHTTP.response));
-                    mesh = readMesh(pbfMesh);
+                    mesh = MeshReader.read(new Buffer(xmlHTTP.response));
                     mesh.populated = (mesh.vertices.length > 0);
                 } else {
                     mesh = { faces: [], populated: false, vertices: [] };
