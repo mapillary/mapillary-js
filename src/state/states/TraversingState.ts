@@ -4,7 +4,7 @@ import * as THREE from "three";
 import * as UnitBezier from "unitbezier";
 
 import {ParameterMapillaryError} from "../../Error";
-import {IState, IRotation} from "../../State";
+import {StateBase, IRotation} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, Transform, Spatial} from "../../Geo";
 
@@ -59,23 +59,13 @@ class RotationDelta implements IRotation {
     }
 }
 
-export class TraversingState implements IState {
-    public camera: Camera;
-    public motionless: boolean;
-
-    public trajectory: Node[];
-    public currentIndex: number;
-
-    public currentNode: Node;
-    public previousNode: Node;
-
+export class TraversingState extends StateBase {
     private _spatial: Spatial;
 
-    private _alpha: number;
     private _baseAlpha: number;
     private _animationSpeed: number;
+    private _motionless: boolean;
 
-    private _trajectoryTransforms: Transform[];
     private _trajectoryCameras: Camera[];
 
     private _currentCamera: Camera;
@@ -92,6 +82,8 @@ export class TraversingState implements IState {
     private _rotationThreshold: number;
 
     constructor (trajectory: Node[]) {
+        super();
+
         this._spatial = new Spatial();
 
         this._alpha = trajectory.length > 0 ? 0 : 1;
@@ -100,24 +92,24 @@ export class TraversingState implements IState {
         this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
         this._useBezier = true;
 
-        this.camera = new Camera();
-        this.motionless = false;
+        this._camera = new Camera();
+        this._motionless = false;
 
-        this.trajectory = trajectory.slice();
+        this._trajectory = trajectory.slice();
         this._trajectoryTransforms = [];
         this._trajectoryCameras = [];
-        for (let node of this.trajectory) {
+        for (let node of this._trajectory) {
             let transform: Transform = new Transform(node);
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
         }
 
-        this.currentIndex = 0;
+        this._currentIndex = 0;
 
-        this.currentNode = trajectory.length > 0 ? trajectory[this.currentIndex] : null;
-        this.previousNode = null;
+        this._currentNode = trajectory.length > 0 ? trajectory[this._currentIndex] : null;
+        this._previousNode = null;
 
-        this._currentCamera = trajectory.length > 0 ? this._trajectoryCameras[this.currentIndex] : new Camera();
+        this._currentCamera = trajectory.length > 0 ? this._trajectoryCameras[this._currentIndex] : new Camera();
         this._previousCamera = this._currentCamera.clone();
 
         this._rotationDelta = new RotationDelta(0, 0);
@@ -133,13 +125,13 @@ export class TraversingState implements IState {
             throw Error("Trajectory can not be empty");
         }
 
-        if (this.trajectory.length === 0) {
-            this.currentIndex = 0;
+        if (this._trajectory.length === 0) {
+            this._currentIndex = 0;
 
             this._setNodes();
         }
 
-        this.trajectory = this.trajectory.concat(trajectory);
+        this._trajectory = this._trajectory.concat(trajectory);
         for (let node of trajectory) {
             if (!node.loaded) {
                 throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
@@ -156,22 +148,22 @@ export class TraversingState implements IState {
             throw Error("n must be a positive integer");
         }
 
-        let length: number = this.trajectory.length;
+        let length: number = this._trajectory.length;
 
-        if (length - (this.currentIndex + 1) < n) {
+        if (length - (this._currentIndex + 1) < n) {
             throw Error("Current node can not be removed");
         }
 
         for (let i: number = 0; i < n; i++) {
-            this.trajectory.pop();
+            this._trajectory.pop();
             this._trajectoryTransforms.pop();
             this._trajectoryCameras.pop();
         }
     }
 
     public cut(): void {
-        while (this.trajectory.length - 1 > this.currentIndex) {
-            this.trajectory.pop();
+        while (this._trajectory.length - 1 > this._currentIndex) {
+            this._trajectory.pop();
             this._trajectoryTransforms.pop();
             this._trajectoryCameras.pop();
         }
@@ -186,15 +178,15 @@ export class TraversingState implements IState {
 
         this._trajectoryTransforms.length = 0;
         this._trajectoryCameras.length = 0;
-        if (this.currentNode != null) {
-            this.trajectory = [this.currentNode].concat(trajectory);
-            this.currentIndex = 1;
+        if (this._currentNode != null) {
+            this._trajectory = [this._currentNode].concat(trajectory);
+            this._currentIndex = 1;
         } else {
-            this.trajectory = trajectory.slice();
-            this.currentIndex = 0;
+            this._trajectory = trajectory.slice();
+            this._currentIndex = 0;
         }
 
-        for (let node of this.trajectory) {
+        for (let node of this._trajectory) {
             if (!node.loaded) {
                 throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
             }
@@ -209,7 +201,7 @@ export class TraversingState implements IState {
     }
 
     public rotate(rotationDelta: IRotation): void {
-        if (this.currentNode == null || !this.currentNode.fullPano) {
+        if (this._currentNode == null || !this._currentNode.fullPano) {
             return;
         }
 
@@ -217,11 +209,11 @@ export class TraversingState implements IState {
     }
 
     public update(): void {
-        if (this._alpha === 1 && this.currentIndex + this._alpha < this.trajectory.length) {
-            this.currentIndex += 1;
+        if (this._alpha === 1 && this._currentIndex + this._alpha < this._trajectory.length) {
+            this._currentIndex += 1;
 
-            this._useBezier = this.trajectory.length < 3 &&
-                this.currentIndex + 1 === this.trajectory.length;
+            this._useBezier = this._trajectory.length < 3 &&
+                this._currentIndex + 1 === this._trajectory.length;
 
             this._setNodes();
             this._clearRotation();
@@ -238,49 +230,39 @@ export class TraversingState implements IState {
         this._applyRotation(this._previousCamera);
         this._applyRotation(this._currentCamera);
 
-        this.camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
+        this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }
 
-    public get currentTransform(): Transform {
-        return this._trajectoryTransforms.length > 0 ?
-            this._trajectoryTransforms[this.currentIndex] : null;
-    }
-
-    public get previousTransform(): Transform {
-        return this._trajectoryTransforms.length > 1 && this.currentIndex > 0 ?
-            this._trajectoryTransforms[this.currentIndex - 1] : null;
-    }
-
-    public get alpha(): number {
-        return this.motionless ? Math.ceil(this._alpha) : this._alpha;
+    protected _getAlpha(): number {
+        return this._motionless ? Math.ceil(this._alpha) : this._alpha;
     }
 
     private _setNodes(): void {
         this._alpha = 0;
         this._baseAlpha = 0;
 
-        this.currentNode = this.trajectory[this.currentIndex];
-        this.previousNode = this.currentIndex > 0 ? this.trajectory[this.currentIndex - 1] : null;
+        this._currentNode = this._trajectory[this._currentIndex];
+        this._previousNode = this._currentIndex > 0 ? this._trajectory[this._currentIndex - 1] : null;
 
-        this._currentCamera = this._trajectoryCameras[this.currentIndex];
-        this._previousCamera = this.currentIndex > 0 ?
-            this._trajectoryCameras[this.currentIndex - 1] :
+        this._currentCamera = this._trajectoryCameras[this._currentIndex];
+        this._previousCamera = this._currentIndex > 0 ?
+            this._trajectoryCameras[this._currentIndex - 1] :
             this._currentCamera.clone();
 
-        if (this.previousNode != null) {
-            let lookat: THREE.Vector3 = this.camera.lookat.clone().sub(this.camera.position);
+        if (this._previousNode != null) {
+            let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
             this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
 
-            if (this.currentNode.pano) {
+            if (this._currentNode.pano) {
                 this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
             }
         }
 
-        let nodesSet: boolean = this.currentNode != null && this.previousNode != null;
+        let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
 
-        this.motionless = nodesSet && !(
-            this.currentNode.merged &&
-            this.previousNode.merged &&
+        this._motionless = nodesSet && !(
+            this._currentNode.merged &&
+            this._previousNode.merged &&
             this._withinOriginalDistance() &&
             this._sameConnectedComponent()
         );
@@ -339,7 +321,7 @@ export class TraversingState implements IState {
     }
 
     private _clearRotation(): void {
-        if (this.currentNode.pano) {
+        if (this._currentNode.pano) {
             return;
         }
 
@@ -355,8 +337,8 @@ export class TraversingState implements IState {
     }
 
     private _sameConnectedComponent(): boolean {
-        let current: Node = this.currentNode;
-        let previous: Node = this.previousNode;
+        let current: Node = this._currentNode;
+        let previous: Node = this._previousNode;
 
         if (!current ||
             !current.apiNavImIm.merge_cc ||
@@ -369,8 +351,8 @@ export class TraversingState implements IState {
     }
 
     private _withinOriginalDistance(): boolean {
-        let current: Node = this.currentNode;
-        let previous: Node = this.previousNode;
+        let current: Node = this._currentNode;
+        let previous: Node = this._previousNode;
 
         if (!current || !previous) {
             return true;

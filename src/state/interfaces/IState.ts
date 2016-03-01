@@ -5,10 +5,11 @@ import {IRotation} from "../../State";
 export interface IState {
     alpha: number;
     camera: Camera;
-    currentNode: Node;
-    previousNode: Node;
+
     trajectory: Node[];
     currentIndex: number;
+    currentNode: Node;
+    previousNode: Node;
     currentTransform: Transform;
     previousTransform: Transform;
 
