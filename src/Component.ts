@@ -20,6 +20,7 @@ export {RouteComponent} from "./component/RouteComponent";
 export {SequenceComponent} from "./component/SequenceComponent";
 export {SphereComponent} from "./component/SphereComponent";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
+export {ImagePlaneFactory} from "./component/imageplane/ImagePlaneFactory";
 export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene";
 export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders";
 export {SliderComponent} from "./component/imageplane/SliderComponent";
