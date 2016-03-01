@@ -120,6 +120,14 @@ export class TraversingState extends StateBase {
         this._rotationThreshold = 0.001;
     }
 
+    public traverse(): StateBase {
+        throw new Error("Not implemented");
+    }
+
+    public wait(): StateBase {
+        throw new Error("Not implemented");
+    }
+
     public append(trajectory: Node[]): void {
         if (trajectory.length < 1) {
             throw Error("Trajectory can not be empty");

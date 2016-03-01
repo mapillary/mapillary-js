@@ -50,6 +50,10 @@ export abstract class StateBase implements IState {
             this._trajectoryTransforms[this.currentIndex - 1] : null;
     }
 
+    public abstract traverse(): StateBase;
+
+    public abstract wait(): StateBase;
+
     public abstract update(): void;
 
     public abstract append(nodes: Node[]): void;

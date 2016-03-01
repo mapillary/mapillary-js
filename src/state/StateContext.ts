@@ -1,12 +1,20 @@
-import {IStateContext, IState, TraversingState, IRotation} from "../State";
+import {IStateContext, StateBase, TraversingState, IRotation} from "../State";
 import {Node} from "../Graph";
 import {Camera, Transform} from "../Geo";
 
 export class StateContext implements IStateContext {
-    private _state: IState;
+    private _state: StateBase;
 
     constructor() {
         this._state = new TraversingState([]);
+    }
+
+    public traverse(): void {
+        this._state = this._state.traverse();
+    }
+
+    public wait(): void {
+        this._state = this._state.wait();
     }
 
     public get alpha(): number {

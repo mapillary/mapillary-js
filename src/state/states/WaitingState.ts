@@ -2,6 +2,14 @@ import {StateBase, IRotation} from "../../State";
 import {Node} from "../../Graph";
 
 export class WaitingState extends StateBase {
+    public traverse(): StateBase {
+        throw new Error("Not implemented");
+    }
+
+    public wait(): StateBase {
+        throw new Error("Not implemented");
+    }
+
     public update(): void { return; };
 
     public append(nodes: Node[]): void { return; };
