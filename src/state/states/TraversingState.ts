@@ -114,29 +114,11 @@ export class TraversingState extends StateBase {
     }
 
     public remove(n: number): void {
-        if (n < 0) {
-            throw Error("n must be a positive integer");
-        }
-
-        let length: number = this._trajectory.length;
-
-        if (length - (this._currentIndex + 1) < n) {
-            throw Error("Current node can not be removed");
-        }
-
-        for (let i: number = 0; i < n; i++) {
-            this._trajectory.pop();
-            this._trajectoryTransforms.pop();
-            this._trajectoryCameras.pop();
-        }
+        super._remove(n);
     }
 
     public cut(): void {
-        while (this._trajectory.length - 1 > this._currentIndex) {
-            this._trajectory.pop();
-            this._trajectoryTransforms.pop();
-            this._trajectoryCameras.pop();
-        }
+        super._cut();
     }
 
     public set(nodes: Node[]): void {

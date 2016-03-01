@@ -16,16 +16,20 @@ export class WaitingState extends StateBase {
 
     public append(nodes: Node[]): void {
         super._append(nodes);
-    };
+    }
 
-    public remove(n: number): void { return; };
+    public remove(n: number): void {
+        super._remove(n);
+    }
 
-    public cut(): void { return; };
+    public cut(): void {
+        super._cut();
+    }
 
     public set(nodes: Node[]): void {
         super._set(nodes);
         super._setCurrent();
-    };
+    }
 
     public rotate(delta: IRotation): void { return; };
 
@@ -33,7 +37,7 @@ export class WaitingState extends StateBase {
 
     public update(): void {
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
-    };
+    }
 
     protected _getAlpha(): number { return this._alpha; };
 }

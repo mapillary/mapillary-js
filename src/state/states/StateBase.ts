@@ -117,6 +117,32 @@ export abstract class StateBase implements IState {
         this._appendToTrajectories(nodes);
     }
 
+    protected _cut(): void {
+        while (this._trajectory.length - 1 > this._currentIndex) {
+            this._trajectory.pop();
+            this._trajectoryTransforms.pop();
+            this._trajectoryCameras.pop();
+        }
+    }
+
+    protected _remove(n: number): void {
+        if (n < 0) {
+            throw Error("n must be a positive integer");
+        }
+
+        let length: number = this._trajectory.length;
+
+        if (length - (this._currentIndex + 1) < n) {
+            throw Error("Current node can not be removed");
+        }
+
+        for (let i: number = 0; i < n; i++) {
+            this._trajectory.pop();
+            this._trajectoryTransforms.pop();
+            this._trajectoryCameras.pop();
+        }
+    }
+
     protected _set(nodes: Node[]): void {
         if (nodes.length < 1) {
             throw new ParameterMapillaryError("Trajectory can not be empty");
