@@ -8,8 +8,9 @@ import * as rx from "rx";
 
 import {IGoogleTile, GoogleTiles} from "../Geo";
 import {Node} from "../Graph";
+import {Urls} from "../Utils";
 
-export class GoogleTilesService {
+export class VectorTilesService {
     private _googleTiles: GoogleTiles;
 
     private _cacheNode$: rx.Subject<Node> = new rx.Subject<Node>();
@@ -20,7 +21,7 @@ export class GoogleTilesService {
     constructor () {
         this._model =
             new falcor.Model({
-                source: new HttpDataSource("http://mapillary-vector.mapillary.io/tiles.json", {
+                source: new HttpDataSource(Urls.falcorModel(), {
                     crossDomain: true,
                     withCredentials: false,
                 }),
@@ -55,7 +56,6 @@ export class GoogleTilesService {
                         object = objects[object];
                         if (object.rects.length > 1) {
                             delete object.$__path;
-                            console.log(object.rects);
                             ret.push(object);
                         }
                     }
@@ -75,4 +75,4 @@ export class GoogleTilesService {
     }
 }
 
-export default GoogleTilesService;
+export default VectorTilesService;

@@ -3,6 +3,10 @@ export class Urls {
         return `https://d1cuyjsrcm0gby.cloudfront.net/${key}/thumb-${size}.jpg?origin=mapillary.webgl`;
     }
 
+    public static falcorModel(): string {
+        return "http://mapillary-vector.mapillary.io/tiles.json";
+    }
+
     public static mesh(key: string): string {
         return `https://d1cuyjsrcm0gby.cloudfront.net/${key}/sfm/v1.0/atomic_mesh.json`;
     }

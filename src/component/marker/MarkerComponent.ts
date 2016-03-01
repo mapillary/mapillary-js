@@ -110,7 +110,7 @@ export class MarkerComponent extends Component {
             .subscribe(this._container.glRenderer.render$);
 
         this._disposableMapillaryObject =
-            this._navigator.graphService.googleTilesService.mapillaryObjects$.subscribe((object: any) => {
+            this._navigator.graphService.vectorTilesService.mapillaryObjects$.subscribe((object: any) => {
                 let marker: Marker = this.createMarker(object.l.lat, object.l.lon, object.alt);
                 this.addMarker(marker);
             });
