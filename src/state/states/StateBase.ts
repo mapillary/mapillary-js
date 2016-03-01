@@ -1,5 +1,6 @@
 /// <reference path="../../../typings/browser.d.ts" />
 
+import {ParameterMapillaryError} from "../../Error";
 import {IState} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, Transform} from "../../Geo";
@@ -106,4 +107,52 @@ export abstract class StateBase implements IState {
     public abstract update(): void;
 
     protected abstract _getAlpha(): number;
+
+    protected _set(nodes: Node[]): void {
+        if (nodes.length < 1) {
+            throw new ParameterMapillaryError("Trajectory can not be empty");
+        }
+
+        this._trajectoryTransforms.length = 0;
+        this._trajectoryCameras.length = 0;
+
+        if (this._currentNode != null) {
+            this._trajectory = [this._currentNode].concat(nodes);
+            this._currentIndex = 1;
+        } else {
+            this._trajectory = nodes.slice();
+            this._currentIndex = 0;
+        }
+
+        for (let node of this._trajectory) {
+            if (!node.loaded) {
+                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
+            }
+
+            let transform: Transform = new Transform(node);
+            this._trajectoryTransforms.push(transform);
+            this._trajectoryCameras.push(new Camera(transform));
+        }
+    }
+
+    protected _setCurrent(): void {
+        this._currentNode = this._trajectory[this._currentIndex];
+        this._previousNode = this._currentIndex > 0 ?
+            this._trajectory[this._currentIndex - 1] :
+            null;
+
+        this._currentCamera = this._trajectoryCameras[this._currentIndex];
+        this._previousCamera = this._currentIndex > 0 ?
+            this._trajectoryCameras[this._currentIndex - 1] :
+            this._currentCamera.clone();
+
+        if (this._previousNode != null) {
+            let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
+            this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
+
+            if (this._currentNode.pano) {
+                this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
+            }
+        }
+    }
 }

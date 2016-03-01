@@ -153,32 +153,8 @@ export class TraversingState extends StateBase {
         }
     }
 
-    public set(trajectory: Node[]): void {
-        if (trajectory.length < 1) {
-            throw Error("Trajectory can not be empty");
-        }
-
-        this._useBezier = true;
-
-        this._trajectoryTransforms.length = 0;
-        this._trajectoryCameras.length = 0;
-        if (this._currentNode != null) {
-            this._trajectory = [this._currentNode].concat(trajectory);
-            this._currentIndex = 1;
-        } else {
-            this._trajectory = trajectory.slice();
-            this._currentIndex = 0;
-        }
-
-        for (let node of this._trajectory) {
-            if (!node.loaded) {
-                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
-            }
-
-            let transform: Transform = new Transform(node);
-            this._trajectoryTransforms.push(transform);
-            this._trajectoryCameras.push(new Camera(transform));
-        }
+    public set(nodes: Node[]): void {
+        super._set(nodes);
 
         this._setNodes();
         this._clearRotation();
@@ -229,22 +205,7 @@ export class TraversingState extends StateBase {
         this._alpha = 0;
         this._baseAlpha = 0;
 
-        this._currentNode = this._trajectory[this._currentIndex];
-        this._previousNode = this._currentIndex > 0 ? this._trajectory[this._currentIndex - 1] : null;
-
-        this._currentCamera = this._trajectoryCameras[this._currentIndex];
-        this._previousCamera = this._currentIndex > 0 ?
-            this._trajectoryCameras[this._currentIndex - 1] :
-            this._currentCamera.clone();
-
-        if (this._previousNode != null) {
-            let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
-            this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
-
-            if (this._currentNode.pano) {
-                this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
-            }
-        }
+        super._setCurrent();
 
         let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
 
