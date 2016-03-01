@@ -22,4 +22,5 @@ export {SphereComponent} from "./component/SphereComponent";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
 export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene";
 export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders";
+export {SliderComponent} from "./component/imageplane/SliderComponent";
 export * from "./component/interfaces/interfaces";

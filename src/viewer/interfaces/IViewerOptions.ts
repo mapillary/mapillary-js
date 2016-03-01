@@ -62,6 +62,12 @@ export interface IViewerOptions {
     imageplane?: boolean;
 
     /**
+     * Show a slider for transitioning between image planes.
+     * @default false
+     */
+    slider?: boolean;
+
+    /**
      * Enable use of keyboard commands.
      * @default true
      */
