@@ -59,7 +59,7 @@ class RotationDelta implements IRotation {
     }
 }
 
-export class CompletingState implements IState {
+export class TraversingState implements IState {
     public camera: Camera;
     public motionless: boolean;
 
