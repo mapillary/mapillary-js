@@ -22,5 +22,7 @@ export class WaitingState extends StateBase {
 
     public rotate(delta: IRotation): void { return; };
 
+    public move(delta: number): void { return; };
+
     protected _getAlpha(): number { return this._alpha; };
 }

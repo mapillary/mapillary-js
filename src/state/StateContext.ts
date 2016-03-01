@@ -80,4 +80,8 @@ export class StateContext implements IStateContext {
     public rotate(delta: IRotation): void {
         this._state.rotate(delta);
     }
+
+    public move(delta: number): void {
+        this._state.move(delta);
+    }
 }

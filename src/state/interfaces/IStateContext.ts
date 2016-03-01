@@ -9,4 +9,5 @@ export interface IStateContext extends ICurrentState {
     set(nodes: Node[]): void;
 
     rotate(delta: IRotation): void;
+    move(delta: number): void;
 }

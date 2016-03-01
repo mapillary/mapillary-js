@@ -54,8 +54,6 @@ export abstract class StateBase implements IState {
 
     public abstract wait(): StateBase;
 
-    public abstract update(): void;
-
     public abstract append(nodes: Node[]): void;
 
     public abstract remove(n: number): void;
@@ -64,7 +62,11 @@ export abstract class StateBase implements IState {
 
     public abstract set(nodes: Node[]): void;
 
+    public abstract move(delta: number): void;
+
     public abstract rotate(delta: IRotation): void;
+
+    public abstract update(): void;
 
     protected abstract _getAlpha(): number;
 }
