@@ -4,7 +4,7 @@ import * as THREE from "three";
 import * as UnitBezier from "unitbezier";
 
 import {ParameterMapillaryError} from "../../Error";
-import {StateBase, IRotation} from "../../State";
+import {IState, StateBase, IRotation} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, Transform, Spatial} from "../../Geo";
 
@@ -66,11 +66,6 @@ export class TraversingState extends StateBase {
     private _animationSpeed: number;
     private _motionless: boolean;
 
-    private _trajectoryCameras: Camera[];
-
-    private _currentCamera: Camera;
-    private _previousCamera: Camera;
-
     private _unitBezier: UnitBezier;
     private _useBezier: boolean;
 
@@ -81,36 +76,17 @@ export class TraversingState extends StateBase {
     private _rotationDecreaseAlpha: number;
     private _rotationThreshold: number;
 
-    constructor (trajectory: Node[]) {
-        super();
+    constructor (state: IState) {
+        super(state);
 
         this._spatial = new Spatial();
 
-        this._alpha = trajectory.length > 0 ? 0 : 1;
         this._baseAlpha = this._alpha;
         this._animationSpeed = 0.025;
         this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
-        this._useBezier = true;
+        this._useBezier = false;
 
-        this._camera = new Camera();
         this._motionless = false;
-
-        this._trajectory = trajectory.slice();
-        this._trajectoryTransforms = [];
-        this._trajectoryCameras = [];
-        for (let node of this._trajectory) {
-            let transform: Transform = new Transform(node);
-            this._trajectoryTransforms.push(transform);
-            this._trajectoryCameras.push(new Camera(transform));
-        }
-
-        this._currentIndex = 0;
-
-        this._currentNode = trajectory.length > 0 ? trajectory[this._currentIndex] : null;
-        this._previousNode = null;
-
-        this._currentCamera = trajectory.length > 0 ? this._trajectoryCameras[this._currentIndex] : new Camera();
-        this._previousCamera = this._currentCamera.clone();
 
         this._rotationDelta = new RotationDelta(0, 0);
         this._requestedRotationDelta = null;

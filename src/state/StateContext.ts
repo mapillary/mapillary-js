@@ -6,7 +6,12 @@ export class StateContext implements IStateContext {
     private _state: StateBase;
 
     constructor() {
-        this._state = new TraversingState([]);
+        this._state = new TraversingState({
+            alpha: 1,
+            camera: new Camera(),
+            currentIndex: 0,
+            trajectory: [],
+        });
     }
 
     public traverse(): void {

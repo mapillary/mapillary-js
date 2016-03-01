@@ -1,7 +1,11 @@
-import {StateBase, IRotation} from "../../State";
+import {IState, StateBase, IRotation} from "../../State";
 import {Node} from "../../Graph";
 
 export class WaitingState extends StateBase {
+    constructor(state: IState) {
+        super(state);
+    }
+
     public traverse(): StateBase {
         throw new Error("Not implemented");
     }
