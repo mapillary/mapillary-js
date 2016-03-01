@@ -1,3 +1,4 @@
+export {GoogleTilesService} from "./graph/GoogleTilesService";
 export {Graph} from "./graph/Graph";
 export {GraphService} from "./graph/GraphService";
 export {ImageLoadingService} from "./graph/ImageLoadingService";

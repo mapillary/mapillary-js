@@ -66,6 +66,8 @@
     }
   },
   "dependencies": {
+    "falcor": "^0.1.16",
+    "falcor-http-datasource": "^0.1.3",
     "graphlib": "~1.0.7",
     "latlon-geohash": "^1.0.1",
     "rbush": "~1.4.1",

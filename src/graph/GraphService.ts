@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {IAPINavIm, APIv2} from "../API";
-import {Graph, ImageLoadingService, Node, TilesService} from "../Graph";
+import {GoogleTilesService, Graph, ImageLoadingService, Node, TilesService} from "../Graph";
 
 interface IGraphOperation extends Function {
     (graph: Graph): Graph;
@@ -19,9 +19,11 @@ export class GraphService {
     private _graph$: rx.Observable<Graph>;
 
     private _tilesService: TilesService;
+    private _googleTilesService: GoogleTilesService;
     private _imageLoadingService: ImageLoadingService;
 
     constructor (apiV2: APIv2) {
+        this._googleTilesService = new GoogleTilesService();
         this._tilesService = new TilesService(apiV2);
         this._imageLoadingService = new ImageLoadingService();
 
@@ -53,6 +55,7 @@ export class GraphService {
         }).publish();
         this._cachedNode$.connect();
         this._cachedNode$.subscribe(this._tilesService.cacheNode$);
+        this._cachedNode$.subscribe(this._googleTilesService.cacheNode$);
 
         this._cachedNode$.map((node: Node) => {
             return (graph: Graph): Graph => {
@@ -83,6 +86,10 @@ export class GraphService {
 
     public get imageLoadingService(): ImageLoadingService {
         return this._imageLoadingService;
+    }
+
+    public get googleTilesService(): GoogleTilesService {
+        return this._googleTilesService;
     }
 
     public node$(key: string): rx.Observable<Node> {

@@ -78,6 +78,7 @@ export class MarkerComponent extends Component {
     public static componentName: string = "marker";
 
     private _disposable: rx.IDisposable;
+    private _disposableMapillaryObject: rx.IDisposable;
     private _markerSet: MarkerSet;
 
     private _scene: THREE.Scene;
@@ -107,12 +108,19 @@ export class MarkerComponent extends Component {
                 return this.renderHash(args);
             })
             .subscribe(this._container.glRenderer.render$);
+
+        this._disposableMapillaryObject =
+            this._navigator.graphService.googleTilesService.mapillaryObjects$.subscribe((object: any) => {
+                let marker: Marker = this.createMarker(object.l.lat, object.l.lon, object.alt);
+                this.addMarker(marker);
+            });
     }
 
     protected _deactivate(): void {
         // release memory
         this.disposeScene();
         this._disposable.dispose();
+        this._disposableMapillaryObject.dispose();
     }
 
     public createMarker(lat: number, lon: number, alt: number): Marker {
