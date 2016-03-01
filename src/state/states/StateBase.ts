@@ -108,13 +108,19 @@ export abstract class StateBase implements IState {
 
     protected abstract _getAlpha(): number;
 
+    protected _append(nodes: Node[]): void {
+        if (nodes.length < 1) {
+            throw Error("Trajectory can not be empty");
+        }
+
+        this._trajectory = this._trajectory.concat(nodes);
+        this._appendToTrajectories(nodes);
+    }
+
     protected _set(nodes: Node[]): void {
         if (nodes.length < 1) {
             throw new ParameterMapillaryError("Trajectory can not be empty");
         }
-
-        this._trajectoryTransforms.length = 0;
-        this._trajectoryCameras.length = 0;
 
         if (this._currentNode != null) {
             this._trajectory = [this._currentNode].concat(nodes);
@@ -124,15 +130,9 @@ export abstract class StateBase implements IState {
             this._currentIndex = 0;
         }
 
-        for (let node of this._trajectory) {
-            if (!node.loaded) {
-                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
-            }
-
-            let transform: Transform = new Transform(node);
-            this._trajectoryTransforms.push(transform);
-            this._trajectoryCameras.push(new Camera(transform));
-        }
+        this._trajectoryTransforms.length = 0;
+        this._trajectoryCameras.length = 0;
+        this._appendToTrajectories(this._trajectory);
     }
 
     protected _setCurrent(): void {
@@ -153,6 +153,18 @@ export abstract class StateBase implements IState {
             if (this._currentNode.pano) {
                 this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
             }
+        }
+    }
+
+    private _appendToTrajectories(nodes: Node[]): void {
+        for (let node of nodes) {
+            if (!node.loaded) {
+                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
+            }
+
+            let transform: Transform = new Transform(node);
+            this._trajectoryTransforms.push(transform);
+            this._trajectoryCameras.push(new Camera(transform));
         }
     }
 }

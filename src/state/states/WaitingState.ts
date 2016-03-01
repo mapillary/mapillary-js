@@ -14,7 +14,9 @@ export class WaitingState extends StateBase {
         throw new Error("Not implemented");
     }
 
-    public append(nodes: Node[]): void { return; };
+    public append(nodes: Node[]): void {
+        super._append(nodes);
+    };
 
     public remove(n: number): void { return; };
 

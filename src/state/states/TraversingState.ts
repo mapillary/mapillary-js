@@ -3,10 +3,9 @@
 import * as THREE from "three";
 import * as UnitBezier from "unitbezier";
 
-import {ParameterMapillaryError} from "../../Error";
 import {IState, StateBase, IRotation} from "../../State";
 import {Node} from "../../Graph";
-import {Camera, Transform, Spatial} from "../../Geo";
+import {Camera, Spatial} from "../../Geo";
 
 class RotationDelta implements IRotation {
     private _phi: number;
@@ -104,27 +103,14 @@ export class TraversingState extends StateBase {
         throw new Error("Not implemented");
     }
 
-    public append(trajectory: Node[]): void {
-        if (trajectory.length < 1) {
-            throw Error("Trajectory can not be empty");
-        }
-
+    public append(nodes: Node[]): void {
         if (this._trajectory.length === 0) {
             this._currentIndex = 0;
 
             this._setNodes();
         }
 
-        this._trajectory = this._trajectory.concat(trajectory);
-        for (let node of trajectory) {
-            if (!node.loaded) {
-                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
-            }
-
-            let transform: Transform = new Transform(node);
-            this._trajectoryTransforms.push(transform);
-            this._trajectoryCameras.push(new Camera(transform));
-        }
+        super._append(nodes);
     }
 
     public remove(n: number): void {
@@ -158,6 +144,10 @@ export class TraversingState extends StateBase {
 
         this._setNodes();
         this._clearRotation();
+
+        if (this._trajectory.length < 3) {
+            this._useBezier = true;
+        }
     }
 
     public move(delta: number): void {
