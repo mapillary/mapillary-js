@@ -92,23 +92,13 @@ export abstract class StateBase implements IState {
 
     public abstract wait(): StateBase;
 
-    public abstract append(nodes: Node[]): void;
-
-    public abstract remove(n: number): void;
-
-    public abstract cut(): void;
-
-    public abstract set(nodes: Node[]): void;
-
     public abstract move(delta: number): void;
 
     public abstract rotate(delta: IRotation): void;
 
     public abstract update(): void;
 
-    protected abstract _getAlpha(): number;
-
-    protected _append(nodes: Node[]): void {
+    public append(nodes: Node[]): void {
         if (nodes.length < 1) {
             throw Error("Trajectory can not be empty");
         }
@@ -117,15 +107,7 @@ export abstract class StateBase implements IState {
         this._appendToTrajectories(nodes);
     }
 
-    protected _cut(): void {
-        while (this._trajectory.length - 1 > this._currentIndex) {
-            this._trajectory.pop();
-            this._trajectoryTransforms.pop();
-            this._trajectoryCameras.pop();
-        }
-    }
-
-    protected _remove(n: number): void {
+    public remove(n: number): void {
         if (n < 0) {
             throw Error("n must be a positive integer");
         }
@@ -142,6 +124,21 @@ export abstract class StateBase implements IState {
             this._trajectoryCameras.pop();
         }
     }
+
+    public cut(): void {
+        while (this._trajectory.length - 1 > this._currentIndex) {
+            this._trajectory.pop();
+            this._trajectoryTransforms.pop();
+            this._trajectoryCameras.pop();
+        }
+    }
+
+    public set(nodes: Node[]): void {
+        this._set(nodes);
+        this._setCurrent();
+    }
+
+    protected abstract _getAlpha(): number;
 
     protected _set(nodes: Node[]): void {
         if (nodes.length < 1) {

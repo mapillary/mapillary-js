@@ -1,5 +1,4 @@
 import {IState, StateBase, IRotation} from "../../State";
-import {Node} from "../../Graph";
 
 export class WaitingState extends StateBase {
     constructor(state: IState) {
@@ -12,23 +11,6 @@ export class WaitingState extends StateBase {
 
     public wait(): StateBase {
         throw new Error("Not implemented");
-    }
-
-    public append(nodes: Node[]): void {
-        super._append(nodes);
-    }
-
-    public remove(n: number): void {
-        super._remove(n);
-    }
-
-    public cut(): void {
-        super._cut();
-    }
-
-    public set(nodes: Node[]): void {
-        super._set(nodes);
-        super._setCurrent();
     }
 
     public rotate(delta: IRotation): void { return; };

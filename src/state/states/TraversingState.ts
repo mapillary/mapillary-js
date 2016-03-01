@@ -110,15 +110,7 @@ export class TraversingState extends StateBase {
             this._setNodes();
         }
 
-        super._append(nodes);
-    }
-
-    public remove(n: number): void {
-        super._remove(n);
-    }
-
-    public cut(): void {
-        super._cut();
+        super.append(nodes);
     }
 
     public set(nodes: Node[]): void {
