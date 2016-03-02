@@ -66,6 +66,14 @@ export class StateService {
         }
     }
 
+    public traverse(): void {
+        this._context.traverse();
+    }
+
+    public wait(): void {
+        this._context.wait();
+    }
+
     public appendNodes(nodes: Node[]): void {
         this._context.append(nodes);
     }

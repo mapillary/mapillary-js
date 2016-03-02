@@ -2,6 +2,9 @@ import {ICurrentState, IRotation} from "../../State";
 import {Node} from "../../Graph";
 
 export interface IStateContext extends ICurrentState {
+    traverse(): void;
+    wait(): void;
+
     update(): void;
     append(nodes: Node[]): void;
     prepend(nodes: Node[]): void;

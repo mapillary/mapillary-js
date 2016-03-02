@@ -1,4 +1,4 @@
-import {IState, StateBase, IRotation} from "../../State";
+import {IState, StateBase, IRotation, TraversingState} from "../../State";
 
 export class WaitingState extends StateBase {
     constructor(state: IState) {
@@ -6,7 +6,7 @@ export class WaitingState extends StateBase {
     }
 
     public traverse(): StateBase {
-        throw new Error("Not implemented");
+        return new TraversingState(this);
     }
 
     public wait(): StateBase {

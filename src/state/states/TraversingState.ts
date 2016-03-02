@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import * as UnitBezier from "unitbezier";
 
-import {IState, StateBase, IRotation} from "../../State";
+import {IState, StateBase, IRotation, WaitingState} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, Spatial} from "../../Geo";
 
@@ -100,7 +100,7 @@ export class TraversingState extends StateBase {
     }
 
     public wait(): StateBase {
-        throw new Error("Not implemented");
+        return new WaitingState(this);
     }
 
     public append(nodes: Node[]): void {
