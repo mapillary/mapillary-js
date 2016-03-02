@@ -4,7 +4,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 
 import {Node} from "../../Graph";
-import {ICurrentState, IFrame} from "../../State";
+import {ICurrentState, IFrame, State} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Component, ComponentService, ImagePlaneScene, ImagePlaneFactory} from "../../Component";
@@ -194,7 +194,9 @@ export class SliderComponent extends Component {
     }
 
     protected _activate(): void {
-        this._navigator.stateService.wait();
+        if (this._navigator.stateService.state === State.Traversing) {
+            this._navigator.stateService.wait();
+        }
 
         this._stateSubscription = this._navigator.stateService.currentState$
             .map<ISliderStateOperation>(
@@ -243,7 +245,9 @@ export class SliderComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._navigator.stateService.traverse();
+        if (this._navigator.stateService.state === State.Waiting) {
+            this._navigator.stateService.traverse();
+        }
 
         this._stateSubscription.dispose();
         this._mouseMoveSubscription.dispose();
