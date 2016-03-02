@@ -39,6 +39,8 @@ class SliderState {
 
     private _motionless: boolean;
 
+    private _curtain: number;
+
     constructor() {
         this._imagePlaneFactory = new ImagePlaneFactory();
         this._imagePlaneScene = new ImagePlaneScene();
@@ -53,6 +55,8 @@ class SliderState {
         this._needsRender = false;
 
         this._motionless = false;
+
+        this._curtain = 1;
     }
 
     public get frameId(): number {
@@ -67,24 +71,10 @@ class SliderState {
         return this._motionless || this._currentPano || this._previousPano;
     }
 
-    public updateFrame(frame: IFrame): void {
+    public update(frame: IFrame): void {
         this._updateFrameId(frame.id);
-        this._updateImagePlanes(frame.state);
-    }
-
-    public updateCurtain(curtain: number): void {
-        if (this.disabled) {
-            return;
-        }
-
-        this._needsRender = true;
-
-        for (let plane of this._imagePlaneScene.imagePlanes) {
-            let shaderMaterial: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
-            let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
-
-            bbox.z = curtain;
-        }
+        this._needsRender = this._updateImagePlanes(frame.state);
+        this._needsRender = this._updateCurtain(frame.state.alpha) || this._needsRender;
     }
 
     public render(
@@ -106,7 +96,7 @@ class SliderState {
         this._frameId = frameId;
     }
 
-    private _updateImagePlanes(state: ICurrentState): void {
+    private _updateImagePlanes(state: ICurrentState): boolean {
         if (state.currentNode == null) {
             return;
         }
@@ -135,7 +125,25 @@ class SliderState {
             ]);
         }
 
-        this._needsRender = this._needsRender || needsRender;
+        return needsRender;
+    }
+
+    private _updateCurtain(alpha: number): boolean {
+        if (this.disabled ||
+            Math.abs(this._curtain - alpha) < 0.001) {
+            return false;
+        }
+
+        this._curtain = alpha;
+
+        for (let plane of this._imagePlaneScene.imagePlanes) {
+            let shaderMaterial: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
+            let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
+
+            bbox.z = this._curtain;
+        }
+
+        return true;
     }
 }
 
@@ -277,7 +285,7 @@ export class SliderComponent extends Component {
             .map<ISliderStateOperation>(
                 (frame: IFrame): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
-                        sliderState.updateFrame(frame);
+                        sliderState.update(frame);
 
                         return sliderState;
                     };
@@ -295,8 +303,6 @@ export class SliderComponent extends Component {
                         let curtain: number = event.offsetX / this._container.element.offsetWidth;
 
                         this._navigator.stateService.moveTo(curtain);
-
-                        sliderState.updateCurtain(curtain);
 
                         return sliderState;
                     };
