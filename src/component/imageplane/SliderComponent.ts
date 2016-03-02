@@ -30,6 +30,8 @@ class SliderState {
 
     private _currentKey: string;
     private _previousKey: string;
+    private _currentPano: boolean;
+    private _previousPano: boolean;
 
     private _frameId: number;
 
@@ -41,6 +43,8 @@ class SliderState {
 
         this._currentKey = null;
         this._previousKey = null;
+        this._currentPano = false;
+        this._previousPano = false;
 
         this._frameId = 0;
 
@@ -57,10 +61,14 @@ class SliderState {
 
     public updateFrame(frame: IFrame): void {
         this._updateFrameId(frame.id);
-        this._needsRender = this._needsRender || this._updateImagePlanes(frame.state);
+        this._updateImagePlanes(frame.state);
     }
 
     public updateCurtain(curtain: number): void {
+        if (this._pano) {
+            return;
+        }
+
         this._needsRender = true;
 
         for (let plane of this._imagePlaneScene.imagePlanes) {
@@ -86,20 +94,26 @@ class SliderState {
         this._needsRender = false;
     }
 
+    private get _pano(): boolean {
+        return this._currentPano || this._previousPano;
+    }
+
     private _updateFrameId(frameId: number): void {
         this._frameId = frameId;
     }
 
-    private _updateImagePlanes(state: ICurrentState): boolean {
+    private _updateImagePlanes(state: ICurrentState): void {
         if (state.currentNode == null) {
-            return false;
+            return;
         }
 
         let needsRender: boolean = false;
 
         if (state.previousNode != null && this._previousKey !== state.previousNode.key) {
             needsRender = true;
+
             this._previousKey = state.previousNode.key;
+            this._previousPano = state.previousNode.pano;
             this._imagePlaneScene.setImagePlanesOld([
                 this._imagePlaneFactory.createMesh(state.previousNode, state.previousTransform),
             ]);
@@ -107,13 +121,15 @@ class SliderState {
 
         if (this._currentKey !== state.currentNode.key) {
             needsRender = true;
+
             this._currentKey = state.currentNode.key;
+            this._currentPano = state.currentNode.pano;
             this._imagePlaneScene.setImagePlanes([
                 this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform),
             ]);
         }
 
-        return needsRender;
+        this._needsRender = needsRender;
     }
 }
 
