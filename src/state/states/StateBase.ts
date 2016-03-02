@@ -107,6 +107,19 @@ export abstract class StateBase implements IState {
         this._appendToTrajectories(nodes);
     }
 
+    public prepend(nodes: Node[]): void {
+        if (nodes.length < 1) {
+            throw Error("Trajectory can not be empty");
+        }
+
+        this._trajectory = nodes.slice().concat(this._trajectory);
+        this._prependToTrajectories(nodes);
+
+        this._currentIndex += nodes.length;
+
+        this._setCurrent();
+    }
+
     public remove(n: number): void {
         if (n < 0) {
             throw Error("n must be a positive integer");
@@ -164,9 +177,9 @@ export abstract class StateBase implements IState {
             this._trajectory[this._currentIndex - 1] :
             null;
 
-        this._currentCamera = this._trajectoryCameras[this._currentIndex];
+        this._currentCamera = this._trajectoryCameras[this._currentIndex].clone();
         this._previousCamera = this._currentIndex > 0 ?
-            this._trajectoryCameras[this._currentIndex - 1] :
+            this._trajectoryCameras[this._currentIndex - 1].clone() :
             this._currentCamera.clone();
 
         if (this._previousNode != null) {
@@ -188,6 +201,18 @@ export abstract class StateBase implements IState {
             let transform: Transform = new Transform(node);
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
+        }
+    }
+
+    private _prependToTrajectories(nodes: Node[]): void {
+        for (let node of nodes.reverse()) {
+            if (!node.loaded) {
+                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
+            }
+
+            let transform: Transform = new Transform(node);
+            this._trajectoryTransforms.unshift(transform);
+            this._trajectoryCameras.unshift(new Camera(transform));
         }
     }
 }

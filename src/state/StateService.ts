@@ -70,6 +70,10 @@ export class StateService {
         this._context.append(nodes);
     }
 
+    public prependNodes(nodes: Node[]): void {
+        this._context.prepend(nodes);
+    }
+
     public removeNodes(n: number): void {
         this._context.remove(n);
     }

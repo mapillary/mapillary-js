@@ -70,6 +70,10 @@ export class StateContext implements IStateContext {
         this._state.append(nodes);
     }
 
+    public prepend(nodes: Node[]): void {
+        this._state.prepend(nodes);
+    }
+
     public remove(n: number): void {
         this._state.remove(n);
     }

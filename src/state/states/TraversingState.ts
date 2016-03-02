@@ -113,6 +113,16 @@ export class TraversingState extends StateBase {
         super.append(nodes);
     }
 
+    public prepend(nodes: Node[]): void {
+        if (this._trajectory.length === 0) {
+            this._currentIndex = 0;
+
+            this._setNodes();
+        }
+
+        super.prepend(nodes);
+    }
+
     public set(nodes: Node[]): void {
         super._set(nodes);
 
