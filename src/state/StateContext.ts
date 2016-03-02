@@ -1,4 +1,11 @@
-import {IStateContext, StateBase, TraversingState, IRotation} from "../State";
+import {
+    IStateContext,
+    StateBase,
+    State,
+    TraversingState,
+    WaitingState,
+    IRotation,
+} from "../State";
 import {Node} from "../Graph";
 import {Camera, Transform} from "../Geo";
 
@@ -20,6 +27,16 @@ export class StateContext implements IStateContext {
 
     public wait(): void {
         this._state = this._state.wait();
+    }
+
+    public get state(): State {
+        if (this._state instanceof TraversingState) {
+            return State.Traversing;
+        } else if (this._state instanceof WaitingState) {
+            return State.Waiting;
+        }
+
+        throw new Error("Invalid state");
     }
 
     public get alpha(): number {

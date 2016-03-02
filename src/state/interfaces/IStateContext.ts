@@ -1,7 +1,9 @@
-import {ICurrentState, IRotation} from "../../State";
+import {ICurrentState, IRotation, State} from "../../State";
 import {Node} from "../../Graph";
 
 export interface IStateContext extends ICurrentState {
+    state: State;
+
     traverse(): void;
     wait(): void;
 

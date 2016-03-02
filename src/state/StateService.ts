@@ -9,6 +9,7 @@ import {
     IFrame,
     IRotation,
     StateContext,
+    State,
 } from "../State";
 
 export class StateService {
@@ -47,6 +48,10 @@ export class StateService {
 
     public get currentNode$(): rx.Observable<Node> {
         return this._currentNode$;
+    }
+
+    public get state(): State {
+        return this._context.state;
     }
 
     public dispose(): void {
