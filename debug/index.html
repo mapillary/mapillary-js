@@ -16,14 +16,15 @@
     <button onclick="viewer.activateCover()">Activate Cover</button><button onclick="viewer.deactivateCover()">Deactivate Cover</button>
     <br>
     <button onclick="play()">Play</button><button onclick="stop()">Stop</button>
+    <button onclick="showSlider()">Show Slider</button><button onclick="hideSlider()">Hide Slider</button>
     <button onclick="playRoute()">Play Route</button><button onclick="stopRoute()">Stop Route</button>
     <script src='build/bundle.js'></script>
     <script>
         var viewer = new Mapillary.Viewer(
             "viewer",
             "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4",
-            "2yFbES2-ogx4Cz8IOsaThQ",
-            { "debug": true, "cover": false, "marker": true }
+            "JW1utOJP4g7gk06HtYgQSQ",
+            { "debug": true, "cover": false }
         );
 
         viewer.activateComponent("player");
@@ -113,8 +114,6 @@
              ]
             }
         ], playing: true});
-        // viewer.activateComponent("route");
-        // viewer.deactivateComponent("cache");
 
         function play() {
             viewer.deactivateComponent("cache");
@@ -126,6 +125,27 @@
             player.stop();
         }
 
+        function showSlider() {
+            viewer.deactivateComponent("imageplane");
+            viewer.deactivateComponent("direction");
+            viewer.deactivateComponent("sequence");
+            viewer.deactivateComponent("mouse");
+            viewer.deactivateComponent("keyboard");
+            viewer.activateComponent("slider");
+
+            var slider = viewer.getComponent("slider");
+            slider.setNodes({background: "uR2exMqzDxeMtAWkJDzm9A", foreground: "JW1utOJP4g7gk06HtYgQSQ"});
+        }
+
+        function hideSlider() {
+            viewer.deactivateComponent("slider");
+            viewer.activateComponent("imageplane");
+            viewer.activateComponent("direction");
+            viewer.activateComponent("sequence");
+            viewer.activateComponent("mouse");
+            viewer.activateComponent("keyboard");
+        }
+
         function playRoute() {
             viewer.deactivateComponent("cache");
             route.play();
@@ -135,19 +155,6 @@
             viewer.activateComponent("cache");
             route.stop();
         }
-
-        var marker = viewer.getComponent("marker");
-        var first = true;
-        viewer.on("nodechanged", function (node) {
-            if (first) {
-                first = false;
-                for (var i = 0; i < 4; i++) {
-                    for (var k = 0; k < 4; k++) {
-                        marker.addMarker(marker.createMarker(node.latLon.lat + (0.0001 * i), node.latLon.lon + (0.0001 * k), 0.0))
-                    }
-                }
-            }
-        });
 
         viewer.on("loadingchanged", function (loading) {
             console.log("loading:", loading);
