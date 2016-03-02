@@ -68,7 +68,11 @@ class SliderState {
     }
 
     public get disabled(): boolean {
-        return this._motionless || this._currentPano || this._previousPano;
+        return this._currentKey == null ||
+            this._previousKey == null ||
+            this._motionless ||
+            this._currentPano ||
+            this._previousPano;
     }
 
     public update(frame: IFrame): void {
