@@ -6,7 +6,7 @@ import * as rx from "rx";
 import {Node} from "../../Graph";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
-import {IGLRenderHash, GLRenderStage, IGLRenderFunction} from "../../Render";
+import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Component, ComponentService, ImagePlaneScene, ImagePlaneFactory} from "../../Component";
 
 interface ISliderKeys {
@@ -24,19 +24,116 @@ interface ISliderCombination {
     state: ICurrentState;
 }
 
+class SliderState {
+    private _imagePlaneFactory: ImagePlaneFactory;
+    private _imagePlaneScene: ImagePlaneScene;
+
+    private _currentKey: string;
+    private _previousKey: string;
+
+    private _frameId: number;
+
+    private _needsRender: boolean;
+
+    constructor() {
+        this._imagePlaneFactory = new ImagePlaneFactory();
+        this._imagePlaneScene = new ImagePlaneScene();
+
+        this._currentKey = null;
+        this._previousKey = null;
+
+        this._frameId = 0;
+
+        this._needsRender = false;
+    }
+
+    public get frameId(): number {
+        return this._frameId;
+    }
+
+    public get needsRender(): boolean {
+        return this._needsRender;
+    }
+
+    public update(frame: IFrame): void {
+        this._updateFrameId(frame.id);
+        this._needsRender = this._needsRender || this._updateImagePlanes(frame.state);
+    }
+
+    public render(
+        perspectiveCamera: THREE.PerspectiveCamera,
+        renderer: THREE.WebGLRenderer): void {
+        renderer.render(this._imagePlaneScene.sceneOld, perspectiveCamera);
+        renderer.render(this._imagePlaneScene.scene, perspectiveCamera);
+    }
+
+    public dispose(): void {
+        this._imagePlaneScene.clear();
+    }
+
+    public clearNeedsRender(): void {
+        this._needsRender = false;
+    }
+
+    private _updateFrameId(frameId: number): void {
+        this._frameId = frameId;
+    }
+
+    private _updateImagePlanes(state: ICurrentState): boolean {
+        if (state.currentNode == null) {
+            return false;
+        }
+
+        let needsRender: boolean = false;
+
+        if (state.previousNode != null && this._previousKey !== state.previousNode.key) {
+            needsRender = true;
+            this._previousKey = state.previousNode.key;
+            this._imagePlaneScene.setImagePlanesOld([
+                this._imagePlaneFactory.createMesh(state.previousNode, state.previousTransform),
+            ]);
+        }
+
+        if (this._currentKey !== state.currentNode.key) {
+            needsRender = true;
+            this._currentKey = state.currentNode.key;
+            this._imagePlaneScene.setImagePlanes([
+                this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform),
+            ]);
+        }
+
+        return needsRender;
+    }
+}
+
+interface ISliderStateOperation {
+    (sliderState: SliderState): SliderState;
+}
+
 export class SliderComponent extends Component {
     public static componentName: string = "slider";
 
-    private _subscription: rx.IDisposable;
+    private _sliderStateOperation$: rx.Subject<ISliderStateOperation>;
+    private _sliderState$: rx.Observable<SliderState>;
 
-    private imagePlaneFactory: ImagePlaneFactory;
-    private imagePlaneScene: ImagePlaneScene;
-
-    private currentKey: string;
-    private previousKey: string;
+    private _stateSubscription: rx.IDisposable;
+    private _sliderStateSubscription: rx.IDisposable;
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._sliderStateOperation$ = new rx.Subject<ISliderStateOperation>();
+
+        this._sliderState$ = this._sliderStateOperation$
+            .scan<SliderState>(
+                (sliderState: SliderState, operation: ISliderStateOperation): SliderState => {
+                    return operation(sliderState);
+                },
+                new SliderState())
+            .distinctUntilChanged(
+                (sliderState: SliderState): number => {
+                    return sliderState.frameId;
+                });
     }
 
     public setNodes(sliderKeys: ISliderKeys): void {
@@ -85,30 +182,35 @@ export class SliderComponent extends Component {
     }
 
     protected _activate(): void {
-        this.imagePlaneFactory = new ImagePlaneFactory();
-        this.imagePlaneScene = new ImagePlaneScene();
-
-        this.currentKey = null;
-        this.previousKey = null;
-
-        let render: IGLRenderFunction = this.render.bind(this);
-
         this._navigator.stateService.wait();
 
-        this._subscription = this._navigator.stateService.currentState$
-            .map<IGLRenderHash>(
-                (frame: IFrame): IGLRenderHash => {
-                    let needsRender: boolean = this.updateImagePlanes(frame.state);
+        this._stateSubscription = this._navigator.stateService.currentState$
+            .map<ISliderStateOperation>(
+                (frame: IFrame): ISliderStateOperation => {
+                    return (sliderState: SliderState): SliderState => {
+                        sliderState.update(frame);
 
-                    return {
+                        return sliderState;
+                    };
+                })
+            .subscribe(this._sliderStateOperation$);
+
+        this._sliderStateSubscription = this._sliderState$
+            .map<IGLRenderHash>(
+                (sliderState: SliderState): IGLRenderHash => {
+                    let renderHash: IGLRenderHash = {
                         name: this._name,
                         render: {
-                            frameId: frame.id,
-                            needsRender: needsRender,
-                            render: render,
+                            frameId: sliderState.frameId,
+                            needsRender: sliderState.needsRender,
+                            render: sliderState.render.bind(sliderState),
                             stage: GLRenderStage.Background,
                         },
                     };
+
+                    sliderState.clearNeedsRender();
+
+                    return renderHash;
                 })
             .subscribe(this._container.glRenderer.render$);
     }
@@ -116,41 +218,8 @@ export class SliderComponent extends Component {
     protected _deactivate(): void {
         this._navigator.stateService.traverse();
 
-        this.imagePlaneScene.clear();
-        this._subscription.dispose();
-    }
-
-    private updateImagePlanes(state: ICurrentState): boolean {
-        if (state.currentNode == null) {
-            return false;
-        }
-
-        let needsRender: boolean = false;
-
-        if (state.previousNode != null && this.previousKey !== state.previousNode.key) {
-            needsRender = true;
-            this.previousKey = state.previousNode.key;
-            this.imagePlaneScene.setImagePlanesOld([
-                this.imagePlaneFactory.createMesh(state.previousNode, state.previousTransform),
-            ]);
-        }
-
-        if (this.currentKey !== state.currentNode.key) {
-            needsRender = true;
-            this.currentKey = state.currentNode.key;
-            this.imagePlaneScene.setImagePlanes([
-                this.imagePlaneFactory.createMesh(state.currentNode, state.currentTransform),
-            ]);
-        }
-
-        return needsRender;
-    }
-
-    private render(
-        perspectiveCamera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer): void {
-        renderer.render(this.imagePlaneScene.sceneOld, perspectiveCamera);
-        renderer.render(this.imagePlaneScene.scene, perspectiveCamera);
+        this._stateSubscription.dispose();
+        this._sliderStateSubscription.dispose();
     }
 }
 
