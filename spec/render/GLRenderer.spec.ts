@@ -83,6 +83,7 @@ describe("GLRenderer.renderer", () => {
             nodesAhead: 0,
             currentTransform: null,
             previousTransform: null,
+            motionless: false,
         }
 
         spyOn(state, "currentNode").and.returnValue({ });
