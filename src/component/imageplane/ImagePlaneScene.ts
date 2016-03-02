@@ -40,6 +40,23 @@ export class ImagePlaneScene {
         }
     }
 
+    public addImagePlanesOld(planes: THREE.Mesh[]): void {
+        for (let plane of planes) {
+            this.sceneOld.add(plane);
+            this.imagePlanesOld.push(plane);
+        }
+    }
+
+    public setImagePlanes(planes: THREE.Mesh[]): void {
+        this.dispose(this.imagePlanes, this.scene);
+        this.addImagePlanes(planes);
+    }
+
+    public setImagePlanesOld(planes: THREE.Mesh[]): void {
+        this.dispose(this.imagePlanesOld, this.sceneOld);
+        this.addImagePlanesOld(planes);
+    }
+
     public clear(): void {
         this.dispose(this.imagePlanesOld, this.sceneOld);
         this.dispose(this.imagePlanes, this.scene);
