@@ -5,7 +5,7 @@ import * as UnitBezier from "unitbezier";
 
 import {IState, StateBase, IRotation, WaitingState} from "../../State";
 import {Node} from "../../Graph";
-import {Camera, Spatial} from "../../Geo";
+import {Camera} from "../../Geo";
 
 class RotationDelta implements IRotation {
     private _phi: number;
@@ -59,11 +59,8 @@ class RotationDelta implements IRotation {
 }
 
 export class TraversingState extends StateBase {
-    private _spatial: Spatial;
-
     private _baseAlpha: number;
     private _animationSpeed: number;
-    private _motionless: boolean;
 
     private _unitBezier: UnitBezier;
     private _useBezier: boolean;
@@ -78,14 +75,12 @@ export class TraversingState extends StateBase {
     constructor (state: IState) {
         super(state);
 
-        this._spatial = new Spatial();
+        this._motionless = this._motionlessTransition();
 
         this._baseAlpha = this._alpha;
         this._animationSpeed = 0.025;
         this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
         this._useBezier = false;
-
-        this._motionless = false;
 
         this._rotationDelta = new RotationDelta(0, 0);
         this._requestedRotationDelta = null;
@@ -185,14 +180,7 @@ export class TraversingState extends StateBase {
 
         super._setCurrent();
 
-        let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
-
-        this._motionless = nodesSet && !(
-            this._currentNode.merged &&
-            this._previousNode.merged &&
-            this._withinOriginalDistance() &&
-            this._sameConnectedComponent()
-        );
+        this._motionless = this._motionlessTransition();
     }
 
     private _applyRotation(camera: Camera): void {
@@ -261,37 +249,5 @@ export class TraversingState extends StateBase {
         }
 
         this._rotationDelta.reset();
-    }
-
-    private _sameConnectedComponent(): boolean {
-        let current: Node = this._currentNode;
-        let previous: Node = this._previousNode;
-
-        if (!current ||
-            !current.apiNavImIm.merge_cc ||
-            !previous ||
-            !previous.apiNavImIm.merge_cc) {
-            return true;
-        }
-
-        return current.apiNavImIm.merge_cc === previous.apiNavImIm.merge_cc;
-    }
-
-    private _withinOriginalDistance(): boolean {
-        let current: Node = this._currentNode;
-        let previous: Node = this._previousNode;
-
-        if (!current || !previous) {
-            return true;
-        }
-
-        // 50 km/h moves 28m in 2s
-        let distance: number = this._spatial.distanceFromLatLon(
-            current.apiNavImIm.lat,
-            current.apiNavImIm.lon,
-            previous.apiNavImIm.lat,
-            previous.apiNavImIm.lon);
-
-        return distance < 25;
     }
 }

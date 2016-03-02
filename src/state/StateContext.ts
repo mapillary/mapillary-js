@@ -79,6 +79,10 @@ export class StateContext implements IStateContext {
         return this._state.trajectory.length - 1 - this._state.currentIndex;
     }
 
+    public get motionless(): boolean {
+        return this._state.motionless;
+    }
+
     public update(): void {
         this._state.update();
     }

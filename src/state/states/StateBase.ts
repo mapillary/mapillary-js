@@ -3,10 +3,12 @@
 import {ParameterMapillaryError} from "../../Error";
 import {IState} from "../../State";
 import {Node} from "../../Graph";
-import {Camera, Transform} from "../../Geo";
+import {Camera, Transform, Spatial} from "../../Geo";
 import {IRotation} from "../../State";
 
 export abstract class StateBase implements IState {
+    protected _spatial: Spatial;
+
     protected _alpha: number;
     protected _camera: Camera;
 
@@ -22,7 +24,11 @@ export abstract class StateBase implements IState {
     protected _currentCamera: Camera;
     protected _previousCamera: Camera;
 
+    protected _motionless: boolean;
+
     constructor(state: IState) {
+        this._spatial = new Spatial();
+
         this._alpha = state.alpha;
         this._camera = state.camera.clone();
         this._currentIndex = state.currentIndex;
@@ -86,6 +92,10 @@ export abstract class StateBase implements IState {
     public get previousTransform(): Transform {
         return this._trajectoryTransforms.length > 1 && this.currentIndex > 0 ?
             this._trajectoryTransforms[this.currentIndex - 1] : null;
+    }
+
+    public get motionless(): boolean {
+        return this._motionless;
     }
 
     public abstract traverse(): StateBase;
@@ -196,6 +206,17 @@ export abstract class StateBase implements IState {
         }
     }
 
+    protected _motionlessTransition(): boolean {
+        let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
+
+        return nodesSet && !(
+            this._currentNode.merged &&
+            this._previousNode.merged &&
+            this._withinOriginalDistance() &&
+            this._sameConnectedComponent()
+        );
+    }
+
     private _appendToTrajectories(nodes: Node[]): void {
         for (let node of nodes) {
             if (!node.loaded) {
@@ -218,5 +239,37 @@ export abstract class StateBase implements IState {
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));
         }
+    }
+
+    private _sameConnectedComponent(): boolean {
+        let current: Node = this._currentNode;
+        let previous: Node = this._previousNode;
+
+        if (!current ||
+            !current.apiNavImIm.merge_cc ||
+            !previous ||
+            !previous.apiNavImIm.merge_cc) {
+            return true;
+        }
+
+        return current.apiNavImIm.merge_cc === previous.apiNavImIm.merge_cc;
+    }
+
+    private _withinOriginalDistance(): boolean {
+        let current: Node = this._currentNode;
+        let previous: Node = this._previousNode;
+
+        if (!current || !previous) {
+            return true;
+        }
+
+        // 50 km/h moves 28m in 2s
+        let distance: number = this._spatial.distanceFromLatLon(
+            current.apiNavImIm.lat,
+            current.apiNavImIm.lon,
+            previous.apiNavImIm.lat,
+            previous.apiNavImIm.lon);
+
+        return distance < 25;
     }
 }

@@ -12,4 +12,5 @@ export interface ICurrentState {
     nodesAhead: number;
     currentTransform: Transform;
     previousTransform: Transform;
+    motionless: boolean;
 }
