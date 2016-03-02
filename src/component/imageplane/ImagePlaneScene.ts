@@ -18,7 +18,7 @@ export class ImagePlaneScene {
     }
 
     public updateImagePlanes(planes: THREE.Mesh[]): void {
-        this.dispose(this.imagePlanesOld, this.sceneOld);
+        this._dispose(this.imagePlanesOld, this.sceneOld);
 
         for (let plane of this.imagePlanes) {
             this.scene.remove(plane);
@@ -48,21 +48,31 @@ export class ImagePlaneScene {
     }
 
     public setImagePlanes(planes: THREE.Mesh[]): void {
-        this.dispose(this.imagePlanes, this.scene);
+        this._clear();
         this.addImagePlanes(planes);
     }
 
     public setImagePlanesOld(planes: THREE.Mesh[]): void {
-        this.dispose(this.imagePlanesOld, this.sceneOld);
+        this._clearOld();
         this.addImagePlanesOld(planes);
     }
 
     public clear(): void {
-        this.dispose(this.imagePlanesOld, this.sceneOld);
-        this.dispose(this.imagePlanes, this.scene);
+        this._clear();
+        this._clearOld();
     }
 
-    private dispose(planes: THREE.Mesh[], scene: THREE.Scene): void {
+    private _clear(): void {
+        this._dispose(this.imagePlanes, this.scene);
+        this.imagePlanes.length = 0;
+    }
+
+    private _clearOld(): void {
+        this._dispose(this.imagePlanesOld, this.sceneOld);
+        this.imagePlanesOld.length = 0;
+    }
+
+    private _dispose(planes: THREE.Mesh[], scene: THREE.Scene): void {
         for (let plane of planes) {
             scene.remove(plane);
             plane.geometry.dispose();
