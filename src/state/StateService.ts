@@ -102,6 +102,10 @@ export class StateService {
         this._context.move(delta);
     }
 
+    public moveTo(position: number): void {
+        this._context.moveTo(position);
+    }
+
     public get appendNode$(): rx.Subject<Node> {
         return this._appendNode$;
     }

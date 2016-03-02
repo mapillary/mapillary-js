@@ -138,6 +138,10 @@ export class TraversingState extends StateBase {
         throw new Error("Not implemented");
     }
 
+    public moveTo(delta: number): void {
+        throw new Error("Not implemented");
+    }
+
     public rotate(rotationDelta: IRotation): void {
         if (this._currentNode == null || !this._currentNode.fullPano) {
             return;

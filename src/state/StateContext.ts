@@ -93,4 +93,8 @@ export class StateContext implements IStateContext {
     public move(delta: number): void {
         this._state.move(delta);
     }
+
+    public moveTo(delta: number): void {
+        this._state.moveTo(delta);
+    }
 }

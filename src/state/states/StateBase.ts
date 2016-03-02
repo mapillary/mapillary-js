@@ -94,6 +94,8 @@ export abstract class StateBase implements IState {
 
     public abstract move(delta: number): void;
 
+    public abstract moveTo(position: number): void;
+
     public abstract rotate(delta: IRotation): void;
 
     public abstract update(): void;
