@@ -37,6 +37,8 @@ class SliderState {
 
     private _needsRender: boolean;
 
+    private _motionless: boolean;
+
     constructor() {
         this._imagePlaneFactory = new ImagePlaneFactory();
         this._imagePlaneScene = new ImagePlaneScene();
@@ -49,6 +51,8 @@ class SliderState {
         this._frameId = 0;
 
         this._needsRender = false;
+
+        this._motionless = false;
     }
 
     public get frameId(): number {
@@ -59,13 +63,17 @@ class SliderState {
         return this._needsRender;
     }
 
+    public get disabled(): boolean {
+        return this._motionless || this._currentPano || this._previousPano;
+    }
+
     public updateFrame(frame: IFrame): void {
         this._updateFrameId(frame.id);
         this._updateImagePlanes(frame.state);
     }
 
     public updateCurtain(curtain: number): void {
-        if (this._pano) {
+        if (this.disabled) {
             return;
         }
 
@@ -94,10 +102,6 @@ class SliderState {
         this._needsRender = false;
     }
 
-    private get _pano(): boolean {
-        return this._currentPano || this._previousPano;
-    }
-
     private _updateFrameId(frameId: number): void {
         this._frameId = frameId;
     }
@@ -114,6 +118,7 @@ class SliderState {
 
             this._previousKey = state.previousNode.key;
             this._previousPano = state.previousNode.pano;
+            this._motionless = state.motionless;
             this._imagePlaneScene.setImagePlanesOld([
                 this._imagePlaneFactory.createMesh(state.previousNode, state.previousTransform),
             ]);
@@ -124,12 +129,13 @@ class SliderState {
 
             this._currentKey = state.currentNode.key;
             this._currentPano = state.currentNode.pano;
+            this._motionless = state.motionless;
             this._imagePlaneScene.setImagePlanes([
                 this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform),
             ]);
         }
 
-        this._needsRender = needsRender;
+        this._needsRender = this._needsRender || needsRender;
     }
 }
 
@@ -281,11 +287,15 @@ export class SliderComponent extends Component {
         this._mouseMoveSubscription = this._container.mouseService.mouseMove$
             .map<ISliderStateOperation>(
                 (event: MouseEvent): ISliderStateOperation => {
-                    let curtain: number = event.offsetX / this._container.element.offsetWidth;
-
-                    this._navigator.stateService.moveTo(curtain);
-
                     return (sliderState: SliderState): SliderState => {
+                        if (sliderState.disabled) {
+                            return sliderState;
+                        }
+
+                        let curtain: number = event.offsetX / this._container.element.offsetWidth;
+
+                        this._navigator.stateService.moveTo(curtain);
+
                         sliderState.updateCurtain(curtain);
 
                         return sliderState;
