@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {IAPINavIm, APIv2} from "../API";
+import {IAPINavIm, APIv2, APIv3} from "../API";
 import {VectorTilesService, Graph, ImageLoadingService, Node, TilesService} from "../Graph";
 
 interface IGraphOperation extends Function {
@@ -22,9 +22,9 @@ export class GraphService {
     private _vectorTilesService: VectorTilesService;
     private _imageLoadingService: ImageLoadingService;
 
-    constructor (apiV2: APIv2) {
-        this._vectorTilesService = new VectorTilesService();
+    constructor (apiV2: APIv2, apiV3: APIv3) {
         this._tilesService = new TilesService(apiV2);
+        this._vectorTilesService = new VectorTilesService(apiV3);
         this._imageLoadingService = new ImageLoadingService();
 
         this._graph$ = this._updates$

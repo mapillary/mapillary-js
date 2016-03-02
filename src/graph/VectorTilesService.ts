@@ -1,32 +1,20 @@
 /// <reference path="../../typings/browser.d.ts" />
 
-// import * as _ from "underscore";
-// import * as geohash from "latlon-geohash";
-import * as falcor from "falcor";
-import * as HttpDataSource from "falcor-http-datasource";
 import * as rx from "rx";
 
+import {APIv3} from "../API";
 import {IGoogleTile, GoogleTiles} from "../Geo";
-import {Node} from "../Graph";
-import {Urls} from "../Utils";
+import {MapillaryObject, MapillaryRect, Node} from "../Graph";
 
 export class VectorTilesService {
+    private _apiV3: APIv3;
+
     private _googleTiles: GoogleTiles;
-
     private _cacheNode$: rx.Subject<Node> = new rx.Subject<Node>();
-
-    private _model: falcor.Model;
     private _mapillaryObjects$: rx.Observable<any>;
 
-    constructor () {
-        this._model =
-            new falcor.Model({
-                source: new HttpDataSource(Urls.falcorModel(), {
-                    crossDomain: true,
-                    withCredentials: false,
-                }),
-            });
-
+    constructor (apiV3: APIv3) {
+        this._apiV3 = apiV3;
         this._googleTiles = new GoogleTiles();
 
         this._mapillaryObjects$ = this._cacheNode$.map<IGoogleTile>((node: Node): IGoogleTile => {
@@ -35,20 +23,20 @@ export class VectorTilesService {
             return tile.z + "-" + tile.x + "-" + tile.y;
         }).flatMap((tile: IGoogleTile): any => {
             let path: string = "tile['all']";
+
             path += "[" + tile.z + "]";
             path += "[" + tile.x + "]";
             path += "[" + tile.y + "]";
-            path += "['objects'][0..10]['key', 'value', 'package', 'l', 'alt', 'rects', 'last_seen_at', 'first_seen_at']";
+            path += "['objects'][0..100]['key', 'value', 'package', 'l', 'alt', 'rects', 'last_seen_at', 'first_seen_at']";
 
-            return this._model
-                .get(path);
-        }).flatMap((tile: any): any => {
+            return this._apiV3.model.get(path);
+        }).flatMap<MapillaryObject>((tile: any): rx.Observable<MapillaryObject> => {
             let z: number = parseInt(Object.keys(tile.json.tile.all)[0], 10);
             let x: number = parseInt(Object.keys(tile.json.tile.all[z])[0], 10);
             let y: number = parseInt(Object.keys(tile.json.tile.all[z][x])[0], 10);
             let objects: any = tile.json.tile.all[z][x][y].objects;
 
-            let ret: any[] = [];
+            let ret: MapillaryObject[] = [];
 
             for (let object in objects) {
                 if (objects.hasOwnProperty(object)) {
@@ -56,7 +44,30 @@ export class VectorTilesService {
                         object = objects[object];
                         if (object.rects.length > 1) {
                             delete object.$__path;
-                            ret.push(object);
+                            let mapillaryRects: MapillaryRect[] = [];
+
+                            for (let rect in object.rects) {
+                                if (object.rects.hasOwnProperty(rect)) {
+                                    rect = object.rects[rect];
+
+                                    let mapillaryRect: MapillaryRect = new MapillaryRect(rect.capturedAt,
+                                                                                         rect.imageKey,
+                                                                                         rect.rectKey);
+
+                                    mapillaryRects.push(mapillaryRect);
+                                }
+                            }
+
+                            let mapillaryObject: MapillaryObject = new MapillaryObject(object.alt,
+                                                                                       object.first_seen_at,
+                                                                                       object.l,
+                                                                                       object.key,
+                                                                                       object.lastSeenAt,
+                                                                                       object.rects,
+                                                                                       object.dPackage,
+                                                                                       object.value);
+
+                            ret.push(mapillaryObject);
                         }
                     }
                 }
@@ -70,7 +81,7 @@ export class VectorTilesService {
         return this._cacheNode$;
     }
 
-    public get mapillaryObjects$(): rx.Observable<any> {
+    public get mapillaryObjects$(): rx.Observable<MapillaryObject> {
         return this._mapillaryObjects$;
     }
 }

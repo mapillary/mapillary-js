@@ -9,7 +9,7 @@ import {Marker, ComponentService, Component} from "../../Component";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {Graph, ILatLonAlt, Node} from "../../Graph";
+import {MapillaryObject, Graph, ILatLonAlt, Node} from "../../Graph";
 import {GeoCoords} from "../../Geo";
 
 interface IMarkerOperation extends Function {
@@ -110,8 +110,10 @@ export class MarkerComponent extends Component {
             .subscribe(this._container.glRenderer.render$);
 
         this._disposableMapillaryObject =
-            this._navigator.graphService.vectorTilesService.mapillaryObjects$.subscribe((object: any) => {
-                let marker: Marker = this.createMarker(object.l.lat, object.l.lon, object.alt);
+            this._navigator.graphService.vectorTilesService.mapillaryObjects$.subscribe((mapillaryObject: MapillaryObject) => {
+                let marker: Marker = this.createMarker(mapillaryObject.latLon.lat,
+                                                       mapillaryObject.latLon.lon,
+                                                       mapillaryObject.alt);
                 this.addMarker(marker);
             });
     }

@@ -3,8 +3,8 @@ export class Urls {
         return `https://d1cuyjsrcm0gby.cloudfront.net/${key}/thumb-${size}.jpg?origin=mapillary.webgl`;
     }
 
-    public static falcorModel(): string {
-        return "http://mapillary-vector.mapillary.io/tiles.json";
+    public static falcorModel(clientId: string): string {
+        return `http://mapillary-vector.mapillary.io/v3/model.json?client_id=${clientId}`;
     }
 
     public static mesh(key: string): string {
