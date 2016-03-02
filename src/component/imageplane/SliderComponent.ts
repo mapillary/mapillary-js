@@ -126,6 +126,8 @@ export class SliderComponent extends Component {
 
     private _sliderStateOperation$: rx.Subject<ISliderStateOperation>;
     private _sliderState$: rx.Observable<SliderState>;
+    private _sliderStateCreator$: rx.Subject<void>;
+    private _sliderStateDisposer$: rx.Subject<void>;
 
     private _stateSubscription: rx.IDisposable;
     private _mouseMoveSubscription: rx.IDisposable;
@@ -135,17 +137,47 @@ export class SliderComponent extends Component {
         super(name, container, navigator);
 
         this._sliderStateOperation$ = new rx.Subject<ISliderStateOperation>();
+        this._sliderStateCreator$ = new rx.Subject<void>();
+        this._sliderStateDisposer$ = new rx.Subject<void>();
 
         this._sliderState$ = this._sliderStateOperation$
             .scan<SliderState>(
                 (sliderState: SliderState, operation: ISliderStateOperation): SliderState => {
                     return operation(sliderState);
                 },
-                new SliderState())
+                null)
+            .filter(
+                (sliderState: SliderState): boolean => {
+                    return sliderState != null;
+                })
             .distinctUntilChanged(
                 (sliderState: SliderState): number => {
                     return sliderState.frameId;
                 });
+
+        this._sliderStateCreator$
+            .map<ISliderStateOperation>(
+                (): ISliderStateOperation => {
+                    return (sliderState: SliderState): SliderState => {
+                        if (sliderState != null) {
+                            throw new Error("Multiple slider states can not be created at the same time");
+                        }
+
+                        return new SliderState();
+                    };
+                })
+            .subscribe(this._sliderStateOperation$);
+
+        this._sliderStateDisposer$
+            .map<ISliderStateOperation>(
+                (): ISliderStateOperation => {
+                    return (sliderState: SliderState): SliderState => {
+                        sliderState.dispose();
+
+                        return null;
+                    };
+                })
+            .subscribe(this._sliderStateOperation$);
     }
 
     public setNodes(sliderKeys: ISliderKeys): void {
@@ -198,6 +230,27 @@ export class SliderComponent extends Component {
             this._navigator.stateService.wait();
         }
 
+        this._sliderStateSubscription = this._sliderState$
+            .map<IGLRenderHash>(
+                (sliderState: SliderState): IGLRenderHash => {
+                    let renderHash: IGLRenderHash = {
+                        name: this._name,
+                        render: {
+                            frameId: sliderState.frameId,
+                            needsRender: sliderState.needsRender,
+                            render: sliderState.render.bind(sliderState),
+                            stage: GLRenderStage.Background,
+                        },
+                    };
+
+                    sliderState.clearNeedsRender();
+
+                    return renderHash;
+                })
+            .subscribe(this._container.glRenderer.render$);
+
+        this._sliderStateCreator$.onNext(null);
+
         this._stateSubscription = this._navigator.stateService.currentState$
             .map<ISliderStateOperation>(
                 (frame: IFrame): ISliderStateOperation => {
@@ -223,31 +276,14 @@ export class SliderComponent extends Component {
                     };
                 })
             .subscribe(this._sliderStateOperation$);
-
-        this._sliderStateSubscription = this._sliderState$
-            .map<IGLRenderHash>(
-                (sliderState: SliderState): IGLRenderHash => {
-                    let renderHash: IGLRenderHash = {
-                        name: this._name,
-                        render: {
-                            frameId: sliderState.frameId,
-                            needsRender: sliderState.needsRender,
-                            render: sliderState.render.bind(sliderState),
-                            stage: GLRenderStage.Background,
-                        },
-                    };
-
-                    sliderState.clearNeedsRender();
-
-                    return renderHash;
-                })
-            .subscribe(this._container.glRenderer.render$);
     }
 
     protected _deactivate(): void {
         if (this._navigator.stateService.state === State.Waiting) {
             this._navigator.stateService.traverse();
         }
+
+        this._sliderStateDisposer$.onNext(null);
 
         this._stateSubscription.dispose();
         this._mouseMoveSubscription.dispose();
