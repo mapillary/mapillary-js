@@ -1,5 +1,7 @@
 # mapillary-js [![Build Status](https://circleci.com/gh/mapillary/mapillary-js.svg?style=svg)](https://circleci.com/gh/mapillary/mapillary-js)
 
+[![Join the chat at https://gitter.im/mapillary/mapillary-js](https://badges.gitter.im/mapillary/mapillary-js.svg)](https://gitter.im/mapillary/mapillary-js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 WebGL JavaScript library for displaying street level photos from [Mapillary](https://www.mapillary.com)
 
 
