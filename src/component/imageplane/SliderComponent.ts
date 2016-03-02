@@ -93,6 +93,8 @@ export class SliderComponent extends Component {
 
         let render: IGLRenderFunction = this.render.bind(this);
 
+        this._navigator.stateService.wait();
+
         this._subscription = this._navigator.stateService.currentState$
             .map<IGLRenderHash>(
                 (frame: IFrame): IGLRenderHash => {
@@ -112,6 +114,8 @@ export class SliderComponent extends Component {
     }
 
     protected _deactivate(): void {
+        this._navigator.stateService.traverse();
+
         this.imagePlaneScene.clear();
         this._subscription.dispose();
     }
