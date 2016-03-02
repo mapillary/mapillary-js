@@ -46,11 +46,11 @@ export abstract class StateBase implements IState {
             null;
 
         this._currentCamera = this._trajectoryCameras.length > 0 ?
-            this._trajectoryCameras[this._currentIndex] :
+            this._trajectoryCameras[this._currentIndex].clone() :
             new Camera();
 
         this._previousCamera = this._trajectoryCameras.length > 1 && this.currentIndex > 0 ?
-            this._trajectoryCameras[this._currentIndex - 1] :
+            this._trajectoryCameras[this._currentIndex - 1].clone() :
             this._currentCamera.clone();
     }
 
@@ -184,7 +184,9 @@ export abstract class StateBase implements IState {
 
         if (this._previousNode != null) {
             let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
-            this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
+            if (this._previousNode.pano) {
+                this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
+            }
 
             if (this._currentNode.pano) {
                 this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
