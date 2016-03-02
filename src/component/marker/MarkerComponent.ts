@@ -5,7 +5,7 @@ import * as THREE from "three";
 import * as rbush from "rbush";
 import * as rx from "rx";
 
-import {Marker, ComponentService, Component} from "../../Component";
+import {IMarkerConfiguration, Marker, ComponentService, Component} from "../../Component";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
@@ -109,20 +109,28 @@ export class MarkerComponent extends Component {
             })
             .subscribe(this._container.glRenderer.render$);
 
-        this._disposableMapillaryObject =
-            this._navigator.graphService.vectorTilesService.mapillaryObjects$.subscribe((mapillaryObject: MapillaryObject) => {
-                let marker: Marker = this.createMarker(mapillaryObject.latLon.lat,
-                                                       mapillaryObject.latLon.lon,
-                                                       mapillaryObject.alt);
-                this.addMarker(marker);
-            });
+        this._disposableMapillaryObject = null;
+        this.configuration$.subscribe((conf: IMarkerConfiguration) => {
+            if (conf.mapillaryObjects) {
+                this._disposableMapillaryObject =
+                    this._navigator.graphService.vectorTilesService.mapillaryObjects$.subscribe((mapillaryObject: MapillaryObject) => {
+                        let marker: Marker = this.createMarker(mapillaryObject.latLon.lat,
+                                                               mapillaryObject.latLon.lon,
+                                                               mapillaryObject.alt);
+                        this.addMarker(marker);
+                });
+            }
+        });
     }
 
     protected _deactivate(): void {
         // release memory
         this.disposeScene();
         this._disposable.dispose();
-        this._disposableMapillaryObject.dispose();
+
+        if (this._disposableMapillaryObject) {
+            this._disposableMapillaryObject.dispose();
+        }
     }
 
     public createMarker(lat: number, lon: number, alt: number): Marker {
