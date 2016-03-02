@@ -55,9 +55,20 @@ class SliderState {
         return this._needsRender;
     }
 
-    public update(frame: IFrame): void {
+    public updateFrame(frame: IFrame): void {
         this._updateFrameId(frame.id);
         this._needsRender = this._needsRender || this._updateImagePlanes(frame.state);
+    }
+
+    public updateCurtain(curtain: number): void {
+        this._needsRender = true;
+
+        for (let plane of this._imagePlaneScene.imagePlanes) {
+            let shaderMaterial: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
+            let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
+
+            bbox.z = curtain;
+        }
     }
 
     public render(
@@ -117,6 +128,7 @@ export class SliderComponent extends Component {
     private _sliderState$: rx.Observable<SliderState>;
 
     private _stateSubscription: rx.IDisposable;
+    private _mouseMoveSubscription: rx.IDisposable;
     private _sliderStateSubscription: rx.IDisposable;
 
     constructor (name: string, container: Container, navigator: Navigator) {
@@ -188,7 +200,22 @@ export class SliderComponent extends Component {
             .map<ISliderStateOperation>(
                 (frame: IFrame): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
-                        sliderState.update(frame);
+                        sliderState.updateFrame(frame);
+
+                        return sliderState;
+                    };
+                })
+            .subscribe(this._sliderStateOperation$);
+
+        this._mouseMoveSubscription = this._container.mouseService.mouseMove$
+            .map<ISliderStateOperation>(
+                (event: MouseEvent): ISliderStateOperation => {
+                    let curtain: number = event.offsetX / this._container.element.offsetWidth;
+
+                    this._navigator.stateService.moveTo(curtain);
+
+                    return (sliderState: SliderState): SliderState => {
+                        sliderState.updateCurtain(curtain);
 
                         return sliderState;
                     };
@@ -219,6 +246,7 @@ export class SliderComponent extends Component {
         this._navigator.stateService.traverse();
 
         this._stateSubscription.dispose();
+        this._mouseMoveSubscription.dispose();
         this._sliderStateSubscription.dispose();
     }
 }
