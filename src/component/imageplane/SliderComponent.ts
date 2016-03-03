@@ -260,9 +260,14 @@ export class SliderComponent extends Component {
     }
 
     protected _activate(): void {
-        if (this._navigator.stateService.state === State.Traversing) {
-            this._navigator.stateService.wait();
-        }
+        this._navigator.stateService.state$
+            .first()
+            .subscribe(
+                (state: State): void => {
+                    if (state === State.Traversing) {
+                        this._navigator.stateService.wait();
+                    }
+                });
 
         this._sliderStateSubscription = this._sliderState$
             .map<IGLRenderHash>(
@@ -315,9 +320,14 @@ export class SliderComponent extends Component {
     }
 
     protected _deactivate(): void {
-        if (this._navigator.stateService.state === State.Waiting) {
-            this._navigator.stateService.traverse();
-        }
+        this._navigator.stateService.state$
+            .first()
+            .subscribe(
+                (state: State): void => {
+                    if (state === State.Waiting) {
+                        this._navigator.stateService.traverse();
+                    }
+                });
 
         this._sliderStateDisposer$.onNext(null);
 

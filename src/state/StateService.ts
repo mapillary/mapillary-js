@@ -16,26 +16,28 @@ interface IContextOperation {
     (context: IStateContext): IStateContext;
 }
 
+interface IContextAction {
+    (context: IStateContext): void;
+}
+
 export class StateService {
     private _frame$: rx.Subject<number>;
 
     private _contextOperation$: rx.BehaviorSubject<IContextOperation>;
     private _context$: rx.Observable<IStateContext>;
+    private _state$: rx.Observable<State>;
 
     private _currentState$: rx.Observable<IFrame>;
     private _currentNode$: rx.Observable<Node>;
 
     private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
 
-    private _context: IStateContext;
-
     private _frameGenerator: FrameGenerator;
     private _frameId: number;
 
     constructor () {
-        this._context = new StateContext();
-
         this._frame$ = new rx.Subject<number>();
+
         this._contextOperation$ = new rx.BehaviorSubject<IContextOperation>(
             (context: IStateContext): IStateContext => {
                 return context;
@@ -46,7 +48,16 @@ export class StateService {
                 (context: IStateContext, operation: IContextOperation): IStateContext => {
                     return operation(context);
                 },
-                this._context);
+                new StateContext())
+             .shareReplay(1);
+
+        this._state$ = this._context$
+            .map<State>(
+                (context: IStateContext): State => {
+                    return context.state;
+                })
+            .distinctUntilChanged()
+            .shareReplay(1);
 
         this._currentState$ = this._frame$
             .withLatestFrom<IStateContext, [number, IStateContext]>(
@@ -87,6 +98,9 @@ export class StateService {
                 })
             .subscribe(this._contextOperation$);
 
+        this._state$.subscribe();
+        this._currentNode$.subscribe();
+
         this._frameId = null;
         this._frameGenerator = new FrameGenerator();
     }
@@ -99,25 +113,12 @@ export class StateService {
         return this._currentNode$;
     }
 
+    public get state$(): rx.Observable<State> {
+        return this._state$;
+    }
+
     public get appendNode$(): rx.Subject<Node> {
         return this._appendNode$;
-    }
-
-    public get state(): State {
-        return this._context.state;
-    }
-
-    public start(): void {
-        if (this._frameId == null) {
-            this._frameId = this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
-        }
-    }
-
-    public stop(): void {
-        if (this._frameId != null) {
-            this._frameGenerator.cancelAnimationFrame(this._frameId);
-            this._frameId = null;
-        }
     }
 
     public traverse(): void {
@@ -158,6 +159,19 @@ export class StateService {
 
     public moveTo(position: number): void {
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
+    }
+
+    public start(): void {
+        if (this._frameId == null) {
+            this._frameId = this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
+        }
+    }
+
+    public stop(): void {
+        if (this._frameId != null) {
+            this._frameGenerator.cancelAnimationFrame(this._frameId);
+            this._frameId = null;
+        }
     }
 
     private _invokeContextOperation(action: (context: IStateContext) => void): void {
