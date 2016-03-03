@@ -12,15 +12,15 @@ import {
     State,
 } from "../State";
 
-interface IStateContextOperation {
+interface IContextOperation {
     (context: IStateContext): IStateContext;
 }
 
 export class StateService {
     private _frame$: rx.Subject<number>;
 
-    private _stateContextOperation$: rx.BehaviorSubject<IStateContextOperation>;
-    private _stateContext$: rx.Observable<IStateContext>;
+    private _contextOperation$: rx.BehaviorSubject<IContextOperation>;
+    private _context$: rx.Observable<IStateContext>;
 
     private _currentState$: rx.Observable<IFrame>;
     private _currentNode$: rx.Observable<Node>;
@@ -36,21 +36,21 @@ export class StateService {
         this._context = new StateContext();
 
         this._frame$ = new rx.Subject<number>();
-        this._stateContextOperation$ = new rx.BehaviorSubject<IStateContextOperation>(
+        this._contextOperation$ = new rx.BehaviorSubject<IContextOperation>(
             (context: IStateContext): IStateContext => {
                 return context;
             });
 
-        this._stateContext$ = this._stateContextOperation$
+        this._context$ = this._contextOperation$
             .scan<IStateContext>(
-                (context: IStateContext, operation: IStateContextOperation): IStateContext => {
+                (context: IStateContext, operation: IContextOperation): IStateContext => {
                     return operation(context);
                 },
                 this._context);
 
         this._currentState$ = this._frame$
             .withLatestFrom<IStateContext, [number, IStateContext]>(
-                this._stateContext$,
+                this._context$,
                 (frameId: number, context: IStateContext): [number, IStateContext] => {
                     return [frameId, context];
                 })
@@ -92,12 +92,12 @@ export class StateService {
         return this._currentNode$;
     }
 
-    public get state(): State {
-        return this._context.state;
+    public get appendNode$(): rx.Subject<Node> {
+        return this._appendNode$;
     }
 
-    public dispose(): void {
-        this.stop();
+    public get state(): State {
+        return this._context.state;
     }
 
     public start(): void {
@@ -114,47 +114,53 @@ export class StateService {
     }
 
     public traverse(): void {
-        this._context.traverse();
+        this._invokeContextOperation((context: IStateContext) => { context.traverse(); });
     }
 
     public wait(): void {
-        this._context.wait();
+        this._invokeContextOperation((context: IStateContext) => { context.wait(); });
     }
 
     public appendNodes(nodes: Node[]): void {
-        this._context.append(nodes);
+        this._invokeContextOperation((context: IStateContext) => { context.append(nodes); });
     }
 
     public prependNodes(nodes: Node[]): void {
-        this._context.prepend(nodes);
+        this._invokeContextOperation((context: IStateContext) => { context.prepend(nodes); });
     }
 
     public removeNodes(n: number): void {
-        this._context.remove(n);
+        this._invokeContextOperation((context: IStateContext) => { context.remove(n); });
     }
 
     public cutNodes(): void {
-        this._context.cut();
+        this._invokeContextOperation((context: IStateContext) => { context.cut(); });
     }
 
     public setNodes(nodes: Node[]): void {
-        this._context.set(nodes);
+        this._invokeContextOperation((context: IStateContext) => { context.set(nodes); });
     }
 
     public rotate(delta: IRotation): void {
-        this._context.rotate(delta);
+        this._invokeContextOperation((context: IStateContext) => { context.rotate(delta); });
     }
 
     public move(delta: number): void {
-        this._context.move(delta);
+        this._invokeContextOperation((context: IStateContext) => { context.move(delta); });
     }
 
     public moveTo(position: number): void {
-        this._context.moveTo(position);
+        this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
-    public get appendNode$(): rx.Subject<Node> {
-        return this._appendNode$;
+    private _invokeContextOperation(action: (context: IStateContext) => void): void {
+        this._contextOperation$
+            .onNext(
+                (context: IStateContext): IStateContext => {
+                    action(context);
+
+                    return context;
+                });
     }
 
     private frame(time: number): void {
