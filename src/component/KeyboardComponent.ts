@@ -72,7 +72,7 @@ export class KeyboardComponent extends Component {
                 break;
             case 38: // up
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.Next).subscribe();
+                    this._moveDir(EdgeDirection.Next);
                     return;
                 }
 
@@ -85,7 +85,7 @@ export class KeyboardComponent extends Component {
                 break;
             case 40: // down
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.Prev).subscribe();
+                    this._moveDir(EdgeDirection.Prev);
                     return;
                 }
 
@@ -122,7 +122,10 @@ export class KeyboardComponent extends Component {
             return;
         }
 
-        this._navigator.moveToKey(toKey).subscribe();
+        this._navigator.moveToKey(toKey)
+            .subscribe(
+                (n: Node): void => { return; },
+                (e: Error): void => { console.error(e); });
     }
 
     private _rotationFromCamera(camera: Camera): IRotation {
@@ -146,8 +149,8 @@ export class KeyboardComponent extends Component {
                 break;
             case 38: // up
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.Next).subscribe();
-                    return;
+                    direction = EdgeDirection.Next;
+                    break;
                 }
 
                 direction = event.shiftKey ? EdgeDirection.Pano : EdgeDirection.StepForward;
@@ -157,8 +160,8 @@ export class KeyboardComponent extends Component {
                 break;
             case 40: // down
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.Prev).subscribe();
-                    return;
+                    direction = EdgeDirection.Prev;
+                    break;
                 }
 
                 direction = event.shiftKey ? EdgeDirection.TurnU : EdgeDirection.StepBackward;
@@ -171,7 +174,14 @@ export class KeyboardComponent extends Component {
             return;
         }
 
-        this._navigator.moveDir(direction).subscribe();
+        this._moveDir(direction);
+    }
+
+    private _moveDir(direction: EdgeDirection): void {
+        this._navigator.moveDir(direction)
+            .subscribe(
+                (n: Node): void => { return; },
+                (e: Error): void => { console.error(e); });
     }
 }
 
