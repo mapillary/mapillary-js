@@ -76,12 +76,19 @@ export class StateService {
             .distinctUntilChanged()
             .shareReplay(1);
 
+        this._appendNode$
+            .map<IContextOperation>(
+                (node: Node) => {
+                    return (context: IStateContext): IStateContext => {
+                        context.append([node]);
+
+                        return context;
+                    };
+                })
+            .subscribe(this._contextOperation$);
+
         this._frameId = null;
         this._frameGenerator = new FrameGenerator();
-
-        this._appendNode$.subscribe((node: Node) => {
-            this.appendNodes([node]);
-        });
     }
 
     public get currentState$(): rx.Observable<IFrame> {
