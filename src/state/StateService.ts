@@ -12,10 +12,20 @@ import {
     State,
 } from "../State";
 
+interface IStateContextOperation {
+    (context: IStateContext): IStateContext;
+}
+
 export class StateService {
-    private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
-    private _currentState$: rx.Subject<IFrame>;
+    private _frame$: rx.Subject<number>;
+
+    private _stateContextOperation$: rx.BehaviorSubject<IStateContextOperation>;
+    private _stateContext$: rx.Observable<IStateContext>;
+
+    private _currentState$: rx.Observable<IFrame>;
     private _currentNode$: rx.Observable<Node>;
+
+    private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
 
     private _context: IStateContext;
 
@@ -24,19 +34,51 @@ export class StateService {
 
     constructor () {
         this._context = new StateContext();
-        this._currentState$ = new rx.BehaviorSubject<IFrame>({ id: 0, state: this._context });
+
+        this._frame$ = new rx.Subject<number>();
+        this._stateContextOperation$ = new rx.BehaviorSubject<IStateContextOperation>(
+            (context: IStateContext): IStateContext => {
+                return context;
+            });
+
+        this._stateContext$ = this._stateContextOperation$
+            .scan<IStateContext>(
+                (context: IStateContext, operation: IStateContextOperation): IStateContext => {
+                    return operation(context);
+                },
+                this._context);
+
+        this._currentState$ = this._frame$
+            .withLatestFrom<IStateContext, [number, IStateContext]>(
+                this._stateContext$,
+                (frameId: number, context: IStateContext): [number, IStateContext] => {
+                    return [frameId, context];
+                })
+            .do(
+                (fc: [number, IStateContext]): void => {
+                    fc[1].update();
+                })
+            .map<IFrame>(
+                (fc: [number, IStateContext]): IFrame => {
+                    return { id: fc[0], state: fc[1] };
+                })
+            .shareReplay(1);
 
         this._currentNode$ = this._currentState$
-            .map<Node>((f: IFrame): Node => { return f.state.currentNode; })
-            .filter((n: Node): boolean => { return n != null; })
+            .map<Node>(
+                (f: IFrame): Node => {
+                    return f.state.currentNode;
+                })
+            .filter(
+                (n: Node): boolean => {
+                    return n != null;
+                })
             .distinctUntilChanged()
             .shareReplay(1);
-        this._currentNode$.subscribe();
 
-        this._frameGenerator = new FrameGenerator();
         this._frameId = null;
+        this._frameGenerator = new FrameGenerator();
 
-        // fixme we should probably implement all functions in a more reactive way
         this._appendNode$.subscribe((node: Node) => {
             this.appendNodes([node]);
         });
@@ -117,9 +159,6 @@ export class StateService {
 
     private frame(time: number): void {
         this._frameId = this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
-
-        this._context.update();
-
-        this._currentState$.onNext({ id: this._frameId, state: this._context });
+        this._frame$.onNext(this._frameId);
     }
 }
