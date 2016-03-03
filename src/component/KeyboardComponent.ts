@@ -62,6 +62,7 @@ export class KeyboardComponent extends Component {
     private _navigatePanorama(event: KeyboardEvent, node: Node, camera: Camera): void {
         let navigationAngle: number = 0;
         let stepDirection: EdgeDirection = null;
+        let sequenceDirection: EdgeDirection = null;
 
         let phi: number = this._rotationFromCamera(camera).phi;
 
@@ -72,8 +73,8 @@ export class KeyboardComponent extends Component {
                 break;
             case 38: // up
                 if (event.altKey) {
-                    this._moveDir(EdgeDirection.Next, node);
-                    return;
+                    sequenceDirection = EdgeDirection.Next;
+                    break;
                 }
 
                 navigationAngle = phi;
@@ -85,8 +86,8 @@ export class KeyboardComponent extends Component {
                 break;
             case 40: // down
                 if (event.altKey) {
-                    this._moveDir(EdgeDirection.Prev, node);
-                    return;
+                    sequenceDirection = EdgeDirection.Prev;
+                    break;
                 }
 
                 navigationAngle = Math.PI + phi;
@@ -94,6 +95,13 @@ export class KeyboardComponent extends Component {
                 break;
             default:
                 return;
+        }
+
+        event.preventDefault();
+
+        if (sequenceDirection != null) {
+            this._moveDir(sequenceDirection, node);
+            return;
         }
 
         navigationAngle = this._spatial.wrapAngle(navigationAngle);
@@ -167,12 +175,10 @@ export class KeyboardComponent extends Component {
                 direction = event.shiftKey ? EdgeDirection.TurnU : EdgeDirection.StepBackward;
                 break;
             default:
-                break;
+                return;
         }
 
-        if (direction == null) {
-            return;
-        }
+        event.preventDefault();
 
         this._moveDir(direction, node);
     }
