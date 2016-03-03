@@ -72,7 +72,7 @@ export class KeyboardComponent extends Component {
                 break;
             case 38: // up
                 if (event.altKey) {
-                    this._moveDir(EdgeDirection.Next);
+                    this._moveDir(EdgeDirection.Next, node);
                     return;
                 }
 
@@ -85,7 +85,7 @@ export class KeyboardComponent extends Component {
                 break;
             case 40: // down
                 if (event.altKey) {
-                    this._moveDir(EdgeDirection.Prev);
+                    this._moveDir(EdgeDirection.Prev, node);
                     return;
                 }
 
@@ -174,10 +174,20 @@ export class KeyboardComponent extends Component {
             return;
         }
 
-        this._moveDir(direction);
+        this._moveDir(direction, node);
     }
 
-    private _moveDir(direction: EdgeDirection): void {
+    private _moveDir(direction: EdgeDirection, node: Node): void {
+        let directionExist: boolean =
+            node.edges.some(
+                (edge: IEdge): boolean => {
+                    return edge.data.direction === direction;
+                });
+
+        if (!directionExist) {
+            return;
+        }
+
         this._navigator.moveDir(direction)
             .subscribe(
                 (n: Node): void => { return; },
