@@ -1,12 +1,42 @@
-import {IStateContext, IState, CompletingState, IRotation} from "../State";
+import {
+    IStateContext,
+    StateBase,
+    State,
+    TraversingState,
+    WaitingState,
+    IRotation,
+} from "../State";
 import {Node} from "../Graph";
 import {Camera, Transform} from "../Geo";
 
 export class StateContext implements IStateContext {
-    private _state: IState;
+    private _state: StateBase;
 
     constructor() {
-        this._state = new CompletingState([]);
+        this._state = new TraversingState({
+            alpha: 1,
+            camera: new Camera(),
+            currentIndex: 0,
+            trajectory: [],
+        });
+    }
+
+    public traverse(): void {
+        this._state = this._state.traverse();
+    }
+
+    public wait(): void {
+        this._state = this._state.wait();
+    }
+
+    public get state(): State {
+        if (this._state instanceof TraversingState) {
+            return State.Traversing;
+        } else if (this._state instanceof WaitingState) {
+            return State.Waiting;
+        }
+
+        throw new Error("Invalid state");
     }
 
     public get alpha(): number {
@@ -49,12 +79,20 @@ export class StateContext implements IStateContext {
         return this._state.trajectory.length - 1 - this._state.currentIndex;
     }
 
+    public get motionless(): boolean {
+        return this._state.motionless;
+    }
+
     public update(): void {
         this._state.update();
     }
 
     public append(nodes: Node[]): void {
         this._state.append(nodes);
+    }
+
+    public prepend(nodes: Node[]): void {
+        this._state.prepend(nodes);
     }
 
     public remove(n: number): void {
@@ -71,5 +109,13 @@ export class StateContext implements IStateContext {
 
     public rotate(delta: IRotation): void {
         this._state.rotate(delta);
+    }
+
+    public move(delta: number): void {
+        this._state.move(delta);
+    }
+
+    public moveTo(delta: number): void {
+        this._state.moveTo(delta);
     }
 }

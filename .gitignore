@@ -1,13 +1,25 @@
+# IDE
 .vscode/*
+
+# Npm
 node_modules/
-spec/*.js
-*.d.ts
+
+# Typings
+typings/*
+!typings/created/
+
+# File types
 *.log
 *.tgz
 .#*
+
+# Build artifacts
+dist/
 build/
 debug/**/*.js
 debug/**/*.css
+spec/*.js
+
+# Docs
 docs-out/
-dist/
 docs/index.html
