@@ -114,9 +114,13 @@ export class MarkerComponent extends Component {
             if (conf.mapillaryObjects) {
                 this._disposableMapillaryObject =
                     this._navigator.graphService.vectorTilesService.mapillaryObjects$.subscribe((mapillaryObject: MapillaryObject) => {
+                        let views: string[] = _.map(mapillaryObject.rects, (rect: any): string => {
+                            return rect.image_key;
+                        });
                         let marker: Marker = this.createMarker(mapillaryObject.latLon.lat,
                                                                mapillaryObject.latLon.lon,
                                                                mapillaryObject.alt);
+                        marker.setVisibleInKeys(views);
                         this.addMarker(marker);
                 });
             }
@@ -186,6 +190,8 @@ export class MarkerComponent extends Component {
 
         let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: any) => {
             return <Marker>item.marker;
+        }).filter((marker: Marker) => {
+            return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);
         });
 
         for (let marker of markers) {

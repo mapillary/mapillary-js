@@ -8,6 +8,7 @@ export class Marker {
     public alt: number;
     public color: number;
     public hash: number;
+    public visibleInKeys: string[] = [];
 
     public self$: rx.Subject<Marker> = new rx.Subject<Marker>();
 
@@ -29,6 +30,11 @@ export class Marker {
 
     public setColor(color: number): void {
         this.color = color;
+        this.update();
+    }
+
+    public setVisibleInKeys(keys: string[]): void {
+        this.visibleInKeys = keys;
         this.update();
     }
 
