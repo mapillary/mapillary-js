@@ -105,7 +105,7 @@ export interface IViewerOptions {
 
     /**
      * Default size of the thumbnail used in the viewer
-     * @default {ImageSize}
+     * @default {ImageSize.Size640}
      */
     baseImageSize?: ImageSize;
 
