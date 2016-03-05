@@ -5,11 +5,11 @@ import * as THREE from "three";
 import * as rbush from "rbush";
 import * as rx from "rx";
 
-import {Marker, ComponentService, Component} from "../../Component";
+import {IMarkerConfiguration, Marker, ComponentService, Component} from "../../Component";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {Graph, ILatLonAlt, Node} from "../../Graph";
+import {MapillaryObject, Graph, ILatLonAlt, Node} from "../../Graph";
 import {GeoCoords} from "../../Geo";
 
 interface IMarkerOperation extends Function {
@@ -78,6 +78,7 @@ export class MarkerComponent extends Component {
     public static componentName: string = "marker";
 
     private _disposable: rx.IDisposable;
+    private _disposableMapillaryObject: rx.IDisposable;
     private _markerSet: MarkerSet;
 
     private _scene: THREE.Scene;
@@ -107,12 +108,33 @@ export class MarkerComponent extends Component {
                 return this.renderHash(args);
             })
             .subscribe(this._container.glRenderer.render$);
+
+        this._disposableMapillaryObject = null;
+        this.configuration$.subscribe((conf: IMarkerConfiguration) => {
+            if (conf.mapillaryObjects) {
+                this._disposableMapillaryObject =
+                    this._navigator.graphService.vectorTilesService.mapillaryObjects$.subscribe((mapillaryObject: MapillaryObject) => {
+                        let views: string[] = _.map(mapillaryObject.rects, (rect: any): string => {
+                            return rect.image_key;
+                        });
+                        let marker: Marker = this.createMarker(mapillaryObject.latLon.lat,
+                                                               mapillaryObject.latLon.lon,
+                                                               mapillaryObject.alt);
+                        marker.setVisibleInKeys(views);
+                        this.addMarker(marker);
+                });
+            }
+        });
     }
 
     protected _deactivate(): void {
         // release memory
         this.disposeScene();
         this._disposable.dispose();
+
+        if (this._disposableMapillaryObject) {
+            this._disposableMapillaryObject.dispose();
+        }
     }
 
     public createMarker(lat: number, lon: number, alt: number): Marker {
@@ -168,6 +190,8 @@ export class MarkerComponent extends Component {
 
         let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: any) => {
             return <Marker>item.marker;
+        }).filter((marker: Marker) => {
+            return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);
         });
 
         for (let marker of markers) {

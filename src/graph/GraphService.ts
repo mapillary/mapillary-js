@@ -2,8 +2,8 @@
 
 import * as rx from "rx";
 
-import {IAPINavIm, APIv2} from "../API";
-import {Graph, ImageLoadingService, Node, TilesService} from "../Graph";
+import {IAPINavIm, APIv2, APIv3} from "../API";
+import {VectorTilesService, Graph, ImageLoadingService, Node, TilesService} from "../Graph";
 
 interface IGraphOperation extends Function {
     (graph: Graph): Graph;
@@ -19,10 +19,12 @@ export class GraphService {
     private _graph$: rx.Observable<Graph>;
 
     private _tilesService: TilesService;
+    private _vectorTilesService: VectorTilesService;
     private _imageLoadingService: ImageLoadingService;
 
-    constructor (apiV2: APIv2) {
+    constructor (apiV2: APIv2, apiV3: APIv3) {
         this._tilesService = new TilesService(apiV2);
+        this._vectorTilesService = new VectorTilesService(apiV3);
         this._imageLoadingService = new ImageLoadingService();
 
         this._graph$ = this._updates$
@@ -53,6 +55,7 @@ export class GraphService {
         }).publish();
         this._cachedNode$.connect();
         this._cachedNode$.subscribe(this._tilesService.cacheNode$);
+        this._cachedNode$.subscribe(this._vectorTilesService.cacheNode$);
 
         this._cachedNode$.map((node: Node) => {
             return (graph: Graph): Graph => {
@@ -83,6 +86,10 @@ export class GraphService {
 
     public get imageLoadingService(): ImageLoadingService {
         return this._imageLoadingService;
+    }
+
+    public get vectorTilesService(): VectorTilesService {
+        return this._vectorTilesService;
     }
 
     public node$(key: string): rx.Observable<Node> {
