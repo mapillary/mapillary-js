@@ -13,8 +13,10 @@
     "rx": "npm:rx/ts/rx.all.d.ts",
     "three": "github:DefinitelyTyped/DefinitelyTyped/threejs/three.d.ts#46719185c564694c5583c4b7ad94dbb786ecad46",
     "underscore": "github:DefinitelyTyped/DefinitelyTyped/underscore/underscore.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e",
-    "unitbezier": "file:typings/created/unitbezier/unitbezier.d.ts",
     "virtual-dom": "github:DefinitelyTyped/DefinitelyTyped/virtual-dom/virtual-dom.d.ts#70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e",
     "when": "github:DefinitelyTyped/DefinitelyTyped/when/when.d.ts#001ca36ba58cef903c4c063555afb07bbc36bb58"
+  },
+  "dependencies": {
+    "unitbezier": "file:./typings/created/unitbezier/unitbezier.d.ts"
   }
 }
