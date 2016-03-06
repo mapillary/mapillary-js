@@ -7,7 +7,7 @@ import {Node} from "../../Graph";
 import {ICurrentState, IFrame, State} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {Component, ComponentService, ImagePlaneScene, ImagePlaneFactory} from "../../Component";
+import {Component, ComponentService, ImagePlaneScene, ImagePlaneFactory, ISliderConfiguration} from "../../Component";
 
 interface ISliderKeys {
     background: string;
@@ -22,6 +22,10 @@ interface ISliderNodes {
 interface ISliderCombination {
     nodes: ISliderNodes;
     state: ICurrentState;
+}
+
+interface ISliderStateOperation {
+    (sliderState: SliderState): SliderState;
 }
 
 class SliderState {
@@ -151,12 +155,10 @@ class SliderState {
     }
 }
 
-interface ISliderStateOperation {
-    (sliderState: SliderState): SliderState;
-}
-
 export class SliderComponent extends Component {
     public static componentName: string = "slider";
+
+    private _configurationSubscription: rx.IDisposable;
 
     private _sliderStateOperation$: rx.Subject<ISliderStateOperation>;
     private _sliderState$: rx.Observable<SliderState>;
@@ -215,21 +217,29 @@ export class SliderComponent extends Component {
     }
 
     public setNodes(sliderKeys: ISliderKeys): void {
-        if (!this._activated) {
-            return;
-        }
+        this.configure({ keys: sliderKeys });
+    }
 
-        rx.Observable
-            .zip<Node, Node, ISliderNodes>(
-                this._navigator.graphService.node$(sliderKeys.background),
-                this._navigator.graphService.node$(sliderKeys.foreground),
-                (background: Node, foreground: Node): ISliderNodes => {
-                    return { background: background, foreground: foreground };
+    protected _activate(): void {
+        this._configurationSubscription = this._configuration$
+            .filter(
+                (configuration: ISliderConfiguration): boolean => {
+                    return configuration.keys != null;
                 })
-            .withLatestFrom(
-                this._navigator.stateService.currentState$,
-                (nodes: ISliderNodes, frame: IFrame): ISliderCombination => {
-                    return { nodes: nodes, state: frame.state };
+            .flatMapLatest<ISliderCombination>(
+                (configuration: ISliderConfiguration): rx.Observable<ISliderCombination> => {
+                    return rx.Observable
+                        .zip<Node, Node, ISliderNodes>(
+                            this._navigator.graphService.node$(configuration.keys.background),
+                            this._navigator.graphService.node$(configuration.keys.foreground),
+                            (background: Node, foreground: Node): ISliderNodes => {
+                                return { background: background, foreground: foreground };
+                            })
+                        .withLatestFrom(
+                            this._navigator.stateService.currentState$,
+                            (nodes: ISliderNodes, frame: IFrame): ISliderCombination => {
+                                return { nodes: nodes, state: frame.state };
+                            });
                 })
             .subscribe(
                 (co: ISliderCombination): void => {
@@ -257,9 +267,7 @@ export class SliderComponent extends Component {
                 (e: Error): void => {
                     console.log(e);
                 });
-    }
 
-    protected _activate(): void {
         this._navigator.stateService.state$
             .first()
             .subscribe(
@@ -330,6 +338,8 @@ export class SliderComponent extends Component {
                 });
 
         this._sliderStateDisposer$.onNext(null);
+
+        this._configurationSubscription.dispose();
 
         this._stateSubscription.dispose();
         this._mouseMoveSubscription.dispose();
