@@ -175,6 +175,10 @@ export class SliderComponent extends Component {
     private _mouseMoveSubscription: rx.IDisposable;
     private _sliderStateSubscription: rx.IDisposable;
 
+    /**
+     * Create a new slider component instance.
+     * @class SliderComponent
+     */
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
@@ -222,12 +226,26 @@ export class SliderComponent extends Component {
             .subscribe(this._sliderStateOperation$);
     }
 
-    public setNodes(sliderKeys: ISliderKeys): void {
-        this.configure({ keys: sliderKeys });
+    /**
+     * Sets the image keys.
+     *
+     * Configures the component to show the image planes for the supplied image keys.
+     *
+     * @param {keys} ISliderKeys - Slider keys object specifying the images to be shown in the foreground and the background.
+     */
+    public setKeys(keys: ISliderKeys): void {
+        this.configure({ keys: keys });
     }
 
-    public setInitialPosition(position: number): void {
-        this.configure({ initialPosition: position });
+    /**
+     * Sets the initial position.
+     *
+     * Configures the intial position of the slider. The inital position value will be used when the component is activated.
+     *
+     * @param {number} initialPosition - Initial slider position.
+     */
+    public setInitialPosition(initialPosition: number): void {
+        this.configure({ initialPosition: initialPosition });
     }
 
     protected _activate(): void {
