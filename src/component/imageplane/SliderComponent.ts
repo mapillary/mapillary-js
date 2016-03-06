@@ -90,7 +90,11 @@ class SliderState {
     public render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
-        renderer.render(this._imagePlaneScene.sceneOld, perspectiveCamera);
+
+        if (!this.disabled) {
+            renderer.render(this._imagePlaneScene.sceneOld, perspectiveCamera);
+        }
+
         renderer.render(this._imagePlaneScene.scene, perspectiveCamera);
     }
 
