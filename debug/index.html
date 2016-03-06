@@ -126,24 +126,23 @@
         }
 
         function showSlider() {
+            viewer.activateComponent("slider");
+
             viewer.deactivateComponent("imageplane");
             viewer.deactivateComponent("direction");
             viewer.deactivateComponent("sequence");
             viewer.deactivateComponent("mouse");
             viewer.deactivateComponent("keyboard");
-            viewer.activateComponent("slider");
-
-            var slider = viewer.getComponent("slider");
-            slider.setNodes({background: "uR2exMqzDxeMtAWkJDzm9A", foreground: "JW1utOJP4g7gk06HtYgQSQ"});
         }
 
         function hideSlider() {
-            viewer.deactivateComponent("slider");
             viewer.activateComponent("imageplane");
             viewer.activateComponent("direction");
             viewer.activateComponent("sequence");
             viewer.activateComponent("mouse");
             viewer.activateComponent("keyboard");
+
+            viewer.deactivateComponent("slider");
         }
 
         function playRoute() {
