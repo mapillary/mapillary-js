@@ -7,12 +7,14 @@ import {Node} from "../../Graph";
 import {ICurrentState, IFrame, State} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {Component, ComponentService, ImagePlaneScene, ImagePlaneFactory, ISliderConfiguration} from "../../Component";
-
-interface ISliderKeys {
-    background: string;
-    foreground: string;
-}
+import {
+    Component,
+    ComponentService,
+    ImagePlaneScene,
+    ImagePlaneFactory,
+    ISliderKeys,
+    ISliderConfiguration,
+} from "../../Component";
 
 interface ISliderNodes {
     background: Node;
