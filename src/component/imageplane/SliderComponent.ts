@@ -223,53 +223,6 @@ export class SliderComponent extends Component {
     }
 
     protected _activate(): void {
-        this._configurationSubscription = this._configuration$
-            .filter(
-                (configuration: ISliderConfiguration): boolean => {
-                    return configuration.keys != null;
-                })
-            .flatMapLatest<ISliderCombination>(
-                (configuration: ISliderConfiguration): rx.Observable<ISliderCombination> => {
-                    return rx.Observable
-                        .zip<Node, Node, ISliderNodes>(
-                            this._navigator.graphService.node$(configuration.keys.background),
-                            this._navigator.graphService.node$(configuration.keys.foreground),
-                            (background: Node, foreground: Node): ISliderNodes => {
-                                return { background: background, foreground: foreground };
-                            })
-                        .withLatestFrom(
-                            this._navigator.stateService.currentState$,
-                            (nodes: ISliderNodes, frame: IFrame): ISliderCombination => {
-                                return { nodes: nodes, state: frame.state };
-                            });
-                })
-            .subscribe(
-                (co: ISliderCombination): void => {
-                    if (co.state.currentNode != null &&
-                        co.state.previousNode != null &&
-                        co.state.currentNode.key === co.nodes.foreground.key &&
-                        co.state.previousNode.key === co.nodes.background.key) {
-                        return;
-                    }
-
-                    if (co.state.currentNode.key === co.nodes.background.key) {
-                        this._navigator.stateService.setNodes([co.nodes.foreground]);
-                        return;
-                    }
-
-                    if (co.state.currentNode.key === co.nodes.foreground.key &&
-                        co.state.trajectory.length === 1) {
-                        this._navigator.stateService.prependNodes([co.nodes.background]);
-                        return;
-                    }
-
-                    this._navigator.stateService.setNodes([co.nodes.background]);
-                    this._navigator.stateService.setNodes([co.nodes.foreground]);
-                },
-                (e: Error): void => {
-                    console.log(e);
-                });
-
         this._navigator.stateService.state$
             .first()
             .subscribe(
@@ -327,6 +280,53 @@ export class SliderComponent extends Component {
                     };
                 })
             .subscribe(this._sliderStateOperation$);
+
+        this._configurationSubscription = this._configuration$
+            .filter(
+                (configuration: ISliderConfiguration): boolean => {
+                    return configuration.keys != null;
+                })
+            .flatMapLatest<ISliderCombination>(
+                (configuration: ISliderConfiguration): rx.Observable<ISliderCombination> => {
+                    return rx.Observable
+                        .zip<Node, Node, ISliderNodes>(
+                            this._navigator.graphService.node$(configuration.keys.background),
+                            this._navigator.graphService.node$(configuration.keys.foreground),
+                            (background: Node, foreground: Node): ISliderNodes => {
+                                return { background: background, foreground: foreground };
+                            })
+                        .withLatestFrom(
+                            this._navigator.stateService.currentState$,
+                            (nodes: ISliderNodes, frame: IFrame): ISliderCombination => {
+                                return { nodes: nodes, state: frame.state };
+                            });
+                })
+            .subscribe(
+                (co: ISliderCombination): void => {
+                    if (co.state.currentNode != null &&
+                        co.state.previousNode != null &&
+                        co.state.currentNode.key === co.nodes.foreground.key &&
+                        co.state.previousNode.key === co.nodes.background.key) {
+                        return;
+                    }
+
+                    if (co.state.currentNode.key === co.nodes.background.key) {
+                        this._navigator.stateService.setNodes([co.nodes.foreground]);
+                        return;
+                    }
+
+                    if (co.state.currentNode.key === co.nodes.foreground.key &&
+                        co.state.trajectory.length === 1) {
+                        this._navigator.stateService.prependNodes([co.nodes.background]);
+                        return;
+                    }
+
+                    this._navigator.stateService.setNodes([co.nodes.background]);
+                    this._navigator.stateService.setNodes([co.nodes.foreground]);
+                },
+                (e: Error): void => {
+                    console.log(e);
+                });
     }
 
     protected _deactivate(): void {
@@ -346,6 +346,8 @@ export class SliderComponent extends Component {
         this._stateSubscription.dispose();
         this._mouseMoveSubscription.dispose();
         this._sliderStateSubscription.dispose();
+
+        this.configure({ keys: null });
     }
 }
 
