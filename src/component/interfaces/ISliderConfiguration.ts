@@ -6,6 +6,7 @@ export interface ISliderKeys {
 }
 
 export interface ISliderConfiguration extends IComponentConfiguration {
+    initialPosition?: number;
     keys?: ISliderKeys;
 }
 

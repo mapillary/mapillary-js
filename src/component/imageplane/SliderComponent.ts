@@ -226,13 +226,26 @@ export class SliderComponent extends Component {
         this.configure({ keys: sliderKeys });
     }
 
+    public setInitialPosition(position: number): void {
+        this.configure({ initialPosition: position });
+    }
+
     protected _activate(): void {
-        this._navigator.stateService.state$
+        rx.Observable
+            .combineLatest(
+                this._navigator.stateService.state$,
+                this._configuration$,
+                (state: State, configuration: ISliderConfiguration): [State, ISliderConfiguration] => {
+                    return [state, configuration];
+                })
             .first()
             .subscribe(
-                (state: State): void => {
-                    if (state === State.Traversing) {
+                (stateConfig: [State, ISliderConfiguration]): void => {
+                    if (stateConfig[0] === State.Traversing) {
                         this._navigator.stateService.wait();
+
+                        let position: number = stateConfig[1].initialPosition;
+                        this._navigator.stateService.moveTo(position != null ? position : 1);
                     }
                 });
 
