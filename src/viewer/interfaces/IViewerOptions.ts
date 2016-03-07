@@ -112,7 +112,7 @@ export interface IViewerOptions {
     /**
      * The max size of an image shown in the viewer
      * will be used when user pauses.
-     * @default {ImageSize}
+     * @default {ImageSize.Size2048}
      */
     maxImageSize?: ImageSize;
 }
