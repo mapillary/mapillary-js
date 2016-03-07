@@ -8,6 +8,8 @@ import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Camera} from "../../Geo";
+import {Node} from "../../Graph";
+import {Settings, Urls} from "../../Utils";
 
 interface IImagePlaneStateOperation {
     (imagePlaneState: ImagePlaneState): ImagePlaneState;
@@ -59,6 +61,23 @@ class ImagePlaneState {
         this._needsRender = this._updateAlpha(frame.state.alpha) || this._needsRender;
         this._needsRender = this._updateAlphaOld(frame.state.alpha) || this._needsRender;
         this._needsRender = this._updateImagePlanes(frame.state) || this._needsRender;
+    }
+
+    public updateTexture(texture: THREE.Texture, node: Node): void {
+        if (this._currentKey !== node.key) {
+            return;
+        }
+
+        this._needsRender = true;
+
+        for (let plane of this._imagePlaneScene.imagePlanes) {
+            let textureOld: THREE.Texture = (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value;
+            if (textureOld != null) {
+                textureOld.dispose();
+            }
+
+            (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value = texture;
+        }
     }
 
     public render(
@@ -153,6 +172,7 @@ export class ImagePlaneComponent extends Component {
 
     private _imagePlaneStateSubscription: rx.IDisposable;
     private _stateSubscription: rx.IDisposable;
+    private _nodeSubscription: rx.IDisposable;
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -233,6 +253,49 @@ export class ImagePlaneComponent extends Component {
                     };
                 })
             .subscribe(this._imagePlaneStateOperation$);
+
+        this._nodeSubscription = this._navigator.stateService.currentNode$
+            .filter(
+                (node: Node): boolean => {
+                    return Settings.maxImageSize > Settings.baseImageSize;
+                })
+            .flatMapLatest(
+                (node: Node): rx.Observable<[THREE.Texture, Node]> => {
+                    return rx.Observable
+                        .just<void>(null)
+                        .delay(2000)
+                        .flatMap<THREE.Texture>(
+                            (): rx.Observable<THREE.Texture> => {
+                                let textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
+                                textureLoader.setCrossOrigin("Anonymous");
+
+                                let load: (url: string) => rx.Observable<THREE.Texture> =
+                                    rx.Observable.fromCallback<THREE.Texture, string>(
+                                        textureLoader.load,
+                                        textureLoader);
+
+                                return load(Urls.image(node.key, Settings.maxImageSize))
+                                    .do(
+                                        (texture: THREE.Texture): void => {
+                                            texture.minFilter = THREE.LinearFilter;
+                                            texture.needsUpdate = true;
+                                        });
+                            })
+                        .zip(
+                            rx.Observable.just<Node>(node),
+                            (t: THREE.Texture, n: Node): [THREE.Texture, Node] => {
+                                return [t, n];
+                            });
+                })
+            .map<IImagePlaneStateOperation>(
+                (tn: [THREE.Texture, Node]): IImagePlaneStateOperation => {
+                    return (imagePlaneState: ImagePlaneState): ImagePlaneState => {
+                        imagePlaneState.updateTexture(tn[0], tn[1]);
+
+                        return imagePlaneState;
+                    };
+                })
+            .subscribe(this._imagePlaneStateOperation$);
     }
 
     protected _deactivate(): void {
@@ -240,6 +303,7 @@ export class ImagePlaneComponent extends Component {
 
         this._imagePlaneStateSubscription.dispose();
         this._stateSubscription.dispose();
+        this._nodeSubscription.dispose();
     }
 }
 
