@@ -39,7 +39,7 @@ export interface IViewerOptions {
 
     /**
      * Show detection rectangles in images
-     * @default true
+     * @default false
      */
     detection?: boolean;
 

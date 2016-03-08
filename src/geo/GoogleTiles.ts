@@ -1,3 +1,6 @@
+// attribute to
+// http://stackoverflow.com/questions/23457916/how-to-get-latitude-and-longitude-bounds-from-google-maps-x-y-and-zoom-parameter
+
 import {IGoogleTile, IPoint, IBBox} from "../Geo";
 import {ILatLon} from "../Graph";
 

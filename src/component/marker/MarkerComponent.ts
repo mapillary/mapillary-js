@@ -78,7 +78,7 @@ export class MarkerComponent extends Component {
     public static componentName: string = "marker";
 
     private _disposable: rx.IDisposable;
-    private _disposableMapillaryObject: rx.IDisposable;
+    private _disposableConfiguration: rx.IDisposable;
     private _markerSet: MarkerSet;
 
     private _scene: THREE.Scene;
@@ -109,21 +109,22 @@ export class MarkerComponent extends Component {
             })
             .subscribe(this._container.glRenderer.render$);
 
-        this._disposableMapillaryObject = null;
-        this.configuration$.subscribe((conf: IMarkerConfiguration) => {
-            if (conf.mapillaryObjects) {
-                this._disposableMapillaryObject =
-                    this._navigator.graphService.vectorTilesService.mapillaryObjects$.subscribe((mapillaryObject: MapillaryObject) => {
-                        let views: string[] = _.map(mapillaryObject.rects, (rect: any): string => {
-                            return rect.image_key;
-                        });
-                        let marker: Marker = this.createMarker(mapillaryObject.latLon.lat,
-                                                               mapillaryObject.latLon.lon,
-                                                               mapillaryObject.alt);
-                        marker.setVisibleInKeys(views);
-                        this.addMarker(marker);
+        this._disposableConfiguration = this.configuration$.filter((conf: IMarkerConfiguration) => {
+            return conf.mapillaryObjects;
+        }).flatMapLatest<Marker>((conf: IMarkerConfiguration) => {
+            return this._navigator.graphService.vectorTilesService
+                .mapillaryObjects$.map<Marker>((mapillaryObject: MapillaryObject): Marker => {
+                    let views: string[] = _.map(mapillaryObject.rects, (rect: any): string => {
+                        return rect.image_key;
+                    });
+                    let marker: Marker = this.createMarker(mapillaryObject.latLon.lat,
+                                                           mapillaryObject.latLon.lon,
+                                                           mapillaryObject.alt);
+                    marker.setVisibleInKeys(views);
+                    return marker;
                 });
-            }
+        }).subscribe((marker: Marker): void => {
+            this.addMarker(marker);
         });
     }
 
@@ -131,10 +132,7 @@ export class MarkerComponent extends Component {
         // release memory
         this.disposeScene();
         this._disposable.dispose();
-
-        if (this._disposableMapillaryObject) {
-            this._disposableMapillaryObject.dispose();
-        }
+        this._disposableConfiguration.dispose();
     }
 
     public createMarker(lat: number, lon: number, alt: number): Marker {

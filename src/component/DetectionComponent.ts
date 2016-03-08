@@ -10,7 +10,7 @@ import {APIv3} from "../API";
 import {ComponentService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
 
-interface IRect {
+interface IDetection {
     rect: number[];
     score: string;
     value: string;
@@ -31,13 +31,15 @@ export class DetectionComponent extends Component {
 
     protected _activate(): void {
         this._disposable = this._navigator.stateService.currentNode$.flatMap((node: Node): rx.Observable<any> => {
-            let path: string = "['imageByKey']";
-            path += "['" + node.key + "']";
-            path += "['ors'][0..20]['key', 'obj', 'rect', 'value', 'package', 'score']";
-
-            return this.apiV3.model.get(path);
+            return this.apiV3.model.get([
+                "imageByKey",
+                node.key,
+                "ors",
+                {from: 0, to: 20},
+                ["key", "obj", "rect", "value", "package", "score"],
+            ]);
         }).map((ors: any): IVNodeHash => {
-            let rects: IRect[] = [];
+            let detections: IDetection[] = [];
             delete ors.json.imageByKey.$__path;
             ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
             delete ors.$__path;
@@ -56,7 +58,7 @@ export class DetectionComponent extends Component {
                     r[2] = or.rect.geometry.coordinates[3][0];
                     r[3] = or.rect.geometry.coordinates[3][1];
 
-                    let rect: IRect = {
+                    let rect: IDetection = {
                         key: or.key,
                         object: or.obj,
                         package: or.package,
@@ -64,11 +66,11 @@ export class DetectionComponent extends Component {
                         score: or.score,
                         value: or.value,
                     };
-                    rects.push(rect);
+                    detections.push(rect);
                 }
             }
 
-            return {name: this._name, vnode: this.getRects(rects)};
+            return {name: this._name, vnode: this.getRects(detections)};
         }).subscribe(this._container.domRenderer.render$);
     }
 
@@ -76,10 +78,10 @@ export class DetectionComponent extends Component {
         this._disposable.dispose();
     }
 
-    private getRects(rects: IRect[]): vd.VNode {
+    private getRects(detections: IDetection[]): vd.VNode {
         let vRects: vd.VNode[] = [];
 
-        rects.forEach((r: IRect) => {
+        detections.forEach((r: IDetection) => {
             let adjustedRect: number[] = this.coordsToCss(r.rect);
 
             let rectMapped: string[] = adjustedRect.map((el: number) => {

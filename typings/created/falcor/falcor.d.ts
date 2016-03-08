@@ -6,7 +6,7 @@ declare module "falcor" {
     }
     export class Model implements IModel {
         constructor(...args: any[]);
-        get(pathSet: any): any;
+        get(...args: any[]): any;
         set(jsongEnv: any): any;
         treatErrorsAsValues(): any;
         call(callPath: any, args?: any, pathSuffix?: any, paths?: any): any;

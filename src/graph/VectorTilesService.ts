@@ -22,14 +22,16 @@ export class VectorTilesService {
         }).distinct((tile: IGoogleTile): string => {
             return tile.z + "-" + tile.x + "-" + tile.y;
         }).flatMap((tile: IGoogleTile): any => {
-            let path: string = "tile['all']";
-
-            path += "[" + tile.z + "]";
-            path += "[" + tile.x + "]";
-            path += "[" + tile.y + "]";
-            path += "['objects'][0..100]['key', 'value', 'package', 'l', 'alt', 'rects', 'last_seen_at', 'first_seen_at']";
-
-            return this._apiV3.model.get(path);
+            return this._apiV3.model.get([
+                "tile",
+                "all",
+                tile.z,
+                tile.x,
+                tile.y,
+                "objects",
+                {from: 0, to: 100},
+                ["key", "value", "package", "l", "alt", "rects", "last_seen_at", "first_seen_at"],
+            ]);
         }).flatMap<MapillaryObject>((tile: any): rx.Observable<MapillaryObject> => {
             let z: number = parseInt(Object.keys(tile.json.tile.all)[0], 10);
             let x: number = parseInt(Object.keys(tile.json.tile.all[z])[0], 10);
@@ -39,37 +41,38 @@ export class VectorTilesService {
             let ret: MapillaryObject[] = [];
 
             for (let object in objects) {
-                if (objects.hasOwnProperty(object)) {
-                    if (object !== "$__path") {
-                        object = objects[object];
-                        if (object.rects.length > 1) {
-                            delete object.$__path;
-                            let mapillaryRects: MapillaryRect[] = [];
+                if (!objects.hasOwnProperty(object)) {
+                    continue;
+                }
 
-                            for (let rect in object.rects) {
-                                if (object.rects.hasOwnProperty(rect)) {
-                                    rect = object.rects[rect];
+                delete object.$__path;
+                object = objects[object];
 
-                                    let mapillaryRect: MapillaryRect = new MapillaryRect(rect.capturedAt,
-                                                                                         rect.imageKey,
-                                                                                         rect.rectKey);
+                if (object.rects && object.rects.length > 1) {
+                    let mapillaryRects: MapillaryRect[] = [];
 
-                                    mapillaryRects.push(mapillaryRect);
-                                }
-                            }
+                    for (let rect in object.rects) {
+                        if (object.rects.hasOwnProperty(rect)) {
+                            rect = object.rects[rect];
 
-                            let mapillaryObject: MapillaryObject = new MapillaryObject(object.alt,
-                                                                                       object.first_seen_at,
-                                                                                       object.l,
-                                                                                       object.key,
-                                                                                       object.lastSeenAt,
-                                                                                       object.rects,
-                                                                                       object.dPackage,
-                                                                                       object.value);
+                            let mapillaryRect: MapillaryRect = new MapillaryRect(rect.capturedAt,
+                                                                                 rect.imageKey,
+                                                                                 rect.rectKey);
 
-                            ret.push(mapillaryObject);
+                            mapillaryRects.push(mapillaryRect);
                         }
                     }
+
+                    let mapillaryObject: MapillaryObject = new MapillaryObject(object.alt,
+                                                                               object.first_seen_at,
+                                                                               object.l,
+                                                                               object.key,
+                                                                               object.lastSeenAt,
+                                                                               object.rects,
+                                                                               object.dPackage,
+                                                                               object.value);
+
+                    ret.push(mapillaryObject);
                 }
             }
 
