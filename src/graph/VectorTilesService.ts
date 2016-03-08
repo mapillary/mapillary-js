@@ -18,7 +18,7 @@ export class VectorTilesService {
         this._googleTiles = new GoogleTiles();
 
         this._mapillaryObjects$ = this._cacheNode$.map<IGoogleTile>((node: Node): IGoogleTile => {
-            return this._googleTiles.getTileAtLatLon(node.latLon, 19);
+            return this._googleTiles.getTileAtLatLon(node.latLon, 17);
         }).distinct((tile: IGoogleTile): string => {
             return tile.z + "-" + tile.x + "-" + tile.y;
         }).flatMap((tile: IGoogleTile): any => {
