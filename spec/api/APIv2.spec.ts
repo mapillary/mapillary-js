@@ -2,7 +2,7 @@
 
 import * as when from "when";
 
-import {APIv2, IAPINavIm, IAPIImOr} from "../../src/API";
+import {APIv2, IAPINavIm} from "../../src/API";
 
 describe("APIv2", () => {
     var apiV2: APIv2;
@@ -13,17 +13,6 @@ describe("APIv2", () => {
 
     it("exists", () => {
         expect(apiV2).toBeDefined();
-    });
-
-    it("calls im or", (done) => {
-        spyOn(apiV2.im, "callApi").and.returnValue(when(null));
-
-        let im: string = "key";
-        apiV2.im.callOr(im).then((response: IAPIImOr) => {
-            expect(apiV2.im.callApi).toHaveBeenCalledWith("im/" + im + "/or");
-
-            done();
-        });
     });
 
     it("calls nav h", (done) => {
