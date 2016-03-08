@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {GLRenderer, DOMRenderer} from "../Render";
 import {IFrame} from "../State";
-import {MouseService} from "../Viewer";
+import {MouseService, TouchService} from "../Viewer";
 
 export class Container {
     public id: string;
@@ -14,6 +14,7 @@ export class Container {
     public domRenderer: DOMRenderer;
 
     public mouseService: MouseService;
+    public touchService: TouchService;
 
     constructor (id: string, currentFrame$: rx.Observable<IFrame>) {
         this.id = id;
@@ -24,6 +25,7 @@ export class Container {
         this.domRenderer = new DOMRenderer(this.element);
 
         this.mouseService = new MouseService(this.element);
+        this.touchService = new TouchService(this.element);
     }
 }
 
