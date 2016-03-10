@@ -53,7 +53,7 @@ export class NavigationComponent extends Component {
     }
 
     private createVNode(direction: EdgeDirection, name: string): vd.VNode {
-        return vd.h(`span.btn.Direction.Direction${name}`,
+        return vd.h(`span.Direction.Direction${name}`,
                     {onclick: (ev: Event): void => { this._navigator.moveDir(direction).first().subscribe(); }},
                     []);
     }
