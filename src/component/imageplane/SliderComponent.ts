@@ -2,11 +2,12 @@
 
 import * as THREE from "three";
 import * as rx from "rx";
+import * as vd from "virtual-dom";
 
 import {Node} from "../../Graph";
 import {ICurrentState, IFrame, State} from "../../State";
 import {Container, Navigator} from "../../Viewer";
-import {IGLRenderHash, GLRenderStage} from "../../Render";
+import {IGLRenderHash, GLRenderStage, IVNodeHash} from "../../Render";
 import {
     Component,
     ComponentService,
@@ -41,7 +42,9 @@ class SliderState {
 
     private _frameId: number;
 
-    private _needsRender: boolean;
+    private _glNeedsRender: boolean;
+    private _domNeedsRender: boolean;
+    private _sliderVisible: boolean;
 
     private _motionless: boolean;
 
@@ -58,7 +61,8 @@ class SliderState {
 
         this._frameId = 0;
 
-        this._needsRender = false;
+        this._glNeedsRender = false;
+        this._domNeedsRender = true;
 
         this._motionless = false;
 
@@ -69,8 +73,25 @@ class SliderState {
         return this._frameId;
     }
 
-    public get needsRender(): boolean {
-        return this._needsRender;
+    public get curtain(): number {
+        return this._curtain;
+    }
+
+    public get glNeedsRender(): boolean {
+        return this._glNeedsRender;
+    }
+
+    public get domNeedsRender(): boolean {
+        return this._domNeedsRender;
+    }
+
+    public get sliderVisible(): boolean {
+        return this._sliderVisible;
+    }
+
+    public set sliderVisible(value: boolean) {
+        this._sliderVisible = value;
+        this._domNeedsRender = true;
     }
 
     public get disabled(): boolean {
@@ -83,8 +104,11 @@ class SliderState {
 
     public update(frame: IFrame): void {
         this._updateFrameId(frame.id);
-        this._needsRender = this._updateImagePlanes(frame.state);
-        this._needsRender = this._updateCurtain(frame.state.alpha) || this._needsRender;
+        let needsRender: boolean = this._updateImagePlanes(frame.state);
+
+        needsRender = this._updateCurtain(frame.state.alpha) || needsRender;
+        this._glNeedsRender = needsRender || this._glNeedsRender;
+        this._domNeedsRender = needsRender || this._domNeedsRender;
     }
 
     public render(
@@ -102,8 +126,12 @@ class SliderState {
         this._imagePlaneScene.clear();
     }
 
-    public clearNeedsRender(): void {
-        this._needsRender = false;
+    public clearGLNeedsRender(): void {
+        this._glNeedsRender = false;
+    }
+
+    public clearDomNeedsRender(): void {
+        this._domNeedsRender = false;
     }
 
     private _updateFrameId(frameId: number): void {
@@ -164,16 +192,19 @@ class SliderState {
 export class SliderComponent extends Component {
     public static componentName: string = "slider";
 
-    private _configurationSubscription: rx.IDisposable;
-
     private _sliderStateOperation$: rx.Subject<ISliderStateOperation>;
     private _sliderState$: rx.Observable<SliderState>;
     private _sliderStateCreator$: rx.Subject<void>;
     private _sliderStateDisposer$: rx.Subject<void>;
 
+    private _setKeysSubscription: rx.IDisposable;
+    private _setSliderVisibleSubscription: rx.IDisposable;
+    private _elementSubscription: rx.IDisposable;
+
     private _stateSubscription: rx.IDisposable;
-    private _mouseMoveSubscription: rx.IDisposable;
-    private _sliderStateSubscription: rx.IDisposable;
+    private _glRenderSubscription: rx.IDisposable;
+    private _domRenderSubscription: rx.IDisposable;
+
 
     /**
      * Create a new slider component instance.
@@ -248,7 +279,18 @@ export class SliderComponent extends Component {
         this.configure({ initialPosition: initialPosition });
     }
 
+    /**
+     * Sets the value controlling if the slider is visible.
+     *
+     * @param {boolean} sliderVisible - Value indicating if the slider should be visible or not.
+     */
+    public setSliderVisible(sliderVisible: boolean): void {
+        this.configure({ sliderVisible: sliderVisible });
+    }
+
     protected _activate(): void {
+        this._container.mouseService.preventDefaultMouseDown$.onNext(false);
+
         rx.Observable
             .combineLatest(
                 this._navigator.stateService.state$,
@@ -267,24 +309,82 @@ export class SliderComponent extends Component {
                     }
                 });
 
-        this._sliderStateSubscription = this._sliderState$
+        this._glRenderSubscription = this._sliderState$
             .map<IGLRenderHash>(
                 (sliderState: SliderState): IGLRenderHash => {
                     let renderHash: IGLRenderHash = {
                         name: this._name,
                         render: {
                             frameId: sliderState.frameId,
-                            needsRender: sliderState.needsRender,
+                            needsRender: sliderState.glNeedsRender,
                             render: sliderState.render.bind(sliderState),
                             stage: GLRenderStage.Background,
                         },
                     };
 
-                    sliderState.clearNeedsRender();
+                    sliderState.clearGLNeedsRender();
 
                     return renderHash;
                 })
             .subscribe(this._container.glRenderer.render$);
+
+        this._domRenderSubscription = this._sliderState$
+            .filter(
+                (sliderState: SliderState): boolean => {
+                    return sliderState.domNeedsRender;
+                })
+            .map<IVNodeHash>(
+                (sliderState: SliderState): IVNodeHash => {
+                    let sliderInput: vd.VNode = vd.h(
+                        "input.SliderControl",
+                        {
+                            max: 1000,
+                            min: 0,
+                            type: "range",
+                            value: 1000 * sliderState.curtain,
+                        },
+                        []);
+
+                    let vNode: vd.VNode = sliderState.disabled || !sliderState.sliderVisible ?
+                        null :
+                        vd.h("div.SliderWrapper", {}, [sliderInput]);
+
+                    let hash: IVNodeHash = {
+                        name: this._name,
+                        vnode: vNode,
+                    };
+
+                    sliderState.clearDomNeedsRender();
+
+                    return hash;
+                })
+            .subscribe(this._container.domRenderer.render$);
+
+        this._elementSubscription = this._container.domRenderer.element$
+            .map<HTMLInputElement>(
+                (e: Element): HTMLInputElement => {
+                    let nodeList: NodeListOf<Element> = e.getElementsByClassName("SliderControl");
+
+                    let slider: HTMLInputElement = nodeList.length > 0 ? <HTMLInputElement>nodeList[0] : null;
+
+                    return slider;
+                })
+            .filter(
+                (input: HTMLInputElement): boolean => {
+                    return input != null;
+                })
+            .flatMapLatest<Event>(
+                (input: HTMLInputElement): rx.Observable<Event> => {
+                    return rx.Observable.fromEvent<Event>(input, "input");
+                })
+            .map<number>(
+                (e: Event): number => {
+                    return Number((<HTMLInputElement>e.target).value) / 1000;
+                })
+            .subscribe(
+                (curtain: number): void => {
+                    this._navigator.stateService.moveTo(curtain);
+                });
 
         this._sliderStateCreator$.onNext(null);
 
@@ -299,24 +399,23 @@ export class SliderComponent extends Component {
                 })
             .subscribe(this._sliderStateOperation$);
 
-        this._mouseMoveSubscription = this._container.mouseService.mouseMove$
+        this._setSliderVisibleSubscription = this._configuration$
+            .map<boolean>(
+                (configuration: ISliderConfiguration): boolean => {
+                    return configuration.sliderVisible == null || configuration.sliderVisible;
+                })
+            .distinctUntilChanged()
             .map<ISliderStateOperation>(
-                (event: MouseEvent): ISliderStateOperation => {
+                (sliderVisible: boolean): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
-                        if (sliderState.disabled) {
-                            return sliderState;
-                        }
-
-                        let curtain: number = event.offsetX / this._container.element.offsetWidth;
-
-                        this._navigator.stateService.moveTo(curtain);
+                        sliderState.sliderVisible = sliderVisible;
 
                         return sliderState;
                     };
                 })
             .subscribe(this._sliderStateOperation$);
 
-        this._configurationSubscription = this._configuration$
+        this._setKeysSubscription = this._configuration$
             .filter(
                 (configuration: ISliderConfiguration): boolean => {
                     return configuration.keys != null;
@@ -365,6 +464,8 @@ export class SliderComponent extends Component {
     }
 
     protected _deactivate(): void {
+        this._container.mouseService.preventDefaultMouseDown$.onNext(true);
+
         this._navigator.stateService.state$
             .first()
             .subscribe(
@@ -376,11 +477,12 @@ export class SliderComponent extends Component {
 
         this._sliderStateDisposer$.onNext(null);
 
-        this._configurationSubscription.dispose();
-
+        this._setKeysSubscription.dispose();
+        this._setSliderVisibleSubscription.dispose();
+        this._elementSubscription.dispose();
         this._stateSubscription.dispose();
-        this._mouseMoveSubscription.dispose();
-        this._sliderStateSubscription.dispose();
+        this._glRenderSubscription.dispose();
+        this._domRenderSubscription.dispose();
 
         this.configure({ keys: null });
     }

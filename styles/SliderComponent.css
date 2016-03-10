@@ -1,0 +1,9 @@
+.SliderWrapper {
+    margin-top: 5px;
+    text-align: center;
+}
+
+.SliderControl {
+    width: 90%;
+    max-width: 640px;
+}
