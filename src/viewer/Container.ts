@@ -1,9 +1,5 @@
-/// <reference path="../../typings/browser.d.ts" />
-
-import * as rx from "rx";
-
 import {GLRenderer, DOMRenderer, RenderService} from "../Render";
-import {IFrame} from "../State";
+import {StateService} from "../State";
 import {MouseService, TouchService} from "../Viewer";
 
 export class Container {
@@ -18,14 +14,14 @@ export class Container {
     public mouseService: MouseService;
     public touchService: TouchService;
 
-    constructor (id: string, currentFrame$: rx.Observable<IFrame>) {
+    constructor (id: string, stateService: StateService) {
         this.id = id;
         this.element = document.getElementById(id);
         this.element.classList.add("mapillary-js");
 
         this.renderService = new RenderService(this.element);
 
-        this.glRenderer = new GLRenderer(this.element, this.renderService, currentFrame$);
+        this.glRenderer = new GLRenderer(this.element, this.renderService, stateService.currentState$);
         this.domRenderer = new DOMRenderer(this.element);
 
         this.mouseService = new MouseService(this.element);
