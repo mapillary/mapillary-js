@@ -10,6 +10,7 @@ import {
     IGLRender,
     IGLRenderFunction,
     IGLRenderHash,
+    RenderService,
 } from "../../src/Render";
 import {Camera, Transform} from "../../src/Geo";
 import {IFrame, ICurrentState} from "../../src/State";
@@ -27,7 +28,8 @@ class RendererMock implements THREE.Renderer {
 describe("GLRenderer.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");
-        let glRenderer: GLRenderer = new GLRenderer(element, rx.Observable.empty<IFrame>());
+        let renderService: RenderService = new RenderService(element);
+        let glRenderer: GLRenderer = new GLRenderer(element, renderService, rx.Observable.empty<IFrame>());
 
         expect(glRenderer).not.toBeNull();
     });
@@ -36,16 +38,18 @@ describe("GLRenderer.ctor", () => {
         spyOn(THREE, "WebGLRenderer");
 
         let element: HTMLDivElement = document.createElement("div");
-        let glRenderer: GLRenderer = new GLRenderer(element, rx.Observable.empty<IFrame>());
+        let renderService: RenderService = new RenderService(element);
+        let glRenderer: GLRenderer = new GLRenderer(element, renderService, rx.Observable.empty<IFrame>());
 
         expect(THREE.WebGLRenderer).not.toHaveBeenCalled();
     });
 });
 
 describe("GLRenderer.renderer", () => {
-    let createGLRenderer = (frame$?: rx.Observable<IFrame>, element?: HTMLElement): GLRenderer => {
+    let createGLRenderer = (frame$?: rx.Observable<IFrame>, element?: HTMLElement, renderService?: RenderService): GLRenderer => {
         element = element != null ? element : document.createElement("div");
-        let glRenderer: GLRenderer = new GLRenderer(element, !!frame$ ? frame$ : rx.Observable.empty<IFrame>());
+        renderService = renderService != null ? renderService : new RenderService(element);
+        let glRenderer: GLRenderer = new GLRenderer(element, renderService, !!frame$ ? frame$ : rx.Observable.empty<IFrame>());
 
         return glRenderer;
     };
@@ -251,13 +255,16 @@ describe("GLRenderer.renderer", () => {
 
         let frameId: number = 1;
         let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
-        let glRenderer: GLRenderer = createGLRenderer(frame$);
+
+        let element: HTMLDivElement = document.createElement("div");
+        let renderService: RenderService = new RenderService(element);
+        let glRenderer: GLRenderer = createGLRenderer(frame$, element, renderService);
 
         glRenderer.render$.onNext(createGLRenderHash(frameId, true));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
-        glRenderer.resize();
+        renderService.resize$.onNext(null);
 
         frameId = 2;
         frame$.onNext(createFrame(frameId));
@@ -288,14 +295,15 @@ describe("GLRenderer.renderer", () => {
             appendChild(element: HTMLElement): void { }
         };
 
-        let glRenderer: GLRenderer = createGLRenderer(frame$, element);
+        let renderService: RenderService = new RenderService(element);
+        let glRenderer: GLRenderer = createGLRenderer(frame$, element, renderService);
 
         glRenderer.render$.onNext(createGLRenderHash(frameId, true));
 
         spyOn(element, "getOffsetHeight");
         spyOn(element, "getOffsetWidth");
 
-        glRenderer.resize();
+        renderService.resize$.onNext(null);
 
         expect((<jasmine.Spy>element.getOffsetHeight).calls.count()).toBe(1);
         expect((<jasmine.Spy>element.getOffsetWidth).calls.count()).toBe(1);
@@ -308,13 +316,16 @@ describe("GLRenderer.renderer", () => {
 
         let frameId: number = 1;
         let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
-        let glRenderer: GLRenderer = createGLRenderer(frame$);
+
+        let element: HTMLDivElement = document.createElement("div");
+        let renderService: RenderService = new RenderService(element);
+        let glRenderer: GLRenderer = createGLRenderer(frame$, element, renderService);
 
         glRenderer.render$.onNext(createGLRenderHash(frameId, true));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
-        glRenderer.setRenderMode(GLRenderMode.Fill);
+        renderService.renderMode$.onNext(GLRenderMode.Fill);
 
         frameId = 2;
         frame$.onNext(createFrame(frameId));

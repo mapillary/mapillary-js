@@ -12,6 +12,8 @@ import {
     IGLRenderFunction,
     IGLRender,
     IGLRenderHash,
+    RenderService,
+    ISize,
 } from "../Render";
 
 class CameraState {
@@ -139,19 +141,10 @@ interface ICombination {
     renders: IGLRender[];
 }
 
-interface ISize {
-    height: number;
-    width: number;
-}
-
 export class GLRenderer {
     private _element: HTMLElement;
+    private _renderService: RenderService;
     private _currentFrame$: rx.Observable<IFrame>;
-
-    private _resize$: rx.Subject<void> = new rx.Subject<void>();
-    private _size$: rx.Observable<ISize>;
-
-    private _renderMode$: rx.Subject<GLRenderMode> = new rx.Subject<GLRenderMode>();
 
     private _frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
     private _cameraStateOperation$: rx.Subject<ICameraStateOperation> = new rx.Subject<ICameraStateOperation>();
@@ -167,8 +160,9 @@ export class GLRenderer {
 
     private _frameSubscription: rx.IDisposable;
 
-    constructor (element: HTMLElement, currentFrame$: rx.Observable<IFrame>) {
+    constructor (element: HTMLElement, renderService: RenderService, currentFrame$: rx.Observable<IFrame>) {
         this._element = element;
+        this._renderService = renderService;
         this._currentFrame$ = currentFrame$;
 
         this._renderer$ = this._rendererOperation$
@@ -302,14 +296,7 @@ export class GLRenderer {
             })
             .subscribe(this._cameraStateOperation$);
 
-        this._size$ = this._resize$
-            .map<ISize>(
-                (): ISize => {
-                    return { height: this._element.offsetHeight, width: this._element.offsetWidth };
-                })
-            .share();
-
-        this._size$.map<ICameraStateOperation>(
+        this._renderService.size$.map<ICameraStateOperation>(
             (size: ISize) => {
                 return (cs: CameraState): CameraState => {
                     cs.perspective.aspect = size.width / size.height;
@@ -322,7 +309,7 @@ export class GLRenderer {
             })
             .subscribe(this._cameraStateOperation$);
 
-        this._size$.map<IGLRendererOperation>(
+        this._renderService.size$.map<IGLRendererOperation>(
             (size: ISize): IGLRendererOperation => {
                 return (renderer: IGLRenderer): IGLRenderer => {
                     if (renderer.renderer == null) {
@@ -337,7 +324,7 @@ export class GLRenderer {
             })
             .subscribe(this._rendererOperation$);
 
-        this._renderMode$
+        this._renderService.renderMode$
             .map<ICameraStateOperation>(
                 (renderMode: GLRenderMode) => {
                     return (cs: CameraState): CameraState => {
@@ -417,14 +404,6 @@ export class GLRenderer {
 
     public clear(name: string): void {
         this._clear$.onNext(name);
-    }
-
-    public resize(): void {
-        this._resize$.onNext(null);
-    }
-
-    public setRenderMode(renderMode: GLRenderMode): void {
-        this._renderMode$.onNext(renderMode);
     }
 
     private _frameSubscribe(): void {
