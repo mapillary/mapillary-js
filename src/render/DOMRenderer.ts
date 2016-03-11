@@ -4,6 +4,9 @@ import * as _ from "underscore";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
+import {GLRenderMode, ISize, RenderService} from "../Render";
+import {IFrame} from "../State";
+
 export interface IVNodeHash {
     name: string;
     vnode: vd.VNode;
@@ -18,15 +21,133 @@ interface IVNodeHashes {
     [name: string]: vd.VNode;
 }
 
+interface IOffset {
+    bottom: number;
+    left: number;
+    right: number;
+    top: number;
+}
+
+interface IResizable {
+    elementHeight: number;
+    elementWidth: number;
+    imageAspect: number;
+    renderMode: GLRenderMode;
+}
+
+interface IResizableOperation {
+    (resizable: IResizable): IResizable;
+}
+
 export class DOMRenderer {
+    private _renderService: RenderService;
+    private _currentFrame$: rx.Observable<IFrame>;
+
+    private _resizableOperation$: rx.Subject<IResizableOperation> = new rx.Subject<IResizableOperation>();
+    private _offset$: rx.Observable<IOffset>;
+
     private _element$: rx.ConnectableObservable<Element>;
     private _vPatch$: rx.Observable<vd.VPatch[]>;
     private _vNode$: rx.Observable<vd.VNode>;
     private _render$: rx.Subject<any> = new rx.Subject<any>();
 
-    constructor (element: Element) {
+    constructor (element: HTMLElement, renderService: RenderService, currentFrame$: rx.Observable<IFrame>) {
+        this._renderService = renderService;
+        this._currentFrame$ = currentFrame$;
+
         let rootNode: Element = vd.create(vd.h("div.domRenderer", []));
         element.appendChild(rootNode);
+
+        this._offset$ = this._resizableOperation$
+            .scan<IResizable>(
+                (resizable: IResizable, operation: IResizableOperation): IResizable => {
+                    return operation(resizable);
+                },
+                {
+                    elementHeight: element.offsetHeight,
+                    elementWidth: element.offsetWidth,
+                    imageAspect: 0,
+                    renderMode: GLRenderMode.Letterbox,
+                })
+            .filter(
+                (resizable: IResizable): boolean => {
+                    return resizable.imageAspect > 0 && resizable.elementWidth > 0 && resizable.elementHeight > 0;
+                })
+            .map<IOffset>(
+                (resizable: IResizable): IOffset => {
+                    let elementAspect: number = resizable.elementWidth / resizable.elementHeight;
+                    let ratio: number = resizable.imageAspect / elementAspect;
+
+                    let verticalOffset: number = 0;
+                    let horizontalOffset: number = 0;
+
+                    if (resizable.renderMode === GLRenderMode.Letterbox) {
+                        if (resizable.imageAspect > elementAspect) {
+                            verticalOffset = resizable.elementHeight * (1 - 1 / ratio) / 2;
+                        } else {
+                            horizontalOffset = resizable.elementWidth * (1 - ratio) / 2;
+                        }
+                    } else {
+                        if (resizable.imageAspect > elementAspect) {
+                            horizontalOffset = -resizable.elementWidth * (ratio - 1) / 2;
+                        } else {
+                            verticalOffset = -resizable.elementHeight * (1 / ratio - 1) / 2;
+                        }
+                    }
+
+                    return {
+                        bottom: verticalOffset,
+                        left: horizontalOffset,
+                        right: horizontalOffset,
+                        top: verticalOffset,
+                    };
+                });
+
+        this._currentFrame$
+            .filter(
+                (frame: IFrame): boolean => {
+                    return frame.state.currentNode != null;
+                })
+            .distinctUntilChanged(
+                (frame: IFrame): string => {
+                    return frame.state.currentNode.key;
+                })
+            .map<number>(
+                (frame: IFrame): number => {
+                    return frame.state.currentTransform.aspect;
+                })
+            .map<IResizableOperation>(
+                 (aspect: number): IResizableOperation => {
+                    return (resizable: IResizable): IResizable => {
+                        resizable.imageAspect = aspect;
+
+                        return resizable;
+                    };
+                })
+            .subscribe(this._resizableOperation$);
+
+        this._renderService.size$
+            .map<IResizableOperation>(
+                (size: ISize): IResizableOperation => {
+                    return (resizable: IResizable): IResizable => {
+                        resizable.elementWidth = size.width;
+                        resizable.elementHeight = size.height;
+
+                        return resizable;
+                    };
+                })
+            .subscribe(this._resizableOperation$);
+
+        this._renderService.renderMode$
+            .map<IResizableOperation>(
+                (renderMode: GLRenderMode): IResizableOperation => {
+                    return (resizable: IResizable): IResizable => {
+                        resizable.renderMode = renderMode;
+
+                        return resizable;
+                    };
+                })
+            .subscribe(this._resizableOperation$);
 
         this._vNode$ = this._render$
             .scan<IVNodeHashes>(
