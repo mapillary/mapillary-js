@@ -4,7 +4,7 @@ import * as _ from "underscore";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {GLRenderMode, ISize, RenderService} from "../Render";
+import {RenderMode, ISize, RenderService} from "../Render";
 import {IFrame} from "../State";
 
 export interface IVNodeHash {
@@ -32,7 +32,7 @@ interface IAdaptable {
     elementHeight: number;
     elementWidth: number;
     imageAspect: number;
-    renderMode: GLRenderMode;
+    renderMode: RenderMode;
 }
 
 interface IAdaptableOperation {
@@ -68,7 +68,7 @@ export class DOMRenderer {
                     elementHeight: element.offsetHeight,
                     elementWidth: element.offsetWidth,
                     imageAspect: 0,
-                    renderMode: GLRenderMode.Letterbox,
+                    renderMode: RenderMode.Letterbox,
                 })
             .filter(
                 (adaptable: IAdaptable): boolean => {
@@ -82,7 +82,7 @@ export class DOMRenderer {
                     let verticalOffset: number = 0;
                     let horizontalOffset: number = 0;
 
-                    if (adaptable.renderMode === GLRenderMode.Letterbox) {
+                    if (adaptable.renderMode === RenderMode.Letterbox) {
                         if (adaptable.imageAspect > elementAspect) {
                             verticalOffset = adaptable.elementHeight * (1 - 1 / ratio) / 2;
                         } else {
@@ -141,7 +141,7 @@ export class DOMRenderer {
 
         this._renderService.renderMode$
             .map<IAdaptableOperation>(
-                (renderMode: GLRenderMode): IAdaptableOperation => {
+                (renderMode: RenderMode): IAdaptableOperation => {
                     return (adaptable: IAdaptable): IAdaptable => {
                         adaptable.renderMode = renderMode;
 

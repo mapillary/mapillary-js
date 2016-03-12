@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {GLRenderMode, ISize} from "../Render";
+import {RenderMode, ISize} from "../Render";
 
 export class RenderService {
     private _element: HTMLElement;
@@ -10,13 +10,13 @@ export class RenderService {
     private _resize$: rx.BehaviorSubject<void>;
     private _size$: rx.Observable<ISize>;
 
-    private _renderMode$: rx.BehaviorSubject<GLRenderMode>;
+    private _renderMode$: rx.BehaviorSubject<RenderMode>;
 
     constructor(element: HTMLElement) {
         this._element = element;
 
         this._resize$ = new rx.BehaviorSubject<void>(null);
-        this._renderMode$ = new rx.BehaviorSubject<GLRenderMode>(GLRenderMode.Letterbox);
+        this._renderMode$ = new rx.BehaviorSubject<RenderMode>(RenderMode.Letterbox);
 
         this._size$ = this._resize$
             .map<ISize>(
@@ -38,7 +38,7 @@ export class RenderService {
         return this._size$;
     }
 
-    public get renderMode$(): rx.Subject<GLRenderMode> {
+    public get renderMode$(): rx.Subject<RenderMode> {
         return this._renderMode$;
     }
 }

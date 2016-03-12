@@ -6,7 +6,7 @@ import * as THREE from "three";
 import {
     GLRenderer,
     GLRenderStage,
-    GLRenderMode,
+    RenderMode,
     IGLRender,
     IGLRenderFunction,
     IGLRenderHash,
@@ -325,7 +325,7 @@ describe("GLRenderer.renderer", () => {
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
-        renderService.renderMode$.onNext(GLRenderMode.Fill);
+        renderService.renderMode$.onNext(RenderMode.Fill);
 
         frameId = 2;
         frame$.onNext(createFrame(frameId));

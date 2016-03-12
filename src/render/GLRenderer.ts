@@ -7,7 +7,7 @@ import * as _ from "underscore";
 import {IFrame} from "../State";
 import {Camera, Transform} from "../Geo";
 import {
-    GLRenderMode,
+    RenderMode,
     GLRenderStage,
     IGLRenderFunction,
     IGLRender,
@@ -27,7 +27,7 @@ class CameraState {
     public previousAspect: number;
     public previousOrientation: number;
     public previousPano: boolean;
-    public renderMode: GLRenderMode;
+    public renderMode: RenderMode;
 
     private _lastCamera: Camera;
     private _perspective: THREE.PerspectiveCamera;
@@ -43,7 +43,7 @@ class CameraState {
         this.previousAspect = 1;
         this.previousOrientation = 1;
         this.previousPano = false;
-        this.renderMode = GLRenderMode.Letterbox;
+        this.renderMode = RenderMode.Letterbox;
 
         this._lastCamera = new Camera();
         this._perspective = new THREE.PerspectiveCamera(
@@ -102,7 +102,7 @@ class CameraState {
             1 :
             1 / nodeAspect / nodeAspect;
 
-        let usePerspective: boolean = this.renderMode === GLRenderMode.Letterbox ?
+        let usePerspective: boolean = this.renderMode === RenderMode.Letterbox ?
             nodeAspect > perspectiveCameraAspect :
             nodeAspect < perspectiveCameraAspect;
 
@@ -326,7 +326,7 @@ export class GLRenderer {
 
         this._renderService.renderMode$
             .map<ICameraStateOperation>(
-                (renderMode: GLRenderMode) => {
+                (renderMode: RenderMode) => {
                     return (cs: CameraState): CameraState => {
                         cs.renderMode = renderMode;
 

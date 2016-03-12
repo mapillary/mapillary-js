@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {
     RenderService,
-    GLRenderMode,
+    RenderMode,
     ISize,
 } from "../../src/Render";
 
@@ -24,8 +24,8 @@ describe("RenderService.renderMode", () => {
 
         renderService.renderMode$
             .subscribe(
-                (renderMode: GLRenderMode): void => {
-                    expect(renderMode).toBe(GLRenderMode.Letterbox);
+                (renderMode: RenderMode): void => {
+                    expect(renderMode).toBe(RenderMode.Letterbox);
 
                     done();
                 });
@@ -35,12 +35,12 @@ describe("RenderService.renderMode", () => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService = new RenderService(element);
 
-        renderService.renderMode$.onNext(GLRenderMode.Fill);
+        renderService.renderMode$.onNext(RenderMode.Fill);
 
         renderService.renderMode$
             .subscribe(
-                (renderMode: GLRenderMode): void => {
-                    expect(renderMode).toBe(GLRenderMode.Fill);
+                (renderMode: RenderMode): void => {
+                    expect(renderMode).toBe(RenderMode.Fill);
 
                     done();
                 });
