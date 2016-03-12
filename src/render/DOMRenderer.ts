@@ -50,6 +50,7 @@ export class DOMRenderer {
     private _vPatch$: rx.Observable<vd.VPatch[]>;
     private _vNode$: rx.Observable<vd.VNode>;
     private _render$: rx.Subject<any> = new rx.Subject<any>();
+    private _resizableRender$: rx.Subject<IVNodeHash> = new rx.Subject<IVNodeHash>();
 
     constructor (element: HTMLElement, renderService: RenderService, currentFrame$: rx.Observable<IFrame>) {
         this._renderService = renderService;
@@ -149,6 +150,44 @@ export class DOMRenderer {
                 })
             .subscribe(this._resizableOperation$);
 
+        this._resizableRender$
+            .scan<IVNodeHashes>(
+                (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
+                    if (vNodeHash.vnode == null) {
+                        delete vNodeHashes[vNodeHash.name];
+                    } else {
+                        vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+                    }
+                    return vNodeHashes;
+                },
+                {})
+            .combineLatest(
+                this._offset$,
+                (vNodeHashes: IVNodeHashes, offset: IOffset): [IVNodeHashes, IOffset] => {
+                    return [vNodeHashes, offset];
+                })
+            .map<IVNodeHash>(
+                (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
+                    let vNodes: vd.VNode[] = _.values(vo[0]);
+                    let offset: IOffset = vo[1];
+
+                    let properties: vd.createProperties = {
+                        style: {
+                            bottom: offset.bottom + "px",
+                            left: offset.left + "px",
+                            position: "absolute",
+                            right: offset.right + "px",
+                            top: offset.top + "px",
+                        },
+                    };
+
+                    return {
+                        name: "resizableDomRenderer",
+                        vnode: vd.h("div.resizableDomRenderer", properties, vNodes),
+                    };
+                })
+            .subscribe(this._render$);
+
         this._vNode$ = this._render$
             .scan<IVNodeHashes>(
             (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
@@ -194,8 +233,13 @@ export class DOMRenderer {
         return this._render$;
     }
 
+    public get renderResizable$(): rx.Subject<any> {
+        return this._resizableRender$;
+    }
+
     public clear(name: string): void {
-        return this._render$.onNext({name: name, vnode: null});
+        this._resizableRender$.onNext({name: name, vnode: null});
+        this._render$.onNext({name: name, vnode: null});
     }
 }
 

@@ -3,6 +3,7 @@
     height: 100%;
     position: absolute;
     z-index: 10;
+    overflow: hidden;
 }
 
 .Directions {
