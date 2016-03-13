@@ -19,6 +19,7 @@
     <button onclick="play()">Play</button><button onclick="stop()">Stop</button>
     <button onclick="showSlider()">Show Slider</button><button onclick="hideSlider()">Hide Slider</button>
     <button onclick="playRoute()">Play Route</button><button onclick="stopRoute()">Stop Route</button>
+    <button onclick="letterbox()">Letterbox</button><button onclick="fill()">Fill</button>
     <script src='build/bundle.js'></script>
     <script>
         var viewer = new Mapillary.Viewer(
@@ -29,6 +30,14 @@
         );
 
         window.addEventListener("resize", function() { viewer.resize(); });
+
+        function letterbox() {
+            viewer.setRenderMode(Mapillary.RenderMode.Letterbox);
+        }
+
+        function fill() {
+            viewer.setRenderMode(Mapillary.RenderMode.Fill);
+        }
 
         viewer.activateComponent("player");
         var player = viewer.getComponent("player");
