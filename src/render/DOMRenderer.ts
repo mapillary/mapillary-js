@@ -28,29 +28,29 @@ interface IOffset {
     top: number;
 }
 
-interface IAdaptable {
+interface IAdaptive {
     elementHeight: number;
     elementWidth: number;
     imageAspect: number;
     renderMode: RenderMode;
 }
 
-interface IAdaptableOperation {
-    (adaptable: IAdaptable): IAdaptable;
+interface IAdaptiveOperation {
+    (adaptive: IAdaptive): IAdaptive;
 }
 
 export class DOMRenderer {
     private _renderService: RenderService;
     private _currentFrame$: rx.Observable<IFrame>;
 
-    private _adaptableOperation$: rx.Subject<IAdaptableOperation> = new rx.Subject<IAdaptableOperation>();
+    private _adaptiveOperation$: rx.Subject<IAdaptiveOperation> = new rx.Subject<IAdaptiveOperation>();
     private _offset$: rx.Observable<IOffset>;
 
     private _element$: rx.ConnectableObservable<Element>;
     private _vPatch$: rx.Observable<vd.VPatch[]>;
     private _vNode$: rx.Observable<vd.VNode>;
     private _render$: rx.Subject<any> = new rx.Subject<any>();
-    private _renderAdaptable$: rx.Subject<IVNodeHash> = new rx.Subject<IVNodeHash>();
+    private _renderAdaptive$: rx.Subject<IVNodeHash> = new rx.Subject<IVNodeHash>();
 
     constructor (element: HTMLElement, renderService: RenderService, currentFrame$: rx.Observable<IFrame>) {
         this._renderService = renderService;
@@ -59,10 +59,10 @@ export class DOMRenderer {
         let rootNode: Element = vd.create(vd.h("div.domRenderer", []));
         element.appendChild(rootNode);
 
-        this._offset$ = this._adaptableOperation$
-            .scan<IAdaptable>(
-                (adaptable: IAdaptable, operation: IAdaptableOperation): IAdaptable => {
-                    return operation(adaptable);
+        this._offset$ = this._adaptiveOperation$
+            .scan<IAdaptive>(
+                (adaptive: IAdaptive, operation: IAdaptiveOperation): IAdaptive => {
+                    return operation(adaptive);
                 },
                 {
                     elementHeight: element.offsetHeight,
@@ -71,28 +71,28 @@ export class DOMRenderer {
                     renderMode: RenderMode.Letterbox,
                 })
             .filter(
-                (adaptable: IAdaptable): boolean => {
-                    return adaptable.imageAspect > 0 && adaptable.elementWidth > 0 && adaptable.elementHeight > 0;
+                (adaptive: IAdaptive): boolean => {
+                    return adaptive.imageAspect > 0 && adaptive.elementWidth > 0 && adaptive.elementHeight > 0;
                 })
             .map<IOffset>(
-                (adaptable: IAdaptable): IOffset => {
-                    let elementAspect: number = adaptable.elementWidth / adaptable.elementHeight;
-                    let ratio: number = adaptable.imageAspect / elementAspect;
+                (adaptive: IAdaptive): IOffset => {
+                    let elementAspect: number = adaptive.elementWidth / adaptive.elementHeight;
+                    let ratio: number = adaptive.imageAspect / elementAspect;
 
                     let verticalOffset: number = 0;
                     let horizontalOffset: number = 0;
 
-                    if (adaptable.renderMode === RenderMode.Letterbox) {
-                        if (adaptable.imageAspect > elementAspect) {
-                            verticalOffset = adaptable.elementHeight * (1 - 1 / ratio) / 2;
+                    if (adaptive.renderMode === RenderMode.Letterbox) {
+                        if (adaptive.imageAspect > elementAspect) {
+                            verticalOffset = adaptive.elementHeight * (1 - 1 / ratio) / 2;
                         } else {
-                            horizontalOffset = adaptable.elementWidth * (1 - ratio) / 2;
+                            horizontalOffset = adaptive.elementWidth * (1 - ratio) / 2;
                         }
                     } else {
-                        if (adaptable.imageAspect > elementAspect) {
-                            horizontalOffset = -adaptable.elementWidth * (ratio - 1) / 2;
+                        if (adaptive.imageAspect > elementAspect) {
+                            horizontalOffset = -adaptive.elementWidth * (ratio - 1) / 2;
                         } else {
-                            verticalOffset = -adaptable.elementHeight * (1 / ratio - 1) / 2;
+                            verticalOffset = -adaptive.elementHeight * (1 / ratio - 1) / 2;
                         }
                     }
 
@@ -117,40 +117,40 @@ export class DOMRenderer {
                 (frame: IFrame): number => {
                     return frame.state.currentTransform.aspect;
                 })
-            .map<IAdaptableOperation>(
-                 (aspect: number): IAdaptableOperation => {
-                    return (adaptable: IAdaptable): IAdaptable => {
-                        adaptable.imageAspect = aspect;
+            .map<IAdaptiveOperation>(
+                 (aspect: number): IAdaptiveOperation => {
+                    return (adaptive: IAdaptive): IAdaptive => {
+                        adaptive.imageAspect = aspect;
 
-                        return adaptable;
+                        return adaptive;
                     };
                 })
-            .subscribe(this._adaptableOperation$);
+            .subscribe(this._adaptiveOperation$);
 
         this._renderService.size$
-            .map<IAdaptableOperation>(
-                (size: ISize): IAdaptableOperation => {
-                    return (adaptable: IAdaptable): IAdaptable => {
-                        adaptable.elementWidth = size.width;
-                        adaptable.elementHeight = size.height;
+            .map<IAdaptiveOperation>(
+                (size: ISize): IAdaptiveOperation => {
+                    return (adaptive: IAdaptive): IAdaptive => {
+                        adaptive.elementWidth = size.width;
+                        adaptive.elementHeight = size.height;
 
-                        return adaptable;
+                        return adaptive;
                     };
                 })
-            .subscribe(this._adaptableOperation$);
+            .subscribe(this._adaptiveOperation$);
 
         this._renderService.renderMode$
-            .map<IAdaptableOperation>(
-                (renderMode: RenderMode): IAdaptableOperation => {
-                    return (adaptable: IAdaptable): IAdaptable => {
-                        adaptable.renderMode = renderMode;
+            .map<IAdaptiveOperation>(
+                (renderMode: RenderMode): IAdaptiveOperation => {
+                    return (adaptive: IAdaptive): IAdaptive => {
+                        adaptive.renderMode = renderMode;
 
-                        return adaptable;
+                        return adaptive;
                     };
                 })
-            .subscribe(this._adaptableOperation$);
+            .subscribe(this._adaptiveOperation$);
 
-        this._renderAdaptable$
+        this._renderAdaptive$
             .scan<IVNodeHashes>(
                 (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
                     if (vNodeHash.vnode == null) {
@@ -183,8 +183,8 @@ export class DOMRenderer {
                     };
 
                     return {
-                        name: "adaptableDomRenderer",
-                        vnode: vd.h("div.adaptableDomRenderer", properties, vNodes),
+                        name: "adaptiveDomRenderer",
+                        vnode: vd.h("div.adaptiveDomRenderer", properties, vNodes),
                     };
                 })
             .subscribe(this._render$);
@@ -234,12 +234,12 @@ export class DOMRenderer {
         return this._render$;
     }
 
-    public get renderAdaptable$(): rx.Subject<any> {
-        return this._renderAdaptable$;
+    public get renderAdaptive$(): rx.Subject<any> {
+        return this._renderAdaptive$;
     }
 
     public clear(name: string): void {
-        this._renderAdaptable$.onNext({name: name, vnode: null});
+        this._renderAdaptive$.onNext({name: name, vnode: null});
         this._render$.onNext({name: name, vnode: null});
     }
 }

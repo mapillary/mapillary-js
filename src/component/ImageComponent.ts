@@ -52,7 +52,7 @@ export class ImageComponent extends Component {
                 ctx.drawImage(node.image, 0, 0, cw, ch);
             });
 
-        this._container.domRenderer.renderAdaptable$.onNext({name: this._name, vnode: vd.h(`canvas#${this.canvasId}`, [])});
+        this._container.domRenderer.renderAdaptive$.onNext({name: this._name, vnode: vd.h(`canvas#${this.canvasId}`, [])});
     }
 
     protected _deactivate(): void {
