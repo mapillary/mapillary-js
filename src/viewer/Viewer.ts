@@ -3,6 +3,7 @@ import {Node} from "../Graph";
 import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher} from "../Viewer";
 import {Component} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
+import {RenderMode} from "../Render";
 
 import * as when from "when";
 
@@ -125,6 +126,16 @@ export class Viewer extends EventEmitter {
      */
     public resize(): void {
         this._container.renderService.resize$.onNext(null);
+    }
+
+    /**
+     * Sets the viewer's render mode.
+     * @param {RenderMode} renderMode - Render mode.
+     *
+     * @example `viewer.setRenderMode(Mapillary.RenderMode.Letterbox);`
+     */
+    public setRenderMode(renderMode: RenderMode): void {
+        this._container.renderService.renderMode$.onNext(renderMode);
     }
 
     /**
