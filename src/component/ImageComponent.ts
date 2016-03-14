@@ -41,9 +41,6 @@ export class ImageComponent extends Component {
                 let cw: number = canvas.clientWidth;
                 let ch: number = canvas.clientHeight;
 
-                ctx.fillStyle = "black"; // todo: This should be customizable by the end user
-                ctx.fillRect(0, 0, cw, ch);
-
                 let adaptableDomRenderer: HTMLElement = canvas.parentElement;
 
                 canvas.width = adaptableDomRenderer.offsetWidth;
