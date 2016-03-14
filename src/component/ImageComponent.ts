@@ -38,25 +38,18 @@ export class ImageComponent extends Component {
                 }
 
                 let ctx: any = canvas.getContext("2d");
-                let cw: number = this._container.element.clientWidth;
-                let ch: number = this._container.element.clientHeight;
+                let cw: number = canvas.clientWidth;
+                let ch: number = canvas.clientHeight;
 
-                ctx.fillStyle = "black"; // todo: This should be customizable by the end user
-                ctx.fillRect(0, 0, cw, ch);
+                let adaptableDomRenderer: HTMLElement = canvas.parentElement;
 
-                let imHeight: number = node.image.height;
-                let imWidth: number = node.image.width;
+                canvas.width = adaptableDomRenderer.offsetWidth;
+                canvas.height = adaptableDomRenderer.offsetHeight;
 
-                let w: number = ch / imHeight * imWidth;
-                let offsetLeft: number = (cw - w) / 2;
-
-                canvas.width = cw;
-                canvas.height = ch;
-
-                ctx.drawImage(node.image, offsetLeft, 0, w, ch);
+                ctx.drawImage(node.image, 0, 0, cw, ch);
             });
 
-        this._container.domRenderer.render$.onNext({name: this._name, vnode: vd.h(`canvas#${this.canvasId}`, [])});
+        this._container.domRenderer.renderAdaptive$.onNext({name: this._name, vnode: vd.h(`canvas#${this.canvasId}`, [])});
     }
 
     protected _deactivate(): void {

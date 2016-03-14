@@ -3,6 +3,7 @@ import {Node} from "../Graph";
 import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher} from "../Viewer";
 import {Component} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
+import {RenderMode} from "../Render";
 
 import * as when from "when";
 
@@ -48,18 +49,18 @@ export class Viewer extends EventEmitter {
      * @param {IViewerOptions} options - optional configuration object specifing Viewer's initial setup
      */
     constructor (id: string, clientId: string, key?: string, options?: IViewerOptions) {
+        super();
+
         if (options === undefined) {
             options = {};
         }
 
+        Settings.setOptions(options);
+
         this._navigator = new Navigator(clientId);
-        this._container = new Container(id, this._navigator.stateService.currentState$);
+        this._container = new Container(id, this._navigator.stateService);
         this._componentController = new ComponentController(this._container, this._navigator, key, options);
         this._eventLauncher = new EventLauncher(this, this._navigator);
-
-        Settings.setOptions({});
-
-        super();
     }
 
     /**
@@ -87,7 +88,7 @@ export class Viewer extends EventEmitter {
      *
      * @param {EdgeDirection} dir - Direction towards which to move
      * @example
-     * `viewer.moveToDir(Mapillary.EdgeDirection['NEXT'])`
+     * `viewer.moveToDir(Mapillary.EdgeDirection.NEXT);`
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -118,6 +119,23 @@ export class Viewer extends EventEmitter {
                 }
             );
         });
+    }
+
+    /**
+     * Detect the viewer's new width and height and resize it.
+     */
+    public resize(): void {
+        this._container.renderService.resize$.onNext(null);
+    }
+
+    /**
+     * Sets the viewer's render mode.
+     * @param {RenderMode} renderMode - Render mode.
+     *
+     * @example `viewer.setRenderMode(Mapillary.RenderMode.Letterbox);`
+     */
+    public setRenderMode(renderMode: RenderMode): void {
+        this._container.renderService.renderMode$.onNext(renderMode);
     }
 
     /**

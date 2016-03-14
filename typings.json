@@ -7,7 +7,6 @@
     "falcor": "file:typings/created/falcor/falcor.d.ts",
     "falcor-http-datasource": "file:typings/created/falcor-http-datasource/falcor-http-datasource.d.ts",
     "graphlib": "file:typings/created/graphlib/graphlib.d.ts",
-    "latlon-geohash": "file:typings/created/latlon-geohash/latlon-geohash.d.ts",
     "lib": "file:typings/created/lib/lib.d.ts",
     "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#aed176536a202b9a2475ce1989ea6d2d0226a185",
     "rbush": "file:typings/created/rbush/rbush.d.ts",
@@ -15,8 +14,11 @@
     "rx": "npm:rx/ts/rx.all.d.ts",
     "three": "github:DefinitelyTyped/DefinitelyTyped/threejs/three.d.ts#46719185c564694c5583c4b7ad94dbb786ecad46",
     "underscore": "github:DefinitelyTyped/DefinitelyTyped/underscore/underscore.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e",
-    "unitbezier": "file:typings/created/unitbezier/unitbezier.d.ts",
     "virtual-dom": "github:DefinitelyTyped/DefinitelyTyped/virtual-dom/virtual-dom.d.ts#70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e",
     "when": "github:DefinitelyTyped/DefinitelyTyped/when/when.d.ts#001ca36ba58cef903c4c063555afb07bbc36bb58"
+  },
+  "dependencies": {
+    "latlon-geohash": "file:typings/created/latlon-geohash/latlon-geohash.d.ts",
+    "unitbezier": "file:./typings/created/unitbezier/unitbezier.d.ts"
   }
 }

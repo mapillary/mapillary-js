@@ -6,19 +6,25 @@
     user-select: none;
 }
 
-/*
-.mapillary-js {
-    position: relative;
+.domRenderer {
     width: 100%;
-    height: auto;
-    padding-bottom: 75%;
+    height: 100%;
+    position: absolute;
+    z-index: 10;
+    overflow: hidden;
 }
 
-.mapillary-js > canvas {
+.rectContainer {
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
+    z-index: 10;
 }
-*/
+
+
+.Rect {
+    position: absolute;
+    outline: 2px solid lime;
+}

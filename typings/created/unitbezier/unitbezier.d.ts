@@ -10,6 +10,4 @@ declare class UnitBezier {
 
 declare module UnitBezier { }
 
-declare module "unitbezier" {
-    export = UnitBezier;
-}
+export = UnitBezier;
