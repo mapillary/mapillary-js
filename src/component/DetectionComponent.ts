@@ -71,7 +71,7 @@ export class DetectionComponent extends Component {
             }
 
             return {name: this._name, vnode: this.getRects(detections)};
-        }).subscribe(this._container.domRenderer.render$);
+        }).subscribe(this._container.domRenderer.renderAdaptive$);
     }
 
     protected _deactivate(): void {
