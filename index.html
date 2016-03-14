@@ -971,6 +971,17 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				</li>
 			</ul>
 		</li>
+		<li class=" tsd-kind-enum">
+			<a href="index.html#rendermode" class="tsd-kind-icon">Render<wbr>Mode</a>
+			<ul>
+				<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+					<a href="index.html#rendermode.fill" class="tsd-kind-icon">Fill</a>
+				</li>
+				<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+					<a href="index.html#rendermode.letterbox" class="tsd-kind-icon">Letterbox</a>
+				</li>
+			</ul>
+		</li>
 		<li class=" tsd-kind-class">
 			<a href="index.html#viewer" class="tsd-kind-icon">Viewer</a>
 			<ul>
@@ -1027,6 +1038,12 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a href="index.html#viewer.off" class="tsd-kind-icon">off</a>
+				</li>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="index.html#viewer.resize" class="tsd-kind-icon">resize</a>
+				</li>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="index.html#viewer.setrendermode" class="tsd-kind-icon">set<wbr>Render<wbr>Mode</a>
 				</li>
 			</ul>
 		</li>
@@ -1120,6 +1137,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				<li>mapillary-js + mapbox-gl-js - <a href="http://bl.ocks.org/knikel/4ec4de69a0fc29318675">Panorama</a> - <a href="http://bl.ocks.org/knikel/010115b08ebe30baba86">Perspective photo</a></li>
 				<li>mapillary-js + Esri Leaflet -  <a href="http://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c">Panorama</a> - <a href="http://bl.ocks.org/knikel/e85b802e97fd3390668f">Perspective photo</a></li>
 				<li>mapillary-js + Google Maps - <a href="http://bl.ocks.org/knikel/451e2ee5d76ae72e669f">Panorama</a></li>
+				<li><a href="http://bl.ocks.org/knikel/bc0f813f611a8787ff02">Slider displaying difference in two photos</a></li>
 			</ul>
 			<h2 id="documentation">Documentation</h2>
 			<ul>
@@ -1143,6 +1161,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<ul class="tsd-index-list">
 							<li class="tsd-kind-enum"><a href="index.html#edgedirection" class="tsd-kind-icon">Edge<wbr>Direction</a></li>
 							<li class="tsd-kind-enum"><a href="index.html#imagesize" class="tsd-kind-icon">Image<wbr>Size</a></li>
+							<li class="tsd-kind-enum"><a href="index.html#rendermode" class="tsd-kind-icon">Render<wbr>Mode</a></li>
 						</ul>
 					</section>
 					<section class="tsd-index-section ">
@@ -1453,6 +1472,81 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					</div>
 				</section>
 			</section>
+			<section class="tsd-panel tsd-member tsd-kind-enum">
+				<a name="rendermode" class="tsd-anchor"></a>
+				<h3>Render<wbr>Mode</h3>
+				<div class="tsd-signature tsd-kind-icon">Render<wbr>Mode<span class="tsd-signature-symbol">:</span> </div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/render/RenderMode.ts#L9">render/RenderMode.ts:9</a></li>
+					</ul>
+				</aside>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Enumeration for render mode</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>enum</dt>
+						<dd><p>{number}</p>
+						</dd>
+						<dt>readonly</dt>
+						<dd></dd>
+						<dt>description</dt>
+						<dd><p>Modes for specifying how rendering is done
+								in the viewer. All modes preserves the original aspect
+							ratio of the images.</p>
+						</dd>
+					</dl>
+				</div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="rendermode.fill" class="tsd-anchor"></a>
+					<h3>Fill</h3>
+					<div class="tsd-signature tsd-kind-icon">Fill<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/render/RenderMode.ts#L31">render/RenderMode.ts:31</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Fills the viewer by cropping content.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Cropping is done either
+									in horizontal or vertical direction
+									depending on the aspect ratio relation
+								between the image and the viewer.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="rendermode.letterbox" class="tsd-anchor"></a>
+					<h3>Letterbox</h3>
+					<div class="tsd-signature tsd-kind-icon">Letterbox<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/render/RenderMode.ts#L21">render/RenderMode.ts:21</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Displays all content within the viewer.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Black bars shown on both
+									sides of the content. Bars are shown
+									either below and above or to the left
+									and right of the content depending on
+									the aspect ratio relation between the
+								image and the viewer.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+			</section>
 		</section>
 		<section class="tsd-panel-group tsd-member-group ">
 			<h2>Classes</h2>
@@ -1462,7 +1556,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 				<div class="tsd-signature tsd-kind-icon">Viewer<span class="tsd-signature-symbol">:</span> </div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L9">viewer/Viewer.ts:9</a></li>
+						<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L10">viewer/Viewer.ts:10</a></li>
 					</ul>
 				</aside>
 				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
@@ -1476,7 +1570,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 							<aside class="tsd-sources">
 								<p>Overwrites EventEmitter.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L40">viewer/Viewer.ts:40</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L41">viewer/Viewer.ts:41</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1566,7 +1660,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">loadingchanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L20">viewer/Viewer.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L21">viewer/Viewer.ts:21</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1581,7 +1675,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">nodechanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L14">viewer/Viewer.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L15">viewer/Viewer.ts:15</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1596,7 +1690,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">_component<wbr>Controller<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ComponentController</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L35">viewer/Viewer.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L36">viewer/Viewer.ts:36</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1611,7 +1705,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">_container<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Container</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L25">viewer/Viewer.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L26">viewer/Viewer.ts:26</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1626,7 +1720,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">_event<wbr>Launcher<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">EventLauncher</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L40">viewer/Viewer.ts:40</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L41">viewer/Viewer.ts:41</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1641,7 +1735,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 					<div class="tsd-signature tsd-kind-icon">_navigator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Navigator</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L30">viewer/Viewer.ts:30</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L31">viewer/Viewer.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1660,7 +1754,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L127">viewer/Viewer.ts:127</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L145">viewer/Viewer.ts:145</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1691,7 +1785,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L150">viewer/Viewer.ts:150</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L168">viewer/Viewer.ts:168</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1713,7 +1807,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L135">viewer/Viewer.ts:135</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L153">viewer/Viewer.ts:153</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1744,7 +1838,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L157">viewer/Viewer.ts:157</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L175">viewer/Viewer.ts:175</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1793,7 +1887,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L143">viewer/Viewer.ts:143</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L161">viewer/Viewer.ts:161</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1824,7 +1918,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L110">viewer/Viewer.ts:110</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L111">viewer/Viewer.ts:111</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1861,7 +1955,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L92">viewer/Viewer.ts:92</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L93">viewer/Viewer.ts:93</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1871,7 +1965,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 								<p>This method has to be called through EdgeDirection enumeration as in the example.</p>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
-									<dd><p><code>viewer.moveToDir(Mapillary.EdgeDirection[&#39;NEXT&#39;])</code></p>
+									<dd><p><code>viewer.moveToDir(Mapillary.EdgeDirection.NEXT);</code></p>
 									</dd>
 								</dl>
 							</div>
@@ -1898,7 +1992,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L70">viewer/Viewer.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L71">viewer/Viewer.ts:71</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1945,6 +2039,64 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 								</li>
 								<li>
 									<h5>fn: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="viewer.resize" class="tsd-anchor"></a>
+					<h3>resize</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">resize<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L127">viewer/Viewer.ts:127</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Detect the viewer&#39;s new width and height and resize it.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="viewer.setrendermode" class="tsd-anchor"></a>
+					<h3>set<wbr>Render<wbr>Mode</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Render<wbr>Mode<span class="tsd-signature-symbol">(</span>renderMode<span class="tsd-signature-symbol">: </span><a href="index.html#rendermode" class="tsd-signature-type">RenderMode</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/master/src/viewer/Viewer.ts#L137">viewer/Viewer.ts:137</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets the viewer&#39;s render mode.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><p><code>viewer.setRenderMode(Mapillary.RenderMode.Letterbox);</code></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>renderMode: <a href="index.html#rendermode" class="tsd-signature-type">RenderMode</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Render mode.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -2019,7 +2171,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>{ImageSize}</p>
+							<dd><p>{ImageSize.Size640}</p>
 							</dd>
 						</dl>
 					</div>
@@ -2220,7 +2372,7 @@ input[type=checkbox]:checked + .tsd-widget:before { background-position: -160px 
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>{ImageSize}</p>
+							<dd><p>{ImageSize.Size2048}</p>
 							</dd>
 						</dl>
 					</div>
