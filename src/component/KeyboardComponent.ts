@@ -1,4 +1,4 @@
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as rx from "rx";
 
@@ -62,6 +62,7 @@ export class KeyboardComponent extends Component {
     private _navigatePanorama(event: KeyboardEvent, node: Node, camera: Camera): void {
         let navigationAngle: number = 0;
         let stepDirection: EdgeDirection = null;
+        let sequenceDirection: EdgeDirection = null;
 
         let phi: number = this._rotationFromCamera(camera).phi;
 
@@ -72,8 +73,8 @@ export class KeyboardComponent extends Component {
                 break;
             case 38: // up
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.Next).subscribe();
-                    return;
+                    sequenceDirection = EdgeDirection.Next;
+                    break;
                 }
 
                 navigationAngle = phi;
@@ -85,8 +86,8 @@ export class KeyboardComponent extends Component {
                 break;
             case 40: // down
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.Prev).subscribe();
-                    return;
+                    sequenceDirection = EdgeDirection.Prev;
+                    break;
                 }
 
                 navigationAngle = Math.PI + phi;
@@ -94,6 +95,13 @@ export class KeyboardComponent extends Component {
                 break;
             default:
                 return;
+        }
+
+        event.preventDefault();
+
+        if (sequenceDirection != null) {
+            this._moveDir(sequenceDirection, node);
+            return;
         }
 
         navigationAngle = this._spatial.wrapAngle(navigationAngle);
@@ -122,7 +130,10 @@ export class KeyboardComponent extends Component {
             return;
         }
 
-        this._navigator.moveToKey(toKey).subscribe();
+        this._navigator.moveToKey(toKey)
+            .subscribe(
+                (n: Node): void => { return; },
+                (e: Error): void => { console.error(e); });
     }
 
     private _rotationFromCamera(camera: Camera): IRotation {
@@ -146,8 +157,8 @@ export class KeyboardComponent extends Component {
                 break;
             case 38: // up
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.Next).subscribe();
-                    return;
+                    direction = EdgeDirection.Next;
+                    break;
                 }
 
                 direction = event.shiftKey ? EdgeDirection.Pano : EdgeDirection.StepForward;
@@ -157,21 +168,36 @@ export class KeyboardComponent extends Component {
                 break;
             case 40: // down
                 if (event.altKey) {
-                    this._navigator.moveDir(EdgeDirection.Prev).subscribe();
-                    return;
+                    direction = EdgeDirection.Prev;
+                    break;
                 }
 
                 direction = event.shiftKey ? EdgeDirection.TurnU : EdgeDirection.StepBackward;
                 break;
             default:
-                break;
+                return;
         }
 
-        if (direction == null) {
+        event.preventDefault();
+
+        this._moveDir(direction, node);
+    }
+
+    private _moveDir(direction: EdgeDirection, node: Node): void {
+        let directionExist: boolean =
+            node.edges.some(
+                (edge: IEdge): boolean => {
+                    return edge.data.direction === direction;
+                });
+
+        if (!directionExist) {
             return;
         }
 
-        this._navigator.moveDir(direction).subscribe();
+        this._navigator.moveDir(direction)
+            .subscribe(
+                (n: Node): void => { return; },
+                (e: Error): void => { console.error(e); });
     }
 }
 

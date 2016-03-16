@@ -62,6 +62,7 @@ export class ComponentController {
         this.uFalse(options.navigation, "navigation");
         this.uFalse(options.player, "player");
         this.uFalse(options.route, "route");
+        this.uFalse(options.slider, "slider");
         this.uTrue(options.attribution, "attribution");
         this.uTrue(options.cache, "cache");
         this.uTrue(options.direction, "direction");

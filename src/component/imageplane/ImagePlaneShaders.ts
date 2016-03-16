@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/node/node.d.ts" />
+/// <reference path="../../../typings/browser.d.ts" />
 
 import * as fs from "fs";
 import * as path from "path";

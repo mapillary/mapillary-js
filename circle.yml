@@ -20,6 +20,6 @@ dependencies:
 
 test:
   override:
-    - gulp tsd
+    - gulp typings
     - gulp ts --env=TEST
     - gulp test

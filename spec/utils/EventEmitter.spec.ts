@@ -1,4 +1,4 @@
-/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import {EventEmitter} from "../../src/Utils";
 

@@ -1,5 +1,5 @@
 export interface IComponentConfiguration {
-    [index: string] : any;
+    [index: string]: any;
 }
 
 export default IComponentConfiguration;

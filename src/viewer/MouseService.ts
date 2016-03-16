@@ -1,8 +1,8 @@
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
-
-import {IMouseClaim} from "../Viewer";
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as rx from "rx";
+
+import {IMouseClaim} from "../Viewer";
 
 interface IMouseMoveOperation {
     (e: MouseEvent): MouseEvent;

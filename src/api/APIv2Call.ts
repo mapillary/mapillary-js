@@ -1,5 +1,4 @@
-/// <reference path="../../typings/rest/rest.d.ts" />
-/// <reference path="../../typings/when/when.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as rest from "rest";
 import * as mime from "rest/interceptor/mime";

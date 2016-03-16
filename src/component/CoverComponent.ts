@@ -1,4 +1,4 @@
-/// <reference path="../../typings/virtual-dom/virtual-dom.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as rx from "rx";
 import * as vd from "virtual-dom";
@@ -55,7 +55,7 @@ export class CoverComponent extends Component {
         return vd.h("div.Cover", [
             this.getCoverBackgroundVNode(conf),
             vd.h("button.CoverButton", {onclick: (): void => { this.configure({loading: true}); }}, [
-                vd.h(coverBtn, {}, children)
+                vd.h(coverBtn, {}, children),
             ]),
         ]);
     }

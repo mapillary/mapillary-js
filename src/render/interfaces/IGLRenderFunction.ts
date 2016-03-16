@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/threejs/three.d.ts" />
+/// <reference path="../../../typings/browser.d.ts" />
 
 import * as THREE from "three";
 

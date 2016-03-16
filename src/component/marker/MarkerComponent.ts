@@ -1,6 +1,4 @@
-
-/// <reference path="../../../typings/threejs/three.d.ts" />
-/// <reference path="../../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../../typings/browser.d.ts" />
 
 import * as _ from "underscore";
 import * as THREE from "three";

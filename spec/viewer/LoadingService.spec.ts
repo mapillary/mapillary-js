@@ -1,4 +1,4 @@
-/// <reference path="../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import {LoadingService} from "../../src/Viewer";
 
@@ -9,29 +9,23 @@ describe("LoadingService", () => {
         loadingService = new LoadingService();
     });
 
-    it("should be able to set loading", (done) => {
-        loadingService.startLoading("test");
-
-        let i: number = 0;
-        let ib: boolean[] = [false, true, false];
+    it("should emit loading status", (done) => {
         loadingService.loading$.subscribe((loading: boolean) => {
-            expect(loading).toBe(ib[i]);
-            i++;
+            expect(loading).toBe(true);
             done();
         });
 
-        let k: number = 0;
-        let kb: boolean[] = [false, true, false];
-        loadingService.taskLoading$("test").subscribe((loading: boolean) => {
-            expect(loading).toBe(kb[k]);
-            k++;
-            done();
-        });
+        loadingService.startLoading("task");
+    });
 
-        loadingService.stopLoading("test");
+    it("should emit not loading status", (done) => {
         loadingService.startLoading("test");
-        loadingService.startLoading("test2");
-        loadingService.stopLoading("test");
-        loadingService.stopLoading("test2");
+
+        loadingService.loading$.subscribe((loading: boolean) => {
+            expect(loading).toBe(false);
+            done();
+        });
+
+        loadingService.stopLoading("task");
     });
 });

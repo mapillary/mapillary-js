@@ -159,7 +159,7 @@ gulp.task('ts-lint', function (cb) {
   return stream
 })
 
-gulp.task('tsd', shell.task('./node_modules/tsd/build/cli.js install'))
+gulp.task('typings', shell.task('./node_modules/typings/dist/bin/typings.js install'))
 
 gulp.task('typescript', ['ts-lint', 'typescript-src', 'typescript-test'], function (cb) { cb() })
 
@@ -183,7 +183,7 @@ function extendKarmaConfig (path, conf) {
   return conf
 }
 
-gulp.task('prepublish', ['tsd', 'ts-lint', 'css'], function () {
+gulp.task('prepublish', ['typings', 'ts-lint', 'css'], function () {
   browserify(config.browserify)
     .plugin(tsify, config.ts)
     .transform('brfs')

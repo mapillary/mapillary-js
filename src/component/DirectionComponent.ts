@@ -1,6 +1,4 @@
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
-/// <reference path="../../typings/threejs/three.d.ts" />
-/// <reference path="../../typings/virtual-dom/virtual-dom.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as rx from "rx";
 import * as THREE from "three";
@@ -363,7 +361,7 @@ export class DirectionComponent extends Component {
 
         // todo: change the rotateX value for panoramas
         let style: any = {
-            transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZ}deg)`
+            transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZ}deg)`,
         };
 
         return vd.h("div", {},

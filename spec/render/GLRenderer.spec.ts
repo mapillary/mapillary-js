@@ -1,6 +1,4 @@
-/// <reference path="../../typings/jasmine/jasmine.d.ts" />
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
-/// <reference path="../../typings/threejs/three.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as rx from "rx";
 import * as THREE from "three";
@@ -45,14 +43,14 @@ describe("GLRenderer.ctor", () => {
 });
 
 describe("GLRenderer.renderer", () => {
-    let createGLRenderer = (frame$?: rx.Observable<IFrame>): GLRenderer => {
-        let element: HTMLDivElement = document.createElement("div");
+    let createGLRenderer = (frame$?: rx.Observable<IFrame>, element?: HTMLElement): GLRenderer => {
+        element = element != null ? element : document.createElement("div");
         let glRenderer: GLRenderer = new GLRenderer(element, !!frame$ ? frame$ : rx.Observable.empty<IFrame>());
 
         return glRenderer;
     };
 
-    let createGLRenderHash = (frameId: number, needsRender: boolean): IGLRenderHash => {
+    let createGLRenderHash = (frameId: number, needsRender: boolean, name?: string): IGLRenderHash => {
         let renderFunction: IGLRenderFunction =
             (pc: THREE.PerspectiveCamera, r: THREE.WebGLRenderer): void => {
                 r.render(new THREE.Scene(), pc);
@@ -66,7 +64,7 @@ describe("GLRenderer.renderer", () => {
         };
 
         let renderHash: IGLRenderHash = {
-            name: "mock",
+            name: name != null ? name : "mock",
             render: render,
         };
 
@@ -85,6 +83,7 @@ describe("GLRenderer.renderer", () => {
             nodesAhead: 0,
             currentTransform: null,
             previousTransform: null,
+            motionless: false,
         }
 
         spyOn(state, "currentNode").and.returnValue({ });
@@ -267,6 +266,41 @@ describe("GLRenderer.renderer", () => {
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
     });
 
+    it("should check width and height only once on resize", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let frameId: number = 1;
+        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
+        let element: any = {
+            get offsetHeight(): number {
+                return this.getOffsetHeight();
+            },
+            getOffsetHeight(): number {
+                return 0;
+            },
+            get offsetWidth(): number {
+                return this.getOffsetWidth();
+            },
+            getOffsetWidth(): number {
+                return 0;
+            },
+            appendChild(element: HTMLElement): void { }
+        };
+
+        let glRenderer: GLRenderer = createGLRenderer(frame$, element);
+
+        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+
+        spyOn(element, "getOffsetHeight");
+        spyOn(element, "getOffsetWidth");
+
+        glRenderer.resize();
+
+        expect((<jasmine.Spy>element.getOffsetHeight).calls.count()).toBe(1);
+        expect((<jasmine.Spy>element.getOffsetWidth).calls.count()).toBe(1);
+    });
+
     it("should render on changed render mode", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "render");
@@ -286,6 +320,47 @@ describe("GLRenderer.renderer", () => {
         frame$.onNext(createFrame(frameId));
         glRenderer.render$.onNext(createGLRenderHash(frameId, false));
 
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
+    });
+
+    it("should not render a frame until all render hashes has submitted", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let hash1: string = "hash1";
+        let hash2: string = "hash2";
+
+        let frameId: number = 1;
+
+        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
+        let glRenderer: GLRenderer = createGLRenderer(frame$);
+
+        let renderHash1: IGLRenderHash = createGLRenderHash(frameId, true, hash1);
+        let renderHash2: IGLRenderHash = createGLRenderHash(frameId, true, hash2);
+
+        glRenderer.render$.onNext(renderHash1);
+        glRenderer.render$.onNext(renderHash2);
+
+        spyOn(rendererMock, "clear");
+        spyOn(rendererMock, "render");
+
+        frameId = 2;
+        frame$.onNext(createFrame(frameId));
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
+
+        renderHash1 = createGLRenderHash(frameId, true, hash1);
+        renderHash2 = createGLRenderHash(frameId, true, hash2);
+
+        glRenderer.render$.onNext(renderHash1);
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
+
+        glRenderer.render$.onNext(renderHash2);
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
     });
 });

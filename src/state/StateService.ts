@@ -1,4 +1,4 @@
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as rx from "rx";
 
@@ -9,36 +9,100 @@ import {
     IFrame,
     IRotation,
     StateContext,
+    State,
 } from "../State";
 
+interface IContextOperation {
+    (context: IStateContext): IStateContext;
+}
+
+interface IContextAction {
+    (context: IStateContext): void;
+}
+
 export class StateService {
-    private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
-    private _currentState$: rx.Subject<IFrame>;
+    private _frame$: rx.Subject<number>;
+
+    private _contextOperation$: rx.BehaviorSubject<IContextOperation>;
+    private _context$: rx.Observable<IStateContext>;
+    private _state$: rx.Observable<State>;
+
+    private _currentState$: rx.Observable<IFrame>;
     private _currentNode$: rx.Observable<Node>;
 
-    private _context: IStateContext;
+    private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
 
     private _frameGenerator: FrameGenerator;
     private _frameId: number;
 
     constructor () {
-        this._context = new StateContext();
-        this._currentState$ = new rx.BehaviorSubject<IFrame>({ id: 0, state: this._context });
+        this._frame$ = new rx.Subject<number>();
 
-        this._currentNode$ = this._currentState$
-            .map<Node>((f: IFrame): Node => { return f.state.currentNode; })
-            .filter((n: Node): boolean => { return n != null; })
+        this._contextOperation$ = new rx.BehaviorSubject<IContextOperation>(
+            (context: IStateContext): IStateContext => {
+                return context;
+            });
+
+        this._context$ = this._contextOperation$
+            .scan<IStateContext>(
+                (context: IStateContext, operation: IContextOperation): IStateContext => {
+                    return operation(context);
+                },
+                new StateContext())
+             .shareReplay(1);
+
+        this._state$ = this._context$
+            .map<State>(
+                (context: IStateContext): State => {
+                    return context.state;
+                })
             .distinctUntilChanged()
             .shareReplay(1);
+
+        this._currentState$ = this._frame$
+            .withLatestFrom<IStateContext, [number, IStateContext]>(
+                this._context$,
+                (frameId: number, context: IStateContext): [number, IStateContext] => {
+                    return [frameId, context];
+                })
+            .do(
+                (fc: [number, IStateContext]): void => {
+                    fc[1].update();
+                })
+            .map<IFrame>(
+                (fc: [number, IStateContext]): IFrame => {
+                    return { id: fc[0], state: fc[1] };
+                })
+            .shareReplay(1);
+
+        this._currentNode$ = this._currentState$
+            .map<Node>(
+                (f: IFrame): Node => {
+                    return f.state.currentNode;
+                })
+            .filter(
+                (n: Node): boolean => {
+                    return n != null;
+                })
+            .distinctUntilChanged()
+            .shareReplay(1);
+
+        this._appendNode$
+            .map<IContextOperation>(
+                (node: Node) => {
+                    return (context: IStateContext): IStateContext => {
+                        context.append([node]);
+
+                        return context;
+                    };
+                })
+            .subscribe(this._contextOperation$);
+
+        this._state$.subscribe();
         this._currentNode$.subscribe();
 
-        this._frameGenerator = new FrameGenerator();
         this._frameId = null;
-
-        // fixme we should probably implement all functions in a more reactive way
-        this._appendNode$.subscribe((node: Node) => {
-            this.appendNodes([node]);
-        });
+        this._frameGenerator = new FrameGenerator();
     }
 
     public get currentState$(): rx.Observable<IFrame> {
@@ -49,8 +113,52 @@ export class StateService {
         return this._currentNode$;
     }
 
-    public dispose(): void {
-        this.stop();
+    public get state$(): rx.Observable<State> {
+        return this._state$;
+    }
+
+    public get appendNode$(): rx.Subject<Node> {
+        return this._appendNode$;
+    }
+
+    public traverse(): void {
+        this._invokeContextOperation((context: IStateContext) => { context.traverse(); });
+    }
+
+    public wait(): void {
+        this._invokeContextOperation((context: IStateContext) => { context.wait(); });
+    }
+
+    public appendNodes(nodes: Node[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.append(nodes); });
+    }
+
+    public prependNodes(nodes: Node[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.prepend(nodes); });
+    }
+
+    public removeNodes(n: number): void {
+        this._invokeContextOperation((context: IStateContext) => { context.remove(n); });
+    }
+
+    public cutNodes(): void {
+        this._invokeContextOperation((context: IStateContext) => { context.cut(); });
+    }
+
+    public setNodes(nodes: Node[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.set(nodes); });
+    }
+
+    public rotate(delta: IRotation): void {
+        this._invokeContextOperation((context: IStateContext) => { context.rotate(delta); });
+    }
+
+    public move(delta: number): void {
+        this._invokeContextOperation((context: IStateContext) => { context.move(delta); });
+    }
+
+    public moveTo(position: number): void {
+        this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
     public start(): void {
@@ -66,35 +174,18 @@ export class StateService {
         }
     }
 
-    public appendNodes(nodes: Node[]): void {
-        this._context.append(nodes);
-    }
+    private _invokeContextOperation(action: (context: IStateContext) => void): void {
+        this._contextOperation$
+            .onNext(
+                (context: IStateContext): IStateContext => {
+                    action(context);
 
-    public removeNodes(n: number): void {
-        this._context.remove(n);
-    }
-
-    public cutNodes(): void {
-        this._context.cut();
-    }
-
-    public setNodes(nodes: Node[]): void {
-        this._context.set(nodes);
-    }
-
-    public rotate(delta: IRotation): void {
-        this._context.rotate(delta);
-    }
-
-    public get appendNode$(): rx.Subject<Node> {
-        return this._appendNode$;
+                    return context;
+                });
     }
 
     private frame(time: number): void {
         this._frameId = this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
-
-        this._context.update();
-
-        this._currentState$.onNext({ id: this._frameId, state: this._context });
+        this._frame$.onNext(this._frameId);
     }
 }

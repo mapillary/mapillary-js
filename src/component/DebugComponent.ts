@@ -1,4 +1,4 @@
-/// <reference path="../../typings/virtual-dom/virtual-dom.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as _ from "underscore";
 import * as rx from "rx";

@@ -1,5 +1,4 @@
-/// <reference path="../../typings/virtual-dom/virtual-dom.d.ts" />
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as _ from "underscore";
 import * as rx from "rx";
@@ -234,7 +233,7 @@ export class RouteComponent extends Component {
 
     private getRouteAnnotationNode(description: string): vd.VNode {
         return vd.h("div.RouteFrame", {}, [
-            vd.h("p", {textContent: description}, [])
+            vd.h("p", {textContent: description}, []),
         ]);
     }
 }

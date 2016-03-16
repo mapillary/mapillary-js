@@ -1,5 +1,4 @@
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
-/// <reference path="../../typings/latlon-geohash/latlon-geohash.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as _ from "underscore";
 import * as geohash from "latlon-geohash";

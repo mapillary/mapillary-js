@@ -1,5 +1,4 @@
-/// <reference path="../../typings/virtual-dom/virtual-dom.d.ts" />
-/// <reference path="../../node_modules/rx/ts/rx.all.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import * as vd from "virtual-dom";
 
@@ -26,7 +25,7 @@ export class BackgroundComponent extends Component {
     private getBackgroundNode(notice: string): vd.VNode {
         // todo: add condition for when to display the DOM node
         return vd.h("div.BackgroundWrapper", {}, [
-            vd.h("p", {textContent: notice}, [])
+            vd.h("p", {textContent: notice}, []),
         ]);
     }
 }
