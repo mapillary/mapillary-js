@@ -290,6 +290,7 @@ export class SliderComponent extends Component {
 
     protected _activate(): void {
         this._container.mouseService.preventDefaultMouseDown$.onNext(false);
+        this._container.touchService.preventDefaultTouchMove$.onNext(false);
 
         rx.Observable
             .combineLatest(
@@ -465,6 +466,7 @@ export class SliderComponent extends Component {
 
     protected _deactivate(): void {
         this._container.mouseService.preventDefaultMouseDown$.onNext(true);
+        this._container.touchService.preventDefaultTouchMove$.onNext(true);
 
         this._navigator.stateService.state$
             .first()
