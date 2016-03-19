@@ -145,7 +145,7 @@ export class TraversingState extends StateBase {
         this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
     }
 
-    public update(): void {
+    public update(fps: number): void {
         if (this._alpha === 1 && this._currentIndex + this._alpha < this._trajectory.length) {
             this._currentIndex += 1;
 
@@ -156,7 +156,8 @@ export class TraversingState extends StateBase {
             this._clearRotation();
         }
 
-        this._baseAlpha = Math.min(1, this._baseAlpha + this._animationSpeed);
+        let animationSpeed: number = this._animationSpeed * (60 / fps);
+        this._baseAlpha = Math.min(1, this._baseAlpha + animationSpeed);
         if (this._useBezier) {
             this._alpha = this._unitBezier.solve(this._baseAlpha);
         } else {
