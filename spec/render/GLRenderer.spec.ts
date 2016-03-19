@@ -95,7 +95,7 @@ describe("GLRenderer.renderer", () => {
         spyOn(state, "previousNode").and.returnValue({ });
         spyOn(state, "previousTransform").and.returnValue({ });
 
-        return { id: frameId, state: state };
+        return { fps: 60, id: frameId, state: state };
     }
 
     it("should be created on first render", () => {
