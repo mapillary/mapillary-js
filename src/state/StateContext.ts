@@ -83,8 +83,8 @@ export class StateContext implements IStateContext {
         return this._state.motionless;
     }
 
-    public update(): void {
-        this._state.update();
+    public update(fps: number): void {
+        this._state.update(fps);
     }
 
     public append(nodes: Node[]): void {

@@ -4,3 +4,4 @@
  */
 export {Viewer, ImageSize} from "./Viewer";
 export {EdgeDirection} from "./Edge";
+export {RenderMode} from "./Render";

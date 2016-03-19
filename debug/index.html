@@ -8,16 +8,18 @@
     <link rel='stylesheet' href='dist/mapillary-js.min.css' />
     <style>
         body { margin: 0; padding: 0; }
-        html, body, #viewer { width: 640px; height: 480px; }
+        html, body { width: 100%; height: 100%; }
+        #viewer { width: 90%; height: 90%; }
     </style>
 </head>
-<body style="padding: 2em;">
+<body>
     <div id='viewer'></div>
     <button onclick="viewer.activateCover()">Activate Cover</button><button onclick="viewer.deactivateCover()">Deactivate Cover</button>
     <br>
     <button onclick="play()">Play</button><button onclick="stop()">Stop</button>
     <button onclick="showSlider()">Show Slider</button><button onclick="hideSlider()">Hide Slider</button>
     <button onclick="playRoute()">Play Route</button><button onclick="stopRoute()">Stop Route</button>
+    <button onclick="letterbox()">Letterbox</button><button onclick="fill()">Fill</button>
     <script src='build/bundle.js'></script>
     <script>
         var viewer = new Mapillary.Viewer(
@@ -26,6 +28,16 @@
             "JW1utOJP4g7gk06HtYgQSQ",
             { "debug": true, "cover": false }
         );
+
+        window.addEventListener("resize", function() { viewer.resize(); });
+
+        function letterbox() {
+            viewer.setRenderMode(Mapillary.RenderMode.Letterbox);
+        }
+
+        function fill() {
+            viewer.setRenderMode(Mapillary.RenderMode.Fill);
+        }
 
         viewer.activateComponent("player");
         var player = viewer.getComponent("player");
@@ -126,24 +138,23 @@
         }
 
         function showSlider() {
+            viewer.activateComponent("slider");
+
             viewer.deactivateComponent("imageplane");
             viewer.deactivateComponent("direction");
             viewer.deactivateComponent("sequence");
             viewer.deactivateComponent("mouse");
             viewer.deactivateComponent("keyboard");
-            viewer.activateComponent("slider");
-
-            var slider = viewer.getComponent("slider");
-            slider.setNodes({background: "uR2exMqzDxeMtAWkJDzm9A", foreground: "JW1utOJP4g7gk06HtYgQSQ"});
         }
 
         function hideSlider() {
-            viewer.deactivateComponent("slider");
             viewer.activateComponent("imageplane");
             viewer.activateComponent("direction");
             viewer.activateComponent("sequence");
             viewer.activateComponent("mouse");
             viewer.activateComponent("keyboard");
+
+            viewer.deactivateComponent("slider");
         }
 
         function playRoute() {

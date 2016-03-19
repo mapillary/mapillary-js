@@ -8,11 +8,18 @@ interface IMouseMoveOperation {
     (e: MouseEvent): MouseEvent;
 }
 
+interface IPreventMouseDownOperation {
+    (prevent: boolean): boolean;
+}
+
 export class MouseService {
     private _element: HTMLElement;
 
+    private _preventMouseDownOperation$: rx.Subject<IPreventMouseDownOperation>;
+    private _preventMouseDown$: rx.Subject<boolean>;
+
     private _mouseDown$: rx.Observable<MouseEvent>;
-    private _mouseMoveOperation$: rx.Subject<IMouseMoveOperation> = new rx.Subject<IMouseMoveOperation>();
+    private _mouseMoveOperation$: rx.Subject<IMouseMoveOperation>;
     private _mouseMove$: rx.Observable<MouseEvent>;
     private _mouseLeave$: rx.Observable<MouseEvent>;
     private _mouseUp$: rx.Observable<MouseEvent>;
@@ -24,19 +31,53 @@ export class MouseService {
     private _mouseDrag$: rx.Observable<MouseEvent>;
     private _mouseDragEnd$: rx.Observable<MouseEvent>;
 
-    private _claimMouse$: rx.Subject<IMouseClaim> = new rx.Subject<IMouseClaim>();
+    private _claimMouse$: rx.Subject<IMouseClaim>;
     private _mouseOwner$: rx.ConnectableObservable<string>;
 
     constructor(element: HTMLElement) {
         this._element = element;
 
+        this._preventMouseDownOperation$ = new rx.Subject<IPreventMouseDownOperation>();
+        this._preventMouseDown$ = new rx.Subject<boolean>();
+        this._mouseMoveOperation$ = new rx.Subject<IMouseMoveOperation>();
+        this._claimMouse$ = new rx.Subject<IMouseClaim>();
+
         this._mouseDown$ = rx.Observable.fromEvent<MouseEvent>(element, "mousedown");
+        this._mouseLeave$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseleave");
+        this._mouseUp$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseup");
+        this._mouseOver$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseover");
+
+        this._mouseWheel$ = rx.Observable.fromEvent<MouseWheelEvent>(element, "wheel");
+
+        this._preventMouseDownOperation$
+            .scan<boolean>(
+                (prevent: boolean, operation: IPreventMouseDownOperation): boolean => {
+                    return operation(prevent);
+                },
+                true)
+            .subscribe();
+
+        this._preventMouseDown$
+            .map<IPreventMouseDownOperation>(
+                (prevent: boolean): IPreventMouseDownOperation => {
+                    return (previous: boolean): boolean => {
+                        return prevent;
+                    };
+                })
+            .subscribe(this._preventMouseDownOperation$);
 
         this._mouseDown$
-            .subscribe(
-                (e: MouseEvent): void => {
-                    e.preventDefault();
-                });
+            .map<IPreventMouseDownOperation>(
+                (e: MouseEvent): IPreventMouseDownOperation => {
+                    return (prevent: boolean): boolean => {
+                        if (prevent) {
+                            e.preventDefault();
+                        }
+
+                        return prevent;
+                    };
+                })
+            .subscribe(this._preventMouseDownOperation$);
 
         this._mouseMove$ = this._mouseMoveOperation$
             .scan<MouseEvent>(
@@ -57,12 +98,6 @@ export class MouseService {
                     };
                 })
             .subscribe(this._mouseMoveOperation$);
-
-        this._mouseLeave$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseleave");
-        this._mouseUp$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseup");
-        this._mouseOver$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseover");
-
-        this._mouseWheel$ = rx.Observable.fromEvent<MouseWheelEvent>(element, "wheel");
 
         let dragStop$: rx.Observable<MouseEvent> = rx.Observable
             .merge<MouseEvent>([this._mouseLeave$, this._mouseUp$, this._mouseOver$]);
@@ -167,6 +202,10 @@ export class MouseService {
 
     public get mouseDragEnd$(): rx.Observable<MouseEvent> {
         return this._mouseDragEnd$;
+    }
+
+    public get preventDefaultMouseDown$(): rx.Subject<boolean> {
+        return this._preventMouseDown$;
     }
 }
 

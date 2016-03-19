@@ -54,7 +54,8 @@ var config = {
       './src/viewer/Viewer.ts',
       './src/viewer/interfaces/IViewerOptions.ts',
       './src/graph/edge/EdgeDirection.ts',
-      './src/viewer/ImageSize.ts'
+      './src/viewer/ImageSize.ts',
+      './src/render/RenderMode.ts'
     ],
     options: {
       target: 'ES5',

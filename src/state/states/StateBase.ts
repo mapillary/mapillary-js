@@ -108,7 +108,7 @@ export abstract class StateBase implements IState {
 
     public abstract rotate(delta: IRotation): void;
 
-    public abstract update(): void;
+    public abstract update(fps: number): void;
 
     public append(nodes: Node[]): void {
         if (nodes.length < 1) {

@@ -9,7 +9,7 @@ export interface IViewerOptions {
 
     /**
      * Display a background if no key is set.
-     * @default true
+     * @default false
      */
     background?: boolean;
 
@@ -51,7 +51,7 @@ export interface IViewerOptions {
 
     /**
      * Show static images without transitions.
-     * @default true
+     * @default false
      */
     image?: boolean;
 
@@ -81,7 +81,7 @@ export interface IViewerOptions {
 
     /**
      * Enable an interface for showing markers in the viewer
-     * @default true
+     * @default false
      */
     marker?: boolean;
 
@@ -105,14 +105,14 @@ export interface IViewerOptions {
 
     /**
      * Default size of the thumbnail used in the viewer
-     * @default {ImageSize}
+     * @default {ImageSize.Size640}
      */
     baseImageSize?: ImageSize;
 
     /**
      * The max size of an image shown in the viewer
      * will be used when user pauses.
-     * @default {ImageSize}
+     * @default {ImageSize.Size2048}
      */
     maxImageSize?: ImageSize;
 }

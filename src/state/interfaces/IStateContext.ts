@@ -7,7 +7,7 @@ export interface IStateContext extends ICurrentState {
     traverse(): void;
     wait(): void;
 
-    update(): void;
+    update(fps: number): void;
     append(nodes: Node[]): void;
     prepend(nodes: Node[]): void;
     remove(n: number): void;
