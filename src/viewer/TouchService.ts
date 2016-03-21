@@ -42,6 +42,10 @@ interface ITouchMoveOperation {
     (touchMove: TouchMove): TouchMove;
 }
 
+interface IPreventTouchMoveOperation {
+    (prevent: boolean): boolean;
+}
+
 export class TouchService {
     private _element: HTMLElement;
 
@@ -54,6 +58,9 @@ export class TouchService {
     private _singleTouchMove$: rx.Observable<TouchMove>;
     private _singleTouch$: rx.Observable<TouchMove>;
 
+    private _preventTouchMoveOperation$: rx.Subject<IPreventTouchMoveOperation>;
+    private _preventTouchMove$: rx.Subject<boolean>;
+
     constructor(element: HTMLElement) {
         this._element = element;
 
@@ -62,11 +69,38 @@ export class TouchService {
         this._touchEnd$ = rx.Observable.fromEvent<TouchEvent>(element, "touchend");
         this._touchCancel$ = rx.Observable.fromEvent<TouchEvent>(element, "touchcancel");
 
+        this._preventTouchMoveOperation$ = new rx.Subject<IPreventTouchMoveOperation>();
+        this._preventTouchMove$ = new rx.Subject<boolean>();
+
+        this._preventTouchMoveOperation$
+            .scan<boolean>(
+                (prevent: boolean, operation: IPreventTouchMoveOperation): boolean => {
+                    return operation(prevent);
+                },
+                true)
+            .subscribe();
+
+        this._preventTouchMove$
+            .map<IPreventTouchMoveOperation>(
+                (prevent: boolean): IPreventTouchMoveOperation => {
+                    return (previous: boolean): boolean => {
+                        return prevent;
+                    };
+                })
+            .subscribe(this._preventTouchMoveOperation$);
+
         this._touchMove$
-            .subscribe(
-                (te: TouchEvent): void => {
-                    te.preventDefault();
-                });
+            .map<IPreventTouchMoveOperation>(
+                (te: TouchEvent): IPreventTouchMoveOperation => {
+                    return (prevent: boolean): boolean => {
+                        if (prevent) {
+                            te.preventDefault();
+                        }
+
+                        return prevent;
+                    };
+                })
+            .subscribe(this._preventTouchMoveOperation$);
 
         this._singleTouchMoveOperation$ = new rx.Subject<ITouchMoveOperation>();
 
@@ -156,5 +190,9 @@ export class TouchService {
 
     public get singleTouchMove$(): rx.Observable<TouchMove> {
         return this._singleTouch$;
+    }
+
+    public get preventDefaultTouchMove$(): rx.Subject<boolean> {
+        return this._preventTouchMove$;
     }
 }

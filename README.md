@@ -28,6 +28,7 @@ Alternatively, you can `npm install mapillary-js` to use it with module loader/b
 - mapillary-js + mapbox-gl-js - [Panorama](http://bl.ocks.org/knikel/4ec4de69a0fc29318675) - [Perspective photo](http://bl.ocks.org/knikel/010115b08ebe30baba86)
 - mapillary-js + Esri Leaflet -  [Panorama](http://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c) - [Perspective photo](http://bl.ocks.org/knikel/e85b802e97fd3390668f)
 - mapillary-js + Google Maps - [Panorama](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
+- [Slider displaying difference in two photos](http://bl.ocks.org/knikel/bc0f813f611a8787ff02)
 
 ## Documentation
 - [Developing mapillary-js](https://github.com/mapillary/mapillary-js/blob/master/docs/developing.md)

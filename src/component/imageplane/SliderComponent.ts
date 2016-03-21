@@ -8,6 +8,7 @@ import {Node} from "../../Graph";
 import {ICurrentState, IFrame, State} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage, IVNodeHash} from "../../Render";
+import {Settings} from "../../Utils";
 import {
     Component,
     ComponentService,
@@ -15,6 +16,7 @@ import {
     ImagePlaneFactory,
     ISliderKeys,
     ISliderConfiguration,
+    TextureLoader,
 } from "../../Component";
 
 interface ISliderNodes {
@@ -111,6 +113,29 @@ class SliderState {
         this._domNeedsRender = needsRender || this._domNeedsRender;
     }
 
+    public updateTexture(texture: THREE.Texture, node: Node): void {
+        let imagePlanes: THREE.Mesh[] = node.key === this._currentKey ?
+            this._imagePlaneScene.imagePlanes :
+            node.key === this._previousKey ?
+                this._imagePlaneScene.imagePlanesOld :
+                [];
+
+        if (imagePlanes.length === 0) {
+            return;
+        }
+
+        this._glNeedsRender = true;
+
+        for (let plane of imagePlanes) {
+            let textureOld: THREE.Texture = (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value;
+            if (textureOld != null) {
+                textureOld.dispose();
+            }
+
+            (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value = texture;
+        }
+    }
+
     public render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
@@ -204,7 +229,7 @@ export class SliderComponent extends Component {
     private _stateSubscription: rx.IDisposable;
     private _glRenderSubscription: rx.IDisposable;
     private _domRenderSubscription: rx.IDisposable;
-
+    private _nodeSubscription: rx.IDisposable;
 
     /**
      * Create a new slider component instance.
@@ -290,6 +315,7 @@ export class SliderComponent extends Component {
 
     protected _activate(): void {
         this._container.mouseService.preventDefaultMouseDown$.onNext(false);
+        this._container.touchService.preventDefaultTouchMove$.onNext(false);
 
         rx.Observable
             .combineLatest(
@@ -461,10 +487,54 @@ export class SliderComponent extends Component {
                 (e: Error): void => {
                     console.log(e);
                 });
+
+        let previousNode$: rx.Observable<Node> = this._navigator.stateService.currentState$
+            .map<Node>(
+                (frame: IFrame): Node => {
+                    return frame.state.previousNode;
+                })
+            .filter(
+                (node: Node): boolean => {
+                    return node != null;
+                })
+            .distinctUntilChanged(
+                (node: Node): string => {
+                    return node.key;
+                });
+
+        this._nodeSubscription = rx.Observable
+            .merge(
+                previousNode$,
+                this._navigator.stateService.currentNode$)
+            .filter(
+                (node: Node): boolean => {
+                    return Settings.maxImageSize > Settings.baseImageSize;
+                })
+            .flatMap(
+                (node: Node): rx.Observable<[THREE.Texture, Node]> => {
+                    let textureLoader: TextureLoader = new TextureLoader();
+
+                    return textureLoader.load(node.key, Settings.maxImageSize)
+                        .zip(
+                            rx.Observable.just<Node>(node),
+                            (t: THREE.Texture, n: Node): [THREE.Texture, Node] => {
+                                return [t, n];
+                            });
+                })
+            .map<ISliderStateOperation>(
+                (tn: [THREE.Texture, Node]): ISliderStateOperation => {
+                    return (sliderState: SliderState): SliderState => {
+                        sliderState.updateTexture(tn[0], tn[1]);
+
+                        return sliderState;
+                    };
+                })
+            .subscribe(this._sliderStateOperation$);
     }
 
     protected _deactivate(): void {
         this._container.mouseService.preventDefaultMouseDown$.onNext(true);
+        this._container.touchService.preventDefaultTouchMove$.onNext(true);
 
         this._navigator.stateService.state$
             .first()
@@ -483,6 +553,7 @@ export class SliderComponent extends Component {
         this._stateSubscription.dispose();
         this._glRenderSubscription.dispose();
         this._domRenderSubscription.dispose();
+        this._nodeSubscription.dispose();
 
         this.configure({ keys: null });
     }

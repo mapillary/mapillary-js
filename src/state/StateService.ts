@@ -25,6 +25,7 @@ export class StateService {
 
     private _contextOperation$: rx.BehaviorSubject<IContextOperation>;
     private _context$: rx.Observable<IStateContext>;
+    private _fps$: rx.Observable<number>;
     private _state$: rx.Observable<State>;
 
     private _currentState$: rx.Observable<IFrame>;
@@ -35,8 +36,11 @@ export class StateService {
     private _frameGenerator: FrameGenerator;
     private _frameId: number;
 
+    private _fpsSampleRate: number;
+
     constructor () {
         this._frame$ = new rx.Subject<number>();
+        this._fpsSampleRate = 30;
 
         this._contextOperation$ = new rx.BehaviorSubject<IContextOperation>(
             (context: IStateContext): IStateContext => {
@@ -59,19 +63,37 @@ export class StateService {
             .distinctUntilChanged()
             .shareReplay(1);
 
+        this._fps$ = this._frame$
+            .filter(
+                (frameId: number): boolean => {
+                    return (frameId % this._fpsSampleRate) === 0;
+                })
+            .scan<[number, number]>(
+                (fps: [number, number], frameId: number): [number, number] => {
+                    let now: number = new Date().getTime();
+                    return [now, (this._fpsSampleRate / (now - fps[0])) * 1000];
+                },
+                [new Date().getTime(), 60])
+            .map<number>(
+                (fps: [number, number]): number => {
+                    return fps[1];
+                })
+            .startWith(60);
+
         this._currentState$ = this._frame$
-            .withLatestFrom<IStateContext, [number, IStateContext]>(
+            .withLatestFrom(
+                this._fps$,
                 this._context$,
-                (frameId: number, context: IStateContext): [number, IStateContext] => {
-                    return [frameId, context];
+                (frameId: number, fps: number, context: IStateContext): [number, number, IStateContext] => {
+                    return [frameId, fps, context];
                 })
             .do(
-                (fc: [number, IStateContext]): void => {
-                    fc[1].update();
+                (fc: [number, number, IStateContext]): void => {
+                    fc[2].update(fc[1]);
                 })
             .map<IFrame>(
-                (fc: [number, IStateContext]): IFrame => {
-                    return { id: fc[0], state: fc[1] };
+                (fc: [number, number, IStateContext]): IFrame => {
+                    return { fps: fc[1], id: fc[0], state: fc[2] };
                 })
             .shareReplay(1);
 

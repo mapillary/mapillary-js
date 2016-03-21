@@ -3,13 +3,13 @@
 import * as THREE from "three";
 import * as rx from "rx";
 
-import {ComponentService, Component, ImagePlaneScene, ImagePlaneFactory} from "../../Component";
+import {ComponentService, Component, ImagePlaneScene, ImagePlaneFactory, TextureLoader} from "../../Component";
 import {ICurrentState, IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Camera} from "../../Geo";
 import {Node} from "../../Graph";
-import {Settings, Urls} from "../../Utils";
+import {Settings} from "../../Utils";
 
 interface IImagePlaneStateOperation {
     (imagePlaneState: ImagePlaneState): ImagePlaneState;
@@ -266,20 +266,9 @@ export class ImagePlaneComponent extends Component {
                         .delay(2000)
                         .flatMap<THREE.Texture>(
                             (): rx.Observable<THREE.Texture> => {
-                                let textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
-                                textureLoader.setCrossOrigin("Anonymous");
+                                let textureLoader: TextureLoader = new TextureLoader();
 
-                                let load: (url: string) => rx.Observable<THREE.Texture> =
-                                    rx.Observable.fromCallback<THREE.Texture, string>(
-                                        textureLoader.load,
-                                        textureLoader);
-
-                                return load(Urls.image(node.key, Settings.maxImageSize))
-                                    .do(
-                                        (texture: THREE.Texture): void => {
-                                            texture.minFilter = THREE.LinearFilter;
-                                            texture.needsUpdate = true;
-                                        });
+                                return textureLoader.load(node.key, Settings.maxImageSize);
                             })
                         .zip(
                             rx.Observable.just<Node>(node),
