@@ -49,11 +49,19 @@ export class MarkerSet {
             })
             .subscribe(this._update$);
 
-        // creation stream generate creation updates from given markers.
+        // remove stream generates remove updates from given markers
         this._remove$
             .map(function(marker: Marker): IMarkerOperation {
                 return (markers: any) => {
-                    markers.remove(marker);
+                    let allMarkers: any = markers.all();
+
+                    let markerRef: Marker = _.find(allMarkers, (m: any) => {
+                        if (m.lat === marker.lat && m.lon === marker.lon) {
+                            return m;
+                        }
+                    });
+
+                    markers.remove(markerRef);
                     return markers;
                 };
             })
