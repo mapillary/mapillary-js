@@ -26,9 +26,11 @@ interface ISpatialItem {
     marker: Marker;
 }
 
+type SpatialIndex = rbush.RBush<ISpatialItem>;
+
 interface IMarkerData {
-    hash: any;
-    spatial: rbush.RBush<ISpatialItem>;
+    hash: { [id: string]: ISpatialItem };
+    spatial: SpatialIndex;
 }
 
 interface IMarkerOperation extends Function {
@@ -38,14 +40,14 @@ interface IMarkerOperation extends Function {
 interface IUpdateArgs {
     graph: Graph;
     frame: IFrame;
-    markers: any;
+    markers: SpatialIndex;
 }
 
 export class MarkerSet {
     private _create$: rx.Subject<Marker> = new rx.Subject<Marker>();
     private _remove$: rx.Subject<string> = new rx.Subject<string>();
-    private _update$: rx.Subject<any> = new rx.Subject<any>();
-    private _markers$: rx.Observable<any>;
+    private _update$: rx.Subject<IMarkerOperation> = new rx.Subject<IMarkerOperation>();
+    private _markers$: rx.Observable<SpatialIndex>;
 
     constructor() {
         // markers list stream is the result of applying marker updates.
@@ -56,7 +58,7 @@ export class MarkerSet {
                 },
                 {hash: {}, spatial: rbush<ISpatialItem>(20000, [".lon", ".lat", ".lon", ".lat"])}
             ).map(
-                (markers: IMarkerData): any => {
+                (markers: IMarkerData): SpatialIndex => {
                     return markers.spatial;
                 }
             ).shareReplay(1);
@@ -87,7 +89,7 @@ export class MarkerSet {
         this._remove$
             .map(function(id: string): IMarkerOperation {
                 return (markers: IMarkerData) => {
-                    let rbushObj: any = markers.hash[id];
+                    let rbushObj: ISpatialItem = markers.hash[id];
                     markers.spatial.remove(rbushObj);
                     delete markers.hash[id];
                     return markers;
@@ -104,7 +106,7 @@ export class MarkerSet {
         this._remove$.onNext(id);
     }
 
-    public get markers$(): rx.Observable<any> {
+    public get markers$(): rx.Observable<SpatialIndex> {
         return this._markers$;
     }
 }
@@ -132,7 +134,7 @@ export class MarkerComponent extends Component {
             this._navigator.graphService.graph$,
             this._navigator.stateService.currentState$,
             this._markerSet.markers$,
-            (graph: Graph, frame: IFrame, markers: any): IUpdateArgs => {
+            (graph: Graph, frame: IFrame, markers: SpatialIndex): IUpdateArgs => {
                 return { frame: frame, graph: graph, markers: markers };
             })
             .distinctUntilChanged((args: IUpdateArgs) => {
@@ -197,7 +199,7 @@ export class MarkerComponent extends Component {
         this._markerSet.addMarker(marker);
     }
 
-    public get markers$(): rx.Observable<any> {
+    public get markers$(): rx.Observable<SpatialIndex> {
         return this._markerSet.markers$;
     }
 
@@ -244,8 +246,8 @@ export class MarkerComponent extends Component {
         let maxLon: number = node.latLon.lon + boxWidth / 2;
         let maxLat: number = node.latLon.lat + boxWidth / 2;
 
-        let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: any) => {
-            return <Marker>item.marker;
+        let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialItem) => {
+            return item.marker;
         }).filter((marker: Marker) => {
             return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);
         });
