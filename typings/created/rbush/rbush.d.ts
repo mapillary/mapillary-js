@@ -1,8 +1,15 @@
 declare module "rbush" {
-    export = rbush;
-    function rbush(n: number, a: any): any;
-
     module rbush {
-        function insert(a: any): void;
+        interface RBush {
+            insert(a: any): void;
+            remove(a: any): void;
+            search(a: any): any;
+            all(): any[];
+            clear(): void;
+        }
     }
+
+    function rbush(n: number, a: any): rbush.RBush;
+
+    export = rbush;
 }

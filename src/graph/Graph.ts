@@ -31,7 +31,7 @@ export class Graph {
     private sequenceHash: {[key: string]: Sequence};
 
     private graph: any;
-    private spatial: any;
+    private spatial: rbush.RBush;
 
     private cachedNodes: {[key: string]: boolean};
     private unWorthyNodes: {[key: string]: boolean};

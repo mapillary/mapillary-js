@@ -21,7 +21,7 @@ import {GeoCoords} from "../../Geo";
 
 interface IMarkerData {
     hash: any;
-    spatial: any;
+    spatial: rbush.RBush;
 }
 
 interface IMarkerOperation extends Function {
