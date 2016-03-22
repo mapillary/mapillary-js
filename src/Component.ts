@@ -23,6 +23,7 @@ export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
 export {ImagePlaneFactory} from "./component/imageplane/ImagePlaneFactory";
 export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene";
 export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders";
+export {SimpleMarker} from "./component/marker/SimpleMarker";
 export {SliderComponent} from "./component/imageplane/SliderComponent";
 export {TextureLoader} from "./component/imageplane/TextureLoader";
 export * from "./component/interfaces/interfaces";

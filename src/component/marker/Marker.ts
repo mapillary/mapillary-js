@@ -1,40 +1,33 @@
-/// <reference path="../../../typings/browser.d.ts" />
+import {IMarkerOptions} from "../../Component";
+import {ILatLonAlt} from "../../Graph";
 
-import * as rx from "rx";
+export abstract class Marker {
+    public visibleInKeys: string[] = [];
 
-export class Marker {
-    public lat: number;
-    public lon: number;
-    public alt: number;
-    public color: number;
-    public hash: number;
+    private _id: string;
+    private _type: string;
+    private _latLonAlt: ILatLonAlt;
+    private _markerOptions: IMarkerOptions;
 
-    public self$: rx.Subject<Marker> = new rx.Subject<Marker>();
-
-    constructor(lat: number,
-                lon: number,
-                alt: number = 0.0) {
-        this.setPosition(lat, lon, alt);
-        this.setColor(0xCCFFCC);
+    constructor(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions) {
+        this._id = markerOptions.id;
+        this._latLonAlt = latLonAlt;
+        this._markerOptions = markerOptions;
+        this._type = markerOptions.type;
     }
 
-    public setPosition(lat: number,
-                       lon: number,
-                       alt: number = 0.0): void {
-        this.lat = lat;
-        this.lon = lon;
-        this.alt = alt;
-        this.update();
+    public abstract createGeometry(): THREE.Object3D;
+
+    public get id(): string {
+        return this._id;
     }
 
-    public setColor(color: number): void {
-        this.color = color;
-        this.update();
+    public get type(): string {
+        return this._type;
     }
 
-    private update(): void {
-        this.hash = Math.random();
-        this.self$.onNext(this);
+    public get latLonAlt(): ILatLonAlt {
+        return this._latLonAlt;
     }
 }
 

@@ -1,8 +1,15 @@
-declare module "rbush" {
-    export = rbush;
-    function rbush(n: number, a: any): any;
-
-    module rbush {
-        function insert(a: any): void;
+declare module rbush {
+    interface RBush<T> {
+        insert(item: T): void;
+        remove(item: T): void;
+        search(bbox: [number, number, number, number]): T[];
+        all(): T[];
+        clear(): void;
     }
 }
+
+declare function rbush<T>(
+    maxEntries: number,
+    accessorStrings?: [string, string, string, string]): rbush.RBush<T>;
+
+export = rbush;

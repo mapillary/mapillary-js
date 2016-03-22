@@ -1,127 +1,111 @@
 /// <reference path="../../typings/browser.d.ts" />
 
 import * as rx from "rx";
+import * as vd from "virtual-dom";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {APIv2, IRect} from "../API";
+import {APIv3} from "../API";
 
 import {ComponentService, Component} from "../Component";
+import {IVNodeHash} from "../Render";
+
+interface IDetection {
+    rect: number[];
+    score: string;
+    value: string;
+    object: string;
+    key: string;
+    package: string;
+}
 
 export class DetectionComponent extends Component {
     public static componentName: string = "detection";
     private _disposable: rx.IDisposable;
-
-    private rectContainer: HTMLElement;
-    private detectionData: any;
-    private apiV2: APIv2;
+    private apiV3: APIv3;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
-        this.apiV2 = navigator.apiV2;
+        this.apiV3 = navigator.apiV3;
     }
 
     protected _activate(): void {
-        let child: HTMLElement = document.createElement("div");
-        child.className = "rectContainer";
+        this._disposable = this._navigator.stateService.currentNode$.flatMap((node: Node): rx.Observable<any> => {
+            return this.apiV3.model.get([
+                "imageByKey",
+                node.key,
+                "ors",
+                {from: 0, to: 20},
+                ["key", "obj", "rect", "value", "package", "score"],
+            ]);
+        }).map((ors: any): IVNodeHash => {
+            let detections: IDetection[] = [];
+            delete ors.json.imageByKey.$__path;
+            ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
+            delete ors.$__path;
 
-        this.rectContainer = child;
-        this._container.element.appendChild(this.rectContainer);
+            for (let or in ors) {
+                if (ors.hasOwnProperty(or)) {
+                    or = ors[or];
 
-        this._disposable = this._navigator
-            .stateService
-            .currentNode$.subscribe((node: Node): void => {
-                this.setRectContainer(node.image.width, node.image.height);
-                this.removeRectsFromDOM();
+                    if (!or) {
+                        continue;
+                    }
 
-                this.apiV2.im.callOr(node.key).then((data: any) => {
-                    this.detectionData = data;
-                    this.updateRects(this.detectionData.or_rects);
-                });
-            });
+                    let r: number[] = [];
+                    r[0] = or.rect.geometry.coordinates[1][0];
+                    r[1] = or.rect.geometry.coordinates[1][1];
+                    r[2] = or.rect.geometry.coordinates[3][0];
+                    r[3] = or.rect.geometry.coordinates[3][1];
+
+                    let rect: IDetection = {
+                        key: or.key,
+                        object: or.obj,
+                        package: or.package,
+                        rect: r,
+                        score: or.score,
+                        value: or.value,
+                    };
+                    detections.push(rect);
+                }
+            }
+
+            return {name: this._name, vnode: this.getRects(detections)};
+        }).subscribe(this._container.domRenderer.renderAdaptive$);
     }
 
     protected _deactivate(): void {
-        this.rectContainer = undefined;
-        this.detectionData = undefined;
         this._disposable.dispose();
     }
 
-   /**
-    * Update detection rects in the DOM
-    */
-    private updateRects (rects: Array<IRect>): void {
-        rects.forEach((r: IRect) => {
-            let rect: HTMLElement = document.createElement("div");
+    private getRects(detections: IDetection[]): vd.VNode {
+        let vRects: vd.VNode[] = [];
 
-            let adjustedRect: Array<number> = this.coordsToCss(r.rect);
+        detections.forEach((r: IDetection) => {
+            let adjustedRect: number[] = this.coordsToCss(r.rect);
 
-            // map adjusted coordinates to valid CSS styles
-            let rectMapped: Array<string> = adjustedRect.map((el: number) => {
+            let rectMapped: string[] = adjustedRect.map((el: number) => {
                 return (el * 100) + "%";
             });
 
-            this.setRectStyling(rect, rectMapped);
-            this.rectContainer.appendChild(rect);
+            vRects.push(vd.h("div.Rect", {style: this.getRectStyle(rectMapped)}, [
+                vd.h("span", {style: "color: red;", textContent: r.value}, []),
+            ]));
         });
+
+        return vd.h("div.rectContainer", {}, vRects);
     }
 
-    /**
-     * Adjust x1, y1, x2, y2 coordinates to CSS styling, so the rectangle
-     * can displays correctly with top, ripht, bottom, left styling.
-     */
-    private coordsToCss (rects: Array<number>): Array<number> {
-
-        // copy the array
-        let adjustedCoords: Array<number> = rects.concat();
-
-        // adjust the x2 (right) position
+    private coordsToCss(rects: number[]): number[] {
+        let adjustedCoords: number[] = rects.concat();
         adjustedCoords[2] = 1 - adjustedCoords[2];
-
-        // adjust the y2 (bottom) position
         adjustedCoords[3] = 1 - adjustedCoords[3];
-
         return adjustedCoords;
-
     }
 
-    /**
-     * Set the className and position of the rectangle. Expects the `position: absolute`
-     * being set through CSS stylesheets.
-     */
-    private setRectStyling (rect: HTMLElement, mappedRect: Array<string>): void {
-        rect.className = "Rect";
-        rect.style.top = mappedRect[1];
-        rect.style.bottom = mappedRect[3];
-        rect.style.right = mappedRect[2];
-        rect.style.left = mappedRect[0];
+    private getRectStyle(mappedRect: Array<string>): string {
+        return `top:${mappedRect[1]}; bottom:${mappedRect[3]}; right:${mappedRect[2]}; left:${mappedRect[0]}`;
     }
-
-    /**
-     * Remove all existing DOM nodes from the container
-     */
-    private removeRectsFromDOM (): void {
-        while (this.rectContainer.firstChild) {
-            this.rectContainer.removeChild(this.rectContainer.firstChild);
-        }
-    }
-
-
-    /**
-     * Sets the rectContainer size to match ratio of currently displayed photo
-     */
-    private setRectContainer (w: number, h: number): void {
-        let cw: number = this._container.element.clientWidth;
-        let ch: number = this._container.element.clientHeight;
-
-        let ratioW: number = (ch / h * w);
-
-        let offset: number  = (cw - ratioW) / 2;
-
-        this.rectContainer.style.left = `${offset}px`;
-        this.rectContainer.style.right = `${offset}px`;
-    }
-
 }
 
 ComponentService.register(DetectionComponent);

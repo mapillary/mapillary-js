@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {IAPISearchImClose2, APIv2} from "../API";
+import {IAPISearchImClose2, APIv2, APIv3} from "../API";
 import {ILatLon, GraphService, Node} from "../Graph";
 import {EdgeDirection} from "../Edge";
 import {StateService} from "../State";
@@ -14,6 +14,7 @@ export class Navigator {
     public loadingService: LoadingService;
 
     public apiV2: APIv2;
+    public apiV3: APIv3;
 
     private _keyRequested$: rx.BehaviorSubject<string> = new rx.BehaviorSubject<string>(null);
     private _dirRequested$: rx.BehaviorSubject<EdgeDirection> = new rx.BehaviorSubject<EdgeDirection>(null);
@@ -21,8 +22,9 @@ export class Navigator {
 
     constructor (clientId: string) {
         this.apiV2 = new APIv2(clientId);
+        this.apiV3 = new APIv3(clientId);
 
-        this.graphService = new GraphService(this.apiV2);
+        this.graphService = new GraphService(this.apiV2, this.apiV3);
         this.stateService = new StateService();
         this.loadingService = new LoadingService();
     }
