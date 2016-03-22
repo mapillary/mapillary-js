@@ -9,23 +9,11 @@ describe("LoadingService", () => {
         loadingService = new LoadingService();
     });
 
-    it("should emit loading status", (done) => {
-        loadingService.loading$.subscribe((loading: boolean) => {
-            expect(loading).toBe(false);
-            done();
-        });
-
-        loadingService.startLoading("task");
-    });
-
-    it("should emit not loading status", (done) => {
-        loadingService.startLoading("test");
-
-        loadingService.loading$.subscribe((loading: boolean) => {
-            expect(loading).toBe(false);
-            done();
-        });
-
-        loadingService.stopLoading("task");
+    it("should be initialized to not loading", (done) => {
+        loadingService.loading$
+            .subscribe((loading: boolean) => {
+                expect(loading).toBe(false);
+                done();
+            });
     });
 });
