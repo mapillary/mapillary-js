@@ -1,5 +1,5 @@
 export {GeoCoords} from "./geo/GeoCoords";
-export {GoogleTiles} from "./geo/GoogleTiles";
+export {WebMercator} from "./geo/WebMercator";
 export {Spatial} from "./geo/Spatial";
 export {Transform} from "./geo/Transform";
 export {Camera} from "./geo/Camera";

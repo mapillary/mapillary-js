@@ -3,25 +3,25 @@
 import * as rx from "rx";
 
 import {APIv3} from "../API";
-import {IGoogleTile, GoogleTiles} from "../Geo";
+import {ITile, WebMercator} from "../Geo";
 import {MapillaryObject, MapillaryRect, Node} from "../Graph";
 
 export class VectorTilesService {
     private _apiV3: APIv3;
 
-    private _googleTiles: GoogleTiles;
+    private _webMercator: WebMercator;
     private _cacheNode$: rx.Subject<Node> = new rx.Subject<Node>();
     private _mapillaryObjects$: rx.Observable<any>;
 
     constructor (apiV3: APIv3) {
         this._apiV3 = apiV3;
-        this._googleTiles = new GoogleTiles();
+        this._webMercator = new WebMercator();
 
-        this._mapillaryObjects$ = this._cacheNode$.map<IGoogleTile>((node: Node): IGoogleTile => {
-            return this._googleTiles.getTileAtLatLon(node.latLon, 17);
-        }).distinct((tile: IGoogleTile): string => {
+        this._mapillaryObjects$ = this._cacheNode$.map<ITile>((node: Node): ITile => {
+            return this._webMercator.getTile(node.latLon, 17);
+        }).distinct((tile: ITile): string => {
             return tile.z + "-" + tile.x + "-" + tile.y;
-        }).flatMap((tile: IGoogleTile): any => {
+        }).flatMap((tile: ITile): any => {
             return this._apiV3.model.get([
                 "tile",
                 "all",

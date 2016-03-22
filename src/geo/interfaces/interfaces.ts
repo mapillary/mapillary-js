@@ -1,3 +1,3 @@
 export {IBBox} from "./IBBox";
-export {IGoogleTile} from "./IGoogleTile";
+export {ITile} from "./ITile";
 export {IPoint} from "./IPoint";
