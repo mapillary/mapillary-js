@@ -9,7 +9,6 @@
     "graphlib": "file:typings/created/graphlib/graphlib.d.ts",
     "lib": "file:typings/created/lib/lib.d.ts",
     "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#aed176536a202b9a2475ce1989ea6d2d0226a185",
-    "rbush": "file:typings/created/rbush/rbush.d.ts",
     "rest": "github:DefinitelyTyped/DefinitelyTyped/rest/rest.d.ts#001ca36ba58cef903c4c063555afb07bbc36bb58",
     "rx": "npm:rx/ts/rx.all.d.ts",
     "three": "github:DefinitelyTyped/DefinitelyTyped/threejs/three.d.ts#46719185c564694c5583c4b7ad94dbb786ecad46",
@@ -19,6 +18,7 @@
   },
   "dependencies": {
     "latlon-geohash": "file:typings/created/latlon-geohash/latlon-geohash.d.ts",
-    "unitbezier": "file:./typings/created/unitbezier/unitbezier.d.ts"
+    "rbush": "file:typings/created/rbush/rbush.d.ts",
+    "unitbezier": "file:typings/created/unitbezier/unitbezier.d.ts"
   }
 }
