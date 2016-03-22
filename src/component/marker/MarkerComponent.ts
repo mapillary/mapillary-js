@@ -19,9 +19,16 @@ import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {MapillaryObject, Graph, ILatLonAlt, Node} from "../../Graph";
 import {GeoCoords} from "../../Geo";
 
+interface ISpatialItem {
+    id: string;
+    lat: number;
+    lon: number;
+    marker: Marker;
+}
+
 interface IMarkerData {
     hash: any;
-    spatial: rbush.RBush;
+    spatial: rbush.RBush<ISpatialItem>;
 }
 
 interface IMarkerOperation extends Function {
@@ -47,7 +54,7 @@ export class MarkerSet {
                 (markers: IMarkerData, operation: IMarkerOperation): IMarkerData => {
                     return operation(markers);
                 },
-                {hash: {}, spatial: rbush(20000, [".lon", ".lat", ".lon", ".lat"])}
+                {hash: {}, spatial: rbush<ISpatialItem>(20000, [".lon", ".lat", ".lon", ".lat"])}
             ).map(
                 (markers: IMarkerData): any => {
                     return markers.spatial;
@@ -62,7 +69,7 @@ export class MarkerSet {
                         markers.spatial.remove(markers.hash[marker.id]);
                     }
 
-                    let rbushObj: any = {
+                    let rbushObj: ISpatialItem = {
                         id: marker.id,
                         lat: marker.latLonAlt.lat,
                         lon: marker.latLonAlt.lon,

@@ -22,6 +22,12 @@ class GeoHashDirections {
     public static ne: string = "ne";
 }
 
+interface ISpatialItem {
+    lat: number;
+    lon: number;
+    node: Node;
+}
+
 export class Graph {
     public referenceLatLonAlt: ILatLonAlt = null;
 
@@ -31,7 +37,7 @@ export class Graph {
     private sequenceHash: {[key: string]: Sequence};
 
     private graph: any;
-    private spatial: rbush.RBush;
+    private spatial: rbush.RBush<ISpatialItem>;
 
     private cachedNodes: {[key: string]: boolean};
     private unWorthyNodes: {[key: string]: boolean};
@@ -49,7 +55,7 @@ export class Graph {
     constructor () {
         this.sequences = [];
         this.sequenceHash = {};
-        this.spatial = rbush(20000, [".lon", ".lat", ".lon", ".lat"]);
+        this.spatial = rbush<ISpatialItem>(20000, [".lon", ".lat", ".lon", ".lat"]);
         this.graph = new graphlib.Graph({multigraph: true});
         this.cachedNodes = {};
         this.unWorthyNodes = {};
@@ -245,8 +251,8 @@ export class Graph {
         let maxLon: number = node.latLon.lon + this.boxWidth / 2;
         let maxLat: number = node.latLon.lat + this.boxWidth / 2;
 
-        let nodes: Node[] = _.map(this.spatial.search([minLon, minLat, maxLon, maxLat]), (item: any) => {
-            return <Node>item.node;
+        let nodes: Node[] = _.map(this.spatial.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialItem) => {
+            return item.node;
         });
 
         let potentialEdges: IPotentialEdge[] = this.edgeCalculator.getPotentialEdges(node, nodes, fallbackKeys);
