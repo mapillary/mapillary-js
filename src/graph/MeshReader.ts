@@ -1,4 +1,4 @@
-/// <reference path="../../typings/pbf/pbf.d.ts" />
+/// <reference path="../../typings/browser.d.ts" />
 
 import {IMesh} from "../Graph";
 
