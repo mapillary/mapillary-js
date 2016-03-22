@@ -11,7 +11,7 @@ describe("LoadingService", () => {
 
     it("should emit loading status", (done) => {
         loadingService.loading$.subscribe((loading: boolean) => {
-            expect(loading).toBe(true);
+            expect(loading).toBe(false);
             done();
         });
 

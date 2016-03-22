@@ -5,15 +5,27 @@ import * as THREE from "three";
 import * as rbush from "rbush";
 import * as rx from "rx";
 
-import {IMarkerConfiguration, Marker, ComponentService, Component} from "../../Component";
+import {
+    IMarkerConfiguration,
+    IMarkerOptions,
+    Marker,
+    ComponentService,
+    Component,
+    SimpleMarker,
+} from "../../Component";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {MapillaryObject, Graph, ILatLonAlt, Node} from "../../Graph";
 import {GeoCoords} from "../../Geo";
 
+interface IMarkerData {
+    hash: any;
+    spatial: any;
+}
+
 interface IMarkerOperation extends Function {
-    (markers: any): any;
+    (markers: IMarkerData): IMarkerData;
 }
 
 interface IUpdateArgs {
@@ -24,7 +36,7 @@ interface IUpdateArgs {
 
 export class MarkerSet {
     private _create$: rx.Subject<Marker> = new rx.Subject<Marker>();
-    private _remove$: rx.Subject<Marker> = new rx.Subject<Marker>();
+    private _remove$: rx.Subject<string> = new rx.Subject<string>();
     private _update$: rx.Subject<any> = new rx.Subject<any>();
     private _markers$: rx.Observable<any>;
 
@@ -32,18 +44,33 @@ export class MarkerSet {
         // markers list stream is the result of applying marker updates.
         this._markers$ = this._update$
             .scan(
-                (markers: any, operation: IMarkerOperation): any => {
+                (markers: IMarkerData, operation: IMarkerOperation): IMarkerData => {
                     return operation(markers);
                 },
-                rbush(20000, [".lon", ".lat", ".lon", ".lat"])
-            )
-            .shareReplay(1);
+                {hash: {}, spatial: rbush(20000, [".lon", ".lat", ".lon", ".lat"])}
+            ).map(
+                (markers: IMarkerData): any => {
+                    return markers.spatial;
+                }
+            ).shareReplay(1);
 
         // creation stream generate creation updates from given markers.
         this._create$
             .map(function(marker: Marker): IMarkerOperation {
-                return (markers: any) => {
-                    markers.insert({lat: marker.lat, lon: marker.lon, marker: marker});
+                return (markers: IMarkerData) => {
+                    if (markers.hash[marker.id]) {
+                        markers.spatial.remove(markers.hash[marker.id]);
+                    }
+
+                    let rbushObj: any = {
+                        id: marker.id,
+                        lat: marker.latLonAlt.lat,
+                        lon: marker.latLonAlt.lon,
+                        marker: marker,
+                    };
+
+                    markers.spatial.insert(rbushObj);
+                    markers.hash[marker.id] = rbushObj;
                     return markers;
                 };
             })
@@ -51,17 +78,11 @@ export class MarkerSet {
 
         // remove stream generates remove updates from given markers
         this._remove$
-            .map(function(marker: Marker): IMarkerOperation {
-                return (markers: any) => {
-                    let allMarkers: any = markers.all();
-
-                    let markerRef: Marker = _.find(allMarkers, (m: any) => {
-                        if (m.lat === marker.lat && m.lon === marker.lon) {
-                            return m;
-                        }
-                    });
-
-                    markers.remove(markerRef);
+            .map(function(id: string): IMarkerOperation {
+                return (markers: IMarkerData) => {
+                    let rbushObj: any = markers.hash[id];
+                    markers.spatial.remove(rbushObj);
+                    delete markers.hash[id];
                     return markers;
                 };
             })
@@ -72,15 +93,14 @@ export class MarkerSet {
         this._create$.onNext(marker);
     }
 
-    public removeMarker(marker: Marker): void {
-        this._remove$.onNext(marker);
+    public removeMarker(id: string): void {
+        this._remove$.onNext(id);
     }
 
-    public get markers$(): rx.Observable<Marker[]> {
+    public get markers$(): rx.Observable<any> {
         return this._markers$;
     }
 }
-
 
 export class MarkerComponent extends Component {
     public static componentName: string = "marker";
@@ -90,8 +110,7 @@ export class MarkerComponent extends Component {
     private _markerSet: MarkerSet;
 
     private _scene: THREE.Scene;
-    private _markerObjects: {[hash: number]: THREE.Object3D};
-    private _circleToRayAngle: number = 2.0;
+    private _markerObjects: {[id: string]: THREE.Object3D};
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -125,10 +144,26 @@ export class MarkerComponent extends Component {
                     let views: string[] = _.map(mapillaryObject.rects, (rect: any): string => {
                         return rect.image_key;
                     });
-                    let marker: Marker = this.createMarker(mapillaryObject.latLon.lat,
-                                                           mapillaryObject.latLon.lon,
-                                                           mapillaryObject.alt);
-                    marker.setVisibleInKeys(views);
+
+                    let latLonAlt: ILatLonAlt = {
+                        alt: mapillaryObject.alt,
+                        lat: mapillaryObject.latLon.lat,
+                        lon: mapillaryObject.latLon.lon,
+                    };
+
+                    let options: IMarkerOptions = {
+                        id: `mapillary-object-${mapillaryObject.key}`,
+                        style: {
+                            ballColor: "#00FF00",
+                            ballOpacity: 1,
+                            color: "#FF0000",
+                            opacity: 0.2,
+                        },
+                        type: "marker",
+                    };
+
+                    let marker: Marker = this.createMarker(latLonAlt, options);
+                    marker.visibleInKeys = views;
                     return marker;
                 });
         }).subscribe((marker: Marker): void => {
@@ -143,16 +178,24 @@ export class MarkerComponent extends Component {
         this._disposableConfiguration.dispose();
     }
 
-    public createMarker(lat: number, lon: number, alt: number): Marker {
-        return new Marker(lat, lon, alt);
+    public createMarker(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions): Marker {
+        if (markerOptions.type === "marker") {
+            return new SimpleMarker(latLonAlt, markerOptions);
+        }
+
+        return null;
     }
 
     public addMarker(marker: Marker): void {
         this._markerSet.addMarker(marker);
     }
 
-    public removeMarker(marker: Marker): void {
-        this._markerSet.removeMarker(marker);
+    public get markers$(): rx.Observable<any> {
+        return this._markerSet.markers$;
+    }
+
+    public removeMarker(id: string): void {
+        this._markerSet.removeMarker(id);
     }
 
     private renderHash(args: IUpdateArgs): IGLRenderHash {
@@ -182,7 +225,7 @@ export class MarkerComponent extends Component {
         }
 
         let needRender: boolean = false;
-        let oldObjects: { [hash: number]: THREE.Object3D } = this._markerObjects;
+        let oldObjects: { [id: string]: THREE.Object3D } = this._markerObjects;
         let node: Node = args.frame.state.currentNode;
         this._markerObjects = {};
 
@@ -201,19 +244,19 @@ export class MarkerComponent extends Component {
         });
 
         for (let marker of markers) {
-            if (marker.hash in oldObjects) {
-                this._markerObjects[marker.hash] = oldObjects[marker.hash];
-                delete oldObjects[marker.hash];
+            if (marker.id in oldObjects) {
+                this._markerObjects[marker.id] = oldObjects[marker.id];
+                delete oldObjects[marker.id];
             } else {
                 let reference: ILatLonAlt = args.graph.referenceLatLonAlt;
                 let p: number[] = (new GeoCoords).topocentric_from_lla(
-                    marker.lat, marker.lon, marker.alt,
+                    marker.latLonAlt.lat, marker.latLonAlt.lon, marker.latLonAlt.alt,
                     reference.lat, reference.lon, reference.alt);
 
-                let o: THREE.Object3D = this.createMarkerGeometry(marker.color);
+                let o: THREE.Object3D = marker.createGeometry();
                 o.position.set(p[0], p[1], p[2]);
                 this._scene.add(o);
-                this._markerObjects[marker.hash] = o;
+                this._markerObjects[marker.id] = o;
                 needRender = true;
             }
         }
@@ -233,105 +276,6 @@ export class MarkerComponent extends Component {
         renderer: THREE.WebGLRenderer): void {
 
         renderer.render(this._scene, perspectiveCamera);
-    }
-
-    private createMarkerGeometry(color: number): THREE.Object3D {
-        let radius: number = 2;
-
-        let cone: THREE.Mesh = new THREE.Mesh(
-            this.markerGeometry(radius, 16, 8),
-            new THREE.MeshBasicMaterial({
-                color: color,
-                depthWrite: false,
-                opacity: 0.4,
-                shading: THREE.SmoothShading,
-                transparent: true,
-            })
-        );
-
-        let ball: THREE.Mesh = new THREE.Mesh(
-            new THREE.SphereGeometry(radius / 2, 16, 8),
-            new THREE.MeshBasicMaterial({
-                color: 0xFFFFFF,
-                depthWrite: false,
-                opacity: 0.6,
-                shading: THREE.SmoothShading,
-                transparent: true,
-            })
-        );
-        ball.position.z = this.markerHeight(radius);
-
-        let group: THREE.Object3D = new THREE.Object3D();
-        group.add(ball);
-        group.add(cone);
-        return group;
-    }
-
-    private markerHeight(radius: number): number {
-        let t: number = Math.tan(Math.PI - this._circleToRayAngle);
-        return radius * Math.sqrt(1 + t * t);
-    }
-
-    private markerGeometry(
-            radius: number,
-            widthSegments: number,
-            heightSegments: number ): THREE.Geometry {
-
-        let geometry: THREE.Geometry = new THREE.Geometry();
-
-        widthSegments = Math.max(3, Math.floor(widthSegments) || 8);
-        heightSegments = Math.max(2, Math.floor(heightSegments) || 6);
-        let height: number = this.markerHeight(radius);
-
-        let vertices: any[] = [];
-
-        for (let y: number = 0; y <= heightSegments; ++y) {
-
-            let verticesRow: any[] = [];
-
-            for (let x: number = 0; x <= widthSegments; ++x) {
-                let u: number = x / widthSegments * Math.PI * 2;
-                let v: number = y / heightSegments * Math.PI;
-
-                let r: number;
-                if (v < this._circleToRayAngle) {
-                    r = radius;
-                } else {
-                    let t: number = Math.tan(v - this._circleToRayAngle);
-                    r = radius * Math.sqrt(1 + t * t);
-                }
-
-                let vertex: THREE.Vector3 = new THREE.Vector3();
-                vertex.x = r * Math.cos(u) * Math.sin(v);
-                vertex.y = r * Math.sin(u) * Math.sin(v);
-                vertex.z = r * Math.cos(v) + height;
-
-                geometry.vertices.push(vertex);
-                verticesRow.push(geometry.vertices.length - 1);
-            }
-            vertices.push(verticesRow);
-        }
-
-        for (let y: number = 0; y < heightSegments; ++y) {
-            for (let x: number = 0; x < widthSegments; ++x) {
-                let v1: number = vertices[y][x + 1];
-                let v2: number = vertices[y][x];
-                let v3: number = vertices[y + 1][x];
-                let v4: number = vertices[y + 1][x + 1];
-
-                let n1: THREE.Vector3 = geometry.vertices[v1].clone().normalize();
-                let n2: THREE.Vector3 = geometry.vertices[v2].clone().normalize();
-                let n3: THREE.Vector3 = geometry.vertices[v3].clone().normalize();
-                let n4: THREE.Vector3 = geometry.vertices[v4].clone().normalize();
-
-                geometry.faces.push(new THREE.Face3(v1, v2, v4, [n1, n2, n4]));
-                geometry.faces.push(new THREE.Face3(v2, v3, v4, [n2.clone(), n3, n4.clone()]));
-            }
-        }
-
-        geometry.computeFaceNormals();
-        geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), radius + height);
-        return geometry;
     }
 
     private disposeObject(object: THREE.Object3D): void {
