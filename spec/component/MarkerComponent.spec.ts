@@ -1,7 +1,11 @@
 /// <reference path="../../typings/browser.d.ts" />
 
-import {IMarkerOptions, Marker, MarkerComponent} from "../../src/Component";
+import * as rbush from "rbush";
+
+import {IMarkerOptions, ISpatialMarker, Marker, MarkerComponent} from "../../src/Component";
 import {Container, Navigator} from "../../src/Viewer";
+
+type MarkerIndex = rbush.RBush<ISpatialMarker>;
 
 describe("MarkerComponent", () => {
     var markerComponent: MarkerComponent;
@@ -15,9 +19,9 @@ describe("MarkerComponent", () => {
     });
 
     it("It should be able to create two markers at the exact same position", () => {
-        let markers: any = null;
+        let markers: MarkerIndex = null;
 
-        markerComponent.markers$.subscribe((ms: any) => {
+        markerComponent.markers$.subscribe((ms: MarkerIndex) => {
             markers = ms;
         });
 
@@ -51,9 +55,9 @@ describe("MarkerComponent", () => {
     });
 
     it("It should be able to update an marker by using the same id", () => {
-        let markers: any = null;
+        let markers: MarkerIndex = null;
 
-        markerComponent.markers$.subscribe((ms: any) => {
+        markerComponent.markers$.subscribe((ms: MarkerIndex) => {
             markers = ms;
         });
 

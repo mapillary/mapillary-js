@@ -8,6 +8,7 @@ import * as rx from "rx";
 import {
     IMarkerConfiguration,
     IMarkerOptions,
+    ISpatialMarker,
     Marker,
     ComponentService,
     Component,
@@ -19,18 +20,11 @@ import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {MapillaryObject, Graph, ILatLonAlt, Node} from "../../Graph";
 import {GeoCoords} from "../../Geo";
 
-interface ISpatialItem {
-    id: string;
-    lat: number;
-    lon: number;
-    marker: Marker;
-}
-
-type SpatialIndex = rbush.RBush<ISpatialItem>;
+type MarkerIndex = rbush.RBush<ISpatialMarker>;
 
 interface IMarkerData {
-    hash: { [id: string]: ISpatialItem };
-    spatial: SpatialIndex;
+    hash: { [id: string]: ISpatialMarker };
+    spatial: MarkerIndex;
 }
 
 interface IMarkerOperation extends Function {
@@ -40,14 +34,14 @@ interface IMarkerOperation extends Function {
 interface IUpdateArgs {
     graph: Graph;
     frame: IFrame;
-    markers: SpatialIndex;
+    markers: MarkerIndex;
 }
 
 export class MarkerSet {
     private _create$: rx.Subject<Marker> = new rx.Subject<Marker>();
     private _remove$: rx.Subject<string> = new rx.Subject<string>();
     private _update$: rx.Subject<IMarkerOperation> = new rx.Subject<IMarkerOperation>();
-    private _markers$: rx.Observable<SpatialIndex>;
+    private _markers$: rx.Observable<MarkerIndex>;
 
     constructor() {
         // markers list stream is the result of applying marker updates.
@@ -56,9 +50,9 @@ export class MarkerSet {
                 (markers: IMarkerData, operation: IMarkerOperation): IMarkerData => {
                     return operation(markers);
                 },
-                {hash: {}, spatial: rbush<ISpatialItem>(20000, [".lon", ".lat", ".lon", ".lat"])}
+                {hash: {}, spatial: rbush<ISpatialMarker>(20000, [".lon", ".lat", ".lon", ".lat"])}
             ).map(
-                (markers: IMarkerData): SpatialIndex => {
+                (markers: IMarkerData): MarkerIndex => {
                     return markers.spatial;
                 }
             ).shareReplay(1);
@@ -71,7 +65,7 @@ export class MarkerSet {
                         markers.spatial.remove(markers.hash[marker.id]);
                     }
 
-                    let rbushObj: ISpatialItem = {
+                    let rbushObj: ISpatialMarker = {
                         id: marker.id,
                         lat: marker.latLonAlt.lat,
                         lon: marker.latLonAlt.lon,
@@ -89,7 +83,7 @@ export class MarkerSet {
         this._remove$
             .map(function(id: string): IMarkerOperation {
                 return (markers: IMarkerData) => {
-                    let rbushObj: ISpatialItem = markers.hash[id];
+                    let rbushObj: ISpatialMarker = markers.hash[id];
                     markers.spatial.remove(rbushObj);
                     delete markers.hash[id];
                     return markers;
@@ -106,7 +100,7 @@ export class MarkerSet {
         this._remove$.onNext(id);
     }
 
-    public get markers$(): rx.Observable<SpatialIndex> {
+    public get markers$(): rx.Observable<MarkerIndex> {
         return this._markers$;
     }
 }
@@ -134,7 +128,7 @@ export class MarkerComponent extends Component {
             this._navigator.graphService.graph$,
             this._navigator.stateService.currentState$,
             this._markerSet.markers$,
-            (graph: Graph, frame: IFrame, markers: SpatialIndex): IUpdateArgs => {
+            (graph: Graph, frame: IFrame, markers: MarkerIndex): IUpdateArgs => {
                 return { frame: frame, graph: graph, markers: markers };
             })
             .distinctUntilChanged((args: IUpdateArgs) => {
@@ -199,7 +193,7 @@ export class MarkerComponent extends Component {
         this._markerSet.addMarker(marker);
     }
 
-    public get markers$(): rx.Observable<SpatialIndex> {
+    public get markers$(): rx.Observable<MarkerIndex> {
         return this._markerSet.markers$;
     }
 
@@ -246,7 +240,7 @@ export class MarkerComponent extends Component {
         let maxLon: number = node.latLon.lon + boxWidth / 2;
         let maxLat: number = node.latLon.lat + boxWidth / 2;
 
-        let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialItem) => {
+        let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialMarker) => {
             return item.marker;
         }).filter((marker: Marker) => {
             return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);
