@@ -121,7 +121,7 @@ export class ImagePlaneFactory {
     }
 
     private getImageSphereGeo(transform: Transform, node: Node): THREE.Geometry {
-        if (!node.mesh.populated ||
+        if (!node.mesh.vertices.length ||
             transform.scale < 1e-2 ||
             transform.scale > 50) {
             return this.getFlatImageSphereGeo(transform);
@@ -150,7 +150,7 @@ export class ImagePlaneFactory {
     }
 
     private getImagePlaneGeo(transform: Transform, node: Node): THREE.Geometry {
-        if (!node.mesh.populated ||
+        if (!node.mesh.vertices.length ||
             transform.scale < 1e-2 ||
             transform.scale > 50) {
             return this.getFlatImagePlaneGeo(transform);

@@ -121,7 +121,7 @@ export class Node {
             }
 
             if (!this.merged) {
-                let mesh: IMesh = { faces: [], populated: false, vertices: [] };
+                let mesh: IMesh = { faces: [], vertices: [] };
                 observer.onNext({ loaded: { loaded: 0, total: 0 }, object: mesh });
                 observer.onCompleted();
 
@@ -135,9 +135,8 @@ export class Node {
                 let mesh: IMesh;
                 if (xmlHTTP.status === 200) {
                     mesh = MeshReader.read(new Buffer(xmlHTTP.response));
-                    mesh.populated = (mesh.vertices.length > 0);
                 } else {
-                    mesh = { faces: [], populated: false, vertices: [] };
+                    mesh = { faces: [], vertices: [] };
                 }
 
                 observer.onNext({ loaded: {loaded: e.loaded, total: e.total }, object: mesh });

@@ -31,7 +31,7 @@ export class MeshReader {
     }
 
     private static flatMeshToMesh(flatMesh: IFlatMesh): IMesh {
-        let mesh: IMesh = { faces: [], populated: false, vertices: [] };
+        let mesh: IMesh = { faces: [], vertices: [] };
         let numVertices: number = flatMesh.vertices.length / 3;
         for (let i: number = 0; i < numVertices; ++i) {
             mesh.vertices.push([
