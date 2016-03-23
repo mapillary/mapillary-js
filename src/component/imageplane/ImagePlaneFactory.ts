@@ -28,8 +28,10 @@ export class ImagePlaneFactory {
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createSphereMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-        let geometry: THREE.Geometry = this._getImageSphereGeo(transform, node);
-        let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
+
+        let mesh: THREE.Mesh = this._useMesh(transform, node) ?
+            new THREE.Mesh(this._getImageSphereGeo(transform, node), material) :
+            new THREE.Mesh(this._getFlatImageSphereGeo(transform), material);
 
         return mesh;
     }
@@ -38,10 +40,12 @@ export class ImagePlaneFactory {
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-        let geometry: THREE.BufferGeometry = this._getImagePlaneGeo(transform, node);
-        let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
-        return mesh;
+        let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
+            this._getImagePlaneGeo(transform, node) :
+            this._getFlatImagePlaneGeo(transform);
+
+        return new THREE.Mesh(geometry, material);
     }
 
     private _createSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
@@ -120,14 +124,13 @@ export class ImagePlaneFactory {
         return texture;
     }
 
-    private _getImageSphereGeo(transform: Transform, node: Node): THREE.Geometry {
-        if (!node.mesh.vertices.length ||
-            transform.scale < 1e-2 ||
-            transform.scale > 50) {
-            return this._getFlatImageSphereGeo(transform);
-        }
+    private _useMesh(transform: Transform, node: Node): boolean {
+        return node.mesh.vertices.length &&
+            transform.scale > 1e-2 &&
+            transform.scale < 50;
+    }
 
-        let geometry: THREE.Geometry = new THREE.Geometry();
+    private _getImageSphereGeo(transform: Transform, node: Node): THREE.BufferGeometry {
         let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
 
         // push everything at least 5 meters in front of the camera
@@ -136,10 +139,12 @@ export class ImagePlaneFactory {
 
         let vertices: number[] = node.mesh.vertices;
         let numVertices: number = vertices.length / 3;
+        let positions: Float32Array = new Float32Array(vertices.length);
         for (let i: number = 0; i < numVertices; ++i) {
-            let x: number = vertices[3 * i + 0];
-            let y: number = vertices[3 * i + 1];
-            let z: number = vertices[3 * i + 2];
+            let index: number = 3 * i;
+            let x: number = vertices[index + 0];
+            let y: number = vertices[index + 1];
+            let z: number = vertices[index + 2];
 
             let l: number = Math.sqrt(x * x + y * y + z * z);
             let boundedL: number = Math.max(minZ, Math.min(l, maxZ));
@@ -147,30 +152,27 @@ export class ImagePlaneFactory {
             let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, z * factor);
 
             p.applyMatrix4(t);
-            geometry.vertices.push(p);
+
+            positions[index + 0] = p.x;
+            positions[index + 1] = p.y;
+            positions[index + 2] = p.z;
         }
 
         let faces: number[] = node.mesh.faces;
-        let numFaces: number = faces.length / 3;
-        for (let i: number = 0; i < numFaces; ++i) {
-            geometry.faces.push(
-                new THREE.Face3(
-                    faces[3 * i + 0],
-                    faces[3 * i + 1],
-                    faces[3 * i + 2]
-                ));
+        let indices: Uint16Array = new Uint16Array(faces.length);
+        for (let i: number = 0; i < faces.length; ++i) {
+            indices[i] = faces[i];
         }
+
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
         return geometry;
     }
 
     private _getImagePlaneGeo(transform: Transform, node: Node): THREE.BufferGeometry {
-        if (!node.mesh.vertices.length ||
-            transform.scale < 1e-2 ||
-            transform.scale > 50) {
-            return this._getFlatImagePlaneGeo(transform);
-        }
-
         let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
 
         // push everything at least 5 meters in front of the camera
@@ -181,9 +183,10 @@ export class ImagePlaneFactory {
         let numVertices: number = vertices.length / 3;
         let positions: Float32Array = new Float32Array(vertices.length);
         for (let i: number = 0; i < numVertices; ++i) {
-            let x: number = vertices[3 * i + 0];
-            let y: number = vertices[3 * i + 1];
-            let z: number = vertices[3 * i + 2];
+            let index: number = 3 * i;
+            let x: number = vertices[index + 0];
+            let y: number = vertices[index + 1];
+            let z: number = vertices[index + 2];
 
             let boundedZ: number = Math.max(minZ, Math.min(z, maxZ));
             let factor: number = boundedZ / z;
@@ -191,9 +194,9 @@ export class ImagePlaneFactory {
 
             p.applyMatrix4(t);
 
-            positions[3 * i + 0] = p.x;
-            positions[3 * i + 1] = p.y;
-            positions[3 * i + 2] = p.z;
+            positions[index + 0] = p.x;
+            positions[index + 1] = p.y;
+            positions[index + 2] = p.z;
         }
 
         let faces: number[] = node.mesh.faces;
@@ -246,9 +249,10 @@ export class ImagePlaneFactory {
 
         let positions: Float32Array = new Float32Array(12);
         for (let i: number = 0; i < vertices.length; i++) {
-            positions[3 * i + 0] = vertices[i].x;
-            positions[3 * i + 1] = vertices[i].y;
-            positions[3 * i + 2] = vertices[i].z;
+            let index: number = 3 * i;
+            positions[index + 0] = vertices[i].x;
+            positions[index + 1] = vertices[i].y;
+            positions[index + 2] = vertices[i].z;
         }
 
         let indices: Uint16Array = new Uint16Array(6);
