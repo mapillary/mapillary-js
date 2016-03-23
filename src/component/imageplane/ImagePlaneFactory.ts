@@ -8,43 +8,43 @@ import {Node} from "../../Graph";
 import {ImagePlaneShaders} from "../../Component";
 
 export class ImagePlaneFactory {
-    private imagePlaneDepth: number;
-    private imageSphereRadius: number;
+    private _imagePlaneDepth: number;
+    private _imageSphereRadius: number;
 
     constructor(imagePlaneDepth?: number, imageSphereRadius?: number) {
-        this.imagePlaneDepth = imagePlaneDepth != null ? imagePlaneDepth : 200;
-        this.imageSphereRadius = imageSphereRadius != null ? imageSphereRadius : 200;
+        this._imagePlaneDepth = imagePlaneDepth != null ? imagePlaneDepth : 200;
+        this._imageSphereRadius = imageSphereRadius != null ? imageSphereRadius : 200;
     }
 
     public createMesh(node: Node, transform: Transform): THREE.Mesh {
         let mesh: THREE.Mesh = node.pano ?
-            this.createImageSphere(node, transform) :
-            this.createImagePlane(node, transform);
+            this._createImageSphere(node, transform) :
+            this._createImagePlane(node, transform);
 
         return mesh;
     }
 
-    private createImageSphere(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this.createTexture(node.image);
-        let materialParameters: THREE.ShaderMaterialParameters = this.createSphereMaterialParameters(transform, texture);
+    private _createImageSphere(node: Node, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters = this._createSphereMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-        let geometry: THREE.Geometry = this.getImageSphereGeo(transform, node);
+        let geometry: THREE.Geometry = this._getImageSphereGeo(transform, node);
         let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
         return mesh;
     }
 
-    private createImagePlane(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this.createTexture(node.image);
-        let materialParameters: THREE.ShaderMaterialParameters = this.createMaterialParameters(transform, texture);
+    private _createImagePlane(node: Node, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-        let geometry: THREE.Geometry = this.getImagePlaneGeo(transform, node);
+        let geometry: THREE.Geometry = this._getImagePlaneGeo(transform, node);
         let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
         return mesh;
     }
 
-    private createSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+    private _createSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let gpano: IGPano = transform.gpano;
         let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
         let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
@@ -82,7 +82,7 @@ export class ImagePlaneFactory {
         return materialParameters;
     }
 
-    private createMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+    private _createPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
             fragmentShader: ImagePlaneShaders.perspective.fragment,
@@ -112,7 +112,7 @@ export class ImagePlaneFactory {
         return materialParameters;
     }
 
-        private createTexture(image: HTMLImageElement): THREE.Texture {
+    private _createTexture(image: HTMLImageElement): THREE.Texture {
         let texture: THREE.Texture = new THREE.Texture(image);
         texture.minFilter = THREE.LinearFilter;
         texture.needsUpdate = true;
@@ -120,11 +120,11 @@ export class ImagePlaneFactory {
         return texture;
     }
 
-    private getImageSphereGeo(transform: Transform, node: Node): THREE.Geometry {
+    private _getImageSphereGeo(transform: Transform, node: Node): THREE.Geometry {
         if (!node.mesh.vertices.length ||
             transform.scale < 1e-2 ||
             transform.scale > 50) {
-            return this.getFlatImageSphereGeo(transform);
+            return this._getFlatImageSphereGeo(transform);
         }
 
         let geometry: THREE.Geometry = new THREE.Geometry();
@@ -132,7 +132,7 @@ export class ImagePlaneFactory {
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
-        let maxZ: number = this.imageSphereRadius * transform.scale;
+        let maxZ: number = this._imageSphereRadius * transform.scale;
 
         let vertices: number[] = node.mesh.vertices;
         let numVertices: number = vertices.length / 3;
@@ -164,11 +164,11 @@ export class ImagePlaneFactory {
         return geometry;
     }
 
-    private getImagePlaneGeo(transform: Transform, node: Node): THREE.Geometry {
+    private _getImagePlaneGeo(transform: Transform, node: Node): THREE.Geometry {
         if (!node.mesh.vertices.length ||
             transform.scale < 1e-2 ||
             transform.scale > 50) {
-            return this.getFlatImagePlaneGeo(transform);
+            return this._getFlatImagePlaneGeo(transform);
         }
 
         let geometry: THREE.Geometry = new THREE.Geometry();
@@ -176,7 +176,7 @@ export class ImagePlaneFactory {
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
-        let maxZ: number = this.imagePlaneDepth * transform.scale;
+        let maxZ: number = this._imagePlaneDepth * transform.scale;
 
         let vertices: number[] = node.mesh.vertices;
         let numVertices: number = vertices.length / 3;
@@ -207,14 +207,14 @@ export class ImagePlaneFactory {
         return geometry;
     }
 
-    private getFlatImageSphereGeo(transform: Transform): THREE.Geometry {
+    private _getFlatImageSphereGeo(transform: Transform): THREE.Geometry {
         let gpano: IGPano = transform.gpano;
         let phiStart: number = 2 * Math.PI * gpano.CroppedAreaLeftPixels / gpano.FullPanoWidthPixels;
         let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
         let thetaStart: number = Math.PI * gpano.CroppedAreaTopPixels / gpano.FullPanoHeightPixels;
         let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
         let geometry: THREE.SphereGeometry = new THREE.SphereGeometry(
-            this.imageSphereRadius,
+            this._imageSphereRadius,
             20,
             40,
             phiStart - Math.PI / 2,
@@ -228,16 +228,16 @@ export class ImagePlaneFactory {
         return geometry;
     }
 
-    private getFlatImagePlaneGeo(transform: Transform): THREE.Geometry {
+    private _getFlatImagePlaneGeo(transform: Transform): THREE.Geometry {
         let width: number = transform.width;
         let height: number = transform.height;
         let size: number = Math.max(width, height);
         let dx: number = width / 2.0 / size;
         let dy: number = height / 2.0 / size;
-        let tl: THREE.Vector3 = transform.pixelToVertex(-dx, -dy, this.imagePlaneDepth);
-        let tr: THREE.Vector3 = transform.pixelToVertex( dx, -dy, this.imagePlaneDepth);
-        let br: THREE.Vector3 = transform.pixelToVertex( dx, dy, this.imagePlaneDepth);
-        let bl: THREE.Vector3 = transform.pixelToVertex(-dx, dy, this.imagePlaneDepth);
+        let tl: THREE.Vector3 = transform.pixelToVertex(-dx, -dy, this._imagePlaneDepth);
+        let tr: THREE.Vector3 = transform.pixelToVertex( dx, -dy, this._imagePlaneDepth);
+        let br: THREE.Vector3 = transform.pixelToVertex( dx, dy, this._imagePlaneDepth);
+        let bl: THREE.Vector3 = transform.pixelToVertex(-dx, dy, this._imagePlaneDepth);
 
         let geometry: THREE.Geometry = new THREE.Geometry();
 
