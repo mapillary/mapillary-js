@@ -17,8 +17,8 @@ import {
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {MapillaryObject, Graph, ILatLonAlt, Node} from "../../Graph";
-import {GeoCoords} from "../../Geo";
+import {MapillaryObject, Graph, Node} from "../../Graph";
+import {GeoCoords, ILatLonAlt} from "../../Geo";
 
 type MarkerIndex = rbush.RBush<ISpatialMarker>;
 

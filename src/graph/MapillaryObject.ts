@@ -1,4 +1,5 @@
-import {MapillaryRect, ILatLon} from "../Graph";
+import {ILatLon} from "../Geo";
+import {MapillaryRect} from "../Graph";
 
 export class MapillaryObject {
     private _alt: number;

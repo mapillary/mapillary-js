@@ -1,5 +1,4 @@
-import {ITile, IPoint, IBBox, Spatial} from "../Geo";
-import {ILatLon} from "../Graph";
+import {ITile, IPoint, IBBox, ILatLon, Spatial} from "../Geo";
 
 export class WebMercator {
     private _spatial: Spatial;

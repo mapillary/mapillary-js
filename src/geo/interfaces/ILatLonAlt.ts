@@ -1,4 +1,4 @@
-import {ILatLon} from "./ILatLon";
+import {ILatLon} from "../../Geo";
 
 export interface ILatLonAlt extends ILatLon {
     alt: number;

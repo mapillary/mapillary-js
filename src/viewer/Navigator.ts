@@ -3,7 +3,8 @@
 import * as rx from "rx";
 
 import {IAPISearchImClose2, APIv2, APIv3} from "../API";
-import {ILatLon, GraphService, Node} from "../Graph";
+import {ILatLon} from "../Geo";
+import {GraphService, Node} from "../Graph";
 import {EdgeDirection} from "../Edge";
 import {StateService} from "../State";
 import {LoadingService} from "../Viewer";

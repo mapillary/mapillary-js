@@ -4,7 +4,8 @@ import * as rx from "rx";
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
-import {ILatLon, IMesh, ILoadStatus, MeshReader, Sequence} from "../Graph";
+import {ILatLon} from "../Geo";
+import {IMesh, ILoadStatus, MeshReader, Sequence} from "../Graph";
 import {Settings, Urls} from "../Utils";
 
 interface ILoadStatusObject {

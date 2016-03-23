@@ -1,4 +1,4 @@
-import {ILatLon} from "../../Graph";
+import {ILatLon} from "../../Geo";
 
 export interface IBBox {
     sw: ILatLon;

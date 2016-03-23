@@ -1,5 +1,5 @@
 import {IMarkerOptions} from "../../Component";
-import {ILatLonAlt} from "../../Graph";
+import {ILatLonAlt} from "../../Geo";
 
 export abstract class Marker {
     public visibleInKeys: string[] = [];

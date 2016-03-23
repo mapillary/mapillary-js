@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import {IMarkerOptions, ISimpleMarkerStyle, Marker} from "../../Component";
-import {ILatLonAlt} from "../../Graph";
+import {ILatLonAlt} from "../../Geo";
 
 export class SimpleMarker extends Marker {
     private _circleToRayAngle: number = 2.0;

@@ -8,8 +8,8 @@ import * as geohash from "latlon-geohash";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
-import {Spatial, GeoCoords} from "../Geo";
-import {ILatLon, ILatLonAlt, Node, Sequence} from "../Graph";
+import {Spatial, GeoCoords, ILatLon, ILatLonAlt} from "../Geo";
+import {Node, Sequence} from "../Graph";
 
 class GeoHashDirections {
     public static n: string = "n";

@@ -1,7 +1,6 @@
 /// <reference path="../../typings/browser.d.ts" />
 
-import {WebMercator, ITile, IBBox, Spatial} from "../../src/Geo";
-import {ILatLon} from "../../src/Graph";
+import {WebMercator, ITile, IBBox, ILatLon, Spatial} from "../../src/Geo";
 
 describe("WebMercator.getTile", () => {
     let webMercator: WebMercator;

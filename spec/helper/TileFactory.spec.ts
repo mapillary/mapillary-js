@@ -2,9 +2,8 @@
 
 import * as THREE from "three";
 
-import {GeoCoords} from "../../src/Geo";
+import {GeoCoords, ILatLonAlt, ILatLon} from "../../src/Geo";
 import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../src/API";
-import {ILatLonAlt, ILatLon} from "../../src/Graph";
 
 export interface ITile {
     row: number;
