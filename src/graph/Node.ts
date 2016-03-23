@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
-import {ILatLon, IMesh, ILoadStatus, Sequence} from "../Graph";
+import {ILatLon, IMesh, ILoadStatus, MeshReader, Sequence} from "../Graph";
 import {Settings, Urls} from "../Utils";
 
 interface ILoadStatusObject {
@@ -121,7 +121,7 @@ export class Node {
             }
 
             if (!this.merged) {
-                let mesh: IMesh = { faces: [], populated: false, vertices: [] };
+                let mesh: IMesh = { faces: [], vertices: [] };
                 observer.onNext({ loaded: { loaded: 0, total: 0 }, object: mesh });
                 observer.onCompleted();
 
@@ -129,14 +129,14 @@ export class Node {
             }
 
             let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", Urls.mesh(this.key), true);
-            xmlHTTP.responseType = "text";
+            xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
+            xmlHTTP.responseType = "arraybuffer";
             xmlHTTP.onload = (e: any) => {
-                let mesh: IMesh = <IMesh>JSON.parse(xmlHTTP.responseText)[this.key];
-                if (mesh == null) {
-                    mesh = { faces: [], populated: false, vertices: [] };
+                let mesh: IMesh;
+                if (xmlHTTP.status === 200) {
+                    mesh = MeshReader.read(new Buffer(xmlHTTP.response));
                 } else {
-                    mesh.populated = true;
+                    mesh = { faces: [], vertices: [] };
                 }
 
                 observer.onNext({ loaded: {loaded: e.loaded, total: e.total }, object: mesh });
@@ -147,7 +147,7 @@ export class Node {
                 observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: null});
             };
 
-            xmlHTTP.send();
+            xmlHTTP.send(null);
         });
     }
 

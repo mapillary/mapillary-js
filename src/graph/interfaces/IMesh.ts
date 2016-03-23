@@ -1,7 +1,6 @@
 export interface IMesh {
-    populated: boolean;
-    vertices: Array<number[]>;
-    faces: Array<number[]>;
+    faces: number[];
+    vertices: number[];
 }
 
 export default IMesh
