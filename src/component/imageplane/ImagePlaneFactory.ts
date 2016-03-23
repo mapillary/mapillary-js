@@ -133,17 +133,32 @@ export class ImagePlaneFactory {
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
         let maxZ: number = this.imageSphereRadius * transform.scale;
-        for (let v of node.mesh.vertices) {
-            let l: number = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-            let z: number = Math.max(minZ, Math.min(l, maxZ));
-            let factor: number = z / l;
-            let p: THREE.Vector3 = new THREE.Vector3(v[0] * factor, v[1] * factor, v[2] * factor);
+
+        let vertices: number[] = node.mesh.vertices;
+        let numVertices: number = vertices.length / 3;
+        for (let i: number = 0; i < numVertices; ++i) {
+            let x: number = vertices[3 * i + 0];
+            let y: number = vertices[3 * i + 1];
+            let z: number = vertices[3 * i + 2];
+
+            let l: number = Math.sqrt(x * x + y * y + z * z);
+            let boundedL: number = Math.max(minZ, Math.min(l, maxZ));
+            let factor: number = boundedL / l;
+            let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, z * factor);
+
             p.applyMatrix4(t);
             geometry.vertices.push(p);
         }
 
-        for (let f of node.mesh.faces) {
-            geometry.faces.push(new THREE.Face3(f[0], f[1], f[2]));
+        let faces: number[] = node.mesh.faces;
+        let numFaces: number = faces.length / 3;
+        for (let i: number = 0; i < numFaces; ++i) {
+            geometry.faces.push(
+                new THREE.Face3(
+                    faces[3 * i + 0],
+                    faces[3 * i + 1],
+                    faces[3 * i + 2]
+                ));
         }
 
         return geometry;
@@ -162,16 +177,31 @@ export class ImagePlaneFactory {
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
         let maxZ: number = this.imagePlaneDepth * transform.scale;
-        for (let v of node.mesh.vertices) {
-            let z: number = Math.max(minZ, Math.min(v[2], maxZ));
-            let factor: number = z / v[2];
-            let p: THREE.Vector3 = new THREE.Vector3(v[0] * factor, v[1] * factor, z);
+
+        let vertices: number[] = node.mesh.vertices;
+        let numVertices: number = vertices.length / 3;
+        for (let i: number = 0; i < numVertices; ++i) {
+            let x: number = vertices[3 * i + 0];
+            let y: number = vertices[3 * i + 1];
+            let z: number = vertices[3 * i + 2];
+
+            let boundedZ: number = Math.max(minZ, Math.min(z, maxZ));
+            let factor: number = boundedZ / z;
+            let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, boundedZ);
+
             p.applyMatrix4(t);
             geometry.vertices.push(p);
         }
 
-        for (let f of node.mesh.faces) {
-            geometry.faces.push(new THREE.Face3(f[0], f[1], f[2]));
+        let faces: number[] = node.mesh.faces;
+        let numFaces: number = faces.length / 3;
+        for (let i: number = 0; i < numFaces; ++i) {
+            geometry.faces.push(
+                new THREE.Face3(
+                    faces[3 * i + 0],
+                    faces[3 * i + 1],
+                    faces[3 * i + 2]
+                ));
         }
 
         return geometry;

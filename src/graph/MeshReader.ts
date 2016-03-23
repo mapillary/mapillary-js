@@ -1,53 +1,21 @@
 /// <reference path="../../typings/browser.d.ts" />
 
-import {IMesh} from "../Graph";
-
 import * as Pbf from "pbf";
 
-interface IFlatMesh {
-    triangles: number[];
-    vertices: number[];
-}
+import {IMesh} from "../Graph";
 
 export class MeshReader {
     public static read(buffer: Buffer): IMesh {
-        let pbf: Pbf<IFlatMesh> = new Pbf<IFlatMesh>(buffer);
-        return MeshReader.readMesh(pbf);
+        let pbf: Pbf<IMesh> = new Pbf<IMesh>(buffer);
+
+        return pbf.readFields(MeshReader._readMeshField, { faces: [], vertices: [] });
     }
 
-    private static readMesh(pbf: Pbf<IFlatMesh>): IMesh {
-        let flatMesh: IFlatMesh =
-            pbf.readFields(MeshReader.readMeshField, { triangles: [], vertices: [] });
-
-        return MeshReader.flatMeshToMesh(flatMesh);
-    }
-
-    private static readMeshField(tag: number, flatMesh: IFlatMesh, pbf: Pbf<IFlatMesh>): void {
+    private static _readMeshField(tag: number, mesh: IMesh, pbf: Pbf<IMesh>): void {
         if (tag === 1) {
-            flatMesh.vertices.push(pbf.readFloat());
+            mesh.vertices.push(pbf.readFloat());
         } else if (tag === 2) {
-            flatMesh.triangles.push(pbf.readVarint());
+            mesh.faces.push(pbf.readVarint());
         }
-    }
-
-    private static flatMeshToMesh(flatMesh: IFlatMesh): IMesh {
-        let mesh: IMesh = { faces: [], vertices: [] };
-        let numVertices: number = flatMesh.vertices.length / 3;
-        for (let i: number = 0; i < numVertices; ++i) {
-            mesh.vertices.push([
-                flatMesh.vertices[3 * i + 0],
-                flatMesh.vertices[3 * i + 1],
-                flatMesh.vertices[3 * i + 2],
-            ]);
-        }
-        let numFaces: number = flatMesh.triangles.length / 3;
-        for (let i: number = 0; i < numFaces; ++i) {
-            mesh.faces.push([
-                flatMesh.triangles[3 * i + 0],
-                flatMesh.triangles[3 * i + 1],
-                flatMesh.triangles[3 * i + 2],
-            ]);
-        }
-        return mesh;
     }
 }
