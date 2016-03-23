@@ -4,9 +4,9 @@ export class MapillaryError extends Error {
     public stack: string;
 
     constructor () {
+        super();
         // fixme ERROR have not loaded correct props
         // this.stack = (new Error()).stack;
-        super();
     }
 }
 

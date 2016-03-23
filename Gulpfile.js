@@ -160,7 +160,7 @@ gulp.task('ts-lint', function (cb) {
   return stream
 })
 
-gulp.task('typings', shell.task('./node_modules/typings/dist/bin/typings.js install'))
+gulp.task('typings', shell.task('./node_modules/typings/dist/bin.js install'))
 
 gulp.task('typescript', ['ts-lint', 'typescript-src', 'typescript-test'], function (cb) { cb() })
 

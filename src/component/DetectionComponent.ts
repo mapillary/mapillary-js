@@ -44,9 +44,9 @@ export class DetectionComponent extends Component {
             ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
             delete ors.$__path;
 
-            for (let or in ors) {
-                if (ors.hasOwnProperty(or)) {
-                    or = ors[or];
+            for (let key in ors) {
+                if (ors.hasOwnProperty(key)) {
+                    let or: any = ors[key];
 
                     if (!or) {
                         continue;

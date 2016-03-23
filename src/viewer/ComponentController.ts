@@ -1,6 +1,6 @@
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {CoverComponent, ComponentService, ICoverConfiguration, Component} from "../Component";
+import {CoverComponent, ComponentService, ICoverConfiguration, Component, IComponentConfiguration} from "../Component";
 import {IViewerOptions} from "../Viewer";
 
 export class ComponentController {
@@ -96,7 +96,7 @@ export class ComponentController {
         });
     }
 
-    private uFalse(option: boolean, name: string): void {
+    private uFalse(option: boolean | IComponentConfiguration, name: string): void {
         if (option === undefined) {
             this._componentService.deactivate(name);
             return;
@@ -109,11 +109,11 @@ export class ComponentController {
             }
             return;
         }
-        this._componentService.configure(name, option);
+        this._componentService.configure(name, <IComponentConfiguration>option);
         this._componentService.activate(name);
     }
 
-    private uTrue(option: boolean, name: string): void {
+    private uTrue(option: boolean | IComponentConfiguration, name: string): void {
         if (option === undefined) {
             this._componentService.activate(name);
             return;
@@ -126,7 +126,7 @@ export class ComponentController {
             }
             return;
         }
-        this._componentService.configure(name, option);
+        this._componentService.configure(name, <IComponentConfiguration>option);
         this._componentService.activate(name);
     }
 }

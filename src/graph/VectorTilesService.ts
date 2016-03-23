@@ -40,37 +40,41 @@ export class VectorTilesService {
 
             let ret: MapillaryObject[] = [];
 
-            for (let object in objects) {
-                if (!objects.hasOwnProperty(object)) {
+            for (let k in objects) {
+                if (!objects.hasOwnProperty(k)) {
                     continue;
                 }
 
+                let object: any = objects[k];
                 delete object.$__path;
-                object = objects[object];
 
                 if (object.rects && object.rects.length > 1) {
                     let mapillaryRects: MapillaryRect[] = [];
 
-                    for (let rect in object.rects) {
-                        if (object.rects.hasOwnProperty(rect)) {
-                            rect = object.rects[rect];
+                    for (let l in object.rects) {
+                        if (object.rects.hasOwnProperty(l)) {
+                            let rect: any = object.rects[l];
 
-                            let mapillaryRect: MapillaryRect = new MapillaryRect(rect.capturedAt,
-                                                                                 rect.imageKey,
-                                                                                 rect.rectKey);
+                            let mapillaryRect: MapillaryRect =
+                                new MapillaryRect(
+                                    rect.capturedAt,
+                                    rect.imageKey,
+                                    rect.rectKey);
 
                             mapillaryRects.push(mapillaryRect);
                         }
                     }
 
-                    let mapillaryObject: MapillaryObject = new MapillaryObject(object.alt,
-                                                                               object.first_seen_at,
-                                                                               object.l,
-                                                                               object.key,
-                                                                               object.lastSeenAt,
-                                                                               object.rects,
-                                                                               object.dPackage,
-                                                                               object.value);
+                    let mapillaryObject: MapillaryObject =
+                        new MapillaryObject(
+                            object.alt,
+                            object.first_seen_at,
+                            object.l,
+                            object.key,
+                            object.lastSeenAt,
+                            object.rects,
+                            object.dPackage,
+                            object.value);
 
                     ret.push(mapillaryObject);
                 }
