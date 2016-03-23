@@ -38,7 +38,7 @@ export class ImagePlaneFactory {
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-        let geometry: THREE.Geometry = this._getImagePlaneGeo(transform, node);
+        let geometry: THREE.BufferGeometry = this._getImagePlaneGeo(transform, node);
         let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
         return mesh;
@@ -164,14 +164,13 @@ export class ImagePlaneFactory {
         return geometry;
     }
 
-    private _getImagePlaneGeo(transform: Transform, node: Node): THREE.Geometry {
+    private _getImagePlaneGeo(transform: Transform, node: Node): THREE.BufferGeometry {
         if (!node.mesh.vertices.length ||
             transform.scale < 1e-2 ||
             transform.scale > 50) {
             return this._getFlatImagePlaneGeo(transform);
         }
 
-        let geometry: THREE.Geometry = new THREE.Geometry();
         let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
 
         // push everything at least 5 meters in front of the camera
@@ -180,6 +179,7 @@ export class ImagePlaneFactory {
 
         let vertices: number[] = node.mesh.vertices;
         let numVertices: number = vertices.length / 3;
+        let positions: Float32Array = new Float32Array(vertices.length);
         for (let i: number = 0; i < numVertices; ++i) {
             let x: number = vertices[3 * i + 0];
             let y: number = vertices[3 * i + 1];
@@ -190,19 +190,22 @@ export class ImagePlaneFactory {
             let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, boundedZ);
 
             p.applyMatrix4(t);
-            geometry.vertices.push(p);
+
+            positions[3 * i + 0] = p.x;
+            positions[3 * i + 1] = p.y;
+            positions[3 * i + 2] = p.z;
         }
 
         let faces: number[] = node.mesh.faces;
-        let numFaces: number = faces.length / 3;
-        for (let i: number = 0; i < numFaces; ++i) {
-            geometry.faces.push(
-                new THREE.Face3(
-                    faces[3 * i + 0],
-                    faces[3 * i + 1],
-                    faces[3 * i + 2]
-                ));
+        let indices: Uint16Array = new Uint16Array(faces.length);
+        for (let i: number = 0; i < faces.length; ++i) {
+            indices[i] = faces[i];
         }
+
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
         return geometry;
     }
@@ -228,21 +231,38 @@ export class ImagePlaneFactory {
         return geometry;
     }
 
-    private _getFlatImagePlaneGeo(transform: Transform): THREE.Geometry {
+    private _getFlatImagePlaneGeo(transform: Transform): THREE.BufferGeometry {
         let width: number = transform.width;
         let height: number = transform.height;
         let size: number = Math.max(width, height);
         let dx: number = width / 2.0 / size;
         let dy: number = height / 2.0 / size;
-        let tl: THREE.Vector3 = transform.pixelToVertex(-dx, -dy, this._imagePlaneDepth);
-        let tr: THREE.Vector3 = transform.pixelToVertex( dx, -dy, this._imagePlaneDepth);
-        let br: THREE.Vector3 = transform.pixelToVertex( dx, dy, this._imagePlaneDepth);
-        let bl: THREE.Vector3 = transform.pixelToVertex(-dx, dy, this._imagePlaneDepth);
 
-        let geometry: THREE.Geometry = new THREE.Geometry();
+        let vertices: THREE.Vector3[] = [];
+        vertices.push(transform.pixelToVertex(-dx, -dy, this._imagePlaneDepth));
+        vertices.push(transform.pixelToVertex( dx, -dy, this._imagePlaneDepth));
+        vertices.push(transform.pixelToVertex( dx, dy, this._imagePlaneDepth));
+        vertices.push(transform.pixelToVertex(-dx, dy, this._imagePlaneDepth));
 
-        geometry.vertices.push(tl, bl, br, tr);
-        geometry.faces.push(new THREE.Face3(0, 1, 3), new THREE.Face3(1, 2, 3));
+        let positions: Float32Array = new Float32Array(12);
+        for (let i: number = 0; i < vertices.length; i++) {
+            positions[3 * i + 0] = vertices[i].x;
+            positions[3 * i + 1] = vertices[i].y;
+            positions[3 * i + 2] = vertices[i].z;
+        }
+
+        let indices: Uint16Array = new Uint16Array(6);
+        indices[0] = 0;
+        indices[1] = 1;
+        indices[2] = 3;
+        indices[3] = 1;
+        indices[4] = 2;
+        indices[5] = 3;
+
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
         return geometry;
     }
