@@ -211,7 +211,7 @@ export class RouteComponent extends Component {
                 new DescriptionState()
             ).map((descriptionState: DescriptionState): IVNodeHash => {
                 if (descriptionState.showsLeft > 0 && descriptionState.description) {
-                    return {name: this._name, vnode: this.getRouteAnnotationNode(descriptionState.description)};
+                    return {name: this._name, vnode: this._getRouteAnnotationNode(descriptionState.description)};
                 } else {
                     return {name: this._name, vnode: vd.h("div", [])};
                 }
@@ -231,7 +231,7 @@ export class RouteComponent extends Component {
         this.configure({ playing: false });
     }
 
-    private getRouteAnnotationNode(description: string): vd.VNode {
+    private _getRouteAnnotationNode(description: string): vd.VNode {
         return vd.h("div.RouteFrame", {}, [
             vd.h("p", {textContent: description}, []),
         ]);

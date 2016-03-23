@@ -1,8 +1,8 @@
 export class EventEmitter {
-    private events: {[eventType: string]: any[]};
+    private _events: {[eventType: string]: any[]};
 
     constructor () {
-        this.events = {};
+        this._events = {};
     }
 
     /**
@@ -13,45 +13,45 @@ export class EventEmitter {
      */
 
     public on(eventType: string, fn: any): void {
-        this.events[eventType] = this.events[eventType] || [];
-        this.events[eventType].push(fn);
+        this._events[eventType] = this._events[eventType] || [];
+        this._events[eventType].push(fn);
         return;
     }
 
     public off(eventType: string, fn: any): void {
         if (!eventType) {
-            this.events = {};
+            this._events = {};
             return;
         }
 
-        if (!this.listens(eventType)) {
-            let idx: number = this.events[eventType].indexOf(fn);
+        if (!this._listens(eventType)) {
+            let idx: number = this._events[eventType].indexOf(fn);
             if (idx >= 0) {
-                this.events[eventType].splice(idx, 1);
+                this._events[eventType].splice(idx, 1);
             }
-            if (this.events[eventType].length) {
-                delete this.events[eventType];
+            if (this._events[eventType].length) {
+                delete this._events[eventType];
             }
         } else {
-            delete this.events[eventType];
+            delete this._events[eventType];
         }
 
         return;
     }
 
     public fire(eventType: string, data: any): void {
-        if (!this.listens(eventType)) {
+        if (!this._listens(eventType)) {
             return;
         }
 
-        for (let fn of this.events[eventType]) {
+        for (let fn of this._events[eventType]) {
             fn.call(this, data);
         }
         return;
     }
 
-    private listens(eventType: string): boolean {
-        return !!(this.events && this.events[eventType]);
+    private _listens(eventType: string): boolean {
+        return !!(this._events && this._events[eventType]);
     }
 }
 

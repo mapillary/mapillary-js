@@ -74,7 +74,7 @@ export class ComponentService {
     }
 
     public activate(name: string): void {
-        this.checkName(name);
+        this._checkName(name);
         this._components[name].active = true;
         if (!this._coverActivated) {
             this.get(name).activate();
@@ -82,12 +82,12 @@ export class ComponentService {
     }
 
     public configure(name: string, conf: IComponentConfiguration): void {
-        this.checkName(name);
+        this._checkName(name);
         this.get(name).configure(conf);
     }
 
     public deactivate(name: string): void {
-        this.checkName(name);
+        this._checkName(name);
         this._components[name].active = false;
         if (!this._coverActivated) {
             this.get(name).deactivate();
@@ -102,7 +102,7 @@ export class ComponentService {
         return this._coverComponent;
     }
 
-    private checkName(name: string): void {
+    private _checkName(name: string): void {
         if (!(name in this._components)) {
             throw new ParameterMapillaryError(`Component does not exist: ${name}`);
         }

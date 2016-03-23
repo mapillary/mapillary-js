@@ -19,14 +19,14 @@ export class ComponentController {
         this._componentService = new ComponentService(this._container, this._navigator);
 
         if (key) {
-            this.initializeComponents();
+            this._initializeComponents();
         } else {
             this._navigator.loadingService.loading$
                 .filter((loading: boolean) => { return loading; }).first().subscribe((loading: boolean) => {
                     this._navigator.stateService.start();
                     this._navigator.stateService.currentNode$.first().subscribe((node: Node) => {
                         this._key = node.key;
-                        this.initializeComponents();
+                        this._initializeComponents();
                     });
                 });
         }
@@ -52,26 +52,26 @@ export class ComponentController {
         return this._componentService.get(name);
     }
 
-    private initializeComponents(): void {
+    private _initializeComponents(): void {
         let options: IViewerOptions = this._options;
 
-        this.uFalse(options.background, "background");
-        this.uFalse(options.debug, "debug");
-        this.uFalse(options.detection, "detection");
-        this.uFalse(options.image, "image");
-        this.uFalse(options.marker, "marker");
-        this.uFalse(options.navigation, "navigation");
-        this.uFalse(options.player, "player");
-        this.uFalse(options.route, "route");
-        this.uFalse(options.slider, "slider");
-        this.uTrue(options.attribution, "attribution");
-        this.uTrue(options.cache, "cache");
-        this.uTrue(options.direction, "direction");
-        this.uTrue(options.imageplane, "imageplane");
-        this.uTrue(options.keyboard, "keyboard");
-        this.uTrue(options.loading, "loading");
-        this.uTrue(options.mouse, "mouse");
-        this.uTrue(options.sequence, "sequence");
+        this._uFalse(options.background, "background");
+        this._uFalse(options.debug, "debug");
+        this._uFalse(options.detection, "detection");
+        this._uFalse(options.image, "image");
+        this._uFalse(options.marker, "marker");
+        this._uFalse(options.navigation, "navigation");
+        this._uFalse(options.player, "player");
+        this._uFalse(options.route, "route");
+        this._uFalse(options.slider, "slider");
+        this._uTrue(options.attribution, "attribution");
+        this._uTrue(options.cache, "cache");
+        this._uTrue(options.direction, "direction");
+        this._uTrue(options.imageplane, "imageplane");
+        this._uTrue(options.keyboard, "keyboard");
+        this._uTrue(options.loading, "loading");
+        this._uTrue(options.mouse, "mouse");
+        this._uTrue(options.sequence, "sequence");
 
         this._coverComponent = <CoverComponent> this._componentService.getCover();
 
@@ -96,7 +96,7 @@ export class ComponentController {
         });
     }
 
-    private uFalse(option: boolean | IComponentConfiguration, name: string): void {
+    private _uFalse(option: boolean | IComponentConfiguration, name: string): void {
         if (option === undefined) {
             this._componentService.deactivate(name);
             return;
@@ -113,7 +113,7 @@ export class ComponentController {
         this._componentService.activate(name);
     }
 
-    private uTrue(option: boolean | IComponentConfiguration, name: string): void {
+    private _uTrue(option: boolean | IComponentConfiguration, name: string): void {
         if (option === undefined) {
             this._componentService.activate(name);
             return;

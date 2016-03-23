@@ -14,12 +14,12 @@ export class SphereComponent extends Component {
     public static componentName: string = "sphere";
     private _disposable: rx.IDisposable;
 
-    private scene: THREE.Scene;
-    private sphere: THREE.Mesh;
+    private _scene: THREE.Scene;
+    private _sphere: THREE.Mesh;
 
-    private key: string;
-    private alpha: number;
-    private camera: Camera;
+    private _key: string;
+    private _alpha: number;
+    private _camera: Camera;
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -27,12 +27,12 @@ export class SphereComponent extends Component {
 
     protected _activate(): void {
         // initialize scene specific properties.
-        this.scene = new THREE.Scene();
-        this.key = "";
-        this.alpha = 0;
-        this.camera = new Camera();
+        this._scene = new THREE.Scene();
+        this._key = "";
+        this._alpha = 0;
+        this._camera = new Camera();
 
-        let render: IGLRenderFunction = this.render.bind(this);
+        let render: IGLRenderFunction = this._render.bind(this);
 
         // subscribe to current state - updates will arrive for each
         // requested frame.
@@ -42,8 +42,8 @@ export class SphereComponent extends Component {
 
                 // determine if render is needed while updating scene
                 // specific properies.
-                let needsRender: boolean = this.updateAlpha(state.alpha);
-                needsRender = this.updateSphere(state.camera, state.currentNode) || needsRender;
+                let needsRender: boolean = this._updateAlpha(state.alpha);
+                needsRender = this._updateSphere(state.camera, state.currentNode) || needsRender;
 
                 // return render hash with render function and
                 // render in foreground.
@@ -62,56 +62,56 @@ export class SphereComponent extends Component {
 
     protected _deactivate(): void {
         // release memory
-        this.disposeSphere();
+        this._disposeSphere();
         this._disposable.dispose();
     }
 
-    private updateAlpha(alpha: number): boolean {
+    private _updateAlpha(alpha: number): boolean {
         // we depend on alpha for sphere opacity so save it in internal state.
-        if (alpha === this.alpha) {
+        if (alpha === this._alpha) {
             return false;
         }
 
-        this.alpha = alpha;
+        this._alpha = alpha;
 
         return true;
     }
 
-    private updateSphere(camera: Camera, node: Node): boolean {
-        if (node == null || node.key === this.key) {
+    private _updateSphere(camera: Camera, node: Node): boolean {
+        if (node == null || node.key === this._key) {
             // return if node has not changed.
             return false;
         }
 
-        this.key = node.key;
+        this._key = node.key;
 
         // dispose the old sphere.
-        this.disposeSphere();
+        this._disposeSphere();
 
         // create a new sphere for each new node and place
         // it 10 meters in front of the current camera.
         let position: THREE.Vector3 =
             camera.lookat.clone().sub(camera.position).normalize().multiplyScalar(10).add(camera.lookat);
 
-        this.sphere = this.createSphere();
-        this.sphere.position.copy(position);
+        this._sphere = this._createSphere();
+        this._sphere.position.copy(position);
 
-        this.scene.add(this.sphere);
+        this._scene.add(this._sphere);
     }
 
-    private render(
+    private _render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
 
         // update opacity according to last alpha and render sphere scene.
-        if (this.sphere != null) {
-            this.sphere.material.opacity = this.alpha > 0.5 ? this.alpha : 1 - this.alpha;
+        if (this._sphere != null) {
+            this._sphere.material.opacity = this._alpha > 0.5 ? this._alpha : 1 - this._alpha;
         }
 
-        renderer.render(this.scene, perspectiveCamera);
+        renderer.render(this._scene, perspectiveCamera);
     }
 
-    private createSphere(): THREE.Mesh {
+    private _createSphere(): THREE.Mesh {
         // create a mesh with spherical geometry.
         let geometry: THREE.SphereGeometry = new THREE.SphereGeometry(1.5, 32, 32);
 
@@ -128,12 +128,12 @@ export class SphereComponent extends Component {
         return sphere;
     }
 
-    private disposeSphere(): void {
-        if (this.sphere != null) {
-            this.scene.remove(this.sphere);
-            this.sphere.geometry.dispose();
-            this.sphere.material.dispose();
-            this.sphere = null;
+    private _disposeSphere(): void {
+        if (this._sphere != null) {
+            this._scene.remove(this._sphere);
+            this._sphere.geometry.dispose();
+            this._sphere.material.dispose();
+            this._sphere = null;
         }
     }
 }

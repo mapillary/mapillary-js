@@ -22,16 +22,16 @@ interface IDetection {
 export class DetectionComponent extends Component {
     public static componentName: string = "detection";
     private _disposable: rx.IDisposable;
-    private apiV3: APIv3;
+    private _apiV3: APIv3;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
-        this.apiV3 = navigator.apiV3;
+        this._apiV3 = navigator.apiV3;
     }
 
     protected _activate(): void {
         this._disposable = this._navigator.stateService.currentNode$.flatMap((node: Node): rx.Observable<any> => {
-            return this.apiV3.model.get([
+            return this._apiV3.model.get([
                 "imageByKey",
                 node.key,
                 "ors",
@@ -70,7 +70,7 @@ export class DetectionComponent extends Component {
                 }
             }
 
-            return {name: this._name, vnode: this.getRects(detections)};
+            return {name: this._name, vnode: this._getRects(detections)};
         }).subscribe(this._container.domRenderer.renderAdaptive$);
     }
 
@@ -78,17 +78,17 @@ export class DetectionComponent extends Component {
         this._disposable.dispose();
     }
 
-    private getRects(detections: IDetection[]): vd.VNode {
+    private _getRects(detections: IDetection[]): vd.VNode {
         let vRects: vd.VNode[] = [];
 
         detections.forEach((r: IDetection) => {
-            let adjustedRect: number[] = this.coordsToCss(r.rect);
+            let adjustedRect: number[] = this._coordsToCss(r.rect);
 
             let rectMapped: string[] = adjustedRect.map((el: number) => {
                 return (el * 100) + "%";
             });
 
-            vRects.push(vd.h("div.Rect", {style: this.getRectStyle(rectMapped)}, [
+            vRects.push(vd.h("div.Rect", {style: this._getRectStyle(rectMapped)}, [
                 vd.h("span", {style: "color: red;", textContent: r.value}, []),
             ]));
         });
@@ -96,14 +96,14 @@ export class DetectionComponent extends Component {
         return vd.h("div.rectContainer", {}, vRects);
     }
 
-    private coordsToCss(rects: number[]): number[] {
+    private _coordsToCss(rects: number[]): number[] {
         let adjustedCoords: number[] = rects.concat();
         adjustedCoords[2] = 1 - adjustedCoords[2];
         adjustedCoords[3] = 1 - adjustedCoords[3];
         return adjustedCoords;
     }
 
-    private getRectStyle(mappedRect: Array<string>): string {
+    private _getRectStyle(mappedRect: Array<string>): string {
         return `top:${mappedRect[1]}; bottom:${mappedRect[3]}; right:${mappedRect[2]}; left:${mappedRect[0]}`;
     }
 }

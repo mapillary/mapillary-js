@@ -1,3 +1,5 @@
+/// <reference path="../../typings/browser.d.ts" />
+
 import * as when from "when";
 
 import {APIv2Call, IAPINavIm} from "../API";

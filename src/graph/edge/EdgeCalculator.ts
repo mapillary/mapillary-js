@@ -16,10 +16,10 @@ import {Spatial} from "../../Geo";
 
 export class EdgeCalculator {
 
-    private spatial: Spatial;
-    private settings: EdgeCalculatorSettings;
-    private directions: EdgeCalculatorDirections;
-    private coefficients: EdgeCalculatorCoefficients;
+    private _spatial: Spatial;
+    private _settings: EdgeCalculatorSettings;
+    private _directions: EdgeCalculatorDirections;
+    private _coefficients: EdgeCalculatorCoefficients;
 
     /**
      * @class
@@ -32,10 +32,10 @@ export class EdgeCalculator {
         settings?: EdgeCalculatorSettings,
         directions?: EdgeCalculatorDirections,
         coefficients?: EdgeCalculatorCoefficients) {
-        this.spatial = new Spatial();
-        this.settings = settings != null ? settings : new EdgeCalculatorSettings();
-        this.directions = directions != null ? directions : new EdgeCalculatorDirections();
-        this.coefficients = coefficients != null ? coefficients : new EdgeCalculatorCoefficients();
+        this._spatial = new Spatial();
+        this._settings = settings != null ? settings : new EdgeCalculatorSettings();
+        this._directions = directions != null ? directions : new EdgeCalculatorDirections();
+        this._coefficients = coefficients != null ? coefficients : new EdgeCalculatorCoefficients();
     }
 
     /**
@@ -54,11 +54,11 @@ export class EdgeCalculator {
         }
 
         let currentPosition: THREE.Vector3 =
-            this.spatial.opticalCenter(node.apiNavImIm.rotation, node.translation);
+            this._spatial.opticalCenter(node.apiNavImIm.rotation, node.translation);
         let currentDirection: THREE.Vector3 =
-            this.spatial.viewingDirection(node.apiNavImIm.rotation);
+            this._spatial.viewingDirection(node.apiNavImIm.rotation);
         let currentVerticalDirection: number =
-            this.spatial.angleToPlane(currentDirection.toArray(), [0, 0, 1]);
+            this._spatial.angleToPlane(currentDirection.toArray(), [0, 0, 1]);
 
         let potentialEdges: IPotentialEdge[] = [];
 
@@ -69,42 +69,42 @@ export class EdgeCalculator {
             }
 
             let position: THREE.Vector3 =
-                this.spatial.opticalCenter(potential.apiNavImIm.rotation, potential.translation);
+                this._spatial.opticalCenter(potential.apiNavImIm.rotation, potential.translation);
 
             let motion: THREE.Vector3 = position.clone().sub(currentPosition);
             let distance: number = motion.length();
 
-            if (distance > this.settings.maxDistance &&
+            if (distance > this._settings.maxDistance &&
                 fallbackKeys.indexOf(potential.key) < 0) {
                 continue;
             }
 
-            let motionChange: number = this.spatial.angleBetweenVector2(
+            let motionChange: number = this._spatial.angleBetweenVector2(
                 currentDirection.x,
                 currentDirection.y,
                 motion.x,
                 motion.y);
 
-            let verticalMotion: number = this.spatial.angleToPlane(motion.toArray(), [0, 0, 1]);
+            let verticalMotion: number = this._spatial.angleToPlane(motion.toArray(), [0, 0, 1]);
 
             let direction: THREE.Vector3 =
-                this.spatial.viewingDirection(potential.apiNavImIm.rotation);
+                this._spatial.viewingDirection(potential.apiNavImIm.rotation);
 
-            let directionChange: number = this.spatial.angleBetweenVector2(
+            let directionChange: number = this._spatial.angleBetweenVector2(
                 currentDirection.x,
                 currentDirection.y,
                 direction.x,
                 direction.y);
 
-            let verticalDirection: number = this.spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
+            let verticalDirection: number = this._spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
             let verticalDirectionChange: number = verticalDirection - currentVerticalDirection;
 
-            let rotation: number = this.spatial.relativeRotationAngle(
+            let rotation: number = this._spatial.relativeRotationAngle(
                 node.apiNavImIm.rotation,
                 potential.apiNavImIm.rotation);
 
             let worldMotionAzimuth: number =
-                this.spatial.angleBetweenVector2(1, 0, motion.x, motion.y);
+                this._spatial.angleBetweenVector2(1, 0, motion.x, motion.y);
 
             let sameSequence: boolean = potential.sequence != null &&
                 node.sequence != null &&
@@ -193,12 +193,12 @@ export class EdgeCalculator {
             return edges;
         }
 
-        for (let k in this.directions.steps) {
-            if (!this.directions.steps.hasOwnProperty(k)) {
+        for (let k in this._directions.steps) {
+            if (!this._directions.steps.hasOwnProperty(k)) {
                 continue;
             }
 
-            let step: IStep = this.directions.steps[k];
+            let step: IStep = this._directions.steps[k];
 
             let lowestScore: number = Number.MAX_VALUE;
             let edge: IPotentialEdge = null;
@@ -209,18 +209,18 @@ export class EdgeCalculator {
                     continue;
                 }
 
-                if (Math.abs(potential.directionChange) > this.settings.stepMaxDirectionChange) {
+                if (Math.abs(potential.directionChange) > this._settings.stepMaxDirectionChange) {
                     continue;
                 }
 
                 let motionDifference: number =
-                    this.spatial.angleDifference(step.motionChange, potential.motionChange);
+                    this._spatial.angleDifference(step.motionChange, potential.motionChange);
                 let directionMotionDifference: number =
-                    this.spatial.angleDifference(potential.directionChange, motionDifference);
+                    this._spatial.angleDifference(potential.directionChange, motionDifference);
                 let drift: number =
                     Math.max(Math.abs(motionDifference), Math.abs(directionMotionDifference));
 
-                if (Math.abs(drift) > this.settings.stepMaxDrift) {
+                if (Math.abs(drift) > this._settings.stepMaxDrift) {
                     continue;
                 }
 
@@ -229,7 +229,7 @@ export class EdgeCalculator {
                     fallback = potential;
                 }
 
-                if (potential.distance > this.settings.stepMaxDistance) {
+                if (potential.distance > this._settings.stepMaxDistance) {
                     continue;
                 }
 
@@ -238,13 +238,13 @@ export class EdgeCalculator {
                     potential.verticalMotion * potential.verticalMotion);
 
                 let score: number =
-                    this.coefficients.stepPreferredDistance *
-                    Math.abs(potential.distance - this.settings.stepPreferredDistance) /
-                    this.settings.stepMaxDistance +
-                    this.coefficients.stepMotion * motionDifference / this.settings.stepMaxDrift +
-                    this.coefficients.stepRotation * potential.rotation / this.settings.stepMaxDirectionChange +
-                    this.coefficients.stepSequencePenalty * (potential.sameSequence ? 0 : 1) +
-                    this.coefficients.stepMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
+                    this._coefficients.stepPreferredDistance *
+                    Math.abs(potential.distance - this._settings.stepPreferredDistance) /
+                    this._settings.stepMaxDistance +
+                    this._coefficients.stepMotion * motionDifference / this._settings.stepMaxDrift +
+                    this._coefficients.stepRotation * potential.rotation / this._settings.stepMaxDirectionChange +
+                    this._coefficients.stepSequencePenalty * (potential.sameSequence ? 0 : 1) +
+                    this._coefficients.stepMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
 
                 if (score < lowestScore) {
                     lowestScore = score;
@@ -281,12 +281,12 @@ export class EdgeCalculator {
             return edges;
         }
 
-        for (let k in this.directions.turns) {
-            if (!this.directions.turns.hasOwnProperty(k)) {
+        for (let k in this._directions.turns) {
+            if (!this._directions.turns.hasOwnProperty(k)) {
                 continue;
             }
 
-            let turn: ITurn = this.directions.turns[k];
+            let turn: ITurn = this._directions.turns[k];
 
             let lowestScore: number = Number.MAX_VALUE;
             let edge: IPotentialEdge = null;
@@ -296,16 +296,16 @@ export class EdgeCalculator {
                     continue;
                 }
 
-                if (potential.distance > this.settings.turnMaxDistance) {
+                if (potential.distance > this._settings.turnMaxDistance) {
                     continue;
                 }
 
                 let rig: boolean =
                     turn.direction !== EdgeDirection.TurnU &&
-                    potential.distance < this.settings.turnMaxRigDistance &&
-                    Math.abs(potential.directionChange) > this.settings.turnMinRigDirectionChange;
+                    potential.distance < this._settings.turnMaxRigDistance &&
+                    Math.abs(potential.directionChange) > this._settings.turnMinRigDirectionChange;
 
-                let directionDifference: number = this.spatial.angleDifference(
+                let directionDifference: number = this._spatial.angleDifference(
                     turn.directionChange, potential.directionChange);
 
                 let score: number;
@@ -316,23 +316,23 @@ export class EdgeCalculator {
                     Math.abs(potential.directionChange) < Math.abs(turn.directionChange)) {
                     score = -Math.PI / 2 + Math.abs(potential.directionChange);
                 } else {
-                    if (Math.abs(directionDifference) > this.settings.turnMaxDirectionChange) {
+                    if (Math.abs(directionDifference) > this._settings.turnMaxDirectionChange) {
                         continue;
                     }
 
                     let motionDifference: number = turn.motionChange ?
-                        this.spatial.angleDifference(turn.motionChange, potential.motionChange) : 0;
+                        this._spatial.angleDifference(turn.motionChange, potential.motionChange) : 0;
 
                     motionDifference = Math.sqrt(
                         motionDifference * motionDifference +
                         potential.verticalMotion * potential.verticalMotion);
 
                     score =
-                        this.coefficients.turnDistance * potential.distance /
-                        this.settings.turnMaxDistance +
-                        this.coefficients.turnMotion * motionDifference / Math.PI +
-                        this.coefficients.turnSequencePenalty * (potential.sameSequence ? 0 : 1) +
-                        this.coefficients.turnMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
+                        this._coefficients.turnDistance * potential.distance /
+                        this._settings.turnMaxDistance +
+                        this._coefficients.turnMotion * motionDifference / Math.PI +
+                        this._coefficients.turnSequencePenalty * (potential.sameSequence ? 0 : 1) +
+                        this._coefficients.turnMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
                 }
 
                 if (score < lowestScore) {
@@ -376,11 +376,11 @@ export class EdgeCalculator {
             }
 
             let score: number =
-                this.coefficients.panoPreferredDistance *
-                Math.abs(potential.distance - this.settings.panoPreferredDistance) /
-                this.settings.panoMaxDistance +
-                this.coefficients.panoMotion * Math.abs(potential.motionChange) / Math.PI +
-                this.coefficients.panoMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
+                this._coefficients.panoPreferredDistance *
+                Math.abs(potential.distance - this._settings.panoPreferredDistance) /
+                this._settings.panoMaxDistance +
+                this._coefficients.panoMotion * Math.abs(potential.motionChange) / Math.PI +
+                this._coefficients.panoMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
 
             if (score < lowestScore) {
                 lowestScore = score;
@@ -416,12 +416,12 @@ export class EdgeCalculator {
             return edges;
         }
 
-        for (let k in this.directions.rotations) {
-            if (!this.directions.rotations.hasOwnProperty(k)) {
+        for (let k in this._directions.rotations) {
+            if (!this._directions.rotations.hasOwnProperty(k)) {
                 continue;
             }
 
-            let rotation: IRotation = this.directions.rotations[k];
+            let rotation: IRotation = this._directions.rotations[k];
 
             let lowestScore: number = Number.MAX_VALUE;
             let edge: IPotentialEdge = null;
@@ -431,10 +431,10 @@ export class EdgeCalculator {
                     continue;
                 }
 
-                if (potential.distance > this.settings.rotationMaxDistance ||
+                if (potential.distance > this._settings.rotationMaxDistance ||
                     potential.directionChange * rotation.directionChangeSign < 0 ||
-                    Math.abs(potential.directionChange) > this.settings.rotationMaxDirectionChange ||
-                    Math.abs(potential.verticalDirectionChange) > this.settings.rotationMaxVerticalDirectionChange) {
+                    Math.abs(potential.directionChange) > this._settings.rotationMaxDirectionChange ||
+                    Math.abs(potential.verticalDirectionChange) > this._settings.rotationMaxVerticalDirectionChange) {
                     continue;
                 }
 
@@ -477,31 +477,31 @@ export class EdgeCalculator {
         let potentialSteps: [EdgeDirection, IPotentialEdge][] = [];
 
         for (let potential of potentialEdges) {
-            if (potential.distance > this.settings.panoMaxDistance) {
+            if (potential.distance > this._settings.panoMaxDistance) {
                 continue;
             }
 
             if (potential.fullPano) {
-                if (potential.distance < this.settings.panoMinDistance) {
+                if (potential.distance < this._settings.panoMinDistance) {
                     continue;
                 }
 
                 potentialPanos.push(potential);
             } else {
-                for (let k in this.directions.panos) {
-                    if (!this.directions.panos.hasOwnProperty(k)) {
+                for (let k in this._directions.panos) {
+                    if (!this._directions.panos.hasOwnProperty(k)) {
                         continue;
                     }
 
-                    let pano: IPano = this.directions.panos[k];
+                    let pano: IPano = this._directions.panos[k];
 
-                    let turn: number = this.spatial.angleDifference(
+                    let turn: number = this._spatial.angleDifference(
                         potential.directionChange,
                         potential.motionChange);
 
-                    let turnChange: number = this.spatial.angleDifference(pano.directionChange, turn);
+                    let turnChange: number = this._spatial.angleDifference(pano.directionChange, turn);
 
-                    if (Math.abs(turnChange) > this.settings.panoMaxStepTurnChange) {
+                    if (Math.abs(turnChange) > this._settings.panoMaxStepTurnChange) {
                         continue;
                     }
 
@@ -513,18 +513,18 @@ export class EdgeCalculator {
             }
         }
 
-        let maxRotationDifference: number = Math.PI / this.settings.panoMaxItems;
+        let maxRotationDifference: number = Math.PI / this._settings.panoMaxItems;
         let occupiedAngles: number[] = [];
         let stepAngles: number[] = [];
 
-        for (let index: number = 0; index < this.settings.panoMaxItems; index++) {
-            let rotation: number = index / this.settings.panoMaxItems * 2 * Math.PI;
+        for (let index: number = 0; index < this._settings.panoMaxItems; index++) {
+            let rotation: number = index / this._settings.panoMaxItems * 2 * Math.PI;
 
             let lowestScore: number = Number.MAX_VALUE;
             let edge: IPotentialEdge = null;
 
             for (let potential of potentialPanos) {
-                let motionDifference: number = this.spatial.angleDifference(rotation, potential.motionChange);
+                let motionDifference: number = this._spatial.angleDifference(rotation, potential.motionChange);
 
                 if (Math.abs(motionDifference) > maxRotationDifference) {
                     continue;
@@ -532,7 +532,7 @@ export class EdgeCalculator {
 
                 let occupiedDifference: number = Number.MAX_VALUE;
                 for (let occupiedAngle of occupiedAngles) {
-                    let difference: number = Math.abs(this.spatial.angleDifference(occupiedAngle, potential.motionChange));
+                    let difference: number = Math.abs(this._spatial.angleDifference(occupiedAngle, potential.motionChange));
                     if (difference < occupiedDifference) {
                         occupiedDifference = difference;
                     }
@@ -543,12 +543,12 @@ export class EdgeCalculator {
                 }
 
                 let score: number =
-                    this.coefficients.panoPreferredDistance *
-                    Math.abs(potential.distance - this.settings.panoPreferredDistance) /
-                    this.settings.panoMaxDistance +
-                    this.coefficients.panoMotion * Math.abs(motionDifference) / maxRotationDifference +
-                    this.coefficients.panoSequencePenalty * (potential.sameSequence ? 0 : 1) +
-                    this.coefficients.panoMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
+                    this._coefficients.panoPreferredDistance *
+                    Math.abs(potential.distance - this._settings.panoPreferredDistance) /
+                    this._settings.panoMaxDistance +
+                    this._coefficients.panoMotion * Math.abs(motionDifference) / maxRotationDifference +
+                    this._coefficients.panoSequencePenalty * (potential.sameSequence ? 0 : 1) +
+                    this._coefficients.panoMergeCcPenalty * (potential.sameMergeCc ? 0 : 1);
 
                 if (score < lowestScore) {
                     lowestScore = score;
@@ -581,12 +581,12 @@ export class EdgeCalculator {
         for (let stepAngle of stepAngles) {
             let occupations: [EdgeDirection, IPotentialEdge][] = [];
 
-            for (let k in this.directions.panos) {
-                if (!this.directions.panos.hasOwnProperty(k)) {
+            for (let k in this._directions.panos) {
+                if (!this._directions.panos.hasOwnProperty(k)) {
                     continue;
                 }
 
-                let pano: IPano = this.directions.panos[k];
+                let pano: IPano = this._directions.panos[k];
 
                 let allOccupiedAngles: number[] = occupiedStepAngles[EdgeDirection.Pano]
                     .concat(occupiedStepAngles[pano.direction])
@@ -601,7 +601,7 @@ export class EdgeCalculator {
                         continue;
                     }
 
-                    let motionChange: number = this.spatial.angleDifference(stepAngle, potential[1].motionChange);
+                    let motionChange: number = this._spatial.angleDifference(stepAngle, potential[1].motionChange);
 
                     if (Math.abs(motionChange) > maxRotationDifference) {
                         continue;
@@ -610,7 +610,7 @@ export class EdgeCalculator {
                     let minOccupiedDifference: number = Number.MAX_VALUE;
                     for (let occupiedAngle of allOccupiedAngles) {
                         let occupiedDifference: number =
-                            Math.abs(this.spatial.angleDifference(occupiedAngle, potential[1].motionChange));
+                            Math.abs(this._spatial.angleDifference(occupiedAngle, potential[1].motionChange));
 
                         if (occupiedDifference < minOccupiedDifference) {
                             minOccupiedDifference = occupiedDifference;
@@ -621,11 +621,11 @@ export class EdgeCalculator {
                         continue;
                     }
 
-                    let score: number = this.coefficients.panoPreferredDistance *
-                        Math.abs(potential[1].distance - this.settings.panoPreferredDistance) /
-                        this.settings.panoMaxDistance +
-                        this.coefficients.panoMotion * Math.abs(motionChange) / maxRotationDifference +
-                        this.coefficients.panoMergeCcPenalty * (potential[1].sameMergeCc ? 0 : 1);
+                    let score: number = this._coefficients.panoPreferredDistance *
+                        Math.abs(potential[1].distance - this._settings.panoPreferredDistance) /
+                        this._settings.panoMaxDistance +
+                        this._coefficients.panoMotion * Math.abs(motionChange) / maxRotationDifference +
+                        this._coefficients.panoMergeCcPenalty * (potential[1].sameMergeCc ? 0 : 1);
 
                     if (score < lowestScore) {
                         lowestScore = score;

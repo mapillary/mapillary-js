@@ -15,19 +15,19 @@ interface ICanvasNode {
 export class ImageComponent extends Component {
     public static componentName: string = "image";
 
-    private canvasId: string;
+    private _canvasId: string;
     private _disposable: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
-        this.canvasId = `${container.id}-${this._name}`;
+        this._canvasId = `${container.id}-${this._name}`;
     }
 
     protected _activate(): void {
         this._disposable = this._container.domRenderer.element$.combineLatest(
             this._navigator.stateService.currentNode$,
             (element: Element, node: Node): ICanvasNode => {
-                let canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById(this.canvasId);
+                let canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById(this._canvasId);
                 return {canvas: canvas, node: node};
             }).subscribe((canvasNode: ICanvasNode) => {
                 let canvas: HTMLCanvasElement = canvasNode.canvas;
@@ -49,7 +49,7 @@ export class ImageComponent extends Component {
                 ctx.drawImage(node.image, 0, 0, cw, ch);
             });
 
-        this._container.domRenderer.renderAdaptive$.onNext({name: this._name, vnode: vd.h(`canvas#${this.canvasId}`, [])});
+        this._container.domRenderer.renderAdaptive$.onNext({name: this._name, vnode: vd.h(`canvas#${this._canvasId}`, [])});
     }
 
     protected _deactivate(): void {

@@ -185,7 +185,7 @@ export class StateService {
 
     public start(): void {
         if (this._frameId == null) {
-            this._frameId = this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
+            this._frameId = this._frameGenerator.requestAnimationFrame(this._frame.bind(this));
         }
     }
 
@@ -206,8 +206,8 @@ export class StateService {
                 });
     }
 
-    private frame(time: number): void {
-        this._frameId = this._frameGenerator.requestAnimationFrame(this.frame.bind(this));
+    private _frame(time: number): void {
+        this._frameId = this._frameGenerator.requestAnimationFrame(this._frame.bind(this));
         this._frame$.onNext(this._frameId);
     }
 }

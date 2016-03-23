@@ -6,28 +6,26 @@ import * as mime from "rest/interceptor/mime";
 import * as when from "when";
 
 export class APIv2Call {
-    public static vcr: any = {};
-
-    private clientId: string;
-    private httpsUrl: string;
-    private client: rest.Client;
+    private _clientId: string;
+    private _httpsUrl: string;
+    private _client: rest.Client;
 
     constructor (clientId: string) {
-        this.clientId = clientId;
-        this.httpsUrl = "https://a.mapillary.com/v2/";
-        this.client = rest.wrap(mime);
+        this._clientId = clientId;
+        this._httpsUrl = "https://a.mapillary.com/v2/";
+        this._client = rest.wrap(mime);
     };
 
     public callApi(path: string): when.Promise<{}> {
-        let uri: string = this.httpsUrl + path;
+        let uri: string = this._httpsUrl + path;
 
         if (path.indexOf("?") > -1) {
-            uri += "&client_id=" + this.clientId;
+            uri += "&client_id=" + this._clientId;
         } else {
-            uri += "?client_id=" + this.clientId;
+            uri += "?client_id=" + this._clientId;
         }
 
-        return this.client(uri).entity();
+        return this._client(uri).entity();
     }
 };
 

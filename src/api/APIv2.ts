@@ -9,7 +9,7 @@ export class APIv2 {
     public s: APIS;
     public search: APISearch;
 
-    private clientId: string;
+    private _clientId: string;
 
    /**
     * Initializes an endpoint to the Mapillary API
@@ -19,7 +19,7 @@ export class APIv2 {
     * @param {string} clientId - Mapillary API Client ID
     */
     constructor (clientId: string) {
-        this.clientId = clientId;
+        this._clientId = clientId;
 
         this.im = new APIIm(clientId);
         this.nav = new APINav(clientId);

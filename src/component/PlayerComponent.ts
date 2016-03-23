@@ -26,7 +26,7 @@ export class PlayerComponent extends Component {
     private _configurationSubscription: rx.IDisposable;
     private _playingSubscription: rx.IDisposable;
 
-    private nodesAhead: number = 5;
+    private _nodesAhead: number = 5;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -112,7 +112,7 @@ export class PlayerComponent extends Component {
                 })
             .filter(
                 (frame: IFrame): boolean => {
-                    return frame.state.nodesAhead < this.nodesAhead;
+                    return frame.state.nodesAhead < this._nodesAhead;
                 })
             .distinctUntilChanged(
                  (frame: IFrame): string => {

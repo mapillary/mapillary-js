@@ -41,7 +41,7 @@ export class NavigationComponent extends Component {
                     continue;
                 }
 
-                btns.push(this.createVNode(direction, name));
+                btns.push(this._createVNode(direction, name));
             }
 
             return {name: this._name, vnode: vd.h(`div.NavigationComponent`, btns)};
@@ -52,7 +52,7 @@ export class NavigationComponent extends Component {
         this._disposable.dispose();
     }
 
-    private createVNode(direction: EdgeDirection, name: string): vd.VNode {
+    private _createVNode(direction: EdgeDirection, name: string): vd.VNode {
         return vd.h(`span.Direction.Direction${name}`,
                     {onclick: (ev: Event): void => { this._navigator.moveDir(direction).first().subscribe(); }},
                     []);

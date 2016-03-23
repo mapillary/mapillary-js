@@ -135,7 +135,7 @@ export class MarkerComponent extends Component {
                 return args.frame.id;
             })
             .map<IGLRenderHash>((args: IUpdateArgs): IGLRenderHash => {
-                return this.renderHash(args);
+                return this._renderHash(args);
             })
             .subscribe(this._container.glRenderer.render$);
 
@@ -176,7 +176,7 @@ export class MarkerComponent extends Component {
 
     protected _deactivate(): void {
         // release memory
-        this.disposeScene();
+        this._disposeScene();
         this._disposable.dispose();
         this._disposableConfiguration.dispose();
     }
@@ -201,10 +201,10 @@ export class MarkerComponent extends Component {
         this._markerSet.removeMarker(id);
     }
 
-    private renderHash(args: IUpdateArgs): IGLRenderHash {
+    private _renderHash(args: IUpdateArgs): IGLRenderHash {
         // determine if render is needed while updating scene
         // specific properies.
-        let needsRender: boolean = this.updateScene(args);
+        let needsRender: boolean = this._updateScene(args);
 
         // return render hash with render function and
         // render in foreground.
@@ -213,13 +213,13 @@ export class MarkerComponent extends Component {
             render: {
                 frameId: args.frame.id,
                 needsRender: needsRender,
-                render: this.render.bind(this),
+                render: this._render.bind(this),
                 stage: GLRenderStage.Foreground,
             },
         };
     }
 
-    private updateScene(args: IUpdateArgs): boolean {
+    private _updateScene(args: IUpdateArgs): boolean {
         if (!args.frame ||
             !args.graph ||
             !args.markers ||
@@ -266,7 +266,7 @@ export class MarkerComponent extends Component {
 
         for (let i in oldObjects) {
             if (oldObjects.hasOwnProperty(i)) {
-                this.disposeObject(oldObjects[i]);
+                this._disposeObject(oldObjects[i]);
                 needRender = true;
             }
         }
@@ -274,14 +274,14 @@ export class MarkerComponent extends Component {
         return needRender;
     }
 
-    private render(
+    private _render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
 
         renderer.render(this._scene, perspectiveCamera);
     }
 
-    private disposeObject(object: THREE.Object3D): void {
+    private _disposeObject(object: THREE.Object3D): void {
         this._scene.remove(object);
         for (let i: number = 0; i < object.children.length; ++i) {
             let c: THREE.Mesh = <THREE.Mesh> object.children[i];
@@ -290,10 +290,10 @@ export class MarkerComponent extends Component {
         }
     }
 
-    private disposeScene(): void {
+    private _disposeScene(): void {
         for (let i in this._markerObjects) {
             if (this._markerObjects.hasOwnProperty(i)) {
-                this.disposeObject(this._markerObjects[i]);
+                this._disposeObject(this._markerObjects[i]);
             }
         }
         this._markerObjects = {};

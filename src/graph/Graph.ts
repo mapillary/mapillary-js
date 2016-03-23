@@ -31,37 +31,37 @@ interface ISpatialItem {
 export class Graph {
     public referenceLatLonAlt: ILatLonAlt = null;
 
-    private edgeCalculator: EdgeCalculator;
+    private _edgeCalculator: EdgeCalculator;
 
-    private sequences: Sequence[];
-    private sequenceHash: {[key: string]: Sequence};
+    private _sequences: Sequence[];
+    private _sequenceHash: {[key: string]: Sequence};
 
-    private graph: any;
-    private spatial: rbush.RBush<ISpatialItem>;
+    private _graph: any;
+    private _nodeIndex: rbush.RBush<ISpatialItem>;
 
-    private cachedNodes: {[key: string]: boolean};
-    private unWorthyNodes: {[key: string]: boolean};
+    private _cachedNodes: {[key: string]: boolean};
+    private _unWorthyNodes: {[key: string]: boolean};
 
-    private boxWidth: number = 0.001;
-    private defaultAlt: number = 2;
+    private _boxWidth: number = 0.001;
+    private _defaultAlt: number = 2;
 
-    private spatialLib: Spatial;
-    private geoCoords: GeoCoords;
+    private _spatial: Spatial;
+    private _geoCoords: GeoCoords;
 
     /**
      * Creates a graph instance
      * @class Graph
      */
     constructor () {
-        this.sequences = [];
-        this.sequenceHash = {};
-        this.spatial = rbush<ISpatialItem>(20000, [".lon", ".lat", ".lon", ".lat"]);
-        this.graph = new graphlib.Graph({multigraph: true});
-        this.cachedNodes = {};
-        this.unWorthyNodes = {};
-        this.edgeCalculator = new EdgeCalculator();
-        this.spatialLib = new Spatial();
-        this.geoCoords = new GeoCoords();
+        this._sequences = [];
+        this._sequenceHash = {};
+        this._nodeIndex = rbush<ISpatialItem>(20000, [".lon", ".lat", ".lon", ".lat"]);
+        this._graph = new graphlib.Graph({multigraph: true});
+        this._cachedNodes = {};
+        this._unWorthyNodes = {};
+        this._edgeCalculator = new EdgeCalculator();
+        this._spatial = new Spatial();
+        this._geoCoords = new GeoCoords();
     }
 
     /**
@@ -108,12 +108,12 @@ export class Graph {
             let latLon: ILatLon = {lat: lat, lon: lon};
 
             if (im.rotation == null) {
-                im.rotation = this.computeRotation(im.ca, im.orientation);
+                im.rotation = this._computeRotation(im.ca, im.orientation);
             }
 
-            let translation: number[] = this.computeTranslation(im, latLon);
+            let translation: number[] = this._computeTranslation(im, latLon);
 
-            let hs: string[] = this.computeHs(latLon, bounds.sw, bounds.ne, h, neighbours);
+            let hs: string[] = this._computeHs(latLon, bounds.sw, bounds.ne, h, neighbours);
 
             let node: Node = new Node(
                 im.key,
@@ -129,7 +129,7 @@ export class Graph {
             node.user = im.user;
             node.capturedAt = im.captured_at;
 
-            this.unWorthyNodes[im.key] = true;
+            this._unWorthyNodes[im.key] = true;
 
             return node;
         });
@@ -142,12 +142,12 @@ export class Graph {
     public makeNodesWorthy(tiles: {[key: string]: boolean}): void {
         let worthy: boolean;
         let worthyKeys: string[] = [];
-        for (let key in this.unWorthyNodes) {
-            if (!this.unWorthyNodes.hasOwnProperty(key)) {
+        for (let key in this._unWorthyNodes) {
+            if (!this._unWorthyNodes.hasOwnProperty(key)) {
                 continue;
             }
 
-            if (!this.unWorthyNodes[key]) {
+            if (!this._unWorthyNodes[key]) {
                 worthyKeys.push(key);
                 continue;
             }
@@ -162,13 +162,13 @@ export class Graph {
 
             if (worthy) {
                 node.worthy = true;
-                this.unWorthyNodes[key] = false;
+                this._unWorthyNodes[key] = false;
                 worthyKeys.push(key);
             }
         }
 
         for (let key of worthyKeys) {
-            delete this.unWorthyNodes[key];
+            delete this._unWorthyNodes[key];
         }
     }
 
@@ -178,7 +178,7 @@ export class Graph {
      * @return {Node}
      */
     public getNode(key: string): Node {
-        return this.graph.node(key);
+        return this._graph.node(key);
     }
 
     /**
@@ -187,10 +187,10 @@ export class Graph {
      * @return {IEdge}
      */
     public getEdges(node: Node): IEdge[] {
-        let outEdges: any[] = this.graph.outEdges(node.key);
+        let outEdges: any[] = this._graph.outEdges(node.key);
 
         return _.map(outEdges, (outEdge: any) => {
-            let edge: any = this.graph.edge(outEdge);
+            let edge: any = this._graph.edge(outEdge);
 
             return {
                 data: <IEdgeData>edge,
@@ -208,14 +208,14 @@ export class Graph {
         this.computeEdges(node);
         node.cached = true;
         node.lastUsed =  new Date().getTime();
-        this.cachedNodes[node.key] = true;
+        this._cachedNodes[node.key] = true;
     }
 
     /**
      * Clear node cache
      */
     public evictNodeCache(): void {
-        if (Object.keys(this.cachedNodes).length < 30) {
+        if (Object.keys(this._cachedNodes).length < 30) {
             // no cleaning of cache
             return;
         }
@@ -228,7 +228,7 @@ export class Graph {
      * @param {Node} node - Node which cache will be cleared
      */
     public unCacheNode(node: Node): void {
-        delete this.cachedNodes[node.key];
+        delete this._cachedNodes[node.key];
         node.lastCacheEvict = new Date().getTime();
     }
 
@@ -242,33 +242,33 @@ export class Graph {
             return false;
         }
 
-        let edges: IEdge[] = this.edgeCalculator.computeSequenceEdges(node);
+        let edges: IEdge[] = this._edgeCalculator.computeSequenceEdges(node);
         let fallbackKeys: string[] = _.map(edges, (edge: IEdge) => { return edge.to; });
 
-        let minLon: number = node.latLon.lon - this.boxWidth / 2;
-        let minLat: number = node.latLon.lat - this.boxWidth / 2;
+        let minLon: number = node.latLon.lon - this._boxWidth / 2;
+        let minLat: number = node.latLon.lat - this._boxWidth / 2;
 
-        let maxLon: number = node.latLon.lon + this.boxWidth / 2;
-        let maxLat: number = node.latLon.lat + this.boxWidth / 2;
+        let maxLon: number = node.latLon.lon + this._boxWidth / 2;
+        let maxLat: number = node.latLon.lat + this._boxWidth / 2;
 
-        let nodes: Node[] = _.map(this.spatial.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialItem) => {
+        let nodes: Node[] = _.map(this._nodeIndex.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialItem) => {
             return item.node;
         });
 
-        let potentialEdges: IPotentialEdge[] = this.edgeCalculator.getPotentialEdges(node, nodes, fallbackKeys);
+        let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, nodes, fallbackKeys);
 
         edges = edges.concat(
-            this.edgeCalculator.computeStepEdges(
+            this._edgeCalculator.computeStepEdges(
                 node,
                 potentialEdges,
                 node.findPrevKeyInSequence(),
                 node.findNextKeyInSequence()));
 
-        edges = edges.concat(this.edgeCalculator.computeTurnEdges(node, potentialEdges));
-        edges = edges.concat(this.edgeCalculator.computePanoEdges(node, potentialEdges));
-        edges = edges.concat(this.edgeCalculator.computePerspectiveToPanoEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computePanoEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computePerspectiveToPanoEdges(node, potentialEdges));
 
-        this.addEdgesToNode(node, edges);
+        this._addEdgesToNode(node, edges);
 
         node.edges = this.getEdges(node);
 
@@ -290,7 +290,7 @@ export class Graph {
      * @param {Sequence[]}
      */
     public insertSequences(sequences: Sequence[]): void {
-        this.sequences = _.uniq(this.sequences.concat(sequences), (sequence: Sequence): string => {
+        this._sequences = _.uniq(this._sequences.concat(sequences), (sequence: Sequence): string => {
             return sequence.key;
         });
     }
@@ -303,8 +303,8 @@ export class Graph {
         if (this.getNode(node.key) != null) {
             return;
         }
-        this.spatial.insert({lat: node.latLon.lat, lon: node.latLon.lon, node: node});
-        this.graph.setNode(node.key, node);
+        this._nodeIndex.insert({lat: node.latLon.lat, lon: node.latLon.lon, node: node});
+        this._graph.setNode(node.key, node);
     }
 
     /**
@@ -314,10 +314,10 @@ export class Graph {
      * @return {Node}
      */
     public nextNode(node: Node, dir: EdgeDirection): Node {
-        let outEdges: any[] = this.graph.outEdges(node.key);
+        let outEdges: any[] = this._graph.outEdges(node.key);
 
         for (let outEdge of outEdges) {
-            let edge: any = this.graph.edge(outEdge);
+            let edge: any = this._graph.edge(outEdge);
 
             if (edge.direction === dir) {
                 return this.getNode(outEdge.w);
@@ -327,7 +327,7 @@ export class Graph {
         return null;
     }
 
-    private computeHs(
+    private _computeHs(
         latLon: ILatLon,
         sw: ILatLon,
         ne: ILatLon,
@@ -338,7 +338,7 @@ export class Graph {
 
         let bl: number[] = [0, 0, 0];
         let tr: number[] =
-            this.geoCoords.topocentric_from_lla(
+            this._geoCoords.topocentric_from_lla(
                 ne.lat,
                 ne.lon,
                 0,
@@ -347,7 +347,7 @@ export class Graph {
                 0);
 
         let position: number[] =
-            this.geoCoords.topocentric_from_lla(
+            this._geoCoords.topocentric_from_lla(
                 latLon.lat,
                 latLon.lon,
                 0,
@@ -405,7 +405,7 @@ export class Graph {
      * @param {number} compassAngle
      * @return {Array<number>}
      */
-    private computeRotation(compassAngle: number, orientation: number): number[] {
+    private _computeRotation(compassAngle: number, orientation: number): number[] {
         let x: number = 0;
         let y: number = 0;
         let z: number = 0;
@@ -445,8 +445,8 @@ export class Graph {
      * @param {ILatLon} latLon
      * @return {number}
      */
-    private computeTranslation(im: IAPINavImIm, latLon: ILatLon): number[] {
-        let alt: number = im.calt == null ? this.defaultAlt : im.calt;
+    private _computeTranslation(im: IAPINavImIm, latLon: ILatLon): number[] {
+        let alt: number = im.calt == null ? this._defaultAlt : im.calt;
 
         if (this.referenceLatLonAlt == null) {
             this.referenceLatLonAlt = {
@@ -465,7 +465,7 @@ export class Graph {
             };
         }
 
-        let C: number[] = this.geoCoords.topocentric_from_lla(
+        let C: number[] = this._geoCoords.topocentric_from_lla(
             latLon.lat,
             latLon.lon,
             alt,
@@ -473,7 +473,7 @@ export class Graph {
             this.referenceLatLonAlt.lon,
             this.referenceLatLonAlt.alt);
 
-        let RC: THREE.Vector3 = this.spatialLib.rotate(C, im.rotation);
+        let RC: THREE.Vector3 = this._spatial.rotate(C, im.rotation);
 
         return [-RC.x, -RC.y, -RC.z];
     }
@@ -483,18 +483,18 @@ export class Graph {
      * @param {Node} node
      * @param {IEdge[]} edges
      */
-    private addEdgesToNode(node: Node, edges: IEdge[]): void {
-        let outEdges: any[] = this.graph.outEdges(node.key);
+    private _addEdgesToNode(node: Node, edges: IEdge[]): void {
+        let outEdges: any[] = this._graph.outEdges(node.key);
 
         for (let i in outEdges) {
             if (outEdges.hasOwnProperty(i)) {
                 let e: any = outEdges[i];
-                this.graph.removeEdge(e);
+                this._graph.removeEdge(e);
             }
         }
 
         for (let edge of edges) {
-            this.graph.setEdge(node.key, edge.to, edge.data, node.key + edge.to + edge.data.direction);
+            this._graph.setEdge(node.key, edge.to, edge.data, node.key + edge.to + edge.data.direction);
         }
     }
 

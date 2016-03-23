@@ -29,9 +29,9 @@ export class CoverComponent extends Component {
                 return {name: this._name, vnode: vd.h("div", [])};
             }
             if (!conf.visible) {
-                return {name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this.getCoverBackgroundVNode(conf) ])};
+                return {name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this._getCoverBackgroundVNode(conf) ])};
             }
-            return {name: this._name, vnode: this.getCoverButtonVNode(conf)};
+            return {name: this._name, vnode: this._getCoverButtonVNode(conf)};
         }).subscribe(this._container.domRenderer.render$);
     }
 
@@ -44,7 +44,7 @@ export class CoverComponent extends Component {
         return {"loading": false, "visible": true};
     }
 
-    private getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
+    private _getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
         let coverBtn: string = "span.CoverButtonIcon";
         let children: Array<vd.VNode> = [];
         if (conf.loading) {
@@ -53,14 +53,14 @@ export class CoverComponent extends Component {
         }
 
         return vd.h("div.Cover", [
-            this.getCoverBackgroundVNode(conf),
+            this._getCoverBackgroundVNode(conf),
             vd.h("button.CoverButton", {onclick: (): void => { this.configure({loading: true}); }}, [
                 vd.h(coverBtn, {}, children),
             ]),
         ]);
     }
 
-    private getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
+    private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
         let url: string = `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-320.jpg)`;
         return vd.h("div.CoverBackground", { style: { backgroundImage: url }}, []);
     }

@@ -9,10 +9,10 @@ export class Sequence {
     public keys: string[];
     public path: any;
 
-    private response: IAPINavImS;
+    private _response: IAPINavImS;
 
     constructor (response: IAPINavImS) {
-        this.response = response;
+        this._response = response;
 
         this.key = response.key;
         this.keys = response.keys;

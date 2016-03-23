@@ -19,7 +19,7 @@ export class AttributionComponent extends Component {
 
     protected _activate(): void {
         this._disposable = this._navigator.stateService.currentNode$.map((node: Node): IVNodeHash => {
-            return {name: this._name, vnode: this.getAttributionNode(node.user, node.key)};
+            return {name: this._name, vnode: this._getAttributionNode(node.user, node.key)};
         }).subscribe(this._container.domRenderer.render$);
     }
 
@@ -27,7 +27,7 @@ export class AttributionComponent extends Component {
         this._disposable.dispose();
     }
 
-    private getAttributionNode(username: string, photoId: string): vd.VNode {
+    private _getAttributionNode(username: string, photoId: string): vd.VNode {
         return vd.h("div.Attribution", {}, [
             vd.h("a", {href: `https://www.mapillary.com/profile/${username}`,
                        target: "_blank",

@@ -23,7 +23,7 @@ export class LoadingComponent extends Component {
                 this._navigator.graphService.imageLoadingService.loadstatus$,
                 (loading: boolean, loadStatus: any): IVNodeHash => {
                     if (!loading) {
-                        return {name: "loading", vnode: this.getBarVNode(100)};
+                        return {name: "loading", vnode: this._getBarVNode(100)};
                     }
 
                     let total: number = 0;
@@ -41,7 +41,7 @@ export class LoadingComponent extends Component {
                         percentage = (loaded / total) * 100;
                     }
 
-                    return {name: this._name, vnode: this.getBarVNode(percentage)};
+                    return {name: this._name, vnode: this._getBarVNode(percentage)};
                 }).subscribe(this._container.domRenderer.render$);
     }
 
@@ -49,7 +49,7 @@ export class LoadingComponent extends Component {
         this._disposable.dispose();
     }
 
-    private getBarVNode(percentage: number): vd.VNode {
+    private _getBarVNode(percentage: number): vd.VNode {
         let loadingBarStyle: any = {};
         let loadingContainerStyle: any = {};
 

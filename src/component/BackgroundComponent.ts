@@ -15,14 +15,14 @@ export class BackgroundComponent extends Component {
 
     protected _activate(): void {
         this._container.domRenderer.render$
-            .onNext({name: this._name, vnode: this.getBackgroundNode("The viewer can't display the given photo.")});
+            .onNext({name: this._name, vnode: this._getBackgroundNode("The viewer can't display the given photo.")});
     }
 
     protected _deactivate(): void {
         return;
     }
 
-    private getBackgroundNode(notice: string): vd.VNode {
+    private _getBackgroundNode(notice: string): vd.VNode {
         // todo: add condition for when to display the DOM node
         return vd.h("div.BackgroundWrapper", {}, [
             vd.h("p", {textContent: notice}, []),
