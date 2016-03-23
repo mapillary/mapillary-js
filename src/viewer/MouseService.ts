@@ -91,8 +91,13 @@ export class MouseService {
             .map<IMouseMoveOperation>(
                 (e: MouseEvent) => {
                     return (previous: MouseEvent): MouseEvent => {
-                        e.movementX = e.offsetX - previous.offsetX;
-                        e.movementY = e.offsetY - previous.offsetY;
+                        if (e.movementX == null) {
+                            e.movementX = e.offsetX - previous.offsetX;
+                        }
+
+                        if (e.movementY == null) {
+                            e.movementY = e.offsetY - previous.offsetY;
+                        }
 
                         return e;
                     };
