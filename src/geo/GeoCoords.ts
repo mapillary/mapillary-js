@@ -32,7 +32,7 @@ export class GeoCoords {
         let ey: number = T[1] * x + T[5] * y + T[9] * z + T[13];
         let ez: number = T[2] * x + T[6] * y + T[10] * z + T[14];
 
-        return this._ecefToLla(ex, ey, ez);
+        return this.ecefToLla(ex, ey, ez);
     }
 
     /**
@@ -80,27 +80,54 @@ export class GeoCoords {
         return [x, y, z];
     }
 
-    private _ecefToLla(x: number, y: number, z: number): number[] {
-        // compute latitude, longitude and altitude from ECEF XYZ.
-        // all using the WGS94 model.
-        // altitude is the distance to the WGS94 ellipsoid.
-
+    /**
+     * Convert coordinates from Earth-Centered, Earth-Fixed (ECEF) reference
+     * to geodetic reference (WGS84).
+     *
+     * @description Uses the following WGS84 parameters:
+     *              a = 6378137
+     *              b = a * (1 - f)
+     *              f = 1 / 298.257223563
+     *
+     *              The ECEF Z-axis pierces the north pole and the
+     *              XY-axis defines the equatorial plane. The X-axis extends
+     *              from the geocenter to the intersection of the Equator and
+     *              the Greenwich Meridian.
+     *
+     * @param {number} x ECEF X-value.
+     * @param {number} y ECEF Y-value.
+     * @param {number} z ECEF Z-value.
+     * @returns {Array<number>} The latitude and longitude in degrees
+     *                          as well as altitude in meters.
+     */
+    public ecefToLla(x: number, y: number, z: number): number[] {
         let a: number = this._wgs84a;
         let b: number = this._wgs84b;
-        let ea: number = Math.sqrt((a * a - b * b) / (a * a));
-        let eb: number = Math.sqrt((a * a - b * b) / (b * b));
+
+        let a2: number = a * a;
+        let b2: number = b * b;
+
+        let a2mb2: number = a2 - b2;
+
+        let ea: number = Math.sqrt(a2mb2 / a2);
+        let eb: number = Math.sqrt(a2mb2 / b2);
+
         let p: number = Math.sqrt(x * x + y * y);
         let theta: number = Math.atan2(z * a, p * b);
-        let sintheta: number = Math.sin(theta);
-        let costheta: number = Math.cos(theta);
+
+        let sinTheta: number = Math.sin(theta);
+        let cosTheta: number = Math.cos(theta);
+
         let lon: number = Math.atan2(y, x);
         let lat: number =
-            Math.atan2(z + eb * eb * b * sintheta * sintheta * sintheta,
-                       p - ea * ea * a * costheta * costheta * costheta);
-        let sinlat: number = Math.sin(lat);
-        let coslat: number = Math.cos(lat);
-        let N: number = a / Math.sqrt(1 - ea * ea * sinlat * sinlat);
-        let alt: number = p / coslat - N;
+            Math.atan2(z + eb * eb * b * sinTheta * sinTheta * sinTheta,
+                       p - ea * ea * a * cosTheta * cosTheta * cosTheta);
+
+        let sinLat: number = Math.sin(lat);
+        let cosLat: number = Math.cos(lat);
+
+        let N: number = a / Math.sqrt(1 - ea * ea * sinLat * sinLat);
+        let alt: number = p / cosLat - N;
 
         return [lat * 180.0 / Math.PI, lon * 180.0 / Math.PI, alt];
     }
