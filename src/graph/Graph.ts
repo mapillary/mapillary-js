@@ -338,7 +338,7 @@ export class Graph {
 
         let bl: number[] = [0, 0, 0];
         let tr: number[] =
-            this._geoCoords.topocentric_from_lla(
+            this._geoCoords.llaToTopocentric(
                 ne.lat,
                 ne.lon,
                 0,
@@ -347,7 +347,7 @@ export class Graph {
                 0);
 
         let position: number[] =
-            this._geoCoords.topocentric_from_lla(
+            this._geoCoords.llaToTopocentric(
                 latLon.lat,
                 latLon.lon,
                 0,
@@ -465,7 +465,7 @@ export class Graph {
             };
         }
 
-        let C: number[] = this._geoCoords.topocentric_from_lla(
+        let C: number[] = this._geoCoords.llaToTopocentric(
             latLon.lat,
             latLon.lon,
             alt,
