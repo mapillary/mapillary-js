@@ -192,17 +192,7 @@ export class DirectionComponent extends Component {
                 continue;
             }
 
-            let style: any = {};
-
-            if (name === "TurnRight") {
-                style.transform = "perspective(375px) rotateX(60deg) scaleX(-1)";
-            } else if (name === "TurnLeft") {
-                style.transform = "perspective(375px) rotateX(60deg)";
-            } else if (name === "TurnAround") {
-                style.transform = "perspective(375px) rotateX(60deg) rotate(270deg) scale(1.15, 1.15)";
-            }
-
-            turns.push(this._createVNodeByTurn(name, direction, style));
+            turns.push(this._createVNodeByTurn(name, direction));
         }
 
         return turns;
@@ -293,15 +283,11 @@ export class DirectionComponent extends Component {
         return this._createVNode(azimuth, rotation, opacity, this._arrowOffset, "DirectionsArrowStep", onClick);
     }
 
-    private _createVNodeByTurn(name: string, direction: EdgeDirection, style: any): vd.VNode {
+    private _createVNodeByTurn(name: string, direction: EdgeDirection): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
-        return vd.h(`div.${name}`,
-                    {onclick: onClick,
-                     style,
-                    },
-                    []);
+        return vd.h(`div.${name}`, { onclick: onClick }, []);
     }
 
     private _createVNode(

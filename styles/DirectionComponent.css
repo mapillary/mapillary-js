@@ -68,9 +68,17 @@
     height: 54px;
     width: 54px;
     bottom: 40px;
-    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.8));
     cursor: pointer;
     cursor: hand;
+}
+
+.TurnLeft,
+.TurnRight {
+    filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.8));
+}
+
+.TurnAround {
+    filter: drop-shadow(-2px 0px 1px rgba(0, 0, 0, 0.8));
 }
 
 .TurnLeft:hover,
@@ -83,13 +91,14 @@
    left: 10px;
    background: url(./arrow-left.svg);
    background-size: contain;
+   transform: rotateX(60deg);
 }
 
 .TurnRight {
     right: 10px;
     background: url(./arrow-left.svg);
     background-size: contain;
-    transform: scaleX(-1);
+    transform: rotateX(60deg) scaleX(-1);
 }
 
 .TurnAround {
@@ -97,4 +106,5 @@
     bottom: 0px;
     background: url(./arrow-left.svg);
     background-size: contain;
+    transform: rotateX(60deg) rotateZ(270deg) scale(1.15, 1.15);
 }
