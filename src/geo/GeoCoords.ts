@@ -38,23 +38,8 @@ export class GeoCoords {
         refAlt: number): number[] {
 
         let ecef: number[] = this.geodeticToEcef(lat, lon, alt);
-        let refEcef: number[] = this.geodeticToEcef(refLat, refLon, refAlt);
 
-        let V: number[] = [ecef[0] - refEcef[0], ecef[1] - refEcef[1], ecef[2] - refEcef[2]];
-
-        refLat = refLat * Math.PI / 180.0;
-        refLon = refLon * Math.PI / 180.0;
-
-        let cosLat: number = Math.cos(refLat);
-        let sinLat: number = Math.sin(refLat);
-        let cosLon: number = Math.cos(refLon);
-        let sinLon: number = Math.sin(refLon);
-
-        let x: number = -sinLon * V[0] + cosLon * V[1];
-        let y: number = -sinLat * cosLon * V[0] - sinLat * sinLon * V[1] + cosLat * V[2];
-        let z: number = cosLat * cosLon * V[0] + cosLat * sinLon * V[1] + sinLat * V[2];
-
-        return [x, y, z];
+        return this.ecefToEnu(ecef[0], ecef[1], ecef[2], refLat, refLon, refAlt);
     }
 
     public llaToTopocentric(lat: number, lon: number, alt: number, reflat: number, reflon: number, refalt: number): number[] {
@@ -97,6 +82,88 @@ export class GeoCoords {
         refLon: number,
         refAlt: number): number[] {
 
+        let ecef: number[] = this.enuToEcef(x, y, z, refLat, refLon, refAlt);
+
+        return this.ecefToGeodetic(ecef[0], ecef[1], ecef[2]);
+    }
+
+    public topocentricToLla(x: number, y: number, z: number, reflat: number, reflon: number, refalt: number): number[] {
+        // transform from topocentric XYZ to lat, lon, alt.
+
+        let T: Float32Array = this._topocentricToEcefTransform(reflat, reflon, refalt).elements;
+        let ex: number = T[0] * x + T[4] * y + T[8] * z + T[12];
+        let ey: number = T[1] * x + T[5] * y + T[9] * z + T[13];
+        let ez: number = T[2] * x + T[6] * y + T[10] * z + T[14];
+
+        return this.ecefToGeodetic(ex, ey, ez);
+    }
+
+    /**
+     * Convert coordinates from Earth-Centered, Earth-Fixed (ECEF) reference
+     * to local topocentric East, North, Up (ENU) reference.
+     *
+     * @description In the ENU reference frame the X-axis points to the
+     * East, the Y-axis to the North and the Z-axis Up.
+     *
+     * @param {number} X ECEF X-value.
+     * @param {number} Y ECEF Y-value.
+     * @param {number} Z ECEF Z-value.
+     * @param {number} refLat Reference latitude in degrees.
+     * @param {number} refLon Reference longitude in degrees.
+     * @param {number} refAlt Reference altitude in meters.
+     * @returns {Array<number>} The x, y, z topocentric ENU coordinates in East, North
+     * and Up directions respectively.
+     */
+    public ecefToEnu(
+        X: number,
+        Y: number,
+        Z: number,
+        refLat: number,
+        refLon: number,
+        refAlt: number): number[] {
+
+        let refEcef: number[] = this.geodeticToEcef(refLat, refLon, refAlt);
+
+        let V: number[] = [X - refEcef[0], Y - refEcef[1], Z - refEcef[2]];
+
+        refLat = refLat * Math.PI / 180.0;
+        refLon = refLon * Math.PI / 180.0;
+
+        let cosLat: number = Math.cos(refLat);
+        let sinLat: number = Math.sin(refLat);
+        let cosLon: number = Math.cos(refLon);
+        let sinLon: number = Math.sin(refLon);
+
+        let x: number = -sinLon * V[0] + cosLon * V[1];
+        let y: number = -sinLat * cosLon * V[0] - sinLat * sinLon * V[1] + cosLat * V[2];
+        let z: number = cosLat * cosLon * V[0] + cosLat * sinLon * V[1] + sinLat * V[2];
+
+        return [x, y, z];
+    }
+
+    /**
+     * Convert coordinates from local topocentric East, North, Up (ENU) reference
+     * to Earth-Centered, Earth-Fixed (ECEF) reference.
+     *
+     * @description In the ENU reference frame the X-axis points to the
+     * East, the Y-axis to the North and the Z-axis Up.
+     *
+     * @param {number} x Topocentric ENU coordinate in East direction.
+     * @param {number} y Topocentric ENU coordinate in North direction.
+     * @param {number} z Topocentric ENU coordinate in Up direction.
+     * @param {number} refLat Reference latitude in degrees.
+     * @param {number} refLon Reference longitude in degrees.
+     * @param {number} refAlt Reference altitude in meters.
+     * @returns {Array<number>} The X, Y, Z ECEF coordinates.
+     */
+    public enuToEcef(
+        x: number,
+        y: number,
+        z: number,
+        refLat: number,
+        refLon: number,
+        refAlt: number): number[] {
+
         let refEcef: number[] = this.geodeticToEcef(refLat, refLon, refAlt);
 
         refLat = refLat * Math.PI / 180.0;
@@ -111,20 +178,7 @@ export class GeoCoords {
         let Y: number = cosLon * x - sinLat * sinLon * y + cosLat * sinLon * z + refEcef[1];
         let Z: number = cosLat * y + sinLat * z + refEcef[2];
 
-        let lla: number[] = this.ecefToGeodetic(X, Y, Z);
-
-        return lla;
-    }
-
-    public topocentricToLla(x: number, y: number, z: number, reflat: number, reflon: number, refalt: number): number[] {
-        // transform from topocentric XYZ to lat, lon, alt.
-
-        let T: Float32Array = this._topocentricToEcefTransform(reflat, reflon, refalt).elements;
-        let ex: number = T[0] * x + T[4] * y + T[8] * z + T[12];
-        let ey: number = T[1] * x + T[5] * y + T[9] * z + T[13];
-        let ez: number = T[2] * x + T[6] * y + T[10] * z + T[14];
-
-        return this.ecefToGeodetic(ex, ey, ez);
+        return [X, Y, Z];
     }
 
     /**
