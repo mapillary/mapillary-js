@@ -37,8 +37,8 @@ export class GeoCoords {
         refLon: number,
         refAlt: number): number[] {
 
-        let ecef: number[] = this.llaToEcef(lat, lon, alt);
-        let refEcef: number[] = this.llaToEcef(refLat, refLon, refAlt);
+        let ecef: number[] = this.geodeticToEcef(lat, lon, alt);
+        let refEcef: number[] = this.geodeticToEcef(refLat, refLon, refAlt);
 
         let V: number[] = [ecef[0] - refEcef[0], ecef[1] - refEcef[1], ecef[2] - refEcef[2]];
 
@@ -62,7 +62,7 @@ export class GeoCoords {
 
         let TM: THREE.Matrix4 = new THREE.Matrix4().getInverse(this._topocentricToEcefTransform(reflat, reflon, refalt));
         let T: Float32Array = TM.elements;
-        let p: number[] = this.llaToEcef(lat, lon, alt);
+        let p: number[] = this.geodeticToEcef(lat, lon, alt);
         let x: number = p[0];
         let y: number = p[1];
         let z: number = p[2];
@@ -97,7 +97,7 @@ export class GeoCoords {
         refLon: number,
         refAlt: number): number[] {
 
-        let refEcef: number[] = this.llaToEcef(refLat, refLon, refAlt);
+        let refEcef: number[] = this.geodeticToEcef(refLat, refLon, refAlt);
 
         refLat = refLat * Math.PI / 180.0;
         refLon = refLon * Math.PI / 180.0;
@@ -111,7 +111,7 @@ export class GeoCoords {
         let Y: number = cosLon * x - sinLat * sinLon * y + cosLat * sinLon * z + refEcef[1];
         let Z: number = cosLat * y + sinLat * z + refEcef[2];
 
-        let lla: number[] = this.ecefToLla(X, Y, Z);
+        let lla: number[] = this.ecefToGeodetic(X, Y, Z);
 
         return lla;
     }
@@ -124,7 +124,7 @@ export class GeoCoords {
         let ey: number = T[1] * x + T[5] * y + T[9] * z + T[13];
         let ez: number = T[2] * x + T[6] * y + T[10] * z + T[14];
 
-        return this.ecefToLla(ex, ey, ez);
+        return this.ecefToGeodetic(ex, ey, ez);
     }
 
     /**
@@ -146,7 +146,7 @@ export class GeoCoords {
      * @param {number} alt Altitude in meters.
      * @returns {Array<number>} The X, Y, Z ECEF coordinates.
      */
-    public llaToEcef(lat: number, lon: number, alt: number): number[] {
+    public geodeticToEcef(lat: number, lon: number, alt: number): number[] {
         let a: number = this._wgs84a;
         let b: number = this._wgs84b;
 
@@ -165,11 +165,11 @@ export class GeoCoords {
 
         let nhcl: number = (a2 * L + alt) * cosLat;
 
-        let x: number = nhcl * cosLon;
-        let y: number = nhcl * sinLon;
-        let z: number = (b2 * L + alt) * sinLat;
+        let X: number = nhcl * cosLon;
+        let Y: number = nhcl * sinLon;
+        let Z: number = (b2 * L + alt) * sinLat;
 
-        return [x, y, z];
+        return [X, Y, Z];
     }
 
     /**
@@ -186,13 +186,13 @@ export class GeoCoords {
      *              from the geocenter to the intersection of the Equator and
      *              the Greenwich Meridian.
      *
-     * @param {number} x ECEF X-value.
-     * @param {number} y ECEF Y-value.
-     * @param {number} z ECEF Z-value.
+     * @param {number} X ECEF X-value.
+     * @param {number} Y ECEF Y-value.
+     * @param {number} Z ECEF Z-value.
      * @returns {Array<number>} The latitude and longitude in degrees
      *                          as well as altitude in meters.
      */
-    public ecefToLla(x: number, y: number, z: number): number[] {
+    public ecefToGeodetic(X: number, Y: number, Z: number): number[] {
         let a: number = this._wgs84a;
         let b: number = this._wgs84b;
 
@@ -204,15 +204,15 @@ export class GeoCoords {
         let ea: number = Math.sqrt(a2mb2 / a2);
         let eb: number = Math.sqrt(a2mb2 / b2);
 
-        let p: number = Math.sqrt(x * x + y * y);
-        let theta: number = Math.atan2(z * a, p * b);
+        let p: number = Math.sqrt(X * X + Y * Y);
+        let theta: number = Math.atan2(Z * a, p * b);
 
         let sinTheta: number = Math.sin(theta);
         let cosTheta: number = Math.cos(theta);
 
-        let lon: number = Math.atan2(y, x);
+        let lon: number = Math.atan2(Y, X);
         let lat: number =
-            Math.atan2(z + eb * eb * b * sinTheta * sinTheta * sinTheta,
+            Math.atan2(Z + eb * eb * b * sinTheta * sinTheta * sinTheta,
                        p - ea * ea * a * cosTheta * cosTheta * cosTheta);
 
         let sinLat: number = Math.sin(lat);
@@ -241,13 +241,13 @@ export class GeoCoords {
         // the Y axis heading north and the Z axis vertical to the ellipsoid.
 
         let eps: number = 1e-6;
-        let p: number[] = this.llaToEcef(lat, lon, alt);
-        let px: number[] = this.llaToEcef(lat, lon + eps, alt);
-        let mx: number[] = this.llaToEcef(lat, lon - eps, alt);
-        let py: number[] = this.llaToEcef(lat + eps, lon, alt);
-        let my: number[] = this.llaToEcef(lat - eps, lon, alt);
-        let pz: number[] = this.llaToEcef(lat, lon, alt + eps);
-        let mz: number[] = this.llaToEcef(lat, lon, alt - eps);
+        let p: number[] = this.geodeticToEcef(lat, lon, alt);
+        let px: number[] = this.geodeticToEcef(lat, lon + eps, alt);
+        let mx: number[] = this.geodeticToEcef(lat, lon - eps, alt);
+        let py: number[] = this.geodeticToEcef(lat + eps, lon, alt);
+        let my: number[] = this.geodeticToEcef(lat - eps, lon, alt);
+        let pz: number[] = this.geodeticToEcef(lat, lon, alt + eps);
+        let mz: number[] = this.geodeticToEcef(lat, lon, alt - eps);
         let v1: number[] = this._normalized([ px[0] - mx[0], px[1] - mx[1], px[2] - mx[2] ]);
         let v2: number[] = this._normalized([ py[0] - my[0], py[1] - my[1], py[2] - my[2] ]);
         let v3: number[] = this._normalized([ pz[0] - mz[0], pz[1] - mz[1], pz[2] - mz[2] ]);
