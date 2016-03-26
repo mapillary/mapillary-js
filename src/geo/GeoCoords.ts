@@ -2,11 +2,60 @@
 
 import * as THREE from "three";
 
+/**
+ * @class GeoCoords
+ *
+ * @description Converts coordinates between the geodetic (WGS84),
+ * Earth-Centered, Earth-Fixed (ECEF) and local topocentric
+ * East, North, Up (ENU) reference frames.
+ */
 export class GeoCoords {
-    // this is a translation of OpenSfM's geo.py
-
     private _wgs84a: number = 6378137.0;
     private _wgs84b: number = 6356752.31424518;
+
+    /**
+     * Convert coordinates from geodetic reference (WGS84) to local topocentric
+     * East, North, Up (ENU) reference.
+     *
+     * @description In the ENU reference frame the X-axis points to the
+     * East, the Y-axis to the North and the Z-axis Up.
+     *
+     * @param {number} lat Latitude in degrees.
+     * @param {number} lon Longitude in degrees.
+     * @param {number} alt Altitude in meters.
+     * @param {number} refLat Reference latitude in degrees.
+     * @param {number} refLon Reference longitude in degrees.
+     * @param {number} refAlt Reference altitude in meters.
+     * @returns {Array<number>} The x, y, z topocentric ENU coordinates in East, North
+     * and Up directions respectively.
+     */
+    public geodeticToEnu(
+        lat: number,
+        lon: number,
+        alt: number,
+        refLat: number,
+        refLon: number,
+        refAlt: number): number[] {
+
+        let ecef: number[] = this.llaToEcef(lat, lon, alt);
+        let refEcef: number[] = this.llaToEcef(refLat, refLon, refAlt);
+
+        let V: number[] = [ecef[0] - refEcef[0], ecef[1] - refEcef[1], ecef[2] - refEcef[2]];
+
+        refLat = refLat * Math.PI / 180.0;
+        refLon = refLon * Math.PI / 180.0;
+
+        let cosLat: number = Math.cos(refLat);
+        let sinLat: number = Math.sin(refLat);
+        let cosLon: number = Math.cos(refLon);
+        let sinLon: number = Math.sin(refLon);
+
+        let x: number = -sinLon * V[0] + cosLon * V[1];
+        let y: number = -sinLat * cosLon * V[0] - sinLat * sinLon * V[1] + cosLat * V[2];
+        let z: number = cosLat * cosLon * V[0] + cosLat * sinLon * V[1] + sinLat * V[2];
+
+        return [x, y, z];
+    }
 
     public llaToTopocentric(lat: number, lon: number, alt: number, reflat: number, reflon: number, refalt: number): number[] {
         // transform from lat, lon, alt to topocentric XYZ.

@@ -152,3 +152,39 @@ describe("GeoCoords.llaToEcef", () => {
         expect(position[2]).toBeCloseTo(offset, precision);
     });
 });
+
+describe("GeoCoords.geodeticToEnu", () => {
+    let precision: number = 8;
+    let wgs84a: number = 6378137;
+    let wgs84b: number = 6356752.31424518;
+
+    let geoCoords: GeoCoords;
+
+    beforeEach(() => {
+        geoCoords = new GeoCoords();
+    });
+
+    it("should convert to ENU position at origin when lla is at reference", () => {
+        let ref: ILatLonAlt = { lat: 12.9450823, lon: 133.34589734, alt: 12.523892390 };
+        let lla: ILatLonAlt = { lat: ref.lat, lon: ref.lon, alt: ref.alt };
+
+        let enu: number[] = geoCoords.geodeticToEnu(lla.lat, lla.lon, lla.alt, ref.lat, ref.lon, ref.alt);
+
+        expect(enu[0]).toBeCloseTo(0, precision);
+        expect(enu[1]).toBeCloseTo(0, precision);
+        expect(enu[2]).toBeCloseTo(0, precision);
+    });
+
+    it("should convert to ENU z value corresponding to diff with reference lla", () => {
+        let ref: ILatLonAlt = { lat: 12.9450823, lon: 133.34589734, alt: 12.523892390 };
+
+        let altTranslation: number = 4.4556433242;
+        let lla: ILatLonAlt = { lat: ref.lat, lon: ref.lon, alt: ref.alt + altTranslation };
+
+        let enu: number[] = geoCoords.geodeticToEnu(lla.lat, lla.lon, lla.alt, ref.lat, ref.lon, ref.alt);
+
+        expect(enu[0]).toBeCloseTo(0, precision);
+        expect(enu[1]).toBeCloseTo(0, precision);
+        expect(enu[2]).toBeCloseTo(altTranslation, precision);
+    });
+});
