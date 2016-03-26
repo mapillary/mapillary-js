@@ -73,6 +73,49 @@ export class GeoCoords {
         return [tx, ty, tz];
     }
 
+    /**
+     * Convert coordinates from local topocentric East, North, Up (ENU)
+     * reference to geodetic reference (WGS84).
+     *
+     * @description In the ENU reference frame the X-axis points to the
+     * east, the Y-axis to the north and the Z-axis up.
+     *
+     * @param {number} x Topocentric ENU coordinate in East direction.
+     * @param {number} y Topocentric ENU coordinate in North direction.
+     * @param {number} z Topocentric ENU coordinate in Up direction.
+     * @param {number} refLat Reference latitude in degrees.
+     * @param {number} refLon Reference longitude in degrees.
+     * @param {number} refAlt Reference altitude in meters.
+     * @returns {Array<number>} The latitude and longitude in degrees
+     *                          as well as altitude in meters.
+     */
+    public enuToGeodetic(
+        x: number,
+        y: number,
+        z: number,
+        refLat: number,
+        refLon: number,
+        refAlt: number): number[] {
+
+        let refEcef: number[] = this.llaToEcef(refLat, refLon, refAlt);
+
+        refLat = refLat * Math.PI / 180.0;
+        refLon = refLon * Math.PI / 180.0;
+
+        let cosLat: number = Math.cos(refLat);
+        let sinLat: number = Math.sin(refLat);
+        let cosLon: number = Math.cos(refLon);
+        let sinLon: number = Math.sin(refLon);
+
+        let X: number = -sinLon * x - sinLat * cosLon * y + cosLat * cosLon * z + refEcef[0];
+        let Y: number = cosLon * x - sinLat * sinLon * y + cosLat * sinLon * z + refEcef[1];
+        let Z: number = cosLat * y + sinLat * z + refEcef[2];
+
+        let lla: number[] = this.ecefToLla(X, Y, Z);
+
+        return lla;
+    }
+
     public topocentricToLla(x: number, y: number, z: number, reflat: number, reflon: number, refalt: number): number[] {
         // transform from topocentric XYZ to lat, lon, alt.
 

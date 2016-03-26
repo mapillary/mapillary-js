@@ -187,4 +187,62 @@ describe("GeoCoords.geodeticToEnu", () => {
         expect(enu[1]).toBeCloseTo(0, precision);
         expect(enu[2]).toBeCloseTo(altTranslation, precision);
     });
+
+    it("should convert back and forth between WGS84 and ENU and correspond", () => {
+        let ref: ILatLonAlt = { lat: 13.469889789, lon: 92.376689734, alt: -3.645563324 };
+        let lla: ILatLonAlt = { lat: ref.lat - 0.01, lon: ref.lon + 0.01, alt: ref.alt + 20 };
+
+        let enu: number[] = geoCoords.geodeticToEnu(lla.lat, lla.lon, lla.alt, ref.lat, ref.lon, ref.alt);
+        let reLla: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
+
+        expect(reLla[0]).toBeCloseTo(lla.lat, precision);
+        expect(reLla[1]).toBeCloseTo(lla.lon, precision);
+        expect(reLla[2]).toBeCloseTo(lla.alt, precision);
+    });
+});
+
+describe("GeoCoords.enuToGeodetic", () => {
+    let precision: number = 8;
+    let wgs84a: number = 6378137;
+    let wgs84b: number = 6356752.31424518;
+
+    let geoCoords: GeoCoords;
+
+    beforeEach(() => {
+        geoCoords = new GeoCoords();
+    });
+
+    it("should convert to reference WGS84 when ENU position is origin", () => {
+        let ref: ILatLonAlt = { lat: 12.9450823, lon: 133.34589734, alt: 12.523892390 };
+        let enu: number[] = [0, 0, 0];
+
+        let lla: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
+
+        expect(lla[0]).toBeCloseTo(ref.lat, precision);
+        expect(lla[1]).toBeCloseTo(ref.lon, precision);
+        expect(lla[2]).toBeCloseTo(ref.alt, precision);
+    });
+
+    it("should convert to reference WGS84 at correct altitude when ENU position has non zero z value", () => {
+        let ref: ILatLonAlt = { lat: 12.9450823, lon: 133.34589734, alt: 12.523892390 };
+        let enu: number[] = [0, 0, 5.234872384927];
+
+        let lla: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
+
+        expect(lla[0]).toBeCloseTo(ref.lat, precision);
+        expect(lla[1]).toBeCloseTo(ref.lon, precision);
+        expect(lla[2]).toBeCloseTo(ref.alt + enu[2], precision);
+    });
+
+    it("should convert back and forth between ENU and WGS84 and correspond", () => {
+        let ref: ILatLonAlt = { lat: -52.469889789, lon: -113.34589734, alt: 7.34543543 };
+        let enu: number[] = [12.435534543, -55.34242121, 5.98023489];
+
+        let lla: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
+        let reEnu: number[] = geoCoords.geodeticToEnu(lla[0], lla[1], lla[2], ref.lat, ref.lon, ref.alt);
+
+        expect(reEnu[0]).toBeCloseTo(enu[0], precision);
+        expect(reEnu[1]).toBeCloseTo(enu[1], precision);
+        expect(reEnu[2]).toBeCloseTo(enu[2], precision);
+    });
 });
