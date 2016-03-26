@@ -8,17 +8,30 @@ import * as THREE from "three";
  * @description Converts coordinates between the geodetic (WGS84),
  * Earth-Centered, Earth-Fixed (ECEF) and local topocentric
  * East, North, Up (ENU) reference frames.
+ *
+ * The WGS84 has latitude (degrees), longitude (degrees) and
+ * altitude (meters) values.
+ * The calculations uses the following WGS84 parameters:
+ * a = 6378137
+ * b = a * (1 - f)
+ * f = 1 / 298.257223563
+ *
+ * The ECEF Z-axis pierces the north pole and the
+ * XY-axis defines the equatorial plane. The X-axis extends
+ * from the geocenter to the intersection of the Equator and
+ * the Greenwich Meridian. All values in meters.
+ *
+ * In the ENU reference frame the x-axis points to the
+ * East, the y-axis to the North and the z-axis Up. All values
+ * in meters.
  */
 export class GeoCoords {
     private _wgs84a: number = 6378137.0;
     private _wgs84b: number = 6356752.31424518;
 
     /**
-     * Convert coordinates from geodetic reference (WGS84) to local topocentric
-     * East, North, Up (ENU) reference.
-     *
-     * @description In the ENU reference frame the X-axis points to the
-     * East, the Y-axis to the North and the Z-axis Up.
+     * Convert coordinates from geodetic (WGS84) reference to local topocentric
+     * (ENU) reference.
      *
      * @param {number} lat Latitude in degrees.
      * @param {number} lon Longitude in degrees.
@@ -26,8 +39,7 @@ export class GeoCoords {
      * @param {number} refLat Reference latitude in degrees.
      * @param {number} refLon Reference longitude in degrees.
      * @param {number} refAlt Reference altitude in meters.
-     * @returns {Array<number>} The x, y, z topocentric ENU coordinates in East, North
-     * and Up directions respectively.
+     * @returns {Array<number>} The x, y, z local topocentric ENU coordinates.
      */
     public geodeticToEnu(
         lat: number,
@@ -59,11 +71,8 @@ export class GeoCoords {
     }
 
     /**
-     * Convert coordinates from local topocentric East, North, Up (ENU)
-     * reference to geodetic reference (WGS84).
-     *
-     * @description In the ENU reference frame the X-axis points to the
-     * east, the Y-axis to the north and the Z-axis up.
+     * Convert coordinates from local topocentric (ENU) reference to
+     * geodetic (WGS84) reference.
      *
      * @param {number} x Topocentric ENU coordinate in East direction.
      * @param {number} y Topocentric ENU coordinate in North direction.
@@ -100,10 +109,7 @@ export class GeoCoords {
 
     /**
      * Convert coordinates from Earth-Centered, Earth-Fixed (ECEF) reference
-     * to local topocentric East, North, Up (ENU) reference.
-     *
-     * @description In the ENU reference frame the X-axis points to the
-     * East, the Y-axis to the North and the Z-axis Up.
+     * to local topocentric (ENU) reference.
      *
      * @param {number} X ECEF X-value.
      * @param {number} Y ECEF Y-value.
@@ -142,11 +148,8 @@ export class GeoCoords {
     }
 
     /**
-     * Convert coordinates from local topocentric East, North, Up (ENU) reference
+     * Convert coordinates from local topocentric (ENU) reference
      * to Earth-Centered, Earth-Fixed (ECEF) reference.
-     *
-     * @description In the ENU reference frame the X-axis points to the
-     * East, the Y-axis to the North and the Z-axis Up.
      *
      * @param {number} x Topocentric ENU coordinate in East direction.
      * @param {number} y Topocentric ENU coordinate in North direction.
@@ -185,16 +188,6 @@ export class GeoCoords {
      * Convert coordinates from geodetic reference (WGS84) to Earth-Centered,
      * Earth-Fixed (ECEF) reference.
      *
-     * @description Uses the following WGS84 parameters:
-     *              a = 6378137
-     *              b = a * (1 - f)
-     *              f = 1 / 298.257223563
-     *
-     *              The ECEF Z-axis pierces the north pole and the
-     *              XY-axis defines the equatorial plane. The X-axis extends
-     *              from the geocenter to the intersection of the Equator and
-     *              the Greenwich Meridian.
-     *
      * @param {number} lat Latitude in degrees.
      * @param {number} lon Longitude in degrees.
      * @param {number} alt Altitude in meters.
@@ -229,16 +222,6 @@ export class GeoCoords {
     /**
      * Convert coordinates from Earth-Centered, Earth-Fixed (ECEF) reference
      * to geodetic reference (WGS84).
-     *
-     * @description Uses the following WGS84 parameters:
-     *              a = 6378137
-     *              b = a * (1 - f)
-     *              f = 1 / 298.257223563
-     *
-     *              The ECEF Z-axis pierces the north pole and the
-     *              XY-axis defines the equatorial plane. The X-axis extends
-     *              from the geocenter to the intersection of the Equator and
-     *              the Greenwich Meridian.
      *
      * @param {number} X ECEF X-value.
      * @param {number} Y ECEF Y-value.
