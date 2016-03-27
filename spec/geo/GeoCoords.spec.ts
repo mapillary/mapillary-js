@@ -162,6 +162,123 @@ describe("GeoCoords.ecefToGeodetic", () => {
     });
 });
 
+describe("GeoCoords.ecefToEnu", () => {
+    let geoCoords: GeoCoords;
+
+    beforeEach(() => {
+        geoCoords = new GeoCoords();
+    });
+
+    it("should convert to ECEF position corresponding to geodetic to ENU at origin", () => {
+        let ref: ILatLonAlt = { lat: 0, lon: 0, alt: 0 };
+        let ecef: number[] = [wgs84a, 0, 0];
+
+        let enu: number[] = geoCoords.ecefToEnu(ecef[0], ecef[1], ecef[2], ref.lat, ref.lon, ref.alt);
+
+        expect(enu[0]).toBeCloseTo(0, precision);
+        expect(enu[1]).toBeCloseTo(0, precision);
+        expect(enu[2]).toBeCloseTo(0, precision);
+    });
+
+    it("should convert positions on Equator to ENU positions at origin", () => {
+        let ref1: ILatLonAlt = { lat: 0, lon: 90, alt: 0 };
+        let ecef1: number[] = [0, wgs84a, 0];
+
+        let enu1: number[] = geoCoords.ecefToEnu(ecef1[0], ecef1[1], ecef1[2], ref1.lat, ref1.lon, ref1.alt);
+
+        expect(enu1[0]).toBeCloseTo(0, precision);
+        expect(enu1[1]).toBeCloseTo(0, precision);
+        expect(enu1[2]).toBeCloseTo(0, precision);
+
+        let ref2: ILatLonAlt = { lat: 0, lon: 180, alt: 0 };
+        let ecef2: number[] = [-wgs84a, 0, 0];
+
+        let enu2: number[] = geoCoords.ecefToEnu(ecef2[0], ecef2[1], ecef2[2], ref2.lat, ref2.lon, ref2.alt);
+
+        expect(enu2[0]).toBeCloseTo(0, precision);
+        expect(enu2[1]).toBeCloseTo(0, precision);
+        expect(enu2[2]).toBeCloseTo(0, precision);
+
+        let ref3: ILatLonAlt = { lat: 0, lon: -90, alt: 0 };
+        let ecef3: number[] = [0, -wgs84a, 0];
+
+        let enu3: number[] = geoCoords.ecefToEnu(ecef3[0], ecef3[1], ecef3[2], ref3.lat, ref3.lon, ref3.alt);
+
+        expect(enu3[0]).toBeCloseTo(0, precision);
+        expect(enu3[1]).toBeCloseTo(0, precision);
+        expect(enu3[2]).toBeCloseTo(0, precision);
+    });
+
+    it("should convert ECEF position with altitude to ENU with correct z-value", () => {
+        let ref: ILatLonAlt = { lat: 0, lon: 0, alt: 0 };
+
+        let altitude: number = 5.38973284;
+        let ecef: number[] = [wgs84a + altitude, 0, 0];
+
+        let enu: number[] = geoCoords.ecefToEnu(ecef[0], ecef[1], ecef[2], ref.lat, ref.lon, ref.alt);
+
+        expect(enu[0]).toBeCloseTo(0, precision);
+        expect(enu[1]).toBeCloseTo(0, precision);
+        expect(enu[2]).toBeCloseTo(altitude, precision);
+    });
+
+    it("should convert ECEF position with translation to correct ENU position", () => {
+        let ref: ILatLonAlt = { lat: 0, lon: 0, alt: 0 };
+
+        let translation: number = 1.38973284;
+        let ecef: number[] = [wgs84a, translation, translation];
+
+        let enu: number[] = geoCoords.ecefToEnu(ecef[0], ecef[1], ecef[2], ref.lat, ref.lon, ref.alt);
+
+        expect(enu[0]).toBeCloseTo(translation, precision);
+        expect(enu[1]).toBeCloseTo(translation, precision);
+        expect(enu[2]).toBeCloseTo(0, precision);
+    });
+});
+
+describe("GeoCoords.enuToEcef", () => {
+    let geoCoords: GeoCoords;
+
+    beforeEach(() => {
+        geoCoords = new GeoCoords();
+    });
+
+    it("should convert to ENU position at origin to ECEF X-value", () => {
+        let ref: ILatLonAlt = { lat: 0, lon: 0, alt: 0 };
+        let enu: number[] = [0, 0, 0];
+
+        let ecef: number[] = geoCoords.enuToEcef(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
+
+        expect(ecef[0]).toBeCloseTo(wgs84a, precision);
+        expect(ecef[1]).toBeCloseTo(0, precision);
+        expect(ecef[2]).toBeCloseTo(0, precision);
+    });
+
+    it("should convert to ENU position with up value to ECEF X-value", () => {
+        let ref: ILatLonAlt = { lat: 0, lon: 0, alt: 0 };
+        let enu: number[] = [0, 0, 7.3823847239847];
+
+        let ecef: number[] = geoCoords.enuToEcef(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
+
+        expect(ecef[0]).toBeCloseTo(wgs84a + enu[2], precision);
+        expect(ecef[1]).toBeCloseTo(0, precision);
+        expect(ecef[2]).toBeCloseTo(0, precision);
+    });
+
+    it("should convert ECEF position with translation to correct ENU position", () => {
+        let ref: ILatLonAlt = { lat: 0, lon: 0, alt: 0 };
+
+        let translation: number = -2.34875843758493;
+        let enu: number[] = [translation, translation, 0];
+
+        let ecef: number[] = geoCoords.enuToEcef(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
+
+        expect(ecef[0]).toBeCloseTo(wgs84a, precision);
+        expect(ecef[1]).toBeCloseTo(translation, precision);
+        expect(ecef[2]).toBeCloseTo(translation, precision);
+    });
+});
+
 describe("GeoCoords.geodeticToEnu", () => {
     let geoCoords: GeoCoords;
 
