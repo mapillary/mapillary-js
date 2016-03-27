@@ -4,11 +4,12 @@ import * as THREE from "three";
 
 import {GeoCoords, ILatLonAlt} from "../../src/Geo";
 
-describe("GeoCoords.llaToEcef", () => {
-    let precision: number = 8;
-    let wgs84a: number = 6378137;
-    let wgs84b: number = 6356752.31424518;
+let precision: number = 8;
 
+let wgs84a: number = 6378137;
+let wgs84b: number = 6356752.31424518;
+
+describe("GeoCoords.geodeticToEcef", () => {
     let geoCoords: GeoCoords;
 
     beforeEach(() => {
@@ -82,17 +83,6 @@ describe("GeoCoords.llaToEcef", () => {
         expect(ecef[2]).toBeCloseTo(wgs84b, precision);
     });
 
-    it("should convert back and forth between ECEF and WGS84 and correspond", () => {
-        let ecef: number[] = [wgs84a * Math.sin(Math.PI / 6), wgs84a * Math.sin(Math.PI / 6), 22.433453];
-
-        let position: number[] = geoCoords.ecefToGeodetic(ecef[0], ecef[1], ecef[2]);
-        let reEcef: number[] = geoCoords.geodeticToEcef(position[0], position[1], position[2]);
-
-        expect(reEcef[0]).toBeCloseTo(ecef[0], precision);
-        expect(reEcef[1]).toBeCloseTo(ecef[1], precision);
-        expect(reEcef[2]).toBeCloseTo(ecef[2], precision);
-    });
-
     it("should convert back and forth between WGS84 and ECEF and correspond", () => {
         let position: ILatLonAlt = { lat: 12.469889789, lon: -33.34589734, alt: 25.34543543 };
 
@@ -102,6 +92,14 @@ describe("GeoCoords.llaToEcef", () => {
         expect(rePosition[0]).toBeCloseTo(position.lat, precision);
         expect(rePosition[1]).toBeCloseTo(position.lon, precision);
         expect(rePosition[2]).toBeCloseTo(position.alt, precision);
+    });
+});
+
+describe("GeoCoords.ecefToGeodetic", () => {
+    let geoCoords: GeoCoords;
+
+    beforeEach(() => {
+        geoCoords = new GeoCoords();
     });
 
     it("should convert X-axis value to Equator - Greenwich", () => {
@@ -151,13 +149,20 @@ describe("GeoCoords.llaToEcef", () => {
         expect(position[1]).toBeCloseTo(0, precision);
         expect(position[2]).toBeCloseTo(offset, precision);
     });
+
+    it("should convert back and forth between ECEF and WGS84 and correspond", () => {
+        let ecef: number[] = [wgs84a * Math.sin(Math.PI / 6), wgs84a * Math.sin(Math.PI / 6), 22.433453];
+
+        let position: number[] = geoCoords.ecefToGeodetic(ecef[0], ecef[1], ecef[2]);
+        let reEcef: number[] = geoCoords.geodeticToEcef(position[0], position[1], position[2]);
+
+        expect(reEcef[0]).toBeCloseTo(ecef[0], precision);
+        expect(reEcef[1]).toBeCloseTo(ecef[1], precision);
+        expect(reEcef[2]).toBeCloseTo(ecef[2], precision);
+    });
 });
 
 describe("GeoCoords.geodeticToEnu", () => {
-    let precision: number = 8;
-    let wgs84a: number = 6378137;
-    let wgs84b: number = 6356752.31424518;
-
     let geoCoords: GeoCoords;
 
     beforeEach(() => {
@@ -202,10 +207,6 @@ describe("GeoCoords.geodeticToEnu", () => {
 });
 
 describe("GeoCoords.enuToGeodetic", () => {
-    let precision: number = 8;
-    let wgs84a: number = 6378137;
-    let wgs84b: number = 6356752.31424518;
-
     let geoCoords: GeoCoords;
 
     beforeEach(() => {
