@@ -15,7 +15,7 @@ import {ILatLon, Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.getPotentialEdges", () => {
-    let epsilon: number = 1e-8;
+    let precision: number = 7;
 
     let edgeCalculator: EdgeCalculator;
     let spatial: Spatial;
@@ -146,7 +146,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.motionChange).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(potentialEdge.motionChange).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should have correct motion change", () => {
@@ -166,7 +166,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.motionChange).toBeCloseTo(-Math.PI / 4, epsilon);
+        expect(potentialEdge.motionChange).toBeCloseTo(-Math.PI / 4, precision);
     });
 
     it("should have correct motion change", () => {
@@ -186,7 +186,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(Math.abs(potentialEdge.motionChange)).toBeCloseTo(Math.PI, epsilon);
+        expect(Math.abs(potentialEdge.motionChange)).toBeCloseTo(Math.PI, precision);
     });
 
     it("should have correct vertical motion", () => {
@@ -206,7 +206,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.verticalMotion).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(potentialEdge.verticalMotion).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should have correct vertical motion", () => {
@@ -226,7 +226,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.verticalMotion).toBeCloseTo(-Math.PI / 4, epsilon);
+        expect(potentialEdge.verticalMotion).toBeCloseTo(-Math.PI / 4, precision);
     });
 
     it("should have correct viewing direction change", () => {
@@ -246,7 +246,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.directionChange).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(potentialEdge.directionChange).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should have correct viewing direction change", () => {
@@ -266,7 +266,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.directionChange).toBeCloseTo(-Math.PI / 2, epsilon);
+        expect(potentialEdge.directionChange).toBeCloseTo(-Math.PI / 2, precision);
     });
 
     it("should have correct viewing direction change", () => {
@@ -286,7 +286,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(Math.abs(potentialEdge.directionChange)).toBeCloseTo(Math.PI, epsilon);
+        expect(Math.abs(potentialEdge.directionChange)).toBeCloseTo(Math.PI, precision);
     });
 
     it("should have correct vertical viewing direction change", () => {
@@ -306,7 +306,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.verticalDirectionChange).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(potentialEdge.verticalDirectionChange).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should have correct vertical viewing direction change", () => {
@@ -326,7 +326,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.verticalDirectionChange).toBeCloseTo(-Math.PI / 6, epsilon);
+        expect(potentialEdge.verticalDirectionChange).toBeCloseTo(-Math.PI / 6, precision);
     });
 
     it("should have correct rotation", () => {
@@ -346,7 +346,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.rotation).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(potentialEdge.rotation).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should have correct rotation", () => {
@@ -371,7 +371,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.rotation).toBeCloseTo(theta, epsilon);
+        expect(potentialEdge.rotation).toBeCloseTo(theta, precision);
     });
 
     it("should have 0 world motion azimuth", () => {
@@ -394,7 +394,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(0, epsilon);
+        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(0, precision);
     });
 
     it("should have 90 degress world motion azimuth", () => {
@@ -417,7 +417,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should have 180 degress world motion azimuth", () => {
@@ -440,7 +440,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(Math.abs(potentialEdge.worldMotionAzimuth)).toBeCloseTo(Math.PI, epsilon);
+        expect(Math.abs(potentialEdge.worldMotionAzimuth)).toBeCloseTo(Math.PI, precision);
     });
 
     it("should have minus 90 degress world motion azimuth", () => {
@@ -463,7 +463,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(-Math.PI / 2, epsilon);
+        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(-Math.PI / 2, precision);
     });
 
     it("should have 45 degress world motion azimuth", () => {
@@ -486,7 +486,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should be same sequence", () => {

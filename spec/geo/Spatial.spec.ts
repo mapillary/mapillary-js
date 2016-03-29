@@ -4,9 +4,11 @@ import * as THREE from "three";
 
 import {Spatial} from "../../src/Geo";
 
+let precision: number = 5;
+let epsilon: number = 1e-8;
+
 describe("Spatial.rotationMatrix", () => {
     let spatial: Spatial;
-    let epsilon: number = 10e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -41,7 +43,6 @@ describe("Spatial.rotationMatrix", () => {
 
 describe("Spatial.rotate", () => {
     let spatial: Spatial;
-    let epsilon: number = 10e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -62,7 +63,6 @@ describe("Spatial.rotate", () => {
 
 describe("Spatial.opticalCenter", () => {
     let spatial: Spatial;
-    let epsilon: number = 10e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -80,9 +80,9 @@ describe("Spatial.opticalCenter", () => {
 
         let opticalCenter: THREE.Vector3 = spatial.opticalCenter(r.toArray(), t.toArray());
 
-        expect(opticalCenter.x).toBeCloseTo(C[0], epsilon);
-        expect(opticalCenter.y).toBeCloseTo(C[1], epsilon);
-        expect(opticalCenter.z).toBeCloseTo(C[2], epsilon);
+        expect(opticalCenter.x).toBeCloseTo(C[0], precision);
+        expect(opticalCenter.y).toBeCloseTo(C[1], precision);
+        expect(opticalCenter.z).toBeCloseTo(C[2], precision);
     });
 
     it("should return the correct optical center", () => {
@@ -97,15 +97,14 @@ describe("Spatial.opticalCenter", () => {
 
         let opticalCenter: THREE.Vector3 = spatial.opticalCenter(r.toArray(), t.toArray());
 
-        expect(opticalCenter.x).toBeCloseTo(C[0], epsilon);
-        expect(opticalCenter.y).toBeCloseTo(C[1], epsilon);
-        expect(opticalCenter.z).toBeCloseTo(C[2], epsilon);
+        expect(opticalCenter.x).toBeCloseTo(C[0], precision);
+        expect(opticalCenter.y).toBeCloseTo(C[1], precision);
+        expect(opticalCenter.z).toBeCloseTo(C[2], precision);
     });
 });
 
 describe("Spatial.viewingDirection", () => {
     let spatial: Spatial;
-    let epsilon: number = 10e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -117,9 +116,9 @@ describe("Spatial.viewingDirection", () => {
         let viewingDirection: THREE.Vector3 = spatial.viewingDirection(rotation);
 
         // counter-clockwise rotation about the y-axis pointing towards the observer
-        expect(viewingDirection.x).toBeCloseTo(1, epsilon);
-        expect(viewingDirection.y).toBeCloseTo(0, epsilon);
-        expect(viewingDirection.z).toBeCloseTo(0, epsilon);
+        expect(viewingDirection.x).toBeCloseTo(1, precision);
+        expect(viewingDirection.y).toBeCloseTo(0, precision);
+        expect(viewingDirection.z).toBeCloseTo(0, precision);
     });
 });
 
@@ -231,7 +230,6 @@ describe("Spatial.wrap", () => {
 
 describe("Spatial.angleBetweenVector2", () => {
     let spatial: Spatial;
-    let epsilon: number = 1e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -252,7 +250,7 @@ describe("Spatial.angleBetweenVector2", () => {
 
         let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
 
-        expect(result).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(result).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should be minus 90 degrees", () => {
@@ -261,7 +259,7 @@ describe("Spatial.angleBetweenVector2", () => {
 
         let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
 
-        expect(result).toBeCloseTo(-Math.PI / 2, epsilon);
+        expect(result).toBeCloseTo(-Math.PI / 2, precision);
     });
 
     it("should be minus 45 degrees", () => {
@@ -270,7 +268,7 @@ describe("Spatial.angleBetweenVector2", () => {
 
         let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
 
-        expect(result).toBeCloseTo(-Math.PI / 4, epsilon);
+        expect(result).toBeCloseTo(-Math.PI / 4, precision);
     });
 
     it("should be 180 degrees", () => {
@@ -279,13 +277,12 @@ describe("Spatial.angleBetweenVector2", () => {
 
         let result: number = spatial.angleBetweenVector2(v1[0], v1[1], v2[0], v2[1]);
 
-        expect(Math.abs(result)).toBeCloseTo(Math.PI, epsilon);
+        expect(Math.abs(result)).toBeCloseTo(Math.PI, precision);
     });
 });
 
 describe("Spatial.relativeRotationAngle", () => {
     let spatial: Spatial;
-    let epsilon: number = 1e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -297,7 +294,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(0, epsilon);
+        expect(theta).toBeCloseTo(0, precision);
     });
 
     it("should be 0 degrees when rotation is the same", () => {
@@ -306,7 +303,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(0, epsilon);
+        expect(theta).toBeCloseTo(0, precision);
     });
 
     it("should be 45 degrees when rotating 45 degrees", () => {
@@ -315,7 +312,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should be 90 degrees when rotating 90 degrees around X-axis", () => {
@@ -324,7 +321,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should be 90 degrees when rotating 90 degrees around Y-axis", () => {
@@ -333,7 +330,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should be 90 degrees when rotating 90 degrees around Z-axis", () => {
@@ -342,7 +339,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should be 180 degrees when rotating 180 degrees", () => {
@@ -351,7 +348,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(Math.PI, epsilon);
+        expect(theta).toBeCloseTo(Math.PI, precision);
     });
 
     it("should be 90 degrees when rotating 90 degrees in negative direction", () => {
@@ -360,7 +357,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should be 180 degrees when rotating 180 degrees in negative direction", () => {
@@ -369,7 +366,7 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2)
 
-        expect(theta).toBeCloseTo(Math.PI, epsilon);
+        expect(theta).toBeCloseTo(Math.PI, precision);
     });
 
     it("should be 90 degrees when rotating 90 degrees in general direction", () => {
@@ -380,13 +377,12 @@ describe("Spatial.relativeRotationAngle", () => {
 
         let theta = spatial.relativeRotationAngle(rotation1, rotation2);
 
-        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
 });
 
 describe("Spatial.angleDifference", () => {
     let spatial: Spatial;
-    let epsilon: number = 1e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -398,7 +394,7 @@ describe("Spatial.angleDifference", () => {
 
         let result: number = spatial.angleDifference(angle1, angle2);
 
-        expect(result).toBeCloseTo(0, epsilon);
+        expect(result).toBeCloseTo(0, precision);
     });
 
     it("should be 0 degrees when angles are equal", () => {
@@ -407,7 +403,7 @@ describe("Spatial.angleDifference", () => {
 
         let result: number = spatial.angleDifference(angle1, angle2);
 
-        expect(result).toBeCloseTo(0, epsilon);
+        expect(result).toBeCloseTo(0, precision);
     });
 
     it("should be 45 degrees", () => {
@@ -416,7 +412,7 @@ describe("Spatial.angleDifference", () => {
 
         let result: number = spatial.angleDifference(angle1, angle2);
 
-        expect(result).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(result).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should be minus 45 degrees", () => {
@@ -425,7 +421,7 @@ describe("Spatial.angleDifference", () => {
 
         let result: number = spatial.angleDifference(angle1, angle2);
 
-        expect(result).toBeCloseTo(-Math.PI / 4, epsilon);
+        expect(result).toBeCloseTo(-Math.PI / 4, precision);
     });
 
     it("should be 135 degrees", () => {
@@ -434,7 +430,7 @@ describe("Spatial.angleDifference", () => {
 
         let result: number = spatial.angleDifference(angle1, angle2);
 
-        expect(result).toBeCloseTo(3 * Math.PI / 4, epsilon);
+        expect(result).toBeCloseTo(3 * Math.PI / 4, precision);
     });
 
     it("should be 45 degress when passing PI", () => {
@@ -443,7 +439,7 @@ describe("Spatial.angleDifference", () => {
 
         let result: number = spatial.angleDifference(angle1, angle2);
 
-        expect(result).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(result).toBeCloseTo(Math.PI / 4, precision);
     });
 
      it("should be minus 45 degress when passing PI", () => {
@@ -452,7 +448,7 @@ describe("Spatial.angleDifference", () => {
 
         let result: number = spatial.angleDifference(angle1, angle2);
 
-        expect(result).toBeCloseTo(-Math.PI / 4, epsilon);
+        expect(result).toBeCloseTo(-Math.PI / 4, precision);
     });
 
     it("should be 180 degress", () => {
@@ -461,13 +457,12 @@ describe("Spatial.angleDifference", () => {
 
         let result: number = spatial.angleDifference(angle1, angle2);
 
-        expect(Math.abs(result)).toBeCloseTo(Math.PI, epsilon);
+        expect(Math.abs(result)).toBeCloseTo(Math.PI, precision);
     });
 });
 
 describe("Spatial.angleToPlane", () => {
     let spatial: Spatial;
-    let epsilon: number = 1e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -479,7 +474,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(0, epsilon);
+        expect(theta).toBeCloseTo(0, precision);
     });
 
     it("should be 0 degrees when the vector lies in the XY plane", () => {
@@ -488,7 +483,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(0, epsilon);
+        expect(theta).toBeCloseTo(0, precision);
     });
 
     it("should be 90 degrees when the vector is orthogonal to the XY plane", () => {
@@ -497,7 +492,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should be minus 90 degrees when the vector is orthogonal to the XY plane", () => {
@@ -506,7 +501,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(-Math.PI / 2, epsilon);
+        expect(theta).toBeCloseTo(-Math.PI / 2, precision);
     });
 
     it("should be 45 degrees", () => {
@@ -515,7 +510,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should be 45 degrees", () => {
@@ -524,7 +519,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should be minus 45 degrees", () => {
@@ -533,7 +528,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(-Math.PI / 4, epsilon);
+        expect(theta).toBeCloseTo(-Math.PI / 4, precision);
     });
 
     it("should be minus 45 degrees", () => {
@@ -542,7 +537,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(-Math.PI / 4, epsilon);
+        expect(theta).toBeCloseTo(-Math.PI / 4, precision);
     });
 
     it("should be 45 degrees", () => {
@@ -551,7 +546,7 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(Math.PI / 4, epsilon);
+        expect(theta).toBeCloseTo(Math.PI / 4, precision);
     });
 
     it("should be 0 degrees for null vector", () => {
@@ -560,13 +555,12 @@ describe("Spatial.angleToPlane", () => {
 
         let theta: number = spatial.angleToPlane(v, n);
 
-        expect(theta).toBeCloseTo(0, epsilon);
+        expect(theta).toBeCloseTo(0, precision);
     });
 });
 
 describe("Spatial.degToRad", () => {
     let spatial: Spatial;
-    let epsilon: number = 1e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -577,7 +571,7 @@ describe("Spatial.degToRad", () => {
 
         let rad: number = spatial.degToRad(deg);
 
-        expect(rad).toBeCloseTo(0, epsilon);
+        expect(rad).toBeCloseTo(0, precision);
     });
 
     it("should be PI / 2 radians when 90 degress", () => {
@@ -585,7 +579,7 @@ describe("Spatial.degToRad", () => {
 
         let rad: number = spatial.degToRad(deg);
 
-        expect(rad).toBeCloseTo(Math.PI / 2, epsilon);
+        expect(rad).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should be minus PI / 2 radians when minus 90 degress", () => {
@@ -593,13 +587,12 @@ describe("Spatial.degToRad", () => {
 
         let rad: number = spatial.degToRad(deg);
 
-        expect(rad).toBeCloseTo(-Math.PI / 2, epsilon);
+        expect(rad).toBeCloseTo(-Math.PI / 2, precision);
     });
 });
 
 describe("Spatial.radToDeg", () => {
     let spatial: Spatial;
-    let epsilon: number = 1e-8;
 
     beforeEach(() => {
         spatial = new Spatial();
@@ -610,7 +603,7 @@ describe("Spatial.radToDeg", () => {
 
         let deg: number = spatial.radToDeg(rad);
 
-        expect(deg).toBeCloseTo(0, epsilon);
+        expect(deg).toBeCloseTo(0, precision);
     });
 
     it("should be 90 degrees when PI / 2 radians", () => {
@@ -618,7 +611,7 @@ describe("Spatial.radToDeg", () => {
 
         let deg: number = spatial.radToDeg(rad);
 
-        expect(deg).toBeCloseTo(90, epsilon);
+        expect(deg).toBeCloseTo(90, precision);
     });
 
     it("should be minus 90 degrees when minus PI / 2 radians", () => {
@@ -626,13 +619,12 @@ describe("Spatial.radToDeg", () => {
 
         let deg: number = spatial.radToDeg(rad);
 
-        expect(deg).toBeCloseTo(-90, epsilon);
+        expect(deg).toBeCloseTo(-90, precision);
     });
 });
 
 describe("Spatial.distanceFromLatLon", () => {
     let spatial: Spatial;
-    let epsilon: number = 0.1;
 
     beforeEach(() => {
         spatial = new Spatial();

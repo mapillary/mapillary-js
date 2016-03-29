@@ -200,7 +200,7 @@ describe("Camera.clone", () => {
 });
 
 describe("Camera.diff", () => {
-    let epsilon: number = 10e-8;
+    let precision: number = 8;
 
     it("should have difference based on position", () => {
         let camera: Camera = new Camera();
@@ -247,6 +247,6 @@ describe("Camera.diff", () => {
 
         let diff: number = camera.diff(other);
 
-        expect(diff).toBeCloseTo(4, epsilon);
+        expect(diff).toBeCloseTo(4, precision);
     });
 });

@@ -390,7 +390,7 @@ describe("Transform.gpano", () => {
 });
 
 describe("Transform.pixelToVertex", () => {
-    let epsilon: number = 10e-8;
+    let precision: number = 8;
 
     let geoHelper: GeoHelper;
 
@@ -408,9 +408,9 @@ describe("Transform.pixelToVertex", () => {
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
-        expect(vertex.x).toBeCloseTo(0, epsilon);
-        expect(vertex.y).toBeCloseTo(0, epsilon);
-        expect(vertex.z).toBeCloseTo(0, epsilon);
+        expect(vertex.x).toBeCloseTo(0, precision);
+        expect(vertex.y).toBeCloseTo(0, precision);
+        expect(vertex.z).toBeCloseTo(0, precision);
     });
 
     it("should return vertex at inverted translation", () => {
@@ -423,9 +423,9 @@ describe("Transform.pixelToVertex", () => {
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
-        expect(vertex.x).toBeCloseTo(-10, epsilon);
-        expect(vertex.y).toBeCloseTo(20, epsilon);
-        expect(vertex.z).toBeCloseTo(-30, epsilon);
+        expect(vertex.x).toBeCloseTo(-10, precision);
+        expect(vertex.y).toBeCloseTo(20, precision);
+        expect(vertex.z).toBeCloseTo(-30, precision);
     });
 
     it("should return vertex at camera center", () => {
@@ -442,9 +442,9 @@ describe("Transform.pixelToVertex", () => {
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
-        expect(vertex.x).toBeCloseTo(C[0], epsilon);
-        expect(vertex.y).toBeCloseTo(C[1], epsilon);
-        expect(vertex.z).toBeCloseTo(C[2], epsilon);
+        expect(vertex.x).toBeCloseTo(C[0], precision);
+        expect(vertex.y).toBeCloseTo(C[1], precision);
+        expect(vertex.z).toBeCloseTo(C[2], precision);
     });
 
     it("should return vertex 10 units front of origin in camera direction", () => {
@@ -458,9 +458,9 @@ describe("Transform.pixelToVertex", () => {
         let depth: number = 10;
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, depth);
 
-        expect(vertex.x).toBeCloseTo(0, epsilon);
-        expect(vertex.y).toBeCloseTo(0, epsilon);
-        expect(vertex.z).toBeCloseTo(depth, epsilon);
+        expect(vertex.x).toBeCloseTo(0, precision);
+        expect(vertex.y).toBeCloseTo(0, precision);
+        expect(vertex.z).toBeCloseTo(depth, precision);
     });
 
     it("should return vertex shifted 5 units in all directions from camera center", () => {
@@ -478,8 +478,8 @@ describe("Transform.pixelToVertex", () => {
         let depth: number = 5;
         let vertex: THREE.Vector3 = transform.pixelToVertex(1, 1, depth);
 
-        expect(vertex.x).toBeCloseTo(C[0] + depth, epsilon);
-        expect(vertex.y).toBeCloseTo(C[1] + depth, epsilon);
-        expect(vertex.z).toBeCloseTo(C[2] - depth, epsilon);
+        expect(vertex.x).toBeCloseTo(C[0] + depth, precision);
+        expect(vertex.y).toBeCloseTo(C[1] + depth, precision);
+        expect(vertex.z).toBeCloseTo(C[2] - depth, precision);
     });
 });

@@ -114,6 +114,18 @@ describe("WebMercator.getTile", () => {
             expect(tile.z).toBe(zoom);
         }
     });
+});
+
+describe("WebMercator.getBounds", () => {
+    let webMercator: WebMercator;
+    let spatial: Spatial;
+
+    let precision: number = 8;
+
+    beforeEach(() => {
+        webMercator = new WebMercator();
+        spatial = new Spatial();
+    });
 
     it("should get the bounds for zoom level 0", () => {
         let tile: ITile = { x: 0, y: 0, z: 0 };
@@ -122,9 +134,9 @@ describe("WebMercator.getTile", () => {
 
         let latitudeMax: number = spatial.radToDeg(2 * Math.atan(Math.exp(Math.PI)) - Math.PI / 2);
 
-        expect(bounds.sw.lat).toBeCloseTo(-latitudeMax, 6);
+        expect(bounds.sw.lat).toBeCloseTo(-latitudeMax, precision);
         expect(bounds.sw.lon).toBe(-180);
-        expect(bounds.ne.lat).toBeCloseTo(latitudeMax, 6);
+        expect(bounds.ne.lat).toBeCloseTo(latitudeMax, precision);
         expect(bounds.ne.lon).toBe(180);
     });
 
@@ -151,9 +163,9 @@ describe("WebMercator.getTile", () => {
 
             let bounds: IBBox = webMercator.getBounds(tile);
 
-            expect(bounds.sw.lat).toBeCloseTo(item.swLat, 6);
+            expect(bounds.sw.lat).toBeCloseTo(item.swLat, precision);
             expect(bounds.sw.lon).toBe(item.swLon);
-            expect(bounds.ne.lat).toBeCloseTo(item.neLat, 6);
+            expect(bounds.ne.lat).toBeCloseTo(item.neLat, precision);
             expect(bounds.ne.lon).toBe(item.neLon);
         }
     });
