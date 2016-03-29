@@ -32,7 +32,7 @@ export class TileFactory {
     }
 
     public encode(latLon: ILatLon, size: number): string {
-        let topocentric: number[] = this._geoCoords.llaToTopocentric(
+        let topocentric: number[] = this._geoCoords.geodeticToEnu(
             latLon.lat,
             latLon.lon,
             0,
@@ -76,7 +76,7 @@ export class TileFactory {
         let bottomY: number = this._bottomY(tile);
 
         let bl: number[] =
-            this._geoCoords.topocentricToLla(
+            this._geoCoords.enuToGeodetic(
                 leftX,
                 bottomY,
                 0,
@@ -85,7 +85,7 @@ export class TileFactory {
                 this._originCoords.alt);
 
         let tr: number[] =
-            this._geoCoords.topocentricToLla(
+            this._geoCoords.enuToGeodetic(
                 rightX,
                 topY,
                 0,
@@ -115,7 +115,7 @@ export class TileFactory {
                 let y: number = topY - this._nodeDistance / 2 - j * this._nodeDistance;
 
                 let coords: number[] =
-                    this._geoCoords.topocentricToLla(
+                    this._geoCoords.enuToGeodetic(
                         x,
                         y,
                         0,
