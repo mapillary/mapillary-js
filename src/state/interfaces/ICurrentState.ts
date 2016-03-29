@@ -1,7 +1,8 @@
 import {Node} from "../../Graph";
-import {Camera, Transform} from "../../Geo";
+import {Camera, ILatLonAlt, Transform} from "../../Geo";
 
 export interface ICurrentState {
+    reference: ILatLonAlt;
     alpha: number;
     camera: Camera;
     currentNode: Node;

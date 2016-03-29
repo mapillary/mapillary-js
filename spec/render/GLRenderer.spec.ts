@@ -85,6 +85,7 @@ describe("GLRenderer.renderer", () => {
             currentIndex: 0,
             lastNode: null,
             nodesAhead: 0,
+            reference: { lat: 0, lon: 0, alt: 0 },
             currentTransform: null,
             previousTransform: null,
             motionless: false,

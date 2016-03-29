@@ -7,7 +7,7 @@ import {
     IRotation,
 } from "../State";
 import {Node} from "../Graph";
-import {Camera, Transform} from "../Geo";
+import {Camera, ILatLonAlt, Transform} from "../Geo";
 
 export class StateContext implements IStateContext {
     private _state: StateBase;
@@ -17,6 +17,7 @@ export class StateContext implements IStateContext {
             alpha: 1,
             camera: new Camera(),
             currentIndex: 0,
+            reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
         });
     }
@@ -37,6 +38,10 @@ export class StateContext implements IStateContext {
         }
 
         throw new Error("Invalid state");
+    }
+
+    public get reference(): ILatLonAlt {
+        return this._state.reference;
     }
 
     public get alpha(): number {

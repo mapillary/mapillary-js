@@ -3,6 +3,7 @@
 import * as rx from "rx";
 
 import {Node} from "../Graph";
+import {ILatLonAlt} from "../Geo";
 import {
     FrameGenerator,
     IStateContext,
@@ -30,6 +31,7 @@ export class StateService {
 
     private _currentState$: rx.Observable<IFrame>;
     private _currentNode$: rx.Observable<Node>;
+    private _reference$: rx.Observable<ILatLonAlt>;
 
     private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
 
@@ -97,16 +99,33 @@ export class StateService {
                 })
             .shareReplay(1);
 
-        this._currentNode$ = this._currentState$
+        let nodeChanged$: rx.Observable<IFrame> = this._currentState$
+            .filter(
+                (f: IFrame): boolean => {
+                    return f.state.currentNode != null;
+                })
+            .distinctUntilChanged(
+                (f: IFrame): string => {
+                    return f.state.currentNode.key;
+                })
+            .shareReplay(1);
+
+        this._currentNode$ = nodeChanged$
             .map<Node>(
                 (f: IFrame): Node => {
                     return f.state.currentNode;
                 })
-            .filter(
-                (n: Node): boolean => {
-                    return n != null;
+            .shareReplay(1);
+
+        this._reference$ = nodeChanged$
+            .map<ILatLonAlt>(
+                (f: IFrame): ILatLonAlt => {
+                    return f.state.reference;
                 })
-            .distinctUntilChanged()
+            .distinctUntilChanged(
+                (reference: ILatLonAlt): number => {
+                    return reference.lat * reference.lon;
+                })
             .shareReplay(1);
 
         this._appendNode$
@@ -122,6 +141,7 @@ export class StateService {
 
         this._state$.subscribe();
         this._currentNode$.subscribe();
+        this._reference$.subscribe();
 
         this._frameId = null;
         this._frameGenerator = new FrameGenerator();
@@ -137,6 +157,10 @@ export class StateService {
 
     public get state$(): rx.Observable<State> {
         return this._state$;
+    }
+
+    public get reference$(): rx.Observable<ILatLonAlt> {
+        return this._reference$;
     }
 
     public get appendNode$(): rx.Subject<Node> {

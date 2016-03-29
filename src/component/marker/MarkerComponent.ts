@@ -251,7 +251,7 @@ export class MarkerComponent extends Component {
                 this._markerObjects[marker.id] = oldObjects[marker.id];
                 delete oldObjects[marker.id];
             } else {
-                let reference: ILatLonAlt = args.graph.referenceLatLonAlt;
+                let reference: ILatLonAlt = args.frame.state.reference;
                 let p: number[] = (new GeoCoords).geodeticToEnu(
                     marker.latLonAlt.lat, marker.latLonAlt.lon, marker.latLonAlt.alt,
                     reference.lat, reference.lon, reference.alt);

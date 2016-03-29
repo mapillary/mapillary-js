@@ -3,11 +3,14 @@
 import {ParameterMapillaryError} from "../../Error";
 import {IState} from "../../State";
 import {Node} from "../../Graph";
-import {Camera, Transform, Spatial} from "../../Geo";
+import {Camera, GeoCoords, ILatLonAlt, Transform, Spatial} from "../../Geo";
 import {IRotation} from "../../State";
 
 export abstract class StateBase implements IState {
     protected _spatial: Spatial;
+    protected _geoCoords: GeoCoords;
+
+    protected _reference: ILatLonAlt;
 
     protected _alpha: number;
     protected _camera: Camera;
@@ -28,6 +31,9 @@ export abstract class StateBase implements IState {
 
     constructor(state: IState) {
         this._spatial = new Spatial();
+        this._geoCoords = new GeoCoords();
+
+        this._reference = state.reference;
 
         this._alpha = state.alpha;
         this._camera = state.camera.clone();
@@ -38,7 +44,9 @@ export abstract class StateBase implements IState {
         this._trajectoryCameras = [];
 
         for (let node of this._trajectory) {
-            let transform: Transform = new Transform(node, node.translation);
+            let translation: number[] = this._nodeToTranslation(node);
+            let transform: Transform = new Transform(node, translation);
+
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
         }
@@ -58,6 +66,10 @@ export abstract class StateBase implements IState {
         this._previousCamera = this._trajectoryCameras.length > 1 && this.currentIndex > 0 ?
             this._trajectoryCameras[this._currentIndex - 1].clone() :
             this._currentCamera.clone();
+    }
+
+    public get reference(): ILatLonAlt {
+        return this._reference;
     }
 
     public get alpha(): number {
@@ -189,6 +201,8 @@ export abstract class StateBase implements IState {
             this._trajectory[this._currentIndex - 1] :
             null;
 
+        this._setReference(this._currentNode);
+
         this._currentCamera = this._trajectoryCameras[this._currentIndex].clone();
         this._previousCamera = this._currentIndex > 0 ?
             this._trajectoryCameras[this._currentIndex - 1].clone() :
@@ -217,13 +231,32 @@ export abstract class StateBase implements IState {
         );
     }
 
+    private _setReference(node: Node): void {
+        if (Math.abs(node.latLon.lat - this.reference.lat) < 0.01 &&
+            Math.abs(node.latLon.lon - this.reference.lon) < 0.01 ||
+            !this._motionlessTransition() && this._previousNode != null) {
+            return;
+        }
+
+        this._reference.lat = node.latLon.lat;
+        this._reference.lon = node.latLon.lon;
+        this._reference.alt = node.apiNavImIm.calt;
+
+        this._trajectoryTransforms.length = 0;
+        this._trajectoryCameras.length = 0;
+
+        this._appendToTrajectories(this._trajectory);
+    }
+
     private _appendToTrajectories(nodes: Node[]): void {
         for (let node of nodes) {
             if (!node.loaded) {
                 throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
             }
 
-            let transform: Transform = new Transform(node, node.translation);
+            let translation: number[] = this._nodeToTranslation(node);
+            let transform: Transform = new Transform(node, translation);
+
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
         }
@@ -235,10 +268,26 @@ export abstract class StateBase implements IState {
                 throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
             }
 
-            let transform: Transform = new Transform(node, node.translation);
+            let translation: number[] = this._nodeToTranslation(node);
+            let transform: Transform = new Transform(node, translation);
+
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));
         }
+    }
+
+    private _nodeToTranslation(node: Node): number[] {
+        let C: number[] = this._geoCoords.geodeticToEnu(
+            node.latLon.lat,
+            node.latLon.lon,
+            node.apiNavImIm.calt,
+            this._reference.lat,
+            this._reference.lon,
+            this._reference.alt);
+
+        let RC: THREE.Vector3 = this._spatial.rotate(C, node.apiNavImIm.rotation);
+
+        return [-RC.x, -RC.y, -RC.z];
     }
 
     private _sameConnectedComponent(): boolean {
