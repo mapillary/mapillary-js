@@ -96,13 +96,19 @@ export class Graph {
             if (im.clat != null) {
                 lat = im.clat;
             }
+
             let lon: number = im.lon;
             if (im.clon != null) {
                 lon = im.clon;
             }
+
             let ca: number = im.ca;
             if (im.cca != null) {
                 ca = im.cca;
+            }
+
+            if (im.calt == null) {
+                im.calt = this._defaultAlt;
             }
 
             let latLon: ILatLon = {lat: lat, lon: lon};
@@ -446,11 +452,9 @@ export class Graph {
      * @return {number}
      */
     private _computeTranslation(im: IAPINavImIm, latLon: ILatLon): number[] {
-        let alt: number = im.calt == null ? this._defaultAlt : im.calt;
-
         if (this.referenceLatLonAlt == null) {
             this.referenceLatLonAlt = {
-                alt: alt,
+                alt: im.calt,
                 lat: latLon.lat,
                 lon: latLon.lon,
             };
@@ -459,7 +463,7 @@ export class Graph {
         // fixme this will fix referance on long jumps, but will keep bad cache
         if (Math.abs((latLon.lon - this.referenceLatLonAlt.lon)) > 0.1) {
             this.referenceLatLonAlt = {
-                alt: alt,
+                alt: im.calt,
                 lat: latLon.lat,
                 lon: latLon.lon,
             };
@@ -468,7 +472,7 @@ export class Graph {
         let C: number[] = this._geoCoords.geodeticToEnu(
             latLon.lat,
             latLon.lon,
-            alt,
+            im.calt,
             this.referenceLatLonAlt.lat,
             this.referenceLatLonAlt.lon,
             this.referenceLatLonAlt.alt);
