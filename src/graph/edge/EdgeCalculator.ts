@@ -1,3 +1,7 @@
+/// <reference path="../../../typings/browser.d.ts" />
+
+import * as THREE from "three";
+
 import {Node} from "../../Graph";
 import
 {
@@ -12,11 +16,13 @@ import
     EdgeCalculatorDirections,
     EdgeCalculatorCoefficients,
 } from "../../Edge";
-import {Spatial} from "../../Geo";
+import {GeoCoords, Spatial} from "../../Geo";
 
 export class EdgeCalculator {
 
     private _spatial: Spatial;
+    private _geoCoords: GeoCoords;
+
     private _settings: EdgeCalculatorSettings;
     private _directions: EdgeCalculatorDirections;
     private _coefficients: EdgeCalculatorCoefficients;
@@ -32,7 +38,10 @@ export class EdgeCalculator {
         settings?: EdgeCalculatorSettings,
         directions?: EdgeCalculatorDirections,
         coefficients?: EdgeCalculatorCoefficients) {
+
         this._spatial = new Spatial();
+        this._geoCoords = new GeoCoords();
+
         this._settings = settings != null ? settings : new EdgeCalculatorSettings();
         this._directions = directions != null ? directions : new EdgeCalculatorDirections();
         this._coefficients = coefficients != null ? coefficients : new EdgeCalculatorCoefficients();
@@ -53,8 +62,6 @@ export class EdgeCalculator {
             return [];
         }
 
-        let currentPosition: THREE.Vector3 =
-            this._spatial.opticalCenter(node.apiNavImIm.rotation, node.translation);
         let currentDirection: THREE.Vector3 =
             this._spatial.viewingDirection(node.apiNavImIm.rotation);
         let currentVerticalDirection: number =
@@ -68,10 +75,15 @@ export class EdgeCalculator {
                 continue;
             }
 
-            let position: THREE.Vector3 =
-                this._spatial.opticalCenter(potential.apiNavImIm.rotation, potential.translation);
+            let enu: number[] = this._geoCoords.geodeticToEnu(
+                potential.latLon.lat,
+                potential.latLon.lon,
+                potential.apiNavImIm.calt,
+                node.latLon.lat,
+                node.latLon.lon,
+                node.apiNavImIm.calt);
 
-            let motion: THREE.Vector3 = position.clone().sub(currentPosition);
+            let motion: THREE.Vector3 = new THREE.Vector3(enu[0], enu[1], enu[2]);
             let distance: number = motion.length();
 
             if (distance > this._settings.maxDistance &&
