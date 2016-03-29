@@ -38,7 +38,7 @@ export abstract class StateBase implements IState {
         this._trajectoryCameras = [];
 
         for (let node of this._trajectory) {
-            let transform: Transform = new Transform(node);
+            let transform: Transform = new Transform(node, node.translation);
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
         }
@@ -223,7 +223,7 @@ export abstract class StateBase implements IState {
                 throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
             }
 
-            let transform: Transform = new Transform(node);
+            let transform: Transform = new Transform(node, node.translation);
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
         }
@@ -235,7 +235,7 @@ export abstract class StateBase implements IState {
                 throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
             }
 
-            let transform: Transform = new Transform(node);
+            let transform: Transform = new Transform(node, node.translation);
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));
         }

@@ -18,7 +18,7 @@ export class Transform {
     private _rt: THREE.Matrix4;
     private _srt: THREE.Matrix4;
 
-    constructor(node: Node) {
+    constructor(node: Node, translation: number[]) {
         this._width = this._getValue(node.apiNavImIm.width, 4);
         this._height = this._getValue(node.apiNavImIm.height, 3);
         this._focal = this._getValue(node.apiNavImIm.cfocal, 1);
@@ -30,7 +30,7 @@ export class Transform {
 
         this._gpano = node.apiNavImIm.gpano ? node.apiNavImIm.gpano : null;
 
-        this._rt = this._getRt(node);
+        this._rt = this._getRt(node, translation);
         this._srt = this._getSrt(this._rt, this._scale);
     }
 
@@ -120,7 +120,7 @@ export class Transform {
         return value != null && value > 0 ? value : fallback;
     }
 
-    private _getRt(node: Node): THREE.Matrix4 {
+    private _getRt(node: Node, translation: number[]): THREE.Matrix4 {
         let axis: THREE.Vector3 = new THREE.Vector3(
             node.apiNavImIm.rotation[0],
             node.apiNavImIm.rotation[1],
@@ -130,10 +130,11 @@ export class Transform {
         axis.normalize();
         let rt: THREE.Matrix4 = new THREE.Matrix4();
         rt.makeRotationAxis(axis, angle);
-        rt.setPosition(new THREE.Vector3(
-            node.translation[0],
-            node.translation[1],
-            node.translation[2]));
+        rt.setPosition(
+            new THREE.Vector3(
+                translation[0],
+                translation[1],
+                translation[2]));
 
         return rt;
     }

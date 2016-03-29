@@ -17,7 +17,7 @@ describe("Transform.rt", () => {
 
         let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r }, t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
         let Rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = Rt.elements;
@@ -47,7 +47,7 @@ describe("Transform.rt", () => {
 
         let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
         let Rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = Rt.elements;
@@ -77,7 +77,7 @@ describe("Transform.rt", () => {
 
         let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
         let Rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = Rt.elements;
@@ -107,7 +107,7 @@ describe("Transform.rt", () => {
 
         let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
         let Rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = Rt.elements;
@@ -141,7 +141,7 @@ describe("Transform.srt", () => {
 
         let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 1 }, t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -171,7 +171,7 @@ describe("Transform.srt", () => {
 
         let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 3 }, t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -201,7 +201,7 @@ describe("Transform.srt", () => {
 
         let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 0.5 }, t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -228,12 +228,13 @@ describe("Transform.srt", () => {
 
 describe("Transform.width", () => {
     it("should have fallback width", () => {
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.width).toBe(4);
     });
@@ -241,12 +242,13 @@ describe("Transform.width", () => {
     it("should have width of node", () => {
         let width: number = 11;
 
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { width: width, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.width).toBe(width);
     });
@@ -254,12 +256,13 @@ describe("Transform.width", () => {
 
 describe("Transform.height", () => {
     it("should have fallback height", () => {
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { height: -1, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.height).toBe(3);
     });
@@ -267,12 +270,13 @@ describe("Transform.height", () => {
     it("should have height of node", () => {
         let height: number = 11;
 
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { height: height, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.height).toBe(height);
     });
@@ -280,12 +284,13 @@ describe("Transform.height", () => {
 
 describe("Transform.focal", () => {
     it("should have fallback focal", () => {
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.focal).toBe(1);
     });
@@ -293,12 +298,13 @@ describe("Transform.focal", () => {
     it("should have focal of node", () => {
         let focal: number = 0.84;
 
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { cfocal: focal, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.focal).toBe(focal);
     });
@@ -306,12 +312,13 @@ describe("Transform.focal", () => {
 
 describe("Transform.orientation", () => {
     it("should have fallback orientation", () => {
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.orientation).toBe(1);
     });
@@ -319,12 +326,13 @@ describe("Transform.orientation", () => {
     it("should have orientation of node", () => {
         let orientation: number = 3;
 
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { orientation: orientation, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.orientation).toBe(orientation);
     });
@@ -332,12 +340,13 @@ describe("Transform.orientation", () => {
 
 describe("Transform.scale", () => {
     it("should have fallback scale", () => {
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.orientation).toBe(1);
     });
@@ -345,12 +354,13 @@ describe("Transform.scale", () => {
     it("should have scale of node", () => {
         let scale: number = 0.4;
 
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { atomic_scale: scale, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.scale).toBe(scale);
     });
@@ -358,12 +368,13 @@ describe("Transform.scale", () => {
 
 describe("Transform.gpano", () => {
     it("should not have gpano set", () => {
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.gpano).toBeNull();
     });
@@ -378,12 +389,13 @@ describe("Transform.gpano", () => {
             FullPanoHeightPixels: 1
         }
 
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { gpano: gpano, key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         expect(transform.gpano).not.toBeNull();
     });
@@ -399,12 +411,13 @@ describe("Transform.pixelToVertex", () => {
     });
 
     it("should return vertex at origin", () => {
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
@@ -414,12 +427,13 @@ describe("Transform.pixelToVertex", () => {
     });
 
     it("should return vertex at inverted translation", () => {
+        let t: number[] = [10, -20, 30];
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [10, -20, 30], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
@@ -438,7 +452,7 @@ describe("Transform.pixelToVertex", () => {
             { key: "",  rotation: r },
             t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
@@ -448,12 +462,13 @@ describe("Transform.pixelToVertex", () => {
     });
 
     it("should return vertex 10 units front of origin in camera direction", () => {
+        let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             "", 0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
-            [0, 0, 0], []);
+            t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         let depth: number = 10;
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, depth);
@@ -473,7 +488,7 @@ describe("Transform.pixelToVertex", () => {
             { key: "",  rotation: r },
             t, []);
 
-        let transform: Transform = new Transform(node);
+        let transform: Transform = new Transform(node, t);
 
         let depth: number = 5;
         let vertex: THREE.Vector3 = transform.pixelToVertex(1, 1, depth);
