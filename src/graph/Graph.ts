@@ -8,7 +8,7 @@ import * as geohash from "latlon-geohash";
 
 import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
-import {Spatial, GeoCoords, ILatLon, ILatLonAlt} from "../Geo";
+import {Spatial, GeoCoords, ILatLon} from "../Geo";
 import {Node, Sequence} from "../Graph";
 
 class GeoHashDirections {
@@ -29,8 +29,6 @@ interface ISpatialItem {
 }
 
 export class Graph {
-    public referenceLatLonAlt: ILatLonAlt = null;
-
     private _edgeCalculator: EdgeCalculator;
 
     private _sequences: Sequence[];
@@ -117,8 +115,6 @@ export class Graph {
                 im.rotation = this._computeRotation(im.ca, im.orientation);
             }
 
-            let translation: number[] = this._computeTranslation(im, latLon);
-
             let hs: string[] = this._computeHs(latLon, bounds.sw, bounds.ne, h, neighbours);
 
             let node: Node = new Node(
@@ -128,7 +124,7 @@ export class Graph {
                 false,
                 sequenceHash[im.key],
                 im,
-                translation,
+                [0, 0, 0],
                 hs
             );
 
@@ -443,43 +439,6 @@ export class Graph {
         let rotation: THREE.Vector4 = new THREE.Vector4().setAxisAngleFromRotationMatrix(re.multiply(rz));
 
         return rotation.multiplyScalar(rotation.w).toArray().slice(0, 3);
-    }
-
-    /**
-     * Compute translation
-     * @param {IAPINavImIm} im
-     * @param {ILatLon} latLon
-     * @return {number}
-     */
-    private _computeTranslation(im: IAPINavImIm, latLon: ILatLon): number[] {
-        if (this.referenceLatLonAlt == null) {
-            this.referenceLatLonAlt = {
-                alt: im.calt,
-                lat: latLon.lat,
-                lon: latLon.lon,
-            };
-        }
-
-        // fixme this will fix referance on long jumps, but will keep bad cache
-        if (Math.abs((latLon.lon - this.referenceLatLonAlt.lon)) > 0.1) {
-            this.referenceLatLonAlt = {
-                alt: im.calt,
-                lat: latLon.lat,
-                lon: latLon.lon,
-            };
-        }
-
-        let C: number[] = this._geoCoords.geodeticToEnu(
-            latLon.lat,
-            latLon.lon,
-            im.calt,
-            this.referenceLatLonAlt.lat,
-            this.referenceLatLonAlt.lon,
-            this.referenceLatLonAlt.alt);
-
-        let RC: THREE.Vector3 = this._spatial.rotate(C, im.rotation);
-
-        return [-RC.x, -RC.y, -RC.z];
     }
 
     /**
