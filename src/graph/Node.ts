@@ -22,7 +22,6 @@ export class Node {
     public worthy: boolean;
     public sequence: Sequence;
     public apiNavImIm: IAPINavImIm;
-    public translation: number[];
     public cached: boolean;
     public lastCacheEvict: number;
     public lastUsed: number;
@@ -42,7 +41,6 @@ export class Node {
         worthy: boolean,
         sequence: Sequence,
         apiNavImIm: IAPINavImIm,
-        translation: number[],
         hs: string[]) {
         this.key = key;
         this.ca = ca;
@@ -50,7 +48,6 @@ export class Node {
         this.worthy = worthy;
         this.sequence = sequence;
         this.apiNavImIm = apiNavImIm;
-        this.translation = translation;
         this.cached = false;
         this.lastCacheEvict = 0;
         this.lastUsed = new Date().getTime();

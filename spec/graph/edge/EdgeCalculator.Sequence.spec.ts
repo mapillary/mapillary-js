@@ -21,7 +21,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
 
         let apiNavImIm: IAPINavImIm = { key: key };
 
-        let node: Node = new Node(key, 0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, [0, 0, 0], []);
+        let node: Node = new Node(key, 0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, []);
 
         return node;
     }

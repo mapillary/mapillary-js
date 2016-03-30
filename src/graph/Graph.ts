@@ -124,7 +124,6 @@ export class Graph {
                 false,
                 sequenceHash[im.key],
                 im,
-                [0, 0, 0],
                 hs
             );
 
