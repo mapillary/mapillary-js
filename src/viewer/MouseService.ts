@@ -105,7 +105,7 @@ export class MouseService {
             .subscribe(this._mouseMoveOperation$);
 
         let dragStop$: rx.Observable<MouseEvent> = rx.Observable
-            .merge<MouseEvent>([this._mouseLeave$, this._mouseUp$, this._mouseOver$]);
+            .merge<MouseEvent>([this._mouseLeave$, this._mouseUp$]);
 
         this._mouseDragStart$ = this._mouseDown$
             .selectMany<MouseEvent>((e: MouseEvent): rx.Observable<MouseEvent> => {
