@@ -32,7 +32,7 @@ export class MouseService {
     private _mouseDragEnd$: rx.Observable<MouseEvent>;
 
     private _claimMouse$: rx.Subject<IMouseClaim>;
-    private _mouseOwner$: rx.ConnectableObservable<string>;
+    private _mouseOwner$: rx.Observable<string>;
 
     constructor(element: HTMLElement) {
         this._element = element;
@@ -151,9 +151,7 @@ export class MouseService {
                 }
                 return owner;
             })
-            .shareReplay(1)
-            .publish();
-        this._mouseOwner$.connect();
+            .shareReplay(1);
     }
 
     public claimMouse(name: string, zindex: number): void {

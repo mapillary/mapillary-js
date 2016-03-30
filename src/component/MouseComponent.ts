@@ -20,8 +20,6 @@ export class MouseComponent extends Component {
     }
 
     protected _activate(): void {
-        this._container.mouseService.claimMouse(this._name, 0);
-
         let mouseMovement$: rx.Observable<IMovement> =
             this._container.mouseService
                 .filteredMouseEvent$(this._name, this._container.mouseService.mouseDrag$)
@@ -58,6 +56,8 @@ export class MouseComponent extends Component {
 
                     this._navigator.stateService.rotate({ phi: phi, theta: theta });
                 });
+
+        this._container.mouseService.claimMouse(this._name, 0);
     }
 
     protected _deactivate(): void {
