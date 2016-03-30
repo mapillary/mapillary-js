@@ -100,9 +100,7 @@ export class TraversingState extends StateBase {
 
     public append(nodes: Node[]): void {
         if (this._trajectory.length === 0) {
-            this._currentIndex = 0;
-
-            this._setNodes();
+            this._resetTransition();
         }
 
         super.append(nodes);
@@ -110,18 +108,16 @@ export class TraversingState extends StateBase {
 
     public prepend(nodes: Node[]): void {
         if (this._trajectory.length === 0) {
-            this._currentIndex = 0;
-
-            this._setNodes();
+            this._resetTransition();
         }
 
         super.prepend(nodes);
     }
 
     public set(nodes: Node[]): void {
-        super._set(nodes);
+        super.set(nodes);
 
-        this._setNodes();
+        this._resetTransition();
         this._clearRotation();
 
         if (this._trajectory.length < 3) {
@@ -152,7 +148,8 @@ export class TraversingState extends StateBase {
             this._useBezier = this._trajectory.length < 3 &&
                 this._currentIndex + 1 === this._trajectory.length;
 
-            this._setNodes();
+            this._setCurrent();
+            this._resetTransition();
             this._clearRotation();
         }
 
@@ -175,11 +172,14 @@ export class TraversingState extends StateBase {
         return this._motionless ? Math.ceil(this._alpha) : this._alpha;
     }
 
-    private _setNodes(): void {
+    private _setCurrent(): void {
+        super._setCurrentNode();
+        super._setCurrentCamera();
+    }
+
+    private _resetTransition(): void {
         this._alpha = 0;
         this._baseAlpha = 0;
-
-        super._setCurrent();
 
         this._motionless = this._motionlessTransition();
     }

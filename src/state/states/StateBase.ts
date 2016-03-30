@@ -133,6 +133,12 @@ export abstract class StateBase implements IState {
 
         this._trajectory = this._trajectory.concat(nodes);
         this._appendToTrajectories(nodes);
+
+        if (this._currentIndex < 0) {
+            this._currentIndex = 0;
+            this._setCurrentNode();
+            this._setCurrentCamera();
+        }
     }
 
     public prepend(nodes: Node[]): void {
@@ -141,11 +147,11 @@ export abstract class StateBase implements IState {
         }
 
         this._trajectory = nodes.slice().concat(this._trajectory);
-        this._prependToTrajectories(nodes);
-
         this._currentIndex += nodes.length;
+        this._setCurrentNode();
 
-        this._setCurrent();
+        this._prependToTrajectories(nodes);
+        this._setCurrentCamera();
     }
 
     public remove(n: number): void {
@@ -175,13 +181,15 @@ export abstract class StateBase implements IState {
     }
 
     public set(nodes: Node[]): void {
-        this._set(nodes);
-        this._setCurrent();
+        this._setTrajectory(nodes);
+        this._setCurrentNode();
+        this._appendToTrajectories(this._trajectory);
+        this._setCurrentCamera();
     }
 
     protected abstract _getAlpha(): number;
 
-    protected _set(nodes: Node[]): void {
+    protected _setTrajectory(nodes: Node[]): void {
         if (nodes.length < 1) {
             throw new ParameterMapillaryError("Trajectory can not be empty");
         }
@@ -196,17 +204,18 @@ export abstract class StateBase implements IState {
 
         this._trajectoryTransforms.length = 0;
         this._trajectoryCameras.length = 0;
-        this._appendToTrajectories(this._trajectory);
     }
 
-    protected _setCurrent(): void {
+    protected _setCurrentNode(): void {
         this._currentNode = this._trajectory[this._currentIndex];
         this._previousNode = this._currentIndex > 0 ?
             this._trajectory[this._currentIndex - 1] :
             null;
 
         this._setReference(this._currentNode);
+    }
 
+    protected _setCurrentCamera(): void {
         this._currentCamera = this._trajectoryCameras[this._currentIndex].clone();
         this._previousCamera = this._currentIndex > 0 ?
             this._trajectoryCameras[this._currentIndex - 1].clone() :
