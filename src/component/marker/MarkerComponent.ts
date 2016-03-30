@@ -17,7 +17,7 @@ import {
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {MapillaryObject, Graph, Node} from "../../Graph";
+import {MapillaryObject, Node} from "../../Graph";
 import {GeoCoords, ILatLonAlt} from "../../Geo";
 
 type MarkerIndex = rbush.RBush<ISpatialMarker>;
@@ -32,7 +32,6 @@ interface IMarkerOperation extends Function {
 }
 
 interface IUpdateArgs {
-    graph: Graph;
     frame: IFrame;
     markers: MarkerIndex;
 }
@@ -125,11 +124,10 @@ export class MarkerComponent extends Component {
         this._markerObjects = {};
 
         this._disposable = rx.Observable.combineLatest(
-            this._navigator.graphService.graph$,
             this._navigator.stateService.currentState$,
             this._markerSet.markers$,
-            (graph: Graph, frame: IFrame, markers: MarkerIndex): IUpdateArgs => {
-                return { frame: frame, graph: graph, markers: markers };
+            (frame: IFrame, markers: MarkerIndex): IUpdateArgs => {
+                return { frame: frame, markers: markers };
             })
             .distinctUntilChanged((args: IUpdateArgs) => {
                 return args.frame.id;
@@ -221,7 +219,6 @@ export class MarkerComponent extends Component {
 
     private _updateScene(args: IUpdateArgs): boolean {
         if (!args.frame ||
-            !args.graph ||
             !args.markers ||
             !args.frame.state.currentNode) {
             return false;
