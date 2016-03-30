@@ -29,9 +29,13 @@ export abstract class StateBase implements IState {
 
     protected _motionless: boolean;
 
+    private _referenceThreshold: number;
+
     constructor(state: IState) {
         this._spatial = new Spatial();
         this._geoCoords = new GeoCoords();
+
+        this._referenceThreshold = 0.01;
 
         this._reference = state.reference;
 
@@ -232,9 +236,14 @@ export abstract class StateBase implements IState {
     }
 
     private _setReference(node: Node): void {
-        if (Math.abs(node.latLon.lat - this.reference.lat) < 0.01 &&
-            Math.abs(node.latLon.lon - this.reference.lon) < 0.01 ||
-            !this._motionlessTransition() && this._previousNode != null) {
+        // do not reset reference if node is within threshold distance
+        if (Math.abs(node.latLon.lat - this.reference.lat) < this._referenceThreshold &&
+            Math.abs(node.latLon.lon - this.reference.lon) < this._referenceThreshold) {
+            return;
+        }
+
+        // do not reset reference if previous node exist and transition is with motion
+        if (this._previousNode != null && !this._motionlessTransition()) {
             return;
         }
 
