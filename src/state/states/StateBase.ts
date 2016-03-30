@@ -131,13 +131,11 @@ export abstract class StateBase implements IState {
             throw Error("Trajectory can not be empty");
         }
 
-        this._trajectory = this._trajectory.concat(nodes);
-        this._appendToTrajectories(nodes);
-
         if (this._currentIndex < 0) {
-            this._currentIndex = 0;
-            this._setCurrentNode();
-            this._setCurrentCamera();
+            this.set(nodes);
+        } else {
+            this._trajectory = this._trajectory.concat(nodes);
+            this._appendToTrajectories(nodes);
         }
     }
 
@@ -148,9 +146,16 @@ export abstract class StateBase implements IState {
 
         this._trajectory = nodes.slice().concat(this._trajectory);
         this._currentIndex += nodes.length;
+
         this._setCurrentNode();
 
-        this._prependToTrajectories(nodes);
+        let referenceReset: boolean = this._setReference(this._currentNode);
+        if (referenceReset) {
+            this._setTrajectories();
+        } else {
+            this._prependToTrajectories(nodes);
+        }
+
         this._setCurrentCamera();
     }
 
@@ -183,39 +188,65 @@ export abstract class StateBase implements IState {
     public set(nodes: Node[]): void {
         this._setTrajectory(nodes);
         this._setCurrentNode();
-        this._appendToTrajectories(this._trajectory);
+        this._setReference(this._currentNode);
+        this._setTrajectories();
         this._setCurrentCamera();
     }
 
     protected abstract _getAlpha(): number;
 
-    protected _setTrajectory(nodes: Node[]): void {
-        if (nodes.length < 1) {
-            throw new ParameterMapillaryError("Trajectory can not be empty");
+    protected _setCurrent(): void {
+        this._setCurrentNode();
+
+        let referenceReset: boolean = this._setReference(this._currentNode);
+        if (referenceReset) {
+            this._setTrajectories();
         }
 
-        if (this._currentNode != null) {
-            this._trajectory = [this._currentNode].concat(nodes);
-            this._currentIndex = 1;
-        } else {
-            this._trajectory = nodes.slice();
-            this._currentIndex = 0;
-        }
-
-        this._trajectoryTransforms.length = 0;
-        this._trajectoryCameras.length = 0;
+        this._setCurrentCamera();
     }
 
-    protected _setCurrentNode(): void {
-        this._currentNode = this._trajectory[this._currentIndex];
+    protected _motionlessTransition(): boolean {
+        let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
+
+        return nodesSet && !(
+            this._currentNode.merged &&
+            this._previousNode.merged &&
+            this._withinOriginalDistance() &&
+            this._sameConnectedComponent()
+        );
+    }
+
+    private _setReference(node: Node): boolean {
+        // do not reset reference if node is within threshold distance
+        if (Math.abs(node.latLon.lat - this.reference.lat) < this._referenceThreshold &&
+            Math.abs(node.latLon.lon - this.reference.lon) < this._referenceThreshold) {
+            return false;
+        }
+
+        // do not reset reference if previous node exist and transition is with motion
+        if (this._previousNode != null && !this._motionlessTransition()) {
+            return false;
+        }
+
+        this._reference.lat = node.latLon.lat;
+        this._reference.lon = node.latLon.lon;
+        this._reference.alt = node.apiNavImIm.calt;
+
+        return true;
+    }
+
+    private _setCurrentNode(): void {
+        this._currentNode = this._trajectory.length > 0 ?
+            this._trajectory[this._currentIndex] :
+            null;
+
         this._previousNode = this._currentIndex > 0 ?
             this._trajectory[this._currentIndex - 1] :
             null;
-
-        this._setReference(this._currentNode);
     }
 
-    protected _setCurrentCamera(): void {
+    private _setCurrentCamera(): void {
         this._currentCamera = this._trajectoryCameras[this._currentIndex].clone();
         this._previousCamera = this._currentIndex > 0 ?
             this._trajectoryCameras[this._currentIndex - 1].clone() :
@@ -233,33 +264,21 @@ export abstract class StateBase implements IState {
         }
     }
 
-    protected _motionlessTransition(): boolean {
-        let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
+    private _setTrajectory(nodes: Node[]): void {
+        if (nodes.length < 1) {
+            throw new ParameterMapillaryError("Trajectory can not be empty");
+        }
 
-        return nodesSet && !(
-            this._currentNode.merged &&
-            this._previousNode.merged &&
-            this._withinOriginalDistance() &&
-            this._sameConnectedComponent()
-        );
+        if (this._currentNode != null) {
+            this._trajectory = [this._currentNode].concat(nodes);
+            this._currentIndex = 1;
+        } else {
+            this._trajectory = nodes.slice();
+            this._currentIndex = 0;
+        }
     }
 
-    private _setReference(node: Node): void {
-        // do not reset reference if node is within threshold distance
-        if (Math.abs(node.latLon.lat - this.reference.lat) < this._referenceThreshold &&
-            Math.abs(node.latLon.lon - this.reference.lon) < this._referenceThreshold) {
-            return;
-        }
-
-        // do not reset reference if previous node exist and transition is with motion
-        if (this._previousNode != null && !this._motionlessTransition()) {
-            return;
-        }
-
-        this._reference.lat = node.latLon.lat;
-        this._reference.lon = node.latLon.lon;
-        this._reference.alt = node.apiNavImIm.calt;
-
+    private _setTrajectories(): void {
         this._trajectoryTransforms.length = 0;
         this._trajectoryCameras.length = 0;
 

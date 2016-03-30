@@ -172,11 +172,6 @@ export class TraversingState extends StateBase {
         return this._motionless ? Math.ceil(this._alpha) : this._alpha;
     }
 
-    private _setCurrent(): void {
-        super._setCurrentNode();
-        super._setCurrentCamera();
-    }
-
     private _resetTransition(): void {
         this._alpha = 0;
         this._baseAlpha = 0;
