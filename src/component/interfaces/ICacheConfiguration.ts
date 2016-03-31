@@ -5,7 +5,7 @@ export interface ICacheDepth {
      * Cache depth in the sequence directions.
      *
      * @description Max value is 4. Value will be coerced
-     * to the intervale [0, 4].
+     * to the interval [0, 4].
      * @default 2
      */
     sequence: number;
@@ -14,7 +14,7 @@ export interface ICacheDepth {
      * Cache depth in the pano direction.
      *
      * @description Max value is 2. Value will be coerced
-     * to the intervale [0, 2].
+     * to the interval [0, 2].
      * @default 1
      */
     pano: number;
@@ -23,10 +23,19 @@ export interface ICacheDepth {
      * Cache depth in the step directions.
      *
      * @description Max value is 3. Value will be coerced
-     * to the intervale [0, 3].
+     * to the interval [0, 3].
      * @default 1
      */
     step: number;
+
+    /**
+     * Cache depth in the turn directions.
+     *
+     * @description Max value is 1. Value will be coerced
+     * to the interval [0, 1].
+     * @default 0
+     */
+    turn: number;
 }
 
 export interface ICacheConfiguration extends IComponentConfiguration {
