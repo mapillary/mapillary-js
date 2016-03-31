@@ -6,6 +6,7 @@ export {CacheComponent} from "./component/CacheComponent";
 export {CoverComponent} from "./component/CoverComponent";
 export {DebugComponent} from "./component/DebugComponent";
 export {DetectionComponent} from "./component/DetectionComponent";
+export {TagComponent} from "./component/TagComponent";
 export {DirectionComponent} from "./component/DirectionComponent";
 export {ImageComponent} from "./component/ImageComponent";
 export {KeyboardComponent} from "./component/KeyboardComponent";

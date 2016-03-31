@@ -58,6 +58,7 @@ export class ComponentController {
         this._uFalse(options.background, "background");
         this._uFalse(options.debug, "debug");
         this._uFalse(options.detection, "detection");
+        this._uFalse(options.tag, "tag");
         this._uFalse(options.image, "image");
         this._uFalse(options.marker, "marker");
         this._uFalse(options.navigation, "navigation");

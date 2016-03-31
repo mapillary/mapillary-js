@@ -44,6 +44,12 @@ export interface IViewerOptions {
     detection?: boolean;
 
     /**
+     * Show detection rectangles in images
+     * @default false
+     */
+    tag?: boolean;
+
+    /**
      * Show static navigation arrows in the corners.
      * @default false
      */
