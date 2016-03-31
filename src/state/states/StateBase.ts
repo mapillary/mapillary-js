@@ -3,12 +3,11 @@
 import {ParameterMapillaryError} from "../../Error";
 import {IState} from "../../State";
 import {Node} from "../../Graph";
-import {Camera, GeoCoords, ILatLonAlt, Transform, Spatial} from "../../Geo";
+import {Camera, ILatLonAlt, Transform, Spatial} from "../../Geo";
 import {IRotation} from "../../State";
 
 export abstract class StateBase implements IState {
     protected _spatial: Spatial;
-    protected _geoCoords: GeoCoords;
 
     protected _reference: ILatLonAlt;
 
@@ -33,7 +32,6 @@ export abstract class StateBase implements IState {
 
     constructor(state: IState) {
         this._spatial = new Spatial();
-        this._geoCoords = new GeoCoords();
 
         this._referenceThreshold = 0.01;
 
@@ -48,8 +46,7 @@ export abstract class StateBase implements IState {
         this._trajectoryCameras = [];
 
         for (let node of this._trajectory) {
-            let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node, translation);
+            let transform: Transform = Transform.fromNodeAndReference(node, this._reference);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -291,8 +288,7 @@ export abstract class StateBase implements IState {
                 throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
             }
 
-            let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node, translation);
+            let transform: Transform = Transform.fromNodeAndReference(node, this._reference);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -305,26 +301,11 @@ export abstract class StateBase implements IState {
                 throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
             }
 
-            let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node, translation);
+            let transform: Transform = Transform.fromNodeAndReference(node, this._reference);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));
         }
-    }
-
-    private _nodeToTranslation(node: Node): number[] {
-        let C: number[] = this._geoCoords.geodeticToEnu(
-            node.latLon.lat,
-            node.latLon.lon,
-            node.apiNavImIm.calt,
-            this._reference.lat,
-            this._reference.lon,
-            this._reference.alt);
-
-        let RC: THREE.Vector3 = this._spatial.rotate(C, node.apiNavImIm.rotation);
-
-        return [-RC.x, -RC.y, -RC.z];
     }
 
     private _sameConnectedComponent(): boolean {

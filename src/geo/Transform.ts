@@ -4,6 +4,7 @@ import * as THREE from "three";
 
 import {IGPano} from "../API";
 import {Node} from "../Graph";
+import {GeoCoords, ILatLonAlt, Spatial} from "../Geo";
 
 export class Transform {
     private _width: number;
@@ -32,6 +33,11 @@ export class Transform {
 
         this._rt = this._getRt(node, translation);
         this._srt = this._getSrt(this._rt, this._scale);
+    }
+
+    public static fromNodeAndReference(node: Node, reference: ILatLonAlt) {
+        let translation: number[] = Transform._nodeToTranslation(node, reference);
+        return new Transform(node, translation);
     }
 
     public get width(): number {
@@ -114,6 +120,20 @@ export class Transform {
         projector.multiply(this._rt);
 
         return projector;
+    }
+
+    private static _nodeToTranslation(node: Node, reference: ILatLonAlt): number[] {
+        let C: number[] = (new GeoCoords).geodeticToEnu(
+            node.latLon.lat,
+            node.latLon.lon,
+            node.apiNavImIm.calt,
+            reference.lat,
+            reference.lon,
+            reference.alt);
+
+        let RC: THREE.Vector3 = (new Spatial).rotate(C, node.apiNavImIm.rotation);
+
+        return [-RC.x, -RC.y, -RC.z];
     }
 
     private _getValue(value: number, fallback: number): number {
