@@ -55,7 +55,6 @@ export class GraphService {
         }).publish();
 
         this._cachedNode$.connect();
-        this._cachedNode$.subscribe(this._tilesService.cacheNode$);
         this._cachedNode$.subscribe(this._vectorTilesService.cacheNode$);
 
         this._cachedNode$.map((node: Node) => {
