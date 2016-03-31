@@ -283,7 +283,7 @@ export class SliderComponent extends Component {
     }
 
     /**
-     * Sets the image keys.
+     * Set the image keys.
      *
      * Configures the component to show the image planes for the supplied image keys.
      *
@@ -294,7 +294,7 @@ export class SliderComponent extends Component {
     }
 
     /**
-     * Sets the initial position.
+     * Set the initial position.
      *
      * Configures the intial position of the slider. The inital position value will be used when the component is activated.
      *
@@ -305,7 +305,7 @@ export class SliderComponent extends Component {
     }
 
     /**
-     * Sets the value controlling if the slider is visible.
+     * Set the value controlling if the slider is visible.
      *
      * @param {boolean} sliderVisible - Value indicating if the slider should be visible or not.
      */

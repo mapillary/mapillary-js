@@ -27,6 +27,18 @@ export class CacheComponent extends Component {
         };
     }
 
+    /**
+     * Set the cache depth.
+     *
+     * Configures the cache depth. The cache depth can be different for
+     * different edge direction types.
+     *
+     * @param {ICacheDepth} depth - Cache depth structure.
+     */
+    public setDepth(depth: ICacheDepth): void {
+        this.configure({ depth: depth });
+    }
+
     protected _activate(): void {
         this._cacheSubscription = rx.Observable
             .combineLatest(
