@@ -315,13 +315,19 @@ export class Graph {
      * @return {Node}
      */
     public nextNode(node: Node, dir: EdgeDirection): Node {
+        let key: string = this.nextKey(node, dir);
+
+        return key == null ? null : this.getNode(key);
+    }
+
+    public nextKey(node: Node, dir: EdgeDirection): string {
         let outEdges: any[] = this._graph.outEdges(node.key);
 
         for (let outEdge of outEdges) {
-            let edge: any = this._graph.edge(outEdge);
+            let edgeData: IEdgeData = this._graph.edge(outEdge);
 
-            if (edge.direction === dir) {
-                return this.getNode(outEdge.w);
+            if (edgeData.direction === dir) {
+                return outEdge.w;
             }
         }
 

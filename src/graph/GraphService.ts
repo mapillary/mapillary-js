@@ -53,6 +53,7 @@ export class GraphService {
         this._cachedNode$ = this._loadingNode$.filter((node: Node): boolean => {
             return (!!node.image && !!node.mesh);
         }).publish();
+
         this._cachedNode$.connect();
         this._cachedNode$.subscribe(this._tilesService.cacheNode$);
         this._cachedNode$.subscribe(this._vectorTilesService.cacheNode$);
@@ -124,14 +125,13 @@ export class GraphService {
         return this._graph$
             .map<string>(
                 (graph: Graph): string => {
-                    let nextNode: Node = graph.nextNode(node, dir);
-                    return nextNode == null ? null : nextNode.key;
+                    return graph.nextKey(node, dir);
                 })
             .distinct()
             .flatMap<Node>(
                 (key: string): rx.Observable<Node> => {
                     return key == null ?
-                        <rx.Observable<Node>> rx.Observable.throw(new Error("no Image in direction")) :
+                        rx.Observable.throw<Node>(new Error("no Image in direction")) :
                         this.node$(key);
                 });
     }
