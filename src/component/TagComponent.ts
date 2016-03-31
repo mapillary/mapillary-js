@@ -11,27 +11,9 @@ import {ComponentService, Component} from "../Component";
 import {IGLRenderHash, GLRenderStage} from "../Render";
 import {IFrame} from "../State";
 
-interface ITag {
-    rect: number[];
-    score: string;
-    value: string;
-    object: string;
-    key: string;
-    package: string;
-}
-
 interface ITagUpdateArgs {
     frame: IFrame;
     tags3d: ITag3d[];
-}
-
-interface IDetection {
-    rect: number[];
-    score: string;
-    value: string;
-    object: string;
-    key: string;
-    package: string;
 }
 
 interface ITag3d {
@@ -48,12 +30,12 @@ export class TagComponent extends Component {
     private _disposable: rx.IDisposable;
     private _apiV3: APIv3;
 
-    private _vNode: vd.VNode;
+    private _tags3d: ITag3d[];
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
         this._apiV3 = navigator.apiV3;
-        this._vNode = null;
+        this._tags3d = null;
     }
 
     protected _activate(): void {
@@ -92,9 +74,8 @@ export class TagComponent extends Component {
     }
 
     private _renderHash(args: ITagUpdateArgs): IGLRenderHash {
-        // determine if render is needed while updating scene
-        // specific properies.
-        let needsRender: boolean = this._updateScene(args);
+        // save tags for later when the render function will be called
+        this._tags3d = args.tags3d;
 
         // return render hash with render function and
         // render in foreground.
@@ -102,7 +83,7 @@ export class TagComponent extends Component {
             name: this._name,
             render: {
                 frameId: args.frame.id,
-                needsRender: needsRender,
+                needsRender: true,
                 render: this._render.bind(this),
                 stage: GLRenderStage.Foreground,
             },
@@ -110,7 +91,6 @@ export class TagComponent extends Component {
     }
 
     private _computeTags3d(node: Node, tags: any): ITag3d[]  {
-
         let ors: any = tags;
         let tags3d: ITag3d[] = [];
         delete ors.json.imageByKey.$__path;
@@ -140,7 +120,6 @@ export class TagComponent extends Component {
                 tags3d.push(tag3d);
             }
         }
-
         return tags3d;
     }
 
@@ -149,18 +128,14 @@ export class TagComponent extends Component {
         return points;
     }
 
-    private _updateScene(args: ITagUpdateArgs): boolean {
-        this._vNode = this._getRects(args.tags3d);
-        return true;
-    }
-
     private _render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
 
         console.log("render");
+        // todo(pau): project 3d polygon to the PerspectiveCamera
 
-        this._container.domRenderer.renderAdaptive$.onNext({ name: this._name, vnode: this._vNode });
+        this._container.domRenderer.renderAdaptive$.onNext({ name: this._name, vnode: this._getRects(this._tags3d) });
     }
 
     private _getRects(tags3d: ITag3d[]): vd.VNode {
