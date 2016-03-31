@@ -22,11 +22,20 @@ interface ITag {
 
 interface ITagUpdateArgs {
     frame: IFrame;
-    ors: any;
+    tags3d: ITag3d[];
 }
 
 interface IDetection {
     rect: number[];
+    score: string;
+    value: string;
+    object: string;
+    key: string;
+    package: string;
+}
+
+interface ITag3d {
+    polygon: number[][];
     score: string;
     value: string;
     object: string;
@@ -58,11 +67,18 @@ export class TagComponent extends Component {
             ]);
         });
 
+        let tags3d$: rx.Observable<ITag3d[]> = rx.Observable.combineLatest(
+            this._navigator.stateService.currentNode$,
+            tags$,
+            (node: Node, tags: any): ITag3d[] => {
+                return this._computeTags3d(node, tags);
+            });
+
         this._disposable = rx.Observable.combineLatest(
                 this._navigator.stateService.currentState$,
-                tags$,
-                (frame: IFrame, ors: any): ITagUpdateArgs => {
-                    return { frame: frame, ors: ors };
+                tags3d$,
+                (frame: IFrame, tags3d: ITag3d[]): ITagUpdateArgs => {
+                    return { frame: frame, tags3d: tags3d };
                 }
             ).distinctUntilChanged((args: ITagUpdateArgs) => {
                 return args.frame.state.camera.lookat.x;
@@ -93,9 +109,10 @@ export class TagComponent extends Component {
         };
     }
 
-    private _updateScene(args: ITagUpdateArgs): boolean {
-        let ors: any = args.ors;
-        let detections: IDetection[] = [];
+    private _computeTags3d(node: Node, tags: any): ITag3d[]  {
+
+        let ors: any = tags;
+        let tags3d: ITag3d[] = [];
         delete ors.json.imageByKey.$__path;
         ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
         delete ors.$__path;
@@ -108,26 +125,32 @@ export class TagComponent extends Component {
                     continue;
                 }
 
-                let r: number[] = [];
-                r[0] = or.rect.geometry.coordinates[1][0];
-                r[1] = or.rect.geometry.coordinates[1][1];
-                r[2] = or.rect.geometry.coordinates[3][0];
-                r[3] = or.rect.geometry.coordinates[3][1];
+                let polygon: number[][] = this._rectToPolygon3d(
+                    node, or.rect.geometry.coordinates);
 
-                let rect: IDetection = {
+
+                let tag3d: ITag3d = {
                     key: or.key,
                     object: or.obj,
                     package: or.package,
-                    rect: r,
+                    polygon: polygon,
                     score: or.score,
                     value: or.value,
                 };
-                detections.push(rect);
+                tags3d.push(tag3d);
             }
         }
 
-        this._vNode = this._getRects(detections);
+        return tags3d;
+    }
 
+    private _rectToPolygon3d(node: Node, points: number[][]): number[][] {
+        // todo(pau): Compute 3D tags here
+        return points;
+    }
+
+    private _updateScene(args: ITagUpdateArgs): boolean {
+        this._vNode = this._getRects(args.tags3d);
         return true;
     }
 
@@ -140,11 +163,17 @@ export class TagComponent extends Component {
         this._container.domRenderer.renderAdaptive$.onNext({ name: this._name, vnode: this._vNode });
     }
 
-    private _getRects(detections: IDetection[]): vd.VNode {
+    private _getRects(tags3d: ITag3d[]): vd.VNode {
         let vRects: vd.VNode[] = [];
 
-        detections.forEach((r: IDetection) => {
-            let adjustedRect: number[] = this._coordsToCss(r.rect);
+        tags3d.forEach((r: ITag3d) => {
+            let rect: number[] = [];
+            rect[0] = r.polygon[1][0];
+            rect[1] = r.polygon[1][1];
+            rect[2] = r.polygon[3][0];
+            rect[3] = r.polygon[3][1];
+
+            let adjustedRect: number[] = this._coordsToCss(rect);
 
             let rectMapped: string[] = adjustedRect.map((el: number) => {
                 return (el * 100) + "%";
