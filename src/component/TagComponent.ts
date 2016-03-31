@@ -13,10 +13,10 @@ import {IFrame} from "../State";
 
 interface ITagUpdateArgs {
     frame: IFrame;
-    tags3d: ITag3d[];
+    tags: ITag[];
 }
 
-interface ITag3d {
+interface ITag {
     polygon: number[][];
     score: string;
     value: string;
@@ -30,16 +30,16 @@ export class TagComponent extends Component {
     private _disposable: rx.IDisposable;
     private _apiV3: APIv3;
 
-    private _tags3d: ITag3d[];
+    private _tags: ITag[];
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
         this._apiV3 = navigator.apiV3;
-        this._tags3d = null;
+        this._tags = null;
     }
 
     protected _activate(): void {
-        let tags$: rx.Observable<any> = this._navigator.stateService.currentNode$.flatMap((node: Node): rx.Observable<any> => {
+        let ors$: rx.Observable<any> = this._navigator.stateService.currentNode$.flatMap((node: Node): rx.Observable<any> => {
             return this._apiV3.model.get([
                 "imageByKey",
                 node.key,
@@ -49,18 +49,18 @@ export class TagComponent extends Component {
             ]);
         });
 
-        let tags3d$: rx.Observable<ITag3d[]> = rx.Observable.combineLatest(
+        let tags$: rx.Observable<ITag[]> = rx.Observable.combineLatest(
             this._navigator.stateService.currentNode$,
-            tags$,
-            (node: Node, tags: any): ITag3d[] => {
-                return this._computeTags3d(node, tags);
+            ors$,
+            (node: Node, ors: any): ITag[] => {
+                return this._computeTags(node, ors);
             });
 
         this._disposable = rx.Observable.combineLatest(
                 this._navigator.stateService.currentState$,
-                tags3d$,
-                (frame: IFrame, tags3d: ITag3d[]): ITagUpdateArgs => {
-                    return { frame: frame, tags3d: tags3d };
+                tags$,
+                (frame: IFrame, tags: ITag[]): ITagUpdateArgs => {
+                    return { frame: frame, tags: tags };
                 }
             ).distinctUntilChanged((args: ITagUpdateArgs) => {
                 return args.frame.state.camera.lookat.x;
@@ -75,7 +75,7 @@ export class TagComponent extends Component {
 
     private _renderHash(args: ITagUpdateArgs): IGLRenderHash {
         // save tags for later when the render function will be called
-        this._tags3d = args.tags3d;
+        this._tags = args.tags;
 
         // return render hash with render function and
         // render in foreground.
@@ -90,9 +90,8 @@ export class TagComponent extends Component {
         };
     }
 
-    private _computeTags3d(node: Node, tags: any): ITag3d[]  {
-        let ors: any = tags;
-        let tags3d: ITag3d[] = [];
+    private _computeTags(node: Node, ors: any): ITag[]  {
+        let tags: ITag[] = [];
         delete ors.json.imageByKey.$__path;
         ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
         delete ors.$__path;
@@ -100,27 +99,22 @@ export class TagComponent extends Component {
         for (let key in ors) {
             if (ors.hasOwnProperty(key)) {
                 let or: any = ors[key];
+                if (or) {
+                    let polygon: number[][] = this._rectToPolygon3d(
+                        node, or.rect.geometry.coordinates);
 
-                if (!or) {
-                    continue;
+                    tags.push({
+                        key: or.key,
+                        object: or.obj,
+                        package: or.package,
+                        polygon: polygon,
+                        score: or.score,
+                        value: or.value,
+                    });
                 }
-
-                let polygon: number[][] = this._rectToPolygon3d(
-                    node, or.rect.geometry.coordinates);
-
-
-                let tag3d: ITag3d = {
-                    key: or.key,
-                    object: or.obj,
-                    package: or.package,
-                    polygon: polygon,
-                    score: or.score,
-                    value: or.value,
-                };
-                tags3d.push(tag3d);
             }
         }
-        return tags3d;
+        return tags;
     }
 
     private _rectToPolygon3d(node: Node, points: number[][]): number[][] {
@@ -135,13 +129,13 @@ export class TagComponent extends Component {
         console.log("render");
         // todo(pau): project 3d polygon to the PerspectiveCamera
 
-        this._container.domRenderer.renderAdaptive$.onNext({ name: this._name, vnode: this._getRects(this._tags3d) });
+        this._container.domRenderer.renderAdaptive$.onNext({ name: this._name, vnode: this._getRects(this._tags) });
     }
 
-    private _getRects(tags3d: ITag3d[]): vd.VNode {
+    private _getRects(tags: ITag[]): vd.VNode {
         let vRects: vd.VNode[] = [];
 
-        tags3d.forEach((r: ITag3d) => {
+        tags.forEach((r: ITag) => {
             let rect: number[] = [];
             rect[0] = r.polygon[1][0];
             rect[1] = r.polygon[1][1];
