@@ -12,11 +12,11 @@ export class RenderService {
 
     private _renderMode$: rx.BehaviorSubject<RenderMode>;
 
-    constructor(element: HTMLElement) {
+    constructor(element: HTMLElement, renderMode: RenderMode) {
         this._element = element;
 
         this._resize$ = new rx.BehaviorSubject<void>(null);
-        this._renderMode$ = new rx.BehaviorSubject<RenderMode>(RenderMode.Letterbox);
+        this._renderMode$ = new rx.BehaviorSubject<RenderMode>(renderMode != null ? renderMode : RenderMode.Letterbox);
 
         this._size$ = this._resize$
             .map<ISize>(

@@ -28,7 +28,7 @@ class RendererMock implements THREE.Renderer {
 describe("GLRenderer.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
         let glRenderer: GLRenderer = new GLRenderer(element, renderService, rx.Observable.empty<IFrame>());
 
         expect(glRenderer).not.toBeNull();
@@ -38,7 +38,7 @@ describe("GLRenderer.ctor", () => {
         spyOn(THREE, "WebGLRenderer");
 
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
         let glRenderer: GLRenderer = new GLRenderer(element, renderService, rx.Observable.empty<IFrame>());
 
         expect(THREE.WebGLRenderer).not.toHaveBeenCalled();
@@ -48,7 +48,7 @@ describe("GLRenderer.ctor", () => {
 describe("GLRenderer.renderer", () => {
     let createGLRenderer = (frame$?: rx.Observable<IFrame>, element?: HTMLElement, renderService?: RenderService): GLRenderer => {
         element = element != null ? element : document.createElement("div");
-        renderService = renderService != null ? renderService : new RenderService(element);
+        renderService = renderService != null ? renderService : new RenderService(element, RenderMode.Letterbox);
         let glRenderer: GLRenderer = new GLRenderer(element, renderService, !!frame$ ? frame$ : rx.Observable.empty<IFrame>());
 
         return glRenderer;
@@ -258,7 +258,7 @@ describe("GLRenderer.renderer", () => {
         let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
 
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
         let glRenderer: GLRenderer = createGLRenderer(frame$, element, renderService);
 
         glRenderer.render$.onNext(createGLRenderHash(frameId, true));
@@ -296,7 +296,7 @@ describe("GLRenderer.renderer", () => {
             appendChild(element: HTMLElement): void { }
         };
 
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
         let glRenderer: GLRenderer = createGLRenderer(frame$, element, renderService);
 
         glRenderer.render$.onNext(createGLRenderHash(frameId, true));
@@ -319,7 +319,7 @@ describe("GLRenderer.renderer", () => {
         let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(frameId));
 
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
         let glRenderer: GLRenderer = createGLRenderer(frame$, element, renderService);
 
         glRenderer.render$.onNext(createGLRenderHash(frameId, true));

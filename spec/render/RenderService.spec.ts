@@ -11,7 +11,7 @@ import {
 describe("RenderService.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
 
         expect(renderService).not.toBeNull();
     });
@@ -20,7 +20,7 @@ describe("RenderService.ctor", () => {
 describe("RenderService.renderMode", () => {
     it("should default to letterboxing", (done) => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
 
         renderService.renderMode$
             .subscribe(
@@ -33,7 +33,7 @@ describe("RenderService.renderMode", () => {
 
     it("should return latest render mode on subscripion", (done) => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
 
         renderService.renderMode$.onNext(RenderMode.Fill);
 
@@ -50,7 +50,7 @@ describe("RenderService.renderMode", () => {
 describe("RenderService.size", () => {
     it("should be defined", (done) => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
 
         renderService.size$
             .subscribe(
@@ -63,7 +63,7 @@ describe("RenderService.size", () => {
 
     it("should have an initial value", (done) => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
 
         renderService.size$
             .subscribe(
@@ -77,7 +77,7 @@ describe("RenderService.size", () => {
 
     it("should emit new value on resize", (done) => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element);
+        let renderService: RenderService = new RenderService(element, RenderMode.Letterbox);
 
         renderService.size$
             .take(2)
