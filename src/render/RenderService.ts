@@ -6,13 +6,7 @@ import {Camera, Transform} from "../Geo";
 import {RenderCamera, RenderMode, ISize} from "../Render";
 import {IFrame} from "../State";
 
-interface ICombination {
-    alpha: number;
-    camera: Camera;
-    frame: IFrame;
-}
-
-interface IRenderCameraOperation {
+interface IRenderCameraChangeOperation {
     (rcc: [RenderCamera, boolean]): [RenderCamera, boolean];
 }
 
@@ -20,8 +14,9 @@ export class RenderService {
     private _element: HTMLElement;
     private _currentFrame$: rx.Observable<IFrame>;
 
-    private _renderCameraOperation$: rx.Subject<IRenderCameraOperation>;
-    private _renderCamera$: rx.Observable<[RenderCamera, boolean]>;
+    private _renderCameraChangeOperation$: rx.Subject<IRenderCameraChangeOperation>;
+    private _renderCameraChange$: rx.Observable<[RenderCamera, boolean]>;
+    private _renderCamera$: rx.Observable<RenderCamera>;
 
     private _resize$: rx.Subject<void>;
     private _size$: rx.BehaviorSubject<ISize>;
@@ -34,7 +29,7 @@ export class RenderService {
         renderMode = renderMode != null ? renderMode : RenderMode.Letterbox;
 
         this._resize$ = new rx.Subject<void>();
-        this._renderCameraOperation$ = new rx.Subject<IRenderCameraOperation>();
+        this._renderCameraChangeOperation$ = new rx.Subject<IRenderCameraChangeOperation>();
 
         this._size$ =
             new rx.BehaviorSubject<ISize>(
@@ -52,17 +47,28 @@ export class RenderService {
                 })
             .subscribe(this._size$);
 
-        this._renderCamera$ = this._renderCameraOperation$
+        this._renderCameraChange$ = this._renderCameraChangeOperation$
             .scan<[RenderCamera, boolean]>(
-                (rcc: [RenderCamera, boolean], operation: IRenderCameraOperation): [RenderCamera, boolean] => {
+                (rcc: [RenderCamera, boolean], operation: IRenderCameraChangeOperation): [RenderCamera, boolean] => {
                     return operation(rcc);
                 },
                 [new RenderCamera(this._element.offsetWidth / this._element.offsetHeight, renderMode), false])
+            .share();
+
+        this._renderCamera$ = this._renderCameraChange$
+            .filter(
+                (rcc: [RenderCamera, boolean]): boolean => {
+                    return rcc[1] === true;
+                })
+            .map<RenderCamera>(
+                (rcc: [RenderCamera, boolean]): RenderCamera => {
+                    return rcc[0];
+                })
             .shareReplay(1);
 
         this._currentFrame$
-            .map<IRenderCameraOperation>(
-                (frame: IFrame): IRenderCameraOperation => {
+            .map<IRenderCameraChangeOperation>(
+                (frame: IFrame): IRenderCameraChangeOperation => {
                     return (rcc: [RenderCamera, boolean]): [RenderCamera, boolean] => {
                         let rc: RenderCamera = rcc[0];
 
@@ -98,7 +104,7 @@ export class RenderService {
                         return [rc, false];
                     };
                 })
-            .subscribe(this._renderCameraOperation$);
+            .subscribe(this._renderCameraChangeOperation$);
     }
 
     public get element(): HTMLElement {
@@ -117,7 +123,11 @@ export class RenderService {
         return this._renderMode$;
     }
 
-    public get renderCamera$(): rx.Observable<[RenderCamera, boolean]> {
+    public get renderCameraChange$(): rx.Observable<[RenderCamera, boolean]> {
+        return this._renderCameraChange$;
+    }
+
+    public get renderCamera$(): rx.Observable<RenderCamera> {
         return this._renderCamera$;
     }
 }
