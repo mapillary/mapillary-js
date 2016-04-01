@@ -35,9 +35,23 @@ export class Transform {
         this._srt = this._getSrt(this._rt, this._scale);
     }
 
-    public static fromNodeAndReference(node: Node, reference: ILatLonAlt) {
+    public static fromNodeAndReference(node: Node, reference: ILatLonAlt): Transform {
         let translation: number[] = Transform._nodeToTranslation(node, reference);
         return new Transform(node, translation);
+    }
+
+    private static _nodeToTranslation(node: Node, reference: ILatLonAlt): number[] {
+        let C: number[] = (new GeoCoords).geodeticToEnu(
+            node.latLon.lat,
+            node.latLon.lon,
+            node.apiNavImIm.calt,
+            reference.lat,
+            reference.lon,
+            reference.alt);
+
+        let RC: THREE.Vector3 = (new Spatial).rotate(C, node.apiNavImIm.rotation);
+
+        return [-RC.x, -RC.y, -RC.z];
     }
 
     public get width(): number {
@@ -122,18 +136,111 @@ export class Transform {
         return projector;
     }
 
-    private static _nodeToTranslation(node: Node, reference: ILatLonAlt): number[] {
-        let C: number[] = (new GeoCoords).geodeticToEnu(
-            node.latLon.lat,
-            node.latLon.lon,
-            node.apiNavImIm.calt,
-            reference.lat,
-            reference.lon,
-            reference.alt);
+    public projectBasic(point: number[]): number[] {
+        let sfm: number[] = this.projectSfM(point);
+        return this._sfmToBasic(sfm);
+    }
 
-        let RC: THREE.Vector3 = (new Spatial).rotate(C, node.apiNavImIm.rotation);
+    public unprojectBasic(pixel: number[], distance: number): number[] {
+        let sfm: number[] = this._basicToSfm(pixel);
+        return this.unprojectSfM(sfm, distance);
+    }
 
-        return [-RC.x, -RC.y, -RC.z];
+    public projectSfM(point: number[]): number[] {
+        let v: THREE.Vector4 = new THREE.Vector4(point[0], point[1], point[2], 1);
+        v.applyMatrix4(this._rt);
+        return this._bearingToPixel([v.x, v.y, v.z]);
+    }
+
+    public unprojectSfM(pixel: number[], distance: number): number[] {
+        let bearing: number[] = this._pixelToBearing(pixel);
+        let v: THREE.Vector4 = new THREE.Vector4(
+            distance * bearing[0],
+            distance * bearing[1],
+            distance * bearing[2],
+            1);
+        v.applyMatrix4(new THREE.Matrix4().getInverse(this._rt));
+        return [v.x / v.w, v.y / v.w, v.z / v.w];
+    }
+
+    private _pixelToBearing(pixel: number[]): number[] {
+        // todo(pau): handle panos and radial distortion
+        let v: THREE.Vector3 = new THREE.Vector3(pixel[0], pixel[1], this._focal);
+        v.normalize();
+        return [v.x, v.y, v.z];
+    }
+
+    private _bearingToPixel(bearing: number[]): number[] {
+        // todo(pau): handle panos and radial distortion
+        return [bearing[0] * this._focal / bearing[2],
+                bearing[1] * this._focal / bearing[2], ];
+    }
+
+    private _basicToSfm(point: number[]): number[] {
+        let rotatedX: number;
+        let rotatedY: number;
+        switch (this._orientation) {
+            case 1:
+                rotatedX = point[0];
+                rotatedY = point[1];
+                break;
+            case 3:
+                rotatedX = -point[0];
+                rotatedY = -point[1];
+                break;
+            case 6:
+                rotatedX = point[1];
+                rotatedY = -point[0];
+                break;
+            case 8:
+                rotatedX = -point[1];
+                rotatedY = point[0];
+                break;
+            default:
+                rotatedX = point[0];
+                rotatedY = point[1];
+                break;
+        }
+        let w: number = this._width;
+        let h: number = this._height;
+        let s: number = Math.max(w, h);
+        let sfmX: number = rotatedX * w / s - w / s / 2;
+        let sfmY: number = rotatedY * h / s - h / s / 2;
+        return [sfmX, sfmY];
+    }
+
+    private _sfmToBasic(point: number[]): number[] {
+        let w: number = this._width;
+        let h: number = this._height;
+        let s: number = Math.max(w, h);
+        let rotatedX: number = (point[0] + w / s / 2) / w * s;
+        let rotatedY: number = (point[1] + h / s / 2) / h * s;
+
+        let basicX: number;
+        let basicY: number;
+        switch (this._orientation) {
+            case 1:
+                basicX = rotatedX;
+                basicY = rotatedY;
+                break;
+            case 3:
+                basicX = -rotatedX;
+                basicY = -rotatedY;
+                break;
+            case 6:
+                basicY = rotatedX;
+                basicX = -rotatedY;
+                break;
+            case 8:
+                basicY = -rotatedX;
+                basicX = rotatedY;
+                break;
+            default:
+                basicX = rotatedX;
+                basicY = rotatedY;
+                break;
+        }
+        return [basicX, basicY];
     }
 
     private _getValue(value: number, fallback: number): number {

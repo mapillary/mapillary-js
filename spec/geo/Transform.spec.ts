@@ -498,3 +498,60 @@ describe("Transform.pixelToVertex", () => {
         expect(vertex.z).toBeCloseTo(C[2] - depth, precision);
     });
 });
+
+describe("Transform.projectBasic", () => {
+    let precision: number = 8;
+
+    it("should project to the image center", () => {
+        let t: number[] = [0, 0, 0];
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            []);
+
+        let transform: Transform = new Transform(node, t);
+
+        let pixel: number[] = transform.projectBasic([0, 0, 10]);
+
+        expect(pixel[0]).toBeCloseTo(0.5, precision);
+        expect(pixel[1]).toBeCloseTo(0.5, precision);
+    });
+
+    it("should project to the first quadrant", () => {
+        let t: number[] = [0, 0, 0];
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0, 0, 0] },
+            []);
+
+        let transform: Transform = new Transform(node, t);
+
+        let pixel: number[] = transform.projectBasic([1, 1, 10]);
+
+        expect(pixel[0]).toBeGreaterThan(0);
+        expect(pixel[1]).toBeGreaterThan(0);
+    });
+});
+
+describe("Transform.unprojectBasic", () => {
+    let precision: number = 6;
+
+    it("should back-project to the same pixel", () => {
+        let t: number[] = [10, 20, 30];
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            { key: "",  rotation: [0.1, 0.2, 0.3] },
+            []);
+
+        let transform: Transform = new Transform(node, t);
+
+        let pixel: number[] = [-0.1, 0.2];
+
+        let point: number[] = transform.unprojectBasic(pixel, 10);
+
+        let backprojectedPixel: number[] = transform.projectBasic(point);
+
+        expect(backprojectedPixel[0]).toBeCloseTo(pixel[0], precision);
+        expect(backprojectedPixel[1]).toBeCloseTo(pixel[1], precision);
+    });
+});
