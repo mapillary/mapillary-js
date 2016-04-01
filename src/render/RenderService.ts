@@ -53,6 +53,10 @@ export class RenderService {
                     return operation(rc);
                 },
                 new RenderCamera(this._element.offsetWidth / this._element.offsetHeight, renderMode))
+            .distinctUntilChanged(
+                (rc: RenderCamera): number => {
+                    return rc.frameId;
+                })
             .share();
 
         this._renderCamera$ = this._renderCameraFrame$
@@ -92,6 +96,30 @@ export class RenderService {
                         }
 
                         rc.frameId = frame.id;
+
+                        return rc;
+                    };
+                })
+            .subscribe(this._renderCameraOperation$);
+
+        this._size$
+            .map<IRenderCameraOperation>(
+                (size: ISize) => {
+                    return (rc: RenderCamera): RenderCamera => {
+                        rc.perspective.aspect = size.width / size.height;
+                        rc.updateProjection();
+
+                        return rc;
+                    };
+                })
+            .subscribe(this._renderCameraOperation$);
+
+        this._renderMode$
+            .map<IRenderCameraOperation>(
+                (rm: RenderMode) => {
+                    return (rc: RenderCamera): RenderCamera => {
+                        rc.renderMode = rm;
+                        rc.updateProjection();
 
                         return rc;
                     };
