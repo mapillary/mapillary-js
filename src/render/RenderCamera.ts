@@ -19,9 +19,13 @@ export class RenderCamera {
     private _camera: Camera;
     private _perspective: THREE.PerspectiveCamera;
 
+    private _changedForFrame: number;
+
     constructor(perspectiveCameraAspect: number, renderMode: RenderMode) {
         this.frameId = -1;
         this.alpha = -1;
+
+        this._changedForFrame = -1;
 
         this.currentAspect = 1;
         this.currentOrientation = 1;
@@ -48,6 +52,10 @@ export class RenderCamera {
         return this._camera;
     }
 
+    public get changed(): boolean {
+        return this.frameId === this._changedForFrame;
+    }
+
     public updateProjection(): void {
         let currentAspect: number = this._getAspect(
             this.currentAspect,
@@ -67,12 +75,16 @@ export class RenderCamera {
 
         this._perspective.fov = verticalFov;
         this._perspective.updateProjectionMatrix();
+
+        this._changedForFrame = this.frameId + 1;
     }
 
     public updatePerspective(camera: Camera): void {
         this._perspective.up.copy(camera.up);
         this._perspective.position.copy(camera.position);
         this._perspective.lookAt(camera.lookat);
+
+        this._changedForFrame = this.frameId + 1;
     }
 
     private _getVerticalFov(aspect: number, focal: number): number {

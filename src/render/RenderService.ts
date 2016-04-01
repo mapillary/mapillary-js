@@ -6,16 +6,16 @@ import {Camera, Transform} from "../Geo";
 import {RenderCamera, RenderMode, ISize} from "../Render";
 import {IFrame} from "../State";
 
-interface IRenderCameraChangeOperation {
-    (rcc: [RenderCamera, boolean]): [RenderCamera, boolean];
+interface IRenderCameraOperation {
+    (rc: RenderCamera): RenderCamera;
 }
 
 export class RenderService {
     private _element: HTMLElement;
     private _currentFrame$: rx.Observable<IFrame>;
 
-    private _renderCameraChangeOperation$: rx.Subject<IRenderCameraChangeOperation>;
-    private _renderCameraChange$: rx.Observable<[RenderCamera, boolean]>;
+    private _renderCameraOperation$: rx.Subject<IRenderCameraOperation>;
+    private _renderCameraFrame$: rx.Observable<RenderCamera>;
     private _renderCamera$: rx.Observable<RenderCamera>;
 
     private _resize$: rx.Subject<void>;
@@ -29,7 +29,7 @@ export class RenderService {
         renderMode = renderMode != null ? renderMode : RenderMode.Letterbox;
 
         this._resize$ = new rx.Subject<void>();
-        this._renderCameraChangeOperation$ = new rx.Subject<IRenderCameraChangeOperation>();
+        this._renderCameraOperation$ = new rx.Subject<IRenderCameraOperation>();
 
         this._size$ =
             new rx.BehaviorSubject<ISize>(
@@ -47,36 +47,28 @@ export class RenderService {
                 })
             .subscribe(this._size$);
 
-        this._renderCameraChange$ = this._renderCameraChangeOperation$
-            .scan<[RenderCamera, boolean]>(
-                (rcc: [RenderCamera, boolean], operation: IRenderCameraChangeOperation): [RenderCamera, boolean] => {
-                    return operation(rcc);
+        this._renderCameraFrame$ = this._renderCameraOperation$
+            .scan<RenderCamera>(
+                (rc: RenderCamera, operation: IRenderCameraOperation): RenderCamera => {
+                    return operation(rc);
                 },
-                [new RenderCamera(this._element.offsetWidth / this._element.offsetHeight, renderMode), false])
+                new RenderCamera(this._element.offsetWidth / this._element.offsetHeight, renderMode))
             .share();
 
-        this._renderCamera$ = this._renderCameraChange$
+        this._renderCamera$ = this._renderCameraFrame$
             .filter(
-                (rcc: [RenderCamera, boolean]): boolean => {
-                    return rcc[1] === true;
-                })
-            .map<RenderCamera>(
-                (rcc: [RenderCamera, boolean]): RenderCamera => {
-                    return rcc[0];
+                (rc: RenderCamera): boolean => {
+                    return rc.changed;
                 })
             .shareReplay(1);
 
         this._currentFrame$
-            .map<IRenderCameraChangeOperation>(
-                (frame: IFrame): IRenderCameraChangeOperation => {
-                    return (rcc: [RenderCamera, boolean]): [RenderCamera, boolean] => {
-                        let rc: RenderCamera = rcc[0];
+            .map<IRenderCameraOperation>(
+                (frame: IFrame): IRenderCameraOperation => {
+                    return (rc: RenderCamera): RenderCamera => {
+                        let camera: Camera = frame.state.camera;
 
-                        rc.frameId = frame.id;
-
-                        let current: Camera = frame.state.camera;
-
-                        if (rc.alpha !== frame.state.alpha || rc.camera.diff(current) > 0.00001) {
+                        if (rc.alpha !== frame.state.alpha || rc.camera.diff(camera) > 0.00001) {
                             let currentTransform: Transform = frame.state.currentTransform;
                             let previousTransform: Transform = frame.state.previousTransform;
 
@@ -93,18 +85,18 @@ export class RenderService {
 
                             rc.alpha = frame.state.alpha;
 
-                            rc.camera.copy(current);
-                            rc.updatePerspective(current);
+                            rc.camera.copy(camera);
+                            rc.updatePerspective(camera);
 
                             rc.updateProjection();
-
-                            return [rc, true];
                         }
 
-                        return [rc, false];
+                        rc.frameId = frame.id;
+
+                        return rc;
                     };
                 })
-            .subscribe(this._renderCameraChangeOperation$);
+            .subscribe(this._renderCameraOperation$);
     }
 
     public get element(): HTMLElement {
@@ -123,8 +115,8 @@ export class RenderService {
         return this._renderMode$;
     }
 
-    public get renderCameraChange$(): rx.Observable<[RenderCamera, boolean]> {
-        return this._renderCameraChange$;
+    public get renderCameraFrame$(): rx.Observable<RenderCamera> {
+        return this._renderCameraFrame$;
     }
 
     public get renderCamera$(): rx.Observable<RenderCamera> {
