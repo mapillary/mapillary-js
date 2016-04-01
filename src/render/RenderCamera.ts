@@ -6,6 +6,7 @@ import {Camera} from "../Geo";
 import {RenderMode} from "../Render";
 
 export class RenderCamera {
+    public frameId: number;
     public alpha: number;
     public currentAspect: number;
     public currentOrientation: number;
@@ -19,7 +20,8 @@ export class RenderCamera {
     private _perspective: THREE.PerspectiveCamera;
 
     constructor(perspectiveCameraAspect: number, renderMode: RenderMode) {
-        this.alpha = 0;
+        this.frameId = -1;
+        this.alpha = -1;
 
         this.currentAspect = 1;
         this.currentOrientation = 1;
