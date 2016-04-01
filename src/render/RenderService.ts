@@ -7,23 +7,35 @@ import {RenderMode, ISize} from "../Render";
 export class RenderService {
     private _element: HTMLElement;
 
-    private _resize$: rx.BehaviorSubject<void>;
-    private _size$: rx.Observable<ISize>;
+    private _resize$: rx.Subject<void>;
+    private _size$: rx.BehaviorSubject<ISize>;
 
     private _renderMode$: rx.BehaviorSubject<RenderMode>;
 
     constructor(element: HTMLElement, renderMode: RenderMode) {
         this._element = element;
 
-        this._resize$ = new rx.BehaviorSubject<void>(null);
-        this._renderMode$ = new rx.BehaviorSubject<RenderMode>(renderMode != null ? renderMode : RenderMode.Letterbox);
+        this._resize$ = new rx.Subject<void>();
 
-        this._size$ = this._resize$
+        this._size$ =
+            new rx.BehaviorSubject<ISize>(
+                {
+                    height: this._element.offsetHeight,
+                    width: this._element.offsetWidth,
+                });
+
+        this._renderMode$ =
+            new rx.BehaviorSubject<RenderMode>(
+                renderMode != null ?
+                renderMode :
+                RenderMode.Letterbox);
+
+        this._resize$
             .map<ISize>(
                 (): ISize => {
                     return { height: this._element.offsetHeight, width: this._element.offsetWidth };
                 })
-            .shareReplay(1);
+            .subscribe(this._size$);
     }
 
     public get element(): HTMLElement {
