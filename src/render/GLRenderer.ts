@@ -170,32 +170,7 @@ export class GLRenderer {
                 (renderer: IGLRenderer, operation: IGLRendererOperation): IGLRenderer => {
                     return operation(renderer);
                 },
-                { needsRender: false, renderer: null }
-            );
-
-        this._render$
-            .first()
-            .subscribe((hash: IGLRenderHash): void => {
-                this._rendererOperation$.onNext((renderer: IGLRenderer): IGLRenderer => {
-                    let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
-
-                    webGLRenderer.setSize(this._element.offsetWidth, this._element.offsetHeight);
-                    webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
-                    webGLRenderer.sortObjects = false;
-
-                    webGLRenderer.domElement.style.width = "100%";
-                    webGLRenderer.domElement.style.height = "100%";
-
-                    this._element.appendChild(webGLRenderer.domElement);
-
-                    renderer.needsRender = true;
-                    renderer.renderer = webGLRenderer;
-
-                    return renderer;
-                });
-            });
-
-        this._frameSubscribe();
+                { needsRender: false, renderer: null });
 
         this._renderCollection$ = this._renderOperation$
             .scan<IGLRenderHashes>(
@@ -204,52 +179,6 @@ export class GLRenderer {
                 },
                 {});
 
-        this._render$
-            .map<IGLRenderHashesOperation>((hash: IGLRenderHash) => {
-                return (hashes: IGLRenderHashes): IGLRenderHashes => {
-                    hashes[hash.name] = hash.render;
-
-                    return hashes;
-                };
-            })
-            .subscribe(this._renderOperation$);
-
-        this._clear$
-            .map<IGLRenderHashesOperation>((name: string) => {
-                return (hashes: IGLRenderHashes): IGLRenderHashes => {
-                    delete hashes[name];
-
-                    return hashes;
-                };
-            })
-            .subscribe(this._renderOperation$);
-
-        this._clear$
-            .map<IGLRendererOperation>((name: string) => {
-                return (renderer: IGLRenderer): IGLRenderer => {
-                    if (renderer.renderer == null) {
-                        return renderer;
-                    }
-
-                    renderer.needsRender = true;
-
-                    return renderer;
-                };
-            })
-            .subscribe(this._rendererOperation$);
-
-        this._renderCollection$
-            .subscribe((hashes: IGLRenderHashes): void => {
-                if (Object.keys(hashes).length || this._frameSubscription == null) {
-                    return;
-                }
-
-                this._frameSubscription.dispose();
-                this._frameSubscription = null;
-
-                this._frameSubscribe();
-            });
-
         this._cameraState$ = this._cameraStateOperation$
             .scan<CameraState>(
                 (cs: CameraState, operation: ICameraStateOperation): CameraState => {
@@ -257,111 +186,32 @@ export class GLRenderer {
                 },
                 new CameraState(this._element.offsetWidth / this._element.offsetHeight));
 
-        this._frame$
-            .map<ICameraStateOperation>((frame: IFrame) => {
-                return (cs: CameraState): CameraState => {
-                    cs.frameId = frame.id;
-
-                    let current: Camera = frame.state.camera;
-
-                    if (cs.lastCamera.diff(current) < 0.00001 && cs.alpha === frame.state.alpha) {
-                        return cs;
-                    }
-
-                    cs.alpha = frame.state.alpha;
-                    cs.focal = current.focal;
-
-                    let currentTransform: Transform = frame.state.currentTransform;
-                    let previousTransform: Transform = frame.state.previousTransform;
-
-                    if (previousTransform == null) {
-                        previousTransform = frame.state.currentTransform;
-                    }
-
-                    cs.currentAspect = currentTransform.aspect;
-                    cs.currentOrientation = currentTransform.orientation;
-                    cs.currentPano = frame.state.currentNode.fullPano;
-                    cs.previousAspect = previousTransform.aspect;
-                    cs.previousOrientation = previousTransform.orientation;
-                    cs.previousPano = frame.state.previousNode != null && frame.state.previousNode.fullPano;
-
-                    cs.updateProjection();
-                    cs.updatePerspective(current);
-
-                    cs.lastCamera.copy(current);
-                    cs.needsRender = true;
-
-                    return cs;
-                };
-            })
-            .subscribe(this._cameraStateOperation$);
-
-        this._renderService.size$.map<ICameraStateOperation>(
-            (size: ISize) => {
-                return (cs: CameraState): CameraState => {
-                    cs.perspective.aspect = size.width / size.height;
-
-                    cs.updateProjection();
-                    cs.needsRender = true;
-
-                    return cs;
-                };
-            })
-            .subscribe(this._cameraStateOperation$);
-
-        this._renderService.size$.map<IGLRendererOperation>(
-            (size: ISize): IGLRendererOperation => {
-                return (renderer: IGLRenderer): IGLRenderer => {
-                    if (renderer.renderer == null) {
-                        return renderer;
-                    }
-
-                    renderer.renderer.setSize(size.width, size.height);
-                    renderer.needsRender = true;
-
-                    return renderer;
-                };
-            })
-            .subscribe(this._rendererOperation$);
-
-        this._renderService.renderMode$
-            .map<ICameraStateOperation>(
-                (renderMode: RenderMode) => {
-                    return (cs: CameraState): CameraState => {
-                        cs.renderMode = renderMode;
-
-                        cs.updateProjection();
-                        cs.needsRender = true;
-
-                        return cs;
-                    };
-                })
-            .subscribe(this._cameraStateOperation$);
-
-        rx.Observable.combineLatest(
+        rx.Observable
+            .combineLatest(
                 this._cameraState$,
                 this._renderCollection$,
                 this._renderer$,
                 (cs: CameraState, hashes: IGLRenderHashes, renderer: IGLRenderer): ICombination => {
                     return { cameraState: cs, renderer: renderer, renders: _.values(hashes) };
                 })
-            .filter((co: ICombination) => {
-                let needsRender: boolean =
-                    co.cameraState.needsRender ||
-                    co.renderer.needsRender;
+            .filter(
+                (co: ICombination) => {
+                    let needsRender: boolean =
+                        co.cameraState.needsRender ||
+                        co.renderer.needsRender;
 
-                let frameId: number = co.cameraState.frameId;
+                    let frameId: number = co.cameraState.frameId;
 
-                for (let render of co.renders) {
-                    if (render.frameId !== frameId) {
-                        return false;
+                    for (let render of co.renders) {
+                        if (render.frameId !== frameId) {
+                            return false;
+                        }
+
+                        needsRender = needsRender || render.needsRender;
                     }
 
-                    needsRender = needsRender || render.needsRender;
-                }
-
-                return needsRender;
-            })
+                    return needsRender;
+                })
             .distinctUntilChanged((co: ICombination): number => { return co.cameraState.frameId; })
             .subscribe(
                 (co: ICombination): void => {
@@ -396,6 +246,165 @@ export class GLRenderer {
                         render(perspectiveCamera, renderer);
                     }
                 });
+
+        this._render$
+            .first()
+            .subscribe(
+                (hash: IGLRenderHash): void => {
+                    this._rendererOperation$.onNext((renderer: IGLRenderer): IGLRenderer => {
+                        let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+
+                        webGLRenderer.setSize(this._element.offsetWidth, this._element.offsetHeight);
+                        webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
+                        webGLRenderer.sortObjects = false;
+
+                        webGLRenderer.domElement.style.width = "100%";
+                        webGLRenderer.domElement.style.height = "100%";
+
+                        this._element.appendChild(webGLRenderer.domElement);
+
+                        renderer.needsRender = true;
+                        renderer.renderer = webGLRenderer;
+
+                        return renderer;
+                    });
+                });
+
+        this._frameSubscribe();
+
+        this._render$
+            .map<IGLRenderHashesOperation>(
+                (hash: IGLRenderHash) => {
+                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
+                        hashes[hash.name] = hash.render;
+
+                        return hashes;
+                    };
+                })
+            .subscribe(this._renderOperation$);
+
+        this._clear$
+            .map<IGLRenderHashesOperation>(
+                (name: string) => {
+                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
+                        delete hashes[name];
+
+                        return hashes;
+                    };
+                })
+            .subscribe(this._renderOperation$);
+
+        this._clear$
+            .map<IGLRendererOperation>(
+                (name: string) => {
+                    return (renderer: IGLRenderer): IGLRenderer => {
+                        if (renderer.renderer == null) {
+                            return renderer;
+                        }
+
+                        renderer.needsRender = true;
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._rendererOperation$);
+
+        this._renderCollection$
+            .subscribe(
+                (hashes: IGLRenderHashes): void => {
+                    if (Object.keys(hashes).length || this._frameSubscription == null) {
+                        return;
+                    }
+
+                    this._frameSubscription.dispose();
+                    this._frameSubscription = null;
+
+                    this._frameSubscribe();
+                });
+
+        this._frame$
+            .map<ICameraStateOperation>(
+                (frame: IFrame): ICameraStateOperation => {
+                    return (cs: CameraState): CameraState => {
+                        cs.frameId = frame.id;
+
+                        let current: Camera = frame.state.camera;
+
+                        if (cs.lastCamera.diff(current) < 0.00001 && cs.alpha === frame.state.alpha) {
+                            return cs;
+                        }
+
+                        cs.alpha = frame.state.alpha;
+                        cs.focal = current.focal;
+
+                        let currentTransform: Transform = frame.state.currentTransform;
+                        let previousTransform: Transform = frame.state.previousTransform;
+
+                        if (previousTransform == null) {
+                            previousTransform = frame.state.currentTransform;
+                        }
+
+                        cs.currentAspect = currentTransform.aspect;
+                        cs.currentOrientation = currentTransform.orientation;
+                        cs.currentPano = frame.state.currentNode.fullPano;
+                        cs.previousAspect = previousTransform.aspect;
+                        cs.previousOrientation = previousTransform.orientation;
+                        cs.previousPano = frame.state.previousNode != null && frame.state.previousNode.fullPano;
+
+                        cs.updateProjection();
+                        cs.updatePerspective(current);
+
+                        cs.lastCamera.copy(current);
+                        cs.needsRender = true;
+
+                        return cs;
+                    };
+                })
+            .subscribe(this._cameraStateOperation$);
+
+        this._renderService.size$
+            .map<ICameraStateOperation>(
+                (size: ISize) => {
+                    return (cs: CameraState): CameraState => {
+                        cs.perspective.aspect = size.width / size.height;
+
+                        cs.updateProjection();
+                        cs.needsRender = true;
+
+                        return cs;
+                    };
+                })
+            .subscribe(this._cameraStateOperation$);
+
+        this._renderService.size$
+            .map<IGLRendererOperation>(
+                (size: ISize): IGLRendererOperation => {
+                    return (renderer: IGLRenderer): IGLRenderer => {
+                        if (renderer.renderer == null) {
+                            return renderer;
+                        }
+
+                        renderer.renderer.setSize(size.width, size.height);
+                        renderer.needsRender = true;
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._rendererOperation$);
+
+        this._renderService.renderMode$
+            .map<ICameraStateOperation>(
+                (renderMode: RenderMode) => {
+                    return (cs: CameraState): CameraState => {
+                        cs.renderMode = renderMode;
+
+                        cs.updateProjection();
+                        cs.needsRender = true;
+
+                        return cs;
+                    };
+                })
+            .subscribe(this._cameraStateOperation$);
     }
 
     public get render$(): rx.Subject<IGLRenderHash> {
