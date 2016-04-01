@@ -19,7 +19,7 @@ export class Container {
         this.element = document.getElementById(id);
         this.element.classList.add("mapillary-js");
 
-        this.renderService = new RenderService(this.element, renderMode);
+        this.renderService = new RenderService(this.element, stateService.currentState$, renderMode);
 
         this.glRenderer = new GLRenderer(this.element, this.renderService, stateService.currentState$);
         this.domRenderer = new DOMRenderer(this.element, this.renderService, stateService.currentState$);

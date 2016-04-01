@@ -2,20 +2,39 @@
 
 import * as rx from "rx";
 
-import {RenderMode, ISize} from "../Render";
+import {Camera, Transform} from "../Geo";
+import {RenderCamera, RenderMode, ISize} from "../Render";
+import {IFrame} from "../State";
+
+interface ICombination {
+    alpha: number;
+    camera: Camera;
+    frame: IFrame;
+}
+
+interface IRenderCameraOperation {
+    (camera: RenderCamera): RenderCamera;
+}
 
 export class RenderService {
     private _element: HTMLElement;
+    private _currentFrame$: rx.Observable<IFrame>;
+
+    private _renderCameraOperation$: rx.Subject<IRenderCameraOperation>;
+    private _renderCamera$: rx.Observable<RenderCamera>;
 
     private _resize$: rx.Subject<void>;
     private _size$: rx.BehaviorSubject<ISize>;
 
     private _renderMode$: rx.BehaviorSubject<RenderMode>;
 
-    constructor(element: HTMLElement, renderMode: RenderMode) {
+    constructor(element: HTMLElement, currentFrame$: rx.Observable<IFrame>, renderMode: RenderMode) {
         this._element = element;
+        this._currentFrame$ = currentFrame$;
+        renderMode = renderMode != null ? renderMode : RenderMode.Letterbox;
 
         this._resize$ = new rx.Subject<void>();
+        this._renderCameraOperation$ = new rx.Subject<IRenderCameraOperation>();
 
         this._size$ =
             new rx.BehaviorSubject<ISize>(
@@ -24,11 +43,7 @@ export class RenderService {
                     width: this._element.offsetWidth,
                 });
 
-        this._renderMode$ =
-            new rx.BehaviorSubject<RenderMode>(
-                renderMode != null ?
-                renderMode :
-                RenderMode.Letterbox);
+        this._renderMode$ = new rx.BehaviorSubject<RenderMode>(renderMode);
 
         this._resize$
             .map<ISize>(
@@ -36,6 +51,68 @@ export class RenderService {
                     return { height: this._element.offsetHeight, width: this._element.offsetWidth };
                 })
             .subscribe(this._size$);
+
+        this._renderCamera$ = this._renderCameraOperation$
+            .scan<RenderCamera>(
+                (rc: RenderCamera, operation: IRenderCameraOperation): RenderCamera => {
+                    return operation(rc);
+                },
+                new RenderCamera(this._element.offsetWidth / this._element.offsetHeight, renderMode))
+            .shareReplay(1);
+
+        this._currentFrame$
+            .scan<ICombination>(
+                (co: ICombination, frame: IFrame): ICombination => {
+                    return { alpha: co.alpha, camera: co.camera, frame: frame };
+                },
+                { alpha: -1, camera: new Camera(), frame: null })
+            .filter(
+                (co: ICombination): boolean => {
+                    return co.frame != null;
+                })
+            .filter(
+                (co: ICombination): boolean => {
+                    return co.alpha !== co.frame.state.alpha || co.camera.diff(co.frame.state.camera) > 0.00001;
+                })
+            .do(
+                (co: ICombination): void => {
+                    co.alpha = co.frame.state.alpha;
+                    co.camera.copy(co.frame.state.camera);
+                })
+            .map<IFrame>(
+                 (co: ICombination): IFrame => {
+                     return co.frame;
+                 })
+            .map<IRenderCameraOperation>(
+                (frame: IFrame): IRenderCameraOperation => {
+                    return (rc: RenderCamera): RenderCamera => {
+                        let currentTransform: Transform = frame.state.currentTransform;
+                        let previousTransform: Transform = frame.state.previousTransform;
+
+                        if (previousTransform == null) {
+                            previousTransform = frame.state.currentTransform;
+                        }
+
+                        rc.currentAspect = currentTransform.aspect;
+                        rc.currentOrientation = currentTransform.orientation;
+                        rc.currentPano = frame.state.currentNode.fullPano;
+                        rc.previousAspect = previousTransform.aspect;
+                        rc.previousOrientation = previousTransform.orientation;
+                        rc.previousPano = frame.state.previousNode != null && frame.state.previousNode.fullPano;
+
+                        rc.alpha = frame.state.alpha;
+
+                        let current: Camera = frame.state.camera;
+
+                        rc.updatePerspective(current);
+                        rc.camera.copy(current);
+
+                        rc.updateProjection();
+
+                        return rc;
+                    };
+                })
+            .subscribe(this._renderCameraOperation$);
     }
 
     public get element(): HTMLElement {
@@ -52,6 +129,10 @@ export class RenderService {
 
     public get renderMode$(): rx.Subject<RenderMode> {
         return this._renderMode$;
+    }
+
+    public get renderCamera$(): rx.Observable<RenderCamera> {
+        return this._renderCamera$;
     }
 }
 
