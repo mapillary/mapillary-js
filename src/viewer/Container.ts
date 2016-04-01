@@ -21,7 +21,7 @@ export class Container {
 
         this.renderService = new RenderService(this.element, stateService.currentState$, renderMode);
 
-        this.glRenderer = new GLRenderer(this.element, this.renderService, stateService.currentState$);
+        this.glRenderer = new GLRenderer(this.element, this.renderService);
         this.domRenderer = new DOMRenderer(this.element, this.renderService, stateService.currentState$);
 
         this.mouseService = new MouseService(this.element);

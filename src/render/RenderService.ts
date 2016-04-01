@@ -57,7 +57,7 @@ export class RenderService {
                 (rc: RenderCamera): number => {
                     return rc.frameId;
                 })
-            .share();
+            .shareReplay(1);
 
         this._renderCamera$ = this._renderCameraFrame$
             .filter(

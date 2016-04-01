@@ -383,4 +383,37 @@ describe("RenderService.renderCamera", () => {
         frame$.onNext(createFrame(1));
         frame$.onNext(createFrame(2, 0.5));
     });
+
+    it("should check width and height only once on resize", () => {
+        let element: any = {
+            get offsetHeight(): number {
+                return this.getOffsetHeight();
+            },
+            getOffsetHeight(): number {
+                return 0;
+            },
+            get offsetWidth(): number {
+                return this.getOffsetWidth();
+            },
+            getOffsetWidth(): number {
+                return 0;
+            },
+            appendChild(element: HTMLElement): void { }
+        };
+
+        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+
+        let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
+
+        renderService.size$.subscribe();
+        renderService.size$.subscribe();
+
+        spyOn(element, "getOffsetHeight");
+        spyOn(element, "getOffsetWidth");
+
+        renderService.resize$.onNext(null);
+
+        expect((<jasmine.Spy>element.getOffsetHeight).calls.count()).toBe(1);
+        expect((<jasmine.Spy>element.getOffsetWidth).calls.count()).toBe(1);
+    });
 });
