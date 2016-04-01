@@ -175,11 +175,11 @@ export class GLRenderer {
 
         this._renderFrameSubscribe();
 
-        this._render$
+        let createRenderer$: rx.Observable<IGLRendererOperation> = this._render$
             .first()
-            .subscribe(
-                (hash: IGLRenderHash): void => {
-                    this._rendererOperation$.onNext((renderer: IGLRenderer): IGLRenderer => {
+            .map<IGLRendererOperation>(
+                (hash: IGLRenderHash): IGLRendererOperation => {
+                    return (renderer: IGLRenderer): IGLRenderer => {
                         let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
 
                         webGLRenderer.setSize(this._element.offsetWidth, this._element.offsetHeight);
@@ -195,32 +195,25 @@ export class GLRenderer {
                         renderer.renderer = webGLRenderer;
 
                         return renderer;
-                    });
+                    };
                 });
 
-        this._render$
-            .map<IGLRenderHashesOperation>(
-                (hash: IGLRenderHash) => {
-                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
-                        hashes[hash.name] = hash.render;
+        let resizeRenderer$: rx.Observable<IGLRendererOperation> = this._renderService.size$
+            .map<IGLRendererOperation>(
+                (size: ISize): IGLRendererOperation => {
+                    return (renderer: IGLRenderer): IGLRenderer => {
+                        if (renderer.renderer == null) {
+                            return renderer;
+                        }
 
-                        return hashes;
+                        renderer.renderer.setSize(size.width, size.height);
+                        renderer.needsRender = true;
+
+                        return renderer;
                     };
-                })
-            .subscribe(this._renderOperation$);
+                });
 
-        this._clear$
-            .map<IGLRenderHashesOperation>(
-                (name: string) => {
-                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
-                        delete hashes[name];
-
-                        return hashes;
-                    };
-                })
-            .subscribe(this._renderOperation$);
-
-        this._clear$
+        let clearRenderer$: rx.Observable<IGLRendererOperation> = this._clear$
             .map<IGLRendererOperation>(
                 (name: string) => {
                     return (renderer: IGLRenderer): IGLRenderer => {
@@ -232,8 +225,35 @@ export class GLRenderer {
 
                         return renderer;
                     };
-                })
+                });
+
+        rx.Observable
+            .merge(createRenderer$, resizeRenderer$, clearRenderer$)
             .subscribe(this._rendererOperation$);
+
+        let renderHash$: rx.Observable<IGLRenderHashesOperation> = this._render$
+            .map<IGLRenderHashesOperation>(
+                (hash: IGLRenderHash) => {
+                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
+                        hashes[hash.name] = hash.render;
+
+                        return hashes;
+                    };
+                });
+
+        let clearHash$: rx.Observable<IGLRenderHashesOperation> = this._clear$
+            .map<IGLRenderHashesOperation>(
+                (name: string) => {
+                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
+                        delete hashes[name];
+
+                        return hashes;
+                    };
+                });
+
+        rx.Observable
+            .merge(renderHash$, clearHash$)
+            .subscribe(this._renderOperation$);
 
         this._renderCollection$
             .subscribe(
@@ -247,22 +267,6 @@ export class GLRenderer {
 
                     this._renderFrameSubscribe();
                 });
-
-        this._renderService.size$
-            .map<IGLRendererOperation>(
-                (size: ISize): IGLRendererOperation => {
-                    return (renderer: IGLRenderer): IGLRenderer => {
-                        if (renderer.renderer == null) {
-                            return renderer;
-                        }
-
-                        renderer.renderer.setSize(size.width, size.height);
-                        renderer.needsRender = true;
-
-                        return renderer;
-                    };
-                })
-            .subscribe(this._rendererOperation$);
     }
 
     public get render$(): rx.Subject<IGLRenderHash> {
