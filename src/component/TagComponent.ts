@@ -8,6 +8,7 @@ import {Container, Navigator} from "../Viewer";
 import {APIv3} from "../API";
 
 import {ComponentService, Component} from "../Component";
+import {ILatLonAlt} from "../Geo";
 import {IGLRenderHash, GLRenderStage} from "../Render";
 import {IFrame} from "../State";
 
@@ -51,9 +52,10 @@ export class TagComponent extends Component {
 
         let tags$: rx.Observable<ITag[]> = rx.Observable.combineLatest(
             this._navigator.stateService.currentNode$,
+            this._navigator.stateService.reference$,
             ors$,
-            (node: Node, ors: any): ITag[] => {
-                return this._computeTags(node, ors);
+            (node: Node, reference: ILatLonAlt, ors: any): ITag[] => {
+                return this._computeTags(node, reference, ors);
             });
 
         this._disposable = rx.Observable.combineLatest(
@@ -90,7 +92,7 @@ export class TagComponent extends Component {
         };
     }
 
-    private _computeTags(node: Node, ors: any): ITag[]  {
+    private _computeTags(node: Node, reference: ILatLonAlt, ors: any): ITag[]  {
         let tags: ITag[] = [];
         delete ors.json.imageByKey.$__path;
         ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
@@ -101,7 +103,7 @@ export class TagComponent extends Component {
                 let or: any = ors[key];
                 if (or) {
                     let polygon: number[][] = this._rectToPolygon3d(
-                        node, or.rect.geometry.coordinates);
+                        node, reference, or.rect.geometry.coordinates);
 
                     tags.push({
                         key: or.key,
@@ -117,7 +119,7 @@ export class TagComponent extends Component {
         return tags;
     }
 
-    private _rectToPolygon3d(node: Node, points: number[][]): number[][] {
+    private _rectToPolygon3d(node: Node, reference: ILatLonAlt, points: number[][]): number[][] {
         // todo(pau): Compute 3D tags here
         return points;
     }
