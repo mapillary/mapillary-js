@@ -164,10 +164,20 @@ export class Transform {
     }
 
     private _pixelToBearing(pixel: number[]): number[] {
-        // todo(pau): handle panos and radial distortion
-        let v: THREE.Vector3 = new THREE.Vector3(pixel[0], pixel[1], this._focal);
-        v.normalize();
-        return [v.x, v.y, v.z];
+        if (this._gpano) {
+            // todo(pau): handle none complete panos
+            let lon: number = pixel[0] * 2 * Math.PI;
+            let lat: number = -pixel[1] * 2 * Math.PI;
+            let x: number = Math.cos(lat) * Math.sin(lon);
+            let y: number = -Math.sin(lat);
+            let z: number = Math.cos(lat) * Math.cos(lon);
+            return [x, y, z];
+        } else {
+            // todo(pau): handle radial distortion
+            let v: THREE.Vector3 = new THREE.Vector3(pixel[0], pixel[1], this._focal);
+            v.normalize();
+            return [v.x, v.y, v.z];
+        }
     }
 
     private _bearingToPixel(bearing: number[]): number[] {
