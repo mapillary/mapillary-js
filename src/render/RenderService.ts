@@ -103,6 +103,7 @@ export class RenderService {
             .subscribe(this._renderCameraOperation$);
 
         this._size$
+            .skip(1)
             .map<IRenderCameraOperation>(
                 (size: ISize) => {
                     return (rc: RenderCamera): RenderCamera => {
@@ -115,6 +116,7 @@ export class RenderService {
             .subscribe(this._renderCameraOperation$);
 
         this._renderMode$
+            .skip(1)
             .map<IRenderCameraOperation>(
                 (rm: RenderMode) => {
                     return (rc: RenderCamera): RenderCamera => {
