@@ -11,11 +11,16 @@ import {APIv3} from "../API";
 
 import {ComponentService, Component} from "../Component";
 import {ILatLonAlt, Transform} from "../Geo";
-import {IGLRenderHash, GLRenderStage} from "../Render";
+import {IGLRenderHash, GLRenderStage, RenderCamera} from "../Render";
 import {IFrame} from "../State";
 
-interface ITagUpdateArgs {
+interface IGlUpdateArgs {
     frame: IFrame;
+    tags: ITag[];
+}
+
+interface IDomUpdateArgs {
+    renderCamera: RenderCamera;
     tags: ITag[];
 }
 
@@ -31,7 +36,8 @@ interface ITag {
 
 export class TagComponent extends Component {
     public static componentName: string = "tag";
-    private _disposable: rx.IDisposable;
+    private _glDisposable: rx.IDisposable;
+    private _domDisposable: rx.IDisposable;
     private _apiV3: APIv3;
 
     private _tags: ITag[];
@@ -61,13 +67,25 @@ export class TagComponent extends Component {
                 return this._computeTags(node, reference, ors);
             });
 
-        this._disposable = rx.Observable.combineLatest(
+        // le DOM render
+        this._domDisposable = rx.Observable.combineLatest(
+            this._container.renderService.renderCamera$,
+            tags$,
+            (renderCamera: RenderCamera, tags: ITag[]): IDomUpdateArgs => {
+                return { renderCamera: renderCamera, tags: tags };
+            }
+        ).subscribe((args: IDomUpdateArgs) => {
+            this._renderDom(args.renderCamera, args.tags);
+        });
+
+        // le GL render
+        this._glDisposable = rx.Observable.combineLatest(
                 this._navigator.stateService.currentState$,
                 tags$,
-                (frame: IFrame, tags: ITag[]): ITagUpdateArgs => {
+                (frame: IFrame, tags: ITag[]): IGlUpdateArgs => {
                     return { frame: frame, tags: tags };
                 }
-            ).distinctUntilChanged((args: ITagUpdateArgs) => {
+            ).distinctUntilChanged((args: IGlUpdateArgs) => {
                 return args.frame.state.camera.lookat.x;
             })
             .map<IGLRenderHash>(this._renderHash.bind(this))
@@ -75,10 +93,11 @@ export class TagComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._disposable.dispose();
+        this._domDisposable.dispose();
+        this._glDisposable.dispose();
     }
 
-    private _renderHash(args: ITagUpdateArgs): IGLRenderHash {
+    private _renderHash(args: IGlUpdateArgs): IGLRenderHash {
         // save tags for later when the render function will be called
         this._tags = args.tags;
 
@@ -134,14 +153,20 @@ export class TagComponent extends Component {
         return polygon3d;
     }
 
-    private _render(
-        perspectiveCamera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer): void {
+    private _renderDom(
+        renderCamera: RenderCamera,
+        tags: ITag[]): void {
 
         this._container.domRenderer.render$.onNext({
             name: this._name,
-            vnode: this._getRects(this._tags, perspectiveCamera),
+            vnode: this._getRects(tags, renderCamera.perspective),
         });
+    }
+
+    private _render(
+        perspectiveCamera: THREE.PerspectiveCamera,
+        renderer: THREE.WebGLRenderer): void {
+        console.log("todo");
     }
 
     private _projectToCanvas(point: number[], camera: THREE.PerspectiveCamera): number[] {
