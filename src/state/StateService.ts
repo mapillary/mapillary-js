@@ -78,7 +78,7 @@ export class StateService {
                 [new Date().getTime(), 60])
             .map<number>(
                 (fps: [number, number]): number => {
-                    return Math.max(30, fps[1]);
+                    return Math.max(20, fps[1]);
                 })
             .startWith(60);
 

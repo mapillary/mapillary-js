@@ -1,4 +1,5 @@
 import {ImageSize} from "../../Viewer";
+import {RenderMode} from "../../Render";
 
 export interface IViewerOptions {
     /**
@@ -127,6 +128,12 @@ export interface IViewerOptions {
      * @default {ImageSize.Size2048}
      */
     maxImageSize?: ImageSize;
+
+    /**
+     * The render mode in the viewer.
+     * @default {RenderMode.Letterbox}
+     */
+    renderMode?: RenderMode;
 }
 
 export default IViewerOptions;

@@ -6,7 +6,7 @@ import * as rbush from "rbush";
 import * as THREE from "three";
 import * as geohash from "latlon-geohash";
 
-import {IAPINavIm, IAPINavImS, IAPINavImIm} from "../API";
+import {IAPINavIm, IAPINavImIm} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
 import {Spatial, GeoCoords, ILatLon} from "../Geo";
 import {Node, Sequence} from "../Graph";
@@ -28,11 +28,13 @@ interface ISpatialItem {
     node: Node;
 }
 
+type SequenceHash = {[key: string]: Sequence};
+
 export class Graph {
     private _edgeCalculator: EdgeCalculator;
 
-    private _sequences: Sequence[];
-    private _sequenceHash: {[key: string]: Sequence};
+    private _sequences: SequenceHash;
+    private _sequenceHashes: {[skey: string]: SequenceHash};
 
     private _graph: any;
     private _nodeIndex: rbush.RBush<ISpatialItem>;
@@ -51,8 +53,8 @@ export class Graph {
      * @class Graph
      */
     constructor () {
-        this._sequences = [];
-        this._sequenceHash = {};
+        this._sequences = {};
+        this._sequenceHashes = {};
         this._nodeIndex = rbush<ISpatialItem>(20000, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = new graphlib.Graph({multigraph: true});
         this._cachedNodes = {};
@@ -75,21 +77,29 @@ export class Graph {
         let bounds: geohash.IBounds = geohash.bounds(h);
         let neighbours: { [key: string]: string } = geohash.neighbours(h);
 
-        let nodes: Node[];
-        let sequences: Sequence[];
-        let sequenceHash: {[key: string]: Sequence} = {};
+        let hSequenceHashes: SequenceHash[] = [];
 
-        sequences = _.map(data.ss, (sData: IAPINavImS): Sequence => {
-            let sequence: Sequence = new Sequence(sData);
+        for (let s of data.ss) {
+            let skey: string = s.key;
 
-            _.each(sData.keys, (key: string): void => {
+            if (skey in this._sequences) {
+                hSequenceHashes.push(this._sequenceHashes[skey]);
+                continue;
+            }
+
+            let sequence: Sequence = new Sequence(s);
+            this._sequences[skey] = sequence;
+
+            let sequenceHash: SequenceHash = {};
+            for (let key of s.keys) {
                 sequenceHash[key] = sequence;
-            });
+            }
 
-            return sequence;
-        });
+            this._sequenceHashes[skey] = sequenceHash;
+            hSequenceHashes.push(sequenceHash);
+        }
 
-        nodes = _.map(data.ims, (im: IAPINavImIm): Node => {
+        let nodes: Node[] = _.map(data.ims, (im: IAPINavImIm): Node => {
             let lat: number = im.lat;
             if (im.clat != null) {
                 lat = im.clat;
@@ -117,12 +127,20 @@ export class Graph {
 
             let hs: string[] = this._computeHs(latLon, bounds.sw, bounds.ne, h, neighbours);
 
+            let sequence: Sequence = null;
+            for (let ts of hSequenceHashes) {
+                if (im.key in ts) {
+                    sequence = ts[im.key];
+                    break;
+                }
+            }
+
             let node: Node = new Node(
                 im.key,
                 ca,
                 latLon,
                 false,
-                sequenceHash[im.key],
+                sequence,
                 im,
                 hs
             );
@@ -136,7 +154,6 @@ export class Graph {
         });
 
         this.insertNodes(nodes);
-        this.insertSequences(sequences);
         this.makeNodesWorthy(tiles);
     }
 
@@ -287,16 +304,6 @@ export class Graph {
     }
 
     /**
-     * Insert given sequences
-     * @param {Sequence[]}
-     */
-    public insertSequences(sequences: Sequence[]): void {
-        this._sequences = _.uniq(this._sequences.concat(sequences), (sequence: Sequence): string => {
-            return sequence.key;
-        });
-    }
-
-    /**
      * Insert node
      * @param {Node} node
      */
@@ -304,6 +311,7 @@ export class Graph {
         if (this.getNode(node.key) != null) {
             return;
         }
+
         this._nodeIndex.insert({lat: node.latLon.lat, lon: node.latLon.lon, node: node});
         this._graph.setNode(node.key, node);
     }
@@ -315,13 +323,19 @@ export class Graph {
      * @return {Node}
      */
     public nextNode(node: Node, dir: EdgeDirection): Node {
+        let key: string = this.nextKey(node, dir);
+
+        return key == null ? null : this.getNode(key);
+    }
+
+    public nextKey(node: Node, dir: EdgeDirection): string {
         let outEdges: any[] = this._graph.outEdges(node.key);
 
         for (let outEdge of outEdges) {
-            let edge: any = this._graph.edge(outEdge);
+            let edgeData: IEdgeData = this._graph.edge(outEdge);
 
-            if (edge.direction === dir) {
-                return this.getNode(outEdge.w);
+            if (edgeData.direction === dir) {
+                return outEdge.w;
             }
         }
 

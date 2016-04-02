@@ -46,7 +46,7 @@ export class DOMRenderer {
     private _adaptiveOperation$: rx.Subject<IAdaptiveOperation> = new rx.Subject<IAdaptiveOperation>();
     private _offset$: rx.Observable<IOffset>;
 
-    private _element$: rx.ConnectableObservable<Element>;
+    private _element$: rx.Observable<Element>;
     private _vPatch$: rx.Observable<vd.VPatch[]>;
     private _vNode$: rx.Observable<vd.VNode>;
     private _render$: rx.Subject<any> = new rx.Subject<any>();
@@ -127,29 +127,6 @@ export class DOMRenderer {
                 })
             .subscribe(this._adaptiveOperation$);
 
-        this._renderService.size$
-            .map<IAdaptiveOperation>(
-                (size: ISize): IAdaptiveOperation => {
-                    return (adaptive: IAdaptive): IAdaptive => {
-                        adaptive.elementWidth = size.width;
-                        adaptive.elementHeight = size.height;
-
-                        return adaptive;
-                    };
-                })
-            .subscribe(this._adaptiveOperation$);
-
-        this._renderService.renderMode$
-            .map<IAdaptiveOperation>(
-                (renderMode: RenderMode): IAdaptiveOperation => {
-                    return (adaptive: IAdaptive): IAdaptive => {
-                        adaptive.renderMode = renderMode;
-
-                        return adaptive;
-                    };
-                })
-            .subscribe(this._adaptiveOperation$);
-
         this._renderAdaptive$
             .scan<IVNodeHashes>(
                 (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
@@ -191,39 +168,64 @@ export class DOMRenderer {
 
         this._vNode$ = this._render$
             .scan<IVNodeHashes>(
-            (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
-                if (vNodeHash.vnode == null) {
-                    delete vNodeHashes[vNodeHash.name];
-                } else {
-                    vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
-                }
-                return vNodeHashes;
-            },
-            {})
-            .map((vNodeHashes: IVNodeHashes): vd.VNode => {
-                let vNodes: vd.VNode[] = _.values(vNodeHashes);
-                return vd.h("div.domRenderer", vNodes);
-            });
+                (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
+                    if (vNodeHash.vnode == null) {
+                        delete vNodeHashes[vNodeHash.name];
+                    } else {
+                        vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+                    }
+
+                    return vNodeHashes;
+                },
+                {})
+            .map(
+                (vNodeHashes: IVNodeHashes): vd.VNode => {
+                    let vNodes: vd.VNode[] = _.values(vNodeHashes);
+                    return vd.h("div.domRenderer", vNodes);
+                });
 
         this._vPatch$ = this._vNode$
             .scan<INodePatch>(
-            (nodePatch: INodePatch, vNode: vd.VNode): INodePatch => {
-                nodePatch.vpatch = vd.diff(nodePatch.vnode, vNode);
-                nodePatch.vnode = vNode;
-                return nodePatch;
-            },
-            {vnode: vd.h("div.domRenderer", []), vpatch: null})
+                (nodePatch: INodePatch, vNode: vd.VNode): INodePatch => {
+                    nodePatch.vpatch = vd.diff(nodePatch.vnode, vNode);
+                    nodePatch.vnode = vNode;
+                    return nodePatch;
+                },
+                {vnode: vd.h("div.domRenderer", []), vpatch: null})
             .pluck<vd.VPatch[]>("vpatch");
 
-        this._element$ = this._vPatch$.scan(
-            (oldElement: Element, vPatch: vd.VPatch[]): Element => {
-                return vd.patch(oldElement, vPatch);
-            },
-            rootNode)
-            .shareReplay(1)
-            .publish();
-        this._element$.connect();
+        this._element$ = this._vPatch$
+            .scan(
+                (oldElement: Element, vPatch: vd.VPatch[]): Element => {
+                    return vd.patch(oldElement, vPatch);
+                },
+                rootNode)
+            .shareReplay(1);
+
         this._element$.subscribe();
+
+        this._renderService.size$
+            .map<IAdaptiveOperation>(
+                (size: ISize): IAdaptiveOperation => {
+                    return (adaptive: IAdaptive): IAdaptive => {
+                        adaptive.elementWidth = size.width;
+                        adaptive.elementHeight = size.height;
+
+                        return adaptive;
+                    };
+                })
+            .subscribe(this._adaptiveOperation$);
+
+        this._renderService.renderMode$
+            .map<IAdaptiveOperation>(
+                (renderMode: RenderMode): IAdaptiveOperation => {
+                    return (adaptive: IAdaptive): IAdaptive => {
+                        adaptive.renderMode = renderMode;
+
+                        return adaptive;
+                    };
+                })
+            .subscribe(this._adaptiveOperation$);
     }
 
     public get element$(): rx.Observable<Element> {
