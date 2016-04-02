@@ -29,6 +29,10 @@ interface IGLRenderHashes {
     [name: string]: IGLRender;
 }
 
+interface IEraser {
+    needsRender: boolean;
+}
+
 interface IGLRendererOperation {
     (renderer: IGLRenderer): IGLRenderer;
 }
@@ -41,8 +45,13 @@ interface IGLRenderHashesOperation extends Function {
     (hashes: IGLRenderHashes): IGLRenderHashes;
 }
 
+interface IEraserOperation {
+    (eraser: IEraser): IEraser;
+}
+
 interface ICombination {
     camera: IRenderCamera;
+    eraser: IEraser;
     renderer: IGLRenderer;
     renders: IGLRender[];
 }
@@ -63,6 +72,9 @@ export class GLRenderer {
 
     private _rendererOperation$: rx.Subject<IGLRendererOperation> = new rx.Subject<IGLRendererOperation>();
     private _renderer$: rx.Observable<IGLRenderer>;
+
+    private _eraserOperation$: rx.Subject<IEraserOperation> = new rx.Subject<IEraserOperation>();
+    private _eraser$: rx.Observable<IEraser>;
 
     private _renderFrameSubscription: rx.IDisposable;
 
@@ -96,19 +108,32 @@ export class GLRenderer {
                     return rc.perspective != null;
                 });
 
+        this._eraser$ = this._eraserOperation$
+            .startWith(
+                (eraser: IEraser): IEraser => {
+                    return eraser;
+                })
+            .scan<IEraser>(
+                (eraser: IEraser, operation: IEraserOperation): IEraser => {
+                    return operation(eraser);
+                },
+                { needsRender: false });
+
         rx.Observable
             .combineLatest(
-                this._renderCollection$,
                 this._renderer$,
+                this._renderCollection$,
                 this._renderCamera$,
-                (hashes: IGLRenderHashes, renderer: IGLRenderer, rc: IRenderCamera): ICombination => {
-                    return { camera: rc, renderer: renderer, renders: _.values(hashes) };
+                this._eraser$,
+                (renderer: IGLRenderer, hashes: IGLRenderHashes, rc: IRenderCamera, eraser: IEraser): ICombination => {
+                    return { camera: rc, eraser: eraser, renderer: renderer, renders: _.values(hashes) };
                 })
             .filter(
                 (co: ICombination) => {
                     let needsRender: boolean =
                         co.renderer.needsRender ||
-                        co.camera.needsRender;
+                        co.camera.needsRender ||
+                        co.eraser.needsRender;
 
                     let frameId: number = co.camera.frameId;
 
@@ -122,11 +147,15 @@ export class GLRenderer {
 
                     return needsRender;
                 })
-            .distinctUntilChanged((co: ICombination): number => { return co.camera.frameId; })
+            .distinctUntilChanged(
+                (co: ICombination): number => {
+                    return co.eraser.needsRender ? -1 : co.camera.frameId;
+                })
             .subscribe(
                 (co: ICombination): void => {
                     co.renderer.needsRender = false;
                     co.camera.needsRender = false;
+                    co.eraser.needsRender = false;
 
                     let perspectiveCamera: THREE.PerspectiveCamera = co.camera.perspective;
 
@@ -255,10 +284,17 @@ export class GLRenderer {
             .merge(renderHash$, clearHash$)
             .subscribe(this._renderOperation$);
 
-        this._renderCollection$
+        let renderCollectionEmpty$: rx.Observable<IGLRenderHashes> = this._renderCollection$
+            .filter(
+                (hashes: IGLRenderHashes): boolean => {
+                    return Object.keys(hashes).length === 0;
+                })
+            .share();
+
+        renderCollectionEmpty$
             .subscribe(
                 (hashes: IGLRenderHashes): void => {
-                    if (Object.keys(hashes).length || this._renderFrameSubscription == null) {
+                    if (this._renderFrameSubscription == null) {
                         return;
                     }
 
@@ -267,6 +303,17 @@ export class GLRenderer {
 
                     this._renderFrameSubscribe();
                 });
+
+        renderCollectionEmpty$
+            .map<IEraserOperation>(
+                (hashes: IGLRenderHashes): IEraserOperation => {
+                    return (eraser: IEraser): IEraser => {
+                        eraser.needsRender = true;
+
+                        return eraser;
+                    };
+                })
+            .subscribe(this._eraserOperation$);
     }
 
     public get render$(): rx.Subject<IGLRenderHash> {
@@ -284,7 +331,7 @@ export class GLRenderer {
                 (hash: IGLRenderHash): rx.Observable<RenderCamera> => {
                     return this._renderService.renderCameraFrame$;
                 })
-             .subscribe(this._renderFrame$);
+            .subscribe(this._renderFrame$);
     }
 }
 

@@ -251,10 +251,6 @@ describe("GLRenderer.renderer", () => {
 
         frameSubscription.dispose();
 
-        frame$.onNext(createFrame(2));
-        renderCamera.frameId = 2;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
-
         glRenderer.clear("mock");
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(2);
