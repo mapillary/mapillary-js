@@ -2,7 +2,6 @@
 
 import * as rx from "rx";
 import * as THREE from "three";
-import * as _ from "underscore";
 
 import {
     GLRenderStage,
@@ -120,7 +119,12 @@ export class GLRenderer {
                 this._renderCamera$,
                 this._eraser$,
                 (renderer: IGLRenderer, hashes: IGLRenderHashes, rc: IRenderCamera, eraser: IEraser): ICombination => {
-                    return { camera: rc, eraser: eraser, renderer: renderer, renders: _.values(hashes) };
+                    let renders: IGLRender[] = Object.keys(hashes)
+                        .map((key: string): IGLRender => {
+                            return hashes[key];
+                        });
+
+                    return { camera: rc, eraser: eraser, renderer: renderer, renders: renders };
                 })
             .filter(
                 (co: ICombination) => {
