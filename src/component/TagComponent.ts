@@ -8,7 +8,7 @@ import {Container, Navigator} from "../Viewer";
 import {APIv3} from "../API";
 
 import {ComponentService, Component} from "../Component";
-import {ILatLonAlt} from "../Geo";
+import {ILatLonAlt, Transform} from "../Geo";
 import {IGLRenderHash, GLRenderStage} from "../Render";
 import {IFrame} from "../State";
 
@@ -18,12 +18,13 @@ interface ITagUpdateArgs {
 }
 
 interface ITag {
-    polygon: number[][];
+    key: string;
+    object: string;
+    package: string;
+    polygon3d: number[][];
+    polygonBasic: number[][];
     score: string;
     value: string;
-    object: string;
-    key: string;
-    package: string;
 }
 
 export class TagComponent extends Component {
@@ -102,14 +103,16 @@ export class TagComponent extends Component {
             if (ors.hasOwnProperty(key)) {
                 let or: any = ors[key];
                 if (or) {
-                    let polygon: number[][] = this._rectToPolygon3d(
-                        node, reference, or.rect.geometry.coordinates);
+                    let polygonBasic: number[][] = or.rect.geometry.coordinates;
+                    let polygon3d: number[][] = this._polygonTo3d(
+                        node, reference, polygonBasic);
 
                     tags.push({
                         key: or.key,
                         object: or.obj,
                         package: or.package,
-                        polygon: polygon,
+                        polygon3d: polygon3d,
+                        polygonBasic: polygonBasic,
                         score: or.score,
                         value: or.value,
                     });
@@ -119,9 +122,15 @@ export class TagComponent extends Component {
         return tags;
     }
 
-    private _rectToPolygon3d(node: Node, reference: ILatLonAlt, points: number[][]): number[][] {
-        // todo(pau): Compute 3D tags here
-        return points;
+    private _polygonTo3d(node: Node, reference: ILatLonAlt, polygonBasic: number[][]): number[][] {
+        let transform: Transform = Transform.fromNodeAndReference(node, reference);
+
+        let polygon3d: number[][] = [];
+        for (let point of polygonBasic) {
+            polygon3d.push(transform.unprojectBasic(point, 1));
+        }
+        console.log(polygonBasic, polygon3d);
+        return polygon3d;
     }
 
     private _render(
@@ -139,10 +148,10 @@ export class TagComponent extends Component {
 
         tags.forEach((r: ITag) => {
             let rect: number[] = [];
-            rect[0] = r.polygon[1][0];
-            rect[1] = r.polygon[1][1];
-            rect[2] = r.polygon[3][0];
-            rect[3] = r.polygon[3][1];
+            rect[0] = r.polygonBasic[1][0];
+            rect[1] = r.polygonBasic[1][1];
+            rect[2] = r.polygonBasic[3][0];
+            rect[3] = r.polygonBasic[3][1];
 
             let adjustedRect: number[] = this._coordsToCss(rect);
 
