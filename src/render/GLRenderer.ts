@@ -57,7 +57,6 @@ interface ICombination {
 }
 
 export class GLRenderer {
-    private _element: HTMLElement;
     private _renderService: RenderService;
 
     private _renderFrame$: rx.Subject<RenderCamera> = new rx.Subject<RenderCamera>();
@@ -78,8 +77,7 @@ export class GLRenderer {
 
     private _renderFrameSubscription: rx.IDisposable;
 
-    constructor (element: HTMLElement, renderService: RenderService) {
-        this._element = element;
+    constructor (renderService: RenderService) {
         this._renderService = renderService;
 
         this._renderer$ = this._rendererOperation$
@@ -206,15 +204,16 @@ export class GLRenderer {
                 (hash: IGLRenderHash): IGLRendererOperation => {
                     return (renderer: IGLRenderer): IGLRenderer => {
                         let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+                        let element: HTMLElement = renderService.element;
 
-                        webGLRenderer.setSize(this._element.offsetWidth, this._element.offsetHeight);
+                        webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
                         webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
                         webGLRenderer.sortObjects = false;
 
                         webGLRenderer.domElement.style.width = "100%";
                         webGLRenderer.domElement.style.height = "100%";
 
-                        this._element.appendChild(webGLRenderer.domElement);
+                        element.appendChild(webGLRenderer.domElement);
 
                         renderer.needsRender = true;
                         renderer.renderer = webGLRenderer;
