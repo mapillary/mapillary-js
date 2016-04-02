@@ -102,11 +102,7 @@ export class GLRenderer {
                 (rc: IRenderCamera, operation: IRenderCameraOperation): IRenderCamera => {
                     return operation(rc);
                 },
-                { frameId: -1, needsRender: false, perspective: null })
-            .filter(
-                (rc: IRenderCamera): boolean => {
-                    return rc.perspective != null;
-                });
+                { frameId: -1, needsRender: false, perspective: null });
 
         this._eraser$ = this._eraserOperation$
             .startWith(
