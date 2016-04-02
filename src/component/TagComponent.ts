@@ -1,5 +1,7 @@
 /// <reference path="../../typings/browser.d.ts" />
 
+import * as THREE from "three";
+
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
@@ -125,11 +127,10 @@ export class TagComponent extends Component {
     private _polygonTo3d(node: Node, reference: ILatLonAlt, polygonBasic: number[][]): number[][] {
         let transform: Transform = Transform.fromNodeAndReference(node, reference);
 
-        let polygon3d: number[][] = [];
-        for (let point of polygonBasic) {
-            polygon3d.push(transform.unprojectBasic(point, 1));
-        }
-        console.log(polygonBasic, polygon3d);
+        let polygon3d: number[][] = polygonBasic.map((point: number[]) => {
+            return transform.unprojectBasic(point, 200);
+        });
+
         return polygon3d;
     }
 
@@ -137,21 +138,29 @@ export class TagComponent extends Component {
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
 
-        console.log("render");
-        // todo(pau): project 3d polygon to the PerspectiveCamera
-
-        this._container.domRenderer.renderAdaptive$.onNext({ name: this._name, vnode: this._getRects(this._tags) });
+        this._container.domRenderer.render$.onNext({
+            name: this._name,
+            vnode: this._getRects(this._tags, perspectiveCamera),
+        });
     }
 
-    private _getRects(tags: ITag[]): vd.VNode {
+    private _projectToCanvas(point: number[], camera: THREE.PerspectiveCamera): number[] {
+        let v: THREE.Vector3 = new THREE.Vector3(point[0], point[1], point[2]);
+        v.project(camera);
+        return [(v.x + 1) / 2, (-v.y + 1) / 2];
+    }
+
+    private _getRects(tags: ITag[], camera: THREE.PerspectiveCamera): vd.VNode {
         let vRects: vd.VNode[] = [];
 
         tags.forEach((r: ITag) => {
             let rect: number[] = [];
-            rect[0] = r.polygonBasic[1][0];
-            rect[1] = r.polygonBasic[1][1];
-            rect[2] = r.polygonBasic[3][0];
-            rect[3] = r.polygonBasic[3][1];
+            let topLeft: number[] = this._projectToCanvas(r.polygon3d[1], camera);
+            let bottomRight: number[] = this._projectToCanvas(r.polygon3d[3], camera);
+            rect[0] = topLeft[0];
+            rect[1] = topLeft[1];
+            rect[2] = bottomRight[0];
+            rect[3] = bottomRight[1];
 
             let adjustedRect: number[] = this._coordsToCss(rect);
 
