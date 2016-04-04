@@ -4,13 +4,8 @@ import * as _ from "underscore";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {RenderMode, ISize, RenderService} from "../Render";
+import {ISize, IVNodeHash, RenderMode, RenderService} from "../Render";
 import {IFrame} from "../State";
-
-export interface IVNodeHash {
-    name: string;
-    vnode: vd.VNode;
-}
 
 interface INodePatch {
     vnode: vd.VNode;
