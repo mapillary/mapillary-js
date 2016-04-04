@@ -1,13 +1,11 @@
 /// <reference path="../../typings/browser.d.ts" />
 
 import * as THREE from "three";
-
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
 import {Container, Navigator} from "../Viewer";
 import {APIv3} from "../API";
-
 import {ComponentService, Component} from "../Component";
 import {Transform} from "../Geo";
 import {RenderCamera, IVNodeHash, IGLRenderHash, GLRenderStage} from "../Render";
@@ -15,11 +13,6 @@ import {IFrame} from "../State";
 
 interface IGlUpdateArgs {
     frame: IFrame;
-    tags: ITag[];
-}
-
-interface IDomUpdateArgs {
-    renderCamera: RenderCamera;
     tags: ITag[];
 }
 
@@ -35,14 +28,17 @@ interface ITag {
 
 export class TagComponent extends Component {
     public static componentName: string = "tag";
-    private _glDisposable: rx.IDisposable;
-    private _domDisposable: rx.IDisposable;
+
+    private _domSubscription: rx.IDisposable;
+    private _glSubscription: rx.IDisposable;
+
     private _apiV3: APIv3;
 
     private _tags: ITag[];
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
         this._apiV3 = navigator.apiV3;
         this._tags = null;
     }
@@ -72,7 +68,7 @@ export class TagComponent extends Component {
                 });
 
         // le DOM render
-        rx.Observable
+        this._domSubscription = rx.Observable
             .combineLatest(
                 this._container.renderService.renderCamera$,
                 tags$,
@@ -89,7 +85,7 @@ export class TagComponent extends Component {
             .subscribe(this._container.domRenderer.render$);
 
         // le GL render
-        this._glDisposable = rx.Observable
+        this._glSubscription = rx.Observable
             .combineLatest(
                 this._navigator.stateService.currentState$,
                 tags$,
@@ -101,8 +97,8 @@ export class TagComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._domDisposable.dispose();
-        this._glDisposable.dispose();
+        this._domSubscription.dispose();
+        this._glSubscription.dispose();
     }
 
     private _renderHash(args: IGlUpdateArgs): IGLRenderHash {
@@ -162,22 +158,43 @@ export class TagComponent extends Component {
     private _render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
-        console.log("todo");
+        return;
     }
 
-    private _projectToCanvas(point: number[], camera: THREE.PerspectiveCamera): number[] {
-        let v: THREE.Vector3 = new THREE.Vector3(point[0], point[1], point[2]);
-        v.project(camera);
-        return [(v.x + 1) / 2, (-v.y + 1) / 2];
+    private _projectToCanvas(point: THREE.Vector3, projectionMatrix: THREE.Matrix4): number[] {
+        let projected: THREE.Vector3 =
+            new THREE.Vector3(point.x, point.y, point.z)
+                .applyProjection(projectionMatrix);
+
+        return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
+    }
+
+    private _convertToCameraSpace(point: number[], matrixWorldInverse: THREE.Matrix4): THREE.Vector3 {
+        let p: THREE.Vector3 = new THREE.Vector3(point[0], point[1], point[2]);
+        p.applyMatrix4(matrixWorldInverse);
+
+        return p;
     }
 
     private _getRects(tags: ITag[], camera: THREE.PerspectiveCamera): vd.VNode {
         let vRects: vd.VNode[] = [];
+        let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4();
+        matrixWorldInverse.getInverse(camera.matrixWorld);
 
-        tags.forEach((r: ITag) => {
+        for (let t of tags) {
+            let tag: ITag = t;
+
+            let topLeftCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygon3d[1], matrixWorldInverse);
+            let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygon3d[3], matrixWorldInverse);
+
+            if (topLeftCamera.z > 0 && bottomRightCamera.z > 0) {
+                continue;
+            }
+
+            let topLeft: number[] = this._projectToCanvas(topLeftCamera, camera.projectionMatrix);
+            let bottomRight: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
+
             let rect: number[] = [];
-            let topLeft: number[] = this._projectToCanvas(r.polygon3d[1], camera);
-            let bottomRight: number[] = this._projectToCanvas(r.polygon3d[3], camera);
             rect[0] = topLeft[0];
             rect[1] = topLeft[1];
             rect[2] = bottomRight[0];
@@ -190,9 +207,9 @@ export class TagComponent extends Component {
             });
 
             vRects.push(vd.h("div.Rect", {style: this._getRectStyle(rectMapped)}, [
-                vd.h("span", {style: "color: red;", textContent: r.value}, []),
+                vd.h("span", {style: "color: red;", textContent: tag.value}, []),
             ]));
-        });
+        }
 
         return vd.h("div.rectContainer", {}, vRects);
     }
