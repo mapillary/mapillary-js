@@ -6,7 +6,6 @@ import {Camera} from "../Geo";
 import {RenderMode} from "../Render";
 
 export class RenderCamera {
-    public frameId: number;
     public alpha: number;
     public currentAspect: number;
     public currentOrientation: number;
@@ -19,12 +18,17 @@ export class RenderCamera {
     private _camera: Camera;
     private _perspective: THREE.PerspectiveCamera;
 
+    private _frameId: number;
+
+    private _changed: boolean;
     private _changedForFrame: number;
 
     constructor(perspectiveCameraAspect: number, renderMode: RenderMode) {
-        this.frameId = -1;
         this.alpha = -1;
 
+        this._frameId = -1;
+
+        this._changed = false;
         this._changedForFrame = -1;
 
         this.currentAspect = 1;
@@ -56,6 +60,19 @@ export class RenderCamera {
         return this.frameId === this._changedForFrame;
     }
 
+    public get frameId(): number {
+        return this._frameId;
+    }
+
+    public set frameId(value: number) {
+        this._frameId = value;
+
+        if (this._changed) {
+            this._changed = false;
+            this._changedForFrame = value;
+        }
+    }
+
     public updateProjection(): void {
         let currentAspect: number = this._getAspect(
             this.currentAspect,
@@ -76,7 +93,7 @@ export class RenderCamera {
         this._perspective.fov = verticalFov;
         this._perspective.updateProjectionMatrix();
 
-        this._changedForFrame = this.frameId + 1;
+        this._changed = true;
     }
 
     public updatePerspective(camera: Camera): void {
@@ -84,7 +101,7 @@ export class RenderCamera {
         this._perspective.position.copy(camera.position);
         this._perspective.lookAt(camera.lookat);
 
-        this._changedForFrame = this.frameId + 1;
+        this._changed = true;
     }
 
     private _getVerticalFov(aspect: number, focal: number): number {
