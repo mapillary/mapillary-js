@@ -49,7 +49,7 @@ export class DOMRenderer {
     private _element$: rx.Observable<Element>;
     private _vPatch$: rx.Observable<vd.VPatch[]>;
     private _vNode$: rx.Observable<vd.VNode>;
-    private _render$: rx.Subject<any> = new rx.Subject<any>();
+    private _render$: rx.Subject<IVNodeHash> = new rx.Subject<IVNodeHash>();
     private _renderAdaptive$: rx.Subject<IVNodeHash> = new rx.Subject<IVNodeHash>();
 
     constructor (element: HTMLElement, renderService: RenderService, currentFrame$: rx.Observable<IFrame>) {
@@ -232,11 +232,11 @@ export class DOMRenderer {
         return this._element$;
     }
 
-    public get render$(): rx.Subject<any> {
+    public get render$(): rx.Subject<IVNodeHash> {
         return this._render$;
     }
 
-    public get renderAdaptive$(): rx.Subject<any> {
+    public get renderAdaptive$(): rx.Subject<IVNodeHash> {
         return this._renderAdaptive$;
     }
 
