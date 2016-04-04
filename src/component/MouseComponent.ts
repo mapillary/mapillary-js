@@ -22,10 +22,10 @@ export class MouseComponent extends Component {
     protected _activate(): void {
         let mouseMovement$: rx.Observable<IMovement> =
             this._container.mouseService
-                .filteredMouseEvent$(this._name, this._container.mouseService.mouseDrag$)
+                .filtered$(this._name, this._container.mouseService.mouseDrag$)
                 .map<IMovement>(
-                    (a: any): IMovement => {
-                        return { x: a.e.movementX, y: a.e.movementY };
+                    (e: MouseEvent): IMovement => {
+                        return { x: e.movementX, y: e.movementY };
                     });
 
         let touchMovement$: rx.Observable<IMovement> =
