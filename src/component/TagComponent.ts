@@ -5,13 +5,12 @@ import * as THREE from "three";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {APIv3} from "../API";
 
 import {ComponentService, Component} from "../Component";
-import {ILatLonAlt, Transform} from "../Geo";
-import {IGLRenderHash, GLRenderStage, RenderCamera} from "../Render";
+import {Transform} from "../Geo";
+import {RenderCamera, IVNodeHash, IGLRenderHash, GLRenderStage} from "../Render";
 import {IFrame} from "../State";
 
 interface IGlUpdateArgs {
@@ -49,45 +48,54 @@ export class TagComponent extends Component {
     }
 
     protected _activate(): void {
-        let ors$: rx.Observable<any> = this._navigator.stateService.currentNode$.flatMap((node: Node): rx.Observable<any> => {
-            return this._apiV3.model.get([
-                "imageByKey",
-                node.key,
-                "ors",
-                { from: 0, to: 20 },
-                ["key", "obj", "rect", "value", "package", "score"],
-            ]);
-        });
-
-        let tags$: rx.Observable<ITag[]> = rx.Observable.combineLatest(
-            this._navigator.stateService.currentNode$,
-            this._navigator.stateService.reference$,
-            ors$,
-            (node: Node, reference: ILatLonAlt, ors: any): ITag[] => {
-                return this._computeTags(node, reference, ors);
-            });
+        let tags$: rx.Observable<ITag[]> = this._navigator.stateService.currentState$
+            .distinctUntilChanged(
+                (frame: IFrame): string => {
+                    return frame.state.currentNode.key;
+                })
+            .flatMapLatest(
+                (frame: IFrame): rx.Observable<ITag[]> => {
+                    return rx.Observable
+                        .fromPromise<any>(
+                            this._apiV3.model
+                                .get([
+                                    "imageByKey",
+                                    frame.state.currentNode.key,
+                                    "ors",
+                                    { from: 0, to: 20 },
+                                    ["key", "obj", "rect", "value", "package", "score"],
+                                ]))
+                        .map<ITag[]>(
+                            (ors: any): ITag[] => {
+                                return this._computeTags(frame.state.currentTransform, ors);
+                            });
+                });
 
         // le DOM render
-        this._domDisposable = rx.Observable.combineLatest(
-            this._container.renderService.renderCamera$,
-            tags$,
-            (renderCamera: RenderCamera, tags: ITag[]): IDomUpdateArgs => {
-                return { renderCamera: renderCamera, tags: tags };
-            }
-        ).subscribe((args: IDomUpdateArgs) => {
-            this._renderDom(args.renderCamera, args.tags);
-        });
+        rx.Observable
+            .combineLatest(
+                this._container.renderService.renderCamera$,
+                tags$,
+                (rc: RenderCamera, tags: ITag[]): [RenderCamera, ITag[]] => {
+                    return [rc, tags];
+                })
+            .map<IVNodeHash>(
+                (rcts: [RenderCamera, ITag[]]): IVNodeHash => {
+                    return {
+                        name: this._name,
+                        vnode: this._getRects(rcts[1], rcts[0].perspective),
+                    };
+                })
+            .subscribe(this._container.domRenderer.render$);
 
         // le GL render
-        this._glDisposable = rx.Observable.combineLatest(
+        this._glDisposable = rx.Observable
+            .combineLatest(
                 this._navigator.stateService.currentState$,
                 tags$,
                 (frame: IFrame, tags: ITag[]): IGlUpdateArgs => {
                     return { frame: frame, tags: tags };
-                }
-            ).distinctUntilChanged((args: IGlUpdateArgs) => {
-                return args.frame.state.camera.lookat.x;
-            })
+                })
             .map<IGLRenderHash>(this._renderHash.bind(this))
             .subscribe(this._container.glRenderer.render$);
     }
@@ -107,14 +115,14 @@ export class TagComponent extends Component {
             name: this._name,
             render: {
                 frameId: args.frame.id,
-                needsRender: true,
+                needsRender: false,
                 render: this._render.bind(this),
                 stage: GLRenderStage.Foreground,
             },
         };
     }
 
-    private _computeTags(node: Node, reference: ILatLonAlt, ors: any): ITag[]  {
+    private _computeTags(transform: Transform, ors: any): ITag[] {
         let tags: ITag[] = [];
         delete ors.json.imageByKey.$__path;
         ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
@@ -125,8 +133,7 @@ export class TagComponent extends Component {
                 let or: any = ors[key];
                 if (or) {
                     let polygonBasic: number[][] = or.rect.geometry.coordinates;
-                    let polygon3d: number[][] = this._polygonTo3d(
-                        node, reference, polygonBasic);
+                    let polygon3d: number[][] = this._polygonTo3d(transform, polygonBasic);
 
                     tags.push({
                         key: or.key,
@@ -140,27 +147,16 @@ export class TagComponent extends Component {
                 }
             }
         }
+
         return tags;
     }
 
-    private _polygonTo3d(node: Node, reference: ILatLonAlt, polygonBasic: number[][]): number[][] {
-        let transform: Transform = Transform.fromNodeAndReference(node, reference);
-
+    private _polygonTo3d(transform: Transform, polygonBasic: number[][]): number[][] {
         let polygon3d: number[][] = polygonBasic.map((point: number[]) => {
             return transform.unprojectBasic(point, 200);
         });
 
         return polygon3d;
-    }
-
-    private _renderDom(
-        renderCamera: RenderCamera,
-        tags: ITag[]): void {
-
-        this._container.domRenderer.render$.onNext({
-            name: this._name,
-            vnode: this._getRects(tags, renderCamera.perspective),
-        });
     }
 
     private _render(
@@ -211,7 +207,6 @@ export class TagComponent extends Component {
     private _getRectStyle(mappedRect: Array<string>): string {
         return `top:${mappedRect[1]}; bottom:${mappedRect[3]}; right:${mappedRect[2]}; left:${mappedRect[0]}`;
     }
-
 }
 
 ComponentService.register(TagComponent);
