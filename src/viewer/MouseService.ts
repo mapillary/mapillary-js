@@ -164,7 +164,7 @@ export class MouseService {
 
     public filtered$<T>(name: string, observable$: rx.Observable<T>): rx.Observable<T> {
         return observable$
-            .combineLatest(
+            .withLatestFrom(
                 this.mouseOwner$,
                 (event: T, owner: string): [T, string] => {
                     return [event, owner];
