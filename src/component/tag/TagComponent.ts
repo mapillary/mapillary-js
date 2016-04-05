@@ -4,9 +4,10 @@ import * as THREE from "three";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
+import {Node} from "../../Graph";
 import {Container, Navigator} from "../../Viewer";
 import {APIv3} from "../../API";
-import {ComponentService, Component, ITag} from "../../Component";
+import {ComponentService, Component, INodeTags, ITag, ITagData, TagSet} from "../../Component";
 import {Transform} from "../../Geo";
 import {RenderCamera, IVNodeHash, IGLRenderHash, GLRenderStage} from "../../Render";
 import {IFrame} from "../../State";
@@ -28,6 +29,8 @@ export class TagComponent extends Component {
 
     private _apiV3: APIv3;
 
+    private _tagSet: TagSet;
+
     private _tags: ITag[];
 
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -38,6 +41,9 @@ export class TagComponent extends Component {
         this._abortMouseClaim$ = new rx.Subject<void>();
 
         this._apiV3 = navigator.apiV3;
+
+        this._tagSet = new TagSet();
+
         this._tags = null;
     }
 
@@ -67,13 +73,17 @@ export class TagComponent extends Component {
                 this._container.mouseService.unclaimMouse(this._name);
              });
 
-        let tags$: rx.Observable<ITag[]> = this._navigator.stateService.currentState$
+        this._navigator.stateService.currentState$
             .distinctUntilChanged(
                 (frame: IFrame): string => {
                     return frame.state.currentNode.key;
                 })
-            .flatMapLatest(
-                (frame: IFrame): rx.Observable<ITag[]> => {
+            .do(
+                (frame: IFrame): void => {
+                    this._tagSet.clearAll$.onNext(null);
+                })
+            .flatMapLatest<[string, ITag[]]>(
+                (frame: IFrame): rx.Observable<[string, ITag[]]> => {
                     return rx.Observable
                         .fromPromise<any>(
                             this._apiV3.model
@@ -84,11 +94,54 @@ export class TagComponent extends Component {
                                     { from: 0, to: 20 },
                                     ["key", "obj", "rect", "value", "package", "score"],
                                 ]))
-                        .map<ITag[]>(
-                            (ors: any): ITag[] => {
-                                return this._computeTags(frame.state.currentTransform, ors);
+                        .map<[string, ITag[]]>(
+                            (ors: any): [string, ITag[]] => {
+                                let nodeKey: string = frame.state.currentNode.key;
+                                let tags: ITag[] = this._computeTags(frame.state.currentTransform, ors);
+
+                                return [nodeKey, tags];
                             });
-                });
+                })
+            .subscribe(this._tagSet.set$);
+
+        let tags$: rx.Observable<ITag[]> = this._navigator.stateService.currentNode$
+            .flatMapLatest<ITag[]>(
+                (node: Node): rx.Observable<ITag[]> => {
+                    return this._tagSet.tagData$
+                        .map<INodeTags>(
+                            (tagData: ITagData): INodeTags => {
+                                return tagData[node.key];
+                            })
+                        .map<ITag[]>(
+                            (nodeTags: INodeTags): ITag[] => {
+                                if (nodeTags == null) {
+                                    return [];
+                                }
+
+                                let tags: ITag[] = [];
+
+                                for (let key in nodeTags.approve) {
+                                    if (nodeTags.approve.hasOwnProperty(key)) {
+                                        tags.push(nodeTags.approve[key]);
+                                    }
+                                }
+
+                                for (let key in nodeTags.change) {
+                                    if (nodeTags.change.hasOwnProperty(key)) {
+                                        tags.push(nodeTags.change[key]);
+                                    }
+                                }
+
+                                for (let key in nodeTags.create) {
+                                    if (nodeTags.create.hasOwnProperty(key)) {
+                                        tags.push(nodeTags.create[key]);
+                                    }
+                                }
+
+                                return tags;
+                            });
+                })
+            .share();
 
         // le DOM render
         this._domSubscription = rx.Observable
