@@ -162,13 +162,21 @@ export class MouseService {
         this._claimMouse$.onNext({name: name, zindex: null});
     }
 
-    public filteredMouseEvent$(name: string, mouseObservable$: rx.Observable<MouseEvent>): rx.Observable<MouseEvent> {
-        return mouseObservable$
-            .combineLatest(this.mouseOwner$, (e: MouseEvent, owner: string): any => {
-                return {e: e, owner: owner};
-            }).filter((a: any) => {
-                return a.owner === name;
-            });
+    public filtered$<T>(name: string, observable$: rx.Observable<T>): rx.Observable<T> {
+        return observable$
+            .withLatestFrom(
+                this.mouseOwner$,
+                (event: T, owner: string): [T, string] => {
+                    return [event, owner];
+                })
+            .filter(
+                (eo: [T, string]): boolean => {
+                    return eo[1] === name;
+                })
+            .map<T>(
+                (eo: [T, string]): T => {
+                    return eo[0];
+                });
     }
 
     public get mouseOwner$(): rx.Observable<string> {
