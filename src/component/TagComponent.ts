@@ -64,7 +64,7 @@ export class TagComponent extends Component {
                     this._container.mouseService.claimMouse(this._name, 1);
                 });
 
-        this._container.mouseService.filteredMouseEvent$(this._name, this._container.mouseService.mouseDrag$)
+        this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$)
             .withLatestFrom(
                 this._activeTag$,
                 (e: MouseEvent, tag: ITag): [MouseEvent, ITag] => {
@@ -72,7 +72,7 @@ export class TagComponent extends Component {
                 })
             .subscribe((et: [MouseEvent, ITag]): void => { return; });
 
-        this._container.mouseService.filteredMouseEvent$(this._name, this._container.mouseService.mouseDragEnd$)
+        this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDragEnd$)
             .subscribe((e: MouseEvent): void => {
                 this._container.mouseService.unclaimMouse(this._name);
              });
