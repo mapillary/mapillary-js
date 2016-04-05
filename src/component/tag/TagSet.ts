@@ -14,6 +14,7 @@ export class TagSet {
 
     private _set$: rx.Subject<[string, ITag[]]>;
     private _add$: rx.Subject<[string, ITag]>;
+    private _change$: rx.Subject<[string, string]>;
     private _remove$: rx.Subject<[string, string]>;
     private _clear$: rx.Subject<string>;
 
@@ -24,6 +25,7 @@ export class TagSet {
 
         this._set$ = new rx.Subject<[string, ITag[]]>();
         this._add$ = new rx.Subject<[string, ITag]>();
+        this._change$ = new rx.Subject<[string, string]>();
         this._remove$ = new rx.Subject<[string, string]>();
         this._clear$ = new rx.Subject<string>();
 
@@ -50,7 +52,7 @@ export class TagSet {
                             tagData[nodeKey].approve[tag.key] = tag;
                         }
 
-                        return;
+                        return tagData;
                     };
                 })
             .subscribe(this._tagDataOperation$);
@@ -63,6 +65,27 @@ export class TagSet {
                         let tag: ITag = nt[1];
 
                         tagData[nodeKey].create[tag.key] = tag;
+
+                        return tagData;
+                    };
+                })
+            .subscribe(this._tagDataOperation$);
+
+        this._change$
+            .map<ITagDataOperation>(
+                (nt: [string, string]): ITagDataOperation => {
+                    return (tagData: ITagData): ITagData => {
+                        let nodeKey: string = nt[0];
+                        let tagKey: string = nt[1];
+
+                        let nodeTags: INodeTags = tagData[nodeKey];
+
+                        if (tagKey in nodeTags.approve) {
+                            let tag: ITag = nodeTags.approve[tagKey];
+                            nodeTags.change[tagKey] = tag;
+
+                            delete nodeTags.approve[tagKey];
+                        }
 
                         return tagData;
                     };
@@ -128,6 +151,34 @@ export class TagSet {
                     };
                 })
             .subscribe(this._tagDataOperation$);
+    }
+
+    public get tagData$(): rx.Observable<ITagData> {
+        return this._tagData$;
+    }
+
+    public get set$(): rx.Subject<[string, ITag[]]> {
+        return this._set$;
+    }
+
+    public get add$(): rx.Subject<[string, ITag]> {
+        return this._add$;
+    }
+
+    public get change$(): rx.Subject<[string, string]> {
+        return this._change$;
+    }
+
+    public get remove$(): rx.Subject<[string, string]> {
+        return this._remove$;
+    }
+
+    public get clear$(): rx.Subject<string> {
+        return this._clear$;
+    }
+
+    public get clearAll$(): rx.Subject<void> {
+        return this._clearAll$;
     }
 }
 
