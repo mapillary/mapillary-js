@@ -29,6 +29,10 @@ interface ITag {
 export class TagComponent extends Component {
     public static componentName: string = "tag";
 
+    private _activeTag$: rx.Subject<ITag>;
+    private _claimMouse$: rx.Subject<void>;
+    private _abortMouseClaim$: rx.Subject<void>;
+
     private _domSubscription: rx.IDisposable;
     private _glSubscription: rx.IDisposable;
 
@@ -39,11 +43,40 @@ export class TagComponent extends Component {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
+        this._activeTag$ = new rx.Subject<ITag>();
+        this._claimMouse$ = new rx.Subject<void>();
+        this._abortMouseClaim$ = new rx.Subject<void>();
+
         this._apiV3 = navigator.apiV3;
         this._tags = null;
     }
 
     protected _activate(): void {
+        this._claimMouse$
+            .flatMapLatest(
+                (): rx.Observable<MouseEvent> => {
+                    return this._container.mouseService.mouseDragStart$
+                        .takeUntil(this._abortMouseClaim$)
+                        .take(1);
+                })
+            .subscribe(
+                (e: MouseEvent): void => {
+                    this._container.mouseService.claimMouse(this._name, 1);
+                });
+
+        this._container.mouseService.filteredMouseEvent$(this._name, this._container.mouseService.mouseDrag$)
+            .withLatestFrom(
+                this._activeTag$,
+                (e: MouseEvent, tag: ITag): [MouseEvent, ITag] => {
+                    return [e, tag];
+                })
+            .subscribe((et: [MouseEvent, ITag]): void => { return; });
+
+        this._container.mouseService.filteredMouseEvent$(this._name, this._container.mouseService.mouseDragEnd$)
+            .subscribe((e: MouseEvent): void => {
+                this._container.mouseService.unclaimMouse(this._name);
+             });
+
         let tags$: rx.Observable<ITag[]> = this._navigator.stateService.currentState$
             .distinctUntilChanged(
                 (frame: IFrame): string => {
@@ -206,9 +239,34 @@ export class TagComponent extends Component {
                 return (el * 100) + "%";
             });
 
-            vRects.push(vd.h("div.Rect", {style: this._getRectStyle(rectMapped)}, [
-                vd.h("span", {style: "color: red;", textContent: tag.value}, []),
-            ]));
+            let activateTag: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                this._activeTag$.onNext(tag);
+                this._claimMouse$.onNext(null);
+            };
+
+            let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                this._abortMouseClaim$.onNext(null);
+            };
+
+            let resize: vd.VNode = vd.h(
+                "div",
+                {
+                    onmousedown: activateTag,
+                    onmouseup: abort,
+                    style: {
+                        background: "red",
+                        height: "20px",
+                        left: "-20px",
+                        position: "absolute",
+                        top: "-20px",
+                        width: "20px",
+                    },
+                },
+                []);
+
+            let label: vd.VNode = vd.h("span", { style: { color: "red" }, textContent: tag.value }, []);
+
+            vRects.push(vd.h("div.Rect", { style: this._getRectStyle(rectMapped) }, [resize, label]));
         }
 
         return vd.h("div.rectContainer", {}, vRects);
