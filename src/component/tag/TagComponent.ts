@@ -1,15 +1,15 @@
-/// <reference path="../../typings/browser.d.ts" />
+/// <reference path="../../../typings/browser.d.ts" />
 
 import * as THREE from "three";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {Container, Navigator} from "../Viewer";
-import {APIv3} from "../API";
-import {ComponentService, Component} from "../Component";
-import {Transform} from "../Geo";
-import {RenderCamera, IVNodeHash, IGLRenderHash, GLRenderStage} from "../Render";
-import {IFrame} from "../State";
+import {Container, Navigator} from "../../Viewer";
+import {APIv3} from "../../API";
+import {ComponentService, Component} from "../../Component";
+import {Transform} from "../../Geo";
+import {RenderCamera, IVNodeHash, IGLRenderHash, GLRenderStage} from "../../Render";
+import {IFrame} from "../../State";
 
 interface IGlUpdateArgs {
     frame: IFrame;
