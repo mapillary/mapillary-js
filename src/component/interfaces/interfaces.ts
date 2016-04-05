@@ -7,3 +7,4 @@ export {ISliderConfiguration, ISliderKeys} from "./ISliderConfiguration";
 export {IComponentConfiguration} from "./IComponentConfiguration";
 export {IShader} from "./IShader";
 export * from "../marker/interfaces/interfaces";
+export * from "../tag/interfaces/interfaces";
