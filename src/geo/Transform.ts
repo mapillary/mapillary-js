@@ -181,9 +181,18 @@ export class Transform {
     }
 
     private _bearingToPixel(bearing: number[]): number[] {
-        // todo(pau): handle panos and radial distortion
-        return [bearing[0] * this._focal / bearing[2],
-                bearing[1] * this._focal / bearing[2], ];
+        if (this._gpano) {
+            let x: number = bearing[0];
+            let y: number = bearing[1];
+            let z: number = bearing[2];
+            let lon: number = Math.atan2(x, z);
+            let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
+            return [lon / (2 * Math.PI), -lat / (2 * Math.PI)];
+        } else {
+            // todo(pau): handle radial distortion
+            return [bearing[0] * this._focal / bearing[2],
+                    bearing[1] * this._focal / bearing[2], ];
+        }
     }
 
     private _basicToSfm(point: number[]): number[] {

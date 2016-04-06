@@ -554,4 +554,33 @@ describe("Transform.unprojectBasic", () => {
         expect(backprojectedPixel[0]).toBeCloseTo(pixel[0], precision);
         expect(backprojectedPixel[1]).toBeCloseTo(pixel[1], precision);
     });
+
+    it("should back-project to the same pixel for full pano", () => {
+        let t: number[] = [5, 15, 2];
+        let node: Node = new Node(
+            "", 0, null, true, null,
+            {
+                gpano: {
+                    CroppedAreaLeftPixels: 0,
+                    CroppedAreaTopPixels: 0,
+                    CroppedAreaImageWidthPixels: 1,
+                    CroppedAreaImageHeightPixels: 1,
+                    FullPanoWidthPixels: 1,
+                    FullPanoHeightPixels: 1,
+                },
+                key: "",
+                rotation: [0.5, -0.2, 0.3] },
+            []);
+
+        let transform: Transform = new Transform(node, t);
+
+        let basicPixel: number[] = [0.4534546, 0.72344564];
+
+        let point: number[] = transform.unprojectBasic(basicPixel, 100);
+
+        let backprojectedPixel: number[] = transform.projectBasic(point);
+
+        expect(backprojectedPixel[0]).toBeCloseTo(basicPixel[0], precision);
+        expect(backprojectedPixel[1]).toBeCloseTo(basicPixel[1], precision);
+    });
 });
