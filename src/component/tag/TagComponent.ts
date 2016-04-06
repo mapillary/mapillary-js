@@ -284,7 +284,12 @@ export class TagComponent extends Component {
             if (ors.hasOwnProperty(key)) {
                 let or: any = ors[key];
                 if (or) {
-                    let polygonBasic: number[][] = or.rect.geometry.coordinates;
+                    let polygonBasic: number[][] = [];
+
+                    for (let coordinate of or.rect.geometry.coordinates) {
+                        polygonBasic.push(coordinate.slice());
+                    }
+
                     let polygon3d: number[][] = this._polygonTo3d(transform, polygonBasic);
 
                     tags.push({
