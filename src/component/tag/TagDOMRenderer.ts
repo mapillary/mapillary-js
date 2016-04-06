@@ -4,20 +4,20 @@ import * as THREE from "three";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {ITag} from "../../Component";
+import {ITag, IActiveTag} from "../../Component";
 
 export class TagDOMRenderer {
-    private _activeTag$: rx.Subject<ITag>;
+    private _activeTag$: rx.Subject<IActiveTag>;
     private _editInitiated$: rx.Subject<void>;
     private _editAbort$: rx.Subject<void>;
 
     constructor() {
-        this._activeTag$ = new rx.Subject<ITag>();
+        this._activeTag$ = new rx.Subject<IActiveTag>();
         this._editInitiated$ = new rx.Subject<void>();
         this._editAbort$ = new rx.Subject<void>();
     }
 
-    public get activeTag$(): rx.Observable<ITag> {
+    public get activeTag$(): rx.Observable<IActiveTag> {
         return this._activeTag$;
     }
 
@@ -60,7 +60,10 @@ export class TagDOMRenderer {
             });
 
             let activateTag: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                this._activeTag$.onNext(tag);
+                let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
+                let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
+
+                this._activeTag$.onNext({ offsetX: offsetX, offsetY: offsetY, tag: tag });
                 this._editInitiated$.onNext(null);
             };
 

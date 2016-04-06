@@ -1,6 +1,7 @@
 /// <reference path="../../../typings/browser.d.ts" />
 
 import * as rx from "rx";
+import * as THREE from "three";
 
 import {Node} from "../../Graph";
 import {Container, Navigator} from "../../Viewer";
@@ -8,6 +9,7 @@ import {APIv3} from "../../API";
 import {
     ComponentService,
     Component,
+    IActiveTag,
     INodeTags,
     ITag,
     ITagData,
@@ -18,11 +20,6 @@ import {
 import {Transform} from "../../Geo";
 import {RenderCamera, IVNodeHash, IGLRenderHash, GLRenderStage} from "../../Render";
 import {IFrame} from "../../State";
-
-interface IGlUpdateArgs {
-    frame: IFrame;
-    tags: ITag[];
-}
 
 interface ITagGLRendererOperation extends Function {
     (renderer: TagGLRenderer): TagGLRenderer;
@@ -80,10 +77,49 @@ export class TagComponent extends Component {
         this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$)
             .withLatestFrom(
                 this._tagDomRenderer.activeTag$,
-                (e: MouseEvent, tag: ITag): [MouseEvent, ITag] => {
-                    return [e, tag];
+                this._container.renderService.renderCamera$,
+                this._navigator.stateService.currentState$,
+                (
+                    event: MouseEvent,
+                    activeTag: IActiveTag,
+                    renderCamera: RenderCamera,
+                    frame: IFrame):
+                    [MouseEvent, IActiveTag, RenderCamera, IFrame] => {
+                    return [event, activeTag, renderCamera, frame];
                 })
-            .subscribe((et: [MouseEvent, ITag]): void => { return; });
+            .map<[string, string]>(
+                (args: [MouseEvent, IActiveTag, RenderCamera, IFrame]): [string, string] => {
+                    let mouseEvent: MouseEvent = args[0];
+                    let activeTag: IActiveTag = args[1];
+                    let renderCamera: RenderCamera = args[2];
+                    let frame: IFrame = args[3];
+
+                    let transform: Transform = frame.state.currentTransform;
+                    let node: Node = frame.state.currentNode;
+
+                    let element: HTMLElement = this._container.element;
+
+                    let canvasX: number = mouseEvent.clientX - element.offsetLeft - activeTag.offsetX;
+                    let canvasY: number = mouseEvent.clientY - element.offsetTop - activeTag.offsetX;
+
+                    let projectedX: number = 2 * canvasX / element.offsetWidth - 1;
+                    let projectedY: number = 1 - 2 * canvasY / element.offsetHeight;
+
+                    let unprojected: THREE.Vector3 =
+                        new THREE.Vector3(projectedX, projectedY, 1).unproject(renderCamera.perspective);
+
+                    let topLeft: number[] = transform.projectBasic(unprojected.toArray());
+
+                    activeTag.tag.polygonBasic[0][0] = topLeft[0];
+                    activeTag.tag.polygonBasic[1] = topLeft;
+                    activeTag.tag.polygonBasic[2][1] = topLeft[1];
+                    activeTag.tag.polygonBasic[4][0] = topLeft[0];
+
+                    activeTag.tag.polygon3d = this._polygonTo3d(transform, activeTag.tag.polygonBasic);
+
+                    return [node.key, activeTag.tag.key];
+                })
+            .subscribe(this._tagSet.change$);
 
         this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDragEnd$)
             .subscribe((e: MouseEvent): void => {
