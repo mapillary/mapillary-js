@@ -1,6 +1,5 @@
 /// <reference path="../../../typings/browser.d.ts" />
 
-import * as THREE from "three";
 import * as rx from "rx";
 
 import {Node} from "../../Graph";
@@ -13,6 +12,7 @@ import {
     ITag,
     ITagData,
     TagDOMRenderer,
+    TagGLRenderer,
     TagSet,
 } from "../../Component";
 import {Transform} from "../../Geo";
@@ -24,24 +24,44 @@ interface IGlUpdateArgs {
     tags: ITag[];
 }
 
+interface ITagGLRendererOperation extends Function {
+    (renderer: TagGLRenderer): TagGLRenderer;
+}
+
 export class TagComponent extends Component {
     public static componentName: string = "tag";
-
-    private _domSubscription: rx.IDisposable;
-    private _glSubscription: rx.IDisposable;
 
     private _apiV3: APIv3;
 
     private _tagDomRenderer: TagDOMRenderer;
     private _tagSet: TagSet;
 
+    private _tagGlRendererOperation$: rx.Subject<ITagGLRendererOperation>;
+    private _tagGlRenderer$: rx.Observable<TagGLRenderer>;
+
+    private _domSubscription: rx.IDisposable;
+    private _glSubscription: rx.IDisposable;
+
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._apiV3 = navigator.apiV3;
-
         this._tagDomRenderer = new TagDOMRenderer();
         this._tagSet = new TagSet();
+
+        this._apiV3 = navigator.apiV3;
+
+        this._tagGlRendererOperation$ = new rx.Subject<ITagGLRendererOperation>();
+
+        this._tagGlRenderer$ = this._tagGlRendererOperation$
+            .startWith(
+                (renderer: TagGLRenderer): TagGLRenderer => {
+                    return renderer;
+                })
+            .scan<TagGLRenderer>(
+                (renderer: TagGLRenderer, operation: ITagGLRendererOperation): TagGLRenderer => {
+                    return operation(renderer);
+                },
+                new TagGLRenderer());
     }
 
     protected _activate(): void {
@@ -140,7 +160,17 @@ export class TagComponent extends Component {
                 })
             .share();
 
-        // le DOM render
+        tags$
+            .map<ITagGLRendererOperation>(
+                (tags: ITag[]): ITagGLRendererOperation => {
+                    return (renderer: TagGLRenderer): TagGLRenderer => {
+                        renderer.updateTags(tags);
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._tagGlRendererOperation$);
+
         this._domSubscription = rx.Observable
             .combineLatest(
                 this._container.renderService.renderCamera$,
@@ -157,41 +187,33 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._container.domRenderer.render$);
 
-        // le GL render
-        this._glSubscription = rx.Observable
-            .combineLatest(
-                this._navigator.stateService.currentState$,
-                tags$,
-                (frame: IFrame, tags: ITag[]): IGlUpdateArgs => {
-                    return { frame: frame, tags: tags };
+        this._glSubscription = this._navigator.stateService.currentState$
+            .withLatestFrom(
+                this._tagGlRenderer$,
+                (frame: IFrame, renderer: TagGLRenderer): [IFrame, TagGLRenderer] => {
+                    return [frame, renderer];
                 })
-            .map<IGLRenderHash>(this._renderHash.bind(this))
+            .map<IGLRenderHash>(
+                (fr: [IFrame, TagGLRenderer]): IGLRenderHash => {
+                    let frame: IFrame = fr[0];
+                    let renderer: TagGLRenderer = fr[1];
+
+                    return {
+                        name: this._name,
+                        render: {
+                            frameId: frame.id,
+                            needsRender: renderer.needsRender,
+                            render: renderer.render.bind(renderer),
+                            stage: GLRenderStage.Foreground,
+                        },
+                    };
+                })
             .subscribe(this._container.glRenderer.render$);
     }
 
     protected _deactivate(): void {
         this._domSubscription.dispose();
         this._glSubscription.dispose();
-    }
-
-    private _renderHash(args: IGlUpdateArgs): IGLRenderHash {
-        // return render hash with render function and
-        // render in foreground.
-        return {
-            name: this._name,
-            render: {
-                frameId: args.frame.id,
-                needsRender: false,
-                render: this._render.bind(this),
-                stage: GLRenderStage.Foreground,
-            },
-        };
-    }
-
-    private _render(
-        perspectiveCamera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer): void {
-        return;
     }
 
     private _computeTags(transform: Transform, ors: any): ITag[] {
