@@ -19,10 +19,17 @@
 }
 
 .TagResizer {
-    background: red;
     position: absolute;
+    border-radius: 10px;
     width: 20px;
     height: 20px;
-    left: -20px;
-    top: -20px;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.TagResizer:hover {
+    background: #00FF00;
+    opacity: 0.3;
 }
