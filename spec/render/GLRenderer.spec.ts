@@ -239,7 +239,7 @@ describe("GLRenderer.renderer", () => {
 
         glRenderer.clear("mock");
 
-        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(2);
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(3);
     });
 
     it("should not clear or render on frames when no renders registered", () => {
@@ -387,5 +387,49 @@ describe("GLRenderer.renderer", () => {
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
+    });
+
+    it("should render when one of multiple render hashes is cleared", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+
+        let hash1: string = "hash1";
+        let hash2: string = "hash2";
+
+        let frameId: number = 1;
+
+        let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
+        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        renderCamera.frameId = frameId;
+        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+
+        let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
+
+        let renderHash1: IGLRenderHash = createGLRenderHash(frameId, true, hash1);
+        let renderHash2: IGLRenderHash = createGLRenderHash(frameId, true, hash2);
+
+        glRenderer.render$.onNext(renderHash1);
+        glRenderer.render$.onNext(renderHash2);
+
+        spyOn(rendererMock, "clear");
+        spyOn(rendererMock, "render");
+
+        frameId = 2;
+        renderCamera.frameId = frameId;
+        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
+
+        renderHash1 = createGLRenderHash(frameId, false, hash1);
+        glRenderer.render$.onNext(renderHash1);
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
+
+        glRenderer.clear(hash2);
+
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
     });
 });
