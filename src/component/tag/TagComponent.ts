@@ -2,12 +2,19 @@
 
 import * as THREE from "three";
 import * as rx from "rx";
-import * as vd from "virtual-dom";
 
 import {Node} from "../../Graph";
 import {Container, Navigator} from "../../Viewer";
 import {APIv3} from "../../API";
-import {ComponentService, Component, INodeTags, ITag, ITagData, TagSet} from "../../Component";
+import {
+    ComponentService,
+    Component,
+    INodeTags,
+    ITag,
+    ITagData,
+    TagDOMRenderer,
+    TagSet,
+} from "../../Component";
 import {Transform} from "../../Geo";
 import {RenderCamera, IVNodeHash, IGLRenderHash, GLRenderStage} from "../../Render";
 import {IFrame} from "../../State";
@@ -20,39 +27,29 @@ interface IGlUpdateArgs {
 export class TagComponent extends Component {
     public static componentName: string = "tag";
 
-    private _activeTag$: rx.Subject<ITag>;
-    private _claimMouse$: rx.Subject<void>;
-    private _abortMouseClaim$: rx.Subject<void>;
-
     private _domSubscription: rx.IDisposable;
     private _glSubscription: rx.IDisposable;
 
     private _apiV3: APIv3;
 
+    private _tagDomRenderer: TagDOMRenderer;
     private _tagSet: TagSet;
-
-    private _tags: ITag[];
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._activeTag$ = new rx.Subject<ITag>();
-        this._claimMouse$ = new rx.Subject<void>();
-        this._abortMouseClaim$ = new rx.Subject<void>();
-
         this._apiV3 = navigator.apiV3;
 
+        this._tagDomRenderer = new TagDOMRenderer();
         this._tagSet = new TagSet();
-
-        this._tags = null;
     }
 
     protected _activate(): void {
-        this._claimMouse$
+        this._tagDomRenderer.editInitiated$
             .flatMapLatest(
                 (): rx.Observable<MouseEvent> => {
                     return this._container.mouseService.mouseDragStart$
-                        .takeUntil(this._abortMouseClaim$)
+                        .takeUntil(this._tagDomRenderer.editAbort$)
                         .take(1);
                 })
             .subscribe(
@@ -62,7 +59,7 @@ export class TagComponent extends Component {
 
         this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$)
             .withLatestFrom(
-                this._activeTag$,
+                this._tagDomRenderer.activeTag$,
                 (e: MouseEvent, tag: ITag): [MouseEvent, ITag] => {
                     return [e, tag];
                 })
@@ -155,7 +152,7 @@ export class TagComponent extends Component {
                 (rcts: [RenderCamera, ITag[]]): IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._getRects(rcts[1], rcts[0].perspective),
+                        vnode: this._tagDomRenderer.render(rcts[1], rcts[0].perspective),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);
@@ -178,9 +175,6 @@ export class TagComponent extends Component {
     }
 
     private _renderHash(args: IGlUpdateArgs): IGLRenderHash {
-        // save tags for later when the render function will be called
-        this._tags = args.tags;
-
         // return render hash with render function and
         // render in foreground.
         return {
@@ -192,6 +186,12 @@ export class TagComponent extends Component {
                 stage: GLRenderStage.Foreground,
             },
         };
+    }
+
+    private _render(
+        perspectiveCamera: THREE.PerspectiveCamera,
+        renderer: THREE.WebGLRenderer): void {
+        return;
     }
 
     private _computeTags(transform: Transform, ors: any): ITag[] {
@@ -229,101 +229,6 @@ export class TagComponent extends Component {
         });
 
         return polygon3d;
-    }
-
-    private _render(
-        perspectiveCamera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer): void {
-        return;
-    }
-
-    private _projectToCanvas(point: THREE.Vector3, projectionMatrix: THREE.Matrix4): number[] {
-        let projected: THREE.Vector3 =
-            new THREE.Vector3(point.x, point.y, point.z)
-                .applyProjection(projectionMatrix);
-
-        return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
-    }
-
-    private _convertToCameraSpace(point: number[], matrixWorldInverse: THREE.Matrix4): THREE.Vector3 {
-        let p: THREE.Vector3 = new THREE.Vector3(point[0], point[1], point[2]);
-        p.applyMatrix4(matrixWorldInverse);
-
-        return p;
-    }
-
-    private _getRects(tags: ITag[], camera: THREE.PerspectiveCamera): vd.VNode {
-        let vRects: vd.VNode[] = [];
-        let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4();
-        matrixWorldInverse.getInverse(camera.matrixWorld);
-
-        for (let t of tags) {
-            let tag: ITag = t;
-
-            let topLeftCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygon3d[1], matrixWorldInverse);
-            let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygon3d[3], matrixWorldInverse);
-
-            if (topLeftCamera.z > 0 && bottomRightCamera.z > 0) {
-                continue;
-            }
-
-            let topLeft: number[] = this._projectToCanvas(topLeftCamera, camera.projectionMatrix);
-            let bottomRight: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
-
-            let rect: number[] = [];
-            rect[0] = topLeft[0];
-            rect[1] = topLeft[1];
-            rect[2] = bottomRight[0];
-            rect[3] = bottomRight[1];
-
-            let adjustedRect: number[] = this._coordsToCss(rect);
-
-            let rectMapped: string[] = adjustedRect.map((el: number) => {
-                return (el * 100) + "%";
-            });
-
-            let activateTag: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                this._activeTag$.onNext(tag);
-                this._claimMouse$.onNext(null);
-            };
-
-            let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                this._abortMouseClaim$.onNext(null);
-            };
-
-            let resize: vd.VNode = vd.h(
-                "div",
-                {
-                    onmousedown: activateTag,
-                    onmouseup: abort,
-                    style: {
-                        background: "red",
-                        height: "20px",
-                        left: "-20px",
-                        position: "absolute",
-                        top: "-20px",
-                        width: "20px",
-                    },
-                },
-                []);
-
-            let label: vd.VNode = vd.h("span", { style: { color: "red" }, textContent: tag.value }, []);
-
-            vRects.push(vd.h("div.Rect", { style: this._getRectStyle(rectMapped) }, [resize, label]));
-        }
-
-        return vd.h("div.rectContainer", {}, vRects);
-    }
-
-    private _coordsToCss(rects: number[]): number[] {
-        let adjustedCoords: number[] = rects.concat();
-        adjustedCoords[2] = 1 - adjustedCoords[2];
-        adjustedCoords[3] = 1 - adjustedCoords[3];
-        return adjustedCoords;
-    }
-
-    private _getRectStyle(mappedRect: Array<string>): string {
-        return `top:${mappedRect[1]}; bottom:${mappedRect[3]}; right:${mappedRect[2]}; left:${mappedRect[0]}`;
     }
 }
 
