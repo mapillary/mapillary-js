@@ -10,3 +10,19 @@
 .TagRect {
     position: absolute;
 }
+
+.TagLabel {
+    color: red;
+    position: absolute;
+    left: 100%;
+    top: 100%;
+}
+
+.TagResizer {
+    background: red;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: -20px;
+    top: -20px;
+}

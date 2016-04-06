@@ -68,23 +68,8 @@ export class TagDOMRenderer {
                 this._editAbort$.onNext(null);
             };
 
-            let resize: vd.VNode = vd.h(
-                "div",
-                {
-                    onmousedown: activateTag,
-                    onmouseup: abort,
-                    style: {
-                        background: "red",
-                        height: "20px",
-                        left: "-20px",
-                        position: "absolute",
-                        top: "-20px",
-                        width: "20px",
-                    },
-                },
-                []);
-
-            let label: vd.VNode = vd.h("span", { style: { color: "red" }, textContent: tag.value }, []);
+            let resize: vd.VNode = vd.h("div.TagResizer", { onmousedown: activateTag, onmouseup: abort }, []);
+            let label: vd.VNode = vd.h("span.TagLabel", { textContent: tag.value }, []);
 
             vRects.push(vd.h("div.TagRect", { style: this._getRectStyle(rectMapped) }, [resize, label]));
         }
