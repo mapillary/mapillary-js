@@ -86,10 +86,10 @@ export class TagDOMRenderer {
 
             let label: vd.VNode = vd.h("span", { style: { color: "red" }, textContent: tag.value }, []);
 
-            vRects.push(vd.h("div.Rect", { style: this._getRectStyle(rectMapped) }, [resize, label]));
+            vRects.push(vd.h("div.TagRect", { style: this._getRectStyle(rectMapped) }, [resize, label]));
         }
 
-        return vd.h("div.rectContainer", {}, vRects);
+        return vd.h("div.TagContainer", {}, vRects);
     }
 
     private _projectToCanvas(point: THREE.Vector3, projectionMatrix: THREE.Matrix4): number[] {
