@@ -191,6 +191,20 @@ export class TagComponent extends Component {
                                     }
                                 }
 
+                                // ensure that tags are always rendered in the same order
+                                // to avoid hover tracking problems on first resize.
+                                tags.sort((first: ITag, second: ITag): number => {
+                                    if (first.key > second.key) {
+                                        return 1;
+                                    }
+
+                                    if (first.key < second.key) {
+                                        return -1;
+                                    }
+
+                                    return 0;
+                                });
+
                                 return tags;
                             });
                 })
