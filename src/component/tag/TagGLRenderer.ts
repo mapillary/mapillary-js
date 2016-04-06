@@ -31,7 +31,7 @@ export class TagGLRenderer {
     public updateTags(tags: ITag[]): void {
         this._needsRender = true;
 
-        for (let object of this._scene.children) {
+        for (let object of this._scene.children.slice()) {
             this._scene.remove(object);
             let line: THREE.Line = <THREE.Line>object;
             line.geometry.dispose();
