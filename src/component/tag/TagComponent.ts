@@ -100,7 +100,7 @@ export class TagComponent extends Component {
                     let element: HTMLElement = this._container.element;
 
                     let canvasX: number = mouseEvent.clientX - element.offsetLeft - activeTag.offsetX;
-                    let canvasY: number = mouseEvent.clientY - element.offsetTop - activeTag.offsetX;
+                    let canvasY: number = mouseEvent.clientY - element.offsetTop - activeTag.offsetY;
 
                     let projectedX: number = 2 * canvasX / element.offsetWidth - 1;
                     let projectedY: number = 1 - 2 * canvasY / element.offsetHeight;
