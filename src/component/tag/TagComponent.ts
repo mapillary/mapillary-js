@@ -212,6 +212,14 @@ export class TagComponent extends Component {
     }
 
     protected _deactivate(): void {
+        this._tagGlRendererOperation$
+            .onNext(
+                (renderer: TagGLRenderer): TagGLRenderer => {
+                    renderer.dispose();
+
+                    return renderer;
+                });
+
         this._domSubscription.dispose();
         this._glSubscription.dispose();
     }
