@@ -110,6 +110,9 @@ export class TagComponent extends Component {
 
                     let topLeft: number[] = transform.projectBasic(unprojected.toArray());
 
+                    topLeft[0] = Math.max(0, Math.min(1, topLeft[0]));
+                    topLeft[1] = Math.max(0, Math.min(1, topLeft[1]));
+
                     activeTag.tag.polygonBasic[0][0] = topLeft[0];
                     activeTag.tag.polygonBasic[1] = topLeft;
                     activeTag.tag.polygonBasic[2][1] = topLeft[1];
