@@ -47,17 +47,9 @@ export class TagDOMRenderer {
             let topLeft: number[] = this._projectToCanvas(topLeftCamera, camera.projectionMatrix);
             let bottomRight: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
 
-            let rect: number[] = [];
-            rect[0] = topLeft[0];
-            rect[1] = topLeft[1];
-            rect[2] = bottomRight[0];
-            rect[3] = bottomRight[1];
-
-            let adjustedRect: number[] = this._coordsToCss(rect);
-
-            let rectMapped: string[] = adjustedRect.map((el: number) => {
-                return (el * 100) + "%";
-            });
+            let canvasRect: number[] = [
+                topLeft[0], topLeft[1], bottomRight[0], bottomRight[1],
+            ];
 
             let activateTag: (e: MouseEvent) => void = (e: MouseEvent): void => {
                 let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
@@ -74,7 +66,7 @@ export class TagDOMRenderer {
             let resize: vd.VNode = vd.h("div.TagResizer", { onmousedown: activateTag, onmouseup: abort }, []);
             let label: vd.VNode = vd.h("span.TagLabel", { textContent: tag.value }, []);
 
-            vRects.push(vd.h("div.TagRect", { style: this._getRectStyle(rectMapped) }, [resize, label]));
+            vRects.push(vd.h("div.TagRect", { style: this._canvasToCss(canvasRect) }, [resize, label]));
         }
 
         return vd.h("div.TagContainer", {}, vRects);
@@ -95,14 +87,26 @@ export class TagDOMRenderer {
         return p;
     }
 
-    private _coordsToCss(rects: number[]): number[] {
-        let adjustedCoords: number[] = rects.concat();
-        adjustedCoords[2] = 1 - adjustedCoords[2];
-        adjustedCoords[3] = 1 - adjustedCoords[3];
-        return adjustedCoords;
-    }
+    private _canvasToCss(canvasRect: number[]): vd.createProperties {
+        let margins: number[] = [];
 
-    private _getRectStyle(mappedRect: Array<string>): string {
-        return `top:${mappedRect[1]}; bottom:${mappedRect[3]}; right:${mappedRect[2]}; left:${mappedRect[0]}`;
+        margins[0] = canvasRect[0];
+        margins[1] = canvasRect[1];
+        margins[2] = 1 - canvasRect[2];
+        margins[3] = 1 - canvasRect[3];
+
+        let percentageMargins: string[] = margins
+            .map((margin: number) => {
+                return (100 * margin) + "%";
+            });
+
+        let style: vd.createProperties = {
+            bottom: percentageMargins[3],
+            left: percentageMargins[0],
+            right: percentageMargins[2],
+            top: percentageMargins[1],
+        };
+
+        return style;
     }
 }
