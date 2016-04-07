@@ -15,6 +15,7 @@ import {
     ITagData,
     TagDOMRenderer,
     TagGLRenderer,
+    TagOperation,
     TagSet,
 } from "../../Component";
 import {Transform} from "../../Geo";
@@ -108,15 +109,13 @@ export class TagComponent extends Component {
                     let unprojected: THREE.Vector3 =
                         new THREE.Vector3(projectedX, projectedY, 1).unproject(renderCamera.perspective);
 
-                    let topLeft: number[] = transform.projectBasic(unprojected.toArray());
+                    let newCoord: number[] = transform.projectBasic(unprojected.toArray());
 
-                    topLeft[0] = Math.max(0, Math.min(1, topLeft[0]));
-                    topLeft[1] = Math.max(0, Math.min(1, topLeft[1]));
-
-                    activeTag.tag.polygonBasic[0][0] = topLeft[0];
-                    activeTag.tag.polygonBasic[1] = topLeft;
-                    activeTag.tag.polygonBasic[2][1] = topLeft[1];
-                    activeTag.tag.polygonBasic[4][0] = topLeft[0];
+                    activeTag.tag.polygonBasic =
+                        this._computePolygonBasic(
+                            activeTag.tag.polygonBasic,
+                            newCoord,
+                            activeTag.operation);
 
                     activeTag.tag.polygon3d = this._polygonTo3d(transform, activeTag.tag.polygonBasic);
 
@@ -309,6 +308,38 @@ export class TagComponent extends Component {
         }
 
         return tags;
+    }
+
+    private _computePolygonBasic(original: number[][], newCoord: number[], operation: TagOperation): number[][] {
+        let polygonBasic: number[][] = [];
+
+        if (operation === TagOperation.Move) {
+            let centerX: number = original[1][0] + (original[3][0] - original[1][0]) / 2;
+            let centerY: number = original[1][1] + (original[3][1] - original[1][1]) / 2;
+
+            let translationX: number = newCoord[0] - centerX;
+            let translationY: number = newCoord[1] - centerY;
+
+            polygonBasic[0] = [original[0][0] + translationX, original[0][1] + translationY];
+            polygonBasic[1] = [original[1][0] + translationX, original[1][1] + translationY];
+            polygonBasic[2] = [original[2][0] + translationX, original[2][1] + translationY];
+            polygonBasic[3] = [original[3][0] + translationX, original[3][1] + translationY];
+            polygonBasic[4] = [original[4][0] + translationX, original[4][1] + translationY];
+
+        } else if (operation === TagOperation.ResizeTopLeft) {
+            newCoord = [
+                Math.max(0, Math.min(1, newCoord[0])),
+                Math.max(0, Math.min(1, newCoord[1])),
+            ];
+
+            polygonBasic[0] = [newCoord[0], original[0][1]];
+            polygonBasic[1] = [newCoord[0], newCoord[1]];
+            polygonBasic[2] = [original[2][0], newCoord[1]];
+            polygonBasic[3] = [original[3][0], original[3][1]];
+            polygonBasic[4] = [newCoord[0], original[4][1]];
+        }
+
+        return polygonBasic;
     }
 
     private _polygonTo3d(transform: Transform, polygonBasic: number[][]): number[][] {

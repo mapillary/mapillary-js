@@ -1,9 +1,10 @@
-import {ITag} from "../../../Component";
+import {ITag, TagOperation} from "../../../Component";
 
 export interface IActiveTag {
-    tag: ITag;
     offsetX: number;
     offsetY: number;
+    operation: TagOperation;
+    tag: ITag;
 }
 
 export default IActiveTag;

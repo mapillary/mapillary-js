@@ -4,7 +4,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {ITag, IActiveTag} from "../../Component";
+import {ITag, IActiveTag, TagOperation} from "../../Component";
 
 export class TagDOMRenderer {
     private _activeTag$: rx.Subject<IActiveTag>;
@@ -51,25 +51,31 @@ export class TagDOMRenderer {
                 topLeft[0], topLeft[1], bottomRight[0], bottomRight[1],
             ];
 
-            let activateTag: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
-                let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
-
-                this._activeTag$.onNext({ offsetX: offsetX, offsetY: offsetY, tag: tag });
-                this._editInitiated$.onNext(null);
-            };
+            let activateResize: (e: MouseEvent) => void = this._activateTag(tag, TagOperation.ResizeTopLeft);
+            let activateMove: (e: MouseEvent) => void = this._activateTag(tag, TagOperation.Move);
 
             let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
                 this._editAbort$.onNext(null);
             };
 
-            let resize: vd.VNode = vd.h("div.TagResizer", { onmousedown: activateTag, onmouseup: abort }, []);
+            let resize: vd.VNode = vd.h("div.TagResizer", { onmousedown: activateResize, onmouseup: abort }, []);
+            let move: vd.VNode = vd.h("div.TagMover", { onmousedown: activateMove, onmouseup: abort }, []);
             let label: vd.VNode = vd.h("span.TagLabel", { textContent: tag.value }, []);
 
-            vRects.push(vd.h("div.TagRect", { style: this._canvasToCss(canvasRect) }, [resize, label]));
+            vRects.push(vd.h("div.TagRect", { style: this._canvasToCss(canvasRect) }, [resize, move, label]));
         }
 
         return vd.h("div.TagContainer", {}, vRects);
+    }
+
+    private _activateTag(tag: ITag, operation: TagOperation): (e: MouseEvent) => void {
+        return (e: MouseEvent): void => {
+                let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
+                let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
+
+                this._activeTag$.onNext({ offsetX: offsetX, offsetY: offsetY, operation: operation, tag: tag });
+                this._editInitiated$.onNext(null);
+        };
     }
 
     private _projectToCanvas(point: THREE.Vector3, projectionMatrix: THREE.Matrix4): number[] {
