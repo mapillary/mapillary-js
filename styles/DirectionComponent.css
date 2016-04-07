@@ -16,6 +16,7 @@
     height: 100px;
     bottom: 0;
     overflow: visible;
+    pointer-events: none;
 }
 
 .DirectionsArrowStep,
