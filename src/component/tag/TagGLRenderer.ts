@@ -35,9 +35,9 @@ export class TagGLRenderer {
 
         for (let tag of tags) {
             let lineGeometry: THREE.Geometry = new THREE.Geometry();
-            for (let i: number = 0; i < tag.rectPoints3d.length - 1; ++i) {
-                let a: number[] = tag.rectPoints3d[i];
-                let b: number[] = tag.rectPoints3d[i + 1];
+            for (let i: number = 0; i < tag.polygonPoints3d.length - 1; ++i) {
+                let a: number[] = tag.polygonPoints3d[i];
+                let b: number[] = tag.polygonPoints3d[i + 1];
                 lineGeometry.vertices.push(
                     new THREE.Vector3(a[0], a[1], a[2]),
                     new THREE.Vector3(b[0], b[1], b[2])

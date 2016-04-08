@@ -108,9 +108,9 @@ export class TagComponent extends Component {
 
                     let newCoord: number[] = transform.projectBasic(unprojected.toArray());
 
-                    activeTag.tag.rect =
+                    activeTag.tag.shape =
                         this._computeRect(
-                            activeTag.tag.rect,
+                            activeTag.tag.shape,
                             newCoord,
                             activeTag.operation);
                 })
