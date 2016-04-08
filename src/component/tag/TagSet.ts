@@ -2,38 +2,26 @@
 
 import * as rx from "rx";
 
-import {INodeTags, ITag, ITagData} from "../../Component";
+import {ITag} from "../../Component";
+
+type TagData = { [id: string]: ITag };
 
 interface ITagDataOperation extends Function {
-    (tagData: ITagData): ITagData;
+    (tags: TagData): TagData;
 }
 
 export class TagSet {
-    private _tagDataOperation$: rx.Subject<ITagDataOperation>;
-    private _tagData$: rx.Observable<ITagData>;
+    private _tagDataOperation$: rx.Subject<ITagDataOperation> = new rx.Subject<ITagDataOperation>();
+    private _tagData$: rx.Observable<TagData>;
 
-    private _set$: rx.Subject<[string, ITag[]]>;
-    private _add$: rx.Subject<[string, ITag]>;
-    private _change$: rx.Subject<[string, string]>;
-    private _remove$: rx.Subject<[string, string]>;
-    private _clear$: rx.Subject<string>;
+    private _set$: rx.Subject<ITag[]> = new rx.Subject<ITag[]>();
 
-    private _clearAll$: rx.Subject<void>;
+    private _notifyTagChanged$: rx.Subject<void> = new rx.Subject<void>();
 
     constructor() {
-        this._tagDataOperation$ = new rx.Subject<ITagDataOperation>();
-
-        this._set$ = new rx.Subject<[string, ITag[]]>();
-        this._add$ = new rx.Subject<[string, ITag]>();
-        this._change$ = new rx.Subject<[string, string]>();
-        this._remove$ = new rx.Subject<[string, string]>();
-        this._clear$ = new rx.Subject<string>();
-
-        this._clearAll$ = new rx.Subject<void>();
-
         this._tagData$ = this._tagDataOperation$
-            .scan<ITagData>(
-                (tagData: ITagData, operation: ITagDataOperation): ITagData => {
+            .scan<TagData>(
+                (tagData: TagData, operation: ITagDataOperation): TagData => {
                     return operation(tagData);
                 },
                 {})
@@ -41,15 +29,14 @@ export class TagSet {
 
         this._set$
             .map<ITagDataOperation>(
-                (nts: [string, ITag[]]): ITagDataOperation => {
-                    return (tagData: ITagData): ITagData => {
-                        let nodeKey: string = nts[0];
-                        let tags: ITag[] = nts[1];
-
-                        tagData[nodeKey] = { approve: {}, change: {}, create: {}, reject: {} };
+                (tags: ITag[]): ITagDataOperation => {
+                    return (tagData: TagData): TagData => {
+                        for (let key of Object.keys(tagData)) {
+                            delete tagData[key];
+                        }
 
                         for (let tag of tags) {
-                            tagData[nodeKey].approve[tag.key] = tag;
+                            tagData[tag.key] = tag;
                         }
 
                         return tagData;
@@ -57,128 +44,26 @@ export class TagSet {
                 })
             .subscribe(this._tagDataOperation$);
 
-        this._add$
-            .map<ITagDataOperation>(
-                (nt: [string, ITag]): ITagDataOperation => {
-                    return (tagData: ITagData): ITagData => {
-                        let nodeKey: string = nt[0];
-                        let tag: ITag = nt[1];
-
-                        tagData[nodeKey].create[tag.key] = tag;
-
-                        return tagData;
-                    };
-                })
-            .subscribe(this._tagDataOperation$);
-
-        this._change$
-            .map<ITagDataOperation>(
-                (nt: [string, string]): ITagDataOperation => {
-                    return (tagData: ITagData): ITagData => {
-                        let nodeKey: string = nt[0];
-                        let tagKey: string = nt[1];
-
-                        let nodeTags: INodeTags = tagData[nodeKey];
-
-                        if (tagKey in nodeTags.approve) {
-                            let tag: ITag = nodeTags.approve[tagKey];
-                            nodeTags.change[tagKey] = tag;
-
-                            delete nodeTags.approve[tagKey];
-                        }
-
-                        return tagData;
-                    };
-                })
-            .subscribe(this._tagDataOperation$);
-
-        this._remove$
-            .map<ITagDataOperation>(
-                (nt: [string, string]): ITagDataOperation => {
-                    return (tagData: ITagData): ITagData => {
-                        let nodeKey: string = nt[0];
-                        let tagKey: string = nt[1];
-
-                        let nodeTags: INodeTags = tagData[nodeKey];
-
-                        if (tagKey in nodeTags.approve) {
-                            let tag: ITag = nodeTags.approve[tagKey];
-                            nodeTags.reject[tagKey] = tag;
-
-                            delete nodeTags.approve[tagKey];
-                        }
-
-                        if (tagKey in nodeTags.change) {
-                            let tag: ITag = nodeTags.change[tagKey];
-                            nodeTags.reject[tagKey] = tag;
-
-                            delete nodeTags.change[tagKey];
-                        }
-
-                        if (tagKey in nodeTags.create) {
-                            delete nodeTags.create[tagKey];
-                        }
-
-                        return tagData;
-                    };
-                })
-            .subscribe(this._tagDataOperation$);
-
-        this._clear$
-            .map<ITagDataOperation>(
-                (nodeKey: string): ITagDataOperation => {
-                    return (tagData: ITagData): ITagData => {
-                        delete tagData[nodeKey];
-
-                        return tagData;
-                    };
-                })
-            .subscribe(this._tagDataOperation$);
-
-        this._clearAll$
+        this._notifyTagChanged$
             .map<ITagDataOperation>(
                 (): ITagDataOperation => {
-                    return (tagData: ITagData): ITagData => {
-                        for (let nodeKey in tagData) {
-                            if (!tagData.hasOwnProperty(nodeKey)) {
-                                continue;
-                            }
-
-                            delete tagData[nodeKey];
-                        }
-
-                        return tagData;
+                    return (tagData: TagData): TagData => {
+                       return tagData;
                     };
                 })
             .subscribe(this._tagDataOperation$);
     }
 
-    public get tagData$(): rx.Observable<ITagData> {
+    public get tagData$(): rx.Observable<TagData> {
         return this._tagData$;
     }
 
-    public get set$(): rx.Subject<[string, ITag[]]> {
+    public get set$(): rx.Subject<ITag[]> {
         return this._set$;
     }
 
-    public get add$(): rx.Subject<[string, ITag]> {
-        return this._add$;
-    }
-
-    public get change$(): rx.Subject<[string, string]> {
-        return this._change$;
-    }
-
-    public get remove$(): rx.Subject<[string, string]> {
-        return this._remove$;
-    }
-
-    public get clear$(): rx.Subject<string> {
-        return this._clear$;
-    }
-
-    public get clearAll$(): rx.Subject<void> {
-        return this._clearAll$;
+    public get notifyTagChanged$(): rx.Subject<void> {
+        return this._notifyTagChanged$;
     }
 }
 

@@ -10,9 +10,7 @@ import {
     ComponentService,
     Component,
     IActiveTag,
-    INodeTags,
     ITag,
-    ITagData,
     TagDOMRenderer,
     TagGLRenderer,
     TagOperation,
@@ -88,15 +86,14 @@ export class TagComponent extends Component {
                     [MouseEvent, IActiveTag, RenderCamera, IFrame] => {
                     return [event, activeTag, renderCamera, frame];
                 })
-            .map<[string, string]>(
-                (args: [MouseEvent, IActiveTag, RenderCamera, IFrame]): [string, string] => {
+            .map<void>(
+                (args: [MouseEvent, IActiveTag, RenderCamera, IFrame]): void => {
                     let mouseEvent: MouseEvent = args[0];
                     let activeTag: IActiveTag = args[1];
                     let renderCamera: RenderCamera = args[2];
                     let frame: IFrame = args[3];
 
                     let transform: Transform = frame.state.currentTransform;
-                    let node: Node = frame.state.currentNode;
 
                     let element: HTMLElement = this._container.element;
 
@@ -118,10 +115,8 @@ export class TagComponent extends Component {
                             activeTag.operation);
 
                     activeTag.tag.polygon3d = this._polygonTo3d(transform, activeTag.tag.polygonBasic);
-
-                    return [node.key, activeTag.tag.key];
                 })
-            .subscribe(this._tagSet.change$);
+            .subscribe(this._tagSet.notifyTagChanged$);
 
         this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDragEnd$)
             .subscribe((e: MouseEvent): void => {
@@ -135,10 +130,10 @@ export class TagComponent extends Component {
                 })
             .do(
                 (frame: IFrame): void => {
-                    this._tagSet.clearAll$.onNext(null);
+                    this._tagSet.set$.onNext([]);
                 })
-            .flatMapLatest<[string, ITag[]]>(
-                (frame: IFrame): rx.Observable<[string, ITag[]]> => {
+            .flatMapLatest<ITag[]>(
+                (frame: IFrame): rx.Observable<ITag[]> => {
                     return rx.Observable
                         .fromPromise<any>(
                             this._apiV3.model
@@ -149,12 +144,11 @@ export class TagComponent extends Component {
                                     { from: 0, to: 20 },
                                     ["key", "obj", "rect", "value", "package", "score"],
                                 ]))
-                        .map<[string, ITag[]]>(
-                            (ors: any): [string, ITag[]] => {
-                                let nodeKey: string = frame.state.currentNode.key;
+                        .map<ITag[]>(
+                            (ors: any): ITag[] => {
                                 let tags: ITag[] = this._computeTags(frame.state.currentTransform, ors);
 
-                                return [nodeKey, tags];
+                                return tags;
                             });
                 })
             .subscribe(this._tagSet.set$);
@@ -163,33 +157,13 @@ export class TagComponent extends Component {
             .flatMapLatest<ITag[]>(
                 (node: Node): rx.Observable<ITag[]> => {
                     return this._tagSet.tagData$
-                        .map<INodeTags>(
-                            (tagData: ITagData): INodeTags => {
-                                return tagData[node.key];
-                            })
                         .map<ITag[]>(
-                            (nodeTags: INodeTags): ITag[] => {
-                                if (nodeTags == null) {
-                                    return [];
-                                }
-
+                            (tagData: { [id: string]: ITag }): ITag[] => {
                                 let tags: ITag[] = [];
 
-                                for (let key in nodeTags.approve) {
-                                    if (nodeTags.approve.hasOwnProperty(key)) {
-                                        tags.push(nodeTags.approve[key]);
-                                    }
-                                }
-
-                                for (let key in nodeTags.change) {
-                                    if (nodeTags.change.hasOwnProperty(key)) {
-                                        tags.push(nodeTags.change[key]);
-                                    }
-                                }
-
-                                for (let key in nodeTags.create) {
-                                    if (nodeTags.create.hasOwnProperty(key)) {
-                                        tags.push(nodeTags.create[key]);
+                                for (let key in tagData) {
+                                    if (tagData.hasOwnProperty(key)) {
+                                        tags.push(tagData[key]);
                                     }
                                 }
 
