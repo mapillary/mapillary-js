@@ -31,6 +31,7 @@ export class TagDOMRenderer {
 
     public render(tags: Tag[], camera: THREE.PerspectiveCamera): vd.VNode {
         let vRects: vd.VNode[] = [];
+        let vMovers: vd.VNode[] = [];
         let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4();
         matrixWorldInverse.getInverse(camera.matrixWorld);
 
@@ -58,14 +59,23 @@ export class TagDOMRenderer {
                 this._editAbort$.onNext(null);
             };
 
+            let centerCamera: THREE.Vector3 = this._convertToCameraSpace(tag.centroidPoint3d, matrixWorldInverse);
+            let centerCanvas: number[] = this._projectToCanvas(centerCamera, camera.projectionMatrix);
+            let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+            let moveStyle: any = {
+                left: centerCss[0],
+                top: centerCss[1],
+            };
+
             let resize: vd.VNode = vd.h("div.TagResizer", { onmousedown: activateResize, onmouseup: abort }, []);
-            let move: vd.VNode = vd.h("div.TagMover", { onmousedown: activateMove, onmouseup: abort }, []);
             let label: vd.VNode = vd.h("span.TagLabel", { textContent: tag.value }, []);
 
-            vRects.push(vd.h("div.TagRect", { style: this._canvasToCss(canvasRect) }, [resize, move, label]));
+            vRects.push(vd.h("div.TagRect", { style: this._canvasToCss(canvasRect) }, [resize, label]));
+
+            vMovers.push(vd.h("div.TagMover", { onmousedown: activateMove, onmouseup: abort, style: moveStyle }, []));
         }
 
-        return vd.h("div.TagContainer", {}, vRects);
+        return vd.h("div.TagContainer", {}, vRects.concat(vMovers));
     }
 
     private _activateTag(tag: Tag, operation: TagOperation): (e: MouseEvent) => void {
