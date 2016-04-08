@@ -30,52 +30,62 @@ export class TagDOMRenderer {
     }
 
     public render(tags: Tag[], camera: THREE.PerspectiveCamera): vd.VNode {
-        let vRects: vd.VNode[] = [];
-        let vMovers: vd.VNode[] = [];
-        let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4();
-        matrixWorldInverse.getInverse(camera.matrixWorld);
+        let vNodes: vd.VNode[] = [];
+        let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
 
         for (let t of tags) {
             let tag: Tag = t;
 
+            let bottomLeftCamera: THREE.Vector3 = this._convertToCameraSpace(tag.rectPoints3d[0], matrixWorldInverse);
             let topLeftCamera: THREE.Vector3 = this._convertToCameraSpace(tag.rectPoints3d[1], matrixWorldInverse);
+            let topRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.rectPoints3d[2], matrixWorldInverse);
             let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.rectPoints3d[3], matrixWorldInverse);
 
             if (topLeftCamera.z > 0 && bottomRightCamera.z > 0) {
                 continue;
             }
 
-            let topLeft: number[] = this._projectToCanvas(topLeftCamera, camera.projectionMatrix);
-            let bottomRight: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
-
-            let canvasRect: number[] = [
-                topLeft[0], topLeft[1], bottomRight[0], bottomRight[1],
+            let corners: [THREE.Vector3, TagOperation][] = [
+                [bottomLeftCamera, TagOperation.ResizeBottomLeft],
+                [topLeftCamera, TagOperation.ResizeTopLeft],
+                [topRightCamera, TagOperation.ResizeTopRight],
+                [bottomRightCamera, TagOperation.ResizeBottomRight],
             ];
-
-            let activateResize: (e: MouseEvent) => void = this._activateTag(tag, TagOperation.ResizeTopLeft);
-            let activateMove: (e: MouseEvent) => void = this._activateTag(tag, TagOperation.Move);
 
             let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
                 this._editAbort$.onNext(null);
             };
 
+            for (let corner of corners) {
+                let pointCamera: THREE.Vector3 = corner[0];
+                let operation: TagOperation = corner[1];
+
+                let cornerCanvas: number[] = this._projectToCanvas(pointCamera, camera.projectionMatrix);
+                let cornerCss: string[] = cornerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+                let cornerStyle: any = { left: cornerCss[0], top: cornerCss[1] };
+
+                let activateResize: (e: MouseEvent) => void = this._activateTag(tag, operation);
+
+                vNodes.push(vd.h("div.TagResizer", { onmousedown: activateResize, onmouseup: abort, style: cornerStyle }, []));
+            }
+
             let centerCamera: THREE.Vector3 = this._convertToCameraSpace(tag.centroidPoint3d, matrixWorldInverse);
             let centerCanvas: number[] = this._projectToCanvas(centerCamera, camera.projectionMatrix);
             let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-            let moveStyle: any = {
-                left: centerCss[0],
-                top: centerCss[1],
-            };
+            let moveStyle: any = { left: centerCss[0], top: centerCss[1] };
 
-            let resize: vd.VNode = vd.h("div.TagResizer", { onmousedown: activateResize, onmouseup: abort }, []);
-            let label: vd.VNode = vd.h("span.TagLabel", { textContent: tag.value }, []);
+            let activateMove: (e: MouseEvent) => void = this._activateTag(tag, TagOperation.Move);
 
-            vRects.push(vd.h("div.TagRect", { style: this._canvasToCss(canvasRect) }, [resize, label]));
+            vNodes.push(vd.h("div.TagMover", { onmousedown: activateMove, onmouseup: abort, style: moveStyle }, []));
 
-            vMovers.push(vd.h("div.TagMover", { onmousedown: activateMove, onmouseup: abort, style: moveStyle }, []));
+            let labelCanvas: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
+            let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+            let labelStyle: any = { left: labelCss[0], top: labelCss[1] };
+
+            vNodes.push(vd.h("span.TagLabel", { style: labelStyle, textContent: tag.value }, []));
         }
 
-        return vd.h("div.TagContainer", {}, vRects.concat(vMovers));
+        return vd.h("div.TagContainer", {}, vNodes);
     }
 
     private _activateTag(tag: Tag, operation: TagOperation): (e: MouseEvent) => void {
@@ -101,28 +111,5 @@ export class TagDOMRenderer {
         p.applyMatrix4(matrixWorldInverse);
 
         return p;
-    }
-
-    private _canvasToCss(canvasRect: number[]): vd.createProperties {
-        let margins: number[] = [];
-
-        margins[0] = canvasRect[0];
-        margins[1] = canvasRect[1];
-        margins[2] = 1 - canvasRect[2];
-        margins[3] = 1 - canvasRect[3];
-
-        let percentageMargins: string[] = margins
-            .map((margin: number) => {
-                return (100 * margin) + "%";
-            });
-
-        let style: vd.createProperties = {
-            bottom: percentageMargins[3],
-            left: percentageMargins[0],
-            right: percentageMargins[2],
-            top: percentageMargins[1],
-        };
-
-        return style;
     }
 }

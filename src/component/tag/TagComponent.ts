@@ -285,16 +285,33 @@ export class TagComponent extends Component {
             rect[2] = original[2] + translationX;
             rect[3] = original[3] + translationY;
 
-        } else if (operation === TagOperation.ResizeTopLeft) {
-            newCoord = [
-                Math.max(0, Math.min(1, newCoord[0])),
-                Math.max(0, Math.min(1, newCoord[1])),
-            ];
+        }
 
+        newCoord = [
+            Math.max(0, Math.min(1, newCoord[0])),
+            Math.max(0, Math.min(1, newCoord[1])),
+        ];
+
+        if (operation === TagOperation.ResizeBottomLeft) {
+            rect[0] = newCoord[0];
+            rect[1] = original[1];
+            rect[2] = original[2];
+            rect[3] = newCoord[1];
+        } else if (operation === TagOperation.ResizeTopLeft) {
             rect[0] = newCoord[0];
             rect[1] = newCoord[1];
             rect[2] = original[2];
             rect[3] = original[3];
+        } else if (operation === TagOperation.ResizeTopRight) {
+            rect[0] = original[0];
+            rect[1] = newCoord[1];
+            rect[2] = newCoord[0];
+            rect[3] = original[3];
+        } else if (operation === TagOperation.ResizeBottomRight) {
+            rect[0] = original[0];
+            rect[1] = original[1];
+            rect[2] = newCoord[0];
+            rect[3] = newCoord[1];
         }
 
         return rect;
