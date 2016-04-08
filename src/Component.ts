@@ -25,6 +25,7 @@ export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene";
 export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders";
 export {SimpleMarker} from "./component/marker/SimpleMarker";
 export {SliderComponent} from "./component/imageplane/SliderComponent";
+export {Tag} from "./component/tag/Tag";
 export {TagComponent} from "./component/tag/TagComponent";
 export {TagDOMRenderer} from "./component/tag/TagDOMRenderer";
 export {TagGLRenderer} from "./component/tag/TagGLRenderer";

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {ITag, IActiveTag, TagOperation} from "../../Component";
+import {Tag, IActiveTag, TagOperation} from "../../Component";
 
 export class TagDOMRenderer {
     private _activeTag$: rx.Subject<IActiveTag>;
@@ -29,16 +29,16 @@ export class TagDOMRenderer {
         return this._editAbort$;
     }
 
-    public render(tags: ITag[], camera: THREE.PerspectiveCamera): vd.VNode {
+    public render(tags: Tag[], camera: THREE.PerspectiveCamera): vd.VNode {
         let vRects: vd.VNode[] = [];
         let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4();
         matrixWorldInverse.getInverse(camera.matrixWorld);
 
         for (let t of tags) {
-            let tag: ITag = t;
+            let tag: Tag = t;
 
-            let topLeftCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygon3d[1], matrixWorldInverse);
-            let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygon3d[3], matrixWorldInverse);
+            let topLeftCamera: THREE.Vector3 = this._convertToCameraSpace(tag.rectPoints3d[1], matrixWorldInverse);
+            let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.rectPoints3d[3], matrixWorldInverse);
 
             if (topLeftCamera.z > 0 && bottomRightCamera.z > 0) {
                 continue;
@@ -68,7 +68,7 @@ export class TagDOMRenderer {
         return vd.h("div.TagContainer", {}, vRects);
     }
 
-    private _activateTag(tag: ITag, operation: TagOperation): (e: MouseEvent) => void {
+    private _activateTag(tag: Tag, operation: TagOperation): (e: MouseEvent) => void {
         return (e: MouseEvent): void => {
                 let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
                 let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;

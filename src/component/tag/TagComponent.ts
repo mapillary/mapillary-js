@@ -10,7 +10,7 @@ import {
     ComponentService,
     Component,
     IActiveTag,
-    ITag,
+    Tag,
     TagDOMRenderer,
     TagGLRenderer,
     TagOperation,
@@ -108,13 +108,11 @@ export class TagComponent extends Component {
 
                     let newCoord: number[] = transform.projectBasic(unprojected.toArray());
 
-                    activeTag.tag.polygonBasic =
-                        this._computePolygonBasic(
-                            activeTag.tag.polygonBasic,
+                    activeTag.tag.rect =
+                        this._computeRect(
+                            activeTag.tag.rect,
                             newCoord,
                             activeTag.operation);
-
-                    activeTag.tag.polygon3d = this._polygonTo3d(transform, activeTag.tag.polygonBasic);
                 })
             .subscribe(this._tagSet.notifyTagChanged$);
 
@@ -132,8 +130,8 @@ export class TagComponent extends Component {
                 (frame: IFrame): void => {
                     this._tagSet.set$.onNext([]);
                 })
-            .flatMapLatest<ITag[]>(
-                (frame: IFrame): rx.Observable<ITag[]> => {
+            .flatMapLatest<Tag[]>(
+                (frame: IFrame): rx.Observable<Tag[]> => {
                     return rx.Observable
                         .fromPromise<any>(
                             this._apiV3.model
@@ -144,42 +142,28 @@ export class TagComponent extends Component {
                                     { from: 0, to: 20 },
                                     ["key", "obj", "rect", "value", "package", "score"],
                                 ]))
-                        .map<ITag[]>(
-                            (ors: any): ITag[] => {
-                                let tags: ITag[] = this._computeTags(frame.state.currentTransform, ors);
+                        .map<Tag[]>(
+                            (ors: any): Tag[] => {
+                                let tags: Tag[] = this._computeTags(frame.state.currentTransform, ors);
 
                                 return tags;
                             });
                 })
             .subscribe(this._tagSet.set$);
 
-        let tags$: rx.Observable<ITag[]> = this._navigator.stateService.currentNode$
-            .flatMapLatest<ITag[]>(
-                (node: Node): rx.Observable<ITag[]> => {
+        let tags$: rx.Observable<Tag[]> = this._navigator.stateService.currentNode$
+            .flatMapLatest<Tag[]>(
+                (node: Node): rx.Observable<Tag[]> => {
                     return this._tagSet.tagData$
-                        .map<ITag[]>(
-                            (tagData: { [id: string]: ITag }): ITag[] => {
-                                let tags: ITag[] = [];
-
-                                for (let key in tagData) {
-                                    if (tagData.hasOwnProperty(key)) {
-                                        tags.push(tagData[key]);
-                                    }
-                                }
+                        .map<Tag[]>(
+                            (tagData: { [id: string]: Tag }): Tag[] => {
+                                let tags: Tag[] = [];
 
                                 // ensure that tags are always rendered in the same order
                                 // to avoid hover tracking problems on first resize.
-                                tags.sort((first: ITag, second: ITag): number => {
-                                    if (first.key > second.key) {
-                                        return 1;
-                                    }
-
-                                    if (first.key < second.key) {
-                                        return -1;
-                                    }
-
-                                    return 0;
-                                });
+                                for (let key of Object.keys(tagData).sort()) {
+                                   tags.push(tagData[key]);
+                                }
 
                                 return tags;
                             });
@@ -188,7 +172,7 @@ export class TagComponent extends Component {
 
         tags$
             .map<ITagGLRendererOperation>(
-                (tags: ITag[]): ITagGLRendererOperation => {
+                (tags: Tag[]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.updateTags(tags);
 
@@ -201,11 +185,11 @@ export class TagComponent extends Component {
             .combineLatest(
                 this._container.renderService.renderCamera$,
                 tags$,
-                (rc: RenderCamera, tags: ITag[]): [RenderCamera, ITag[]] => {
+                (rc: RenderCamera, tags: Tag[]): [RenderCamera, Tag[]] => {
                     return [rc, tags];
                 })
             .map<IVNodeHash>(
-                (rcts: [RenderCamera, ITag[]]): IVNodeHash => {
+                (rcts: [RenderCamera, Tag[]]): IVNodeHash => {
                     return {
                         name: this._name,
                         vnode: this._tagDomRenderer.render(rcts[1], rcts[0].perspective),
@@ -250,55 +234,56 @@ export class TagComponent extends Component {
         this._glSubscription.dispose();
     }
 
-    private _computeTags(transform: Transform, ors: any): ITag[] {
-        let tags: ITag[] = [];
+    private _computeTags(transform: Transform, ors: any): Tag[] {
+        let tags: Tag[] = [];
         delete ors.json.imageByKey.$__path;
         ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
         delete ors.$__path;
 
         for (let key in ors) {
-            if (ors.hasOwnProperty(key)) {
-                let or: any = ors[key];
-                if (or) {
-                    let polygonBasic: number[][] = [];
-
-                    for (let coordinate of or.rect.geometry.coordinates) {
-                        polygonBasic.push(coordinate.slice());
-                    }
-
-                    let polygon3d: number[][] = this._polygonTo3d(transform, polygonBasic);
-
-                    tags.push({
-                        key: or.key,
-                        object: or.obj,
-                        package: or.package,
-                        polygon3d: polygon3d,
-                        polygonBasic: polygonBasic,
-                        score: or.score,
-                        value: or.value,
-                    });
-                }
+            if (!ors.hasOwnProperty(key)) {
+                continue;
             }
+
+            let or: any = ors[key];
+            if (!or) {
+                continue;
+            }
+
+            let rect: number[] = [];
+
+            rect[0] = or.rect.geometry.coordinates[1][0];
+            rect[1] = or.rect.geometry.coordinates[1][1];
+            rect[2] = or.rect.geometry.coordinates[3][0];
+            rect[3] = or.rect.geometry.coordinates[3][1];
+
+            let tag: Tag = new Tag(
+                or.key,
+                transform,
+                rect,
+                or.value
+            );
+
+            tags.push(tag);
         }
 
         return tags;
     }
 
-    private _computePolygonBasic(original: number[][], newCoord: number[], operation: TagOperation): number[][] {
-        let polygonBasic: number[][] = [];
+    private _computeRect(original: number[], newCoord: number[], operation: TagOperation): number[] {
+        let rect: number[] = [];
 
         if (operation === TagOperation.Move) {
-            let centerX: number = original[1][0] + (original[3][0] - original[1][0]) / 2;
-            let centerY: number = original[1][1] + (original[3][1] - original[1][1]) / 2;
+            let centerX: number = original[0] + (original[2] - original[0]) / 2;
+            let centerY: number = original[1] + (original[3] - original[1]) / 2;
 
             let translationX: number = newCoord[0] - centerX;
             let translationY: number = newCoord[1] - centerY;
 
-            polygonBasic[0] = [original[0][0] + translationX, original[0][1] + translationY];
-            polygonBasic[1] = [original[1][0] + translationX, original[1][1] + translationY];
-            polygonBasic[2] = [original[2][0] + translationX, original[2][1] + translationY];
-            polygonBasic[3] = [original[3][0] + translationX, original[3][1] + translationY];
-            polygonBasic[4] = [original[4][0] + translationX, original[4][1] + translationY];
+            rect[0] = original[0] + translationX;
+            rect[1] = original[1] + translationY;
+            rect[2] = original[2] + translationX;
+            rect[3] = original[3] + translationY;
 
         } else if (operation === TagOperation.ResizeTopLeft) {
             newCoord = [
@@ -306,22 +291,13 @@ export class TagComponent extends Component {
                 Math.max(0, Math.min(1, newCoord[1])),
             ];
 
-            polygonBasic[0] = [newCoord[0], original[0][1]];
-            polygonBasic[1] = [newCoord[0], newCoord[1]];
-            polygonBasic[2] = [original[2][0], newCoord[1]];
-            polygonBasic[3] = [original[3][0], original[3][1]];
-            polygonBasic[4] = [newCoord[0], original[4][1]];
+            rect[0] = newCoord[0];
+            rect[1] = newCoord[1];
+            rect[2] = original[2];
+            rect[3] = original[3];
         }
 
-        return polygonBasic;
-    }
-
-    private _polygonTo3d(transform: Transform, polygonBasic: number[][]): number[][] {
-        let polygon3d: number[][] = polygonBasic.map((point: number[]) => {
-            return transform.unprojectBasic(point, 200);
-        });
-
-        return polygon3d;
+        return rect;
     }
 }
 
