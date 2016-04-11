@@ -324,6 +324,16 @@ export class TagComponent extends Component {
             }
         }
 
+        if (rect[0] > rect[2]) {
+            rect[0] = original[0];
+            rect[2] = original[2];
+        }
+
+        if (rect[1] > rect[3]) {
+            rect[1] = original[1];
+            rect[3] = original[3];
+        }
+
         return rect;
     }
 }
