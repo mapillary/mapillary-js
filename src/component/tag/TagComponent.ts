@@ -35,6 +35,9 @@ export class TagComponent extends Component {
     private _tagGlRendererOperation$: rx.Subject<ITagGLRendererOperation>;
     private _tagGlRenderer$: rx.Observable<TagGLRenderer>;
 
+    private _currentNodeFrame$: rx.Observable<IFrame>;
+    private _tags$: rx.Observable<Tag[]>;
+
     private _domSubscription: rx.IDisposable;
     private _glSubscription: rx.IDisposable;
 
@@ -58,6 +61,32 @@ export class TagComponent extends Component {
                     return operation(renderer);
                 },
                 new TagGLRenderer());
+
+        this._currentNodeFrame$ = this._navigator.stateService.currentState$
+            .distinctUntilChanged(
+                (frame: IFrame): string => {
+                    return frame.state.currentNode.key;
+                })
+            .share();
+
+        this._tags$ = this._navigator.stateService.currentNode$
+            .flatMapLatest<Tag[]>(
+                (node: Node): rx.Observable<Tag[]> => {
+                    return this._tagSet.tagData$
+                        .map<Tag[]>(
+                            (tagData: { [id: string]: Tag }): Tag[] => {
+                                let tags: Tag[] = [];
+
+                                // ensure that tags are always rendered in the same order
+                                // to avoid hover tracking problems on first resize.
+                                for (let key of Object.keys(tagData).sort()) {
+                                   tags.push(tagData[key]);
+                                }
+
+                                return tags;
+                            });
+                })
+            .share();
     }
 
     protected _activate(): void {
@@ -77,7 +106,7 @@ export class TagComponent extends Component {
             .withLatestFrom(
                 this._tagDomRenderer.activeTag$,
                 this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentState$,
+                this._currentNodeFrame$,
                 (
                     event: MouseEvent,
                     activeTag: IActiveTag,
@@ -121,11 +150,7 @@ export class TagComponent extends Component {
                 this._container.mouseService.unclaimMouse(this._name);
              });
 
-        this._navigator.stateService.currentState$
-            .distinctUntilChanged(
-                (frame: IFrame): string => {
-                    return frame.state.currentNode.key;
-                })
+        this._currentNodeFrame$
             .do(
                 (frame: IFrame): void => {
                     this._tagSet.set$.onNext([]);
@@ -151,26 +176,7 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._tagSet.set$);
 
-        let tags$: rx.Observable<Tag[]> = this._navigator.stateService.currentNode$
-            .flatMapLatest<Tag[]>(
-                (node: Node): rx.Observable<Tag[]> => {
-                    return this._tagSet.tagData$
-                        .map<Tag[]>(
-                            (tagData: { [id: string]: Tag }): Tag[] => {
-                                let tags: Tag[] = [];
-
-                                // ensure that tags are always rendered in the same order
-                                // to avoid hover tracking problems on first resize.
-                                for (let key of Object.keys(tagData).sort()) {
-                                   tags.push(tagData[key]);
-                                }
-
-                                return tags;
-                            });
-                })
-            .share();
-
-        tags$
+        this._tags$
             .map<ITagGLRendererOperation>(
                 (tags: Tag[]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
@@ -184,7 +190,7 @@ export class TagComponent extends Component {
         this._domSubscription = rx.Observable
             .combineLatest(
                 this._container.renderService.renderCamera$,
-                tags$,
+                this._tags$,
                 (rc: RenderCamera, tags: Tag[]): [RenderCamera, Tag[]] => {
                     return [rc, tags];
                 })
