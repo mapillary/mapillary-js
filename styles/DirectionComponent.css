@@ -71,6 +71,7 @@
     bottom: 40px;
     cursor: pointer;
     cursor: hand;
+    pointer-events: all;
 }
 
 .TurnLeft,
