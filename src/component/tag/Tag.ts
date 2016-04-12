@@ -1,5 +1,7 @@
 /// <reference path="../../../typings/browser.d.ts" />
 
+import * as rx from "rx";
+
 import {TagOperation} from "../../Component";
 import {Transform} from "../../Geo";
 
@@ -16,6 +18,8 @@ export class Tag {
 
     private _operations: TagOperation[];
 
+    private _notifyChanged$: rx.Subject<Tag>;
+
     constructor(id: string, transform: Transform, rect: number[], value: string) {
         this._id = id;
         this._transform = transform;
@@ -28,7 +32,9 @@ export class Tag {
             TagOperation.ResizeBottomRight,
         ];
 
-        this.shape = rect;
+        this._setShape(rect);
+
+        this._notifyChanged$ = new rx.Subject<Tag>();
     }
 
     public get id(): string {
@@ -40,23 +46,9 @@ export class Tag {
     }
 
     public set shape(value: number[]) {
-        this._rect = value;
+        this._setShape(value);
 
-        let centroidX: number = value[0] + (value[2] - value[0]) / 2;
-        let centroidY: number = value[1] + (value[3] - value[1]) / 2;
-
-        this._centroidPoint3d = this.getPoint3d(centroidX, centroidY);
-
-        this._polygonPoints3d = [
-            [value[0], value[3]],
-            [value[0], value[1]],
-            [value[2], value[1]],
-            [value[2], value[3]],
-            [value[0], value[3]],
-        ].map(
-            (point: number[]) => {
-                return this.getPoint3d(point[0], point[1]);
-            });
+        this._notifyChanged$.onNext(this);
     }
 
     public get centroidPoint3d(): number[] {
@@ -75,8 +67,32 @@ export class Tag {
         return this._value;
     }
 
+    public get onChanged$(): rx.Observable<Tag> {
+        return this._notifyChanged$;
+    }
+
     public getPoint3d(x: number, y: number): number[] {
         return this._transform.unprojectBasic([x, y], 200);
+    }
+
+    private _setShape(value: number[]): void {
+        this._rect = value;
+
+        let centroidX: number = value[0] + (value[2] - value[0]) / 2;
+        let centroidY: number = value[1] + (value[3] - value[1]) / 2;
+
+        this._centroidPoint3d = this.getPoint3d(centroidX, centroidY);
+
+        this._polygonPoints3d = [
+            [value[0], value[3]],
+            [value[0], value[1]],
+            [value[2], value[1]],
+            [value[2], value[3]],
+            [value[0], value[3]],
+        ].map(
+            (point: number[]) => {
+                return this.getPoint3d(point[0], point[1]);
+            });
     }
 }
 

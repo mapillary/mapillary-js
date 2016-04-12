@@ -16,8 +16,6 @@ export class TagSet {
 
     private _set$: rx.Subject<Tag[]> = new rx.Subject<Tag[]>();
 
-    private _notifyTagChanged$: rx.Subject<void> = new rx.Subject<void>();
-
     constructor() {
         this._tagData$ = this._tagDataOperation$
             .scan<TagData>(
@@ -43,15 +41,6 @@ export class TagSet {
                     };
                 })
             .subscribe(this._tagDataOperation$);
-
-        this._notifyTagChanged$
-            .map<ITagDataOperation>(
-                (): ITagDataOperation => {
-                    return (tagData: TagData): TagData => {
-                        return tagData;
-                    };
-                })
-            .subscribe(this._tagDataOperation$);
     }
 
     public get tagData$(): rx.Observable<TagData> {
@@ -60,10 +49,6 @@ export class TagSet {
 
     public get set$(): rx.Subject<Tag[]> {
         return this._set$;
-    }
-
-    public get notifyTagChanged$(): rx.Subject<void> {
-        return this._notifyTagChanged$;
     }
 }
 
