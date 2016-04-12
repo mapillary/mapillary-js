@@ -3,13 +3,13 @@
 import * as rx from "rx";
 import * as THREE from "three";
 
-import {Node} from "../../Graph";
 import {Container, Navigator} from "../../Viewer";
 import {APIv3} from "../../API";
 import {
     ComponentService,
     Component,
     IActiveTag,
+    ITag,
     Tag,
     TagDOMRenderer,
     TagGLRenderer,
@@ -35,7 +35,7 @@ export class TagComponent extends Component {
     private _tagGlRendererOperation$: rx.Subject<ITagGLRendererOperation>;
     private _tagGlRenderer$: rx.Observable<TagGLRenderer>;
 
-    private _currentNodeFrame$: rx.Observable<IFrame>;
+    private _currentTransform$: rx.Observable<Transform>;
     private _tags$: rx.Observable<Tag[]>;
 
     private _domSubscription: rx.IDisposable;
@@ -62,31 +62,49 @@ export class TagComponent extends Component {
                 },
                 new TagGLRenderer());
 
-        this._currentNodeFrame$ = this._navigator.stateService.currentState$
+        this._currentTransform$ = this._navigator.stateService.currentState$
             .distinctUntilChanged(
                 (frame: IFrame): string => {
                     return frame.state.currentNode.key;
                 })
-            .share();
+            .map<Transform>(
+                (frame: IFrame): Transform => {
+                    return frame.state.currentTransform;
+                })
+            .shareReplay(1);
 
-        this._tags$ = this._navigator.stateService.currentNode$
-            .flatMapLatest<Tag[]>(
-                (node: Node): rx.Observable<Tag[]> => {
-                    return this._tagSet.tagData$
-                        .map<Tag[]>(
-                            (tagData: { [id: string]: Tag }): Tag[] => {
-                                let tags: Tag[] = [];
+        this._tags$ = this._tagSet.tagData$
+            .map<Tag[]>(
+                (tagData: { [id: string]: Tag }): Tag[] => {
+                    let tags: Tag[] = [];
 
-                                // ensure that tags are always rendered in the same order
-                                // to avoid hover tracking problems on first resize.
-                                for (let key of Object.keys(tagData).sort()) {
-                                   tags.push(tagData[key]);
-                                }
+                    // ensure that tags are always rendered in the same order
+                    // to avoid hover tracking problems on first resize.
+                    for (let key of Object.keys(tagData).sort()) {
+                        tags.push(tagData[key]);
+                    }
 
-                                return tags;
-                            });
+                    return tags;
                 })
             .share();
+    }
+
+    public setTags(tags: ITag[]): void {
+        this._currentTransform$
+            .first()
+            .subscribe(
+                (transform: Transform): void => {
+                    let computedTags: Tag[] = tags
+                        .map((tag: ITag): Tag => {
+                            return new Tag(
+                                tag.id,
+                                transform,
+                                tag.rect.slice(),
+                                tag.value);
+                        });
+
+                    this._tagSet.set$.onNext(computedTags);
+                });
     }
 
     protected _activate(): void {
@@ -106,23 +124,21 @@ export class TagComponent extends Component {
             .withLatestFrom(
                 this._tagDomRenderer.activeTag$,
                 this._container.renderService.renderCamera$,
-                this._currentNodeFrame$,
+                this._currentTransform$,
                 (
                     event: MouseEvent,
                     activeTag: IActiveTag,
                     renderCamera: RenderCamera,
-                    frame: IFrame):
-                    [MouseEvent, IActiveTag, RenderCamera, IFrame] => {
-                    return [event, activeTag, renderCamera, frame];
+                    transform: Transform):
+                    [MouseEvent, IActiveTag, RenderCamera, Transform] => {
+                    return [event, activeTag, renderCamera, transform];
                 })
             .map<void>(
-                (args: [MouseEvent, IActiveTag, RenderCamera, IFrame]): void => {
+                (args: [MouseEvent, IActiveTag, RenderCamera, Transform]): void => {
                     let mouseEvent: MouseEvent = args[0];
                     let activeTag: IActiveTag = args[1];
                     let renderCamera: RenderCamera = args[2];
-                    let frame: IFrame = args[3];
-
-                    let transform: Transform = frame.state.currentTransform;
+                    let transform: Transform = args[3];
 
                     let element: HTMLElement = this._container.element;
 
@@ -149,32 +165,6 @@ export class TagComponent extends Component {
             .subscribe((e: MouseEvent): void => {
                 this._container.mouseService.unclaimMouse(this._name);
              });
-
-        this._currentNodeFrame$
-            .do(
-                (frame: IFrame): void => {
-                    this._tagSet.set$.onNext([]);
-                })
-            .flatMapLatest<Tag[]>(
-                (frame: IFrame): rx.Observable<Tag[]> => {
-                    return rx.Observable
-                        .fromPromise<any>(
-                            this._apiV3.model
-                                .get([
-                                    "imageByKey",
-                                    frame.state.currentNode.key,
-                                    "ors",
-                                    { from: 0, to: 20 },
-                                    ["key", "obj", "rect", "value", "package", "score"],
-                                ]))
-                        .map<Tag[]>(
-                            (ors: any): Tag[] => {
-                                let tags: Tag[] = this._computeTags(frame.state.currentTransform, ors);
-
-                                return tags;
-                            });
-                })
-            .subscribe(this._tagSet.set$);
 
         this._tags$
             .map<ITagGLRendererOperation>(
@@ -238,42 +228,6 @@ export class TagComponent extends Component {
 
         this._domSubscription.dispose();
         this._glSubscription.dispose();
-    }
-
-    private _computeTags(transform: Transform, ors: any): Tag[] {
-        let tags: Tag[] = [];
-        delete ors.json.imageByKey.$__path;
-        ors = ors.json.imageByKey[Object.keys(ors.json.imageByKey)[0]].ors;
-        delete ors.$__path;
-
-        for (let key in ors) {
-            if (!ors.hasOwnProperty(key)) {
-                continue;
-            }
-
-            let or: any = ors[key];
-            if (!or) {
-                continue;
-            }
-
-            let rect: number[] = [];
-
-            rect[0] = or.rect.geometry.coordinates[1][0];
-            rect[1] = or.rect.geometry.coordinates[1][1];
-            rect[2] = or.rect.geometry.coordinates[3][0];
-            rect[3] = or.rect.geometry.coordinates[3][1];
-
-            let tag: Tag = new Tag(
-                or.key,
-                transform,
-                rect,
-                or.value
-            );
-
-            tags.push(tag);
-        }
-
-        return tags;
     }
 
     private _computeRect(original: number[], newCoord: number[], operation: TagOperation): number[] {

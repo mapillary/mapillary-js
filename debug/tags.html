@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mapillary-js Tags Debug Page</title>
+    <meta charset='utf-8'>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <link rel='stylesheet' href='dist/mapillary-js.min.css' />
+    <style>
+        body { margin: 0; padding: 0; }
+        html, body { width: 100%; height: 100%; }
+        #viewer { width: 90%; height: 90%; }
+    </style>
+</head>
+<body>
+    <div id='viewer'></div>
+    <script src='build/bundle.js'></script>
+    <script>
+        var clientId = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4";
+
+        var viewer = new Mapillary.Viewer(
+            "viewer",
+            clientId,
+            "zarcRdNFZwg3FkXNcsFeGw",
+            { cover: false, tag: true }
+        );
+
+        window.addEventListener("resize", function() { viewer.resize(); });
+
+        var tagComponent = viewer.getComponent("tag");
+        var lastNode = null;
+
+        viewer.on("nodechanged", function (node) {
+            lastNode = node;
+
+            tagComponent.setTags([]);
+
+            var url = "http://mapillary-vector.mapillary.io/v3/model.json";
+            var params = encodeURI(
+                "client_id=" + clientId +
+                "&paths=" +
+                "[[\"imageByKey\",\"" + node.key +
+                "\",\"ors\",{\"from\":0,\"to\":20},[\"key\",\"obj\",\"package\",\"rect\",\"score\",\"value\"]]]" +
+                "&method=get"
+            );
+
+            var http = new XMLHttpRequest();
+            http.open("GET", url + "?" + params, true);
+
+            http.onreadystatechange = function() {
+                if(http.readyState == 4 && http.status == 200) {
+                    var result = JSON.parse(http.responseText);
+
+                    var nodeKey = Object.keys(result.jsonGraph.imageByKey)[0];
+                    if (nodeKey !== lastNode.key) {
+                        return;
+                    }
+
+                    var orByKey = result.jsonGraph.orByKey;
+                    if (!orByKey) {
+                        return;
+                    }
+
+                    var tags = [];
+
+                    for (var key in orByKey) {
+                        if (!orByKey.hasOwnProperty(key)) {
+                            continue;
+                        }
+
+                        var or = orByKey[key];
+
+                        tag = {
+                            id: or.key.value,
+                            rect: [
+                                or.rect.value.geometry.coordinates[1][0],
+                                or.rect.value.geometry.coordinates[1][1],
+                                or.rect.value.geometry.coordinates[3][0],
+                                or.rect.value.geometry.coordinates[3][1],
+                            ],
+                            value: or.value.value,
+                        };
+
+                        tags.push(tag);
+                    }
+
+                    tagComponent.setTags(tags);
+                }
+            }
+
+            http.send();
+        });
+    </script>
+</body>
+</html>

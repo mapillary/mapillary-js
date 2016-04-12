@@ -48,7 +48,7 @@ export class TagSet {
             .map<ITagDataOperation>(
                 (): ITagDataOperation => {
                     return (tagData: TagData): TagData => {
-                       return tagData;
+                        return tagData;
                     };
                 })
             .subscribe(this._tagDataOperation$);
