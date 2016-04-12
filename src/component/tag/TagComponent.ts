@@ -27,6 +27,8 @@ interface ITagGLRendererOperation extends Function {
 export class TagComponent extends Component {
     public static componentName: string = "tag";
 
+    public static tagchanged: string = "tagchanged";
+
     private _apiV3: APIv3;
 
     private _tagDomRenderer: TagDOMRenderer;
@@ -39,11 +41,12 @@ export class TagComponent extends Component {
     private _tags$: rx.Observable<Tag[]>;
     private _tagChanged$: rx.Observable<Tag>;
 
-    private _claimMouseSubscription: rx.Disposable;
-    private _mouseDragSubscription: rx.Disposable;
-    private _unclaimMouseSubscription: rx.Disposable;
-    private _tagsSubscription: rx.Disposable;
-    private _tagChangedSubscription: rx.Disposable;
+    private _claimMouseSubscription: rx.IDisposable;
+    private _mouseDragSubscription: rx.IDisposable;
+    private _unclaimMouseSubscription: rx.IDisposable;
+    private _setTagsSubscription: rx.IDisposable;
+    private _updateTagSubscription: rx.IDisposable;
+    private _tagChangedEventSubscription: rx.IDisposable;
 
     private _domSubscription: rx.IDisposable;
     private _glSubscription: rx.IDisposable;
@@ -189,7 +192,7 @@ export class TagComponent extends Component {
                 this._container.mouseService.unclaimMouse(this._name);
              });
 
-        this._tagsSubscription = this._tags$
+        this._setTagsSubscription = this._tags$
             .map<ITagGLRendererOperation>(
                 (tags: Tag[]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
@@ -200,7 +203,7 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._tagGlRendererOperation$);
 
-        this._tagChangedSubscription = this._tagChanged$
+        this._updateTagSubscription = this._tagChanged$
             .map<ITagGLRendererOperation>(
                 (tag: Tag): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
@@ -210,6 +213,20 @@ export class TagComponent extends Component {
                     };
                 })
             .subscribe(this._tagGlRendererOperation$);
+
+        this._tagChangedEventSubscription = this._tagChanged$
+            .map<ITag>(
+                (tag: Tag): ITag => {
+                    return {
+                        id: tag.id,
+                        rect: tag.shape,
+                        value: tag.value,
+                    };
+                })
+            .subscribe(
+                (tag: ITag): void => {
+                    this.fire(TagComponent.tagchanged, tag);
+                });
 
         this._domSubscription = rx.Observable
             .combineLatest(
@@ -264,8 +281,9 @@ export class TagComponent extends Component {
         this._claimMouseSubscription.dispose();
         this._mouseDragSubscription.dispose();
         this._unclaimMouseSubscription.dispose();
-        this._tagsSubscription.dispose();
-        this._tagChangedSubscription.dispose();
+        this._setTagsSubscription.dispose();
+        this._updateTagSubscription.dispose();
+        this._tagChangedEventSubscription.dispose();
 
         this._domSubscription.dispose();
         this._glSubscription.dispose();

@@ -27,11 +27,19 @@
 
         window.addEventListener("resize", function() { viewer.resize(); });
 
-        var tagComponent = viewer.getComponent("tag");
-        var lastNode = null;
+        var currentNode = null;
+        var currentTags = {};
+        var changedTags = {};
 
-        viewer.on("nodechanged", function (node) {
-            lastNode = node;
+        var tagComponent = viewer.getComponent("tag");
+        tagComponent.on("tagchanged", function(tag) {
+            changedTags[tag.id] = tag;
+        });
+
+        viewer.on(Mapillary.Viewer.nodechanged, function(node) {
+            currentNode = node;
+            currentTags = {};
+            changedTags = {};
 
             tagComponent.setTags([]);
 
@@ -52,7 +60,7 @@
                     var result = JSON.parse(http.responseText);
 
                     var nodeKey = Object.keys(result.jsonGraph.imageByKey)[0];
-                    if (nodeKey !== lastNode.key) {
+                    if (nodeKey !== currentNode.key) {
                         return;
                     }
 
@@ -81,6 +89,7 @@
                             value: or.value.value,
                         };
 
+                        currentTags[tag.id] = tag;
                         tags.push(tag);
                     }
 
