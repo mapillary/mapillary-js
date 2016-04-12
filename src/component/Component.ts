@@ -1,9 +1,10 @@
 import {IComponentConfiguration} from "../Component";
 import {Container, Navigator} from "../Viewer";
+import {EventEmitter} from "../Utils";
 
 import * as rx from "rx";
 
-export abstract class Component {
+export abstract class Component extends EventEmitter {
     public static componentName: string = "not_worthy";
 
     protected _activated: boolean;
@@ -15,6 +16,8 @@ export abstract class Component {
     protected _navigator: Navigator;
 
     constructor (name: string, container: Container, navigator: Navigator) {
+        super();
+
         this._navigator = navigator;
         this._container = container;
         this._activated = false;

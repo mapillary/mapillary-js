@@ -202,6 +202,30 @@ export class GLRenderer {
 
         this._renderFrameSubscribe();
 
+        let renderHash$: rx.Observable<IGLRenderHashesOperation> = this._render$
+            .map<IGLRenderHashesOperation>(
+                (hash: IGLRenderHash) => {
+                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
+                        hashes[hash.name] = hash.render;
+
+                        return hashes;
+                    };
+                });
+
+        let clearHash$: rx.Observable<IGLRenderHashesOperation> = this._clear$
+            .map<IGLRenderHashesOperation>(
+                (name: string) => {
+                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
+                        delete hashes[name];
+
+                        return hashes;
+                    };
+                });
+
+        rx.Observable
+            .merge(renderHash$, clearHash$)
+            .subscribe(this._renderOperation$);
+
         let createRenderer$: rx.Observable<IGLRendererOperation> = this._render$
             .first()
             .map<IGLRendererOperation>(
@@ -259,30 +283,6 @@ export class GLRenderer {
             .merge(createRenderer$, resizeRenderer$, clearRenderer$)
             .subscribe(this._rendererOperation$);
 
-        let renderHash$: rx.Observable<IGLRenderHashesOperation> = this._render$
-            .map<IGLRenderHashesOperation>(
-                (hash: IGLRenderHash) => {
-                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
-                        hashes[hash.name] = hash.render;
-
-                        return hashes;
-                    };
-                });
-
-        let clearHash$: rx.Observable<IGLRenderHashesOperation> = this._clear$
-            .map<IGLRenderHashesOperation>(
-                (name: string) => {
-                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
-                        delete hashes[name];
-
-                        return hashes;
-                    };
-                });
-
-        rx.Observable
-            .merge(renderHash$, clearHash$)
-            .subscribe(this._renderOperation$);
-
         let renderCollectionEmpty$: rx.Observable<IGLRenderHashes> = this._renderCollection$
             .filter(
                 (hashes: IGLRenderHashes): boolean => {
@@ -324,6 +324,21 @@ export class GLRenderer {
     }
 
     private _renderFrameSubscribe(): void {
+        this._render$
+            .first()
+            .map<IRenderCameraOperation>(
+                (renderHash: IGLRenderHash): IRenderCameraOperation => {
+                    return (irc: IRenderCamera): IRenderCamera => {
+                        irc.needsRender = true;
+
+                        return irc;
+                    };
+                })
+             .subscribe(
+                (operation: IRenderCameraOperation): void => {
+                    this._renderCameraOperation$.onNext(operation);
+                });
+
         this._renderFrameSubscription = this._render$
             .first()
             .flatMap<RenderCamera>(

@@ -20,6 +20,14 @@ interface INodes {
 export class PlayerComponent extends Component {
     public static componentName: string = "player";
 
+    /**
+     * Event fired when playing starts or stops.
+     *
+     * @event PlayerComponent#playingchanged
+     * @type {boolean} Indicates whether the player is playing.
+     */
+    public static playingchanged: string = "playingchanged";
+
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
     private _stop$: rx.Subject<void> = new rx.Subject<void>();
 
@@ -96,10 +104,20 @@ export class PlayerComponent extends Component {
         return { playing: false };
     }
 
+    /**
+     * Start playing.
+     *
+     * @fires PlayerComponent#playingchanged
+     */
     public play(): void {
         this.configure({ playing: true });
     }
 
+    /**
+     * Stop playing.
+     *
+     * @fires PlayerComponent#playingchanged
+     */
     public stop(): void {
         this.configure({ playing: false });
     }
@@ -108,40 +126,22 @@ export class PlayerComponent extends Component {
         this._playingSubscription = this._navigator.stateService.currentState$
             .filter(
                 (frame: IFrame): boolean => {
-                    return frame.id % 5 === 0;
-                })
-            .filter(
-                (frame: IFrame): boolean => {
                     return frame.state.nodesAhead < this._nodesAhead;
                 })
-            .distinctUntilChanged(
-                 (frame: IFrame): string => {
-                     return frame.state.lastNode.key;
-                 })
             .map<Node>(
                 (frame: IFrame): Node => {
                     return frame.state.lastNode;
                 })
-            .selectMany<Node>(
-                (node: Node): rx.Observable<Node> => {
+            .distinctUntilChanged(
+                 (lastNode: Node): string => {
+                     return lastNode.key;
+                 })
+            .flatMapLatest<Node>(
+                (lastNode: Node): rx.Observable<Node> => {
                     return this._navigator.graphService
                         .nextNode$(
-                            node,
-                            EdgeDirection.Next)
-                        .withLatestFrom<IFrame, INodes>(
-                            this._navigator.stateService.currentState$,
-                            (next: Node, frame: IFrame): INodes => {
-                                 return  { last: frame.state.lastNode, next: next };
-                            })
-                        .first()
-                        .filter(
-                            (nodes: INodes): boolean => {
-                                return nodes.last.key === node.key;
-                            })
-                        .map<Node>(
-                            (nodes: INodes): Node => {
-                               return nodes.next;
-                            });
+                            lastNode,
+                            EdgeDirection.Next);
                 })
             .subscribe(
                 (node: Node): void => {
@@ -151,11 +151,15 @@ export class PlayerComponent extends Component {
                     this._stop$.onNext(null);
                 }
             );
+
+        this.fire(PlayerComponent.playingchanged, true);
     }
 
     private _stop(): void {
         this._playingSubscription.dispose();
         this._playingSubscription = null;
+
+        this.fire(PlayerComponent.playingchanged, false);
     }
 }
 

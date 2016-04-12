@@ -97,7 +97,7 @@ export class StateService {
                 (fc: [number, number, IStateContext]): IFrame => {
                     return { fps: fc[1], id: fc[0], state: fc[2] };
                 })
-            .shareReplay(1);
+            .share();
 
         let nodeChanged$: rx.Observable<IFrame> = this._currentState$
             .filter(
