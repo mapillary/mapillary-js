@@ -20,6 +20,14 @@ interface INodes {
 export class PlayerComponent extends Component {
     public static componentName: string = "player";
 
+    /**
+     * Event fired when playing starts or stops.
+     *
+     * @event PlayerComponent#playingchanged
+     * @type {boolean} Indicates whether the player is playing.
+     */
+    public static playingchanged: string = "playingchanged";
+
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
     private _stop$: rx.Subject<void> = new rx.Subject<void>();
 
@@ -96,10 +104,20 @@ export class PlayerComponent extends Component {
         return { playing: false };
     }
 
+    /**
+     * Start playing.
+     *
+     * @fires PlayerComponent#playingchanged
+     */
     public play(): void {
         this.configure({ playing: true });
     }
 
+    /**
+     * Stop playing.
+     *
+     * @fires PlayerComponent#playingchanged
+     */
     public stop(): void {
         this.configure({ playing: false });
     }
@@ -133,11 +151,15 @@ export class PlayerComponent extends Component {
                     this._stop$.onNext(null);
                 }
             );
+
+        this.fire(PlayerComponent.playingchanged, true);
     }
 
     private _stop(): void {
         this._playingSubscription.dispose();
         this._playingSubscription = null;
+
+        this.fire(PlayerComponent.playingchanged, false);
     }
 }
 
