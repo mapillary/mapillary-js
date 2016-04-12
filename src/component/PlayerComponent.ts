@@ -108,40 +108,22 @@ export class PlayerComponent extends Component {
         this._playingSubscription = this._navigator.stateService.currentState$
             .filter(
                 (frame: IFrame): boolean => {
-                    return frame.id % 5 === 0;
-                })
-            .filter(
-                (frame: IFrame): boolean => {
                     return frame.state.nodesAhead < this._nodesAhead;
                 })
-            .distinctUntilChanged(
-                 (frame: IFrame): string => {
-                     return frame.state.lastNode.key;
-                 })
             .map<Node>(
                 (frame: IFrame): Node => {
                     return frame.state.lastNode;
                 })
-            .selectMany<Node>(
-                (node: Node): rx.Observable<Node> => {
+            .distinctUntilChanged(
+                 (lastNode: Node): string => {
+                     return lastNode.key;
+                 })
+            .flatMapLatest<Node>(
+                (lastNode: Node): rx.Observable<Node> => {
                     return this._navigator.graphService
                         .nextNode$(
-                            node,
-                            EdgeDirection.Next)
-                        .withLatestFrom<IFrame, INodes>(
-                            this._navigator.stateService.currentState$,
-                            (next: Node, frame: IFrame): INodes => {
-                                 return  { last: frame.state.lastNode, next: next };
-                            })
-                        .first()
-                        .filter(
-                            (nodes: INodes): boolean => {
-                                return nodes.last.key === node.key;
-                            })
-                        .map<Node>(
-                            (nodes: INodes): Node => {
-                               return nodes.next;
-                            });
+                            lastNode,
+                            EdgeDirection.Next);
                 })
             .subscribe(
                 (node: Node): void => {
