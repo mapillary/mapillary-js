@@ -39,6 +39,12 @@ export class TagComponent extends Component {
     private _tags$: rx.Observable<Tag[]>;
     private _tagChanged$: rx.Observable<Tag>;
 
+    private _claimMouseSubscription: rx.Disposable;
+    private _mouseDragSubscription: rx.Disposable;
+    private _unclaimMouseSubscription: rx.Disposable;
+    private _tagsSubscription: rx.Disposable;
+    private _tagChangedSubscription: rx.Disposable;
+
     private _domSubscription: rx.IDisposable;
     private _glSubscription: rx.IDisposable;
 
@@ -124,7 +130,7 @@ export class TagComponent extends Component {
     }
 
     protected _activate(): void {
-        this._tagDomRenderer.editInitiated$
+        this._claimMouseSubscription = this._tagDomRenderer.editInitiated$
             .flatMapLatest(
                 (): rx.Observable<MouseEvent> => {
                     return this._container.mouseService.mouseDragStart$
@@ -136,7 +142,8 @@ export class TagComponent extends Component {
                     this._container.mouseService.claimMouse(this._name, 1);
                 });
 
-        this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$)
+        this._mouseDragSubscription = this._container.mouseService
+            .filtered$(this._name, this._container.mouseService.mouseDrag$)
             .withLatestFrom(
                 this._tagDomRenderer.activeTag$,
                 this._container.renderService.renderCamera$,
@@ -176,12 +183,13 @@ export class TagComponent extends Component {
                             activeTag.operation);
                 });
 
-        this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDragEnd$)
+        this._unclaimMouseSubscription = this._container.mouseService
+            .filtered$(this._name, this._container.mouseService.mouseDragEnd$)
             .subscribe((e: MouseEvent): void => {
                 this._container.mouseService.unclaimMouse(this._name);
              });
 
-        this._tags$
+        this._tagsSubscription = this._tags$
             .map<ITagGLRendererOperation>(
                 (tags: Tag[]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
@@ -192,7 +200,7 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._tagGlRendererOperation$);
 
-        this._tagChanged$
+        this._tagChangedSubscription = this._tagChanged$
             .map<ITagGLRendererOperation>(
                 (tag: Tag): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
@@ -252,6 +260,12 @@ export class TagComponent extends Component {
 
                     return renderer;
                 });
+
+        this._claimMouseSubscription.dispose();
+        this._mouseDragSubscription.dispose();
+        this._unclaimMouseSubscription.dispose();
+        this._tagsSubscription.dispose();
+        this._tagChangedSubscription.dispose();
 
         this._domSubscription.dispose();
         this._glSubscription.dispose();
