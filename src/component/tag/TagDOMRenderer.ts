@@ -36,6 +36,19 @@ export class TagDOMRenderer {
         for (let t of tags) {
             let tag: Tag = t;
 
+            let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygonPoints3d[3], matrixWorldInverse);
+            if (bottomRightCamera.z < 0) {
+                let labelCanvas: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
+                let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+                let labelStyle: any = { left: labelCss[0], top: labelCss[1] };
+
+                vNodes.push(vd.h("span.TagLabel", { style: labelStyle, textContent: tag.value }, []));
+            }
+
+            if (!tag.editable) {
+                continue;
+            }
+
             let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
                 this._editAbort$.onNext(null);
             };
@@ -74,15 +87,6 @@ export class TagDOMRenderer {
                 let activateMove: (e: MouseEvent) => void = this._activateTag(tag, TagOperation.Move);
 
                 vNodes.push(vd.h("div.TagMover", { onmousedown: activateMove, onmouseup: abort, style: moveStyle }, []));
-            }
-
-            let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygonPoints3d[3], matrixWorldInverse);
-            if (bottomRightCamera.z < 0) {
-                let labelCanvas: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
-                let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-                let labelStyle: any = { left: labelCss[0], top: labelCss[1] };
-
-                vNodes.push(vd.h("span.TagLabel", { style: labelStyle, textContent: tag.value }, []));
             }
         }
 

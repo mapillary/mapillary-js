@@ -125,7 +125,8 @@ export class TagComponent extends Component {
                                 tag.id,
                                 transform,
                                 tag.rect.slice(),
-                                tag.value);
+                                tag.value,
+                                tag.editable);
                         });
 
                     this._tagSet.set$.onNext(computedTags);
@@ -218,6 +219,7 @@ export class TagComponent extends Component {
             .map<ITag>(
                 (tag: Tag): ITag => {
                     return {
+                        editable: tag.editable,
                         id: tag.id,
                         rect: tag.shape,
                         value: tag.value,

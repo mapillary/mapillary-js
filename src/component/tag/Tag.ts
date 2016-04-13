@@ -15,15 +15,17 @@ export class Tag {
     private _polygonPoints3d: number[][];
 
     private _value: string;
+    private _editable: boolean;
 
     private _operations: TagOperation[];
 
     private _notifyChanged$: rx.Subject<Tag>;
 
-    constructor(id: string, transform: Transform, rect: number[], value: string) {
+    constructor(id: string, transform: Transform, rect: number[], value: string, editable: boolean) {
         this._id = id;
         this._transform = transform;
         this._value = value;
+        this._editable = editable;
 
         this._operations = [
             TagOperation.ResizeBottomLeft,
@@ -65,6 +67,10 @@ export class Tag {
 
     public get value(): string {
         return this._value;
+    }
+
+    public get editable(): boolean {
+        return this._editable;
     }
 
     public get onChanged$(): rx.Observable<Tag> {
