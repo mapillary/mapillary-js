@@ -54,14 +54,24 @@ export class TagGLRenderer {
     }
 
     private _addMesh(tag: Tag): void {
-        let lineGeometry: THREE.Geometry = new THREE.Geometry();
-        for (let i: number = 0; i < tag.polygonPoints3d.length; ++i) {
-            let a: number[] = tag.polygonPoints3d[i];
-            lineGeometry.vertices.push(new THREE.Vector3(a[0], a[1], a[2]));
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+
+        let length: number = tag.polygonPoints3d.length;
+        let positions: Float32Array = new Float32Array(length * 3);
+
+        for (let i: number = 0; i < length; ++i) {
+            let position: number[] = tag.polygonPoints3d[i];
+
+            let index: number = 3 * i;
+            positions[index] = position[0];
+            positions[index + 1] = position[1];
+            positions[index + 2] = position[2];
         }
 
-        let lineMaterial: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({ color: 0x00FF00, linewidth: 1 } );
-        let line: THREE.Line = new THREE.Line(lineGeometry, lineMaterial);
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        let material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({ color: 0x00FF00, linewidth: 1 } );
+        let line: THREE.Line = new THREE.Line(geometry, material);
 
         this._meshes[tag.id] = line;
         this._scene.add(line);
