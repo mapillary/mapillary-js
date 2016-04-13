@@ -5,40 +5,41 @@
     bottom: 0;
     left: 0;
     z-index: -1;
+    pointer-events: none;
 }
 
 .TagLabel {
-    color: red;
     position: absolute;
+    color: red;
 }
 
+.TagMover,
 .TagResizer {
     position: absolute;
-    border-radius: 10px;
-    width: 20px;
-    height: 20px;
-    left: 0;
-    top: 0;
     transform: translate(-50%, -50%);
-    z-index: 1;
-}
-
-.TagResizer:hover {
-    background: #00FF00;
-    opacity: 0.3;
+    pointer-events: all;
 }
 
 .TagMover {
-    background: #FFFF00;
-    opacity: 0.3;
-    position: absolute;
     border-radius: 7px;
     width: 14px;
     height: 14px;
-    transform: translate(-50%, -50%);
-    z-index: 1;
+    background: #FFFF00;
+    opacity: 0.2;
 }
 
 .TagMover:hover {
     opacity: 0.5;
+}
+
+.TagResizer {
+    border-radius: 10px;
+    width: 20px;
+    height: 20px;
+    background: #00FF00;
+    opacity: 0;
+}
+
+.TagResizer:hover {
+    opacity: 0.3;
 }
