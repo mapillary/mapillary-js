@@ -13,7 +13,7 @@ describe("MarkerComponent", () => {
     beforeEach(() => {
         document.body.innerHTML = "<div id='dummy'></div>";
         let navigator: Navigator = new Navigator("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
-        let container: Container = new Container("dummy", navigator.stateService, null);
+        let container: Container = new Container("dummy", navigator.stateService, {});
         markerComponent = new MarkerComponent("marker", container, navigator);
         markerComponent.activate();
     });
