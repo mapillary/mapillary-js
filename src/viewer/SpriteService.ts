@@ -117,8 +117,10 @@ export class SpriteService {
             return;
         }
 
+        let format: string = window.devicePixelRatio > 1 ? "@2x" : "";
+
         let imageXmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-        imageXmlHTTP.open("GET", sprite + ".png", true);
+        imageXmlHTTP.open("GET", sprite + format + ".png", true);
         imageXmlHTTP.responseType = "arraybuffer";
         imageXmlHTTP.onload = (e: any) => {
             let image: HTMLImageElement = new Image();
@@ -138,7 +140,7 @@ export class SpriteService {
         imageXmlHTTP.send();
 
         let jsonXmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-        jsonXmlHTTP.open("GET", sprite + ".json", true);
+        jsonXmlHTTP.open("GET", sprite + format + ".json", true);
         jsonXmlHTTP.responseType = "text";
         jsonXmlHTTP.onload = () => {
             let json: ISprites = <ISprites>JSON.parse(jsonXmlHTTP.response);
