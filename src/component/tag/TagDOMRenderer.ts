@@ -4,7 +4,8 @@ import * as THREE from "three";
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {Tag, IActiveTag, TagOperation} from "../../Component";
+import {Tag, IActiveTag, TagLabel, TagOperation} from "../../Component";
+import {ISpriteAtlas} from "../../Viewer";
 
 export class TagDOMRenderer {
     private _activeTag$: rx.Subject<IActiveTag>;
@@ -29,7 +30,7 @@ export class TagDOMRenderer {
         return this._editAbort$;
     }
 
-    public render(tags: Tag[], camera: THREE.PerspectiveCamera): vd.VNode {
+    public render(tags: Tag[], atlas: ISpriteAtlas, camera: THREE.PerspectiveCamera): vd.VNode {
         let vNodes: vd.VNode[] = [];
         let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
 
@@ -40,9 +41,16 @@ export class TagDOMRenderer {
             if (bottomRightCamera.z < 0) {
                 let labelCanvas: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
                 let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-                let labelStyle: any = { left: labelCss[0], top: labelCss[1] };
+                let labelStyle: any = { left: labelCss[0], position: "absolute", top: labelCss[1]  };
 
-                vNodes.push(vd.h("span.TagLabel", { style: labelStyle, textContent: tag.value }, []));
+                if (tag.label === TagLabel.Text) {
+                    vNodes.push(vd.h("span.TagLabel", { style: labelStyle, textContent: tag.value }, []));
+                } else if (tag.label === TagLabel.Icon) {
+                    if (atlas.loaded) {
+                        let sprite: vd.VNode = atlas.getDOMSprite(tag.value);
+                        vNodes.push(vd.h("div", { style: labelStyle }, [sprite]));
+                    }
+                }
             }
 
             if (!tag.editable) {

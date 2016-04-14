@@ -3,7 +3,7 @@
 import * as rx from "rx";
 import * as THREE from "three";
 
-import {Container, Navigator} from "../../Viewer";
+import {Container, Navigator, ISpriteAtlas} from "../../Viewer";
 import {APIv3} from "../../API";
 import {
     ComponentService,
@@ -229,16 +229,17 @@ export class TagComponent extends Component {
         this._domSubscription = rx.Observable
             .combineLatest(
                 this._container.renderService.renderCamera$,
+                this._container.spriteService.spriteAtlas$,
                 this._tags$,
                 this._tagChanged$.startWith(null),
-                (rc: RenderCamera, tags: Tag[], tag: Tag): [RenderCamera, Tag[], Tag] => {
-                    return [rc, tags, tag];
+                (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag): [RenderCamera, ISpriteAtlas, Tag[], Tag] => {
+                    return [rc, atlas, tags, tag];
                 })
             .map<IVNodeHash>(
-                (rcts: [RenderCamera, Tag[], Tag]): IVNodeHash => {
+                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag]): IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._tagDomRenderer.render(rcts[1], rcts[0].perspective),
+                        vnode: this._tagDomRenderer.render(rcts[2], rcts[1], rcts[0].perspective),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);
