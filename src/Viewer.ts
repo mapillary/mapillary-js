@@ -5,6 +5,7 @@ export {LoadingService} from "./viewer/LoadingService";
 export {MouseService} from "./viewer/MouseService";
 export {Navigator} from "./viewer/Navigator";
 export {ComponentController} from "./viewer/ComponentController";
+export {SpriteService} from "./viewer/SpriteService";
 export {TouchService, TouchMove} from "./viewer/TouchService";
 export {Viewer} from "./viewer/Viewer";
 export * from "./viewer/interfaces/interfaces";
