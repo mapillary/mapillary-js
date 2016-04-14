@@ -8,8 +8,7 @@ import {ISpriteAtlas} from "../Viewer";
 
 class SpriteAtlas implements ISpriteAtlas {
     private _image: HTMLImageElement;
-    private _width: number;
-    private _height: number;
+    private _texture: THREE.Texture;
     private _json: ISprites;
 
     public set json(value: ISprites) {
@@ -18,8 +17,8 @@ class SpriteAtlas implements ISpriteAtlas {
 
     public set image(value: HTMLImageElement) {
         this._image = value;
-        this._width = value.width;
-        this._height = value.height;
+        this._texture = new THREE.Texture(this._image);
+        this._texture.minFilter = THREE.NearestFilter;
     }
 
     public get loaded(): boolean {
@@ -31,16 +30,17 @@ class SpriteAtlas implements ISpriteAtlas {
             throw new Error("Sprites cannot be retrieved before the atlas is loaded.");
         }
 
-        let texture: THREE.Texture = new THREE.Texture(this._image);
-        texture.minFilter = THREE.NearestFilter;
+        let texture: THREE.Texture = this._texture.clone();
         texture.needsUpdate = true;
 
+        let width: number = this._image.width;
+        let height: number = this._image.height;
         let definition: ISprite = this._json[name];
 
-        texture.offset.x = definition.x / this._width;
-        texture.offset.y = (this._height - definition.y - definition.height) / this._height;
-        texture.repeat.x = definition.width / this._width;
-        texture.repeat.y = definition.height / this._height;
+        texture.offset.x = definition.x / width;
+        texture.offset.y = (height - definition.y - definition.height) / height;
+        texture.repeat.x = definition.width / width;
+        texture.repeat.y = definition.height / height;
 
         let material: THREE.SpriteMaterial = new THREE.SpriteMaterial({ map: texture });
 
