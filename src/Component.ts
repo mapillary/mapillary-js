@@ -29,6 +29,7 @@ export {Tag} from "./component/tag/Tag";
 export {TagComponent} from "./component/tag/TagComponent";
 export {TagDOMRenderer} from "./component/tag/TagDOMRenderer";
 export {TagGLRenderer} from "./component/tag/TagGLRenderer";
+export {TagLabel} from "./component/tag/TagLabel";
 export {TagOperation} from "./component/tag/TagOperation";
 export {TagSet} from "./component/tag/TagSet";
 export {TextureLoader} from "./component/imageplane/TextureLoader";

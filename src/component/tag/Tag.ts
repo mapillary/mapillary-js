@@ -2,7 +2,7 @@
 
 import * as rx from "rx";
 
-import {TagOperation} from "../../Component";
+import {ITag, TagLabel, TagOperation} from "../../Component";
 import {Transform} from "../../Geo";
 
 export class Tag {
@@ -16,16 +16,19 @@ export class Tag {
 
     private _value: string;
     private _editable: boolean;
+    private _label: TagLabel;
 
     private _operations: TagOperation[];
 
     private _notifyChanged$: rx.Subject<Tag>;
 
-    constructor(id: string, transform: Transform, rect: number[], value: string, editable: boolean) {
-        this._id = id;
+    constructor(tag: ITag, transform: Transform) {
+        this._id = tag.id;
+        this._value = tag.value;
+        this._editable = tag.editable;
+        this._label = tag.label;
+
         this._transform = transform;
-        this._value = value;
-        this._editable = editable;
 
         this._operations = [
             TagOperation.ResizeBottomLeft,
@@ -34,7 +37,7 @@ export class Tag {
             TagOperation.ResizeBottomRight,
         ];
 
-        this._setShape(rect);
+        this._setShape(tag.rect);
 
         this._notifyChanged$ = new rx.Subject<Tag>();
     }
@@ -73,6 +76,10 @@ export class Tag {
         return this._editable;
     }
 
+    public get label(): TagLabel {
+        return this._label;
+    }
+
     public get onChanged$(): rx.Observable<Tag> {
         return this._notifyChanged$;
     }
@@ -82,7 +89,7 @@ export class Tag {
     }
 
     private _setShape(value: number[]): void {
-        this._rect = value;
+        this._rect = value.slice();
 
         let centroidX: number = value[0] + (value[2] - value[0]) / 2;
         let centroidY: number = value[1] + (value[3] - value[1]) / 2;

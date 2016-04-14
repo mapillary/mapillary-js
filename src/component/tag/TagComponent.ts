@@ -121,12 +121,7 @@ export class TagComponent extends Component {
                 (transform: Transform): void => {
                     let computedTags: Tag[] = tags
                         .map((tag: ITag): Tag => {
-                            return new Tag(
-                                tag.id,
-                                transform,
-                                tag.rect.slice(),
-                                tag.value,
-                                tag.editable);
+                            return new Tag(tag, transform);
                         });
 
                     this._tagSet.set$.onNext(computedTags);
@@ -221,6 +216,7 @@ export class TagComponent extends Component {
                     return {
                         editable: tag.editable,
                         id: tag.id,
+                        label: tag.label,
                         rect: tag.shape,
                         value: tag.value,
                     };
