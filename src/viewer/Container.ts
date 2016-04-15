@@ -29,7 +29,7 @@ export class Container {
         this.mouseService = new MouseService(this.element);
         this.touchService = new TouchService(this.element);
 
-        this.spriteService = new SpriteService();
+        this.spriteService = new SpriteService(options.sprite);
     }
 }
 

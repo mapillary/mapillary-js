@@ -134,6 +134,12 @@ export interface IViewerOptions {
      * @default {RenderMode.Letterbox}
      */
     renderMode?: RenderMode;
+
+    /**
+     * A base URL for retrieving a png sprite image and json metadata file.
+     * File name extensions will be automatically appended.
+     */
+    sprite?: string;
 }
 
 export default IViewerOptions;
