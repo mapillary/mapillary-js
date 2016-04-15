@@ -41,14 +41,22 @@ export class TagDOMRenderer {
             if (bottomRightCamera.z < 0) {
                 let labelCanvas: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
                 let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-                let labelStyle: any = { left: labelCss[0], position: "absolute", top: labelCss[1]  };
 
                 if (tag.label === TagLabel.Text) {
-                    vNodes.push(vd.h("span.TagLabel", { style: labelStyle, textContent: tag.value }, []));
+                    let properties: vd.createProperties = {
+                        style: { left: labelCss[0], position: "absolute", top: labelCss[1] },
+                        textContent: tag.value,
+                    };
+
+                    vNodes.push(vd.h("span.TagLabel", properties, []));
                 } else if (tag.label === TagLabel.Icon) {
                     if (atlas.loaded) {
                         let sprite: vd.VNode = atlas.getDOMSprite(tag.value);
-                        vNodes.push(vd.h("div", { style: labelStyle }, [sprite]));
+                        let properties: vd.createProperties = {
+                            style: { left: labelCss[0], position: "absolute", top: labelCss[1] },
+                        };
+
+                        vNodes.push(vd.h("div", properties, [sprite]));
                     }
                 }
             }
@@ -71,7 +79,6 @@ export class TagDOMRenderer {
 
                 let cornerCanvas: number[] = this._projectToCanvas(pointCameraSpace, camera.projectionMatrix);
                 let cornerCss: string[] = cornerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-                let cornerStyle: any = { left: cornerCss[0], top: cornerCss[1] };
 
                 let operation: TagOperation = tag.operations[i];
 
@@ -80,7 +87,7 @@ export class TagDOMRenderer {
                 let properties: vd.createProperties = {
                     onmousedown: activateResize,
                     onmouseup: abort,
-                    style: cornerStyle,
+                    style: { left: cornerCss[0], top: cornerCss[1] },
                 };
 
                 vNodes.push(vd.h("div.TagResizer", properties, []));
@@ -90,11 +97,16 @@ export class TagDOMRenderer {
             if (centerCamera.z < 0) {
                 let centerCanvas: number[] = this._projectToCanvas(centerCamera, camera.projectionMatrix);
                 let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-                let moveStyle: any = { left: centerCss[0], top: centerCss[1] };
 
                 let activateMove: (e: MouseEvent) => void = this._activateTag(tag, TagOperation.Move);
 
-                vNodes.push(vd.h("div.TagMover", { onmousedown: activateMove, onmouseup: abort, style: moveStyle }, []));
+                let properties: vd.createProperties = {
+                    onmousedown: activateMove,
+                    onmouseup: abort,
+                    style: { left: centerCss[0], top: centerCss[1] },
+                };
+
+                vNodes.push(vd.h("div.TagMover", properties, []));
             }
         }
 
