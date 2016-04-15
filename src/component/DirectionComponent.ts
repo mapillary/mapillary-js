@@ -345,7 +345,6 @@ export class DirectionComponent extends Component {
 
         let rotateZ: number = this._spatial.radToDeg(rotation.phi);
 
-        // todo: change the rotateX value for panoramas
         let style: any = {
             transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZ}deg)`,
         };

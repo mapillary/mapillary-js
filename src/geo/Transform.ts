@@ -4,7 +4,6 @@ import * as THREE from "three";
 
 import {IGPano} from "../API";
 import {Node} from "../Graph";
-import {GeoCoords, ILatLonAlt, Spatial} from "../Geo";
 
 export class Transform {
     private _width: number;
@@ -33,25 +32,6 @@ export class Transform {
 
         this._rt = this._getRt(node, translation);
         this._srt = this._getSrt(this._rt, this._scale);
-    }
-
-    public static fromNodeAndReference(node: Node, reference: ILatLonAlt): Transform {
-        let translation: number[] = Transform._nodeToTranslation(node, reference);
-        return new Transform(node, translation);
-    }
-
-    private static _nodeToTranslation(node: Node, reference: ILatLonAlt): number[] {
-        let C: number[] = (new GeoCoords).geodeticToEnu(
-            node.latLon.lat,
-            node.latLon.lon,
-            node.apiNavImIm.calt,
-            reference.lat,
-            reference.lon,
-            reference.alt);
-
-        let RC: THREE.Vector3 = (new Spatial).rotate(C, node.apiNavImIm.rotation);
-
-        return [-RC.x, -RC.y, -RC.z];
     }
 
     public get width(): number {
@@ -165,7 +145,6 @@ export class Transform {
 
     private _pixelToBearing(pixel: number[]): number[] {
         if (this._gpano) {
-            // todo(pau): handle none complete panos
             let lon: number = pixel[0] * 2 * Math.PI;
             let lat: number = -pixel[1] * 2 * Math.PI;
             let x: number = Math.cos(lat) * Math.sin(lon);
@@ -173,7 +152,6 @@ export class Transform {
             let z: number = Math.cos(lat) * Math.cos(lon);
             return [x, y, z];
         } else {
-            // todo(pau): handle radial distortion
             let v: THREE.Vector3 = new THREE.Vector3(pixel[0], pixel[1], this._focal);
             v.normalize();
             return [v.x, v.y, v.z];
@@ -189,7 +167,6 @@ export class Transform {
             let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
             return [lon / (2 * Math.PI), -lat / (2 * Math.PI)];
         } else {
-            // todo(pau): handle radial distortion
             return [bearing[0] * this._focal / bearing[2],
                     bearing[1] * this._focal / bearing[2], ];
         }

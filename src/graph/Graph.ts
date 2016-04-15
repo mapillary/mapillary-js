@@ -66,7 +66,7 @@ export class Graph {
 
     /**
      * Add nodes from an API call
-     * @param {IAPINavIm} data - todo
+     * @param {IAPINavIm} data - Image tile
      */
     public addNodesFromAPI(data: IAPINavIm, tiles: {[key: string]: boolean}): void {
         if (data === undefined) {
