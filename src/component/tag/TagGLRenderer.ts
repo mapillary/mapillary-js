@@ -56,16 +56,36 @@ export class TagGLRenderer {
     private _addMesh(tag: Tag): void {
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
-        let length: number = tag.polygonPoints3d.length;
-        let positions: Float32Array = new Float32Array(length * 3);
+        let polygonPoints2d: number[][] = tag.polygonPoints2d;
 
-        for (let i: number = 0; i < length; ++i) {
-            let position: number[] = tag.polygonPoints3d[i];
+        let sides: number = polygonPoints2d.length - 1;
+        let sections: number = 8;
 
-            let index: number = 3 * i;
-            positions[index] = position[0];
-            positions[index + 1] = position[1];
-            positions[index + 2] = position[2];
+        let positions: Float32Array = new Float32Array(sides * sections * 3);
+
+        for (let i: number = 0; i < sides; ++i) {
+            let startX: number = polygonPoints2d[i][0];
+            let startY: number = polygonPoints2d[i][1];
+
+            let endX: number = polygonPoints2d[i + 1][0];
+            let endY: number = polygonPoints2d[i + 1][1];
+
+            let intervalX: number = (endX - startX) / (sections - 1);
+            let intervalY: number = (endY - startY) / (sections - 1);
+
+            for (let j: number = 0; j < sections; ++j) {
+                let rectPosition: number[] = [
+                    startX + j * intervalX,
+                    startY + j * intervalY,
+                ];
+
+                let position: number[] = tag.getPoint3d(rectPosition[0], rectPosition[1]);
+                let index: number = 3 * sections * i + 3 * j;
+
+                positions[index] = position[0];
+                positions[index + 1] = position[1];
+                positions[index + 2] = position[2];
+            }
         }
 
         geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));

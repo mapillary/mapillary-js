@@ -11,6 +11,7 @@ export class Tag {
     private _transform: Transform;
 
     private _rect: number[];
+    private _polygonPoints2d: number[][];
     private _centroidPoint3d: number[];
     private _polygonPoints3d: number[][];
 
@@ -56,6 +57,10 @@ export class Tag {
         this._notifyChanged$.onNext(this);
     }
 
+    public get polygonPoints2d(): number[][] {
+        return this._polygonPoints2d;
+    }
+
     public get centroidPoint3d(): number[] {
         return this._centroidPoint3d;
     }
@@ -96,16 +101,19 @@ export class Tag {
 
         this._centroidPoint3d = this.getPoint3d(centroidX, centroidY);
 
-        this._polygonPoints3d = [
+        this._polygonPoints2d = [
             [value[0], value[3]],
             [value[0], value[1]],
             [value[2], value[1]],
             [value[2], value[3]],
             [value[0], value[3]],
-        ].map(
-            (point: number[]) => {
-                return this.getPoint3d(point[0], point[1]);
-            });
+        ];
+
+        this._polygonPoints3d = this._polygonPoints2d
+            .map(
+                (point: number[]) => {
+                    return this.getPoint3d(point[0], point[1]);
+                });
     }
 }
 
