@@ -29,6 +29,8 @@ export class TagComponent extends Component {
 
     public static tagchanged: string = "tagchanged";
 
+    public static tagclick: string = "tagclick";
+
     private _apiV3: APIv3;
 
     private _tagDomRenderer: TagDOMRenderer;
@@ -47,6 +49,7 @@ export class TagComponent extends Component {
     private _setTagsSubscription: rx.IDisposable;
     private _updateTagSubscription: rx.IDisposable;
     private _tagChangedEventSubscription: rx.IDisposable;
+    private _tagClickEventSubscription: rx.IDisposable;
 
     private _domSubscription: rx.IDisposable;
     private _glSubscription: rx.IDisposable;
@@ -224,6 +227,22 @@ export class TagComponent extends Component {
             .subscribe(
                 (tag: ITag): void => {
                     this.fire(TagComponent.tagchanged, tag);
+                });
+
+        this._tagClickEventSubscription = this._tagDomRenderer.labelClick$
+            .map<ITag>(
+                (tag: Tag): ITag => {
+                    return {
+                        editable: tag.editable,
+                        id: tag.id,
+                        label: tag.label,
+                        rect: tag.shape,
+                        value: tag.value,
+                    };
+                })
+            .subscribe(
+                (tag: ITag): void => {
+                    this.fire(TagComponent.tagclick, tag);
                 });
 
         this._domSubscription = rx.Observable

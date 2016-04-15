@@ -11,11 +11,13 @@ export class TagDOMRenderer {
     private _activeTag$: rx.Subject<IActiveTag>;
     private _editInitiated$: rx.Subject<void>;
     private _editAbort$: rx.Subject<void>;
+    private _labelClick$: rx.Subject<Tag>;
 
     constructor() {
         this._activeTag$ = new rx.Subject<IActiveTag>();
         this._editInitiated$ = new rx.Subject<void>();
         this._editAbort$ = new rx.Subject<void>();
+        this._labelClick$ = new rx.Subject<Tag>();
     }
 
     public get activeTag$(): rx.Observable<IActiveTag> {
@@ -30,6 +32,10 @@ export class TagDOMRenderer {
         return this._editAbort$;
     }
 
+    public get labelClick$(): rx.Observable<Tag> {
+        return this._labelClick$;
+    }
+
     public render(tags: Tag[], atlas: ISpriteAtlas, camera: THREE.PerspectiveCamera): vd.VNode {
         let vNodes: vd.VNode[] = [];
         let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
@@ -41,9 +47,13 @@ export class TagDOMRenderer {
             if (bottomRightCamera.z < 0) {
                 let labelCanvas: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
                 let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+                let labelClick: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                    this._labelClick$.onNext(tag);
+                };
 
                 if (tag.label === TagLabel.Text) {
                     let properties: vd.createProperties = {
+                        onclick: labelClick,
                         style: { left: labelCss[0], position: "absolute", top: labelCss[1] },
                         textContent: tag.value,
                     };
@@ -52,8 +62,15 @@ export class TagDOMRenderer {
                 } else if (tag.label === TagLabel.Icon) {
                     if (atlas.loaded) {
                         let sprite: vd.VNode = atlas.getDOMSprite(tag.value);
+
                         let properties: vd.createProperties = {
-                            style: { left: labelCss[0], position: "absolute", top: labelCss[1] },
+                            onclick: labelClick,
+                            style: {
+                                left: labelCss[0],
+                                pointerEvents: "all",
+                                position: "absolute",
+                                top: labelCss[1],
+                            },
                         };
 
                         vNodes.push(vd.h("div", properties, [sprite]));

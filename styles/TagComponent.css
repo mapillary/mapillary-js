@@ -11,6 +11,8 @@
 .TagLabel {
     position: absolute;
     color: red;
+    pointer-events: all;
+    cursor: default;
 }
 
 .TagMover,
