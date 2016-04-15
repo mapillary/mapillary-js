@@ -132,11 +132,11 @@ export class TagComponent extends Component {
     }
 
     protected _activate(): void {
-        this._claimMouseSubscription = this._tagDomRenderer.editInitiated$
+        this._claimMouseSubscription = this._tagDomRenderer.interactionInitiate$
             .flatMapLatest(
-                (): rx.Observable<MouseEvent> => {
+                (id: string): rx.Observable<MouseEvent> => {
                     return this._container.mouseService.mouseDragStart$
-                        .takeUntil(this._tagDomRenderer.editAbort$)
+                        .takeUntil(this._tagDomRenderer.interactionAbort$)
                         .take(1);
                 })
             .subscribe(
@@ -164,6 +164,10 @@ export class TagComponent extends Component {
                     let activeTag: IActiveTag = args[1];
                     let renderCamera: RenderCamera = args[2];
                     let transform: Transform = args[3];
+
+                    if (activeTag.operation === TagOperation.None) {
+                        return;
+                    }
 
                     let element: HTMLElement = this._container.element;
 

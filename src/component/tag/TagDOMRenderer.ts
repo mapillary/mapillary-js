@@ -9,14 +9,14 @@ import {ISpriteAtlas} from "../../Viewer";
 
 export class TagDOMRenderer {
     private _activeTag$: rx.Subject<IActiveTag>;
-    private _editInitiated$: rx.Subject<void>;
-    private _editAbort$: rx.Subject<void>;
+    private _interactionInitiate$: rx.Subject<string>;
+    private _interactionAbort$: rx.Subject<string>;
     private _labelClick$: rx.Subject<Tag>;
 
     constructor() {
         this._activeTag$ = new rx.Subject<IActiveTag>();
-        this._editInitiated$ = new rx.Subject<void>();
-        this._editAbort$ = new rx.Subject<void>();
+        this._interactionInitiate$ = new rx.Subject<string>();
+        this._interactionAbort$ = new rx.Subject<string>();
         this._labelClick$ = new rx.Subject<Tag>();
     }
 
@@ -24,12 +24,12 @@ export class TagDOMRenderer {
         return this._activeTag$;
     }
 
-    public get editInitiated$(): rx.Observable<void> {
-        return this._editInitiated$;
+    public get interactionInitiate$(): rx.Observable<string> {
+        return this._interactionInitiate$;
     }
 
-    public get editAbort$(): rx.Observable<void> {
-        return this._editAbort$;
+    public get interactionAbort$(): rx.Observable<string> {
+        return this._interactionAbort$;
     }
 
     public get labelClick$(): rx.Observable<Tag> {
@@ -43,6 +43,10 @@ export class TagDOMRenderer {
         for (let t of tags) {
             let tag: Tag = t;
 
+            let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                this._interactionAbort$.onNext(tag.id);
+            };
+
             let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(tag.polygonPoints3d[3], matrixWorldInverse);
             if (bottomRightCamera.z < 0) {
                 let labelCanvas: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
@@ -51,9 +55,16 @@ export class TagDOMRenderer {
                     this._labelClick$.onNext(tag);
                 };
 
+                let activateNone: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                    this._activeTag$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: tag });
+                    this._interactionInitiate$.onNext(tag.id);
+                };
+
                 if (tag.label === TagLabel.Text) {
                     let properties: vd.createProperties = {
                         onclick: labelClick,
+                        onmousedown: activateNone,
+                        onmouseup: abort,
                         style: { left: labelCss[0], position: "absolute", top: labelCss[1] },
                         textContent: tag.value,
                     };
@@ -65,6 +76,8 @@ export class TagDOMRenderer {
 
                         let properties: vd.createProperties = {
                             onclick: labelClick,
+                            onmousedown: activateNone,
+                            onmouseup: abort,
                             style: {
                                 left: labelCss[0],
                                 pointerEvents: "all",
@@ -81,10 +94,6 @@ export class TagDOMRenderer {
             if (!tag.editable) {
                 continue;
             }
-
-            let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                this._editAbort$.onNext(null);
-            };
 
             for (let i: number = 0; i < tag.operations.length; i++) {
                 let polygonPoint3d: number[] = tag.polygonPoints3d[i];
@@ -136,7 +145,7 @@ export class TagDOMRenderer {
                 let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
 
                 this._activeTag$.onNext({ offsetX: offsetX, offsetY: offsetY, operation: operation, tag: tag });
-                this._editInitiated$.onNext(null);
+                this._interactionInitiate$.onNext(tag.id);
         };
     }
 
