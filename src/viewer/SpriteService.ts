@@ -122,7 +122,7 @@ export class SpriteService {
         let imageXmlHTTP: XMLHttpRequest = new XMLHttpRequest();
         imageXmlHTTP.open("GET", sprite + format + ".png", true);
         imageXmlHTTP.responseType = "arraybuffer";
-        imageXmlHTTP.onload = (e: any) => {
+        imageXmlHTTP.onload = () => {
             let image: HTMLImageElement = new Image();
             image.onload = () => {
                 this._spriteAtlasOperation$.onNext(
