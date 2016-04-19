@@ -40,7 +40,6 @@ class SliderState {
     private _currentKey: string;
     private _previousKey: string;
     private _currentPano: boolean;
-    private _previousPano: boolean;
 
     private _frameId: number;
 
@@ -59,7 +58,6 @@ class SliderState {
         this._currentKey = null;
         this._previousKey = null;
         this._currentPano = false;
-        this._previousPano = false;
 
         this._frameId = 0;
 
@@ -100,8 +98,7 @@ class SliderState {
         return this._currentKey == null ||
             this._previousKey == null ||
             this._motionless ||
-            this._currentPano ||
-            this._previousPano;
+            this._currentPano;
     }
 
     public update(frame: IFrame): void {
@@ -174,7 +171,6 @@ class SliderState {
             needsRender = true;
 
             this._previousKey = state.previousNode.key;
-            this._previousPano = state.previousNode.pano;
             this._motionless = state.motionless;
             this._imagePlaneScene.setImagePlanesOld([
                 this._imagePlaneFactory.createMesh(state.previousNode, state.previousTransform),
