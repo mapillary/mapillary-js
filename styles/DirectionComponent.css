@@ -1,11 +1,8 @@
 .Directions {
     display: block;
     position: absolute;
-    width: 165px;
-    height: 165px;
-    bottom: -10px;
+    bottom: 75px;
     left: 50%;
-    margin-left: -82px;
     pointer-events: none;
 }
 

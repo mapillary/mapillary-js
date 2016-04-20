@@ -10,7 +10,7 @@ import {Container, Navigator} from "../Viewer";
 import {IFrame, IRotation} from "../State";
 import {Spatial, Camera} from "../Geo";
 
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IDirectionConfiguration} from "../Component";
 import {IVNodeHash} from "../Render";
 
 export class DirectionComponent extends Component {
@@ -18,11 +18,13 @@ export class DirectionComponent extends Component {
 
     private _spatial: Spatial;
 
-    private _disposable: rx.IDisposable;
+    private _configurationSubscription: rx.IDisposable;
+    private _stateSubscription: rx.IDisposable;
 
     private _arrowOffset: number;
     private _innerArrowOffset: number;
     private _dropShadowOffset: number;
+    private _offsetScale: number;
 
     private _currentKey: string;
     private _currentPlaneRotation: number;
@@ -35,6 +37,8 @@ export class DirectionComponent extends Component {
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._offsetScale = 1;
 
         // cssOffset is a magic number in px
         this._arrowOffset = 62;
@@ -61,6 +65,10 @@ export class DirectionComponent extends Component {
 
     }
 
+    public get defaultConfiguration(): IDirectionConfiguration {
+        return { offsetScale: 1 };
+    }
+
     protected _activate(): void {
         this._spatial = new Spatial();
 
@@ -69,7 +77,13 @@ export class DirectionComponent extends Component {
         this._currentUpRotation = 0;
         this._rotationEpsilon = 0.5 * Math.PI / 180;
 
-        this._disposable = this._navigator.stateService.currentState$
+        this._configurationSubscription = this._configuration$
+            .subscribe(
+                (configuration: IDirectionConfiguration): void => {
+                    this._offsetScale = Math.max(1, configuration.offsetScale);
+                });
+
+        this._stateSubscription = this._navigator.stateService.currentState$
             .map((frame: IFrame): IVNodeHash => {
                 let node: Node = frame.state.currentNode;
 
@@ -81,8 +95,8 @@ export class DirectionComponent extends Component {
 
                 if (node == null ||
                     (node.key === this._currentKey &&
-                    Math.abs(this._currentPlaneRotation - planeRotation) < this._rotationEpsilon &&
-                    Math.abs(this._currentUpRotation - upRotation) < this._rotationEpsilon)) {
+                    Math.abs(this._currentPlaneRotation - planeRotation) < this._rotationEpsilon / this._offsetScale &&
+                    Math.abs(this._currentUpRotation - upRotation) < this._rotationEpsilon / this._offsetScale)) {
                     return null;
                 }
 
@@ -113,7 +127,8 @@ export class DirectionComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._disposable.dispose();
+        this._stateSubscription.dispose();
+        this._configurationSubscription.dispose();
     }
 
     private _createStepArrows(node: Node, rotation: IRotation, opacity: number): Array<vd.VNode> {
@@ -301,12 +316,12 @@ export class DirectionComponent extends Component {
         let translation: Array<number> = this._calcTranslation(azimuth);
 
         // rotate 90 degrees clockwise and flip over X-axis
-        let translationX: number = -offset * translation[1];
-        let translationY: number = -offset * translation[0];
+        let translationX: number = -this._offsetScale * offset * translation[1];
+        let translationY: number = -this._offsetScale * offset * translation[0];
 
         let shadowTranslation: Array<number> = this._calcShadowTranslation(azimuth, rotation.phi);
-        let shadowTranslationX: number = -this._dropShadowOffset * shadowTranslation[1];
-        let shadowTranslationY: number = this._dropShadowOffset * shadowTranslation[0];
+        let shadowTranslationX: number = -this._offsetScale * this._dropShadowOffset * shadowTranslation[1];
+        let shadowTranslationY: number = this._offsetScale * this._dropShadowOffset * shadowTranslation[0];
 
         let azimuthDeg: number = -this._spatial.radToDeg(azimuth);
 
@@ -343,17 +358,18 @@ export class DirectionComponent extends Component {
         rotation: IRotation,
         pano: boolean): any {
 
+        let perspective: number = 325 + (this._offsetScale - 1) * 175;
         let rotateZ: number = this._spatial.radToDeg(rotation.phi);
 
         let style: any = {
-            transform: `perspective(375px) rotateX(60deg) rotateZ(${rotateZ}deg)`,
+            transform: `perspective(${perspective}px) rotateX(60deg) rotateZ(${rotateZ}deg)`,
         };
 
         return vd.h("div", {},
                     [this._getVNodePanoIndication(pano),
                      vd.h("div.DirectionsWrapper", {}, [
                          turns,
-                         vd.h("div.Directions", {style: style}, buttons),
+                         vd.h("div.Directions", { style: style }, buttons),
                      ]),
                     ]);
     }
