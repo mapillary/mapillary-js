@@ -20,19 +20,37 @@ export class CoverComponent extends Component {
     }
 
     public _activate(): void {
-        this._keyDisposable = this._navigator.stateService.currentNode$.map((node: Node): IComponentConfiguration => {
-            return {key: node.key};
-        }).subscribe(this._configurationSubject$);
+        this._keyDisposable = this._navigator.stateService.currentNode$
+            .withLatestFrom(
+                this._configuration$,
+                (node: Node, configuration: ICoverConfiguration): [Node, ICoverConfiguration] => {
+                    return [node, configuration];
+                })
+            .filter(
+                (nc: [Node, ICoverConfiguration]): boolean => {
+                    return nc[0].key !== nc[1].key;
+                })
+            .map<Node>((nc: [Node, ICoverConfiguration]): Node => { return nc[0]; })
+            .map<ICoverConfiguration>(
+                (node: Node): ICoverConfiguration => {
+                    return { key: node.key, src: node.image.src };
+                })
+            .subscribe(this._configurationSubject$);
 
-        this._disposable = this._configuration$.map((conf: ICoverConfiguration): IVNodeHash => {
-            if (!conf.key) {
-                return {name: this._name, vnode: vd.h("div", [])};
-            }
-            if (!conf.visible) {
-                return {name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this._getCoverBackgroundVNode(conf) ])};
-            }
-            return {name: this._name, vnode: this._getCoverButtonVNode(conf)};
-        }).subscribe(this._container.domRenderer.render$);
+        this._disposable = this._configuration$
+            .map(
+                (conf: ICoverConfiguration): IVNodeHash => {
+                    if (!conf.key) {
+                        return { name: this._name, vnode: vd.h("div", []) };
+                    }
+
+                    if (!conf.visible) {
+                        return {name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this._getCoverBackgroundVNode(conf) ])};
+                    }
+
+                    return { name: this._name, vnode: this._getCoverButtonVNode(conf) };
+                })
+            .subscribe(this._container.domRenderer.render$);
     }
 
     public _deactivate(): void {
@@ -41,7 +59,7 @@ export class CoverComponent extends Component {
     }
 
     public get defaultConfiguration(): IComponentConfiguration {
-        return {"loading": false, "visible": true};
+        return { "loading": false, "visible": true };
     }
 
     private _getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
@@ -54,15 +72,18 @@ export class CoverComponent extends Component {
 
         return vd.h("div.Cover", [
             this._getCoverBackgroundVNode(conf),
-            vd.h("button.CoverButton", {onclick: (): void => { this.configure({loading: true}); }}, [
+            vd.h("button.CoverButton", {onclick: (): void => { this.configure({ loading: true }); }}, [
                 vd.h(coverBtn, {}, children),
             ]),
         ]);
     }
 
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
-        let url: string = `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-320.jpg)`;
-        return vd.h("div.CoverBackground", { style: { backgroundImage: url }}, []);
+        let url: string = conf.src != null ?
+            `url(${conf.src})` :
+            `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-320.jpg)`;
+
+        return vd.h("div.CoverBackground", { style: { backgroundImage: url } }, []);
     }
 }
 
