@@ -57,7 +57,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
             } :
             apiNavImIm;
 
-        return new Node(key, 0, latLonAlt, true, sequence, apiNavImIm, []);
+        return new Node(0, latLonAlt, true, sequence, apiNavImIm, []);
     };
 
     let createRotationVector = (azimuth: number, norm: number = Math.PI / 2): number[] => {
@@ -80,7 +80,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
     });
 
     it("should return empty array when node is not worthy", () => {
-        let node: Node = new Node("key", 0, null, false, null, null, null);
+        let node: Node = new Node(0, null, false, null, { key: "" }, null);
 
         let result: IPotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, null, []);

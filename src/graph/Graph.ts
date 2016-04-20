@@ -135,18 +135,7 @@ export class Graph {
                 }
             }
 
-            let node: Node = new Node(
-                im.key,
-                ca,
-                latLon,
-                false,
-                sequence,
-                im,
-                hs
-            );
-
-            node.user = im.user;
-            node.capturedAt = im.captured_at;
+            let node: Node = new Node(ca, latLon, false, sequence, im, hs);
 
             this._unWorthyNodes[im.key] = true;
 

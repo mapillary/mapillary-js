@@ -38,7 +38,7 @@ export class EdgeCalculatorHelper {
             }
         }
 
-        let node: Node = new Node(key, 0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, []);
+        let node: Node = new Node(0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, []);
 
         return node;
     }

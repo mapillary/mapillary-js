@@ -15,7 +15,7 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r }, []);
+        let node: Node = new Node(0, null, true, null, { key: "", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
         let Rt: THREE.Matrix4 = transform.rt;
@@ -45,7 +45,7 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, Math.PI];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, []);
+        let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
         let Rt: THREE.Matrix4 = transform.rt;
@@ -75,7 +75,7 @@ describe("Transform.rt", () => {
         let r: number[] = [Math.PI / 2, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, []);
+        let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
         let Rt: THREE.Matrix4 = transform.rt;
@@ -105,7 +105,7 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node("key", 0, null, true, null, { key: "key", rotation: r }, []);
+        let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
         let Rt: THREE.Matrix4 = transform.rt;
@@ -139,7 +139,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 1 }, []);
+        let node: Node = new Node(0, null, true, null, { key: "", rotation: r, atomic_scale: 1 }, []);
 
         let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -169,7 +169,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, Math.PI / 2, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 3 }, []);
+        let node: Node = new Node(0, null, true, null, { key: "", rotation: r, atomic_scale: 3 }, []);
 
         let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -199,7 +199,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [-10, 20, -30];
 
-        let node: Node = new Node("", 0, null, true, null, { key: "", rotation: r, atomic_scale: 0.5 }, []);
+        let node: Node = new Node(0, null, true, null, { key: "", rotation: r, atomic_scale: 0.5 }, []);
 
         let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -230,7 +230,7 @@ describe("Transform.width", () => {
     it("should have fallback width", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -244,7 +244,7 @@ describe("Transform.width", () => {
 
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { width: width, key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -258,7 +258,7 @@ describe("Transform.height", () => {
     it("should have fallback height", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { height: -1, key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -272,7 +272,7 @@ describe("Transform.height", () => {
 
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { height: height, key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -286,7 +286,7 @@ describe("Transform.focal", () => {
     it("should have fallback focal", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -300,7 +300,7 @@ describe("Transform.focal", () => {
 
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { cfocal: focal, key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -314,7 +314,7 @@ describe("Transform.orientation", () => {
     it("should have fallback orientation", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -328,7 +328,7 @@ describe("Transform.orientation", () => {
 
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { orientation: orientation, key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -342,7 +342,7 @@ describe("Transform.scale", () => {
     it("should have fallback scale", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -356,7 +356,7 @@ describe("Transform.scale", () => {
 
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { atomic_scale: scale, key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -370,7 +370,7 @@ describe("Transform.gpano", () => {
     it("should not have gpano set", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -391,7 +391,7 @@ describe("Transform.gpano", () => {
 
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { gpano: gpano, key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -413,7 +413,7 @@ describe("Transform.pixelToVertex", () => {
     it("should return vertex at origin", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -429,7 +429,7 @@ describe("Transform.pixelToVertex", () => {
     it("should return vertex at inverted translation", () => {
         let t: number[] = [10, -20, 30];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -448,7 +448,7 @@ describe("Transform.pixelToVertex", () => {
         let t: number[] = geoHelper.getTranslation(r, C);
 
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: r },
             []);
 
@@ -464,7 +464,7 @@ describe("Transform.pixelToVertex", () => {
     it("should return vertex 10 units front of origin in camera direction", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -484,7 +484,7 @@ describe("Transform.pixelToVertex", () => {
         let t: number[] = geoHelper.getTranslation(r, C);
 
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: r },
             []);
 
@@ -505,7 +505,7 @@ describe("Transform.projectBasic", () => {
     it("should project to the image center", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -520,7 +520,7 @@ describe("Transform.projectBasic", () => {
     it("should project to the first quadrant", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0, 0, 0] },
             []);
 
@@ -539,7 +539,7 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel", () => {
         let t: number[] = [10, 20, 30];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             { key: "",  rotation: [0.1, 0.2, 0.3] },
             []);
 
@@ -558,7 +558,7 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for full pano", () => {
         let t: number[] = [5, 15, 2];
         let node: Node = new Node(
-            "", 0, null, true, null,
+            0, null, true, null,
             {
                 gpano: {
                     CroppedAreaLeftPixels: 0,

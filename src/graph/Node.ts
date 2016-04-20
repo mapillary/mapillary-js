@@ -14,143 +14,109 @@ interface ILoadStatusObject {
 }
 
 export class Node {
-    public key: string;
-    public user: string;
-    public capturedAt: number;
-    public ca: number;
-    public latLon: ILatLon;
     public worthy: boolean;
-    public sequence: Sequence;
-    public apiNavImIm: IAPINavImIm;
     public cached: boolean;
+
     public lastCacheEvict: number;
     public lastUsed: number;
 
-    public image: any;
-    public mesh: IMesh;
-    public edges: IEdge[];
+    private _apiNavImIm: IAPINavImIm;
+    private _key: string;
+    private _ca: number;
+    private _latLon: ILatLon;
+    private _sequence: Sequence;
 
-    public hs: string[];
+    private _hs: string[];
 
-    public loadStatus: ILoadStatus;
+    private _image: HTMLImageElement;
+    private _mesh: IMesh;
+    private _edges: IEdge[];
+
+    private _loadStatus: ILoadStatus;
 
     constructor (
-        key: string,
         ca: number,
         latLon: ILatLon,
         worthy: boolean,
         sequence: Sequence,
         apiNavImIm: IAPINavImIm,
         hs: string[]) {
-        this.key = key;
-        this.ca = ca;
-        this.latLon = latLon;
+
+        this._apiNavImIm = apiNavImIm;
+        this._key = apiNavImIm.key;
+        this._ca = ca;
+        this._latLon = latLon;
+        this._sequence = sequence;
+
+        this._hs = hs;
+
+        this._image = null;
+        this._mesh = null;
+        this._edges = null;
+
         this.worthy = worthy;
-        this.sequence = sequence;
-        this.apiNavImIm = apiNavImIm;
         this.cached = false;
+
         this.lastCacheEvict = 0;
         this.lastUsed = new Date().getTime();
 
-        this.hs = hs;
-
-        this.loadStatus = {loaded: 0, total: 100};
+        this._loadStatus = { loaded: 0, total: 100 };
     }
 
-    public cacheAssets(): rx.Observable<Node> {
-        return this.cacheImage().combineLatest(this.cacheMesh(), (image: ILoadStatusObject, mesh: ILoadStatusObject): Node => {
-            this.loadStatus.loaded = 0;
-            this.loadStatus.total = 0;
-
-            if (mesh) {
-                this.mesh = mesh.object;
-                this.loadStatus.loaded += mesh.loaded.loaded;
-                this.loadStatus.total += mesh.loaded.total;
-            }
-            if (image) {
-                this.image = image.object;
-                this.loadStatus.loaded += image.loaded.loaded;
-                this.loadStatus.total += image.loaded.total;
-            }
-            return this;
-        });
+    public get apiNavImIm(): IAPINavImIm {
+        return this._apiNavImIm;
     }
 
-    public cacheImage(): rx.Observable<ILoadStatusObject> {
-        return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
-            let img: HTMLImageElement = new Image();
-            img.crossOrigin = "Anonymous";
-
-            if (process.env.MAPENV === "development") {
-                observer.onNext({loaded: {loaded: 1, total: 1}, object: this.image});
-                observer.onCompleted();
-                return;
-            }
-
-            let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", Urls.image(this.key, Settings.baseImageSize), true);
-            xmlHTTP.responseType = "arraybuffer";
-            xmlHTTP.onload = (e: any) => {
-                img.onload = () => {
-                    observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: img});
-                    observer.onCompleted();
-                };
-
-                img.onerror = (err: Event) => {
-                    observer.onError(err);
-                };
-
-                let blob: Blob = new Blob([xmlHTTP.response]);
-                img.src = window.URL.createObjectURL(blob);
-            };
-            xmlHTTP.onprogress = (e: any) => {
-                observer.onNext({loaded: {loaded: e.loaded, total: e.total}, object: null});
-            };
-            xmlHTTP.send();
-        });
+    public get user(): string {
+        return this._apiNavImIm.user;
     }
 
-    public cacheMesh(): rx.Observable<ILoadStatusObject> {
-        return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
-            if (process.env.MAPENV === "development") {
-                observer.onNext({loaded: {loaded: 1, total: 1}, object: { faces: [[-1]], vertices: [[-1]] }});
-                observer.onCompleted();
-                return;
-            }
+    public get capturedAt(): number {
+        return this._apiNavImIm.captured_at;
+    }
 
-            if (!this.merged) {
-                let mesh: IMesh = { faces: [], vertices: [] };
-                observer.onNext({ loaded: { loaded: 0, total: 0 }, object: mesh });
-                observer.onCompleted();
+    public get key(): string {
+        return this._key;
+    }
 
-                return;
-            }
+    public get ca(): number {
+        return this._ca;
+    }
 
-            let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
-            xmlHTTP.responseType = "arraybuffer";
-            xmlHTTP.onload = (e: any) => {
-                let mesh: IMesh;
-                if (xmlHTTP.status === 200) {
-                    mesh = MeshReader.read(new Buffer(xmlHTTP.response));
-                } else {
-                    mesh = { faces: [], vertices: [] };
-                }
+    public get latLon(): ILatLon {
+        return this._latLon;
+    }
 
-                observer.onNext({ loaded: {loaded: e.loaded, total: e.total }, object: mesh });
-                observer.onCompleted();
-            };
+    public get sequence(): Sequence {
+        return this._sequence;
+    }
 
-            xmlHTTP.onprogress = (e: any) => {
-                observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: null});
-            };
+    public get hs(): string[] {
+        return this._hs;
+    }
 
-            xmlHTTP.send(null);
-        });
+    public get image(): HTMLImageElement {
+        return this._image;
+    }
+
+    public get mesh(): IMesh {
+        return this._mesh;
+    }
+
+    public get edges(): IEdge[] {
+        return this._edges;
+    }
+
+    public set edges(value: IEdge[]) {
+        this._edges = value;
+    }
+
+    public get loadStatus(): ILoadStatus {
+        return this._loadStatus;
     }
 
     public get loaded(): boolean {
-        return this.cached && this.image != null;
+        return this.cached && this._image != null;
     }
 
     public get merged(): boolean {
@@ -184,6 +150,100 @@ export class Node {
             return null;
         }
         return this.sequence.findPrevKey(this.key);
+    }
+
+    public cacheAssets(): rx.Observable<Node> {
+        return this.cacheImage().combineLatest(this.cacheMesh(), (image: ILoadStatusObject, mesh: ILoadStatusObject): Node => {
+            this._loadStatus.loaded = 0;
+            this._loadStatus.total = 0;
+
+            if (mesh) {
+                this._mesh = mesh.object;
+                this._loadStatus.loaded += mesh.loaded.loaded;
+                this._loadStatus.total += mesh.loaded.total;
+            }
+
+            if (image) {
+                this._image = image.object;
+                this._loadStatus.loaded += image.loaded.loaded;
+                this._loadStatus.total += image.loaded.total;
+            }
+
+            return this;
+        });
+    }
+
+    public cacheImage(): rx.Observable<ILoadStatusObject> {
+        return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
+            let img: HTMLImageElement = new Image();
+            img.crossOrigin = "Anonymous";
+
+            if (process.env.MAPENV === "development") {
+                observer.onNext({ loaded: {loaded: 1, total: 1}, object: this._image });
+                observer.onCompleted();
+                return;
+            }
+
+            let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+            xmlHTTP.open("GET", Urls.image(this.key, Settings.baseImageSize), true);
+            xmlHTTP.responseType = "arraybuffer";
+            xmlHTTP.onload = (e: any) => {
+                img.onload = () => {
+                    observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: img });
+                    observer.onCompleted();
+                };
+
+                img.onerror = (err: Event) => {
+                    observer.onError(err);
+                };
+
+                let blob: Blob = new Blob([xmlHTTP.response]);
+                img.src = window.URL.createObjectURL(blob);
+            };
+            xmlHTTP.onprogress = (e: any) => {
+                observer.onNext({loaded: { loaded: e.loaded, total: e.total}, object: null });
+            };
+            xmlHTTP.send();
+        });
+    }
+
+    public cacheMesh(): rx.Observable<ILoadStatusObject> {
+        return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
+            if (process.env.MAPENV === "development") {
+                observer.onNext({loaded: { loaded: 1, total: 1}, object: { faces: [[-1]], vertices: [[-1]] } });
+                observer.onCompleted();
+                return;
+            }
+
+            if (!this.merged) {
+                let mesh: IMesh = { faces: [], vertices: [] };
+                observer.onNext({ loaded: { loaded: 0, total: 0 }, object: mesh });
+                observer.onCompleted();
+
+                return;
+            }
+
+            let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+            xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
+            xmlHTTP.responseType = "arraybuffer";
+            xmlHTTP.onload = (e: any) => {
+                let mesh: IMesh;
+                if (xmlHTTP.status === 200) {
+                    mesh = MeshReader.read(new Buffer(xmlHTTP.response));
+                } else {
+                    mesh = { faces: [], vertices: [] };
+                }
+
+                observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: mesh });
+                observer.onCompleted();
+            };
+
+            xmlHTTP.onprogress = (e: any) => {
+                observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: null });
+            };
+
+            xmlHTTP.send(null);
+        });
     }
 }
 
