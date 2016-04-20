@@ -10,21 +10,14 @@ import {Container, Navigator} from "../Viewer";
 export class CacheComponent extends Component {
     public static componentName: string = "cache";
 
-    private _defaultConfiguration: ICacheConfiguration;
-
     private _cacheSubscription: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+    }
 
-        this._defaultConfiguration = {
-            depth: {
-                pano: 1,
-                sequence: 2,
-                step: 1,
-                turn: 0,
-            },
-        };
+    public get defaultConfiguration(): ICacheConfiguration {
+        return { depth: { pano: 1, sequence: 2, step: 1, turn: 0 } };
     }
 
     /**
@@ -52,9 +45,7 @@ export class CacheComponent extends Component {
                     let node: Node = nc[0];
                     let configuration: ICacheConfiguration = nc[1];
 
-                    let depth: ICacheDepth = configuration.depth != null ?
-                        configuration.depth :
-                        this._defaultConfiguration.depth;
+                    let depth: ICacheDepth = configuration.depth;
 
                     let sequenceDepth: number = Math.max(0, Math.min(4, depth.sequence));
                     let panoDepth: number = Math.max(0, Math.min(2, depth.pano));

@@ -5,7 +5,7 @@ import * as rx from "rx";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {IFrame} from "../State";
-import {IComponentConfiguration, IPlayerConfiguration, ComponentService, Component} from "../Component";
+import {IPlayerConfiguration, ComponentService, Component} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
 interface IConfigurationOperation {
@@ -100,7 +100,7 @@ export class PlayerComponent extends Component {
         this._configurationSubscription.dispose();
     }
 
-    public get defaultConfiguration(): IComponentConfiguration {
+    public get defaultConfiguration(): IPlayerConfiguration {
         return { playing: false };
     }
 

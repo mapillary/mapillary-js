@@ -24,15 +24,20 @@ export abstract class Component extends EventEmitter {
         this._name = name;
 
         this._configuration$ =
-            this._configurationSubject$.scan<IComponentConfiguration>(
-                (conf: IComponentConfiguration, newConf: IComponentConfiguration): IComponentConfiguration => {
-                    for (let key in newConf) {
-                        if (newConf.hasOwnProperty(key)) {
-                            conf[key] = <any>newConf[key];
+            this._configurationSubject$
+                .startWith(this.defaultConfiguration)
+                .scan<IComponentConfiguration>(
+                    (conf: IComponentConfiguration, newConf: IComponentConfiguration): IComponentConfiguration => {
+                        for (let key in newConf) {
+                            if (newConf.hasOwnProperty(key)) {
+                                conf[key] = <any>newConf[key];
+                            }
                         }
-                    }
-                    return conf;
-                }).shareReplay(1);
+
+                        return conf;
+                    })
+                .shareReplay(1);
+
         this._configuration$.subscribe();
     }
 
@@ -41,9 +46,7 @@ export abstract class Component extends EventEmitter {
             return;
         }
 
-        if (conf === undefined) {
-            this._configurationSubject$.onNext(this.defaultConfiguration);
-        } else {
+        if (conf !== undefined) {
             this._configurationSubject$.onNext(conf);
         }
 
