@@ -8,6 +8,7 @@ var del = require('del')
 var fs = require('fs')
 var KarmaServer = require('karma').Server
 var minifyCSS = require('gulp-minify-css')
+var path = require('path')
 var source = require('vinyl-source-stream')
 var standard = require('gulp-standard')
 var shell = require('gulp-shell')
@@ -112,14 +113,14 @@ gulp.task('serve', ['ts'], function () {
 gulp.task('test', function (done) {
   var config
   if (argv.grep) {
-    config = extendKarmaConfig(__dirname + '/karma.conf.js', {
+    config = extendKarmaConfig(path.join(__dirname, 'karma.conf.js'), {
       client: {
         args: ['--grep', argv.grep]
       },
       singleRun: true
     })
   } else {
-    config = extendKarmaConfig(__dirname + '/karma.conf.js', {
+    config = extendKarmaConfig(path.join(__dirname, 'karma.conf.js'), {
       singleRun: true
     })
   }
@@ -134,14 +135,14 @@ gulp.task('test', function (done) {
 gulp.task('test-watch', function (done) {
   var config
   if (argv.grep) {
-    config = extendKarmaConfig(__dirname + '/karma.conf.js', {
+    config = extendKarmaConfig(path.join(__dirname, 'karma.conf.js'), {
       client: {
         args: ['--grep', argv.grep]
       },
       singleRun: false
     })
   } else {
-    config = extendKarmaConfig(__dirname + '/karma.conf.js', {
+    config = extendKarmaConfig(path.join(__dirname, 'karma.conf.js'), {
       singleRun: false
     })
   }
