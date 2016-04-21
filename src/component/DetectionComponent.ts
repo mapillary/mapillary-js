@@ -88,8 +88,17 @@ export class DetectionComponent extends Component {
                 return (el * 100) + "%";
             });
 
-            vRects.push(vd.h("div.Rect", {style: this._getRectStyle(rectMapped)}, [
-                vd.h("span", {style: "color: red;", textContent: r.value}, []),
+            let properties: vd.createProperties = {
+                style: {
+                    bottom: rectMapped[3],
+                    left: rectMapped[0],
+                    right: rectMapped[2],
+                    top: rectMapped[1],
+                },
+            };
+
+            vRects.push(vd.h("div.Rect", properties, [
+                vd.h("span", { style: { color: "red" }, textContent: r.value }, []),
             ]));
         });
 
@@ -101,10 +110,6 @@ export class DetectionComponent extends Component {
         adjustedCoords[2] = 1 - adjustedCoords[2];
         adjustedCoords[3] = 1 - adjustedCoords[3];
         return adjustedCoords;
-    }
-
-    private _getRectStyle(mappedRect: Array<string>): string {
-        return `top:${mappedRect[1]}; bottom:${mappedRect[3]}; right:${mappedRect[2]}; left:${mappedRect[0]}`;
     }
 }
 
