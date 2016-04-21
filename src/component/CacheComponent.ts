@@ -7,6 +7,8 @@ import {Node} from "../Graph";
 import {ComponentService, Component, ICacheConfiguration, ICacheDepth} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
+type NodeDepth = [Node, number];
+
 export class CacheComponent extends Component {
     public static componentName: string = "cache";
 
@@ -68,19 +70,22 @@ export class CacheComponent extends Component {
 
                     return rx.Observable
                         .merge<Node>([
-                            next$,
-                            prev$,
-                            forward$,
-                            backward$,
-                            left$,
-                            right$,
-                            pano$,
-                            turnLeft$,
-                            turnRight$,
-                            turnU$,
-                        ]);
+                                next$,
+                                prev$,
+                                forward$,
+                                backward$,
+                                left$,
+                                right$,
+                                pano$,
+                                turnLeft$,
+                                turnRight$,
+                                turnU$,
+                            ])
+                        .distinct((n: Node): string => { return n.key; });
                 })
-            .subscribe();
+            .subscribe(
+                (n: Node): void => { return; },
+                (e: Error): void => { console.error(e); });
     }
 
     protected _deactivate(): void {
@@ -88,24 +93,31 @@ export class CacheComponent extends Component {
     }
 
     private _cache$(node: Node, direction: EdgeDirection, depth: number): rx.Observable<Node> {
-        if (depth < 1) {
-            return rx.Observable.empty<Node>();
-        }
-
         return rx.Observable
-            .just(node)
+            .just<NodeDepth>([node, depth])
             .expand(
-                (n: Node): rx.Observable<Node> => {
-                    for (let edge of n.edges) {
-                        if (edge.data.direction === direction) {
-                            return this._navigator.graphService.node$(edge.to);
+                (nd: NodeDepth): rx.Observable<NodeDepth> => {
+                    let n: Node = nd[0];
+                    let d: number = nd[1];
+
+                    let nodes$: rx.Observable<NodeDepth>[] = [rx.Observable.empty<NodeDepth>()];
+
+                    if (d > 0) {
+                        for (let edge of n.edges) {
+                            if (edge.data.direction === direction) {
+                                nodes$.push(
+                                    rx.Observable
+                                        .zip<Node, number, NodeDepth>(
+                                            this._navigator.graphService.node$(edge.to),
+                                            rx.Observable.just<number>(d - 1)));
+                            }
                         }
                     }
 
-                    return rx.Observable.empty<Node>();
+                    return rx.Observable.merge(nodes$);
                 })
             .skip(1)
-            .take(depth);
+            .map<Node>((nd: NodeDepth): Node => { return nd[0]; });
     }
 }
 
