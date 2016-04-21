@@ -1,6 +1,11 @@
 import {ImageSize} from "../../Viewer";
 import {RenderMode} from "../../Render";
 
+/**
+ * Interface for the options that can be provided to the viewer.
+ *
+ * @interface
+ */
 export interface IViewerOptions {
     /**
      * Show attribution
@@ -121,6 +126,12 @@ export interface IViewerOptions {
      * @default {ImageSize.Size640}
      */
     baseImageSize?: ImageSize;
+
+    /**
+     * Default size of the thumbnail used for panoramas in the viewer
+     * @default {ImageSize.Size2048}
+     */
+    basePanoramaSize?: ImageSize;
 
     /**
      * The max size of an image shown in the viewer

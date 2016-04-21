@@ -7,6 +7,7 @@ import {IEdge} from "../Edge";
 import {ILatLon} from "../Geo";
 import {IMesh, ILoadStatus, MeshReader, Sequence} from "../Graph";
 import {Settings, Urls} from "../Utils";
+import {ImageSize} from "../Viewer";
 
 interface ILoadStatusObject {
     loaded: ILoadStatus;
@@ -185,7 +186,11 @@ export class Node {
             }
 
             let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", Urls.image(this.key, Settings.baseImageSize), true);
+            let imageSize: ImageSize = this.fullPano ?
+                Settings.basePanoramaSize :
+                Settings.baseImageSize;
+
+            xmlHTTP.open("GET", Urls.image(this.key, imageSize), true);
             xmlHTTP.responseType = "arraybuffer";
             xmlHTTP.onload = (e: any) => {
                 img.onload = () => {

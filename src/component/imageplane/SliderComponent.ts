@@ -504,7 +504,9 @@ export class SliderComponent extends Component {
                 this._navigator.stateService.currentNode$)
             .filter(
                 (node: Node): boolean => {
-                    return Settings.maxImageSize > Settings.baseImageSize;
+                    return node.pano ?
+                        Settings.maxImageSize > Settings.basePanoramaSize :
+                        Settings.maxImageSize > Settings.baseImageSize;
                 })
             .flatMap(
                 (node: Node): rx.Observable<[THREE.Texture, Node]> => {
