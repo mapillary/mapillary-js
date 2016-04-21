@@ -4,6 +4,7 @@
   "description": "WebGL JavaScript library for displaying street level imagery from mapillary.com",
   "main": "dist/mapillary-js.min",
   "scripts": {
+    "gulp": "gulp",
     "test": "./node_modules/karma/bin/karma start",
     "prepublish": "./node_modules/gulp/bin/gulp.js prepublish"
   },

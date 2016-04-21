@@ -12,8 +12,8 @@ WebGL JavaScript library for displaying street level photos from [Mapillary](htt
 
 Include via HTML tags:
 ```html
-<link rel="stylesheet" href="https://npmcdn.com/mapillary-js@0.0.5/dist/mapillary-js.min.css">
-<script src="https://npmcdn.com/mapillary-js@0.0.5/dist/mapillary-js.min.js"></script>
+<link rel="stylesheet" href="https://npmcdn.com/mapillary-js@1.2.0/dist/mapillary-js.min.css">
+<script src="https://npmcdn.com/mapillary-js@1.2.0/dist/mapillary-js.min.js"></script>
 ```
 
 Make sure to check out [Examples](https://github.com/mapillary/mapillary-js#examples) section below or [API Documentation](https://mapillary.github.io/mapillary-js) for more information.
@@ -31,10 +31,43 @@ Alternatively, you can `npm install mapillary-js` to use it with module loader/b
 - [Slider displaying difference in two photos](http://bl.ocks.org/knikel/bc0f813f611a8787ff02)
 
 ## Documentation
-- [Developing mapillary-js](https://github.com/mapillary/mapillary-js/blob/master/docs/developing.md)
+- [Developing with mapillary-js](https://github.com/mapillary/mapillary-js/blob/master/docs/developing.md)
 - [Extending mapillary-js with plugins](https://github.com/mapillary/mapillary-js/blob/master/docs/plugins.md)
 - [Glossary](https://github.com/mapillary/mapillary-js/blob/master/docs/glossary.md)
 - [API Reference](https://mapillary.github.io/mapillary-js)
+
+## Developing mapillary-js
+
+### Preparing your Development Environment
+
+#### Linux
+
+Install [GNU Make](http://www.gnu.org/software/make/) and [git](https://git-scm.com/):
+```bash
+sudo apt-get update
+sudo apt-get install build-essential git
+```
+
+Install [node.js]([node.js](https://nodejs.org/) _5.x_ and [npm](https://www.npmjs.com/) according to the [node.js package manager installation instructions]((https://nodejs.org/en/download/package-manager/).
+
+Clone a copy of the repo:
+```bash
+git clone https://github.com/mapillary/mapillary-js.git
+```
+
+Change to the mapillary-js directory and install node module dependencies:
+```bash
+cd mapillary-js
+npm install
+```
+
+### Serving the Debug Page
+
+```bash
+npm run gulp
+```
+
+Open the debug page at [http://localhost:3000](http://localhost:9966)
 
 ## Changelog
 
