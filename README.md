@@ -48,7 +48,7 @@ sudo apt-get update
 sudo apt-get install build-essential git
 ```
 
-Install [node.js]([node.js](https://nodejs.org/) _5.x_ and [npm](https://www.npmjs.com/) according to the [node.js package manager installation instructions]((https://nodejs.org/en/download/package-manager/).
+Install [node.js](https://nodejs.org/) _5.x_ and [npm](https://www.npmjs.com/) according to the [node.js package manager installation instructions](https://nodejs.org/en/download/package-manager/).
 
 Clone a copy of the repo:
 ```bash
@@ -67,7 +67,7 @@ npm install
 npm run gulp
 ```
 
-Open the debug page at [http://localhost:3000](http://localhost:9966)
+Open the debug page at [http://localhost:3000](http://localhost:9966).
 
 ## Changelog
 
