@@ -3,6 +3,7 @@
 import * as rx from "rx";
 
 import {IAPINavIm, APIv2, APIv3} from "../API";
+import {EdgeDirection} from "../Edge";
 import {VectorTilesService, Graph, ImageLoadingService, Node, TilesService} from "../Graph";
 
 interface IGraphOperation extends Function {
@@ -116,7 +117,7 @@ export class GraphService {
         }).take(1);
     }
 
-    public nextNode$(node: Node, dir: number): rx.Observable<Node> {
+    public nextNode$(node: Node, dir: EdgeDirection): rx.Observable<Node> {
         if (!node.cached) {
             rx.Observable.throw<Node>(new Error("node is not yet cached"));
         }
