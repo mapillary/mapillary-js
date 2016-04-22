@@ -21,6 +21,7 @@ export {SequenceComponent} from "./component/SequenceComponent";
 export {SphereComponent} from "./component/SphereComponent";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
 export {ImagePlaneFactory} from "./component/imageplane/ImagePlaneFactory";
+export {ImagePlaneGLRenderer} from "./component/imageplane/ImagePlaneGLRenderer";
 export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene";
 export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders";
 export {SimpleMarker} from "./component/marker/SimpleMarker";
