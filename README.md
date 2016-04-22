@@ -67,7 +67,7 @@ npm install
 npm run gulp
 ```
 
-Open the debug page at [http://localhost:3000](http://localhost:9966).
+Open the debug page at [http://localhost:3000](http://localhost:3000).
 
 ## Changelog
 
