@@ -115,7 +115,7 @@ export class RenderCamera {
         perspectiveCameraAspect: number): number {
 
         if (pano) {
-            return 4 / 3 > perspectiveCameraAspect ? perspectiveCameraAspect : 4 / 3;
+            return 4 / 3;
         }
 
         let coeff: number = orientation < 5 ?
