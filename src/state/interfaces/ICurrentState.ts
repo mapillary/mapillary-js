@@ -5,6 +5,7 @@ export interface ICurrentState {
     reference: ILatLonAlt;
     alpha: number;
     camera: Camera;
+    zoom: number;
     currentNode: Node;
     previousNode: Node;
     trajectory: Node[];

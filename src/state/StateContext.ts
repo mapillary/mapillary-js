@@ -19,6 +19,7 @@ export class StateContext implements IStateContext {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            zoom: 0,
         });
     }
 
@@ -50,6 +51,10 @@ export class StateContext implements IStateContext {
 
     public get camera(): Camera {
         return this._state.camera;
+    }
+
+    public get zoom(): number {
+        return this._state.zoom;
     }
 
     public get currentNode(): Node {

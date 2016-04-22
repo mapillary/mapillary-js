@@ -7,6 +7,7 @@ import {RenderMode} from "../Render";
 
 export class RenderCamera {
     public alpha: number;
+    public zoom: number;
     public currentAspect: number;
     public currentOrientation: number;
     public currentPano: boolean;
@@ -88,7 +89,7 @@ export class RenderCamera {
 
         let aspect: number = (1 - this.alpha) * previousAspect + this.alpha * currentAspect;
 
-        let verticalFov: number = this._getVerticalFov(aspect, this._camera.focal);
+        let verticalFov: number = this._getVerticalFov(aspect, this._camera.focal, this.zoom);
 
         this._perspective.fov = verticalFov;
         this._perspective.updateProjectionMatrix();
@@ -104,8 +105,8 @@ export class RenderCamera {
         this._changed = true;
     }
 
-    private _getVerticalFov(aspect: number, focal: number): number {
-        return 2 * Math.atan(0.5 / aspect / focal) * 180 / Math.PI;
+    private _getVerticalFov(aspect: number, focal: number, zoom: number): number {
+        return Math.pow(2, 1 - zoom) * Math.atan(0.5 / aspect / focal) * 180 / Math.PI;
     }
 
     private _getAspect(

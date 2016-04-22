@@ -72,7 +72,9 @@ export class RenderService {
                     return (rc: RenderCamera): RenderCamera => {
                         let camera: Camera = frame.state.camera;
 
-                        if (rc.alpha !== frame.state.alpha || rc.camera.diff(camera) > 0.00001) {
+                        if (rc.alpha !== frame.state.alpha ||
+                            rc.zoom !== frame.state.zoom ||
+                            rc.camera.diff(camera) > 0.00001) {
                             let currentTransform: Transform = frame.state.currentTransform;
                             let previousTransform: Transform = frame.state.previousTransform;
 
@@ -88,6 +90,7 @@ export class RenderService {
                             rc.previousPano = frame.state.previousNode != null && frame.state.previousNode.fullPano;
 
                             rc.alpha = frame.state.alpha;
+                            rc.zoom = frame.state.zoom;
 
                             rc.camera.copy(camera);
                             rc.updatePerspective(camera);

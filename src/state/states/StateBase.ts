@@ -14,6 +14,7 @@ export abstract class StateBase implements IState {
 
     protected _alpha: number;
     protected _camera: Camera;
+    protected _zoom: number;
 
     protected _currentIndex: number;
 
@@ -41,6 +42,8 @@ export abstract class StateBase implements IState {
 
         this._alpha = state.alpha;
         this._camera = state.camera.clone();
+        this._zoom = state.zoom;
+
         this._currentIndex = state.currentIndex;
 
         this._trajectory = state.trajectory.slice();
@@ -82,6 +85,10 @@ export abstract class StateBase implements IState {
 
     public get camera(): Camera {
         return this._camera;
+    }
+
+    public get zoom(): number {
+        return this._zoom;
     }
 
     public get trajectory(): Node[] {
