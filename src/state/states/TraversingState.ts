@@ -162,8 +162,10 @@ export class TraversingState extends StateBase {
         }
 
         this._updateRotation();
-        this._applyRotation(this._previousCamera);
-        this._applyRotation(this._currentCamera);
+        if (!this._rotationDelta.isZero) {
+            this._applyRotation(this._previousCamera);
+            this._applyRotation(this._currentCamera);
+        }
 
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }
