@@ -12,11 +12,6 @@ interface IConfigurationOperation {
     (configuration: IPlayerConfiguration): IPlayerConfiguration;
 }
 
-interface INodes {
-    last: Node;
-    next: Node;
-}
-
 export class PlayerComponent extends Component {
     public static componentName: string = "player";
 
@@ -101,7 +96,7 @@ export class PlayerComponent extends Component {
     }
 
     public get defaultConfiguration(): IPlayerConfiguration {
-        return { playing: false };
+        return { direction: EdgeDirection.Next, playing: false };
     }
 
     /**
@@ -122,6 +117,15 @@ export class PlayerComponent extends Component {
         this.configure({ playing: false });
     }
 
+    /**
+     * Set the direction to follow when started.
+     *
+     * @param {EdgeDirection} direction - The direction that will be followed when started.
+     */
+    public setDirection(direction: EdgeDirection): void {
+        this.configure({ direction: direction });
+    }
+
     private _play(): void {
         this._playingSubscription = this._navigator.stateService.currentState$
             .filter(
@@ -136,12 +140,14 @@ export class PlayerComponent extends Component {
                  (lastNode: Node): string => {
                      return lastNode.key;
                  })
+            .withLatestFrom(
+                this._configuration$,
+                (lastNode: Node, configuration: IPlayerConfiguration): [Node, EdgeDirection] => {
+                    return [lastNode, configuration.direction];
+                })
             .flatMapLatest<Node>(
-                (lastNode: Node): rx.Observable<Node> => {
-                    return this._navigator.graphService
-                        .nextNode$(
-                            lastNode,
-                            EdgeDirection.Next);
+                (nd: [Node, EdgeDirection]): rx.Observable<Node> => {
+                    return this._navigator.graphService.nextNode$(nd[0], nd[1]);
                 })
             .subscribe(
                 (node: Node): void => {
