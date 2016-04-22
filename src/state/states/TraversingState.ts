@@ -85,7 +85,7 @@ export class TraversingState extends StateBase {
         this._rotationDelta = new RotationDelta(0, 0);
         this._requestedRotationDelta = null;
         this._rotationAcceleration = 0.86;
-        this._rotationIncreaseAlpha = 0.25;
+        this._rotationIncreaseAlpha = 0.97;
         this._rotationDecreaseAlpha = 0.9;
         this._rotationThreshold = 0.001;
     }
