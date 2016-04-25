@@ -128,4 +128,8 @@ export class StateContext implements IStateContext {
     public moveTo(delta: number): void {
         this._state.moveTo(delta);
     }
+
+    public zoomIn(delta: number): void {
+        this._state.zoomIn(delta);
+    }
 }

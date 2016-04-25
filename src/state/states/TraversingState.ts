@@ -72,6 +72,10 @@ export class TraversingState extends StateBase {
     private _rotationDecreaseAlpha: number;
     private _rotationThreshold: number;
 
+    private _desiredZoom: number;
+    private _minZoom: number;
+    private _maxZoom: number;
+
     constructor (state: IState) {
         super(state);
 
@@ -88,6 +92,10 @@ export class TraversingState extends StateBase {
         this._rotationIncreaseAlpha = 0.97;
         this._rotationDecreaseAlpha = 0.9;
         this._rotationThreshold = 0.001;
+
+        this._desiredZoom = state.zoom;
+        this._minZoom = 0;
+        this._maxZoom = 3;
     }
 
     public traverse(): StateBase {
@@ -141,6 +149,14 @@ export class TraversingState extends StateBase {
         this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
     }
 
+    public zoomIn(delta: number): void {
+        if (this._currentNode == null || !this._currentNode.fullPano) {
+            return;
+        }
+
+        this._desiredZoom = Math.max(this._minZoom, Math.min(this._maxZoom, this._desiredZoom + delta));
+    }
+
     public update(fps: number): void {
         if (this._alpha === 1 && this._currentIndex + this._alpha < this._trajectory.length) {
             this._currentIndex += 1;
@@ -166,6 +182,8 @@ export class TraversingState extends StateBase {
             this._applyRotation(this._previousCamera);
             this._applyRotation(this._currentCamera);
         }
+
+        this._updateZoom(animationSpeed);
 
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }
@@ -207,6 +225,18 @@ export class TraversingState extends StateBase {
         offset.applyQuaternion(qInverse);
 
         camera.lookat.copy(camera.position).add(offset.multiplyScalar(length));
+    }
+
+    private _updateZoom(animationSpeed: number): void {
+        let diff: number = this._desiredZoom - this._zoom;
+
+        if (diff === 0) {
+            return;
+        } else if (Math.abs(diff) < 0.0001) {
+            this._zoom = this._desiredZoom;
+        } else {
+            this._zoom += 5 * animationSpeed * diff;
+        }
     }
 
     private _updateRotation(): void {

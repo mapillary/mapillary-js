@@ -207,6 +207,10 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
+    public zoomIn(delta: number): void {
+        this._invokeContextOperation((context: IStateContext) => { context.zoomIn(delta); });
+    }
+
     public start(): void {
         if (this._frameId == null) {
             this._frameId = this._frameGenerator.requestAnimationFrame(this._frame.bind(this));

@@ -28,7 +28,9 @@ export class WaitingState extends StateBase {
         this._motionless = this._motionlessTransition();
     }
 
-    public rotate(delta: IRotation): void { return; };
+    public rotate(delta: IRotation): void { return; }
+
+    public zoomIn(delta: number): void { return; }
 
     public move(delta: number): void {
         this._alpha = Math.max(0, Math.min(1, this._alpha + delta));
