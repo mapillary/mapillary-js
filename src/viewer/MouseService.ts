@@ -25,7 +25,7 @@ export class MouseService {
     private _mouseUp$: rx.Observable<MouseEvent>;
     private _mouseOver$: rx.Observable<MouseEvent>;
 
-    private _mouseWheel$: rx.Observable<MouseWheelEvent>;
+    private _mouseWheel$: rx.Observable<WheelEvent>;
 
     private _mouseDragStart$: rx.Observable<MouseEvent>;
     private _mouseDrag$: rx.Observable<MouseEvent>;
@@ -47,7 +47,13 @@ export class MouseService {
         this._mouseUp$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseup");
         this._mouseOver$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseover");
 
-        this._mouseWheel$ = rx.Observable.fromEvent<MouseWheelEvent>(element, "wheel");
+        this._mouseWheel$ = rx.Observable.fromEvent<WheelEvent>(element, "wheel");
+
+        this._mouseWheel$
+            .subscribe(
+                (event: WheelEvent): void => {
+                    event.preventDefault();
+                });
 
         this._preventMouseDownOperation$
             .scan<boolean>(
@@ -199,7 +205,7 @@ export class MouseService {
         return this._mouseUp$;
     }
 
-    public get mouseWheel$(): rx.Observable<MouseWheelEvent> {
+    public get mouseWheel$(): rx.Observable<WheelEvent> {
         return this._mouseWheel$;
     }
 
