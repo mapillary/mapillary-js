@@ -30,7 +30,7 @@ export class WaitingState extends StateBase {
 
     public rotate(delta: IRotation): void { return; }
 
-    public zoomIn(delta: number): void { return; }
+    public zoomIn(delta: number, reference: number[]): void { return; }
 
     public move(delta: number): void {
         this._alpha = Math.max(0, Math.min(1, this._alpha + delta));

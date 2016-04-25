@@ -207,8 +207,14 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
-    public zoomIn(delta: number): void {
-        this._invokeContextOperation((context: IStateContext) => { context.zoomIn(delta); });
+    /**
+     * Change zoom level while keeping the reference point position approximately static.
+     *
+     * @parameter {number} delta - Change in zoom level.
+     * @parameter {Array<number>} reference - Reference point in basic coordinates.
+     */
+    public zoomIn(delta: number, reference: number[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.zoomIn(delta, reference); });
     }
 
     public start(): void {

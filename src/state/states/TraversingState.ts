@@ -75,6 +75,7 @@ export class TraversingState extends StateBase {
     private _desiredZoom: number;
     private _minZoom: number;
     private _maxZoom: number;
+    private _desiredLookat: THREE.Vector3;
 
     constructor (state: IState) {
         super(state);
@@ -96,6 +97,8 @@ export class TraversingState extends StateBase {
         this._desiredZoom = state.zoom;
         this._minZoom = 0;
         this._maxZoom = 3;
+
+        this._desiredLookat = new THREE.Vector3();
     }
 
     public traverse(): StateBase {
@@ -147,14 +150,40 @@ export class TraversingState extends StateBase {
         }
 
         this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
+
+        this._desiredZoom = this._zoom;
+        this._desiredLookat.copy(this._currentCamera.lookat);
     }
 
-    public zoomIn(delta: number): void {
+    public zoomIn(delta: number, reference: number[]): void {
         if (this._currentNode == null || !this._currentNode.fullPano) {
             return;
         }
 
         this._desiredZoom = Math.max(this._minZoom, Math.min(this._maxZoom, this._desiredZoom + delta));
+
+        let currentCenter: number[] = this.currentTransform.projectBasic(
+            this._currentCamera.lookat.toArray());
+
+        let currentCenterX: number = currentCenter[0];
+        let currentCenterY: number = currentCenter[1];
+
+        let zoom0: number = Math.pow(2, this._zoom);
+        let zoom1: number = Math.pow(2, this._desiredZoom);
+
+        let refX: number = reference[0];
+        let refY: number = reference[1];
+
+        if (refX - currentCenterX > 0.5) {
+            refX = refX - 1;
+        } else if (currentCenterX - refX > 0.5) {
+            refX = 1 + refX;
+        }
+
+        let newCenterX: number = this._spatial.wrap(refX - zoom0 / zoom1 * (refX - currentCenterX), 0, 1);
+        let newCenterY: number = refY - zoom0 / zoom1 * (refY - currentCenterY);
+
+        this._desiredLookat.fromArray(this.currentTransform.unprojectBasic([newCenterX, newCenterY], 10));
     }
 
     public update(fps: number): void {
@@ -237,6 +266,8 @@ export class TraversingState extends StateBase {
         } else {
             this._zoom += 5 * animationSpeed * diff;
         }
+
+        this._currentCamera.lookat.lerp(this._desiredLookat, 5 * animationSpeed);
     }
 
     private _updateRotation(): void {

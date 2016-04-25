@@ -131,7 +131,7 @@ export abstract class StateBase implements IState {
 
     public abstract rotate(delta: IRotation): void;
 
-    public abstract zoomIn(delta: number): void;
+    public abstract zoomIn(delta: number, reference: number[]): void;
 
     public abstract update(fps: number): void;
 
