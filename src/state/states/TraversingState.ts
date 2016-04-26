@@ -149,16 +149,19 @@ export class TraversingState extends StateBase {
             return;
         }
 
-        this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
-
         this._desiredZoom = this._zoom;
         this._desiredLookat.copy(this._currentCamera.lookat);
+
+        this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
     }
 
     public zoomIn(delta: number, reference: number[]): void {
-        if (this._currentNode == null || !this._currentNode.fullPano) {
+        if (this._currentNode == null) {
             return;
         }
+
+        reference[0] = Math.max(0, Math.min(1, reference[0]));
+        reference[1] = Math.max(0, Math.min(1, reference[1]));
 
         this._desiredZoom = Math.max(this._minZoom, Math.min(this._maxZoom, this._desiredZoom + delta));
 
@@ -182,6 +185,13 @@ export class TraversingState extends StateBase {
 
         let newCenterX: number = this._spatial.wrap(refX - zoom0 / zoom1 * (refX - currentCenterX), 0, 1);
         let newCenterY: number = refY - zoom0 / zoom1 * (refY - currentCenterY);
+
+        if (!this._currentNode.fullPano) {
+            let threshold: number = Math.pow(0.5, this._desiredZoom + 1);
+
+            newCenterX = Math.max(threshold, Math.min(1 - threshold, newCenterX));
+            newCenterY = Math.max(threshold, Math.min(1 - threshold, newCenterY));
+        }
 
         this._desiredLookat.fromArray(this.currentTransform.unprojectBasic([newCenterX, newCenterY], 10));
     }
