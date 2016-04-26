@@ -128,6 +128,9 @@ export class TraversingState extends StateBase {
     public set(nodes: Node[]): void {
         super.set(nodes);
 
+        this._desiredZoom = this._currentNode.fullPano ? this._zoom : 0;
+        this._desiredLookat = null;
+
         this._resetTransition();
         this._clearRotation();
 
@@ -145,12 +148,12 @@ export class TraversingState extends StateBase {
     }
 
     public rotate(rotationDelta: IRotation): void {
-        if (this._currentNode == null || !this._currentNode.fullPano) {
+        if (this._currentNode == null) {
             return;
         }
 
         this._desiredZoom = this._zoom;
-        this._desiredLookat.copy(this._currentCamera.lookat);
+        this._desiredLookat = null;
 
         this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
     }
@@ -193,7 +196,8 @@ export class TraversingState extends StateBase {
             newCenterY = Math.max(threshold, Math.min(1 - threshold, newCenterY));
         }
 
-        this._desiredLookat.fromArray(this.currentTransform.unprojectBasic([newCenterX, newCenterY], 10));
+        this._desiredLookat = new THREE.Vector3()
+            .fromArray(this.currentTransform.unprojectBasic([newCenterX, newCenterY], 10));
     }
 
     public update(fps: number): void {
@@ -206,6 +210,9 @@ export class TraversingState extends StateBase {
             this._setCurrent();
             this._resetTransition();
             this._clearRotation();
+
+            this._desiredZoom = this._currentNode.fullPano ? this._zoom : 0;
+            this._desiredLookat = null;
         }
 
         let animationSpeed: number = this._animationSpeed * (60 / fps);
@@ -223,6 +230,7 @@ export class TraversingState extends StateBase {
         }
 
         this._updateZoom(animationSpeed);
+        this._updateLookat(animationSpeed);
 
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }
@@ -276,8 +284,21 @@ export class TraversingState extends StateBase {
         } else {
             this._zoom += 5 * animationSpeed * diff;
         }
+    }
 
-        this._currentCamera.lookat.lerp(this._desiredLookat, 5 * animationSpeed);
+    private _updateLookat(animationSpeed: number): void {
+        if (this._desiredLookat === null) {
+            return;
+        }
+
+        let diff: number = this._desiredLookat.distanceToSquared(this._currentCamera.lookat);
+
+        if (Math.abs(diff) < 0.00001) {
+            this._currentCamera.lookat.copy(this._desiredLookat);
+            this._desiredLookat = null;
+        } else {
+            this._currentCamera.lookat.lerp(this._desiredLookat, 5 * animationSpeed);
+        }
     }
 
     private _updateRotation(): void {
