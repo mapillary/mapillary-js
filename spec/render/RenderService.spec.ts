@@ -118,6 +118,7 @@ describe("RenderService.renderCameraFrame", () => {
         let state: ICurrentState = {
             alpha: alpha != null ? alpha : 0,
             camera: camera != null ? camera : new Camera(),
+            zoom: 0,
             currentNode: null,
             previousNode: null,
             trajectory: [],
@@ -323,6 +324,7 @@ describe("RenderService.renderCamera", () => {
         let state: ICurrentState = {
             alpha: alpha != null ? alpha : 0,
             camera: camera != null ? camera : new Camera(),
+            zoom: 0,
             currentNode: null,
             previousNode: null,
             trajectory: [],

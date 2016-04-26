@@ -107,6 +107,7 @@ describe("GLRenderer.renderer", () => {
         let state: ICurrentState = {
             alpha: 0,
             camera: new Camera(),
+            zoom: 0,
             currentNode: null,
             previousNode: null,
             trajectory: [],
