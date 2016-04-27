@@ -17,6 +17,9 @@ dependencies:
   pre:
     - npm install -g gulp
     - export DISPLAY=:99.0
+  override:
+    - npm install:
+        timeout: 1200
 
 test:
   override:
