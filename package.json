@@ -75,7 +75,7 @@
     "rbush": "~1.4.1",
     "rest": "~1.3.1",
     "rx": "^4.0.7",
-    "three": "^0.75.0",
+    "three": "^0.76.1",
     "underscore": "~1.8.3",
     "unitbezier": "0.0.0",
     "virtual-dom": "^2.1.1",

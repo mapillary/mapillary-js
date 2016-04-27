@@ -411,7 +411,7 @@ export class EdgeCalculator {
             },
             from: node.key,
             to: edge.apiNavImIm.key,
-        }, ];
+        }];
     }
 
     /**

@@ -168,7 +168,7 @@ export class Transform {
             return [lon / (2 * Math.PI), -lat / (2 * Math.PI)];
         } else {
             return [bearing[0] * this._focal / bearing[2],
-                    bearing[1] * this._focal / bearing[2], ];
+                    bearing[1] * this._focal / bearing[2]];
         }
     }
 
