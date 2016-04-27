@@ -2,7 +2,6 @@
 
 WebGL JavaScript library for displaying street level photos from [Mapillary](https://www.mapillary.com)
 
-
 <a href="http://bl.ocks.org/knikel/151a77df042cd3890502" target="_blank"><img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-01-perspective.jpg" /></a>
 <a href="http://bl.ocks.org/knikel/151a77df042cd3890502" target="_blank"><img style="max-width: 45%; height: auto;" src="https://raw.githubusercontent.com/mapillary/mapillary-js/master/docs/assets/media/mapillary-js-preview-02-pano.jpg" /></a>
 
@@ -36,39 +35,6 @@ Alternatively, you can `npm install mapillary-js` to use it with module loader/b
 - [Glossary](https://github.com/mapillary/mapillary-js/blob/master/docs/glossary.md)
 - [API Reference](https://mapillary.github.io/mapillary-js)
 
-## Developing mapillary-js
-
-### Preparing your Development Environment
-
-#### Linux
-
-Install [GNU Make](http://www.gnu.org/software/make/) and [git](https://git-scm.com/):
-```bash
-sudo apt-get update
-sudo apt-get install build-essential git
-```
-
-Install [node.js](https://nodejs.org/) _5.x_ and [npm](https://www.npmjs.com/) according to the [node.js package manager installation instructions](https://nodejs.org/en/download/package-manager/).
-
-Clone a copy of the repo:
-```bash
-git clone https://github.com/mapillary/mapillary-js.git
-```
-
-Change to the mapillary-js directory and install node module dependencies:
-```bash
-cd mapillary-js
-npm install
-```
-
-### Serving the Debug Page
-
-```bash
-npm run gulp
-```
-
-Open the debug page at [http://localhost:3000](http://localhost:3000).
-
 ## Changelog
 
 Every release is described on the GitHub [Releases](https://github.com/mapillary/mapillary-js/releases) page.
@@ -76,3 +42,7 @@ Every release is described on the GitHub [Releases](https://github.com/mapillary
 ## License
 
 MIT License
+
+## Contributing to mapillary-js
+
+See [contributing.md](https://github.com/mapillary/mapillary-js/blob/master/docs/contributing.md).
