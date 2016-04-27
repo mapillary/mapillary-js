@@ -11,8 +11,8 @@ WebGL JavaScript library for displaying street level photos from [Mapillary](htt
 
 Include via HTML tags:
 ```html
-<link rel="stylesheet" href="https://npmcdn.com/mapillary-js@1.2.0/dist/mapillary-js.min.css">
-<script src="https://npmcdn.com/mapillary-js@1.2.0/dist/mapillary-js.min.js"></script>
+<link rel="stylesheet" href="https://npmcdn.com/mapillary-js@1.2.1/dist/mapillary-js.min.css">
+<script src="https://npmcdn.com/mapillary-js@1.2.1/dist/mapillary-js.min.js"></script>
 ```
 
 Make sure to check out [Examples](https://github.com/mapillary/mapillary-js#examples) section below or [API Documentation](https://mapillary.github.io/mapillary-js) for more information.
