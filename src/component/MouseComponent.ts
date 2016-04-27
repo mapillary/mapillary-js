@@ -8,7 +8,7 @@ import {Transform} from "../Geo";
 import {Node} from "../Graph";
 import {RenderCamera} from "../Render";
 import {IFrame} from "../State";
-import {Container, Navigator, TouchMove} from "../Viewer";
+import {Container, Navigator, TouchMove, IPinch} from "../Viewer";
 
 interface IMovement {
     clientX: number;
@@ -141,20 +141,66 @@ export class MouseComponent extends Component {
                     let render: RenderCamera = wr[1];
                     let transform: Transform = wr[2];
 
-                    let zoom: number = -3 * event.deltaY / this._container.element.offsetHeight;
-
                     let element: HTMLElement = this._container.element;
 
                     let offsetWidth: number = element.offsetWidth;
                     let offsetHeight: number = element.offsetHeight;
 
                     let canvasX: number = event.clientX - element.offsetLeft;
-                    let canvasY: number = event.clientY - element.offsetLeft;
+                    let canvasY: number = event.clientY - element.offsetTop;
 
                     let unprojected: THREE.Vector3 =
                         this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective);
 
                     let reference: number[] = transform.projectBasic(unprojected.toArray());
+
+                    let zoom: number = -3 * event.deltaY / offsetHeight;
+
+                    this._navigator.stateService.zoomIn(zoom, reference);
+                });
+
+        this._container.touchService.pinch$
+            .withLatestFrom(
+                this._navigator.stateService.currentNode$,
+                (p: IPinch, n: Node): [IPinch, Node] => {
+                    return [p, n];
+                })
+            .filter(
+                (pn: [IPinch, Node]): boolean => {
+                    return pn[1].fullPano;
+                })
+            .map<IPinch>(
+                (pn: [IPinch, Node]): IPinch => {
+                    return pn[0];
+                })
+            .withLatestFrom(
+                this._container.renderService.renderCamera$,
+                this._currentTransform$,
+                (p: IPinch, r: RenderCamera, t: Transform): [IPinch, RenderCamera, Transform] => {
+                    return [p, r, t];
+                })
+            .subscribe(
+                (prt: [IPinch, RenderCamera, Transform]): void => {
+                    let pinch: IPinch = prt[0];
+                    let render: RenderCamera = prt[1];
+                    let transform: Transform = prt[2];
+
+                    let element: HTMLElement = this._container.element;
+
+                    let offsetWidth: number = element.offsetWidth;
+                    let offsetHeight: number = element.offsetHeight;
+
+                    let unprojected: THREE.Vector3 =
+                        this._unproject(
+                            pinch.centerClientX - element.offsetLeft,
+                            pinch.centerClientY - element.offsetTop,
+                            offsetWidth,
+                            offsetHeight,
+                            render.perspective);
+
+                    let reference: number[] = transform.projectBasic(unprojected.toArray());
+
+                    let zoom: number = 3 * pinch.distanceChange / Math.min(offsetHeight, offsetWidth);
 
                     this._navigator.stateService.zoomIn(zoom, reference);
                 });
