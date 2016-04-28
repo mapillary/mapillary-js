@@ -182,11 +182,11 @@ export class TagComponent extends Component {
 
                     let newCoord: number[] = transform.projectBasic(unprojected.toArray());
 
-                    activeTag.tag.shape =
-                        this._computeRect(
-                            activeTag.tag.shape,
-                            newCoord,
-                            activeTag.operation);
+                    if (activeTag.operation === TagOperation.Move) {
+                        activeTag.tag.setCentroid2d(newCoord);
+                    } else if (activeTag.operation === TagOperation.Resize) {
+                        activeTag.tag.setPolygonPoint2d(activeTag.resizeIndex, newCoord);
+                    }
                 });
 
         this._unclaimMouseSubscription = this._container.mouseService
@@ -309,67 +309,6 @@ export class TagComponent extends Component {
 
         this._domSubscription.dispose();
         this._glSubscription.dispose();
-    }
-
-    private _computeRect(original: number[], newCoord: number[], operation: TagOperation): number[] {
-        let rect: number[] = [];
-
-        if (operation === TagOperation.Move) {
-            let centerX: number = original[0] + (original[2] - original[0]) / 2;
-            let centerY: number = original[1] + (original[3] - original[1]) / 2;
-
-            let minTranslationX: number = -original[0];
-            let maxTranslationX: number = 1 - original[2];
-            let minTranslationY: number = -original[1];
-            let maxTranslationY: number = 1 - original[3];
-
-            let translationX: number = Math.max(minTranslationX, Math.min(maxTranslationX, newCoord[0] - centerX));
-            let translationY: number = Math.max(minTranslationY, Math.min(maxTranslationY, newCoord[1] - centerY));
-
-            rect[0] = original[0] + translationX;
-            rect[1] = original[1] + translationY;
-            rect[2] = original[2] + translationX;
-            rect[3] = original[3] + translationY;
-        } else {
-            newCoord = [
-                Math.max(0, Math.min(1, newCoord[0])),
-                Math.max(0, Math.min(1, newCoord[1])),
-            ];
-
-            if (operation === TagOperation.ResizeBottomLeft) {
-                rect[0] = newCoord[0];
-                rect[1] = original[1];
-                rect[2] = original[2];
-                rect[3] = newCoord[1];
-            } else if (operation === TagOperation.ResizeTopLeft) {
-                rect[0] = newCoord[0];
-                rect[1] = newCoord[1];
-                rect[2] = original[2];
-                rect[3] = original[3];
-            } else if (operation === TagOperation.ResizeTopRight) {
-                rect[0] = original[0];
-                rect[1] = newCoord[1];
-                rect[2] = newCoord[0];
-                rect[3] = original[3];
-            } else if (operation === TagOperation.ResizeBottomRight) {
-                rect[0] = original[0];
-                rect[1] = original[1];
-                rect[2] = newCoord[0];
-                rect[3] = newCoord[1];
-            }
-        }
-
-        if (rect[0] > rect[2]) {
-            rect[0] = original[0];
-            rect[2] = original[2];
-        }
-
-        if (rect[1] > rect[3]) {
-            rect[1] = original[1];
-            rect[3] = original[3];
-        }
-
-        return rect;
     }
 }
 

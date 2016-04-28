@@ -1,10 +1,7 @@
 export enum TagOperation {
     None,
     Move,
-    ResizeBottomLeft,
-    ResizeTopLeft,
-    ResizeTopRight,
-    ResizeBottomRight,
+    Resize,
 }
 
 export default TagOperation;

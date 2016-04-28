@@ -95,7 +95,7 @@ export class TagDOMRenderer {
                 continue;
             }
 
-            for (let i: number = 0; i < tag.operations.length; i++) {
+            for (let i: number = 0; i < tag.polygonPoints3d.length - 1; i++) {
                 let polygonPoint3d: number[] = tag.polygonPoints3d[i];
                 let pointCameraSpace: THREE.Vector3 = this._convertToCameraSpace(polygonPoint3d, matrixWorldInverse);
 
@@ -106,9 +106,7 @@ export class TagDOMRenderer {
                 let cornerCanvas: number[] = this._projectToCanvas(pointCameraSpace, camera.projectionMatrix);
                 let cornerCss: string[] = cornerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
-                let operation: TagOperation = tag.operations[i];
-
-                let activateResize: (e: MouseEvent) => void = this._activateTag(tag, operation);
+                let activateResize: (e: MouseEvent) => void = this._activateTag(tag, TagOperation.Resize, i);
 
                 let properties: vd.createProperties = {
                     onmousedown: activateResize,
@@ -139,12 +137,19 @@ export class TagDOMRenderer {
         return vd.h("div.TagContainer", {}, vNodes);
     }
 
-    private _activateTag(tag: Tag, operation: TagOperation): (e: MouseEvent) => void {
+    private _activateTag(tag: Tag, operation: TagOperation, resizeIndex?: number): (e: MouseEvent) => void {
         return (e: MouseEvent): void => {
                 let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
                 let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
 
-                this._activeTag$.onNext({ offsetX: offsetX, offsetY: offsetY, operation: operation, tag: tag });
+                this._activeTag$.onNext({
+                    offsetX: offsetX,
+                    offsetY: offsetY,
+                    operation: operation,
+                    resizeIndex: resizeIndex,
+                    tag: tag,
+                });
+
                 this._interactionInitiate$.onNext(tag.id);
         };
     }
