@@ -1,2 +1,2 @@
 export {IActiveTag} from "./IActiveTag";
-export {ITag} from "./ITag";
+export {ITagOptions} from "./ITagOptions";

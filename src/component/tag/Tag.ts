@@ -1,75 +1,94 @@
 /// <reference path="../../../typings/browser.d.ts" />
 
 import * as rx from "rx";
+import * as THREE from "three";
+import * as vd from "virtual-dom";
 
-import {ITag, TagLabel} from "../../Component";
+import {IActiveTag, ITagOptions, TagLabelKind, TagOperation} from "../../Component";
 import {Transform} from "../../Geo";
+import {ISpriteAtlas} from "../../Viewer";
 
 export class Tag {
     private _id: string;
 
-    private _transform: Transform;
+    private _label: string;
+    private _labelKind: TagLabelKind;
+    private _editable: boolean;
 
     private _rect: number[];
-    private _polygonPoints2d: number[][];
-    private _centroidPoint3d: number[];
-    private _polygonPoints3d: number[][];
-
-    private _value: string;
-    private _editable: boolean;
-    private _label: TagLabel;
 
     private _notifyChanged$: rx.Subject<Tag>;
 
-    constructor(tag: ITag, transform: Transform) {
-        this._id = tag.id;
-        this._value = tag.value;
-        this._editable = tag.editable;
-        this._label = tag.label;
+    private _activeTag$: rx.Subject<IActiveTag>;
+    private _interactionInitiate$: rx.Subject<string>;
+    private _interactionAbort$: rx.Subject<string>;
+    private _labelClick$: rx.Subject<Tag>;
 
-        this._transform = transform;
-
-        this._setShape(tag.rect);
+    constructor(id: string, tag: ITagOptions) {
+        if (tag.rect.length !== 4) {
+            throw new Error("Rectangle polygon must have five points.");
+        }
 
         this._notifyChanged$ = new rx.Subject<Tag>();
+
+        this._activeTag$ = new rx.Subject<IActiveTag>();
+        this._interactionInitiate$ = new rx.Subject<string>();
+        this._interactionAbort$ = new rx.Subject<string>();
+        this._labelClick$ = new rx.Subject<Tag>();
+
+        this._id = id;
+
+        this._label = tag.label;
+        this._labelKind = tag.labelKind;
+        this._editable = tag.editable;
+
+        this._rect = tag.rect.slice();
     }
 
     public get id(): string {
         return this._id;
     }
 
-    public get shape(): number[] {
+    public get rect(): number[] {
         return this._rect;
     }
 
-    public set shape(value: number[]) {
-        this._setShape(value);
+    public set rect(value: number[]) {
+        this._rect = value;
 
         this._notifyChanged$.onNext(this);
     }
 
     public get polygonPoints2d(): number[][] {
-        return this._polygonPoints2d;
+        return this._rectToPolygonPoints2d(this._rect);
     }
 
-    public get centroidPoint3d(): number[] {
-        return this._centroidPoint3d;
+    public get label(): string {
+        return this._label;
     }
 
-    public get polygonPoints3d(): number[][] {
-        return this._polygonPoints3d;
-    }
-
-    public get value(): string {
-        return this._value;
+    public get labelKind(): TagLabelKind {
+        return this._labelKind;
     }
 
     public get editable(): boolean {
         return this._editable;
     }
 
-    public get label(): TagLabel {
-        return this._label;
+    public get activeTag$(): rx.Observable<IActiveTag> {
+        return this._activeTag$;
+    }
+
+    public get interactionInitiate$(): rx.Observable<string> {
+        return this._interactionInitiate$;
+    }
+
+    public get interactionAbort$(): rx.Observable<string> {
+        return this._interactionAbort$;
+    }
+
+    public get labelClick$(): rx.Observable<Tag> {
+        return this._labelClick$;
     }
 
     public get onChanged$(): rx.Observable<Tag> {
@@ -117,7 +136,11 @@ export class Tag {
             rect[3] = original[3];
         }
 
-        this._setShape(rect);
+        this._rect[0] = rect[0];
+        this._rect[1] = rect[1];
+        this._rect[2] = rect[2];
+        this._rect[3] = rect[3];
+
         this._notifyChanged$.onNext(this);
     }
 
@@ -135,41 +158,218 @@ export class Tag {
         let translationX: number = Math.max(minTranslationX, Math.min(maxTranslationX, value[0] - centerX));
         let translationY: number = Math.max(minTranslationY, Math.min(maxTranslationY, value[1] - centerY));
 
-        let rect: number[] = [];
-        rect[0] = original[0] + translationX;
-        rect[1] = original[1] + translationY;
-        rect[2] = original[2] + translationX;
-        rect[3] = original[3] + translationY;
+        this._rect[0] = original[0] + translationX;
+        this._rect[1] = original[1] + translationY;
+        this._rect[2] = original[2] + translationX;
+        this._rect[3] = original[3] + translationY;
 
-        this._setShape(rect);
         this._notifyChanged$.onNext(this);
     }
 
-    public getPoint3d(x: number, y: number): number[] {
-        return this._transform.unprojectBasic([x, y], 200);
+    public getPoint3d(x: number, y: number, transform: Transform): number[] {
+        return transform.unprojectBasic([x, y], 200);
     }
 
-    private _setShape(value: number[]): void {
-        this._rect = value.slice();
-
-        let centroidX: number = value[0] + (value[2] - value[0]) / 2;
-        let centroidY: number = value[1] + (value[3] - value[1]) / 2;
-
-        this._centroidPoint3d = this.getPoint3d(centroidX, centroidY);
-
-        this._polygonPoints2d = [
-            [value[0], value[3]],
-            [value[0], value[1]],
-            [value[2], value[1]],
-            [value[2], value[3]],
-            [value[0], value[3]],
-        ];
-
-        this._polygonPoints3d = this._polygonPoints2d
+    public getPolygonPoints3d(transform: Transform): number[][] {
+        return this._rectToPolygonPoints2d(this._rect)
             .map(
                 (point: number[]) => {
-                    return this.getPoint3d(point[0], point[1]);
+                    return this.getPoint3d(point[0], point[1], transform);
                 });
+    }
+
+    public getCentroidPoint3d(transform: Transform): number[] {
+        let rect: number[] = this._rect;
+
+        let centroidX: number = rect[0] + (rect[2] - rect[0]) / 2;
+        let centroidY: number = rect[1] + (rect[3] - rect[1]) / 2;
+
+        return this.getPoint3d(centroidX, centroidY, transform);
+    }
+
+    public getGLGeometry(transform: Transform): THREE.Object3D {
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+
+        let polygonPoints2d: number[][] = this._rectToPolygonPoints2d(this._rect);
+
+        let sides: number = polygonPoints2d.length - 1;
+        let sections: number = 8;
+
+        let positions: Float32Array = new Float32Array(sides * sections * 3);
+
+        for (let i: number = 0; i < sides; ++i) {
+            let startX: number = polygonPoints2d[i][0];
+            let startY: number = polygonPoints2d[i][1];
+
+            let endX: number = polygonPoints2d[i + 1][0];
+            let endY: number = polygonPoints2d[i + 1][1];
+
+            let intervalX: number = (endX - startX) / (sections - 1);
+            let intervalY: number = (endY - startY) / (sections - 1);
+
+            for (let j: number = 0; j < sections; ++j) {
+                let rectPosition: number[] = [
+                    startX + j * intervalX,
+                    startY + j * intervalY,
+                ];
+
+                let position: number[] = this.getPoint3d(rectPosition[0], rectPosition[1], transform);
+                let index: number = 3 * sections * i + 3 * j;
+
+                positions[index] = position[0];
+                positions[index + 1] = position[1];
+                positions[index + 2] = position[2];
+            }
+        }
+
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        let material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({ color: 0x00FF00, linewidth: 1 } );
+        let line: THREE.Line = new THREE.Line(geometry, material);
+
+        return line;
+    }
+
+    public getDOMGeometry(atlas: ISpriteAtlas, camera: THREE.PerspectiveCamera, transform: Transform): vd.VNode {
+        let vNodes: vd.VNode[] = [];
+        let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
+
+
+        let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
+            this._interactionAbort$.onNext(this._id);
+        };
+
+        let polygonPoints3d: number[][] = this.getPolygonPoints3d(transform);
+
+        let bottomRightCamera: THREE.Vector3 = this._convertToCameraSpace(polygonPoints3d[3], matrixWorldInverse);
+        if (bottomRightCamera.z < 0) {
+            let labelCanvas: number[] = this._projectToCanvas(bottomRightCamera, camera.projectionMatrix);
+            let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+            let labelClick: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                this._labelClick$.onNext(this);
+            };
+
+            let activateNone: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                this._activeTag$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
+                this._interactionInitiate$.onNext(this._id);
+            };
+
+            if (this._labelKind === TagLabelKind.Text) {
+                let properties: vd.createProperties = {
+                    onclick: labelClick,
+                    onmousedown: activateNone,
+                    onmouseup: abort,
+                    style: { left: labelCss[0], position: "absolute", top: labelCss[1] },
+                    textContent: this._label,
+                };
+
+                vNodes.push(vd.h("span.TagLabel", properties, []));
+            } else if (this._labelKind === TagLabelKind.Icon) {
+                if (atlas.loaded) {
+                    let sprite: vd.VNode = atlas.getDOMSprite(this._label);
+
+                    let properties: vd.createProperties = {
+                        onclick: labelClick,
+                        onmousedown: activateNone,
+                        onmouseup: abort,
+                        style: {
+                            left: labelCss[0],
+                            pointerEvents: "all",
+                            position: "absolute",
+                            top: labelCss[1],
+                        },
+                    };
+
+                    vNodes.push(vd.h("div", properties, [sprite]));
+                }
+            }
+        }
+
+        if (!this._editable) {
+            return;
+        }
+
+        for (let i: number = 0; i < polygonPoints3d.length - 1; i++) {
+            let polygonPoint3d: number[] = polygonPoints3d[i];
+            let pointCameraSpace: THREE.Vector3 = this._convertToCameraSpace(polygonPoint3d, matrixWorldInverse);
+
+            if (pointCameraSpace.z > 0) {
+                continue;
+            }
+
+            let cornerCanvas: number[] = this._projectToCanvas(pointCameraSpace, camera.projectionMatrix);
+            let cornerCss: string[] = cornerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+            let activateResize: (e: MouseEvent) => void = this._activateTag(this, TagOperation.Resize, i);
+
+            let properties: vd.createProperties = {
+                onmousedown: activateResize,
+                onmouseup: abort,
+                style: { left: cornerCss[0], top: cornerCss[1] },
+            };
+
+            vNodes.push(vd.h("div.TagResizer", properties, []));
+        }
+
+        let centerCamera: THREE.Vector3 = this._convertToCameraSpace(this.getCentroidPoint3d(transform), matrixWorldInverse);
+        if (centerCamera.z < 0) {
+            let centerCanvas: number[] = this._projectToCanvas(centerCamera, camera.projectionMatrix);
+            let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+            let activateMove: (e: MouseEvent) => void = this._activateTag(this, TagOperation.Move);
+
+            let properties: vd.createProperties = {
+                onmousedown: activateMove,
+                onmouseup: abort,
+                style: { left: centerCss[0], top: centerCss[1] },
+            };
+
+            vNodes.push(vd.h("div.TagMover", properties, []));
+        }
+
+        return vd.h("div.TagContainer", {}, vNodes);
+    }
+
+    private _rectToPolygonPoints2d(rect: number[]): number[][] {
+        return [
+            [rect[0], rect[3]],
+            [rect[0], rect[1]],
+            [rect[2], rect[1]],
+            [rect[2], rect[3]],
+            [rect[0], rect[3]],
+        ];
+    }
+
+    private _activateTag(tag: Tag, operation: TagOperation, resizeIndex?: number): (e: MouseEvent) => void {
+        return (e: MouseEvent): void => {
+            let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
+            let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
+
+            this._activeTag$.onNext({
+                offsetX: offsetX,
+                offsetY: offsetY,
+                operation: operation,
+                resizeIndex: resizeIndex,
+                tag: tag,
+            });
+
+            this._interactionInitiate$.onNext(tag.id);
+        };
+    }
+
+    private _projectToCanvas(point: THREE.Vector3, projectionMatrix: THREE.Matrix4): number[] {
+        let projected: THREE.Vector3 =
+            new THREE.Vector3(point.x, point.y, point.z)
+                .applyProjection(projectionMatrix);
+
+        return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
+    }
+
+    private _convertToCameraSpace(point: number[], matrixWorldInverse: THREE.Matrix4): THREE.Vector3 {
+        let p: THREE.Vector3 = new THREE.Vector3(point[0], point[1], point[2]);
+        p.applyMatrix4(matrixWorldInverse);
+
+        return p;
     }
 }
 

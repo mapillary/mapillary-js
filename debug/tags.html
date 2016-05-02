@@ -78,18 +78,19 @@
 
                         var or = orByKey[key];
 
-                        tag = {
-                            id: or.key.value,
+                        var tagOptions = {
                             rect: [
                                 or.rect.value.geometry.coordinates[1][0],
                                 or.rect.value.geometry.coordinates[1][1],
                                 or.rect.value.geometry.coordinates[3][0],
                                 or.rect.value.geometry.coordinates[3][1],
                             ],
-                            value: or.value.value,
+                            label: or.value.value,
+                            labelKind: 0,
                             editable: true,
-                            label: 0,
                         };
+
+                        var tag = new Mapillary.Tag(or.key.value, tagOptions);
 
                         currentTags[tag.id] = tag;
                         tags.push(tag);

@@ -3,10 +3,11 @@
 import * as THREE from "three";
 
 import {Tag} from "../../Component";
+import {Transform} from "../../Geo";
 
 export class TagGLRenderer {
     private _scene: THREE.Scene;
-    private _meshes: { [key: string]: THREE.Line };
+    private _meshes: { [key: string]: THREE.Object3D };
 
     private _needsRender: boolean;
 
@@ -30,19 +31,19 @@ export class TagGLRenderer {
         this._needsRender = false;
     }
 
-    public setTags(tags: Tag[]): void {
+    public setTags(tags: Tag[], transform: Transform): void {
         this._disposeObjects();
 
         for (let tag of tags) {
-            this._addMesh(tag);
+            this._addMesh(tag, transform);
         }
 
         this._needsRender = true;
     }
 
-    public updateTag(tag: Tag): void {
+    public updateTag(tag: Tag, transform: Transform): void {
         this._disposeMesh(tag.id);
-        this._addMesh(tag);
+        this._addMesh(tag, transform);
 
         this._needsRender = true;
     }
@@ -53,48 +54,11 @@ export class TagGLRenderer {
         this._needsRender = false;
     }
 
-    private _addMesh(tag: Tag): void {
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+    private _addMesh(tag: Tag, transform: Transform): void {
+        let object: THREE.Object3D = tag.getGLGeometry(transform);
 
-        let polygonPoints2d: number[][] = tag.polygonPoints2d;
-
-        let sides: number = polygonPoints2d.length - 1;
-        let sections: number = 8;
-
-        let positions: Float32Array = new Float32Array(sides * sections * 3);
-
-        for (let i: number = 0; i < sides; ++i) {
-            let startX: number = polygonPoints2d[i][0];
-            let startY: number = polygonPoints2d[i][1];
-
-            let endX: number = polygonPoints2d[i + 1][0];
-            let endY: number = polygonPoints2d[i + 1][1];
-
-            let intervalX: number = (endX - startX) / (sections - 1);
-            let intervalY: number = (endY - startY) / (sections - 1);
-
-            for (let j: number = 0; j < sections; ++j) {
-                let rectPosition: number[] = [
-                    startX + j * intervalX,
-                    startY + j * intervalY,
-                ];
-
-                let position: number[] = tag.getPoint3d(rectPosition[0], rectPosition[1]);
-                let index: number = 3 * sections * i + 3 * j;
-
-                positions[index] = position[0];
-                positions[index + 1] = position[1];
-                positions[index + 2] = position[2];
-            }
-        }
-
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-        let material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({ color: 0x00FF00, linewidth: 1 } );
-        let line: THREE.Line = new THREE.Line(geometry, material);
-
-        this._meshes[tag.id] = line;
-        this._scene.add(line);
+        this._meshes[tag.id] = object;
+        this._scene.add(object);
     }
 
     private _disposeObjects(): void {
@@ -104,7 +68,7 @@ export class TagGLRenderer {
     }
 
     private _disposeMesh(id: string): void {
-        let mesh: THREE.Line = this._meshes[id];
+        let mesh: THREE.Mesh | THREE.Line = <THREE.Mesh | THREE.Line>this._meshes[id];
         this._scene.remove(mesh);
         mesh.geometry.dispose();
         mesh.material.dispose();
