@@ -25,9 +25,17 @@ class SpriteAtlas implements ISpriteAtlas {
         return !!(this._image && this._json);
     }
 
-    public getGLSprite(name: string): THREE.Sprite {
+    public getGLSprite(name: string): THREE.Object3D {
         if (!this.loaded) {
             throw new Error("Sprites cannot be retrieved before the atlas is loaded.");
+        }
+
+        let definition: ISprite = this._json[name];
+
+        if (!definition) {
+            console.warn("Sprite with key" + name + "does not exist in sprite definition.");
+
+            return new THREE.Object3D();
         }
 
         let texture: THREE.Texture = this._texture.clone();
@@ -35,7 +43,7 @@ class SpriteAtlas implements ISpriteAtlas {
 
         let width: number = this._image.width;
         let height: number = this._image.height;
-        let definition: ISprite = this._json[name];
+
 
         texture.offset.x = definition.x / width;
         texture.offset.y = (height - definition.y - definition.height) / height;
@@ -53,6 +61,12 @@ class SpriteAtlas implements ISpriteAtlas {
         }
 
         let definition: ISprite = this._json[name];
+
+        if (!definition) {
+            console.warn("Sprite with key" + name + "does not exist in sprite definition.");
+
+            return vd.h("div", {}, []);
+        }
 
         let clipTop: number = definition.y;
         let clipRigth: number = definition.x + definition.width;
