@@ -10,10 +10,10 @@ export class TouchMove implements Touch {
 
     public clientX: number;
     public clientY: number;
-    public screenX: number;
-    public screenY: number;
     public pageX: number;
     public pageY: number;
+    public screenX: number;
+    public screenY: number;
 
     public target: EventTarget;
 
@@ -29,10 +29,10 @@ export class TouchMove implements Touch {
 
         this.clientX = touch.clientX;
         this.clientY = touch.clientY;
-        this.screenX = touch.screenX;
-        this.screenY = touch.screenY;
         this.pageX = touch.pageX;
         this.pageY = touch.pageY;
+        this.screenX = touch.screenX;
+        this.screenY = touch.screenY;
 
         this.target = touch.target;
     }
@@ -41,6 +41,10 @@ export class TouchMove implements Touch {
 export interface IPinch {
     centerClientX: number;
     centerClientY: number;
+    centerPageX: number;
+    centerPageY: number;
+    centerScreenX: number;
+    centerScreenY: number;
     changeX: number;
     changeY: number;
     distance: number;
@@ -219,6 +223,10 @@ export class TouchService {
                 {
                     centerClientX: 0,
                     centerClientY: 0,
+                    centerPageX: 0,
+                    centerPageY: 0,
+                    centerScreenX: 0,
+                    centerScreenY: 0,
                     changeX: 0,
                     changeY: 0,
                     distance: 0,
@@ -249,6 +257,12 @@ export class TouchService {
                         let centerClientX: number = minX + (maxX - minX) / 2;
                         let centerClientY: number = minY + (maxY - minY) / 2;
 
+                        let centerPageX: number = centerClientX + touch1.pageX - touch1.clientX;
+                        let centerPageY: number = centerClientY + touch1.pageY - touch1.clientY;
+
+                        let centerScreenX: number = centerClientX + touch1.screenX - touch1.clientX;
+                        let centerScreenY: number = centerClientY + touch1.screenY - touch1.clientY;
+
                         let distanceX: number = Math.abs(touch1.clientX - touch2.clientX);
                         let distanceY: number = Math.abs(touch1.clientY - touch2.clientY);
 
@@ -262,6 +276,10 @@ export class TouchService {
                         let current: IPinch = {
                             centerClientX: centerClientX,
                             centerClientY: centerClientY,
+                            centerPageX: centerPageX,
+                            centerPageY: centerPageY,
+                            centerScreenX: centerScreenX,
+                            centerScreenY: centerScreenY,
                             changeX: changeX,
                             changeY: changeY,
                             distance: distance,
