@@ -97,8 +97,10 @@ export class MouseComponent extends Component {
                     let offsetWidth: number = element.offsetWidth;
                     let offsetHeight: number = element.offsetHeight;
 
-                    let canvasX: number = m.clientX - element.offsetLeft;
-                    let canvasY: number = m.clientY - element.offsetLeft;
+                    let clientRect: ClientRect = element.getBoundingClientRect();
+
+                    let canvasX: number = m.clientX - clientRect.left;
+                    let canvasY: number = m.clientX - clientRect.top;
 
                     let unprojected: THREE.Vector3 =
                         this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, r.perspective);
@@ -146,8 +148,10 @@ export class MouseComponent extends Component {
                     let offsetWidth: number = element.offsetWidth;
                     let offsetHeight: number = element.offsetHeight;
 
-                    let canvasX: number = event.clientX - element.offsetLeft;
-                    let canvasY: number = event.clientY - element.offsetTop;
+                    let clientRect: ClientRect = element.getBoundingClientRect();
+
+                    let canvasX: number = event.clientX - clientRect.left;
+                    let canvasY: number = event.clientY - clientRect.top;
 
                     let unprojected: THREE.Vector3 =
                         this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective);
@@ -190,10 +194,12 @@ export class MouseComponent extends Component {
                     let offsetWidth: number = element.offsetWidth;
                     let offsetHeight: number = element.offsetHeight;
 
+                    let clientRect: ClientRect = element.getBoundingClientRect();
+
                     let unprojected: THREE.Vector3 =
                         this._unproject(
-                            pinch.centerClientX - element.offsetLeft,
-                            pinch.centerClientY - element.offsetTop,
+                            pinch.centerClientX - clientRect.left,
+                            pinch.centerClientY - clientRect.top,
                             offsetWidth,
                             offsetHeight,
                             render.perspective);
@@ -219,7 +225,8 @@ export class MouseComponent extends Component {
         canvasY: number,
         offsetWidth: number,
         offsetHeight: number,
-        perspectiveCamera: THREE.PerspectiveCamera): THREE.Vector3 {
+        perspectiveCamera: THREE.PerspectiveCamera):
+        THREE.Vector3 {
 
         let projectedX: number = 2 * canvasX / offsetWidth - 1;
         let projectedY: number = 1 - 2 * canvasY / offsetHeight;
