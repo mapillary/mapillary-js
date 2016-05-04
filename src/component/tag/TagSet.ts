@@ -2,9 +2,9 @@
 
 import * as rx from "rx";
 
-import {Tag} from "../../Component";
+import {TagBase} from "../../Component";
 
-type TagData = { [id: string]: Tag };
+type TagData = { [id: string]: TagBase };
 
 interface ITagDataOperation extends Function {
     (tags: TagData): TagData;
@@ -14,7 +14,7 @@ export class TagSet {
     private _tagDataOperation$: rx.Subject<ITagDataOperation> = new rx.Subject<ITagDataOperation>();
     private _tagData$: rx.Observable<TagData>;
 
-    private _set$: rx.Subject<Tag[]> = new rx.Subject<Tag[]>();
+    private _set$: rx.Subject<TagBase[]> = new rx.Subject<TagBase[]>();
 
     constructor() {
         this._tagData$ = this._tagDataOperation$
@@ -27,7 +27,7 @@ export class TagSet {
 
         this._set$
             .map<ITagDataOperation>(
-                (tags: Tag[]): ITagDataOperation => {
+                (tags: TagBase[]): ITagDataOperation => {
                     return (tagData: TagData): TagData => {
                         for (let key of Object.keys(tagData)) {
                             delete tagData[key];
@@ -47,7 +47,7 @@ export class TagSet {
         return this._tagData$;
     }
 
-    public get set$(): rx.Subject<Tag[]> {
+    public get set$(): rx.Subject<TagBase[]> {
         return this._set$;
     }
 }

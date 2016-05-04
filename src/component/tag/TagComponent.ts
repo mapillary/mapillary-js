@@ -9,7 +9,7 @@ import {
     ComponentService,
     Component,
     IActiveTag,
-    Tag,
+    TagBase,
     TagDOMRenderer,
     TagGLRenderer,
     TagOperation,
@@ -39,11 +39,11 @@ export class TagComponent extends Component {
     private _tagGlRenderer$: rx.Observable<TagGLRenderer>;
 
     private _currentTransform$: rx.Observable<Transform>;
-    private _tags$: rx.Observable<Tag[]>;
-    private _tagChanged$: rx.Observable<Tag>;
+    private _tags$: rx.Observable<TagBase[]>;
+    private _tagChanged$: rx.Observable<TagBase>;
     private _tagInterationInitiated$: rx.Observable<string>;
     private _tagInteractionAbort$: rx.Observable<string>;
-    private _tagLabelClick$: rx.Observable<Tag>;
+    private _tagLabelClick$: rx.Observable<TagBase>;
     private _activeTag$: rx.Observable<IActiveTag>;
 
     private _claimMouseSubscription: rx.IDisposable;
@@ -90,9 +90,9 @@ export class TagComponent extends Component {
             .shareReplay(1);
 
         this._tags$ = this._tagSet.tagData$
-            .map<Tag[]>(
-                (tagData: { [id: string]: Tag }): Tag[] => {
-                    let tags: Tag[] = [];
+            .map<TagBase[]>(
+                (tagData: { [id: string]: TagBase }): TagBase[] => {
+                    let tags: TagBase[] = [];
 
                     // ensure that tags are always rendered in the same order
                     // to avoid hover tracking problems on first resize.
@@ -105,12 +105,12 @@ export class TagComponent extends Component {
             .share();
 
         this._tagChanged$ = this._tags$
-            .flatMapLatest<Tag>(
-                (tags: Tag[]): rx.Observable<Tag> => {
+            .flatMapLatest<TagBase>(
+                (tags: TagBase[]): rx.Observable<TagBase> => {
                     return rx.Observable
                         .fromArray(tags)
-                        .flatMap<Tag>(
-                            (tag: Tag): rx.Observable<Tag> => {
+                        .flatMap<TagBase>(
+                            (tag: TagBase): rx.Observable<TagBase> => {
                                 return tag.onChanged$;
                             });
                 })
@@ -118,11 +118,11 @@ export class TagComponent extends Component {
 
         this._tagInterationInitiated$ = this._tags$
             .flatMapLatest<string>(
-                (tags: Tag[]): rx.Observable<string> => {
+                (tags: TagBase[]): rx.Observable<string> => {
                     return rx.Observable
                         .fromArray(tags)
                         .flatMap<string>(
-                            (tag: Tag): rx.Observable<string> => {
+                            (tag: TagBase): rx.Observable<string> => {
                                 return tag.interactionInitiate$;
                             });
                 })
@@ -130,11 +130,11 @@ export class TagComponent extends Component {
 
         this._tagInteractionAbort$ = this._tags$
             .flatMapLatest<string>(
-                (tags: Tag[]): rx.Observable<string> => {
+                (tags: TagBase[]): rx.Observable<string> => {
                     return rx.Observable
                         .fromArray(tags)
                         .flatMap<string>(
-                            (tag: Tag): rx.Observable<string> => {
+                            (tag: TagBase): rx.Observable<string> => {
                                 return tag.interactionAbort$;
                             });
                 })
@@ -142,30 +142,30 @@ export class TagComponent extends Component {
 
         this._activeTag$ = this._tags$
             .flatMapLatest<IActiveTag>(
-                (tags: Tag[]): rx.Observable<IActiveTag> => {
+                (tags: TagBase[]): rx.Observable<IActiveTag> => {
                     return rx.Observable
                         .fromArray(tags)
                         .flatMap<IActiveTag>(
-                            (tag: Tag): rx.Observable<IActiveTag> => {
+                            (tag: TagBase): rx.Observable<IActiveTag> => {
                                 return tag.activeTag$;
                             });
                 })
             .share();
 
         this._tagLabelClick$ = this._tags$
-            .flatMapLatest<Tag>(
-                (tags: Tag[]): rx.Observable<Tag> => {
+            .flatMapLatest<TagBase>(
+                (tags: TagBase[]): rx.Observable<TagBase> => {
                     return rx.Observable
                         .fromArray(tags)
-                        .flatMap<Tag>(
-                            (tag: Tag): rx.Observable<Tag> => {
+                        .flatMap<TagBase>(
+                            (tag: TagBase): rx.Observable<TagBase> => {
                                 return tag.labelClick$;
                             });
                 })
             .share();
     }
 
-    public setTags(tags: Tag[]): void {
+    public setTags(tags: TagBase[]): void {
         this._tagSet.set$.onNext(tags);
     }
 
@@ -209,8 +209,10 @@ export class TagComponent extends Component {
 
                     let element: HTMLElement = this._container.element;
 
-                    let canvasX: number = mouseEvent.clientX - element.offsetLeft - activeTag.offsetX;
-                    let canvasY: number = mouseEvent.clientY - element.offsetTop - activeTag.offsetY;
+                    let clientRect: ClientRect = element.getBoundingClientRect();
+
+                    let canvasX: number = mouseEvent.clientX - clientRect.left - activeTag.offsetX;
+                    let canvasY: number = mouseEvent.clientY - clientRect.top - activeTag.offsetY;
 
                     let projectedX: number = 2 * canvasX / element.offsetWidth - 1;
                     let projectedY: number = 1 - 2 * canvasY / element.offsetHeight;
@@ -236,11 +238,11 @@ export class TagComponent extends Component {
         this._setTagsSubscription = this._tags$
             .withLatestFrom(
                 this._currentTransform$,
-                (tags: Tag[], transform: Transform): [Tag[], Transform] => {
+                (tags: TagBase[], transform: Transform): [TagBase[], Transform] => {
                     return [tags, transform];
                 })
             .map<ITagGLRendererOperation>(
-                (tt: [Tag[], Transform]): ITagGLRendererOperation => {
+                (tt: [TagBase[], Transform]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.setTags(tt[0], tt[1]);
 
@@ -252,11 +254,11 @@ export class TagComponent extends Component {
         this._updateTagSubscription = this._tagChanged$
             .withLatestFrom(
                 this._currentTransform$,
-                (tag: Tag, transform: Transform): [Tag, Transform] => {
+                (tag: TagBase, transform: Transform): [TagBase, Transform] => {
                     return [tag, transform];
                 })
             .map<ITagGLRendererOperation>(
-                (tt: [Tag, Transform]): ITagGLRendererOperation => {
+                (tt: [TagBase, Transform]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.updateTag(tt[0], tt[1]);
 
@@ -267,13 +269,13 @@ export class TagComponent extends Component {
 
         this._tagChangedEventSubscription = this._tagChanged$
             .subscribe(
-                (tag: Tag): void => {
+                (tag: TagBase): void => {
                     this.fire(TagComponent.tagchanged, tag);
                 });
 
         this._tagClickEventSubscription = this._tagLabelClick$
             .subscribe(
-                (tag: Tag): void => {
+                (tag: TagBase): void => {
                     this.fire(TagComponent.tagclick, tag);
                 });
 
@@ -283,17 +285,18 @@ export class TagComponent extends Component {
                 this._container.spriteService.spriteAtlas$,
                 this._tags$,
                 this._tagChanged$.startWith(null),
-                (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag): [RenderCamera, ISpriteAtlas, Tag[], Tag] => {
+                (rc: RenderCamera, atlas: ISpriteAtlas, tags: TagBase[], tag: TagBase):
+                [RenderCamera, ISpriteAtlas, TagBase[], TagBase] => {
                     return [rc, atlas, tags, tag];
                 })
             .withLatestFrom(
                 this._currentTransform$,
-                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag], transform: Transform):
-                    [RenderCamera, ISpriteAtlas, Tag[], Tag, Transform] => {
+                (rcts: [RenderCamera, ISpriteAtlas, TagBase[], TagBase], transform: Transform):
+                    [RenderCamera, ISpriteAtlas, TagBase[], TagBase, Transform] => {
                     return [rcts[0], rcts[1], rcts[2], rcts[3], transform];
                 })
             .map<IVNodeHash>(
-                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag, Transform]): IVNodeHash => {
+                (rcts: [RenderCamera, ISpriteAtlas, TagBase[], TagBase, Transform]): IVNodeHash => {
                     return {
                         name: this._name,
                         vnode: this._tagDomRenderer.render(rcts[2], rcts[1], rcts[0].perspective, rcts[4]),

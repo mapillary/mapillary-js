@@ -3,21 +3,22 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Tag} from "../../Component";
+import {TagBase} from "../../Component";
 import {Transform} from "../../Geo";
 import {ISpriteAtlas} from "../../Viewer";
 
 export class TagDOMRenderer {
     public render(
-        tags: Tag[],
+        tags: TagBase[],
         atlas: ISpriteAtlas,
         camera: THREE.PerspectiveCamera,
         transform: Transform): vd.VNode {
 
-        let vNodes: vd.VNode[] = tags
-            .map((tag): vd.VNode => {
-                return tag.getDOMGeometry(atlas, camera, transform);
-            });
+        let vNodes: vd.VNode[] = [];
+
+        for (let tag of tags) {
+            vNodes = vNodes.concat(tag.getDOMGeometry(atlas, camera, transform));
+        }
 
         return vd.h("div.TagContainer", {}, vNodes);
     }

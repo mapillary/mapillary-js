@@ -1,2 +1,3 @@
 export {IActiveTag} from "./IActiveTag";
-export {ITagOptions} from "./ITagOptions";
+export {IPolygonTagOptions} from "./IPolygonTagOptions";
+export {IRectTagOptions} from "./IRectTagOptions";

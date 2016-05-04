@@ -1,11 +1,11 @@
-import {Tag, TagOperation} from "../../../Component";
+import {TagBase, TagOperation} from "../../../Component";
 
 export interface IActiveTag {
     resizeIndex?: number;
     offsetX: number;
     offsetY: number;
     operation: TagOperation;
-    tag: Tag;
+    tag: TagBase;
 }
 
 export default IActiveTag;

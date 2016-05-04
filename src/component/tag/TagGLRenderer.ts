@@ -2,7 +2,7 @@
 
 import * as THREE from "three";
 
-import {Tag} from "../../Component";
+import {TagBase} from "../../Component";
 import {Transform} from "../../Geo";
 
 export class TagGLRenderer {
@@ -31,7 +31,7 @@ export class TagGLRenderer {
         this._needsRender = false;
     }
 
-    public setTags(tags: Tag[], transform: Transform): void {
+    public setTags(tags: TagBase[], transform: Transform): void {
         this._disposeObjects();
 
         for (let tag of tags) {
@@ -41,7 +41,7 @@ export class TagGLRenderer {
         this._needsRender = true;
     }
 
-    public updateTag(tag: Tag, transform: Transform): void {
+    public updateTag(tag: TagBase, transform: Transform): void {
         this._disposeMesh(tag.id);
         this._addMesh(tag, transform);
 
@@ -54,7 +54,7 @@ export class TagGLRenderer {
         this._needsRender = false;
     }
 
-    private _addMesh(tag: Tag, transform: Transform): void {
+    private _addMesh(tag: TagBase, transform: Transform): void {
         let object: THREE.Object3D = tag.getGLGeometry(transform);
 
         this._meshes[tag.id] = object;

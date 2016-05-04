@@ -1,52 +1,31 @@
 /// <reference path="../../../typings/browser.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {IActiveTag, ITagOptions, TagLabelKind, TagOperation} from "../../Component";
+import {IRectTagOptions, TagBase, TagLabelKind, TagOperation} from "../../Component";
 import {Transform} from "../../Geo";
 import {ISpriteAtlas} from "../../Viewer";
 
-export class Tag {
-    private _id: string;
-
+export class RectTag extends TagBase {
     private _label: string;
     private _labelKind: TagLabelKind;
     private _editable: boolean;
 
     private _rect: number[];
 
-    private _notifyChanged$: rx.Subject<Tag>;
+    constructor(id: string, tag: IRectTagOptions) {
+        super(id);
 
-    private _activeTag$: rx.Subject<IActiveTag>;
-    private _interactionInitiate$: rx.Subject<string>;
-    private _interactionAbort$: rx.Subject<string>;
-    private _labelClick$: rx.Subject<Tag>;
-
-    constructor(id: string, tag: ITagOptions) {
         if (tag.rect.length !== 4) {
             throw new Error("Rectangle polygon must have five points.");
         }
-
-        this._notifyChanged$ = new rx.Subject<Tag>();
-
-        this._activeTag$ = new rx.Subject<IActiveTag>();
-        this._interactionInitiate$ = new rx.Subject<string>();
-        this._interactionAbort$ = new rx.Subject<string>();
-        this._labelClick$ = new rx.Subject<Tag>();
-
-        this._id = id;
 
         this._label = tag.label;
         this._labelKind = tag.labelKind;
         this._editable = tag.editable;
 
         this._rect = tag.rect.slice();
-    }
-
-    public get id(): string {
-        return this._id;
     }
 
     public get rect(): number[] {
@@ -73,26 +52,6 @@ export class Tag {
 
     public get editable(): boolean {
         return this._editable;
-    }
-
-    public get activeTag$(): rx.Observable<IActiveTag> {
-        return this._activeTag$;
-    }
-
-    public get interactionInitiate$(): rx.Observable<string> {
-        return this._interactionInitiate$;
-    }
-
-    public get interactionAbort$(): rx.Observable<string> {
-        return this._interactionAbort$;
-    }
-
-    public get labelClick$(): rx.Observable<Tag> {
-        return this._labelClick$;
-    }
-
-    public get onChanged$(): rx.Observable<Tag> {
-        return this._notifyChanged$;
     }
 
     public setPolygonPoint2d(index: number, value: number[]): void {
@@ -230,7 +189,7 @@ export class Tag {
         return line;
     }
 
-    public getDOMGeometry(atlas: ISpriteAtlas, camera: THREE.PerspectiveCamera, transform: Transform): vd.VNode {
+    public getDOMGeometry(atlas: ISpriteAtlas, camera: THREE.PerspectiveCamera, transform: Transform): vd.VNode[] {
         let vNodes: vd.VNode[] = [];
         let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
 
@@ -286,7 +245,7 @@ export class Tag {
         }
 
         if (!this._editable) {
-            return;
+            return vNodes;
         }
 
         for (let i: number = 0; i < polygonPoints3d.length - 1; i++) {
@@ -327,7 +286,7 @@ export class Tag {
             vNodes.push(vd.h("div.TagMover", properties, []));
         }
 
-        return vd.h("div.TagContainer", {}, vNodes);
+        return vNodes;
     }
 
     private _rectToPolygonPoints2d(rect: number[]): number[][] {
@@ -340,7 +299,7 @@ export class Tag {
         ];
     }
 
-    private _activateTag(tag: Tag, operation: TagOperation, resizeIndex?: number): (e: MouseEvent) => void {
+    private _activateTag(tag: TagBase, operation: TagOperation, resizeIndex?: number): (e: MouseEvent) => void {
         return (e: MouseEvent): void => {
             let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
             let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
@@ -373,4 +332,4 @@ export class Tag {
     }
 }
 
-export default Tag;
+export default RectTag;

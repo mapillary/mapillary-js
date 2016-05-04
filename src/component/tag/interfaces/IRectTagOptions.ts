@@ -1,10 +1,10 @@
 import {TagLabelKind} from "../../../Component";
 
-export interface ITagOptions {
+export interface IRectTagOptions {
     rect: number[];
     label: string;
     labelKind: TagLabelKind;
     editable: boolean;
 }
 
-export default ITagOptions;
+export default IRectTagOptions;
