@@ -181,15 +181,15 @@ export class Transform {
                 rotatedY = point[1];
                 break;
             case 3:
-                rotatedX = -point[0];
-                rotatedY = -point[1];
+                rotatedX = 1 - point[0];
+                rotatedY = 1 - point[1];
                 break;
             case 6:
                 rotatedX = point[1];
-                rotatedY = -point[0];
+                rotatedY = 1 - point[0];
                 break;
             case 8:
-                rotatedX = -point[1];
+                rotatedX = 1 - point[1];
                 rotatedY = point[0];
                 break;
             default:
@@ -220,15 +220,15 @@ export class Transform {
                 basicY = rotatedY;
                 break;
             case 3:
-                basicX = -rotatedX;
-                basicY = -rotatedY;
+                basicX = 1 - rotatedX;
+                basicY = 1 - rotatedY;
                 break;
             case 6:
                 basicY = rotatedX;
-                basicX = -rotatedY;
+                basicX = 1 - rotatedY;
                 break;
             case 8:
-                basicY = -rotatedX;
+                basicY = 1 - rotatedX;
                 basicX = rotatedY;
                 break;
             default:
