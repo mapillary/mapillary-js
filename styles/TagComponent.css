@@ -8,15 +8,12 @@
     pointer-events: none;
 }
 
-.TagLabel {
-    position: absolute;
-    pointer-events: all;
+.TagSymbol {
     cursor: default;
 }
 
 .TagMover,
 .TagResizer {
-    position: absolute;
     transform: translate(-50%, -50%);
     pointer-events: all;
 }
@@ -25,7 +22,6 @@
     border-radius: 7px;
     width: 14px;
     height: 14px;
-    background: #FFFF00;
     opacity: 0.2;
 }
 
@@ -37,7 +33,6 @@
     border-radius: 10px;
     width: 20px;
     height: 20px;
-    background: #00FF00;
     opacity: 0;
 }
 

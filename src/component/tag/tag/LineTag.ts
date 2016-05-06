@@ -147,19 +147,22 @@ export class LineTag extends Tag {
                     style: {
                         color: "#" + ("000000" + this._textColor.toString(16)).substr(-6),
                         left: labelCss[0],
+                        pointerEvents: "all",
                         position: "absolute",
                         top: labelCss[1],
                     },
                     textContent: this._text,
                 };
 
-                vNodes.push(vd.h("span.TagLabel", properties, []));
+                vNodes.push(vd.h("span.TagSymbol", properties, []));
             }
         }
 
         if (!this._editable) {
             return vNodes;
         }
+
+        let lineColor: string = "#" + ("000000" + this._lineColor.toString(16)).substr(-6);
 
         for (let i: number = 0; i < polygonPoints3d.length - 1; i++) {
             let pointCameraSpace: THREE.Vector3 = this._convertToCameraSpace(polygonPoints3d[i], matrixWorldInverse);
@@ -176,7 +179,7 @@ export class LineTag extends Tag {
             let properties: vd.createProperties = {
                 onmousedown: interact,
                 onmouseup: abort,
-                style: { left: cornerCss[0], top: cornerCss[1] },
+                style: { background: lineColor, left: cornerCss[0], position: "absolute", top: cornerCss[1] },
             };
 
             vNodes.push(vd.h("div.TagResizer", properties, []));
@@ -193,7 +196,7 @@ export class LineTag extends Tag {
             let properties: vd.createProperties = {
                 onmousedown: interact,
                 onmouseup: abort,
-                style: { left: centerCss[0], top: centerCss[1] },
+                style: { background: lineColor, left: centerCss[0], position: "absolute", top: centerCss[1] },
             };
 
             vNodes.push(vd.h("div.TagMover", properties, []));
