@@ -8,8 +8,8 @@ import {APIv3} from "../../API";
 import {
     ComponentService,
     Component,
-    IActiveTag,
-    TagBase,
+    IInteraction,
+    Tag,
     TagDOMRenderer,
     TagGLRenderer,
     TagOperation,
@@ -39,12 +39,12 @@ export class TagComponent extends Component {
     private _tagGlRenderer$: rx.Observable<TagGLRenderer>;
 
     private _currentTransform$: rx.Observable<Transform>;
-    private _tags$: rx.Observable<TagBase[]>;
-    private _tagChanged$: rx.Observable<TagBase>;
+    private _tags$: rx.Observable<Tag[]>;
+    private _tagChanged$: rx.Observable<Tag>;
     private _tagInterationInitiated$: rx.Observable<string>;
     private _tagInteractionAbort$: rx.Observable<string>;
-    private _tagLabelClick$: rx.Observable<TagBase>;
-    private _activeTag$: rx.Observable<IActiveTag>;
+    private _tagLabelClick$: rx.Observable<Tag>;
+    private _activeTag$: rx.Observable<IInteraction>;
 
     private _claimMouseSubscription: rx.IDisposable;
     private _mouseDragSubscription: rx.IDisposable;
@@ -90,9 +90,9 @@ export class TagComponent extends Component {
             .shareReplay(1);
 
         this._tags$ = this._tagSet.tagData$
-            .map<TagBase[]>(
-                (tagData: { [id: string]: TagBase }): TagBase[] => {
-                    let tags: TagBase[] = [];
+            .map<Tag[]>(
+                (tagData: { [id: string]: Tag }): Tag[] => {
+                    let tags: Tag[] = [];
 
                     // ensure that tags are always rendered in the same order
                     // to avoid hover tracking problems on first resize.
@@ -105,67 +105,73 @@ export class TagComponent extends Component {
             .share();
 
         this._tagChanged$ = this._tags$
-            .flatMapLatest<TagBase>(
-                (tags: TagBase[]): rx.Observable<TagBase> => {
+            .flatMapLatest<Tag>(
+                (tags: Tag[]): rx.Observable<Tag> => {
                     return rx.Observable
                         .fromArray(tags)
-                        .flatMap<TagBase>(
-                            (tag: TagBase): rx.Observable<TagBase> => {
-                                return tag.onChanged$;
+                        .flatMap<Tag>(
+                            (tag: Tag): rx.Observable<Tag> => {
+                                return rx.Observable.merge(
+                                    tag.changed$,
+                                    tag.geometryChanged$);
                             });
                 })
             .share();
 
         this._tagInterationInitiated$ = this._tags$
             .flatMapLatest<string>(
-                (tags: TagBase[]): rx.Observable<string> => {
+                (tags: Tag[]): rx.Observable<string> => {
                     return rx.Observable
                         .fromArray(tags)
                         .flatMap<string>(
-                            (tag: TagBase): rx.Observable<string> => {
-                                return tag.interactionInitiate$;
+                            (tag: Tag): rx.Observable<string> => {
+                                return tag.interact$
+                                    .map<string>(
+                                        (interaction: IInteraction): string => {
+                                            return interaction.tag.id;
+                                        });
                             });
                 })
             .share();
 
         this._tagInteractionAbort$ = this._tags$
             .flatMapLatest<string>(
-                (tags: TagBase[]): rx.Observable<string> => {
+                (tags: Tag[]): rx.Observable<string> => {
                     return rx.Observable
                         .fromArray(tags)
                         .flatMap<string>(
-                            (tag: TagBase): rx.Observable<string> => {
-                                return tag.interactionAbort$;
+                            (tag: Tag): rx.Observable<string> => {
+                                return tag.abort$;
                             });
                 })
             .share();
 
         this._activeTag$ = this._tags$
-            .flatMapLatest<IActiveTag>(
-                (tags: TagBase[]): rx.Observable<IActiveTag> => {
+            .flatMapLatest<IInteraction>(
+                (tags: Tag[]): rx.Observable<IInteraction> => {
                     return rx.Observable
                         .fromArray(tags)
-                        .flatMap<IActiveTag>(
-                            (tag: TagBase): rx.Observable<IActiveTag> => {
-                                return tag.activeTag$;
+                        .flatMap<IInteraction>(
+                            (tag: Tag): rx.Observable<IInteraction> => {
+                                return tag.interact$;
                             });
                 })
             .share();
 
         this._tagLabelClick$ = this._tags$
-            .flatMapLatest<TagBase>(
-                (tags: TagBase[]): rx.Observable<TagBase> => {
+            .flatMapLatest<Tag>(
+                (tags: Tag[]): rx.Observable<Tag> => {
                     return rx.Observable
                         .fromArray(tags)
-                        .flatMap<TagBase>(
-                            (tag: TagBase): rx.Observable<TagBase> => {
-                                return tag.labelClick$;
+                        .flatMap<Tag>(
+                            (tag: Tag): rx.Observable<Tag> => {
+                                return tag.click$;
                             });
                 })
             .share();
     }
 
-    public setTags(tags: TagBase[]): void {
+    public setTags(tags: Tag[]): void {
         this._tagSet.set$.onNext(tags);
     }
 
@@ -190,16 +196,16 @@ export class TagComponent extends Component {
                 this._currentTransform$,
                 (
                     event: MouseEvent,
-                    activeTag: IActiveTag,
+                    activeTag: IInteraction,
                     renderCamera: RenderCamera,
                     transform: Transform):
-                    [MouseEvent, IActiveTag, RenderCamera, Transform] => {
+                    [MouseEvent, IInteraction, RenderCamera, Transform] => {
                     return [event, activeTag, renderCamera, transform];
                 })
             .subscribe(
-                (args: [MouseEvent, IActiveTag, RenderCamera, Transform]): void => {
+                (args: [MouseEvent, IInteraction, RenderCamera, Transform]): void => {
                     let mouseEvent: MouseEvent = args[0];
-                    let activeTag: IActiveTag = args[1];
+                    let activeTag: IInteraction = args[1];
                     let renderCamera: RenderCamera = args[2];
                     let transform: Transform = args[3];
 
@@ -223,9 +229,9 @@ export class TagComponent extends Component {
                     let newCoord: number[] = transform.projectBasic(unprojected.toArray());
 
                     if (activeTag.operation === TagOperation.Move) {
-                        activeTag.tag.setCentroid2d(newCoord);
+                        activeTag.tag.geometry.setCentroid2d(newCoord);
                     } else if (activeTag.operation === TagOperation.Resize) {
-                        activeTag.tag.setPolygonPoint2d(activeTag.resizeIndex, newCoord);
+                        activeTag.tag.geometry.setPolygonPoint2d(activeTag.pointIndex, newCoord);
                     }
                 });
 
@@ -238,11 +244,11 @@ export class TagComponent extends Component {
         this._setTagsSubscription = this._tags$
             .withLatestFrom(
                 this._currentTransform$,
-                (tags: TagBase[], transform: Transform): [TagBase[], Transform] => {
+                (tags: Tag[], transform: Transform): [Tag[], Transform] => {
                     return [tags, transform];
                 })
             .map<ITagGLRendererOperation>(
-                (tt: [TagBase[], Transform]): ITagGLRendererOperation => {
+                (tt: [Tag[], Transform]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.setTags(tt[0], tt[1]);
 
@@ -254,11 +260,11 @@ export class TagComponent extends Component {
         this._updateTagSubscription = this._tagChanged$
             .withLatestFrom(
                 this._currentTransform$,
-                (tag: TagBase, transform: Transform): [TagBase, Transform] => {
+                (tag: Tag, transform: Transform): [Tag, Transform] => {
                     return [tag, transform];
                 })
             .map<ITagGLRendererOperation>(
-                (tt: [TagBase, Transform]): ITagGLRendererOperation => {
+                (tt: [Tag, Transform]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.updateTag(tt[0], tt[1]);
 
@@ -269,13 +275,13 @@ export class TagComponent extends Component {
 
         this._tagChangedEventSubscription = this._tagChanged$
             .subscribe(
-                (tag: TagBase): void => {
+                (tag: Tag): void => {
                     this.fire(TagComponent.tagchanged, tag);
                 });
 
         this._tagClickEventSubscription = this._tagLabelClick$
             .subscribe(
-                (tag: TagBase): void => {
+                (tag: Tag): void => {
                     this.fire(TagComponent.tagclick, tag);
                 });
 
@@ -285,18 +291,18 @@ export class TagComponent extends Component {
                 this._container.spriteService.spriteAtlas$,
                 this._tags$,
                 this._tagChanged$.startWith(null),
-                (rc: RenderCamera, atlas: ISpriteAtlas, tags: TagBase[], tag: TagBase):
-                [RenderCamera, ISpriteAtlas, TagBase[], TagBase] => {
+                (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag):
+                [RenderCamera, ISpriteAtlas, Tag[], Tag] => {
                     return [rc, atlas, tags, tag];
                 })
             .withLatestFrom(
                 this._currentTransform$,
-                (rcts: [RenderCamera, ISpriteAtlas, TagBase[], TagBase], transform: Transform):
-                    [RenderCamera, ISpriteAtlas, TagBase[], TagBase, Transform] => {
+                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag], transform: Transform):
+                    [RenderCamera, ISpriteAtlas, Tag[], Tag, Transform] => {
                     return [rcts[0], rcts[1], rcts[2], rcts[3], transform];
                 })
             .map<IVNodeHash>(
-                (rcts: [RenderCamera, ISpriteAtlas, TagBase[], TagBase, Transform]): IVNodeHash => {
+                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag, Transform]): IVNodeHash => {
                     return {
                         name: this._name,
                         vnode: this._tagDomRenderer.render(rcts[2], rcts[1], rcts[0].perspective, rcts[4]),

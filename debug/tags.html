@@ -22,7 +22,7 @@
             "viewer",
             clientId,
             "zarcRdNFZwg3FkXNcsFeGw",
-            { cover: false, tag: true }
+            { cover: false, tag: true, sprite: "/assets/sprites" }
         );
 
         window.addEventListener("resize", function() { viewer.resize(); });
@@ -78,19 +78,23 @@
 
                         var or = orByKey[key];
 
-                        var tagOptions = {
-                            rect: [
-                                or.rect.value.geometry.coordinates[1][0],
-                                or.rect.value.geometry.coordinates[1][1],
-                                or.rect.value.geometry.coordinates[3][0],
-                                or.rect.value.geometry.coordinates[3][1],
-                            ],
-                            label: or.value.value,
-                            labelKind: 0,
-                            editable: true,
+                        var id = or.key.value;
+                        var editable = true;
+                        var rect = [
+                            or.rect.value.geometry.coordinates[1][0],
+                            or.rect.value.geometry.coordinates[1][1],
+                            or.rect.value.geometry.coordinates[3][0],
+                            or.rect.value.geometry.coordinates[3][1],
+                        ];
+                        var geometry = new Mapillary.RectGeometry(rect);
+                        var parameters = {
+                            lineColor: 0x00FFFF,
+                            lineWidth: 1,
+                            text: or.value.value,
+                            textColor: 0x00FFFF,
                         };
 
-                        var tag = new Mapillary.RectTag(or.key.value, tagOptions);
+                        var tag = new Mapillary.LineTag(id, editable, geometry, parameters);
 
                         currentTags[tag.id] = tag;
                         tags.push(tag);

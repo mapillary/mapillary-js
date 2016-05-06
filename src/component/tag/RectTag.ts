@@ -3,193 +3,33 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {IRectTagOptions, TagBase, TagLabelKind, TagOperation} from "../../Component";
+import {Geometry} from "../../Component";
 import {Transform} from "../../Geo";
 import {ISpriteAtlas} from "../../Viewer";
 
-export class RectTag extends TagBase {
-    private _label: string;
-    private _labelKind: TagLabelKind;
+export class RectTag {
+    private _id: string;
     private _editable: boolean;
+    private _geometry: Geometry;
 
-    private _rect: number[];
-
-    constructor(id: string, tag: IRectTagOptions) {
-        super(id);
-
-        if (tag.rect.length !== 4) {
-            throw new Error("Rectangle polygon must have five points.");
-        }
-
-        this._label = tag.label;
-        this._labelKind = tag.labelKind;
-        this._editable = tag.editable;
-
-        this._rect = tag.rect.slice();
-    }
-
-    public get rect(): number[] {
-        return this._rect;
-    }
-
-    public set rect(value: number[]) {
-        this._rect = value;
-
-        this._notifyChanged$.onNext(this);
-    }
-
-    public get polygonPoints2d(): number[][] {
-        return this._rectToPolygonPoints2d(this._rect);
-    }
-
-    public get label(): string {
-        return this._label;
-    }
-
-    public get labelKind(): TagLabelKind {
-        return this._labelKind;
+    constructor(id: string, editable: boolean, geometry: Geometry) {
+        this._id = id;
+        this._editable = editable;
+        this._geometry = geometry;
     }
 
     public get editable(): boolean {
         return this._editable;
     }
 
-    public setPolygonPoint2d(index: number, value: number[]): void {
-        let original: number[] = this._rect.slice();
-
-        let newCoord: number[] = [
-            Math.max(0, Math.min(1, value[0])),
-            Math.max(0, Math.min(1, value[1])),
-        ];
-
-        let rect: number[] = [];
-        if (index === 0) {
-            rect[0] = newCoord[0];
-            rect[1] = original[1];
-            rect[2] = original[2];
-            rect[3] = newCoord[1];
-        } else if (index === 1) {
-            rect[0] = newCoord[0];
-            rect[1] = newCoord[1];
-            rect[2] = original[2];
-            rect[3] = original[3];
-        } else if (index === 2) {
-            rect[0] = original[0];
-            rect[1] = newCoord[1];
-            rect[2] = newCoord[0];
-            rect[3] = original[3];
-        } else if (index === 3) {
-            rect[0] = original[0];
-            rect[1] = original[1];
-            rect[2] = newCoord[0];
-            rect[3] = newCoord[1];
-        }
-
-        if (rect[0] > rect[2]) {
-            rect[0] = original[0];
-            rect[2] = original[2];
-        }
-
-        if (rect[1] > rect[3]) {
-            rect[1] = original[1];
-            rect[3] = original[3];
-        }
-
-        this._rect[0] = rect[0];
-        this._rect[1] = rect[1];
-        this._rect[2] = rect[2];
-        this._rect[3] = rect[3];
-
-        this._notifyChanged$.onNext(this);
-    }
-
-    public setCentroid2d(value: number[]): void {
-        let original: number[] = this._rect.slice();
-
-        let centerX: number = original[0] + (original[2] - original[0]) / 2;
-        let centerY: number = original[1] + (original[3] - original[1]) / 2;
-
-        let minTranslationX: number = -original[0];
-        let maxTranslationX: number = 1 - original[2];
-        let minTranslationY: number = -original[1];
-        let maxTranslationY: number = 1 - original[3];
-
-        let translationX: number = Math.max(minTranslationX, Math.min(maxTranslationX, value[0] - centerX));
-        let translationY: number = Math.max(minTranslationY, Math.min(maxTranslationY, value[1] - centerY));
-
-        this._rect[0] = original[0] + translationX;
-        this._rect[1] = original[1] + translationY;
-        this._rect[2] = original[2] + translationX;
-        this._rect[3] = original[3] + translationY;
-
-        this._notifyChanged$.onNext(this);
-    }
-
-    public getPoint3d(x: number, y: number, transform: Transform): number[] {
-        return transform.unprojectBasic([x, y], 200);
-    }
-
-    public getPolygonPoints3d(transform: Transform): number[][] {
-        return this._rectToPolygonPoints2d(this._rect)
-            .map(
-                (point: number[]) => {
-                    return this.getPoint3d(point[0], point[1], transform);
-                });
-    }
-
-    public getCentroidPoint3d(transform: Transform): number[] {
-        let rect: number[] = this._rect;
-
-        let centroidX: number = rect[0] + (rect[2] - rect[0]) / 2;
-        let centroidY: number = rect[1] + (rect[3] - rect[1]) / 2;
-
-        return this.getPoint3d(centroidX, centroidY, transform);
-    }
-
-    public getGLGeometry(transform: Transform): THREE.Object3D {
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-
-        let polygonPoints2d: number[][] = this._rectToPolygonPoints2d(this._rect);
-
-        let sides: number = polygonPoints2d.length - 1;
-        let sections: number = 8;
-
-        let positions: Float32Array = new Float32Array(sides * sections * 3);
-
-        for (let i: number = 0; i < sides; ++i) {
-            let startX: number = polygonPoints2d[i][0];
-            let startY: number = polygonPoints2d[i][1];
-
-            let endX: number = polygonPoints2d[i + 1][0];
-            let endY: number = polygonPoints2d[i + 1][1];
-
-            let intervalX: number = (endX - startX) / (sections - 1);
-            let intervalY: number = (endY - startY) / (sections - 1);
-
-            for (let j: number = 0; j < sections; ++j) {
-                let rectPosition: number[] = [
-                    startX + j * intervalX,
-                    startY + j * intervalY,
-                ];
-
-                let position: number[] = this.getPoint3d(rectPosition[0], rectPosition[1], transform);
-                let index: number = 3 * sections * i + 3 * j;
-
-                positions[index] = position[0];
-                positions[index + 1] = position[1];
-                positions[index + 2] = position[2];
-            }
-        }
-
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-        let material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({ color: 0x00FF00, linewidth: 1 } );
-        let line: THREE.Line = new THREE.Line(geometry, material);
-
-        return line;
+    public get geometry(): Geometry {
+        return this._geometry;
     }
 
     public getDOMGeometry(atlas: ISpriteAtlas, camera: THREE.PerspectiveCamera, transform: Transform): vd.VNode[] {
+        return null;
+
+        /*
         let vNodes: vd.VNode[] = [];
         let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
 
@@ -287,19 +127,12 @@ export class RectTag extends TagBase {
         }
 
         return vNodes;
+
+        */
     }
 
-    private _rectToPolygonPoints2d(rect: number[]): number[][] {
-        return [
-            [rect[0], rect[3]],
-            [rect[0], rect[1]],
-            [rect[2], rect[1]],
-            [rect[2], rect[3]],
-            [rect[0], rect[3]],
-        ];
-    }
-
-    private _activateTag(tag: TagBase, operation: TagOperation, resizeIndex?: number): (e: MouseEvent) => void {
+    /*
+    private _activateTag(tag: Tag, operation: TagOperation, resizeIndex?: number): (e: MouseEvent) => void {
         return (e: MouseEvent): void => {
             let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
             let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
@@ -315,21 +148,7 @@ export class RectTag extends TagBase {
             this._interactionInitiate$.onNext(tag.id);
         };
     }
-
-    private _projectToCanvas(point: THREE.Vector3, projectionMatrix: THREE.Matrix4): number[] {
-        let projected: THREE.Vector3 =
-            new THREE.Vector3(point.x, point.y, point.z)
-                .applyProjection(projectionMatrix);
-
-        return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
-    }
-
-    private _convertToCameraSpace(point: number[], matrixWorldInverse: THREE.Matrix4): THREE.Vector3 {
-        let p: THREE.Vector3 = new THREE.Vector3(point[0], point[1], point[2]);
-        p.applyMatrix4(matrixWorldInverse);
-
-        return p;
-    }
+    */
 }
 
 export default RectTag;

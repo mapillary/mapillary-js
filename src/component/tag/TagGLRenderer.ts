@@ -2,18 +2,18 @@
 
 import * as THREE from "three";
 
-import {TagBase} from "../../Component";
+import {Tag} from "../../Component";
 import {Transform} from "../../Geo";
 
 export class TagGLRenderer {
     private _scene: THREE.Scene;
-    private _meshes: { [key: string]: THREE.Object3D };
+    private _tags: { [key: string]: THREE.Object3D[] };
 
     private _needsRender: boolean;
 
     constructor() {
         this._scene = new THREE.Scene();
-        this._meshes = {};
+        this._tags = {};
 
         this._needsRender = false;
     }
@@ -31,47 +31,57 @@ export class TagGLRenderer {
         this._needsRender = false;
     }
 
-    public setTags(tags: TagBase[], transform: Transform): void {
-        this._disposeObjects();
+    public setTags(tags: Tag[], transform: Transform): void {
+        this._disposeTags();
 
         for (let tag of tags) {
-            this._addMesh(tag, transform);
+            this._addTag(tag, transform);
         }
 
         this._needsRender = true;
     }
 
-    public updateTag(tag: TagBase, transform: Transform): void {
-        this._disposeMesh(tag.id);
-        this._addMesh(tag, transform);
+    public updateTag(tag: Tag, transform: Transform): void {
+        this._disposeTag(tag.id);
+        this._addTag(tag, transform);
 
         this._needsRender = true;
     }
 
     public dispose(): void {
-        this._disposeObjects();
+        this._disposeTags();
 
         this._needsRender = false;
     }
 
-    private _addMesh(tag: TagBase, transform: Transform): void {
-        let object: THREE.Object3D = tag.getGLGeometry(transform);
+    private _addTag(tag: Tag, transform: Transform): void {
+        let objects: THREE.Object3D[] = tag.getGLObjects(transform);
 
-        this._meshes[tag.id] = object;
-        this._scene.add(object);
-    }
+        this._tags[tag.id] = [];
 
-    private _disposeObjects(): void {
-        for (let key of Object.keys(this._meshes)) {
-            this._disposeMesh(key);
+        for (let object of objects) {
+            this._tags[tag.id].push(object);
+            this._scene.add(object);
         }
     }
 
-    private _disposeMesh(id: string): void {
-        let mesh: THREE.Mesh | THREE.Line = <THREE.Mesh | THREE.Line>this._meshes[id];
-        this._scene.remove(mesh);
-        mesh.geometry.dispose();
-        mesh.material.dispose();
-        delete this._meshes[id];
+    private _disposeTags(): void {
+        for (let key of Object.keys(this._tags)) {
+            this._disposeTag(key);
+        }
+    }
+
+    private _disposeTag(id: string): void {
+        let objects: THREE.Object3D[] = this._tags[id];
+
+        for (let object of objects) {
+            let mesh: THREE.Mesh | THREE.Line = <THREE.Mesh | THREE.Line>object;
+
+            this._scene.remove(mesh);
+            mesh.geometry.dispose();
+            mesh.material.dispose();
+        }
+
+        delete this._tags[id];
     }
 }

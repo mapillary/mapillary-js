@@ -1,3 +1,2 @@
-export {IActiveTag} from "./IActiveTag";
-export {IPolygonTagOptions} from "./IPolygonTagOptions";
-export {IRectTagOptions} from "./IRectTagOptions";
+export {IInteraction} from "./IInteraction";
+export {ILineTagParameters} from "./ILineTagParameters";
