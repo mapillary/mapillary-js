@@ -79,7 +79,6 @@
                         var or = orByKey[key];
 
                         var id = or.key.value;
-                        var editable = true;
                         var rect = [
                             or.rect.value.geometry.coordinates[1][0],
                             or.rect.value.geometry.coordinates[1][1],
@@ -88,13 +87,14 @@
                         ];
                         var geometry = new Mapillary.RectGeometry(rect);
                         var parameters = {
+                            editable: true,
                             lineColor: 0x00FFFF,
                             lineWidth: 1,
                             text: or.value.value,
-                            textColor: 0x00FFFF,
+                            textColor: 0xFFFFFF,
                         };
 
-                        var tag = new Mapillary.LineTag(id, editable, geometry, parameters);
+                        var tag = new Mapillary.LineTag(id, geometry, parameters);
 
                         currentTags[tag.id] = tag;
                         tags.push(tag);

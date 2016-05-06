@@ -1,4 +1,5 @@
 export interface ILineTagOptions {
+    editable?: boolean;
     icon?: string;
     lineColor?: number;
     lineWidth?: number;

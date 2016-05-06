@@ -13,20 +13,31 @@ import {Transform} from "../../../Geo";
 import {ISpriteAtlas} from "../../../Viewer";
 
 export class LineTag extends Tag {
+    private _editable: boolean;
     private _icon: string;
     private _lineColor: number;
     private _lineWidth: number;
     private _text: string;
     private _textColor: number;
 
-    constructor(id: string, editable: boolean, geometry: Geometry, parameters: ILineTagOptions) {
-        super(id, editable, geometry);
+    constructor(id: string, geometry: Geometry, parameters: ILineTagOptions) {
+        super(id, geometry);
 
+        this._editable = parameters.editable ? parameters.editable : false;
         this._icon = parameters.icon ? parameters.icon : null;
         this._lineColor = parameters.lineColor ? parameters.lineColor : 0xFFFFFF;
         this._lineWidth = parameters.lineWidth ? parameters.lineWidth : 1;
         this._text = parameters.text ? parameters.text : null;
         this._textColor = parameters.textColor ? parameters.textColor : 0xFFFFFF;
+    }
+
+    public get editable(): boolean {
+        return this._editable;
+    }
+
+    public set editable(value: boolean) {
+        this._editable = value;
+        this._notifyChanged$.onNext(this);
     }
 
     public get icon(): string {

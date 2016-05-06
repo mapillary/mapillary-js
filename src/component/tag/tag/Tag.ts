@@ -13,7 +13,6 @@ import {ISpriteAtlas} from "../../../Viewer";
 
 export abstract class Tag {
     protected _id: string;
-    protected _editable: boolean;
     protected _geometry: Geometry;
 
     protected _interact$: rx.Subject<IInteraction>;
@@ -21,9 +20,8 @@ export abstract class Tag {
     protected _click$: rx.Subject<Tag>;
     protected _notifyChanged$: rx.Subject<Tag>;
 
-    constructor(id: string, editable: boolean, geometry: Geometry) {
+    constructor(id: string, geometry: Geometry) {
         this._id = id;
-        this._editable = editable;
         this._geometry = geometry;
 
         this._interact$ = new rx.Subject<IInteraction>();
@@ -34,10 +32,6 @@ export abstract class Tag {
 
     public get id(): string {
         return this._id;
-    }
-
-    public get editable(): boolean {
-        return this._editable;
     }
 
     public get geometry(): Geometry {
