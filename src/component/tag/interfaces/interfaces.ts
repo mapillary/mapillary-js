@@ -1,2 +1,2 @@
 export {IInteraction} from "./IInteraction";
-export {ILineTagParameters} from "./ILineTagParameters";
+export {ILineTagOptions} from "./ILineTagOptions";

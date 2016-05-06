@@ -1,10 +1,9 @@
-export interface ILineTagParameters {
+export interface ILineTagOptions {
     icon?: string;
-    interpolate?: boolean;
     lineColor?: number;
     lineWidth?: number;
     text?: string;
     textColor?: number;
 }
 
-export default ILineTagParameters;
+export default ILineTagOptions;

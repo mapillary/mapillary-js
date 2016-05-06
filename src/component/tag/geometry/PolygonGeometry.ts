@@ -53,6 +53,10 @@ export class PolygonGeometry extends Geometry {
         this._notifyChanged$.onNext(this);
     }
 
+    public getPolygon3d(transform: Transform): number[][] {
+        return this.getPolygonPoints3d(transform);
+    }
+
     public getPolygonPoints3d(transform: Transform): number[][] {
         return this._polygonPoints2d
             .map(

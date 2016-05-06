@@ -5,7 +5,7 @@ import * as vd from "virtual-dom";
 
 import {
     Geometry,
-    ILineTagParameters,
+    ILineTagOptions,
     Tag,
     TagOperation,
 } from "../../../Component";
@@ -14,17 +14,15 @@ import {ISpriteAtlas} from "../../../Viewer";
 
 export class LineTag extends Tag {
     private _icon: string;
-    private _interpolate: boolean;
     private _lineColor: number;
     private _lineWidth: number;
     private _text: string;
     private _textColor: number;
 
-    constructor(id: string, editable: boolean, geometry: Geometry, parameters: ILineTagParameters) {
+    constructor(id: string, editable: boolean, geometry: Geometry, parameters: ILineTagOptions) {
         super(id, editable, geometry);
 
         this._icon = parameters.icon ? parameters.icon : null;
-        this._interpolate = parameters.interpolate ? parameters.interpolate : false;
         this._lineColor = parameters.lineColor ? parameters.lineColor : 0xFFFFFF;
         this._lineWidth = parameters.lineWidth ? parameters.lineWidth : 1;
         this._text = parameters.text ? parameters.text : null;
@@ -38,10 +36,6 @@ export class LineTag extends Tag {
     public set icon(value: string) {
         this._icon = value;
         this._notifyChanged$.onNext(this);
-    }
-
-    public get interpolate(): boolean {
-        return this._interpolate;
     }
 
     public get lineColor(): number {
@@ -81,15 +75,10 @@ export class LineTag extends Tag {
     }
 
     public getGLObjects(transform: Transform): THREE.Object3D[] {
-        let polygonPoints3d: number[][] = this._geometry.getPolygonPoints3d(transform);
+        let polygon3d: number[][] = this._geometry.getPolygon3d(transform);
+        let positions: Float32Array = this._getPositions(polygon3d);
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-
-        let positions: Float32Array =
-            this._interpolate ?
-                this._getPositionsInterpolate(polygonPoints3d) :
-                this._getPositions(polygonPoints3d);
-
         geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
 
         let material: THREE.LineBasicMaterial =
@@ -228,54 +217,18 @@ export class LineTag extends Tag {
         };
     }
 
-    private _getPositions(polygonPoints3d: number[][]): Float32Array {
-        let length: number = polygonPoints3d.length;
+    private _getPositions(polygon3d: number[][]): Float32Array {
+        let length: number = polygon3d.length;
         let positions: Float32Array = new Float32Array(length * 3);
 
         for (let i: number = 0; i < length; ++i) {
             let index: number = 3 * i;
 
-            let position: number[] = polygonPoints3d[i];
+            let position: number[] = polygon3d[i];
 
             positions[index] = position[0];
             positions[index + 1] = position[1];
             positions[index + 2] = position[2];
-        }
-
-        return positions;
-    }
-
-    private _getPositionsInterpolate(polygonPoints3d: number[][]): Float32Array {
-        let sides: number = polygonPoints3d.length - 1;
-        let sections: number = 10;
-        let positions: Float32Array = new Float32Array(sides * sections * 3);
-
-        for (let i: number = 0; i < sides; ++i) {
-            let startX: number = polygonPoints3d[i][0];
-            let startY: number = polygonPoints3d[i][1];
-            let startZ: number = polygonPoints3d[i][2];
-
-            let endX: number = polygonPoints3d[i + 1][0];
-            let endY: number = polygonPoints3d[i + 1][1];
-            let endZ: number = polygonPoints3d[i + 1][2];
-
-            let intervalX: number = (endX - startX) / (sections - 1);
-            let intervalY: number = (endY - startY) / (sections - 1);
-            let intervalZ: number = (endZ - startZ) / (sections - 1);
-
-            for (let j: number = 0; j < sections; ++j) {
-                let position: number[] = [
-                    startX + j * intervalX,
-                    startY + j * intervalY,
-                    startZ + j * intervalZ,
-                ];
-
-                let index: number = 3 * sections * i + 3 * j;
-
-                positions[index] = position[0];
-                positions[index + 1] = position[1];
-                positions[index + 2] = position[2];
-            }
         }
 
         return positions;

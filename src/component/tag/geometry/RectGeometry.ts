@@ -83,6 +83,41 @@ export class RectGeometry extends Geometry {
         this._notifyChanged$.onNext(this);
     }
 
+    public getPolygon3d(transform: Transform): number[][] {
+        let polygonPoints2d: number[][] = this._rectToPolygonPoints2d(this._rect);
+
+        let sides: number = polygonPoints2d.length - 1;
+        let sections: number = 10;
+
+        let polygon2d: number[][] = [];
+
+        for (let i: number = 0; i < sides; ++i) {
+            let startX: number = polygonPoints2d[i][0];
+            let startY: number = polygonPoints2d[i][1];
+
+            let endX: number = polygonPoints2d[i + 1][0];
+            let endY: number = polygonPoints2d[i + 1][1];
+
+            let intervalX: number = (endX - startX) / (sections - 1);
+            let intervalY: number = (endY - startY) / (sections - 1);
+
+            for (let j: number = 0; j < sections; ++j) {
+                let point: number[] = [
+                    startX + j * intervalX,
+                    startY + j * intervalY,
+                ];
+
+                polygon2d.push(point);
+            }
+        }
+
+        return polygon2d
+            .map(
+                (point: number[]) => {
+                    return transform.unprojectBasic(point, 200);
+                });
+    }
+
     public getPolygonPoints3d(transform: Transform): number[][] {
         return this._rectToPolygonPoints2d(this._rect)
             .map(
