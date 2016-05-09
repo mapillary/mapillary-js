@@ -212,7 +212,7 @@
     z-index: 20;
     overflow: hidden;
     cursor: pointer;
-    transition: visibility linear 500ms;
+    transition: opacity .2s ease-in-out;
 }
 
 .CoverBackground {
@@ -242,6 +242,7 @@
 
 .CoverDone {
     visibility: hidden;
+    opacity: 0;
 }
 
 .CoverButton {
