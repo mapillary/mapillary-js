@@ -8,6 +8,7 @@ import {Container, Navigator} from "../Viewer";
 import {ICoverConfiguration, IComponentConfiguration, ComponentService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
+import {Settings} from "../Utils";
 
 export class CoverComponent extends Component {
     public static componentName: string = "cover";
@@ -81,7 +82,7 @@ export class CoverComponent extends Component {
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
         let url: string = conf.src != null ?
             `url(${conf.src})` :
-            `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-320.jpg)`;
+            `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-${Settings.coverImageSize}.jpg)`;
 
         return vd.h("div.CoverBackground", { style: { backgroundImage: url } }, []);
     }
