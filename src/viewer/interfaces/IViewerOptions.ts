@@ -141,6 +141,12 @@ export interface IViewerOptions {
     maxImageSize?: ImageSize;
 
     /**
+     * Default size of the thumbnail used on the cover
+     * @default {ImageSize.Size320}
+     */
+    coverImageSize?: ImageSize;
+
+    /**
      * The render mode in the viewer.
      * @default {RenderMode.Letterbox}
      */
