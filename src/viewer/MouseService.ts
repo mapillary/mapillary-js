@@ -25,11 +25,15 @@ export class MouseService {
     private _mouseUp$: rx.Observable<MouseEvent>;
     private _mouseOver$: rx.Observable<MouseEvent>;
 
+    private _click$: rx.Observable<MouseEvent>;
+
     private _mouseWheel$: rx.Observable<WheelEvent>;
 
     private _mouseDragStart$: rx.Observable<MouseEvent>;
     private _mouseDrag$: rx.Observable<MouseEvent>;
     private _mouseDragEnd$: rx.Observable<MouseEvent>;
+
+    private _staticClick$: rx.Observable<MouseEvent>;
 
     private _claimMouse$: rx.Subject<IMouseClaim>;
     private _mouseOwner$: rx.Observable<string>;
@@ -46,6 +50,8 @@ export class MouseService {
         this._mouseLeave$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseleave");
         this._mouseUp$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseup");
         this._mouseOver$ = rx.Observable.fromEvent<MouseEvent>(element, "mouseover");
+
+        this._click$ = rx.Observable.fromEvent<MouseEvent>(element, "click");
 
         this._mouseWheel$ = rx.Observable.fromEvent<WheelEvent>(element, "wheel");
 
@@ -132,6 +138,14 @@ export class MouseService {
                 return dragStop$.first();
             });
 
+        this._staticClick$ = this._mouseDown$
+            .flatMapLatest<MouseEvent>(
+                (e: MouseEvent): rx.Observable<MouseEvent> => {
+                    return this._click$
+                        .takeUntil(this._mouseMove$)
+                        .take(1);
+                });
+
         this._mouseOwner$ = this._claimMouse$
             .scan<{[key: string]: number}>(
                 (claims: {[key: string]: number}, mouseClaim: IMouseClaim): {[key: string]: number} => {
@@ -205,6 +219,10 @@ export class MouseService {
         return this._mouseUp$;
     }
 
+    public get click$(): rx.Observable<MouseEvent> {
+        return this._click$;
+    }
+
     public get mouseWheel$(): rx.Observable<WheelEvent> {
         return this._mouseWheel$;
     }
@@ -219,6 +237,10 @@ export class MouseService {
 
     public get mouseDragEnd$(): rx.Observable<MouseEvent> {
         return this._mouseDragEnd$;
+    }
+
+    public get staticClick$(): rx.Observable<MouseEvent> {
+        return this._staticClick$;
     }
 
     public get preventDefaultMouseDown$(): rx.Subject<boolean> {
