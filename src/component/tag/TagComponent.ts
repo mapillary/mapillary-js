@@ -3,21 +3,34 @@
 import * as rx from "rx";
 import * as THREE from "three";
 
-import {Container, Navigator, ISpriteAtlas} from "../../Viewer";
-import {APIv3} from "../../API";
 import {
     ComponentService,
     Component,
+    CreateLineTag,
+    Geometry,
+    GeometryType,
     IInteraction,
+    ITagConfiguration,
     Tag,
+    TagCreator,
     TagDOMRenderer,
     TagGLRenderer,
     TagOperation,
     TagSet,
 } from "../../Component";
 import {Transform} from "../../Geo";
-import {RenderCamera, IVNodeHash, IGLRenderHash, GLRenderStage} from "../../Render";
+import {
+    GLRenderStage,
+    IGLRenderHash,
+    IVNodeHash,
+    RenderCamera,
+} from "../../Render";
 import {IFrame} from "../../State";
+import {
+    Container,
+    ISpriteAtlas,
+    Navigator,
+} from "../../Viewer";
 
 interface ITagGLRendererOperation extends Function {
     (renderer: TagGLRenderer): TagGLRenderer;
@@ -30,10 +43,9 @@ export class TagComponent extends Component {
 
     public static tagclick: string = "tagclick";
 
-    private _apiV3: APIv3;
-
     private _tagDomRenderer: TagDOMRenderer;
     private _tagSet: TagSet;
+    private _tagCreator: TagCreator;
 
     private _tagGlRendererOperation$: rx.Subject<ITagGLRendererOperation>;
     private _tagGlRenderer$: rx.Observable<TagGLRenderer>;
@@ -45,6 +57,9 @@ export class TagComponent extends Component {
     private _tagInteractionAbort$: rx.Observable<string>;
     private _tagLabelClick$: rx.Observable<Tag>;
     private _activeTag$: rx.Observable<IInteraction>;
+
+    private _tagCreated$: rx.Observable<CreateLineTag>;
+    private _geometryCreated$: rx.Observable<Geometry>;
 
     private _claimMouseSubscription: rx.IDisposable;
     private _mouseDragSubscription: rx.IDisposable;
@@ -62,8 +77,7 @@ export class TagComponent extends Component {
 
         this._tagDomRenderer = new TagDOMRenderer();
         this._tagSet = new TagSet();
-
-        this._apiV3 = navigator.apiV3;
+        this._tagCreator = new TagCreator();
 
         this._tagGlRendererOperation$ = new rx.Subject<ITagGLRendererOperation>();
 
@@ -169,13 +183,226 @@ export class TagComponent extends Component {
                             });
                 })
             .share();
+
+        this._tagCreated$ = this._tagCreator.tag$
+            .flatMapLatest<CreateLineTag>(
+                (tag: CreateLineTag): rx.Observable<CreateLineTag> => {
+                    return tag != null ?
+                        tag.created$ :
+                        rx.Observable.empty<CreateLineTag>();
+                })
+            .share();
+
+        this._geometryCreated$ = this._tagCreated$
+            .map<Geometry>(
+                (tag: CreateLineTag): Geometry => {
+                    return tag.geometry;
+                })
+            .share();
+    }
+
+    public get geometryCreated$(): rx.Observable<Geometry> {
+        return this._geometryCreated$;
     }
 
     public setTags(tags: Tag[]): void {
         this._tagSet.set$.onNext(tags);
     }
 
+    public startCreate(geometryType: GeometryType): void {
+        this.configure({ createType: geometryType, creating: true });
+    }
+
+    public stopCreate(): void {
+        this.configure({ createType: null, creating: false });
+    }
+
     protected _activate(): void {
+        this._tagCreator.tag$
+            .flatMapLatest<CreateLineTag>(
+                (tag: CreateLineTag): rx.Observable<CreateLineTag> => {
+                    return tag != null ?
+                        tag.geometryChanged$ :
+                        rx.Observable.empty<CreateLineTag>();
+                })
+            .withLatestFrom(
+                this._currentTransform$,
+                (tag: CreateLineTag, transform: Transform): [CreateLineTag, Transform] => {
+                    return [tag, transform];
+                })
+            .map<ITagGLRendererOperation>(
+                (tt: [CreateLineTag, Transform]): ITagGLRendererOperation => {
+                    return (renderer: TagGLRenderer): TagGLRenderer => {
+                        renderer.setCreateTag(tt[0], tt[1]);
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._tagGlRendererOperation$);
+
+        rx.Observable
+            .combineLatest(
+                this._container.mouseService.mouseMove$,
+                this._tagCreator.tag$,
+                (event: MouseEvent, tag: CreateLineTag): [MouseEvent, CreateLineTag] => {
+                    return [event, tag];
+                })
+            .filter(
+                (et: [MouseEvent, CreateLineTag]): boolean => {
+                    return et[1] != null;
+                })
+            .withLatestFrom(
+                this._container.renderService.renderCamera$,
+                this._currentTransform$,
+                (
+                    et: [MouseEvent, CreateLineTag],
+                    renderCamera: RenderCamera,
+                    transform: Transform):
+                    [MouseEvent, CreateLineTag, RenderCamera, Transform] => {
+                    return [et[0], et[1], renderCamera, transform];
+                })
+            .subscribe(
+                (etrt: [MouseEvent, CreateLineTag, RenderCamera, Transform]): void => {
+                    let event: MouseEvent = etrt[0];
+                    let tag: CreateLineTag = etrt[1];
+                    let camera: RenderCamera = etrt[2];
+                    let transform: Transform = etrt[3];
+
+                    let basic: number[] = this._mouseEventToBasic(
+                        event,
+                        this._container.element,
+                        camera,
+                        transform);
+
+                    tag.geometry.setPolygonPoint2d(3, basic);
+                });
+
+        this._configuration$
+            .map<GeometryType>(
+                (configuration: ITagConfiguration): GeometryType => {
+                    return configuration.createType;
+                })
+            .subscribe(this._tagCreator.geometryType$);
+
+        this._configuration$
+            .distinctUntilChanged(
+                (configuration: ITagConfiguration): boolean => {
+                    return configuration.creating;
+                })
+            .flatMapLatest<MouseEvent>(
+                (configuration: ITagConfiguration): rx.Observable<MouseEvent> => {
+                    return configuration.creating ?
+                         this._container.mouseService.staticClick$.take(1) :
+                         rx.Observable.empty<MouseEvent>();
+                })
+            .withLatestFrom(
+                this._container.renderService.renderCamera$,
+                this._currentTransform$,
+                (
+                    event: MouseEvent,
+                    renderCamera: RenderCamera,
+                    transform: Transform):
+                    [MouseEvent, RenderCamera, Transform] => {
+                    return [event, renderCamera, transform];
+                })
+            .map<number[]>(
+                (ert: [MouseEvent, RenderCamera, Transform]): number[] => {
+                    let event: MouseEvent = ert[0];
+                    let camera: RenderCamera = ert[1];
+                    let transform: Transform = ert[2];
+
+                    let basic: number[] = this._mouseEventToBasic(
+                        event,
+                        this._container.element,
+                        camera,
+                        transform);
+
+                    return basic;
+                })
+            .subscribe(this._tagCreator.create$);
+
+        this._configuration$
+            .distinctUntilChanged(
+                (configuration: ITagConfiguration): boolean => {
+                    return configuration.creating;
+                })
+            .flatMapLatest<MouseEvent>(
+                (configuration: ITagConfiguration): rx.Observable<MouseEvent> => {
+                    return configuration.creating ?
+                            this._container.mouseService.staticClick$.skip(1) :
+                            rx.Observable.empty<MouseEvent>();
+                })
+            .withLatestFrom(
+                this._tagCreator.tag$,
+                this._container.renderService.renderCamera$,
+                this._currentTransform$,
+                (
+                    event: MouseEvent,
+                    tag: CreateLineTag,
+                    renderCamera: RenderCamera,
+                    transform: Transform):
+                    [MouseEvent, CreateLineTag, RenderCamera, Transform] => {
+                    return [event, tag, renderCamera, transform];
+                })
+            .subscribe(
+                (ert: [MouseEvent, CreateLineTag, RenderCamera, Transform]): void => {
+                    let event: MouseEvent = ert[0];
+                    let tag: CreateLineTag = ert[1];
+                    let camera: RenderCamera = ert[2];
+                    let transform: Transform = ert[3];
+
+                    let basic: number[] = this._mouseEventToBasic(
+                        event,
+                        this._container.element,
+                        camera,
+                        transform);
+
+                    tag.addPoint(basic);
+                });
+
+        this._configuration$
+            .distinctUntilChanged(
+                (configuration: ITagConfiguration): boolean => {
+                    return configuration.creating;
+                })
+            .filter(
+                (configuration: ITagConfiguration): boolean => {
+                    return !configuration.creating;
+                })
+            .subscribe(
+                (configuration: ITagConfiguration): void => {
+                    this._tagCreator.delete$.onNext(null);
+                });
+
+        this._tagCreated$
+            .subscribe(
+                (tag: CreateLineTag): void => {
+                    this.stopCreate();
+                });
+
+        this._tagCreator.tag$
+            .withLatestFrom(
+                this._currentTransform$,
+                (tag: CreateLineTag, transform: Transform): [CreateLineTag, Transform] => {
+                    return [tag, transform];
+                })
+            .map<ITagGLRendererOperation>(
+                (tt: [CreateLineTag, Transform]): ITagGLRendererOperation => {
+                    return (renderer: TagGLRenderer): TagGLRenderer => {
+                        let tag: CreateLineTag = tt[0];
+                        let transform: Transform = tt[1];
+
+                        if (tag == null) {
+                            renderer.removeCreateTag();
+                        } else {
+                            renderer.setCreateTag(tag, transform);
+                        }
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._tagGlRendererOperation$);
+
         this._claimMouseSubscription = this._tagInterationInitiated$
             .flatMapLatest(
                 (id: string): rx.Observable<MouseEvent> => {
@@ -213,25 +440,18 @@ export class TagComponent extends Component {
                         return;
                     }
 
-                    let element: HTMLElement = this._container.element;
-
-                    let clientRect: ClientRect = element.getBoundingClientRect();
-
-                    let canvasX: number = mouseEvent.clientX - clientRect.left - activeTag.offsetX;
-                    let canvasY: number = mouseEvent.clientY - clientRect.top - activeTag.offsetY;
-
-                    let projectedX: number = 2 * canvasX / element.offsetWidth - 1;
-                    let projectedY: number = 1 - 2 * canvasY / element.offsetHeight;
-
-                    let unprojected: THREE.Vector3 =
-                        new THREE.Vector3(projectedX, projectedY, 1).unproject(renderCamera.perspective);
-
-                    let newCoord: number[] = transform.projectBasic(unprojected.toArray());
+                    let basic: number[] = this._mouseEventToBasic(
+                        mouseEvent,
+                        this._container.element,
+                        renderCamera,
+                        transform,
+                        activeTag.offsetX,
+                        activeTag.offsetY);
 
                     if (activeTag.operation === TagOperation.Move) {
-                        activeTag.tag.geometry.setCentroid2d(newCoord);
+                        activeTag.tag.geometry.setCentroid2d(basic);
                     } else if (activeTag.operation === TagOperation.Resize) {
-                        activeTag.tag.geometry.setPolygonPoint2d(activeTag.pointIndex, newCoord);
+                        activeTag.tag.geometry.setPolygonPoint2d(activeTag.pointIndex, basic);
                     }
                 });
 
@@ -352,6 +572,34 @@ export class TagComponent extends Component {
 
         this._domSubscription.dispose();
         this._glSubscription.dispose();
+    }
+
+    private _mouseEventToBasic(
+        event: MouseEvent,
+        element: HTMLElement,
+        camera: RenderCamera,
+        transform: Transform,
+        offsetX?: number,
+        offsetY?: number):
+        number[] {
+
+        offsetX = offsetX != null ? offsetX : 0;
+        offsetY = offsetY != null ? offsetY : 0;
+
+        let clientRect: ClientRect = element.getBoundingClientRect();
+
+        let canvasX: number = event.clientX - clientRect.left - offsetX;
+        let canvasY: number = event.clientY - clientRect.top - offsetY;
+
+        let projectedX: number = 2 * canvasX / element.offsetWidth - 1;
+        let projectedY: number = 1 - 2 * canvasY / element.offsetHeight;
+
+        let unprojected: THREE.Vector3 =
+            new THREE.Vector3(projectedX, projectedY, 1).unproject(camera.perspective);
+
+        let basic: number[] = transform.projectBasic(unprojected.toArray());
+
+        return basic;
     }
 }
 

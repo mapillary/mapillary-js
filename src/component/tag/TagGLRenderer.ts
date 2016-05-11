@@ -2,18 +2,21 @@
 
 import * as THREE from "three";
 
-import {Tag} from "../../Component";
+import {CreateLineTag, Tag} from "../../Component";
 import {Transform} from "../../Geo";
 
 export class TagGLRenderer {
     private _scene: THREE.Scene;
     private _tags: { [key: string]: THREE.Object3D[] };
 
+    private _createTag: THREE.Object3D;
+
     private _needsRender: boolean;
 
     constructor() {
         this._scene = new THREE.Scene();
         this._tags = {};
+        this._createTag = null;
 
         this._needsRender = false;
     }
@@ -29,6 +32,20 @@ export class TagGLRenderer {
         renderer.render(this._scene, perspectiveCamera);
 
         this._needsRender = false;
+    }
+
+    public setCreateTag(tag: CreateLineTag, transform: Transform): void {
+        this._disposeCreateTag();
+
+        this._addCreateTag(tag, transform);
+
+        this._needsRender = true;
+    }
+
+    public removeCreateTag(): void {
+        this._disposeCreateTag();
+
+        this._needsRender = true;
     }
 
     public setTags(tags: Tag[], transform: Transform): void {
@@ -50,6 +67,7 @@ export class TagGLRenderer {
 
     public dispose(): void {
         this._disposeTags();
+        this._disposeCreateTag();
 
         this._needsRender = false;
     }
@@ -63,6 +81,13 @@ export class TagGLRenderer {
             this._tags[tag.id].push(object);
             this._scene.add(object);
         }
+    }
+
+    private _addCreateTag(tag: CreateLineTag, transform: Transform): void {
+        let object: THREE.Object3D = tag.getGLObject(transform);
+
+        this._createTag = object;
+        this._scene.add(object);
     }
 
     private _disposeTags(): void {
@@ -83,5 +108,19 @@ export class TagGLRenderer {
         }
 
         delete this._tags[id];
+    }
+
+    private _disposeCreateTag(): void {
+        if (this._createTag == null) {
+            return;
+        }
+
+        let mesh: THREE.Line = <THREE.Line>this._createTag;
+
+        this._scene.remove(mesh);
+        mesh.geometry.dispose();
+        mesh.material.dispose();
+
+        this._createTag = null;
     }
 }

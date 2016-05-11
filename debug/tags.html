@@ -14,6 +14,8 @@
 </head>
 <body>
     <div id='viewer'></div>
+    <button onclick="createRect()">Create rect</button>
+    <button onclick="stopCreate()">Stop create</button>
     <script src='build/bundle.js'></script>
     <script>
         var clientId = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4";
@@ -22,7 +24,7 @@
             "viewer",
             clientId,
             "zarcRdNFZwg3FkXNcsFeGw",
-            { cover: false, tag: true, sprite: "/assets/sprites" }
+            { cover: false, tag: true }
         );
 
         window.addEventListener("resize", function() { viewer.resize(); });
@@ -35,6 +37,43 @@
         tagComponent.on("tagchanged", function(tag) {
             changedTags[tag.id] = tag;
         });
+
+        function createRect() {
+            tagComponent.startCreate("rect");
+        }
+
+        function stopCreate() {
+            tagComponent.stopCreate();
+        }
+
+        var createdIndex = 0;
+
+        tagComponent.geometryCreated$
+            .subscribe(
+                (geometry) => {
+                    createdIndex += 1;
+                    var id = "created" + createdIndex;
+                    var parameters = {
+                        editable: true,
+                        lineColor: 0x00FFFF,
+                        lineWidth: 1,
+                        text: "new",
+                        textColor: 0x00FFFF,
+                    };
+
+                    var tag = new Mapillary.LineTag(id, geometry, parameters);
+
+                    currentTags[tag.id] = tag;
+
+                    var tags = [];
+                    for (var t in currentTags) {
+                        if (currentTags.hasOwnProperty(t)) {
+                            tags.push(currentTags[t]);
+                        }
+                    }
+
+                    tagComponent.setTags(tags);
+                });
 
         viewer.on(Mapillary.Viewer.nodechanged, function(node) {
             currentNode = node;
