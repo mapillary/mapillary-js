@@ -1,6 +1,6 @@
 /// <reference path="../../../../typings/browser.d.ts" />
 
-import {Geometry} from "../../../Component";
+import {Geometry, GeometryTagError} from "../../../Component";
 import {Transform} from "../../../Geo";
 
 export class RectGeometry extends Geometry {
@@ -11,7 +11,17 @@ export class RectGeometry extends Geometry {
     constructor(rect: number[]) {
         super();
 
-        this._rect = rect.slice();
+        if (rect[1] > rect[3]) {
+            throw new GeometryTagError("Basic Y coordinate values can not be inverted.");
+        }
+
+        for (let coord of rect) {
+            if (coord < 0 || coord > 1) {
+                throw new GeometryTagError("Basic coordinates must be on the interval [0, 1].");
+            }
+        }
+
+        this._rect = rect.slice(0, 4);
 
         if (this._rect[0] > this._rect[2]) {
             this._inverted = true;

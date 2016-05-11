@@ -39,5 +39,6 @@ export {Geometry} from "./component/tag/geometry/Geometry";
 export {GeometryType} from "./component/tag/geometry/GeometryType";
 export {RectGeometry} from "./component/tag/geometry/RectGeometry";
 export {PolygonGeometry} from "./component/tag/geometry/PolygonGeometry";
+export {GeometryTagError} from "./component/tag/error/GeometryTagError";
 export {TextureLoader} from "./component/imageplane/TextureLoader";
 export * from "./component/interfaces/interfaces";

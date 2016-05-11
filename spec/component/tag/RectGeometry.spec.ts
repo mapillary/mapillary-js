@@ -1,15 +1,44 @@
 /// <reference path="../../../typings/browser.d.ts" />
 
 import {IGPano} from "../../../src/API";
-import {RectGeometry} from "../../../src/Component";
+import {RectGeometry, GeometryTagError} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
 import {Node} from "../../../src/Graph";
 
-describe("RectGeometry", () => {
+describe("RectGeometry.ctor", () => {
     it("should be defined", () => {
         let rectGeometry: RectGeometry = new RectGeometry([0, 0, 1, 1]);
 
         expect(rectGeometry).toBeDefined();
+    });
+
+    it("rect should be set", () => {
+        let original: number[] = [0.2, 0.2, 0.4, 0.4];
+
+        let rectGeometry: RectGeometry = new RectGeometry(original);
+
+        expect(rectGeometry.rect[0]).toBe(0.2);
+        expect(rectGeometry.rect[1]).toBe(0.2);
+        expect(rectGeometry.rect[2]).toBe(0.4);
+        expect(rectGeometry.rect[3]).toBe(0.4);
+    });
+
+    it("should throw if y values are inverted", () => {
+        let original: number[] = [0.2, 0.4, 0.4, 0.2];
+
+        expect(() => { new RectGeometry(original); }).toThrowError(GeometryTagError);
+    });
+
+    it("should throw if value is below supported range", () => {
+        let original: number[] = [-1, 0.4, 0.4, 0.2];
+
+        expect(() => { new RectGeometry(original); }).toThrowError(GeometryTagError);
+    });
+
+    it("should throw if value is above supported range", () => {
+        let original: number[] = [2, 0.4, 0.4, 0.2];
+
+        expect(() => { new RectGeometry(original); }).toThrowError(GeometryTagError);
     });
 });
 

@@ -1,3 +1,4 @@
+export {MapillaryError} from "./error/MapillaryError";
 export {MoveTypeMapillaryError} from "./error/MoveTypeMapillaryError"
 export {NotImplementedMapillaryError} from "./error/NotImplementedMapillaryError"
 export {ParameterMapillaryError} from "./error/ParameterMapillaryError"
