@@ -449,7 +449,7 @@ export class TagComponent extends Component {
                         activeTag.offsetY);
 
                     if (activeTag.operation === TagOperation.Move) {
-                        activeTag.tag.geometry.setCentroid2d(basic);
+                        activeTag.tag.geometry.setCentroid2d(basic, transform);
                     } else if (activeTag.operation === TagOperation.Resize) {
                         activeTag.tag.geometry.setPolygonPoint2d(activeTag.pointIndex, basic);
                     }

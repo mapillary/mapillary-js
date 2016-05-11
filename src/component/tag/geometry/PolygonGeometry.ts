@@ -26,7 +26,7 @@ export class PolygonGeometry extends Geometry {
         this._notifyChanged$.onNext(this);
     }
 
-    public setCentroid2d(value: number[]): void {
+    public setCentroid2d(value: number[], transform: Transform): void {
         let xs: number[] = this._polygonPoints2d.map((point: number[]): number => { return point[0]; });
         let ys: number[] = this._polygonPoints2d.map((point: number[]): number => { return point[1]; });
 

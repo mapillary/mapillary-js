@@ -6,44 +6,67 @@ import {Transform} from "../../../Geo";
 export class RectGeometry extends Geometry {
     private _rect: number[];
 
+    private _inverted: boolean;
+
     constructor(rect: number[]) {
         super();
 
         this._rect = rect.slice();
+
+        if (this._rect[0] > this._rect[2]) {
+            this._inverted = true;
+        }
+    }
+
+    public get rect(): number[] {
+        return this._rect;
     }
 
     public setPolygonPoint2d(index: number, value: number[]): void {
         let original: number[] = this._rect.slice();
 
-        let newCoord: number[] = [
+        let changed: number[] = [
             Math.max(0, Math.min(1, value[0])),
             Math.max(0, Math.min(1, value[1])),
         ];
 
         let rect: number[] = [];
         if (index === 0) {
-            rect[0] = newCoord[0];
+            rect[0] = changed[0];
             rect[1] = original[1];
             rect[2] = original[2];
-            rect[3] = newCoord[1];
+            rect[3] = changed[1];
         } else if (index === 1) {
-            rect[0] = newCoord[0];
-            rect[1] = newCoord[1];
+            rect[0] = changed[0];
+            rect[1] = changed[1];
             rect[2] = original[2];
             rect[3] = original[3];
         } else if (index === 2) {
             rect[0] = original[0];
-            rect[1] = newCoord[1];
-            rect[2] = newCoord[0];
+            rect[1] = changed[1];
+            rect[2] = changed[0];
             rect[3] = original[3];
         } else if (index === 3) {
             rect[0] = original[0];
             rect[1] = original[1];
-            rect[2] = newCoord[0];
-            rect[3] = newCoord[1];
+            rect[2] = changed[0];
+            rect[3] = changed[1];
         }
 
-        if (rect[0] > rect[2]) {
+        let passingBoundaryLeft: boolean =
+            index < 2 && changed[0] > 0.75 && original[0] < 0.25 ||
+            index >= 2 && changed[0] > 0.75 && original[2] < 0.25;
+
+        let passingBoundaryRight: boolean =
+            index < 2 && changed[0] < 0.25 && original[0] > 0.75 ||
+            index >= 2 && changed[0] < 0.25 && original[2] > 0.75;
+
+        if (passingBoundaryLeft || passingBoundaryRight) {
+            this._inverted = !this._inverted;
+        }
+
+        if (!this._inverted && rect[0] > rect[2] ||
+            this._inverted && rect[0] < rect[2]) {
             rect[0] = original[0];
             rect[2] = original[2];
         }
@@ -61,24 +84,54 @@ export class RectGeometry extends Geometry {
         this._notifyChanged$.onNext(this);
     }
 
-    public setCentroid2d(value: number[]): void {
+    public setCentroid2d(value: number[], transform: Transform): void {
         let original: number[] = this._rect.slice();
 
-        let centerX: number = original[0] + (original[2] - original[0]) / 2;
-        let centerY: number = original[1] + (original[3] - original[1]) / 2;
+        let x0: number = original[0];
+        let x1: number = this._inverted ? original[2] + 1 : original[2];
 
-        let minTranslationX: number = -original[0];
-        let maxTranslationX: number = 1 - original[2];
-        let minTranslationY: number = -original[1];
-        let maxTranslationY: number = 1 - original[3];
+        let y0: number = original[1];
+        let y1: number = original[3];
 
-        let translationX: number = Math.max(minTranslationX, Math.min(maxTranslationX, value[0] - centerX));
+        let centerX: number = x0 + (x1 - x0) / 2;
+        let centerY: number = y0 + (y1 - y0) / 2;
+
+        let translationX: number = 0;
+
+        if (transform.gpano) {
+            translationX = this._inverted ? value[0] + 1 - centerX : value[0] - centerX;
+        } else {
+            let minTranslationX: number = -x0;
+            let maxTranslationX: number = 1 - x1;
+
+            translationX = Math.max(minTranslationX, Math.min(maxTranslationX, value[0] - centerX));
+        }
+
+        let minTranslationY: number = -y0;
+        let maxTranslationY: number = 1 - y1;
+
         let translationY: number = Math.max(minTranslationY, Math.min(maxTranslationY, value[1] - centerY));
 
         this._rect[0] = original[0] + translationX;
         this._rect[1] = original[1] + translationY;
         this._rect[2] = original[2] + translationX;
         this._rect[3] = original[3] + translationY;
+
+        if (this._rect[0] < 0) {
+            this._rect[0] += 1;
+            this._inverted = !this._inverted;
+        } else if (this._rect[0] > 1) {
+            this._rect[0] -= 1;
+            this._inverted = !this._inverted;
+        }
+
+        if (this._rect[2] < 0) {
+            this._rect[2] += 1;
+            this._inverted = !this._inverted;
+        } else if (this._rect[2] > 1) {
+            this._rect[2] -= 1;
+            this._inverted = !this._inverted;
+        }
 
         this._notifyChanged$.onNext(this);
     }
@@ -129,8 +182,14 @@ export class RectGeometry extends Geometry {
     public getCentroidPoint3d(transform: Transform): number[] {
         let rect: number[] = this._rect;
 
-        let centroidX: number = rect[0] + (rect[2] - rect[0]) / 2;
-        let centroidY: number = rect[1] + (rect[3] - rect[1]) / 2;
+        let x0: number = rect[0];
+        let x1: number = this._inverted ? rect[2] + 1 : rect[2];
+
+        let y0: number = rect[1];
+        let y1: number = rect[3];
+
+        let centroidX: number = x0 + (x1 - x0) / 2;
+        let centroidY: number = y0 + (y1 - y0) / 2;
 
         return transform.unprojectBasic([centroidX, centroidY], 200);
     }
@@ -139,8 +198,8 @@ export class RectGeometry extends Geometry {
         return [
             [rect[0], rect[3]],
             [rect[0], rect[1]],
-            [rect[2], rect[1]],
-            [rect[2], rect[3]],
+            [this._inverted ? rect[2] + 1 : rect[2], rect[1]],
+            [this._inverted ? rect[2] + 1 : rect[2], rect[3]],
             [rect[0], rect[3]],
         ];
     }
