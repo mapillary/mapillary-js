@@ -19,6 +19,7 @@ import {
     TagSet,
 } from "../../Component";
 import {Transform} from "../../Geo";
+import {Node} from "../../Graph";
 import {
     GLRenderStage,
     IGLRenderHash,
@@ -218,6 +219,18 @@ export class TagComponent extends Component {
     }
 
     protected _activate(): void {
+        this.configuration$
+            .flatMapLatest<Node>(
+                (configuration: ITagConfiguration): rx.Observable<Node> => {
+                    return configuration.creating ?
+                        this._navigator.stateService.currentNode$.skip(1).take(1) :
+                        rx.Observable.empty<Node>();
+                })
+            .subscribe(
+                (node: Node): void => {
+                    this.stopCreate();
+                });
+
         this._tagCreator.tag$
             .flatMapLatest<OutlineCreateTag>(
                 (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
