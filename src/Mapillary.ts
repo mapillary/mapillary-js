@@ -3,7 +3,7 @@
  * @name Mapillary
  */
 export {
-    LineTag,
+    OutlineTag,
     PolygonGeometry,
     RectGeometry,
 } from "./Component";

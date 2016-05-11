@@ -6,11 +6,11 @@ import * as THREE from "three";
 import {
     ComponentService,
     Component,
-    CreateLineTag,
     Geometry,
     GeometryType,
     IInteraction,
     ITagConfiguration,
+    OutlineCreateTag,
     Tag,
     TagCreator,
     TagDOMRenderer,
@@ -58,7 +58,7 @@ export class TagComponent extends Component {
     private _tagLabelClick$: rx.Observable<Tag>;
     private _activeTag$: rx.Observable<IInteraction>;
 
-    private _tagCreated$: rx.Observable<CreateLineTag>;
+    private _tagCreated$: rx.Observable<OutlineCreateTag>;
     private _geometryCreated$: rx.Observable<Geometry>;
 
     private _claimMouseSubscription: rx.IDisposable;
@@ -185,17 +185,17 @@ export class TagComponent extends Component {
             .share();
 
         this._tagCreated$ = this._tagCreator.tag$
-            .flatMapLatest<CreateLineTag>(
-                (tag: CreateLineTag): rx.Observable<CreateLineTag> => {
+            .flatMapLatest<OutlineCreateTag>(
+                (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.created$ :
-                        rx.Observable.empty<CreateLineTag>();
+                        rx.Observable.empty<OutlineCreateTag>();
                 })
             .share();
 
         this._geometryCreated$ = this._tagCreated$
             .map<Geometry>(
-                (tag: CreateLineTag): Geometry => {
+                (tag: OutlineCreateTag): Geometry => {
                     return tag.geometry;
                 })
             .share();
@@ -219,19 +219,19 @@ export class TagComponent extends Component {
 
     protected _activate(): void {
         this._tagCreator.tag$
-            .flatMapLatest<CreateLineTag>(
-                (tag: CreateLineTag): rx.Observable<CreateLineTag> => {
+            .flatMapLatest<OutlineCreateTag>(
+                (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.geometryChanged$ :
-                        rx.Observable.empty<CreateLineTag>();
+                        rx.Observable.empty<OutlineCreateTag>();
                 })
             .withLatestFrom(
                 this._currentTransform$,
-                (tag: CreateLineTag, transform: Transform): [CreateLineTag, Transform] => {
+                (tag: OutlineCreateTag, transform: Transform): [OutlineCreateTag, Transform] => {
                     return [tag, transform];
                 })
             .map<ITagGLRendererOperation>(
-                (tt: [CreateLineTag, Transform]): ITagGLRendererOperation => {
+                (tt: [OutlineCreateTag, Transform]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.setCreateTag(tt[0], tt[1]);
 
@@ -244,27 +244,27 @@ export class TagComponent extends Component {
             .combineLatest(
                 this._container.mouseService.mouseMove$,
                 this._tagCreator.tag$,
-                (event: MouseEvent, tag: CreateLineTag): [MouseEvent, CreateLineTag] => {
+                (event: MouseEvent, tag: OutlineCreateTag): [MouseEvent, OutlineCreateTag] => {
                     return [event, tag];
                 })
             .filter(
-                (et: [MouseEvent, CreateLineTag]): boolean => {
+                (et: [MouseEvent, OutlineCreateTag]): boolean => {
                     return et[1] != null;
                 })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._currentTransform$,
                 (
-                    et: [MouseEvent, CreateLineTag],
+                    et: [MouseEvent, OutlineCreateTag],
                     renderCamera: RenderCamera,
                     transform: Transform):
-                    [MouseEvent, CreateLineTag, RenderCamera, Transform] => {
+                    [MouseEvent, OutlineCreateTag, RenderCamera, Transform] => {
                     return [et[0], et[1], renderCamera, transform];
                 })
             .subscribe(
-                (etrt: [MouseEvent, CreateLineTag, RenderCamera, Transform]): void => {
+                (etrt: [MouseEvent, OutlineCreateTag, RenderCamera, Transform]): void => {
                     let event: MouseEvent = etrt[0];
-                    let tag: CreateLineTag = etrt[1];
+                    let tag: OutlineCreateTag = etrt[1];
                     let camera: RenderCamera = etrt[2];
                     let transform: Transform = etrt[3];
 
@@ -338,16 +338,16 @@ export class TagComponent extends Component {
                 this._currentTransform$,
                 (
                     event: MouseEvent,
-                    tag: CreateLineTag,
+                    tag: OutlineCreateTag,
                     renderCamera: RenderCamera,
                     transform: Transform):
-                    [MouseEvent, CreateLineTag, RenderCamera, Transform] => {
+                    [MouseEvent, OutlineCreateTag, RenderCamera, Transform] => {
                     return [event, tag, renderCamera, transform];
                 })
             .subscribe(
-                (ert: [MouseEvent, CreateLineTag, RenderCamera, Transform]): void => {
+                (ert: [MouseEvent, OutlineCreateTag, RenderCamera, Transform]): void => {
                     let event: MouseEvent = ert[0];
-                    let tag: CreateLineTag = ert[1];
+                    let tag: OutlineCreateTag = ert[1];
                     let camera: RenderCamera = ert[2];
                     let transform: Transform = ert[3];
 
@@ -376,20 +376,20 @@ export class TagComponent extends Component {
 
         this._tagCreated$
             .subscribe(
-                (tag: CreateLineTag): void => {
+                (tag: OutlineCreateTag): void => {
                     this.stopCreate();
                 });
 
         this._tagCreator.tag$
             .withLatestFrom(
                 this._currentTransform$,
-                (tag: CreateLineTag, transform: Transform): [CreateLineTag, Transform] => {
+                (tag: OutlineCreateTag, transform: Transform): [OutlineCreateTag, Transform] => {
                     return [tag, transform];
                 })
             .map<ITagGLRendererOperation>(
-                (tt: [CreateLineTag, Transform]): ITagGLRendererOperation => {
+                (tt: [OutlineCreateTag, Transform]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
-                        let tag: CreateLineTag = tt[0];
+                        let tag: OutlineCreateTag = tt[0];
                         let transform: Transform = tt[1];
 
                         if (tag == null) {

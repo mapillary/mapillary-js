@@ -6,29 +6,29 @@ import * as THREE from "three";
 import {Geometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
-export class CreateLineTag {
+export class OutlineCreateTag {
     private _geometry: Geometry;
 
-    private _created$: rx.Subject<CreateLineTag>;
+    private _created$: rx.Subject<OutlineCreateTag>;
 
     constructor(geometry: Geometry) {
         this._geometry = geometry;
 
-        this._created$ = new rx.Subject<CreateLineTag>();
+        this._created$ = new rx.Subject<OutlineCreateTag>();
     }
 
     public get geometry(): Geometry {
         return this._geometry;
     }
 
-    public get created$(): rx.Observable<CreateLineTag> {
+    public get created$(): rx.Observable<OutlineCreateTag> {
         return this._created$;
     }
 
-    public get geometryChanged$(): rx.Observable<CreateLineTag> {
+    public get geometryChanged$(): rx.Observable<OutlineCreateTag> {
         return this._geometry.changed$
-            .map<CreateLineTag>(
-                (geometry: Geometry): CreateLineTag => {
+            .map<OutlineCreateTag>(
+                (geometry: Geometry): OutlineCreateTag => {
                     return this;
                 });
     }
@@ -72,4 +72,4 @@ export class CreateLineTag {
     }
 }
 
-export default CreateLineTag;
+export default OutlineCreateTag;

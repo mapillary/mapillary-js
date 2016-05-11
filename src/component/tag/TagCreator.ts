@@ -3,18 +3,18 @@
 import * as rx from "rx";
 
 import {
-    CreateLineTag,
     GeometryType,
+    OutlineCreateTag,
     RectGeometry,
 } from "../../Component";
 
 interface ICreateTagOperation {
-    (tag: CreateLineTag): CreateLineTag;
+    (tag: OutlineCreateTag): OutlineCreateTag;
 }
 
 export class TagCreator {
     private _tagOperation$: rx.Subject<ICreateTagOperation>;
-    private _tag$: rx.Observable<CreateLineTag>;
+    private _tag$: rx.Observable<OutlineCreateTag>;
 
     private _create$: rx.Subject<number[]>;
     private _delete$: rx.Subject<void>;
@@ -29,8 +29,8 @@ export class TagCreator {
         this._geometryType$ = new rx.Subject<GeometryType>();
 
         this._tag$ = this._tagOperation$
-            .scan<CreateLineTag>(
-                (tag: CreateLineTag, operation: ICreateTagOperation): CreateLineTag => {
+            .scan<OutlineCreateTag>(
+                (tag: OutlineCreateTag, operation: ICreateTagOperation): OutlineCreateTag => {
                     return operation(tag);
                 },
                 null)
@@ -44,7 +44,7 @@ export class TagCreator {
                 })
             .map<ICreateTagOperation>(
                 (ct: [number[], GeometryType]): ICreateTagOperation => {
-                    return (tag: CreateLineTag): CreateLineTag => {
+                    return (tag: OutlineCreateTag): OutlineCreateTag => {
                         let coordinate: number[] = ct[0];
                         let type: GeometryType = ct[1];
 
@@ -56,7 +56,7 @@ export class TagCreator {
                                 coordinate[1],
                             ]);
 
-                            return new CreateLineTag(geometry);
+                            return new OutlineCreateTag(geometry);
                         }
 
                         return null;
@@ -67,7 +67,7 @@ export class TagCreator {
         this._delete$
             .map<ICreateTagOperation>(
                 (): ICreateTagOperation => {
-                    return (tag: CreateLineTag): CreateLineTag => {
+                    return (tag: OutlineCreateTag): OutlineCreateTag => {
                         return null;
                     };
                 })
@@ -86,7 +86,7 @@ export class TagCreator {
         return this._geometryType$;
     }
 
-    public get tag$(): rx.Observable<CreateLineTag> {
+    public get tag$(): rx.Observable<OutlineCreateTag> {
         return this._tag$;
     }
 }

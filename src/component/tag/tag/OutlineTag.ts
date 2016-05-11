@@ -12,7 +12,7 @@ import {
 import {Transform} from "../../../Geo";
 import {ISpriteAtlas} from "../../../Viewer";
 
-export class LineTag extends Tag {
+export class OutlineTag extends Tag {
     private _editable: boolean;
     private _icon: string;
     private _lineColor: number;
@@ -249,4 +249,4 @@ export class LineTag extends Tag {
     }
 }
 
-export default LineTag;
+export default OutlineTag;

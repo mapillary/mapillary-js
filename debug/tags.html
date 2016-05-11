@@ -61,7 +61,7 @@
                         textColor: 0x00FFFF,
                     };
 
-                    var tag = new Mapillary.LineTag(id, geometry, parameters);
+                    var tag = new Mapillary.OutlineTag(id, geometry, parameters);
 
                     currentTags[tag.id] = tag;
 
@@ -133,7 +133,7 @@
                             textColor: 0xFFFFFF,
                         };
 
-                        var tag = new Mapillary.LineTag(id, geometry, parameters);
+                        var tag = new Mapillary.OutlineTag(id, geometry, parameters);
 
                         currentTags[tag.id] = tag;
                         tags.push(tag);

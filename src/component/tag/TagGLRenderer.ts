@@ -2,7 +2,7 @@
 
 import * as THREE from "three";
 
-import {CreateLineTag, Tag} from "../../Component";
+import {OutlineCreateTag, Tag} from "../../Component";
 import {Transform} from "../../Geo";
 
 export class TagGLRenderer {
@@ -34,7 +34,7 @@ export class TagGLRenderer {
         this._needsRender = false;
     }
 
-    public setCreateTag(tag: CreateLineTag, transform: Transform): void {
+    public setCreateTag(tag: OutlineCreateTag, transform: Transform): void {
         this._disposeCreateTag();
 
         this._addCreateTag(tag, transform);
@@ -83,7 +83,7 @@ export class TagGLRenderer {
         }
     }
 
-    private _addCreateTag(tag: CreateLineTag, transform: Transform): void {
+    private _addCreateTag(tag: OutlineCreateTag, transform: Transform): void {
         let object: THREE.Object3D = tag.getGLObject(transform);
 
         this._createTag = object;
