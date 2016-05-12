@@ -118,10 +118,6 @@ export class OutlineTag extends Tag {
 
         let symbolPoint: THREE.Vector3 = this._convertToCameraSpace(polygonPoints3d[3], matrixWorldInverse);
         if (symbolPoint.z < 0) {
-            let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                this._click$.onNext(this);
-            };
-
             let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
                 this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
             };
@@ -134,7 +130,6 @@ export class OutlineTag extends Tag {
                     let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
                     let properties: vd.createProperties = {
-                        onclick: click,
                         onmousedown: interact,
                         onmouseup: abort,
                         style: {
@@ -152,7 +147,6 @@ export class OutlineTag extends Tag {
                 let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
                 let properties: vd.createProperties = {
-                    onclick: click,
                     onmousedown: interact,
                     onmouseup: abort,
                     style: {

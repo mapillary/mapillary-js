@@ -40,10 +40,6 @@ interface ITagGLRendererOperation extends Function {
 export class TagComponent extends Component {
     public static componentName: string = "tag";
 
-    public static tagchanged: string = "tagchanged";
-
-    public static tagclick: string = "tagclick";
-
     private _tagDomRenderer: TagDOMRenderer;
     private _tagSet: TagSet;
     private _tagCreator: TagCreator;
@@ -56,7 +52,6 @@ export class TagComponent extends Component {
     private _tagChanged$: rx.Observable<Tag>;
     private _tagInterationInitiated$: rx.Observable<string>;
     private _tagInteractionAbort$: rx.Observable<string>;
-    private _tagLabelClick$: rx.Observable<Tag>;
     private _activeTag$: rx.Observable<IInteraction>;
 
     private _tagCreated$: rx.Observable<OutlineCreateTag>;
@@ -67,8 +62,6 @@ export class TagComponent extends Component {
     private _unclaimMouseSubscription: rx.IDisposable;
     private _setTagsSubscription: rx.IDisposable;
     private _updateTagSubscription: rx.IDisposable;
-    private _tagChangedEventSubscription: rx.IDisposable;
-    private _tagClickEventSubscription: rx.IDisposable;
 
     private _domSubscription: rx.IDisposable;
     private _glSubscription: rx.IDisposable;
@@ -169,18 +162,6 @@ export class TagComponent extends Component {
                         .flatMap<IInteraction>(
                             (tag: Tag): rx.Observable<IInteraction> => {
                                 return tag.interact$;
-                            });
-                })
-            .share();
-
-        this._tagLabelClick$ = this._tags$
-            .flatMapLatest<Tag>(
-                (tags: Tag[]): rx.Observable<Tag> => {
-                    return rx.Observable
-                        .fromArray(tags)
-                        .flatMap<Tag>(
-                            (tag: Tag): rx.Observable<Tag> => {
-                                return tag.click$;
                             });
                 })
             .share();
@@ -518,18 +499,6 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._tagGlRendererOperation$);
 
-        this._tagChangedEventSubscription = this._tagChanged$
-            .subscribe(
-                (tag: Tag): void => {
-                    this.fire(TagComponent.tagchanged, tag);
-                });
-
-        this._tagClickEventSubscription = this._tagLabelClick$
-            .subscribe(
-                (tag: Tag): void => {
-                    this.fire(TagComponent.tagclick, tag);
-                });
-
         this._domSubscription = rx.Observable
             .combineLatest(
                 this._container.renderService.renderCamera$,
@@ -594,7 +563,6 @@ export class TagComponent extends Component {
         this._unclaimMouseSubscription.dispose();
         this._setTagsSubscription.dispose();
         this._updateTagSubscription.dispose();
-        this._tagChangedEventSubscription.dispose();
 
         this._domSubscription.dispose();
         this._glSubscription.dispose();

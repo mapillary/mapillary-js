@@ -9,25 +9,42 @@ import {
     IInteraction,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
+import {EventEmitter} from "../../../Utils";
 import {ISpriteAtlas} from "../../../Viewer";
 
-export abstract class Tag {
+export abstract class Tag extends EventEmitter {
+    public static changed: string = "changed";
+
+    public static geometrychanged: string = "geometrychanged";
+
     protected _id: string;
     protected _geometry: Geometry;
 
-    protected _interact$: rx.Subject<IInteraction>;
     protected _abort$: rx.Subject<string>;
-    protected _click$: rx.Subject<Tag>;
+    protected _interact$: rx.Subject<IInteraction>;
     protected _notifyChanged$: rx.Subject<Tag>;
 
     constructor(id: string, geometry: Geometry) {
+        super();
+
         this._id = id;
         this._geometry = geometry;
 
-        this._interact$ = new rx.Subject<IInteraction>();
         this._abort$ = new rx.Subject<string>();
-        this._click$ = new rx.Subject<Tag>();
+        this._interact$ = new rx.Subject<IInteraction>();
         this._notifyChanged$ = new rx.Subject<Tag>();
+
+        this.changed$
+            .subscribe(
+                (t: Tag): void => {
+                    this.fire(Tag.changed, this);
+                });
+
+        this._geometry.changed$
+            .subscribe(
+                (g: Geometry): void => {
+                    this.fire(Tag.geometrychanged, this);
+                });
     }
 
     public get id(): string {
@@ -46,10 +63,6 @@ export abstract class Tag {
         return this._abort$;
     }
 
-    public get click$(): rx.Observable<Tag> {
-        return this._click$;
-    }
-
     public get changed$(): rx.Observable<Tag> {
         return this._notifyChanged$;
     }
@@ -59,7 +72,8 @@ export abstract class Tag {
             .map<Tag>(
                 (geometry: Geometry): Tag => {
                     return this;
-                });
+                })
+            .share();
     }
 
     public abstract getGLObjects(transform: Transform): THREE.Object3D[];

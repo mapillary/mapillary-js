@@ -34,9 +34,6 @@
         var changedTags = {};
 
         var tagComponent = viewer.getComponent("tag");
-        tagComponent.on("tagchanged", function(tag) {
-            changedTags[tag.id] = tag;
-        });
 
         function createRect() {
             tagComponent.startCreate("rect");
@@ -44,6 +41,10 @@
 
         function stopCreate() {
             tagComponent.stopCreate();
+        }
+
+        function onTagGeometryChanged(tag) {
+            changedTags[tag.id] = tag;
         }
 
         var createdIndex = 0;
@@ -64,6 +65,8 @@
                     var tag = new Mapillary.OutlineTag(id, geometry, parameters);
 
                     currentTags[tag.id] = tag;
+
+                    tag.on(Mapillary.OutlineTag.geometrychanged, onTagGeometryChanged);
 
                     var tags = [];
                     for (var t in currentTags) {
@@ -134,6 +137,8 @@
                         };
 
                         var tag = new Mapillary.OutlineTag(id, geometry, parameters);
+
+                        tag.on(Mapillary.OutlineTag.geometrychanged, onTagGeometryChanged);
 
                         currentTags[tag.id] = tag;
                         tags.push(tag);
