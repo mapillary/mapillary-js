@@ -252,6 +252,34 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         expect(rectGeometry.rect[2]).toBe(original[2]);
         expect(rectGeometry.rect[3]).toBe(original[3]);
     });
+
+    it("should not allow right to pass left over boundary", () => {
+        let original: number[] = [0.01, 0.1, 0.02, 0.2];
+        let rectGeometry: RectGeometry = new RectGeometry(original);
+
+        let polygonPoint: number[] = [0.99, original[3]];
+
+        rectGeometry.setPolygonPoint2d(3, polygonPoint)
+
+        expect(rectGeometry.rect[0]).toBe(original[0]);
+        expect(rectGeometry.rect[1]).toBe(original[1]);
+        expect(rectGeometry.rect[2]).toBe(original[2]);
+        expect(rectGeometry.rect[3]).toBe(original[3]);
+    });
+
+    it("should not allow left to pass right over boundary", () => {
+        let original: number[] = [0.98, 0.1, 0.99, 0.2];
+        let rectGeometry: RectGeometry = new RectGeometry(original);
+
+        let polygonPoint: number[] = [0.01, original[1]];
+
+        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+
+        expect(rectGeometry.rect[0]).toBe(original[0]);
+        expect(rectGeometry.rect[1]).toBe(original[1]);
+        expect(rectGeometry.rect[2]).toBe(original[2]);
+        expect(rectGeometry.rect[3]).toBe(original[3]);
+    });
 });
 
 describe("RectGeometry.setCentroid2d", () => {

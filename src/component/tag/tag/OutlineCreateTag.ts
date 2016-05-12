@@ -4,7 +4,7 @@ import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Geometry} from "../../../Component";
+import {Geometry, RectGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
 export class OutlineCreateTag {
@@ -92,6 +92,12 @@ export class OutlineCreateTag {
     }
 
     public addPoint(point: number[]): void {
+        let rectGeometry: RectGeometry = <RectGeometry>this._geometry;
+
+        if (!rectGeometry.validate(point)) {
+            return;
+        }
+
         this._created$.onNext(this);
     }
 

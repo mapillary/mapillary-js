@@ -65,14 +65,22 @@ export class RectGeometry extends Geometry {
 
         let passingBoundaryLeft: boolean =
             index < 2 && changed[0] > 0.75 && original[0] < 0.25 ||
-            index >= 2 && changed[0] > 0.75 && original[2] < 0.25;
+            index >= 2 && this._inverted && changed[0] > 0.75 && original[2] < 0.25;
 
         let passingBoundaryRight: boolean =
-            index < 2 && changed[0] < 0.25 && original[0] > 0.75 ||
+            index < 2 && this._inverted && changed[0] < 0.25 && original[0] > 0.75 ||
             index >= 2 && changed[0] < 0.25 && original[2] > 0.75;
 
         if (passingBoundaryLeft || passingBoundaryRight) {
             this._inverted = !this._inverted;
+        } else {
+            if (rect[0] - original[0] < -0.25) {
+                rect[0] = original[0];
+            }
+
+            if (rect[2] - original[2] > 0.25) {
+                rect[2] = original[2];
+            }
         }
 
         if (!this._inverted && rect[0] > rect[2] ||
@@ -202,6 +210,18 @@ export class RectGeometry extends Geometry {
         let centroidY: number = y0 + (y1 - y0) / 2;
 
         return transform.unprojectBasic([centroidX, centroidY], 200);
+    }
+
+    public validate(bottomRight: number[]): boolean {
+        let rect: number[] = this._rect;
+
+        if (!this._inverted && bottomRight[0] < rect[0] ||
+            bottomRight[0] - rect[2] > 0.25 ||
+            bottomRight[1] < rect[1]) {
+            return false;
+        }
+
+        return true;
     }
 
     private _rectToPolygonPoints2d(rect: number[]): number[][] {
