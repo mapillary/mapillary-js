@@ -4,8 +4,8 @@
  */
 export {
     OutlineTag,
-    PolygonGeometry,
     RectGeometry,
+    TagComponent,
 } from "./Component";
 export {EdgeDirection} from "./Edge";
 export {RenderMode} from "./Render";

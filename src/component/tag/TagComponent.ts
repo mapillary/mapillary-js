@@ -40,6 +40,12 @@ interface ITagGLRendererOperation extends Function {
 export class TagComponent extends Component {
     public static componentName: string = "tag";
 
+    public static creatingchanged: string = "creatingchanged";
+
+    public static geometrycreated: string = "geometrycreated";
+
+    public static tagschanged: string = "tagschanged";
+
     private _tagDomRenderer: TagDOMRenderer;
     private _tagSet: TagSet;
     private _tagCreator: TagCreator;
@@ -181,6 +187,32 @@ export class TagComponent extends Component {
                     return tag.geometry;
                 })
             .share();
+
+        this._configuration$
+            .distinctUntilChanged(
+                (configuration: ITagConfiguration): boolean => {
+                    return configuration.creating;
+                })
+            .subscribe(
+                (configuration: ITagConfiguration): void => {
+                    this.fire(TagComponent.creatingchanged, configuration.creating);
+                });
+
+        this._geometryCreated$
+            .subscribe(
+                (geometry: Geometry): void => {
+                    this.fire(TagComponent.geometrycreated, geometry);
+                });
+
+        this._tags$
+            .subscribe(
+                (tags: Tag[]): void => {
+                    this.fire(TagComponent.tagschanged, tags);
+                });
+    }
+
+    public get tags$(): rx.Observable<Tag[]> {
+        return this._tags$;
     }
 
     public get geometryCreated$(): rx.Observable<Geometry> {

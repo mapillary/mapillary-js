@@ -32,6 +32,7 @@
         var currentNode = null;
         var currentTags = {};
         var changedTags = {};
+        var createdTags = {};
 
         var tagComponent = viewer.getComponent("tag");
 
@@ -47,41 +48,49 @@
             changedTags[tag.id] = tag;
         }
 
+        function setTags() {
+            var tags = [];
+            for (var t in currentTags) {
+                if (currentTags.hasOwnProperty(t)) {
+                    tags.push(currentTags[t]);
+                }
+            }
+
+            for (var t in createdTags) {
+                if (createdTags.hasOwnProperty(t)) {
+                    tags.push(createdTags[t]);
+                }
+            }
+
+            tagComponent.setTags(tags);
+        }
+
         var createdIndex = 0;
 
-        tagComponent.geometryCreated$
-            .subscribe(
-                (geometry) => {
-                    createdIndex += 1;
-                    var id = "created" + createdIndex;
-                    var parameters = {
-                        editable: true,
-                        lineColor: 0x00FFFF,
-                        lineWidth: 1,
-                        text: "new",
-                        textColor: 0x00FFFF,
-                    };
+        tagComponent.on(Mapillary.TagComponent.geometrycreated, function(geometry) {
+            createdIndex += 1;
+            var id = "created" + createdIndex;
+            var parameters = {
+                editable: true,
+                lineColor: 0x00FFFF,
+                lineWidth: 1,
+                text: "new",
+                textColor: 0x00FFFF,
+            };
 
-                    var tag = new Mapillary.OutlineTag(id, geometry, parameters);
+            var tag = new Mapillary.OutlineTag(id, geometry, parameters);
+            tag.on(Mapillary.OutlineTag.geometrychanged, onTagGeometryChanged);
 
-                    currentTags[tag.id] = tag;
+            createdTags[tag.id] = tag;
 
-                    tag.on(Mapillary.OutlineTag.geometrychanged, onTagGeometryChanged);
-
-                    var tags = [];
-                    for (var t in currentTags) {
-                        if (currentTags.hasOwnProperty(t)) {
-                            tags.push(currentTags[t]);
-                        }
-                    }
-
-                    tagComponent.setTags(tags);
-                });
+            setTags();
+        });
 
         viewer.on(Mapillary.Viewer.nodechanged, function(node) {
             currentNode = node;
             currentTags = {};
             changedTags = {};
+            createdTags = {};
 
             tagComponent.setTags([]);
 
@@ -111,8 +120,6 @@
                         return;
                     }
 
-                    var tags = [];
-
                     for (var key in orByKey) {
                         if (!orByKey.hasOwnProperty(key)) {
                             continue;
@@ -137,14 +144,12 @@
                         };
 
                         var tag = new Mapillary.OutlineTag(id, geometry, parameters);
-
                         tag.on(Mapillary.OutlineTag.geometrychanged, onTagGeometryChanged);
 
                         currentTags[tag.id] = tag;
-                        tags.push(tag);
                     }
 
-                    tagComponent.setTags(tags);
+                    setTags();
                 }
             }
 
