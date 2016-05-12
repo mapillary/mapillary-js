@@ -224,6 +224,7 @@ export class TagComponent extends Component {
     }
 
     public startCreate(geometryType: GeometryType): void {
+        this.configure({ createType: null, creating: false });
         this.configure({ createType: geometryType, creating: true });
     }
 
