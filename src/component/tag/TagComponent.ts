@@ -235,6 +235,18 @@ export class TagComponent extends Component {
             .flatMapLatest<OutlineCreateTag>(
                 (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
                     return tag != null ?
+                        tag.aborted$ :
+                        rx.Observable.empty<OutlineCreateTag>();
+                })
+            .subscribe(
+                (tag: OutlineCreateTag): void => {
+                    this.stopCreate();
+                });
+
+        this._tagCreator.tag$
+            .flatMapLatest<OutlineCreateTag>(
+                (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
+                    return tag != null ?
                         tag.geometryChanged$ :
                         rx.Observable.empty<OutlineCreateTag>();
                 })
@@ -524,21 +536,22 @@ export class TagComponent extends Component {
                 this._container.spriteService.spriteAtlas$,
                 this._tags$,
                 this._tagChanged$.startWith(null),
-                (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag):
-                [RenderCamera, ISpriteAtlas, Tag[], Tag] => {
-                    return [rc, atlas, tags, tag];
+                this._tagCreator.tag$,
+                (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag, createTag: OutlineCreateTag):
+                [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag] => {
+                    return [rc, atlas, tags, tag, createTag];
                 })
             .withLatestFrom(
                 this._currentTransform$,
-                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag], transform: Transform):
-                    [RenderCamera, ISpriteAtlas, Tag[], Tag, Transform] => {
-                    return [rcts[0], rcts[1], rcts[2], rcts[3], transform];
+                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag], transform: Transform):
+                    [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, Transform] => {
+                    return [rcts[0], rcts[1], rcts[2], rcts[3], rcts[4], transform];
                 })
             .map<IVNodeHash>(
-                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag, Transform]): IVNodeHash => {
+                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, Transform]): IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._tagDomRenderer.render(rcts[2], rcts[1], rcts[0].perspective, rcts[4]),
+                        vnode: this._tagDomRenderer.render(rcts[2], rcts[4], rcts[1], rcts[0].perspective, rcts[5]),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);

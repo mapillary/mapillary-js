@@ -2,6 +2,7 @@
 
 import * as rx from "rx";
 import * as THREE from "three";
+import * as vd from "virtual-dom";
 
 import {Geometry} from "../../../Component";
 import {Transform} from "../../../Geo";
@@ -10,11 +11,13 @@ export class OutlineCreateTag {
     private _geometry: Geometry;
 
     private _created$: rx.Subject<OutlineCreateTag>;
+    private _aborted$: rx.Subject<OutlineCreateTag>;
 
     constructor(geometry: Geometry) {
         this._geometry = geometry;
 
         this._created$ = new rx.Subject<OutlineCreateTag>();
+        this._aborted$ = new rx.Subject<OutlineCreateTag>();
     }
 
     public get geometry(): Geometry {
@@ -23,6 +26,10 @@ export class OutlineCreateTag {
 
     public get created$(): rx.Observable<OutlineCreateTag> {
         return this._created$;
+    }
+
+    public get aborted$(): rx.Observable<OutlineCreateTag> {
+        return this._aborted$;
     }
 
     public get geometryChanged$(): rx.Observable<OutlineCreateTag> {
@@ -50,6 +57,40 @@ export class OutlineCreateTag {
         return new THREE.Line(geometry, material);
     }
 
+    public getDOMObjects(
+        transform: Transform,
+        matrixWorldInverse: THREE.Matrix4,
+        projectionMatrix: THREE.Matrix4):
+        vd.VNode[] {
+
+        let vNodes: vd.VNode[] = [];
+        let polygonPoints3d: number[][] = this._geometry.getPolygonPoints3d(transform);
+
+        let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
+            this._aborted$.onNext(this);
+        };
+
+        let topLeftCameraSpace: THREE.Vector3 = this._convertToCameraSpace(polygonPoints3d[1], matrixWorldInverse);
+        if (topLeftCameraSpace.z < 0) {
+            let centerCanvas: number[] = this._projectToCanvas(topLeftCameraSpace, projectionMatrix);
+            let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+            let pointProperties: vd.createProperties = {
+                style: { background: "#FFFFFF", left: centerCss[0], position: "absolute", top: centerCss[1] },
+            };
+
+            let completerProperties: vd.createProperties = {
+                onclick: abort,
+                style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
+            };
+
+            vNodes.push(vd.h("div.TagPolygonCompleter", completerProperties, []));
+            vNodes.push(vd.h("div.TagPolygonPoint", pointProperties, []));
+        }
+
+        return vNodes;
+    }
+
     public addPoint(point: number[]): void {
         this._created$.onNext(this);
     }
@@ -69,6 +110,26 @@ export class OutlineCreateTag {
         }
 
         return positions;
+    }
+
+    private _projectToCanvas(
+        point: THREE.Vector3,
+        projectionMatrix: THREE.Matrix4):
+        number[] {
+
+        let projected: THREE.Vector3 =
+            new THREE.Vector3(point.x, point.y, point.z)
+                .applyProjection(projectionMatrix);
+
+        return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
+    }
+
+    private _convertToCameraSpace(
+        point: number[],
+        matrixWorldInverse: THREE.Matrix4):
+        THREE.Vector3 {
+
+        return new THREE.Vector3(point[0], point[1], point[2]).applyMatrix4(matrixWorldInverse);
     }
 }
 

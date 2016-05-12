@@ -39,3 +39,25 @@
 .TagResizer:hover {
     opacity: 0.3;
 }
+
+.TagPolygonPoint {
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border-radius: 3px;
+    width: 6px;
+    height: 6px;
+}
+
+.TagPolygonCompleter {
+    transform: translate(-50%, -50%);
+    pointer-events: all;
+    border-radius: 8px;
+    background: orangered;
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+}
+
+.TagPolygonCompleter:hover {
+    opacity: 0.6;
+}
