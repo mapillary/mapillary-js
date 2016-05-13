@@ -3,4 +3,4 @@ export interface ILatLon {
     lon: number;
 }
 
-export default ILatLon
+export default ILatLon;

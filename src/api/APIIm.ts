@@ -10,4 +10,4 @@ export class APIIm extends APIv2Call {
     }
 }
 
-export default APIIm
+export default APIIm;

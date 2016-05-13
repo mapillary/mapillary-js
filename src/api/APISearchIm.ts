@@ -14,4 +14,4 @@ export class APISearchIm extends APIv2Call {
     }
 }
 
-export default APISearchIm
+export default APISearchIm;

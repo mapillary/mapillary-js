@@ -14,4 +14,4 @@ export class APIS extends APIv2Call {
     }
 }
 
-export default APIS
+export default APIS;

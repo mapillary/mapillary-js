@@ -3,4 +3,4 @@ export interface IMesh {
     vertices: number[];
 }
 
-export default IMesh
+export default IMesh;

@@ -4,4 +4,4 @@ export interface ILatLonAlt extends ILatLon {
     alt: number;
 }
 
-export default ILatLonAlt
+export default ILatLonAlt;

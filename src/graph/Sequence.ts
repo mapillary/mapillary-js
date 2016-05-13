@@ -41,4 +41,4 @@ export class Sequence {
 
 }
 
-export default Sequence
+export default Sequence;

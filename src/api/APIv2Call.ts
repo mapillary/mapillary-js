@@ -29,4 +29,4 @@ export class APIv2Call {
     }
 };
 
-export default APIv2Call
+export default APIv2Call;

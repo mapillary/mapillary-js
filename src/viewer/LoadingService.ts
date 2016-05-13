@@ -51,4 +51,4 @@ export class LoadingService {
     }
 }
 
-export default LoadingService
+export default LoadingService;

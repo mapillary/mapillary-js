@@ -18,4 +18,4 @@ export class APINav extends APIv2Call {
     }
 }
 
-export default APINav
+export default APINav;

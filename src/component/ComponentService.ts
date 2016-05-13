@@ -19,6 +19,16 @@ export class ComponentService {
     private _navigator: Navigator;
     private _components: {[key: string]: IActiveComponent} = {};
 
+    public static register(component: typeof Component): void {
+        if (ComponentService.registeredComponents[component.componentName] === undefined) {
+            ComponentService.registeredComponents[component.componentName] = component;
+        }
+    }
+
+    public static registerCover(coverComponent: typeof CoverComponent): void {
+        ComponentService.registeredCoverComponent = coverComponent;
+    }
+
     constructor (container: Container, navigator: Navigator) {
         this._container = container;
         this._navigator = navigator;
@@ -33,16 +43,6 @@ export class ComponentService {
         this._coverComponent = new ComponentService.registeredCoverComponent("cover", container, navigator);
         this._coverComponent.activate();
         this._coverActivated = true;
-    }
-
-    public static register(component: typeof Component): void {
-        if (ComponentService.registeredComponents[component.componentName] === undefined) {
-            ComponentService.registeredComponents[component.componentName] = component;
-        }
-    }
-
-    public static registerCover(coverComponent: typeof CoverComponent): void {
-        ComponentService.registeredCoverComponent = coverComponent;
     }
 
     public activateCover(): void {
