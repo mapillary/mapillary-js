@@ -23,7 +23,7 @@ export class TagSet {
                     return operation(tagData);
                 },
                 {})
-            .shareReplay(1);
+            .share();
 
         this._set$
             .map<ITagDataOperation>(

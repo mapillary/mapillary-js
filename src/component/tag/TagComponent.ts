@@ -75,8 +75,19 @@ export class TagComponent extends Component {
     private _setTagsSubscription: rx.IDisposable;
     private _updateTagSubscription: rx.IDisposable;
 
+    private _stopCreateSubscription: rx.IDisposable;
+    private _geometryTypeSubscription: rx.IDisposable;
+    private _createSubscription: rx.IDisposable;
+    private _setCreatePolygonPointSubscription: rx.IDisposable;
+    private _addPointSubscription: rx.IDisposable;
+    private _deleteCreatedSubscription: rx.IDisposable;
+    private _setGLCreateTagSubscription: rx.IDisposable;
+
     private _domSubscription: rx.IDisposable;
     private _glSubscription: rx.IDisposable;
+
+    private _geometryCreatedEventSubscription: rx.IDisposable;
+    private _tagsChangedEventSubscription: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -253,18 +264,6 @@ export class TagComponent extends Component {
                 (creating: boolean): void => {
                     this.fire(TagComponent.creatingchanged, creating);
                 });
-
-        this._geometryCreated$
-            .subscribe(
-                (geometry: Geometry): void => {
-                    this.fire(TagComponent.geometrycreated, geometry);
-                });
-
-        this._tags$
-            .subscribe(
-                (tags: Tag[]): void => {
-                    this.fire(TagComponent.tagschanged, tags);
-                });
     }
 
     public get tags$(): rx.Observable<Tag[]> {
@@ -289,6 +288,18 @@ export class TagComponent extends Component {
     }
 
     protected _activate(): void {
+        this._geometryCreatedEventSubscription = this._geometryCreated$
+            .subscribe(
+                (geometry: Geometry): void => {
+                    this.fire(TagComponent.geometrycreated, geometry);
+                });
+
+        this._tagsChangedEventSubscription = this._tags$
+            .subscribe(
+                (tags: Tag[]): void => {
+                    this.fire(TagComponent.tagschanged, tags);
+                });
+
         let nodeChanged$: rx.Observable<void> = this.configuration$
             .flatMapLatest<void>(
                 (configuration: ITagConfiguration): rx.Observable<void> => {
@@ -312,21 +323,21 @@ export class TagComponent extends Component {
         let tagCreated$: rx.Observable<void> = this._tagCreated$
             .map<void>((t: OutlineCreateTag): void => { return null; });
 
-        rx.Observable
+        this._stopCreateSubscription = rx.Observable
             .merge(
                 nodeChanged$,
                 tagAborted$,
                 tagCreated$)
             .subscribe((): void => { this.stopCreate(); });
 
-        this._configuration$
+        this._geometryTypeSubscription = this._configuration$
             .map<GeometryType>(
                 (configuration: ITagConfiguration): GeometryType => {
                     return configuration.createType;
                 })
             .subscribe(this._tagCreator.geometryType$);
 
-        this._creating$
+        this._createSubscription = this._creating$
             .flatMapLatest<number[]>(
                 (creating: boolean): rx.Observable<number[]> => {
                     return creating ?
@@ -335,7 +346,7 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._tagCreator.create$);
 
-        rx.Observable
+        this._setCreatePolygonPointSubscription = rx.Observable
             .combineLatest(
                 this._container.mouseService.mouseMove$,
                 this._tagCreator.tag$,
@@ -372,7 +383,7 @@ export class TagComponent extends Component {
                     tag.geometry.setPolygonPoint2d(3, basic, transform);
                 });
 
-        this._creating$
+        this._addPointSubscription = this._creating$
             .flatMapLatest<number[]>(
                 (creating: boolean): rx.Observable<number[]> => {
                     return creating ?
@@ -392,14 +403,14 @@ export class TagComponent extends Component {
                     tag.addPoint(basic);
                 });
 
-        this._creating$
+        this._deleteCreatedSubscription = this._creating$
             .filter((creating: boolean): boolean => { return !creating; })
             .subscribe(
                 (creating: boolean): void => {
                     this._tagCreator.delete$.onNext(null);
                 });
 
-        rx.Observable
+        this._setGLCreateTagSubscription = rx.Observable
             .merge(
                 this._tagCreator.tag$,
                 this._createGeometryChanged$)
@@ -521,7 +532,7 @@ export class TagComponent extends Component {
                 this._container.spriteService.spriteAtlas$,
                 this._tags$,
                 this._tagChanged$.startWith(null),
-                this._tagCreator.tag$,
+                this._tagCreator.tag$.startWith(null),
                 (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag, createTag: OutlineCreateTag):
                 [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag] => {
                     return [rc, atlas, tags, tag, createTag];
@@ -580,8 +591,19 @@ export class TagComponent extends Component {
         this._setTagsSubscription.dispose();
         this._updateTagSubscription.dispose();
 
+        this._stopCreateSubscription.dispose();
+        this._geometryTypeSubscription.dispose();
+        this._createSubscription.dispose();
+        this._setCreatePolygonPointSubscription.dispose();
+        this._addPointSubscription.dispose();
+        this._deleteCreatedSubscription.dispose();
+        this._setGLCreateTagSubscription.dispose();
+
         this._domSubscription.dispose();
         this._glSubscription.dispose();
+
+        this._geometryCreatedEventSubscription.dispose();
+        this._tagsChangedEventSubscription.dispose();
     }
 
     private _mouseEventToBasic(

@@ -16,6 +16,8 @@
     <div id='viewer'></div>
     <button onclick="createRect()">Create rect</button>
     <button onclick="stopCreate()">Stop create</button>
+    <button onclick="deactivate()">Deactivate</button>
+    <button onclick="activate()">Activate</button>
     <script src='build/bundle.js'></script>
     <script>
         var clientId = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4";
@@ -28,6 +30,14 @@
         );
 
         window.addEventListener("resize", function() { viewer.resize(); });
+
+        function deactivate() {
+            viewer.deactivateComponent("tag");
+        }
+
+        function activate() {
+            viewer.activateComponent("tag");
+        }
 
         var currentNode = null;
         var currentTags = {};
