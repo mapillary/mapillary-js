@@ -5,13 +5,17 @@ import * as vd from "virtual-dom";
 
 import {
     Geometry,
-    ILineTagOptions,
+    IOutlineTagOptions,
     Tag,
     TagOperation,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
 import {ISpriteAtlas} from "../../../Viewer";
 
+/**
+ * @class OutlineTag
+ * @classdesc Tag visualizing a geometry outline.
+ */
 export class OutlineTag extends Tag {
     private _editable: boolean;
     private _icon: string;
@@ -20,66 +24,136 @@ export class OutlineTag extends Tag {
     private _text: string;
     private _textColor: number;
 
-    constructor(id: string, geometry: Geometry, parameters: ILineTagOptions) {
+    /**
+     * Create an outline tag.
+     *
+     * @override
+     * @constructor
+     * @param {string} id
+     * @param {Geometry} geometry
+     * @param {IOutlineTagOptions} options - Options defining the visual appearance and
+     * behavior of the outline tag.
+     */
+    constructor(id: string, geometry: Geometry, options: IOutlineTagOptions) {
         super(id, geometry);
 
-        this._editable = parameters.editable ? parameters.editable : false;
-        this._icon = parameters.icon ? parameters.icon : null;
-        this._lineColor = parameters.lineColor ? parameters.lineColor : 0xFFFFFF;
-        this._lineWidth = parameters.lineWidth ? parameters.lineWidth : 1;
-        this._text = parameters.text ? parameters.text : null;
-        this._textColor = parameters.textColor ? parameters.textColor : 0xFFFFFF;
+        this._editable = options.editable ? options.editable : false;
+        this._icon = options.icon ? options.icon : null;
+        this._lineColor = options.lineColor ? options.lineColor : 0xFFFFFF;
+        this._lineWidth = options.lineWidth ? options.lineWidth : 1;
+        this._text = options.text ? options.text : null;
+        this._textColor = options.textColor ? options.textColor : 0xFFFFFF;
     }
 
+    /**
+     * Get editable property.
+     * @returns {boolean} Value indicating if tag is editable.
+     */
     public get editable(): boolean {
         return this._editable;
     }
 
+    /**
+     * Set editable property.
+     * @param {boolean}
+     *
+     * @fires Tag#changed
+     */
     public set editable(value: boolean) {
         this._editable = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get icon property.
+     * @returns {string}
+     */
     public get icon(): string {
         return this._icon;
     }
 
+    /**
+     * Set icon property.
+     * @param {string}
+     *
+     * @fires Tag#changed
+     */
     public set icon(value: string) {
         this._icon = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get line color property.
+     * @returns {number}
+     */
     public get lineColor(): number {
         return this._lineColor;
     }
 
+    /**
+     * Set line color property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
     public set lineColor(value: number) {
         this._lineColor = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get line width property.
+     * @returns {number}
+     */
     public get lineWidth(): number {
         return this._lineWidth;
     }
 
+    /**
+     * Set line width property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
     public set lineWidth(value: number) {
         this._lineWidth = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get text property.
+     * @returns {string}
+     */
     public get text(): string {
         return this._text;
     }
 
+    /**
+     * Set text property.
+     * @param {string}
+     *
+     * @fires Tag#changed
+     */
     public set text(value: string) {
         this._text = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get text color property.
+     * @returns {number}
+     */
     public get textColor(): number {
         return this._textColor;
     }
 
+    /**
+     * Set text color property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
     public set textColor(value: number) {
         this._textColor = value;
         this._notifyChanged$.onNext(this);

@@ -37,13 +37,36 @@ interface ITagGLRendererOperation extends Function {
     (renderer: TagGLRenderer): TagGLRenderer;
 }
 
+/**
+ * @class TagCompoennt
+ * @classdesc Component for showing and editing tags with rectangle geometries.
+ */
 export class TagComponent extends Component {
     public static componentName: string = "tag";
 
+    /**
+     * Event fired when creation starts and stops.
+     *
+     * @event TagComponent#creatingchanged
+     * @type {boolean} Indicates whether the component is creating a tag.
+     */
     public static creatingchanged: string = "creatingchanged";
 
+    /**
+     * Event fired when a geometry has been created.
+     *
+     * @event TagComponent#geometrycreated
+     * @type {Geometry} Created geometry.
+     */
     public static geometrycreated: string = "geometrycreated";
 
+
+    /**
+     * Event fired when the tags collection has changed.
+     *
+     * @event TagComponent#tagschanged
+     * @type {Array<Tag>} Current array of tags.
+     */
     public static tagschanged: string = "tagschanged";
 
     private _tagDomRenderer: TagDOMRenderer;
@@ -266,23 +289,57 @@ export class TagComponent extends Component {
                 });
     }
 
+    /**
+     * Get tags observable.
+     *
+     * @description An observable emitting every time the items in the
+     * tag array changes.
+     *
+     * @returns {Observable<Tag[]>}
+     */
     public get tags$(): rx.Observable<Tag[]> {
         return this._tags$;
     }
 
+    /**
+     * Get geometry created observable.
+     *
+     * @description An observable emitting every time a geometry
+     * has been created.
+     *
+     * @returns {Observable<Geometry>}
+     */
     public get geometryCreated$(): rx.Observable<Geometry> {
         return this._geometryCreated$;
     }
 
+    /**
+     * Set the tags to display.
+     *
+     * @param {Tag[]} tags - The tags.
+     */
     public setTags(tags: Tag[]): void {
         this._tagSet.set$.onNext(tags);
     }
 
+    /**
+     * Configure the component to enter create mode for
+     * creating a geometry of a certain type.
+     *
+     * @description Supported geometry types are: rect
+     *
+     * @param {string} geometryType - String specifying the geometry type.
+     */
     public startCreate(geometryType: GeometryType): void {
         this.configure({ createType: null, creating: false });
         this.configure({ createType: geometryType, creating: true });
     }
 
+    /**
+     * Configure the component to leave create mode.
+     *
+     * @description A non completed geometry will be removed.
+     */
     public stopCreate(): void {
         this.configure({ createType: null, creating: false });
     }

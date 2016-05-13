@@ -1,2 +1,2 @@
 export {IInteraction} from "./IInteraction";
-export {ILineTagOptions} from "./ILineTagOptions";
+export {IOutlineTagOptions} from "./IOutlineTagOptions";

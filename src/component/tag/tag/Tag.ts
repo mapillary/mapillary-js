@@ -12,9 +12,26 @@ import {Transform} from "../../../Geo";
 import {EventEmitter} from "../../../Utils";
 import {ISpriteAtlas} from "../../../Viewer";
 
+/**
+ * @class Tag
+ * @classdesc Abstract class representing the basic functionality of for a tag.
+ */
 export abstract class Tag extends EventEmitter {
+    /**
+     * Event fired when a property related to the visual appearance of the
+     * tag has changed.
+     *
+     * @event Tag#changed
+     * @type {Tag} The tag instance that has changed.
+     */
     public static changed: string = "changed";
 
+    /**
+     * Event fired when the geometry of the tag has changed.
+     *
+     * @event Tag#geometrychanged
+     * @type {Tag} The tag instance whose geometry has changed.
+     */
     public static geometrychanged: string = "geometrychanged";
 
     protected _id: string;
@@ -24,6 +41,13 @@ export abstract class Tag extends EventEmitter {
     protected _interact$: rx.Subject<IInteraction>;
     protected _notifyChanged$: rx.Subject<Tag>;
 
+    /**
+     * Create a tag.
+     *
+     * @constructor
+     * @param {string} id
+     * @param {Geometry} geometry
+     */
     constructor(id: string, geometry: Geometry) {
         super();
 
@@ -47,10 +71,18 @@ export abstract class Tag extends EventEmitter {
                 });
     }
 
+    /**
+     * Get id property.
+     * @returns {string}
+     */
     public get id(): string {
         return this._id;
     }
 
+    /**
+     * Get geometry property.
+     * @returns {Geometry}
+     */
     public get geometry(): Geometry {
         return this._geometry;
     }
@@ -63,10 +95,18 @@ export abstract class Tag extends EventEmitter {
         return this._abort$;
     }
 
+    /**
+     * Get changed observable.
+     * @returns {Observable<Tag>}
+     */
     public get changed$(): rx.Observable<Tag> {
         return this._notifyChanged$;
     }
 
+    /**
+     * Get geometry changed observable.
+     * @returns {Observable<Tag>}
+     */
     public get geometryChanged$(): rx.Observable<Tag> {
         return this._geometry.changed$
             .map<Tag>(
@@ -76,8 +116,18 @@ export abstract class Tag extends EventEmitter {
             .share();
     }
 
+    /**
+     * Get the GL objects for rendering of the tag.
+     * @abstract
+     * @return {Array<Object3D>}
+     */
     public abstract getGLObjects(transform: Transform): THREE.Object3D[];
 
+    /**
+     * Get the DOM objects for rendering of the tag.
+     * @abstract
+     * @return {Array<VNode>}
+     */
     public abstract getDOMObjects(
         transform: Transform,
         atlas: ISpriteAtlas,

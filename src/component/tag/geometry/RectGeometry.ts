@@ -3,11 +3,25 @@
 import {Geometry, GeometryTagError} from "../../../Component";
 import {Transform} from "../../../Geo";
 
+/**
+ * @class RectGeometry
+ * @classdesc Represents a rectangle geometry in the basic
+ * coordinate system.
+ */
 export class RectGeometry extends Geometry {
     private _rect: number[];
 
     private _inverted: boolean;
 
+    /**
+     * Create a rectangle geometry.
+     *
+     * @constructor
+     * @param {Array<number>} rect - An array representing the top left and bottom right
+     * corners of the rectangle in basic coordinates. Ordered according to [x0, y0, x1, y1].
+     *
+     * @throws {GeometryTagError} Rectangle coordinates must be valid basic coordinates.
+     */
     constructor(rect: number[]) {
         super();
 
@@ -28,10 +42,25 @@ export class RectGeometry extends Geometry {
         }
     }
 
+    /**
+     * Get rect property.
+     * @returns {Array<number>} Array representing the top left and bottom right
+     * corners of the rectangle in basic coordinates.
+     */
     public get rect(): number[] {
         return this._rect;
     }
 
+    /**
+     * Set the value of a point in the polygon representation of the rectangle.
+     *
+     * @description The polygon is defined to have the first point at the bottom
+     * left corner with the rest of the points following in clockwise order.
+     *
+     * @param {number} index - The index of the polygon point to be set.
+     * @param {Array<number>} value - The new value of the polygon point.
+     * @param {Transform} transform - The transform of the node related to the rectangle.
+     */
     public setPolygonPoint2d(index: number, value: number[], transform: Transform): void {
         let original: number[] = this._rect.slice();
 
@@ -109,6 +138,12 @@ export class RectGeometry extends Geometry {
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Set the centroid of the rectangle.
+     *
+     * @param {Array<number>} value - The new value of the centroid.
+     * @param {Transform} transform - The transform of the node related to the rectangle.
+     */
     public setCentroid2d(value: number[], transform: Transform): void {
         let original: number[] = this._rect.slice();
 
@@ -161,6 +196,13 @@ export class RectGeometry extends Geometry {
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get the 3D coordinates for the polygon points of the rectangle with
+     * edges interpolated.
+     *
+     * @param {Transform} transform - The transform of the node related to the rectangle.
+     * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing the rectangle.
+     */
     public getPolygon3d(transform: Transform): number[][] {
         let polygonPoints2d: number[][] = this._rectToPolygonPoints2d(this._rect);
 
@@ -196,6 +238,15 @@ export class RectGeometry extends Geometry {
                 });
     }
 
+    /**
+     * Get the 3D coordinates for the polygon points of the rectangle.
+     *
+     * @description The first polygon points represents the bottom
+     * left corner with the rest of the points following in clockwise order.
+     *
+     * @param {Transform} transform - The transform of the node related to the rectangle.
+     * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing the rectangle.
+     */
     public getPolygonPoints3d(transform: Transform): number[][] {
         return this._rectToPolygonPoints2d(this._rect)
             .map(
@@ -204,6 +255,12 @@ export class RectGeometry extends Geometry {
                 });
     }
 
+    /**
+     * Get the 3D coordinate for the centroid of the rectangle.
+     *
+     * @param {Transform} transform - The transform of the node related to the rectangle.
+     * @returns {Array<number>} 3D world coordinate represeting the centroid.
+     */
     public getCentroidPoint3d(transform: Transform): number[] {
         let rect: number[] = this._rect;
 
@@ -219,6 +276,14 @@ export class RectGeometry extends Geometry {
         return transform.unprojectBasic([centroidX, centroidY], 200);
     }
 
+    /**
+     * Check if a particular bottom right value is valid according to the current
+     * rectangle coordinates.
+     *
+     * @param {Array<number>} bottomRight - The bottom right coordinate to validate
+     * @returns {boolean} Value indicating whether the provided bottom right coordinate
+     * is valid.
+     */
     public validate(bottomRight: number[]): boolean {
         let rect: number[] = this._rect;
 
