@@ -7,7 +7,6 @@ import {ComponentService, Component} from "../Component";
 import {Transform} from "../Geo";
 import {Node} from "../Graph";
 import {RenderCamera} from "../Render";
-import {IFrame} from "../State";
 import {Container, Navigator, TouchMove, IPinch} from "../Viewer";
 
 interface IMovement {
@@ -20,23 +19,10 @@ interface IMovement {
 export class MouseComponent extends Component {
     public static componentName: string = "mouse";
 
-    private _currentTransform$: rx.Observable<Transform>;
-
     private _movementSubscription: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
-
-        this._currentTransform$ = this._navigator.stateService.currentState$
-            .distinctUntilChanged(
-                (frame: IFrame): string => {
-                    return frame.state.currentNode.key;
-                })
-            .map<Transform>(
-                (frame: IFrame): Transform => {
-                    return frame.state.currentTransform;
-                })
-            .shareReplay(1);
     }
 
     protected _activate(): void {
@@ -133,7 +119,7 @@ export class MouseComponent extends Component {
                 })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (w: WheelEvent, r: RenderCamera, t: Transform): [WheelEvent, RenderCamera, Transform] => {
                     return [w, r, t];
                 })
@@ -179,7 +165,7 @@ export class MouseComponent extends Component {
                 })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (p: IPinch, r: RenderCamera, t: Transform): [IPinch, RenderCamera, Transform] => {
                     return [p, r, t];
                 })

@@ -76,7 +76,6 @@ export class TagComponent extends Component {
     private _tagGlRendererOperation$: rx.Subject<ITagGLRendererOperation>;
     private _tagGlRenderer$: rx.Observable<TagGLRenderer>;
 
-    private _currentTransform$: rx.Observable<Transform>;
     private _tags$: rx.Observable<Tag[]>;
     private _tagChanged$: rx.Observable<Tag>;
     private _tagInterationInitiated$: rx.Observable<string>;
@@ -131,17 +130,6 @@ export class TagComponent extends Component {
                     return operation(renderer);
                 },
                 new TagGLRenderer());
-
-        this._currentTransform$ = this._navigator.stateService.currentState$
-            .distinctUntilChanged(
-                (frame: IFrame): string => {
-                    return frame.state.currentNode.key;
-                })
-            .map<Transform>(
-                (frame: IFrame): Transform => {
-                    return frame.state.currentTransform;
-                })
-            .shareReplay(1);
 
         this._tags$ = this._tagSet.tagData$
             .map<Tag[]>(
@@ -240,7 +228,7 @@ export class TagComponent extends Component {
         this._basicClick$ = this._container.mouseService.staticClick$
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (
                     event: MouseEvent,
                     renderCamera: RenderCamera,
@@ -420,7 +408,7 @@ export class TagComponent extends Component {
                     return etr[1] != null;
                 })
             .withLatestFrom(
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (etr: [MouseEvent, OutlineCreateTag, RenderCamera], transform: Transform):
                 [MouseEvent, OutlineCreateTag, RenderCamera, Transform] => {
                     return [etr[0], etr[1], etr[2], transform];
@@ -473,7 +461,7 @@ export class TagComponent extends Component {
                 this._tagCreator.tag$,
                 this._createGeometryChanged$)
             .withLatestFrom(
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (tag: OutlineCreateTag, transform: Transform): [OutlineCreateTag, Transform] => {
                     return [tag, transform];
                 })
@@ -511,7 +499,7 @@ export class TagComponent extends Component {
             .withLatestFrom(
                 this._activeTag$,
                 this._container.renderService.renderCamera$,
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (
                     event: MouseEvent,
                     activeTag: IInteraction,
@@ -554,7 +542,7 @@ export class TagComponent extends Component {
 
         this._setTagsSubscription = this._tags$
             .withLatestFrom(
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (tags: Tag[], transform: Transform): [Tag[], Transform] => {
                     return [tags, transform];
                 })
@@ -570,7 +558,7 @@ export class TagComponent extends Component {
 
         this._updateTagSubscription = this._tagChanged$
             .withLatestFrom(
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (tag: Tag, transform: Transform): [Tag, Transform] => {
                     return [tag, transform];
                 })
@@ -596,7 +584,7 @@ export class TagComponent extends Component {
                     return [rc, atlas, tags, tag, createTag];
                 })
             .withLatestFrom(
-                this._currentTransform$,
+                this._navigator.stateService.currentTransform$,
                 (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag], transform: Transform):
                     [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, Transform] => {
                     return [rcts[0], rcts[1], rcts[2], rcts[3], rcts[4], transform];

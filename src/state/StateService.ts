@@ -3,7 +3,10 @@
 import * as rx from "rx";
 
 import {Node} from "../Graph";
-import {ILatLonAlt} from "../Geo";
+import {
+    ILatLonAlt,
+    Transform,
+} from "../Geo";
 import {
     FrameGenerator,
     IStateContext,
@@ -31,6 +34,7 @@ export class StateService {
 
     private _currentState$: rx.Observable<IFrame>;
     private _currentNode$: rx.Observable<Node>;
+    private _currentTransform$: rx.Observable<Transform>;
     private _reference$: rx.Observable<ILatLonAlt>;
 
     private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
@@ -117,6 +121,13 @@ export class StateService {
                 })
             .shareReplay(1);
 
+        this._currentTransform$ = nodeChanged$
+            .map<Transform>(
+                (f: IFrame): Transform => {
+                    return f.state.currentTransform;
+                })
+            .shareReplay(1);
+
         this._reference$ = nodeChanged$
             .map<ILatLonAlt>(
                 (f: IFrame): ILatLonAlt => {
@@ -141,6 +152,7 @@ export class StateService {
 
         this._state$.subscribe();
         this._currentNode$.subscribe();
+        this._currentTransform$.subscribe();
         this._reference$.subscribe();
 
         this._frameId = null;
@@ -153,6 +165,10 @@ export class StateService {
 
     public get currentNode$(): rx.Observable<Node> {
         return this._currentNode$;
+    }
+
+    public get currentTransform$(): rx.Observable<Transform> {
+        return this._currentTransform$;
     }
 
     public get state$(): rx.Observable<State> {
