@@ -60,8 +60,14 @@ export class TagComponent extends Component {
     private _tagInteractionAbort$: rx.Observable<string>;
     private _activeTag$: rx.Observable<IInteraction>;
 
+    private _basicClick$: rx.Observable<number[]>;
+    private _validBasicClick$: rx.Observable<number[]>;
+
+    private _createGeometryChanged$: rx.Observable<OutlineCreateTag>;
     private _tagCreated$: rx.Observable<OutlineCreateTag>;
     private _geometryCreated$: rx.Observable<Geometry>;
+
+    private _creating$: rx.Observable<boolean>;
 
     private _claimMouseSubscription: rx.IDisposable;
     private _mouseDragSubscription: rx.IDisposable;
@@ -172,6 +178,15 @@ export class TagComponent extends Component {
                 })
             .share();
 
+        this._createGeometryChanged$ = this._tagCreator.tag$
+            .flatMapLatest<OutlineCreateTag>(
+                (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
+                    return tag != null ?
+                        tag.geometryChanged$ :
+                        rx.Observable.empty<OutlineCreateTag>();
+                })
+            .share();
+
         this._tagCreated$ = this._tagCreator.tag$
             .flatMapLatest<OutlineCreateTag>(
                 (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
@@ -188,14 +203,55 @@ export class TagComponent extends Component {
                 })
             .share();
 
-        this._configuration$
+        this._basicClick$ = this._container.mouseService.staticClick$
+            .withLatestFrom(
+                this._container.renderService.renderCamera$,
+                this._currentTransform$,
+                (
+                    event: MouseEvent,
+                    renderCamera: RenderCamera,
+                    transform: Transform):
+                    [MouseEvent, RenderCamera, Transform] => {
+                    return [event, renderCamera, transform];
+                })
+            .map<number[]>(
+                (ert: [MouseEvent, RenderCamera, Transform]): number[] => {
+                    let event: MouseEvent = ert[0];
+                    let camera: RenderCamera = ert[1];
+                    let transform: Transform = ert[2];
+
+                    let basic: number[] = this._mouseEventToBasic(
+                        event,
+                        this._container.element,
+                        camera,
+                        transform);
+
+                    return basic;
+                })
+            .share();
+
+        this._validBasicClick$ = this._basicClick$
+            .filter(
+                (basic: number[]): boolean => {
+                    let x: number = basic[0];
+                    let y: number = basic[1];
+
+                    return 0 <= x && x <= 1 && 0 <= y && y <= 1;
+                })
+            .share();
+
+        this._creating$ = this._configuration$
             .distinctUntilChanged(
                 (configuration: ITagConfiguration): boolean => {
                     return configuration.creating;
                 })
+            .map<boolean>((configuration: ITagConfiguration): boolean => { return configuration.creating; })
+            .share();
+
+        this._creating$
             .subscribe(
-                (configuration: ITagConfiguration): void => {
-                    this.fire(TagComponent.creatingchanged, configuration.creating);
+                (creating: boolean): void => {
+                    this.fire(TagComponent.creatingchanged, creating);
                 });
 
         this._geometryCreated$
@@ -233,51 +289,51 @@ export class TagComponent extends Component {
     }
 
     protected _activate(): void {
-        this.configuration$
-            .flatMapLatest<Node>(
-                (configuration: ITagConfiguration): rx.Observable<Node> => {
+        let nodeChanged$: rx.Observable<void> = this.configuration$
+            .flatMapLatest<void>(
+                (configuration: ITagConfiguration): rx.Observable<void> => {
                     return configuration.creating ?
-                        this._navigator.stateService.currentNode$.skip(1).take(1) :
-                        rx.Observable.empty<Node>();
-                })
-            .subscribe(
-                (node: Node): void => {
-                    this.stopCreate();
+                        this._navigator.stateService.currentNode$
+                            .skip(1)
+                            .take(1)
+                            .map<void>((n: Node): void => { return null; }) :
+                        rx.Observable.empty<void>();
                 });
 
-        this._tagCreator.tag$
-            .flatMapLatest<OutlineCreateTag>(
-                (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
+        let tagAborted$: rx.Observable<void> = this._tagCreator.tag$
+            .flatMapLatest<void>(
+                (tag: OutlineCreateTag): rx.Observable<void> => {
                     return tag != null ?
-                        tag.aborted$ :
-                        rx.Observable.empty<OutlineCreateTag>();
-                })
-            .subscribe(
-                (tag: OutlineCreateTag): void => {
-                    this.stopCreate();
+                        tag.aborted$
+                            .map<void>((t: OutlineCreateTag): void => { return null; }) :
+                        rx.Observable.empty<void>();
                 });
 
-        this._tagCreator.tag$
-            .flatMapLatest<OutlineCreateTag>(
-                (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
-                    return tag != null ?
-                        tag.geometryChanged$ :
-                        rx.Observable.empty<OutlineCreateTag>();
-                })
-            .withLatestFrom(
-                this._currentTransform$,
-                (tag: OutlineCreateTag, transform: Transform): [OutlineCreateTag, Transform] => {
-                    return [tag, transform];
-                })
-            .map<ITagGLRendererOperation>(
-                (tt: [OutlineCreateTag, Transform]): ITagGLRendererOperation => {
-                    return (renderer: TagGLRenderer): TagGLRenderer => {
-                        renderer.setCreateTag(tt[0], tt[1]);
+        let tagCreated$: rx.Observable<void> = this._tagCreated$
+            .map<void>((t: OutlineCreateTag): void => { return null; });
 
-                        return renderer;
-                    };
+        rx.Observable
+            .merge(
+                nodeChanged$,
+                tagAborted$,
+                tagCreated$)
+            .subscribe((): void => { this.stopCreate(); });
+
+        this._configuration$
+            .map<GeometryType>(
+                (configuration: ITagConfiguration): GeometryType => {
+                    return configuration.createType;
                 })
-            .subscribe(this._tagGlRendererOperation$);
+            .subscribe(this._tagCreator.geometryType$);
+
+        this._creating$
+            .flatMapLatest<number[]>(
+                (creating: boolean): rx.Observable<number[]> => {
+                    return creating ?
+                        this._validBasicClick$.take(1) :
+                        rx.Observable.empty<number[]>();
+                })
+            .subscribe(this._tagCreator.create$);
 
         rx.Observable
             .combineLatest(
@@ -316,73 +372,12 @@ export class TagComponent extends Component {
                     tag.geometry.setPolygonPoint2d(3, basic, transform);
                 });
 
-        this._configuration$
-            .map<GeometryType>(
-                (configuration: ITagConfiguration): GeometryType => {
-                    return configuration.createType;
-                })
-            .subscribe(this._tagCreator.geometryType$);
-
-        let basicClick$: rx.Observable<number[]> = this._container.mouseService.staticClick$
-            .withLatestFrom(
-                this._container.renderService.renderCamera$,
-                this._currentTransform$,
-                (
-                    event: MouseEvent,
-                    renderCamera: RenderCamera,
-                    transform: Transform):
-                    [MouseEvent, RenderCamera, Transform] => {
-                    return [event, renderCamera, transform];
-                })
-            .map<number[]>(
-                (ert: [MouseEvent, RenderCamera, Transform]): number[] => {
-                    let event: MouseEvent = ert[0];
-                    let camera: RenderCamera = ert[1];
-                    let transform: Transform = ert[2];
-
-                    let basic: number[] = this._mouseEventToBasic(
-                        event,
-                        this._container.element,
-                        camera,
-                        transform);
-
-                    return basic;
-                })
-            .share();
-
-        let validBasicClick$: rx.Observable<number[]> = basicClick$
-            .filter(
-                (basic: number[]): boolean => {
-                    let x: number = basic[0];
-                    let y: number = basic[1];
-
-                    return 0 <= x && x <= 1 && 0 <= y && y <= 1;
-                })
-            .share();
-
-        this._configuration$
-            .distinctUntilChanged(
-                (configuration: ITagConfiguration): boolean => {
-                    return configuration.creating;
-                })
+        this._creating$
             .flatMapLatest<number[]>(
-                (configuration: ITagConfiguration): rx.Observable<number[]> => {
-                    return configuration.creating ?
-                         validBasicClick$.take(1) :
-                         rx.Observable.empty<number[]>();
-                })
-            .subscribe(this._tagCreator.create$);
-
-        this._configuration$
-            .distinctUntilChanged(
-                (configuration: ITagConfiguration): boolean => {
-                    return configuration.creating;
-                })
-            .flatMapLatest<number[]>(
-                (configuration: ITagConfiguration): rx.Observable<number[]> => {
-                    return configuration.creating ?
-                            basicClick$.skipUntil(validBasicClick$).skip(1) :
-                            rx.Observable.empty<number[]>();
+                (creating: boolean): rx.Observable<number[]> => {
+                    return creating ?
+                        this._basicClick$.skipUntil(this._validBasicClick$).skip(1) :
+                        rx.Observable.empty<number[]>();
                 })
             .withLatestFrom(
                 this._tagCreator.tag$,
@@ -391,30 +386,23 @@ export class TagComponent extends Component {
                 })
             .subscribe(
                 (bt: [number[], OutlineCreateTag]): void => {
-                    bt[1].addPoint(bt[0]);
+                    let basic: number[] = bt[0];
+                    let tag: OutlineCreateTag = bt[1];
+
+                    tag.addPoint(basic);
                 });
 
-        this._configuration$
-            .distinctUntilChanged(
-                (configuration: ITagConfiguration): boolean => {
-                    return configuration.creating;
-                })
-            .filter(
-                (configuration: ITagConfiguration): boolean => {
-                    return !configuration.creating;
-                })
+        this._creating$
+            .filter((creating: boolean): boolean => { return !creating; })
             .subscribe(
-                (configuration: ITagConfiguration): void => {
+                (creating: boolean): void => {
                     this._tagCreator.delete$.onNext(null);
                 });
 
-        this._tagCreated$
-            .subscribe(
-                (tag: OutlineCreateTag): void => {
-                    this.stopCreate();
-                });
-
-        this._tagCreator.tag$
+        rx.Observable
+            .merge(
+                this._tagCreator.tag$,
+                this._createGeometryChanged$)
             .withLatestFrom(
                 this._currentTransform$,
                 (tag: OutlineCreateTag, transform: Transform): [OutlineCreateTag, Transform] => {
