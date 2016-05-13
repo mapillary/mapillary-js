@@ -32,7 +32,7 @@ export class RectGeometry extends Geometry {
         return this._rect;
     }
 
-    public setPolygonPoint2d(index: number, value: number[]): void {
+    public setPolygonPoint2d(index: number, value: number[], transform: Transform): void {
         let original: number[] = this._rect.slice();
 
         let changed: number[] = [
@@ -63,30 +63,37 @@ export class RectGeometry extends Geometry {
             rect[3] = changed[1];
         }
 
-        let passingBoundaryLeft: boolean =
-            index < 2 && changed[0] > 0.75 && original[0] < 0.25 ||
-            index >= 2 && this._inverted && changed[0] > 0.75 && original[2] < 0.25;
+        if (transform.gpano) {
+            let passingBoundaryLeft: boolean =
+                index < 2 && changed[0] > 0.75 && original[0] < 0.25 ||
+                index >= 2 && this._inverted && changed[0] > 0.75 && original[2] < 0.25;
 
-        let passingBoundaryRight: boolean =
-            index < 2 && this._inverted && changed[0] < 0.25 && original[0] > 0.75 ||
-            index >= 2 && changed[0] < 0.25 && original[2] > 0.75;
+            let passingBoundaryRight: boolean =
+                index < 2 && this._inverted && changed[0] < 0.25 && original[0] > 0.75 ||
+                index >= 2 && changed[0] < 0.25 && original[2] > 0.75;
 
-        if (passingBoundaryLeft || passingBoundaryRight) {
-            this._inverted = !this._inverted;
-        } else {
-            if (rect[0] - original[0] < -0.25) {
-                rect[0] = original[0];
+            if (passingBoundaryLeft || passingBoundaryRight) {
+                this._inverted = !this._inverted;
+            } else {
+                if (rect[0] - original[0] < -0.25) {
+                    rect[0] = original[0];
+                }
+
+                if (rect[2] - original[2] > 0.25) {
+                    rect[2] = original[2];
+                }
             }
 
-            if (rect[2] - original[2] > 0.25) {
+            if (!this._inverted && rect[0] > rect[2] ||
+                this._inverted && rect[0] < rect[2]) {
+                rect[0] = original[0];
                 rect[2] = original[2];
             }
-        }
-
-        if (!this._inverted && rect[0] > rect[2] ||
-            this._inverted && rect[0] < rect[2]) {
-            rect[0] = original[0];
-            rect[2] = original[2];
+        } else {
+             if (rect[0] > rect[2]) {
+                rect[0] = original[0];
+                rect[2] = original[2];
+            }
         }
 
         if (rect[1] > rect[3]) {

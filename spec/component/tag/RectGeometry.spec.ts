@@ -43,13 +43,31 @@ describe("RectGeometry.ctor", () => {
 });
 
 describe("RectGeometry.setPolygonPoint2d", () => {
+    let createTransform = (pano: boolean): Transform => {
+        let gpano: IGPano = pano ?
+            {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                FullPanoHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+            } :
+            null;
+
+        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+
+        return new Transform(node, [0, 0, 0]);
+    }
+
     it("should set rect according to bottom left value", () => {
         let original: number[] = [0, 0, 1, 1];
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.5, 0.5];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(0, polygonPoint)
+        rectGeometry.setPolygonPoint2d(0, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -62,8 +80,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.5, 0.5];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(polygonPoint[1]);
@@ -76,8 +95,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.5, 0.5];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(2, polygonPoint)
+        rectGeometry.setPolygonPoint2d(2, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(polygonPoint[1]);
@@ -90,8 +110,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.5, 0.5];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint)
+        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -104,8 +125,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [-1, -1];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(0);
         expect(rectGeometry.rect[1]).toBe(0);
@@ -118,8 +140,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [2, 2];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint)
+        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -132,8 +155,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.3, original[3]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint)
+        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -146,8 +170,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.6, original[1]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -160,8 +185,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [original[2], 0.4];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint)
+        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -174,8 +200,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [original[0], 0.6];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -188,8 +215,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.9, original[1]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -202,8 +230,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.1, original[3]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint)
+        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -216,8 +245,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.8, original[1]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -230,8 +260,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.9, original[3]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint)
+        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -244,8 +275,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.1, original[1]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -258,8 +290,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.99, original[3]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint)
+        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -272,8 +305,9 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let polygonPoint: number[] = [0.01, original[1]];
+        let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint)
+        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -285,14 +319,29 @@ describe("RectGeometry.setPolygonPoint2d", () => {
 describe("RectGeometry.setCentroid2d", () => {
     let precision: number = 8;
 
+    let createTransform = (pano: boolean): Transform => {
+        let gpano: IGPano = pano ?
+            {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                FullPanoHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+            } :
+            null;
+
+        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+
+        return new Transform(node, [0, 0, 0]);
+    }
+
     it("should set rect according to new centroid", () => {
         let original: number[] = [0.2, 0.2, 0.3, 0.3];
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let centroid: number[] = [0.45, 0.45];
-
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0] }, []);
-        let transform: Transform = new Transform(node, [0, 0, 0]);
+        let transform: Transform = createTransform(false);
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -307,9 +356,7 @@ describe("RectGeometry.setCentroid2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let centroid: number[] = [0, 0.2];
-
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0] }, []);
-        let transform: Transform = new Transform(node, [0, 0, 0]);
+        let transform: Transform = createTransform(false);
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -324,18 +371,7 @@ describe("RectGeometry.setCentroid2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let centroid: number[] = [0, 0.2];
-
-        let gpano: IGPano = {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
-
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
-        let transform: Transform = new Transform(node, [0, 0, 0]);
+        let transform: Transform = createTransform(true);
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -350,9 +386,7 @@ describe("RectGeometry.setCentroid2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let centroid: number[] = [0.2, 0];
-
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0] }, []);
-        let transform: Transform = new Transform(node, [0, 0, 0]);
+        let transform: Transform = createTransform(false);
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -367,18 +401,7 @@ describe("RectGeometry.setCentroid2d", () => {
         let rectGeometry: RectGeometry = new RectGeometry(original);
 
         let centroid: number[] = [0.2, 0];
-
-        let gpano: IGPano = {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
-
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
-        let transform: Transform = new Transform(node, [0, 0, 0]);
+        let transform: Transform = createTransform(true);
 
         rectGeometry.setCentroid2d(centroid, transform);
 

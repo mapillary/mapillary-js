@@ -15,7 +15,7 @@ export class PolygonGeometry extends Geometry {
         }
     }
 
-    public setPolygonPoint2d(index: number, value: number[]): void {
+    public setPolygonPoint2d(index: number, value: number[], transform: Transform): void {
         if (index === 0 || index === this._polygonPoints2d.length - 1) {
             this._polygonPoints2d[0] = value.slice();
             this._polygonPoints2d[this._polygonPoints2d.length - 1] = value.slice();

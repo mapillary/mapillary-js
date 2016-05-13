@@ -20,7 +20,7 @@ export abstract class Geometry {
     public abstract getCentroidPoint3d(transform: Transform): number[];
 
     public abstract setCentroid2d(value: number[], transform: Transform): void;
-    public abstract setPolygonPoint2d(index: number, value: number[]): void;
+    public abstract setPolygonPoint2d(index: number, value: number[], transform: Transform): void;
 }
 
 export default Geometry;

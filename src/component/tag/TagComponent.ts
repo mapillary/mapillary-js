@@ -313,7 +313,7 @@ export class TagComponent extends Component {
                         camera,
                         transform);
 
-                    tag.geometry.setPolygonPoint2d(3, basic);
+                    tag.geometry.setPolygonPoint2d(3, basic, transform);
                 });
 
         this._configuration$
@@ -323,17 +323,7 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._tagCreator.geometryType$);
 
-        this._configuration$
-            .distinctUntilChanged(
-                (configuration: ITagConfiguration): boolean => {
-                    return configuration.creating;
-                })
-            .flatMapLatest<MouseEvent>(
-                (configuration: ITagConfiguration): rx.Observable<MouseEvent> => {
-                    return configuration.creating ?
-                         this._container.mouseService.staticClick$.take(1) :
-                         rx.Observable.empty<MouseEvent>();
-                })
+        let basicClick$: rx.Observable<number[]> = this._container.mouseService.staticClick$
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._currentTransform$,
@@ -358,6 +348,29 @@ export class TagComponent extends Component {
 
                     return basic;
                 })
+            .share();
+
+        let validBasicClick$: rx.Observable<number[]> = basicClick$
+            .filter(
+                (basic: number[]): boolean => {
+                    let x: number = basic[0];
+                    let y: number = basic[1];
+
+                    return 0 <= x && x <= 1 && 0 <= y && y <= 1;
+                })
+            .share();
+
+        this._configuration$
+            .distinctUntilChanged(
+                (configuration: ITagConfiguration): boolean => {
+                    return configuration.creating;
+                })
+            .flatMapLatest<number[]>(
+                (configuration: ITagConfiguration): rx.Observable<number[]> => {
+                    return configuration.creating ?
+                         validBasicClick$.take(1) :
+                         rx.Observable.empty<number[]>();
+                })
             .subscribe(this._tagCreator.create$);
 
         this._configuration$
@@ -365,38 +378,20 @@ export class TagComponent extends Component {
                 (configuration: ITagConfiguration): boolean => {
                     return configuration.creating;
                 })
-            .flatMapLatest<MouseEvent>(
-                (configuration: ITagConfiguration): rx.Observable<MouseEvent> => {
+            .flatMapLatest<number[]>(
+                (configuration: ITagConfiguration): rx.Observable<number[]> => {
                     return configuration.creating ?
-                            this._container.mouseService.staticClick$.skip(1) :
-                            rx.Observable.empty<MouseEvent>();
+                            basicClick$.skipUntil(validBasicClick$).skip(1) :
+                            rx.Observable.empty<number[]>();
                 })
             .withLatestFrom(
                 this._tagCreator.tag$,
-                this._container.renderService.renderCamera$,
-                this._currentTransform$,
-                (
-                    event: MouseEvent,
-                    tag: OutlineCreateTag,
-                    renderCamera: RenderCamera,
-                    transform: Transform):
-                    [MouseEvent, OutlineCreateTag, RenderCamera, Transform] => {
-                    return [event, tag, renderCamera, transform];
+                (basic: number[], tag: OutlineCreateTag): [number[], OutlineCreateTag] => {
+                    return [basic, tag];
                 })
             .subscribe(
-                (ert: [MouseEvent, OutlineCreateTag, RenderCamera, Transform]): void => {
-                    let event: MouseEvent = ert[0];
-                    let tag: OutlineCreateTag = ert[1];
-                    let camera: RenderCamera = ert[2];
-                    let transform: Transform = ert[3];
-
-                    let basic: number[] = this._mouseEventToBasic(
-                        event,
-                        this._container.element,
-                        camera,
-                        transform);
-
-                    tag.addPoint(basic);
+                (bt: [number[], OutlineCreateTag]): void => {
+                    bt[1].addPoint(bt[0]);
                 });
 
         this._configuration$
@@ -490,7 +485,7 @@ export class TagComponent extends Component {
                     if (activeTag.operation === TagOperation.Move) {
                         activeTag.tag.geometry.setCentroid2d(basic, transform);
                     } else if (activeTag.operation === TagOperation.Resize) {
-                        activeTag.tag.geometry.setPolygonPoint2d(activeTag.pointIndex, basic);
+                        activeTag.tag.geometry.setPolygonPoint2d(activeTag.pointIndex, basic, transform);
                     }
                 });
 
