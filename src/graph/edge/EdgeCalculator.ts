@@ -404,14 +404,16 @@ export class EdgeCalculator {
             return [];
         }
 
-        return [{
-            data: {
-                direction: EdgeDirection.Pano,
-                worldMotionAzimuth: edge.worldMotionAzimuth,
+        return [
+            {
+                data: {
+                    direction: EdgeDirection.Pano,
+                    worldMotionAzimuth: edge.worldMotionAzimuth,
+                },
+                from: node.key,
+                to: edge.apiNavImIm.key,
             },
-            from: node.key,
-            to: edge.apiNavImIm.key,
-        }];
+        ];
     }
 
     /**

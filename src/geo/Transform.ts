@@ -167,8 +167,10 @@ export class Transform {
             let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
             return [lon / (2 * Math.PI), -lat / (2 * Math.PI)];
         } else {
-            return [bearing[0] * this._focal / bearing[2],
-                    bearing[1] * this._focal / bearing[2]];
+            return [
+                bearing[0] * this._focal / bearing[2],
+                bearing[1] * this._focal / bearing[2],
+            ];
         }
     }
 
