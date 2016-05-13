@@ -77,7 +77,7 @@
 
         var createdIndex = 0;
 
-        tagComponent.on(Mapillary.TagComponent.geometrycreated, function(geometry) {
+        tagComponent.on(Mapillary.TagComponent.TagComponent.geometrycreated, function(geometry) {
             createdIndex += 1;
             var id = "created" + createdIndex;
             var parameters = {
@@ -88,8 +88,8 @@
                 textColor: 0x00FFFF,
             };
 
-            var tag = new Mapillary.OutlineTag(id, geometry, parameters);
-            tag.on(Mapillary.OutlineTag.geometrychanged, onTagGeometryChanged);
+            var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, parameters);
+            tag.on(Mapillary.TagComponent.OutlineTag.geometrychanged, onTagGeometryChanged);
 
             createdTags[tag.id] = tag;
 
@@ -144,7 +144,7 @@
                             or.rect.value.geometry.coordinates[3][0],
                             or.rect.value.geometry.coordinates[3][1],
                         ];
-                        var geometry = new Mapillary.RectGeometry(rect);
+                        var geometry = new Mapillary.TagComponent.RectGeometry(rect);
                         var parameters = {
                             editable: true,
                             lineColor: 0x00FFFF,
@@ -153,8 +153,8 @@
                             textColor: 0xFFFFFF,
                         };
 
-                        var tag = new Mapillary.OutlineTag(id, geometry, parameters);
-                        tag.on(Mapillary.OutlineTag.geometrychanged, onTagGeometryChanged);
+                        var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, parameters);
+                        tag.on(Mapillary.TagComponent.OutlineTag.geometrychanged, onTagGeometryChanged);
 
                         currentTags[tag.id] = tag;
                     }
