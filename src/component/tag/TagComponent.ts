@@ -407,22 +407,23 @@ export class TagComponent extends Component {
             .combineLatest(
                 this._container.mouseService.mouseMove$,
                 this._tagCreator.tag$,
-                (event: MouseEvent, tag: OutlineCreateTag): [MouseEvent, OutlineCreateTag] => {
-                    return [event, tag];
+                this._container.renderService.renderCamera$,
+                (
+                    event: MouseEvent,
+                    tag: OutlineCreateTag,
+                    renderCamera: RenderCamera):
+                    [MouseEvent, OutlineCreateTag, RenderCamera] => {
+                    return [event, tag, renderCamera];
                 })
             .filter(
-                (et: [MouseEvent, OutlineCreateTag]): boolean => {
-                    return et[1] != null;
+                (etr: [MouseEvent, OutlineCreateTag, RenderCamera]): boolean => {
+                    return etr[1] != null;
                 })
             .withLatestFrom(
-                this._container.renderService.renderCamera$,
                 this._currentTransform$,
-                (
-                    et: [MouseEvent, OutlineCreateTag],
-                    renderCamera: RenderCamera,
-                    transform: Transform):
-                    [MouseEvent, OutlineCreateTag, RenderCamera, Transform] => {
-                    return [et[0], et[1], renderCamera, transform];
+                (etr: [MouseEvent, OutlineCreateTag, RenderCamera], transform: Transform):
+                [MouseEvent, OutlineCreateTag, RenderCamera, Transform] => {
+                    return [etr[0], etr[1], etr[2], transform];
                 })
             .subscribe(
                 (etrt: [MouseEvent, OutlineCreateTag, RenderCamera, Transform]): void => {
@@ -641,6 +642,9 @@ export class TagComponent extends Component {
 
                     return renderer;
                 });
+
+        this._tagSet.set$.onNext([]);
+        this._tagCreator.delete$.onNext(null);
 
         this._claimMouseSubscription.dispose();
         this._mouseDragSubscription.dispose();
