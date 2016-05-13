@@ -587,7 +587,7 @@ export class TagComponent extends Component {
             .combineLatest(
                 this._container.renderService.renderCamera$,
                 this._container.spriteService.spriteAtlas$,
-                this._tags$,
+                this._tags$.startWith([]),
                 this._tagChanged$.startWith(null),
                 this._tagCreator.tag$.startWith(null),
                 (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag, createTag: OutlineCreateTag):
