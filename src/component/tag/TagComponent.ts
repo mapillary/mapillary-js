@@ -17,6 +17,7 @@ import {
     TagGLRenderer,
     TagOperation,
     TagSet,
+    VertexGeometry,
 } from "../../Component";
 import {Transform} from "../../Geo";
 import {Node} from "../../Graph";
@@ -527,10 +528,11 @@ export class TagComponent extends Component {
                         activeTag.offsetX,
                         activeTag.offsetY);
 
-                    if (activeTag.operation === TagOperation.Move) {
+                    if (activeTag.operation === TagOperation.Centroid) {
                         activeTag.tag.geometry.setCentroid2d(basic, transform);
-                    } else if (activeTag.operation === TagOperation.Resize) {
-                        activeTag.tag.geometry.setVertex2d(activeTag.pointIndex, basic, transform);
+                    } else if (activeTag.operation === TagOperation.Vertex) {
+                        let vertexGeometry: VertexGeometry = <VertexGeometry>activeTag.tag.geometry;
+                        vertexGeometry.setVertex2d(activeTag.vertexIndex, basic, transform);
                     }
                 });
 

@@ -4,23 +4,23 @@ import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Geometry, RectGeometry} from "../../../Component";
+import {VertexGeometry, RectGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
 export class OutlineCreateTag {
-    private _geometry: Geometry;
+    private _geometry: VertexGeometry;
 
     private _created$: rx.Subject<OutlineCreateTag>;
     private _aborted$: rx.Subject<OutlineCreateTag>;
 
-    constructor(geometry: Geometry) {
+    constructor(geometry: VertexGeometry) {
         this._geometry = geometry;
 
         this._created$ = new rx.Subject<OutlineCreateTag>();
         this._aborted$ = new rx.Subject<OutlineCreateTag>();
     }
 
-    public get geometry(): Geometry {
+    public get geometry(): VertexGeometry {
         return this._geometry;
     }
 
@@ -35,7 +35,7 @@ export class OutlineCreateTag {
     public get geometryChanged$(): rx.Observable<OutlineCreateTag> {
         return this._geometry.changed$
             .map<OutlineCreateTag>(
-                (geometry: Geometry): OutlineCreateTag => {
+                (geometry: VertexGeometry): OutlineCreateTag => {
                     return this;
                 });
     }

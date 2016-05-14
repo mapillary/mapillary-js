@@ -1,7 +1,7 @@
 export enum TagOperation {
     None,
-    Move,
-    Resize,
+    Centroid,
+    Vertex,
 }
 
 export default TagOperation;

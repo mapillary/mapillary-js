@@ -1,13 +1,13 @@
 /// <reference path="../../../../typings/browser.d.ts" />
 
-import {Geometry, GeometryTagError} from "../../../Component";
+import {VertexGeometry, GeometryTagError} from "../../../Component";
 import {Transform} from "../../../Geo";
 
 /**
  * @class RectGeometry
  * @classdesc Represents a rectangle geometry in the basic coordinate system.
  */
-export class RectGeometry extends Geometry {
+export class RectGeometry extends VertexGeometry {
     private _rect: number[];
 
     private _inverted: boolean;

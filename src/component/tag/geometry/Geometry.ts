@@ -15,11 +15,8 @@ export abstract class Geometry {
         return this._notifyChanged$;
     }
 
-    public abstract getPoints3d(transform: Transform): number[][];
-    public abstract getVertices3d(transform: Transform): number[][];
     public abstract getCentroid3d(transform: Transform): number[];
 
-    public abstract setVertex2d(index: number, value: number[], transform: Transform): void;
     public abstract setCentroid2d(value: number[], transform: Transform): void;
 }
 

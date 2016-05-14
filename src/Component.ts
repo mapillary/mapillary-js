@@ -36,6 +36,7 @@ export {TagGLRenderer} from "./component/tag/TagGLRenderer";
 export {TagOperation} from "./component/tag/TagOperation";
 export {TagSet} from "./component/tag/TagSet";
 export {Geometry} from "./component/tag/geometry/Geometry";
+export {VertexGeometry} from "./component/tag/geometry/VertexGeometry";
 export {GeometryType} from "./component/tag/geometry/GeometryType";
 export {RectGeometry} from "./component/tag/geometry/RectGeometry";
 export {PolygonGeometry} from "./component/tag/geometry/PolygonGeometry";

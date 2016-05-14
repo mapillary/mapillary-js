@@ -1,34 +1,34 @@
 /// <reference path="../../../../typings/browser.d.ts" />
 
-import {Geometry} from "../../../Component";
+import {VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
-export class PolygonGeometry extends Geometry {
-    private _polygonPoints2d: number[][];
+export class PolygonGeometry extends VertexGeometry {
+    private _vertices2d: number[][];
 
-    constructor(polygonPoints2d: number[][]) {
+    constructor(vertices2d: number[][]) {
         super();
 
-        this._polygonPoints2d = [];
-        for (let polygonPoint2d of polygonPoints2d) {
-            this._polygonPoints2d.push(polygonPoint2d.slice());
+        this._vertices2d = [];
+        for (let vertex2d of vertices2d) {
+            this._vertices2d.push(vertex2d.slice());
         }
     }
 
     public setVertex2d(index: number, value: number[], transform: Transform): void {
-        if (index === 0 || index === this._polygonPoints2d.length - 1) {
-            this._polygonPoints2d[0] = value.slice();
-            this._polygonPoints2d[this._polygonPoints2d.length - 1] = value.slice();
+        if (index === 0 || index === this._vertices2d.length - 1) {
+            this._vertices2d[0] = value.slice();
+            this._vertices2d[this._vertices2d.length - 1] = value.slice();
         } else {
-            this._polygonPoints2d[index] = value.slice();
+            this._vertices2d[index] = value.slice();
         }
 
         this._notifyChanged$.onNext(this);
     }
 
     public setCentroid2d(value: number[], transform: Transform): void {
-        let xs: number[] = this._polygonPoints2d.map((point: number[]): number => { return point[0]; });
-        let ys: number[] = this._polygonPoints2d.map((point: number[]): number => { return point[1]; });
+        let xs: number[] = this._vertices2d.map((point: number[]): number => { return point[0]; });
+        let ys: number[] = this._vertices2d.map((point: number[]): number => { return point[1]; });
 
         let minX: number = Math.min.apply(Math, xs);
         let maxX: number = Math.max.apply(Math, xs);
@@ -45,7 +45,7 @@ export class PolygonGeometry extends Geometry {
         let translationX: number = Math.max(minTranslationX, Math.min(maxTranslationX, value[0] - centroid[0]));
         let translationY: number = Math.max(minTranslationY, Math.min(maxTranslationY, value[1] - centroid[1]));
 
-        for (let point of this._polygonPoints2d) {
+        for (let point of this._vertices2d) {
             point[0] += translationX;
             point[1] += translationY;
         }
@@ -58,7 +58,7 @@ export class PolygonGeometry extends Geometry {
     }
 
     public getVertices3d(transform: Transform): number[][] {
-        return this._polygonPoints2d
+        return this._vertices2d
             .map(
                 (point: number[]) => {
                     return transform.unprojectBasic(point, 200);
@@ -72,7 +72,7 @@ export class PolygonGeometry extends Geometry {
     }
 
     private _getCentroid2d(): number[] {
-        let polygon: number[][] = this._polygonPoints2d;
+        let polygon: number[][] = this._vertices2d;
 
         let area: number = 0;
         let centroidX: number = 0;

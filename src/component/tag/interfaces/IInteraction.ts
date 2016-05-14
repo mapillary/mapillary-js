@@ -4,8 +4,8 @@ export interface IInteraction {
     offsetX: number;
     offsetY: number;
     operation: TagOperation;
-    pointIndex?: number;
     tag: Tag;
+    vertexIndex?: number;
 }
 
 export default IInteraction;
