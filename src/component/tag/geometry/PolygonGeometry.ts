@@ -15,7 +15,7 @@ export class PolygonGeometry extends Geometry {
         }
     }
 
-    public setPolygonPoint2d(index: number, value: number[], transform: Transform): void {
+    public setVertex2d(index: number, value: number[], transform: Transform): void {
         if (index === 0 || index === this._polygonPoints2d.length - 1) {
             this._polygonPoints2d[0] = value.slice();
             this._polygonPoints2d[this._polygonPoints2d.length - 1] = value.slice();
@@ -53,11 +53,11 @@ export class PolygonGeometry extends Geometry {
         this._notifyChanged$.onNext(this);
     }
 
-    public getPolygon3d(transform: Transform): number[][] {
-        return this.getPolygonPoints3d(transform);
+    public getPoints3d(transform: Transform): number[][] {
+        return this.getVertices3d(transform);
     }
 
-    public getPolygonPoints3d(transform: Transform): number[][] {
+    public getVertices3d(transform: Transform): number[][] {
         return this._polygonPoints2d
             .map(
                 (point: number[]) => {
@@ -65,7 +65,7 @@ export class PolygonGeometry extends Geometry {
                 });
     }
 
-    public getCentroidPoint3d(transform: Transform): number[] {
+    public getCentroid3d(transform: Transform): number[] {
         let centroid2d: number[] = this._getCentroid2d();
 
         return transform.unprojectBasic(centroid2d, 200);

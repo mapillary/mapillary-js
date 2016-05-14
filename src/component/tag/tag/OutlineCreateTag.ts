@@ -41,7 +41,7 @@ export class OutlineCreateTag {
     }
 
     public getGLObject(transform: Transform): THREE.Object3D {
-        let polygon3d: number[][] = this._geometry.getPolygon3d(transform);
+        let polygon3d: number[][] = this._geometry.getPoints3d(transform);
         let positions: Float32Array = this._getPositions(polygon3d);
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -64,7 +64,7 @@ export class OutlineCreateTag {
         vd.VNode[] {
 
         let vNodes: vd.VNode[] = [];
-        let polygonPoints3d: number[][] = this._geometry.getPolygonPoints3d(transform);
+        let polygonPoints3d: number[][] = this._geometry.getVertices3d(transform);
 
         let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
             this._aborted$.onNext(this);

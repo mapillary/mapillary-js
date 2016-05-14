@@ -426,7 +426,7 @@ export class TagComponent extends Component {
                         camera,
                         transform);
 
-                    tag.geometry.setPolygonPoint2d(3, basic, transform);
+                    tag.geometry.setVertex2d(3, basic, transform);
                 });
 
         this._addPointSubscription = this._creating$
@@ -530,7 +530,7 @@ export class TagComponent extends Component {
                     if (activeTag.operation === TagOperation.Move) {
                         activeTag.tag.geometry.setCentroid2d(basic, transform);
                     } else if (activeTag.operation === TagOperation.Resize) {
-                        activeTag.tag.geometry.setPolygonPoint2d(activeTag.pointIndex, basic, transform);
+                        activeTag.tag.geometry.setVertex2d(activeTag.pointIndex, basic, transform);
                     }
                 });
 

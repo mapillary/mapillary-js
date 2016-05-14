@@ -67,7 +67,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.5, 0.5];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(0, polygonPoint, transform);
+        rectGeometry.setVertex2d(0, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -82,7 +82,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.5, 0.5];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
+        rectGeometry.setVertex2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(polygonPoint[1]);
@@ -97,7 +97,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.5, 0.5];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(2, polygonPoint, transform);
+        rectGeometry.setVertex2d(2, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(polygonPoint[1]);
@@ -112,7 +112,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.5, 0.5];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
+        rectGeometry.setVertex2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -127,7 +127,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [-1, -1];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
+        rectGeometry.setVertex2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(0);
         expect(rectGeometry.rect[1]).toBe(0);
@@ -142,7 +142,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [2, 2];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
+        rectGeometry.setVertex2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -157,7 +157,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.3, original[3]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
+        rectGeometry.setVertex2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -172,7 +172,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.6, original[1]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
+        rectGeometry.setVertex2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -187,7 +187,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [original[2], 0.4];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
+        rectGeometry.setVertex2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -202,7 +202,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [original[0], 0.6];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
+        rectGeometry.setVertex2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -217,7 +217,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.9, original[1]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
+        rectGeometry.setVertex2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -232,7 +232,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.1, original[3]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
+        rectGeometry.setVertex2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -247,7 +247,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.8, original[1]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
+        rectGeometry.setVertex2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -262,7 +262,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.9, original[3]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
+        rectGeometry.setVertex2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -277,7 +277,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.1, original[1]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
+        rectGeometry.setVertex2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(polygonPoint[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -292,7 +292,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.99, original[3]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(3, polygonPoint, transform);
+        rectGeometry.setVertex2d(3, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);
@@ -307,7 +307,7 @@ describe("RectGeometry.setPolygonPoint2d", () => {
         let polygonPoint: number[] = [0.01, original[1]];
         let transform: Transform = createTransform(true);
 
-        rectGeometry.setPolygonPoint2d(1, polygonPoint, transform);
+        rectGeometry.setVertex2d(1, polygonPoint, transform);
 
         expect(rectGeometry.rect[0]).toBe(original[0]);
         expect(rectGeometry.rect[1]).toBe(original[1]);

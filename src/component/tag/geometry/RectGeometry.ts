@@ -5,8 +5,7 @@ import {Transform} from "../../../Geo";
 
 /**
  * @class RectGeometry
- * @classdesc Represents a rectangle geometry in the basic
- * coordinate system.
+ * @classdesc Represents a rectangle geometry in the basic coordinate system.
  */
 export class RectGeometry extends Geometry {
     private _rect: number[];
@@ -17,7 +16,7 @@ export class RectGeometry extends Geometry {
      * Create a rectangle geometry.
      *
      * @constructor
-     * @param {Array<number>} rect - An array representing the top left and bottom right
+     * @param {Array<number>} rect - An array representing the top-left and bottom-right
      * corners of the rectangle in basic coordinates. Ordered according to [x0, y0, x1, y1].
      *
      * @throws {GeometryTagError} Rectangle coordinates must be valid basic coordinates.
@@ -44,7 +43,7 @@ export class RectGeometry extends Geometry {
 
     /**
      * Get rect property.
-     * @returns {Array<number>} Array representing the top left and bottom right
+     * @returns {Array<number>} Array representing the top-left and bottom-right
      * corners of the rectangle in basic coordinates.
      */
     public get rect(): number[] {
@@ -52,16 +51,16 @@ export class RectGeometry extends Geometry {
     }
 
     /**
-     * Set the value of a point in the polygon representation of the rectangle.
+     * Set the value of a vertex in the polygon representation of the rectangle.
      *
-     * @description The polygon is defined to have the first point at the bottom
-     * left corner with the rest of the points following in clockwise order.
+     * @description The polygon is defined to have the first vertex at the
+     * bottom-left corner with the rest of the vertices following in clockwise order.
      *
-     * @param {number} index - The index of the polygon point to be set.
-     * @param {Array<number>} value - The new value of the polygon point.
+     * @param {number} index - The index of the vertex to be set.
+     * @param {Array<number>} value - The new value of the vertex.
      * @param {Transform} transform - The transform of the node related to the rectangle.
      */
-    public setPolygonPoint2d(index: number, value: number[], transform: Transform): void {
+    public setVertex2d(index: number, value: number[], transform: Transform): void {
         let original: number[] = this._rect.slice();
 
         let changed: number[] = [
@@ -197,26 +196,28 @@ export class RectGeometry extends Geometry {
     }
 
     /**
-     * Get the 3D coordinates for the polygon points of the rectangle with
-     * edges interpolated.
+     * Get the 3D coordinates for the vertices of the rectangle with
+     * interpolated points along the lines.
      *
-     * @param {Transform} transform - The transform of the node related to the rectangle.
-     * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing the rectangle.
+     * @param {Transform} transform - The transform of the node related to
+     * the rectangle.
+     * @returns {Array<Array<number>>} Polygon array of 3D world coordinates
+     * representing the rectangle.
      */
-    public getPolygon3d(transform: Transform): number[][] {
-        let polygonPoints2d: number[][] = this._rectToPolygonPoints2d(this._rect);
+    public getPoints3d(transform: Transform): number[][] {
+        let vertices2d: number[][] = this._rectToVertices2d(this._rect);
 
-        let sides: number = polygonPoints2d.length - 1;
+        let sides: number = vertices2d.length - 1;
         let sections: number = 10;
 
-        let polygon2d: number[][] = [];
+        let points2d: number[][] = [];
 
         for (let i: number = 0; i < sides; ++i) {
-            let startX: number = polygonPoints2d[i][0];
-            let startY: number = polygonPoints2d[i][1];
+            let startX: number = vertices2d[i][0];
+            let startY: number = vertices2d[i][1];
 
-            let endX: number = polygonPoints2d[i + 1][0];
-            let endY: number = polygonPoints2d[i + 1][1];
+            let endX: number = vertices2d[i + 1][0];
+            let endY: number = vertices2d[i + 1][1];
 
             let intervalX: number = (endX - startX) / (sections - 1);
             let intervalY: number = (endY - startY) / (sections - 1);
@@ -227,11 +228,11 @@ export class RectGeometry extends Geometry {
                     startY + j * intervalY,
                 ];
 
-                polygon2d.push(point);
+                points2d.push(point);
             }
         }
 
-        return polygon2d
+        return points2d
             .map(
                 (point: number[]) => {
                     return transform.unprojectBasic(point, 200);
@@ -239,19 +240,20 @@ export class RectGeometry extends Geometry {
     }
 
     /**
-     * Get the 3D coordinates for the polygon points of the rectangle.
+     * Get a polygon representation of the 3D coordinates for the vertices of the rectangle.
      *
-     * @description The first polygon points represents the bottom
-     * left corner with the rest of the points following in clockwise order.
+     * @description The first vertex represents the bottom-left corner with the rest of
+     * the vertices following in clockwise order.
      *
      * @param {Transform} transform - The transform of the node related to the rectangle.
-     * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing the rectangle.
+     * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
+     * the rectangle vertices.
      */
-    public getPolygonPoints3d(transform: Transform): number[][] {
-        return this._rectToPolygonPoints2d(this._rect)
+    public getVertices3d(transform: Transform): number[][] {
+        return this._rectToVertices2d(this._rect)
             .map(
-                (point: number[]) => {
-                    return transform.unprojectBasic(point, 200);
+                (vertex: number[]) => {
+                    return transform.unprojectBasic(vertex, 200);
                 });
     }
 
@@ -261,7 +263,7 @@ export class RectGeometry extends Geometry {
      * @param {Transform} transform - The transform of the node related to the rectangle.
      * @returns {Array<number>} 3D world coordinate represeting the centroid.
      */
-    public getCentroidPoint3d(transform: Transform): number[] {
+    public getCentroid3d(transform: Transform): number[] {
         let rect: number[] = this._rect;
 
         let x0: number = rect[0];
@@ -277,11 +279,11 @@ export class RectGeometry extends Geometry {
     }
 
     /**
-     * Check if a particular bottom right value is valid according to the current
+     * Check if a particular bottom-right value is valid according to the current
      * rectangle coordinates.
      *
-     * @param {Array<number>} bottomRight - The bottom right coordinate to validate
-     * @returns {boolean} Value indicating whether the provided bottom right coordinate
+     * @param {Array<number>} bottomRight - The bottom-right coordinate to validate
+     * @returns {boolean} Value indicating whether the provided bottom-right coordinate
      * is valid.
      */
     public validate(bottomRight: number[]): boolean {
@@ -296,7 +298,17 @@ export class RectGeometry extends Geometry {
         return true;
     }
 
-    private _rectToPolygonPoints2d(rect: number[]): number[][] {
+    /**
+     * Convert the top-left, bottom-right representation of a rectangle to a polygon
+     * representation of the vertices starting at the bottom-right corner going
+     * clockwise.
+     *
+     * @param {Array<number>} rect - Top-left, bottom-right representation of a
+     * rectangle.
+     * @returns {Array<Array<number>>} Polygon representation of the vertices of the
+     * rectangle.
+     */
+    private _rectToVertices2d(rect: number[]): number[][] {
         return [
             [rect[0], rect[3]],
             [rect[0], rect[1]],

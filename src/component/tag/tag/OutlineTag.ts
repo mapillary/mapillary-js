@@ -160,7 +160,7 @@ export class OutlineTag extends Tag {
     }
 
     public getGLObjects(transform: Transform): THREE.Object3D[] {
-        let polygon3d: number[][] = this._geometry.getPolygon3d(transform);
+        let polygon3d: number[][] = this._geometry.getPoints3d(transform);
         let positions: Float32Array = this._getPositions(polygon3d);
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -184,7 +184,7 @@ export class OutlineTag extends Tag {
         vd.VNode[] {
 
         let vNodes: vd.VNode[] = [];
-        let polygonPoints3d: number[][] = this._geometry.getPolygonPoints3d(transform);
+        let polygonPoints3d: number[][] = this._geometry.getVertices3d(transform);
 
         let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
             this._abort$.onNext(this._id);
@@ -264,7 +264,7 @@ export class OutlineTag extends Tag {
             vNodes.push(vd.h("div.TagResizer", properties, []));
         }
 
-        let centroidPoint3d: number[] = this._geometry.getCentroidPoint3d(transform);
+        let centroidPoint3d: number[] = this._geometry.getCentroid3d(transform);
         let centroidCameraSpace: THREE.Vector3 = this._convertToCameraSpace(centroidPoint3d, matrixWorldInverse);
         if (centroidCameraSpace.z < 0) {
             let interact: (e: MouseEvent) => void = this._interact(TagOperation.Move);
