@@ -1,3 +1,3 @@
-export type GeometryType = "polygon" | "rect";
+export type GeometryType = "point" | "polygon" | "rect";
 
 export default GeometryType;

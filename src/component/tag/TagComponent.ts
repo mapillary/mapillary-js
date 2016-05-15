@@ -10,6 +10,7 @@ import {
     GeometryType,
     IInteraction,
     ITagConfiguration,
+    PointGeometry,
     OutlineCreateTag,
     Tag,
     TagCreator,
@@ -88,9 +89,12 @@ export class TagComponent extends Component {
 
     private _createGeometryChanged$: rx.Observable<OutlineCreateTag>;
     private _tagCreated$: rx.Observable<OutlineCreateTag>;
+    private _vertexGeometryCreated$: rx.Observable<Geometry>;
+    private _pointGeometryCreated$: rx.Subject<Geometry>;
     private _geometryCreated$: rx.Observable<Geometry>;
 
     private _creating$: rx.Observable<boolean>;
+    private _creatingConfiguration$: rx.Observable<ITagConfiguration>;
 
     private _claimMouseSubscription: rx.IDisposable;
     private _mouseDragSubscription: rx.IDisposable;
@@ -101,7 +105,8 @@ export class TagComponent extends Component {
     private _stopCreateSubscription: rx.IDisposable;
     private _geometryTypeSubscription: rx.IDisposable;
     private _createSubscription: rx.IDisposable;
-    private _setCreatePolygonPointSubscription: rx.IDisposable;
+    private _createPointSubscription: rx.IDisposable;
+    private _setCreateVertexSubscription: rx.IDisposable;
     private _addPointSubscription: rx.IDisposable;
     private _deleteCreatedSubscription: rx.IDisposable;
     private _setGLCreateTagSubscription: rx.IDisposable;
@@ -219,12 +224,20 @@ export class TagComponent extends Component {
                 })
             .share();
 
-        this._geometryCreated$ = this._tagCreated$
+        this._vertexGeometryCreated$ = this._tagCreated$
             .map<Geometry>(
                 (tag: OutlineCreateTag): Geometry => {
                     return tag.geometry;
                 })
             .share();
+
+        this._pointGeometryCreated$ = new rx.Subject<Geometry>();
+
+        this._geometryCreated$ = rx.Observable
+            .merge(
+                this._vertexGeometryCreated$,
+                this._pointGeometryCreated$)
+             .share();
 
         this._basicClick$ = this._container.mouseService.staticClick$
             .withLatestFrom(
@@ -263,12 +276,18 @@ export class TagComponent extends Component {
                 })
             .share();
 
-        this._creating$ = this._configuration$
+        this._creatingConfiguration$ = this._configuration$
             .distinctUntilChanged(
                 (configuration: ITagConfiguration): boolean => {
                     return configuration.creating;
                 })
-            .map<boolean>((configuration: ITagConfiguration): boolean => { return configuration.creating; })
+            .share();
+
+        this._creating$ = this._creatingConfiguration$
+            .map<boolean>(
+                (configuration: ITagConfiguration): boolean => {
+                    return configuration.creating;
+                })
             .share();
 
         this._creating$
@@ -369,11 +388,15 @@ export class TagComponent extends Component {
         let tagCreated$: rx.Observable<void> = this._tagCreated$
             .map<void>((t: OutlineCreateTag): void => { return null; });
 
+        let pointGeometryCreated$: rx.Observable<void> = this._pointGeometryCreated$
+            .map<void>((p: PointGeometry): void => { return null; });
+
         this._stopCreateSubscription = rx.Observable
             .merge(
                 nodeChanged$,
                 tagAborted$,
-                tagCreated$)
+                tagCreated$,
+                pointGeometryCreated$)
             .subscribe((): void => { this.stopCreate(); });
 
         this._geometryTypeSubscription = this._configuration$
@@ -383,16 +406,31 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._tagCreator.geometryType$);
 
-        this._createSubscription = this._creating$
+        this._createSubscription = this._creatingConfiguration$
             .flatMapLatest<number[]>(
-                (creating: boolean): rx.Observable<number[]> => {
-                    return creating ?
+                (configuration: ITagConfiguration): rx.Observable<number[]> => {
+                    return configuration.creating &&
+                        configuration.createType === "rect" ?
                         this._validBasicClick$.take(1) :
                         rx.Observable.empty<number[]>();
                 })
             .subscribe(this._tagCreator.create$);
 
-        this._setCreatePolygonPointSubscription = rx.Observable
+        this._createPointSubscription = this._creatingConfiguration$
+            .flatMapLatest<number[]>(
+                (configuration: ITagConfiguration): rx.Observable<number[]> => {
+                    return configuration.creating &&
+                        configuration.createType === "point" ?
+                        this._validBasicClick$.take(1) :
+                        rx.Observable.empty<number[]>();
+                })
+            .map<Geometry>(
+                (basic: number[]): Geometry => {
+                    return new PointGeometry(basic);
+                })
+            .subscribe(this._pointGeometryCreated$);
+
+        this._setCreateVertexSubscription = rx.Observable
             .combineLatest(
                 this._container.mouseService.mouseMove$,
                 this._tagCreator.tag$,
@@ -434,7 +472,7 @@ export class TagComponent extends Component {
             .flatMapLatest<number[]>(
                 (creating: boolean): rx.Observable<number[]> => {
                     return creating ?
-                        this._basicClick$.skipUntil(this._validBasicClick$).skip(1) :
+                        this._basicClick$.skipUntil(this._validBasicClick$) :
                         rx.Observable.empty<number[]>();
                 })
             .withLatestFrom(
@@ -645,7 +683,8 @@ export class TagComponent extends Component {
         this._stopCreateSubscription.dispose();
         this._geometryTypeSubscription.dispose();
         this._createSubscription.dispose();
-        this._setCreatePolygonPointSubscription.dispose();
+        this._createPointSubscription.dispose();
+        this._setCreateVertexSubscription.dispose();
         this._addPointSubscription.dispose();
         this._deleteCreatedSubscription.dispose();
         this._setGLCreateTagSubscription.dispose();
