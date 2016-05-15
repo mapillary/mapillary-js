@@ -29,6 +29,7 @@ export {SliderComponent} from "./component/imageplane/SliderComponent";
 export {Tag} from "./component/tag/tag/Tag";
 export {OutlineTag} from "./component/tag/tag/OutlineTag";
 export {OutlineCreateTag} from "./component/tag/tag/OutlineCreateTag";
+export {SpotTag} from "./component/tag/tag/SpotTag";
 export {TagComponent} from "./component/tag/TagComponent";
 export {TagCreator} from "./component/tag/TagCreator";
 export {TagDOMRenderer} from "./component/tag/TagDOMRenderer";

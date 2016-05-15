@@ -40,7 +40,7 @@
     opacity: 0.3;
 }
 
-.TagPolygonPoint {
+.TagVertex {
     transform: translate(-50%, -50%);
     pointer-events: none;
     border-radius: 3px;
@@ -48,16 +48,24 @@
     height: 6px;
 }
 
-.TagPolygonCompleter {
+.TagInteractor,
+.TagSpotInteractor {
     transform: translate(-50%, -50%);
     pointer-events: all;
-    border-radius: 8px;
-    background: orangered;
+    border-radius: 7px;
     width: 14px;
     height: 14px;
     opacity: 0;
 }
 
-.TagPolygonCompleter:hover {
+.TagInteractor {
+    background: orangered;
+}
+
+.TagInteractor:hover {
     opacity: 0.6;
+}
+
+.TagSpotInteractor:hover {
+    opacity: 0.3;
 }

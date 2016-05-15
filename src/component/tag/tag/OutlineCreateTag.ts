@@ -84,8 +84,8 @@ export class OutlineCreateTag {
                 style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
             };
 
-            vNodes.push(vd.h("div.TagPolygonCompleter", completerProperties, []));
-            vNodes.push(vd.h("div.TagPolygonPoint", pointProperties, []));
+            vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
+            vNodes.push(vd.h("div.TagVertex", pointProperties, []));
         }
 
         return vNodes;
