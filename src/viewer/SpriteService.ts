@@ -88,25 +88,27 @@ class SpriteAtlas implements ISpriteAtlas {
         let left: number = -definition.x;
         let top: number = -definition.y;
 
-        let translateX: number = 0;
         switch (horizontalAlign) {
             case SpriteAlignment.Center:
-                translateX = -(clipRigth - clipLeft) / 2;
+                left -= definition.width / 2;
                 break;
             case SpriteAlignment.End:
-                translateX = -(clipRigth - clipLeft);
+                left -= definition.width;
+                break;
+            case SpriteAlignment.Start:
                 break;
             default:
                 break;
         }
 
-        let translateY: number = 0;
         switch (verticalAlign) {
             case SpriteAlignment.Center:
-                translateY = -(clipBottom - clipTop) / 2;
+                top -= definition.height / 2;
                 break;
             case SpriteAlignment.End:
-                translateY = -(clipBottom - clipTop);
+                top -= definition.height;
+                break;
+            case SpriteAlignment.Start:
                 break;
             default:
                 break;
@@ -119,7 +121,6 @@ class SpriteAtlas implements ISpriteAtlas {
                 left: `${left}px`,
                 position: "absolute",
                 top: `${top}px`,
-                transform: `translate(${translateX}px, ${translateY}px)`,
             },
         };
 
