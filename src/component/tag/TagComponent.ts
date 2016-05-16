@@ -295,6 +295,8 @@ export class TagComponent extends Component {
                 (creating: boolean): void => {
                     this.fire(TagComponent.creatingchanged, creating);
                 });
+
+        this._tagInteractionAbort$.subscribe();
     }
 
     /**
@@ -524,7 +526,7 @@ export class TagComponent extends Component {
         this._claimMouseSubscription = this._tagInterationInitiated$
             .flatMapLatest(
                 (id: string): rx.Observable<MouseEvent> => {
-                    return this._container.mouseService.mouseDragStart$
+                    return this._container.mouseService.mouseMove$
                         .takeUntil(this._tagInteractionAbort$)
                         .take(1);
                 })
