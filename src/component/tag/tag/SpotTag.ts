@@ -12,6 +12,10 @@ import {
 import {Transform} from "../../../Geo";
 import {ISpriteAtlas, SpriteAlignment} from "../../../Viewer";
 
+/**
+ * @class SpotTag
+ * @classdesc Tag visualizing the centroid of a geometry.
+ */
 export class SpotTag extends Tag {
     protected _geometry: Geometry;
 
@@ -21,6 +25,16 @@ export class SpotTag extends Tag {
     private _text: string;
     private _textColor: number;
 
+    /**
+     * Create a spot tag.
+     *
+     * @override
+     * @constructor
+     * @param {string} id
+     * @param {Geometry} geometry
+     * @param {IOutlineTagOptions} options - Options defining the visual appearance and
+     * behavior of the spot tag.
+     */
     constructor(id: string, geometry: Geometry, options: ISpotTagOptions) {
         super(id, geometry);
 
@@ -31,46 +45,96 @@ export class SpotTag extends Tag {
         this._textColor = options.textColor ? options.textColor : 0xFFFFFF;
     }
 
+    /**
+     * Get color property.
+     * @returns {number} The color of the spot as a hexagonal number;
+     */
     public get color(): number {
         return this._color;
     }
 
+    /**
+     * Set color property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
     public set color(value: number) {
         this._color = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get editable property.
+     * @returns {boolean} Value indicating if tag is editable.
+     */
     public get editable(): boolean {
         return this._editable;
     }
 
+    /**
+     * Set editable property.
+     * @param {boolean}
+     *
+     * @fires Tag#changed
+     */
     public set editable(value: boolean) {
         this._editable = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get icon property.
+     * @returns {string}
+     */
     public get icon(): string {
         return this._icon;
     }
 
+    /**
+     * Set icon property.
+     * @param {string}
+     *
+     * @fires Tag#changed
+     */
     public set icon(value: string) {
         this._icon = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get text property.
+     * @returns {string}
+     */
     public get text(): string {
         return this._text;
     }
 
+    /**
+     * Set text property.
+     * @param {string}
+     *
+     * @fires Tag#changed
+     */
     public set text(value: string) {
         this._text = value;
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Get text color property.
+     * @returns {number}
+     */
     public get textColor(): number {
         return this._textColor;
     }
 
+    /**
+     * Set text color property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
     public set textColor(value: number) {
         this._textColor = value;
         this._notifyChanged$.onNext(this);

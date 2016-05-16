@@ -258,10 +258,10 @@ export class RectGeometry extends VertexGeometry {
     }
 
     /**
-     * Get the 3D coordinate for the centroid of the rectangle.
+     * Get the 3D world coordinate for the centroid of the rectangle.
      *
      * @param {Transform} transform - The transform of the node related to the rectangle.
-     * @returns {Array<number>} 3D world coordinate represeting the centroid.
+     * @returns {Array<number>} 3D world coordinate representing the centroid.
      */
     public getCentroid3d(transform: Transform): number[] {
         let rect: number[] = this._rect;
