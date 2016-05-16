@@ -14,7 +14,8 @@
 </head>
 <body>
     <div id='viewer'></div>
-    <button onclick="createRect()">Create rect</button>
+    <button onclick="createGeometry('rect')">Create rectangle</button>
+    <button onclick="createGeometry('point')">Create point</button>
     <button onclick="stopCreate()">Stop create</button>
     <button onclick="deactivate()">Deactivate</button>
     <button onclick="activate()">Activate</button>
@@ -47,8 +48,8 @@
 
         var tagComponent = viewer.getComponent("tag");
 
-        function createRect() {
-            tagComponent.startCreate("rect");
+        function createGeometry(geometryType) {
+            tagComponent.startCreate(geometryType);
         }
 
         function stopCreate() {
@@ -78,21 +79,45 @@
 
         var createdIndex = 0;
 
-        tagComponent.on(Mapillary.TagComponent.TagComponent.geometrycreated, function(geometry) {
+        function createOutlineTag(geometry) {
             createdIndex += 1;
             var id = "created" + createdIndex;
-            var parameters = {
+            var options = {
                 editable: true,
                 lineColor: 0x00FFFF,
                 lineWidth: 1,
-                text: "new",
+                text: "Rectangle",
                 textColor: 0x00FFFF,
             };
 
-            var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, parameters);
+            var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, options);
             tag.on(Mapillary.TagComponent.OutlineTag.geometrychanged, onTagGeometryChanged);
 
             createdTags[tag.id] = tag;
+        }
+
+        function createSpotTag(geometry) {
+            createdIndex += 1;
+            var id = "created" + createdIndex;
+            var options = {
+                editable: true,
+                color: 0x00FFFF,
+                text: "Point",
+                textColor: 0x00FFFF,
+            };
+
+            var tag = new Mapillary.TagComponent.SpotTag(id, geometry, options);
+            tag.on(Mapillary.TagComponent.SpotTag.geometrychanged, onTagGeometryChanged);
+
+            createdTags[tag.id] = tag;
+        }
+
+        tagComponent.on(Mapillary.TagComponent.TagComponent.geometrycreated, function(geometry) {
+            if (geometry instanceof Mapillary.TagComponent.RectGeometry) {
+                createOutlineTag(geometry);
+            } else if (geometry instanceof Mapillary.TagComponent.PointGeometry) {
+                createSpotTag(geometry);
+            }
 
             setTags();
         });
@@ -146,7 +171,7 @@
                             or.rect.value.geometry.coordinates[3][1],
                         ];
                         var geometry = new Mapillary.TagComponent.RectGeometry(rect);
-                        var parameters = {
+                        var options = {
                             editable: true,
                             lineColor: 0x00FFFF,
                             lineWidth: 1,
@@ -154,7 +179,7 @@
                             textColor: 0xFFFFFF,
                         };
 
-                        var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, parameters);
+                        var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, options);
                         tag.on(Mapillary.TagComponent.OutlineTag.geometrychanged, onTagGeometryChanged);
 
                         currentTags[tag.id] = tag;
