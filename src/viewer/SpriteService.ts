@@ -4,7 +4,7 @@ import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {ISpriteAtlas} from "../Viewer";
+import {ISpriteAtlas, SpriteAlignment} from "../Viewer";
 
 class SpriteAtlas implements ISpriteAtlas {
     private _image: HTMLImageElement;
@@ -55,9 +55,21 @@ class SpriteAtlas implements ISpriteAtlas {
         return new THREE.Sprite(material);
     }
 
-    public getDOMSprite(name: string): vd.VNode {
+    public getDOMSprite(
+        name: string,
+        horizontalAlign?: SpriteAlignment,
+        verticalAlign?: SpriteAlignment): vd.VNode {
+
         if (!this.loaded) {
             throw new Error("Sprites cannot be retrieved before the atlas is loaded.");
+        }
+
+        if (horizontalAlign == null) {
+            horizontalAlign = SpriteAlignment.Start;
+        }
+
+        if (verticalAlign == null) {
+            verticalAlign = SpriteAlignment.Start;
         }
 
         let definition: ISprite = this._json[name];
@@ -73,16 +85,41 @@ class SpriteAtlas implements ISpriteAtlas {
         let clipBottom: number = definition.y + definition.height;
         let clipLeft: number = definition.x;
 
-        let translationX: number = -definition.x;
-        let translationY: number = -definition.y;
+        let left: number = -definition.x;
+        let top: number = -definition.y;
+
+        let translateX: number = 0;
+        switch (horizontalAlign) {
+            case SpriteAlignment.Center:
+                translateX = -(clipRigth - clipLeft) / 2;
+                break;
+            case SpriteAlignment.End:
+                translateX = -(clipRigth - clipLeft);
+                break;
+            default:
+                break;
+        }
+
+        let translateY: number = 0;
+        switch (verticalAlign) {
+            case SpriteAlignment.Center:
+                translateY = -(clipBottom - clipTop) / 2;
+                break;
+            case SpriteAlignment.End:
+                translateY = -(clipBottom - clipTop);
+                break;
+            default:
+                break;
+        }
 
         let properties: vd.createProperties = {
             src: this._image.src,
             style: {
                 clip: `rect(${clipTop}px, ${clipRigth}px, ${clipBottom}px, ${clipLeft}px)`,
-                left: `${translationX}px`,
+                left: `${left}px`,
                 position: "absolute",
-                top: `${translationY}px`,
+                top: `${top}px`,
+                transform: `translate(${translateX}px, ${translateY}px)`,
             },
         };
 
