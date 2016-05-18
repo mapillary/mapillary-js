@@ -86,7 +86,7 @@ export class MouseComponent extends Component {
                     let clientRect: ClientRect = element.getBoundingClientRect();
 
                     let canvasX: number = m.clientX - clientRect.left;
-                    let canvasY: number = m.clientX - clientRect.top;
+                    let canvasY: number = m.clientY - clientRect.top;
 
                     let unprojected: THREE.Vector3 =
                         this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, r.perspective);
