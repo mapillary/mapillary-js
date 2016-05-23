@@ -21,6 +21,32 @@ cd mapillary-js
 npm install
 ```
 
+### OSX
+
+Install the Command Line Tools for Xcode:
+
+```bash
+xcode-select --install
+```
+
+Install [Homebrew](http://brew.sh/) according to the instructions.
+
+Install [node.js](https://nodejs.org/):
+```bash
+brew install node
+```
+
+Clone a copy of the repo:
+```bash
+git clone https://github.com/mapillary/mapillary-js.git
+```
+
+Change to the mapillary-js directory and install node module dependencies:
+```bash
+cd mapillary-js
+npm install
+```
+
 ## Serving the Debug Page
 
 ```bash
@@ -29,7 +55,7 @@ npm run gulp
 
 Open the debug page at [http://localhost:3000](http://localhost:3000).
 
-## Running tests
+## Running Tests
 
 ```bash
 npm run gulp test
