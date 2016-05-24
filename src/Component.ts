@@ -19,7 +19,7 @@ export {NavigationComponent} from "./component/NavigationComponent";
 export {NoneComponent} from "./component/NoneComponent";
 export {PlayerComponent} from "./component/PlayerComponent";
 export {RouteComponent} from "./component/RouteComponent";
-export {SequenceComponent} from "./component/SequenceComponent";
+export {SequenceComponent} from "./component/sequence/SequenceComponent";
 export {SphereComponent} from "./component/SphereComponent";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
 export {ImagePlaneFactory} from "./component/imageplane/ImagePlaneFactory";

@@ -1,13 +1,13 @@
-/// <reference path="../../typings/browser.d.ts" />
+/// <reference path="../../../typings/browser.d.ts" />
 
 import * as rx from "rx";
 import * as vd from "virtual-dom";
 
-import {Container, Navigator} from "../Viewer";
-import {Component, ComponentService} from "../Component";
-import {IVNodeHash} from "../Render";
-import {EdgeDirection} from "../Edge";
-import {Node} from "../Graph";
+import {Container, Navigator} from "../../Viewer";
+import {Component, ComponentService} from "../../Component";
+import {IVNodeHash} from "../../Render";
+import {EdgeDirection} from "../../Edge";
+import {Node} from "../../Graph";
 
 export class SequenceComponent extends Component {
     public static componentName: string = "sequence";
