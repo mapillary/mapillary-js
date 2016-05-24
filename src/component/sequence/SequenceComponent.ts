@@ -37,8 +37,10 @@ export class SequenceComponent extends Component {
     private _stop$: rx.Subject<void> = new rx.Subject<void>();
 
     private _configurationSubscription: rx.IDisposable;
+    private _renderSubscription: rx.IDisposable;
+
     private _playingSubscription: rx.IDisposable;
-    private _nodeSubscription: rx.IDisposable;
+    private _stopSubscription: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -78,10 +80,19 @@ export class SequenceComponent extends Component {
     }
 
     protected _activate(): void {
-        this._nodeSubscription = this._navigator.stateService.currentNode$
+        this._renderSubscription = rx.Observable
+            .combineLatest(
+                this._navigator.stateService.currentNode$,
+                this._configuration$,
+                (node: Node, configuration: ISequenceConfiguration): [Node, ISequenceConfiguration] => {
+                    return [node, configuration];
+                })
             .map<IVNodeHash>(
-                (node: Node): IVNodeHash => {
-                    let vNode: vd.VNode = this._sequenceDOMRenderer.render(node, this._navigator);
+                (nc: [Node, ISequenceConfiguration]): IVNodeHash => {
+                    let node: Node = nc[0];
+                    let configuration: ISequenceConfiguration = nc[1];
+
+                    let vNode: vd.VNode = this._sequenceDOMRenderer.render(node, configuration, this, this._navigator);
 
                     return {name: this._name, vnode: vNode };
                 })
@@ -138,12 +149,53 @@ export class SequenceComponent extends Component {
                     };
                 })
             .subscribe(this._configurationOperation$);
+
+        this._stopSubscription = this._configuration$
+            .flatMapLatest(
+                (configuration: ISequenceConfiguration): rx.Observable<[Node, EdgeDirection]> => {
+                    let node$: rx.Observable<Node> = configuration.playing ?
+                        this._navigator.stateService.currentNode$ :
+                        rx.Observable.empty<Node>();
+
+                    let edgeDirection$: rx.Observable<EdgeDirection> = rx.Observable
+                        .just(configuration.direction);
+
+                    return rx.Observable.combineLatest(
+                        node$,
+                        edgeDirection$,
+                        (n: Node, e: EdgeDirection): [Node, EdgeDirection] => {
+                            return [n, e];
+                        });
+                })
+            .map<boolean>(
+                (ne: [Node, EdgeDirection]): boolean => {
+                    let node: Node = ne[0];
+                    let direction: EdgeDirection = ne[1];
+
+                    for (let edge of node.edges) {
+                        if (edge.data.direction === direction) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+            .filter(
+                (hasEdge: boolean): boolean => {
+                    return !hasEdge;
+                })
+            .map<ISequenceConfiguration>(
+                (hasEdge: boolean): ISequenceConfiguration => {
+                    return { playing: false };
+                })
+            .subscribe(this._configurationSubject$);
     }
 
     protected _deactivate(): void {
         this.stop();
 
-        this._nodeSubscription.dispose();
+        this._stopSubscription.dispose();
+        this._renderSubscription.dispose();
         this._configurationSubscription.dispose();
     }
 
