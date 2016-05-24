@@ -62,7 +62,7 @@ export interface IViewerOptions {
     navigation?: boolean;
 
     /**
-     * Show sequence navigation arrows.
+     * Show sequence related navigation.
      * @default true
      */
     sequence?: boolean;
@@ -108,12 +108,6 @@ export interface IViewerOptions {
      * @default true
      */
     mouse?: boolean;
-
-    /**
-     * Add play ability to the viewer.
-     * @default false
-     */
-    player?: boolean;
 
     /**
      * Create a route with a story inside mapillary js

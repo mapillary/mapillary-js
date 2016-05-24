@@ -6,6 +6,7 @@ export {IPlayerConfiguration} from "./IPlayerConfiguration";
 export {IRouteConfiguration, IRoutePath, IRouteInfoKey} from "./IRouteConfiguration";
 export {ISliderConfiguration, ISliderKeys} from "./ISliderConfiguration";
 export {IComponentConfiguration} from "./IComponentConfiguration";
+export {ISequenceConfiguration} from "./ISequenceConfiguration";
 export {ITagConfiguration} from "./ITagConfiguration";
 export {IShader} from "./IShader";
 export * from "../marker/interfaces/interfaces";

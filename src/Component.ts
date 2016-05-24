@@ -17,7 +17,6 @@ export {MarkerComponent} from "./component/marker/MarkerComponent";
 export {MouseComponent} from "./component/MouseComponent";
 export {NavigationComponent} from "./component/NavigationComponent";
 export {NoneComponent} from "./component/NoneComponent";
-export {PlayerComponent} from "./component/PlayerComponent";
 export {RouteComponent} from "./component/RouteComponent";
 export {SequenceComponent} from "./component/sequence/SequenceComponent";
 export {SequenceDOMRenderer} from "./component/sequence/SequenceDOMRenderer";

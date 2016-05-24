@@ -39,8 +39,7 @@
             viewer.setRenderMode(Mapillary.RenderMode.Fill);
         }
 
-        viewer.activateComponent("player");
-        var player = viewer.getComponent("player");
+        var sequenceComponent = viewer.getComponent("sequence");
 
         var route = viewer.getComponent("route");
         route.configure({paths: [
@@ -129,12 +128,12 @@
 
         function play() {
             viewer.deactivateComponent("cache");
-            player.play();
+            sequenceComponent.play();
         }
 
         function stop() {
             viewer.activateComponent("cache");
-            player.stop();
+            sequenceComponent.stop();
         }
 
         function showSlider() {
