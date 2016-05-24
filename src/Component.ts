@@ -20,6 +20,7 @@ export {NoneComponent} from "./component/NoneComponent";
 export {PlayerComponent} from "./component/PlayerComponent";
 export {RouteComponent} from "./component/RouteComponent";
 export {SequenceComponent} from "./component/sequence/SequenceComponent";
+export {SequenceDOMRenderer} from "./component/sequence/SequenceDOMRenderer";
 export {SphereComponent} from "./component/SphereComponent";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
 export {ImagePlaneFactory} from "./component/imageplane/ImagePlaneFactory";
