@@ -16,28 +16,59 @@
     pointer-events: none;
 }
 
+.DirectionsCircle,
+.DirectionsCircleDisabled {
+    position: absolute;
+    width: 68px;
+    height: 68px;
+    border-radius: 34px;
+    top: 50%;
+    left: 50%;
+    margin-left: -34px;
+    margin-top: -34px;
+}
+
+.DirectionsCircle {
+    background: rgba(0, 0, 0, 0.25);
+    pointer-events: all;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.DirectionsCircleDisabled {
+    background: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+    z-index: -10;
+}
+
+.DirectionsCircle:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
 .DirectionsArrowStep,
 .DirectionsArrowPano,
 .DirectionsArrowDisabled {
     position: absolute;
     top: 50%;
     left: 50%;
-    margin-left: -27px;
-    margin-top: -27px;
-    width: 54px;
-    height: 54px;
-    pointer-events: all;
+    margin-left: -4px;
+    margin-top: 4px;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
 }
 
 .DirectionsArrowStep,
 .DirectionsArrowPano {
-    opacity: 0.8;
+    opacity: 1;
 }
+
 
 .DirectionsArrowStep,
 .DirectionsArrowDisabled {
-    background: url(./arrow-up-white.svg);
-    background-size: contain;
+    border-right: 10px solid white;
+    border-top: 10px solid white;
 }
 
 .DirectionsArrowDisabled {
@@ -45,18 +76,11 @@
     z-index: -10;
 }
 
+
 .DirectionsArrowPano {
-    background: url(./arrow-up-wheat.svg);
-    background-size: contain;
+    border-right: 10px solid wheat;
+    border-top: 10px solid wheat;
 }
-
-.DirectionsArrowStep:hover,
-.DirectionsArrowPano:hover {
-    cursor: pointer;
-    cursor: hand;
-    opacity: 1 !important;
-}
-
 
 .TurnLeft,
 .TurnRight,

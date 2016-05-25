@@ -284,18 +284,18 @@ export class DirectionComponent extends Component {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveToKey(key).subscribe(); };
 
-        return this._createVNode(azimuth, rotation, opacity, offset, className, onClick);
+        return this._createVNode(azimuth, rotation, opacity, offset, className, "DirectionsCircle", onClick);
     }
 
     private _createVNodeDisabled(azimuth: number, rotation: IRotation): vd.VNode {
-        return this._createVNode(azimuth, rotation, 0.2 , this._arrowOffset, "DirectionsArrowDisabled");
+        return this._createVNode(azimuth, rotation, 0.2 , this._arrowOffset, "DirectionsArrowDisabled", "DirectionsCircleDisabled");
     }
 
     private _createVNodeByDirection(azimuth: number, rotation: IRotation, opacity: number, direction: EdgeDirection): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
-        return this._createVNode(azimuth, rotation, opacity, this._arrowOffset, "DirectionsArrowStep", onClick);
+        return this._createVNode(azimuth, rotation, opacity, this._arrowOffset, "DirectionsArrowStep", "DirectionsCircle", onClick);
     }
 
     private _createVNodeByTurn(name: string, direction: EdgeDirection): vd.VNode {
@@ -311,6 +311,7 @@ export class DirectionComponent extends Component {
         opacity: number,
         offset: number,
         className: string,
+        circleClassName: string,
         onClick?: (e: Event) => void): vd.VNode {
 
         let translation: Array<number> = this._calcTranslation(azimuth);
@@ -319,29 +320,33 @@ export class DirectionComponent extends Component {
         let translationX: number = -this._offsetScale * offset * translation[1];
         let translationY: number = -this._offsetScale * offset * translation[0];
 
-        let shadowTranslation: Array<number> = this._calcShadowTranslation(azimuth, rotation.phi);
+        // chevron is created from top and right border, i.e. shifted 45 degrees
+        let azimuthShifted: number = azimuth + Math.PI / 4;
+
+        let shadowTranslation: Array<number> = this._calcShadowTranslation(azimuthShifted, rotation.phi);
         let shadowTranslationX: number = -this._offsetScale * this._dropShadowOffset * shadowTranslation[1];
         let shadowTranslationY: number = this._offsetScale * this._dropShadowOffset * shadowTranslation[0];
 
-        let azimuthDeg: number = -this._spatial.radToDeg(azimuth);
-
         let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 1px rgba(0,0,0,0.8))`;
-        let transform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
 
-        let properties: any = {
+        let properties: vd.createProperties = {
             style: {
-                    "-webkit-filter": filter,
-                    filter: filter,
-                    opacity: `${opacity}`,
-                    transform: transform,
+                "-webkit-filter": filter,
+                filter: filter,
             },
         };
 
-        if (onClick != null) {
-            properties.onclick = onClick;
-        }
+        let chevron: vd.VNode = vd.h("div." + className, properties, []);
 
-        return vd.h("div." + className, properties, []);
+        let azimuthShiftedDeg: number = -this._spatial.radToDeg(azimuthShifted);
+
+        let circleTransform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthShiftedDeg}deg)`;
+        let circleProperties: vd.createProperties = {
+            onclick: onClick,
+            style: { transform: circleTransform },
+        };
+
+        return vd.h("div." + circleClassName, circleProperties, [chevron]);
     }
 
     private _getVNodePanoIndication(panorama: boolean): vd.VNode {
