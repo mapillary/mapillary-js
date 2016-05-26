@@ -302,7 +302,33 @@ export class DirectionComponent extends Component {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
-        return vd.h(`div.${name}`, { onclick: onClick }, []);
+        let style: any = {};
+
+        switch (direction) {
+            case EdgeDirection.TurnLeft:
+                style.left = "0";
+                style.top = "5px";
+                break;
+            case EdgeDirection.TurnRight:
+                style.right = "0";
+                style.top = "5px";
+                break;
+            case EdgeDirection.TurnU:
+                style.left = "0";
+                style.bottom = "5px";
+                break;
+            default:
+                break;
+        }
+
+        let circleProperties: vd.createProperties = {
+            onclick: onClick,
+            style: style,
+        };
+
+        let turn: vd.VNode = vd.h(`div.${name}`, {}, []);
+
+        return vd.h("div.TurnCircle", circleProperties, [turn]);
     }
 
     private _createVNode(

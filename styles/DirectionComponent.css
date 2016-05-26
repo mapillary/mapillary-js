@@ -91,16 +91,30 @@
     border-top: 10px solid wheat;
 }
 
+.TurnCircle {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    border-radius: 25px;
+    background: rgba(0, 0, 0, 0.25);
+    pointer-events: all;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.TurnCircle:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
 .TurnLeft,
 .TurnRight,
 .TurnAround {
-    opacity: 0.8;
     position: absolute;
-    height: 54px;
-    width: 54px;
-    cursor: pointer;
-    cursor: hand;
-    pointer-events: all;
+    height: 44px;
+    width: 44px;
+    left: 50%;
+    top: 50%;
+    pointer-events: none;
 }
 
 .TurnLeft,
@@ -112,31 +126,20 @@
     filter: drop-shadow(-2px 0px 1px rgba(0, 0, 0, 0.8));
 }
 
-.TurnLeft:hover,
-.TurnRight:hover,
-.TurnAround:hover {
-    opacity: 1;
-}
-
 .TurnLeft {
-   left: 0px;
-   top: 5px;
    background: url(./arrow-left.svg);
    background-size: contain;
+   transform: translate(-50%, -50%);
 }
 
 .TurnRight {
-    right: 0px;
-    top: 5px;
     background: url(./arrow-left.svg);
     background-size: contain;
-    transform: scaleX(-1);
+    transform: translate(-50%, -50%) scaleX(-1);
 }
 
 .TurnAround {
-    left: 0px;
-    bottom: 5px;
     background: url(./arrow-left.svg);
     background-size: contain;
-    transform: rotateZ(270deg) scale(1.15, 1.15);
+    transform: translate(-50%, -50%) rotateZ(270deg);
 }
