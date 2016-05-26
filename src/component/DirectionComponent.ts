@@ -366,17 +366,23 @@ export class DirectionComponent extends Component {
         let perspective: number = 325 + (this._offsetScale - 1) * 175;
         let rotateZ: number = this._spatial.radToDeg(rotation.phi);
 
-        let style: any = {
-            transform: `perspective(${perspective}px) rotateX(60deg) rotateZ(${rotateZ}deg)`,
+        let perspectiveStyle: any = {
+            transform: `perspective(${perspective}px) rotateX(60deg)`,
         };
 
-        return vd.h("div", {},
-                    [this._getVNodePanoIndication(pano),
-                     vd.h("div.DirectionsWrapper", {}, [
-                         turns,
-                         vd.h("div.Directions", { style: style }, buttons),
-                     ]),
-                    ]);
+        let style: any = {
+            transform: `rotateZ(${rotateZ}deg)`,
+        };
+
+        return vd.h("div", {}, [
+            this._getVNodePanoIndication(pano),
+                vd.h("div.DirectionsWrapper", {}, [
+                    vd.h("div.DirectionsPerspective", { style: perspectiveStyle }, [
+                        turns,
+                        vd.h("div.Directions", { style: style }, buttons),
+                    ]),
+                ]),
+            ]);
     }
 }
 

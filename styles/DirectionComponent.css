@@ -1,11 +1,3 @@
-.Directions {
-    display: block;
-    position: absolute;
-    bottom: 75px;
-    left: 50%;
-    pointer-events: none;
-}
-
 .DirectionsWrapper {
     display: block;
     position: absolute;
@@ -14,6 +6,23 @@
     bottom: 0;
     overflow: visible;
     pointer-events: none;
+}
+
+.DirectionsPerspective {
+    display: block;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 300px;
+    height: 200px;
+    margin-left: -150px;
+}
+
+.Directions {
+    display: block;
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
 }
 
 .DirectionsCircle,
@@ -89,7 +98,6 @@
     position: absolute;
     height: 54px;
     width: 54px;
-    bottom: 40px;
     cursor: pointer;
     cursor: hand;
     pointer-events: all;
@@ -111,23 +119,24 @@
 }
 
 .TurnLeft {
-   left: 10px;
+   left: 0px;
+   top: 5px;
    background: url(./arrow-left.svg);
    background-size: contain;
-   transform: rotateX(60deg);
 }
 
 .TurnRight {
-    right: 10px;
+    right: 0px;
+    top: 5px;
     background: url(./arrow-left.svg);
     background-size: contain;
-    transform: rotateX(60deg) scaleX(-1);
+    transform: scaleX(-1);
 }
 
 .TurnAround {
-    left: 10px;
-    bottom: 0px;
+    left: 0px;
+    bottom: 5px;
     background: url(./arrow-left.svg);
     background-size: contain;
-    transform: rotateX(60deg) rotateZ(270deg) scale(1.15, 1.15);
+    transform: rotateZ(270deg) scale(1.15, 1.15);
 }
