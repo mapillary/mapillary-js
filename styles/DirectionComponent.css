@@ -40,8 +40,6 @@
 .DirectionsCircle {
     background: rgba(0, 0, 0, 0.25);
     pointer-events: all;
-    cursor: pointer;
-    cursor: hand;
 }
 
 .DirectionsCircleDisabled {
@@ -52,6 +50,8 @@
 
 .DirectionsCircle:hover {
     background: rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    cursor: hand;
 }
 
 .DirectionsArrowStep,
@@ -98,11 +98,11 @@
     border-radius: 25px;
     background: rgba(0, 0, 0, 0.25);
     pointer-events: all;
-    cursor: pointer;
-    cursor: hand;
 }
 
 .TurnCircle:hover {
+    cursor: pointer;
+    cursor: hand;
     background: rgba(0, 0, 0, 0.4);
 }
 

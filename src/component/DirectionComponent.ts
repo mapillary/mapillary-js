@@ -4,19 +4,24 @@ import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
+import {
+    ComponentService,
+    Component,
+    IDirectionConfiguration,
+} from "../Component";
 import {EdgeDirection} from "../Edge";
-import {Node} from "../Graph";
-import {Container, Navigator} from "../Viewer";
-import {IFrame, IRotation} from "../State";
 import {Spatial, Camera} from "../Geo";
-
-import {ComponentService, Component, IDirectionConfiguration} from "../Component";
-import {IVNodeHash} from "../Render";
+import {Node} from "../Graph";
+import {IVNodeHash, RenderCamera} from "../Render";
+import {IFrame, IRotation} from "../State";
+import {Container, Navigator} from "../Viewer";
 
 export class DirectionComponent extends Component {
     public static componentName: string = "direction";
 
     private _spatial: Spatial;
+
+    private _hoveredKey$: rx.Observable<string>;
 
     private _configurationSubscription: rx.IDisposable;
     private _stateSubscription: rx.IDisposable;
@@ -37,6 +42,44 @@ export class DirectionComponent extends Component {
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._hoveredKey$ = rx.Observable
+            .combineLatest(
+                this._container.domRenderer.element$,
+                this._container.renderService.renderCamera$,
+                this._container.mouseService.mouseMove$.startWith(null),
+                this._container.mouseService.mouseUp$.startWith(null),
+                (e: Element, rc: RenderCamera, mm: MouseEvent, mu: MouseEvent): Element => {
+                    return e;
+                })
+            .map<string>(
+                (element: Element): string => {
+                    let hovered: Element = null;
+
+                    let steps: NodeListOf<Element> = element.getElementsByClassName("Directions");
+
+                    for (let i: number = 0; i < steps.length; i++) {
+                        hovered = steps.item(i).querySelector(":hover");
+
+                        if (hovered != null && hovered.hasAttribute("data-key")) {
+                            return hovered.getAttribute("data-key");
+                        }
+                    }
+
+                    let turns: NodeListOf<Element> = element.getElementsByClassName("DirectionsPerspective");
+
+                    for (let i: number = 0; i < steps.length; i++) {
+                        hovered = turns.item(i).querySelector(":hover");
+
+                        if (hovered != null && hovered.hasAttribute("data-key")) {
+                            return hovered.getAttribute("data-key");
+                        }
+                    }
+
+                    return null;
+                })
+            .distinctUntilChanged()
+            .shareReplay(1);
 
         this._offsetScale = 1;
 
@@ -69,6 +112,10 @@ export class DirectionComponent extends Component {
         return { offsetScale: 1 };
     }
 
+    public get hoveredKey$(): rx.Observable<string> {
+        return this._hoveredKey$;
+    }
+
     protected _activate(): void {
         this._spatial = new Spatial();
 
@@ -98,6 +145,10 @@ export class DirectionComponent extends Component {
                     Math.abs(this._currentPlaneRotation - planeRotation) < this._rotationEpsilon / this._offsetScale &&
                     Math.abs(this._currentUpRotation - upRotation) < this._rotationEpsilon / this._offsetScale)) {
                     return null;
+                }
+
+                if (this._currentKey !== node.key) {
+                    this._container.domRenderer.render$.onNext({name: this._name, vnode: vd.h("div", {}, [])});
                 }
 
                 this._currentKey = node.key;
@@ -140,7 +191,7 @@ export class DirectionComponent extends Component {
                 continue;
             }
 
-            btns.push(this._createVNodeByDirection(edge.data.worldMotionAzimuth, rotation, opacity, direction));
+            btns.push(this._createVNodeByDirection(edge.to, edge.data.worldMotionAzimuth, rotation, opacity, direction));
         }
 
         return btns;
@@ -207,7 +258,7 @@ export class DirectionComponent extends Component {
                 continue;
             }
 
-            turns.push(this._createVNodeByTurn(name, direction));
+            turns.push(this._createVNodeByTurn(edge.to, name, direction));
         }
 
         return turns;
@@ -248,7 +299,7 @@ export class DirectionComponent extends Component {
                 "DirectionsArrowStep");
         }
 
-        return this._createVNodeDisabled(azimuth, rotation);
+        return this._createVNodeDisabled(key, azimuth, rotation);
     }
 
     private _rotationFromCamera(camera: Camera): IRotation {
@@ -284,21 +335,41 @@ export class DirectionComponent extends Component {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveToKey(key).subscribe(); };
 
-        return this._createVNode(azimuth, rotation, opacity, offset, className, "DirectionsCircle", onClick);
+        return this._createVNode(key, azimuth, rotation, opacity, offset, className, "DirectionsCircle", onClick);
     }
 
-    private _createVNodeDisabled(azimuth: number, rotation: IRotation): vd.VNode {
-        return this._createVNode(azimuth, rotation, 0.2 , this._arrowOffset, "DirectionsArrowDisabled", "DirectionsCircleDisabled");
+    private _createVNodeDisabled(key: string, azimuth: number, rotation: IRotation): vd.VNode {
+        return this._createVNode(
+            key,
+            azimuth,
+            rotation,
+            0.2 ,
+            this._arrowOffset,
+            "DirectionsArrowDisabled",
+            "DirectionsCircleDisabled");
     }
 
-    private _createVNodeByDirection(azimuth: number, rotation: IRotation, opacity: number, direction: EdgeDirection): vd.VNode {
+    private _createVNodeByDirection(
+        key: string,
+        azimuth: number,
+        rotation: IRotation,
+        opacity: number,
+        direction: EdgeDirection): vd.VNode {
+
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
-        return this._createVNode(azimuth, rotation, opacity, this._arrowOffset, "DirectionsArrowStep", "DirectionsCircle", onClick);
+        return this._createVNode(
+            key,
+            azimuth,
+            rotation,
+            opacity,
+            this._arrowOffset,
+            "DirectionsArrowStep",
+            "DirectionsCircle", onClick);
     }
 
-    private _createVNodeByTurn(name: string, direction: EdgeDirection): vd.VNode {
+    private _createVNodeByTurn(key: string, className: string, direction: EdgeDirection): vd.VNode {
         let onClick: (e: Event) => void =
             (e: Event): void => { this._navigator.moveDir(direction).subscribe(); };
 
@@ -322,16 +393,20 @@ export class DirectionComponent extends Component {
         }
 
         let circleProperties: vd.createProperties = {
+            attributes: {
+                "data-key": key,
+            },
             onclick: onClick,
             style: style,
         };
 
-        let turn: vd.VNode = vd.h(`div.${name}`, {}, []);
+        let turn: vd.VNode = vd.h(`div.${className}`, {}, []);
 
         return vd.h("div.TurnCircle", circleProperties, [turn]);
     }
 
     private _createVNode(
+        key: string,
         azimuth: number,
         rotation: IRotation,
         opacity: number,
@@ -368,6 +443,7 @@ export class DirectionComponent extends Component {
 
         let circleTransform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthShiftedDeg}deg)`;
         let circleProperties: vd.createProperties = {
+            attributes: { "data-key": key },
             onclick: onClick,
             style: { transform: circleTransform },
         };
