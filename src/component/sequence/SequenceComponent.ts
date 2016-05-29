@@ -107,6 +107,10 @@ export class SequenceComponent extends Component {
         this.configure({ direction: direction });
     }
 
+    public setHighlightKey(highlightKey: string): void {
+        this.configure({ highlightKey: highlightKey });
+    }
+
     protected _activate(): void {
         this._renderSubscription = rx.Observable
             .combineLatest(

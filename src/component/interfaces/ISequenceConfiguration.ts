@@ -2,8 +2,9 @@ import {IComponentConfiguration} from "../../Component";
 import {EdgeDirection} from "../../Edge";
 
 export interface ISequenceConfiguration extends IComponentConfiguration {
-    playing?: boolean;
     direction?: EdgeDirection;
+    highlightKey?: string;
+    playing?: boolean;
 }
 
 export default ISequenceConfiguration;

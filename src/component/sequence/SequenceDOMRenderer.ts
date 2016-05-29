@@ -19,21 +19,21 @@ export class SequenceDOMRenderer {
         interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode {
 
-        let hasNext: boolean = false;
-        let hasPrev: boolean = false;
+        let nextKey: string = null;
+        let prevKey: string = null;
 
         for (let edge of node.edges) {
             if (edge.data.direction === EdgeDirection.Next) {
-                hasNext = true;
+                nextKey = edge.to;
             }
 
             if (edge.data.direction === EdgeDirection.Prev) {
-                hasPrev = true;
+                prevKey = edge.to;
             }
         }
 
-        let playingButton: vd.VNode = this._createPlayingButton(hasNext, hasPrev, configuration, component);
-        let arrows: vd.VNode[] = this._createSequenceArrows(hasNext, hasPrev, node, interaction, navigator);
+        let playingButton: vd.VNode = this._createPlayingButton(nextKey, prevKey, configuration, component);
+        let arrows: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, node, configuration, interaction, navigator);
 
         let containerProperties: vd.createProperties = {
             style: { height: "30px", width: "100px" },
@@ -43,13 +43,13 @@ export class SequenceDOMRenderer {
     }
 
     private _createPlayingButton(
-        hasNext: boolean,
-        hasPrev: boolean,
+        nextKey: string,
+        prevKey: string,
         configuration: ISequenceConfiguration,
         component: SequenceComponent): vd.VNode {
 
-        let canPlay: boolean = configuration.direction === EdgeDirection.Next && hasNext ||
-            configuration.direction === EdgeDirection.Prev && hasPrev;
+        let canPlay: boolean = configuration.direction === EdgeDirection.Next && nextKey != null ||
+            configuration.direction === EdgeDirection.Prev && prevKey != null;
 
         let onclick: (e: Event) => void = configuration.playing ?
             (e: Event): void => { component.stop(); } :
@@ -73,14 +73,15 @@ export class SequenceDOMRenderer {
     }
 
     private _createSequenceArrows(
-        hasNext: boolean,
-        hasPrev: boolean,
+        nextKey: string,
+        prevKey: string,
         node: Node,
+        configuration: ISequenceConfiguration,
         interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode[] {
 
         let nextProperties: vd.createProperties = {
-            onclick: hasNext ?
+            onclick: nextKey != null ?
                 (e: Event): void => { navigator.moveDir(EdgeDirection.Next).subscribe(); } :
                 null,
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.onNext(EdgeDirection.Next); },
@@ -94,7 +95,7 @@ export class SequenceDOMRenderer {
         };
 
         let prevProperties: vd.createProperties = {
-            onclick: hasPrev ?
+            onclick: prevKey != null ?
                 (e: Event): void => { navigator.moveDir(EdgeDirection.Prev).subscribe(); } :
                 null,
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.onNext(EdgeDirection.Prev); },
@@ -107,8 +108,8 @@ export class SequenceDOMRenderer {
             },
         };
 
-        let nextClass: string = hasNext ? "SequenceStep" : "SequenceStepDisabled";
-        let prevClass: string = hasPrev ? "SequenceStep" : "SequenceStepDisabled";
+        let nextClass: string = this._getStepClassName(nextKey, configuration.highlightKey);
+        let prevClass: string = this._getStepClassName(prevKey, configuration.highlightKey);
 
         let nextIcon: vd.VNode = vd.h("span", { textContent: "n" }, []);
         let prevIcon: vd.VNode = vd.h("span", { textContent: "p" }, []);
@@ -117,6 +118,14 @@ export class SequenceDOMRenderer {
             vd.h("div." + nextClass, nextProperties, [nextIcon]),
             vd.h("div." + prevClass, prevProperties, [prevIcon]),
         ];
+    }
+
+    private _getStepClassName(key: string, highlightKey: string): string {
+        if (highlightKey != null && highlightKey === key) {
+            return "SequenceStepHighlight";
+        }
+
+        return key != null ? "SequenceStep" : "SequenceStepDisabled";
     }
 }
 

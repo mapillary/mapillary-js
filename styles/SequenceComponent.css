@@ -7,30 +7,21 @@
 
 .SequenceStep,
 .SequencePlay {
+    background: lightgray;
+}
+
+.SequenceStep:hover,
+.SequencePlay:hover {
     cursor: pointer;
     cursor: hand;
-}
-
-.SequenceStep {
-    background: lightgray;
-}
-
-.SequenceStep:hover {
     background: darkgray;
 }
 
-.SequenceStepDisabled {
-    background: dimgray;
-}
-
-.SequencePlay {
-    background: lightgray;
-}
-
-.SequencePlay:hover {
-    background: darkgray;
-}
-
+.SequenceStepDisabled,
 .SequencePlayDisabled {
     background: dimgray;
+}
+
+.SequenceStepHighlight {
+    background: darkgray;
 }
