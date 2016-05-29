@@ -2,7 +2,11 @@
 
 import * as vd from "virtual-dom";
 
-import {ISequenceConfiguration, SequenceComponent} from "../../Component";
+import {
+    ISequenceConfiguration,
+    SequenceComponent,
+    SequenceDOMInteraction,
+} from "../../Component";
 import {EdgeDirection} from "../../Edge";
 import {Node} from "../../Graph";
 import {Navigator} from "../../Viewer";
@@ -12,6 +16,7 @@ export class SequenceDOMRenderer {
         node: Node,
         configuration: ISequenceConfiguration,
         component: SequenceComponent,
+        interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode {
 
         let hasNext: boolean = false;
@@ -28,7 +33,7 @@ export class SequenceDOMRenderer {
         }
 
         let playingButton: vd.VNode = this._createPlayingButton(hasNext, hasPrev, configuration, component);
-        let arrows: vd.VNode[] = this._createSequenceArrows(hasNext, hasPrev, node, navigator);
+        let arrows: vd.VNode[] = this._createSequenceArrows(hasNext, hasPrev, node, interaction, navigator);
 
         let containerProperties: vd.createProperties = {
             style: { height: "30px", width: "100px" },
@@ -67,11 +72,19 @@ export class SequenceDOMRenderer {
         return vd.h("div." + buttonClass, buttonProperties, [icon]);
     }
 
-    private _createSequenceArrows(hasNext: boolean, hasPrev: boolean, node: Node, navigator: Navigator): vd.VNode[] {
+    private _createSequenceArrows(
+        hasNext: boolean,
+        hasPrev: boolean,
+        node: Node,
+        interaction: SequenceDOMInteraction,
+        navigator: Navigator): vd.VNode[] {
+
         let nextProperties: vd.createProperties = {
             onclick: hasNext ?
                 (e: Event): void => { navigator.moveDir(EdgeDirection.Next).subscribe(); } :
                 null,
+            onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.onNext(EdgeDirection.Next); },
+            onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.onNext(EdgeDirection.Next); },
             style: {
                 height: "100%",
                 left: "67%",
@@ -84,6 +97,8 @@ export class SequenceDOMRenderer {
             onclick: hasPrev ?
                 (e: Event): void => { navigator.moveDir(EdgeDirection.Prev).subscribe(); } :
                 null,
+            onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.onNext(EdgeDirection.Prev); },
+            onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.onNext(EdgeDirection.Prev); },
             style: {
                 height: "100%",
                 left: "0%",

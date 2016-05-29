@@ -8,6 +8,7 @@ import {
     ComponentService,
     ISequenceConfiguration,
     SequenceDOMRenderer,
+    SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
 import {Node} from "../../Graph";
@@ -31,10 +32,12 @@ export class SequenceComponent extends Component {
     public static playingchanged: string = "playingchanged";
 
     private _sequenceDOMRenderer: SequenceDOMRenderer;
+    private _sequenceDOMInteraction: SequenceDOMInteraction;
     private _nodesAhead: number = 5;
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
     private _stop$: rx.Subject<void> = new rx.Subject<void>();
+    private _hoveredKey$: rx.Observable<string>;
 
     private _configurationSubscription: rx.IDisposable;
     private _renderSubscription: rx.IDisposable;
@@ -46,10 +49,35 @@ export class SequenceComponent extends Component {
         super(name, container, navigator);
 
         this._sequenceDOMRenderer = new SequenceDOMRenderer();
+        this._sequenceDOMInteraction = new SequenceDOMInteraction();
+
+        this._hoveredKey$ = this._sequenceDOMInteraction.mouseEnterDirection$
+            .flatMapLatest<string>(
+                (direction: EdgeDirection): rx.Observable<string> => {
+                    return this._navigator.stateService.currentNode$
+                        .map<string>(
+                            (node: Node): string => {
+                                for (let edge of node.edges) {
+                                    if (edge.data.direction === direction) {
+                                        return edge.to;
+                                    }
+                                }
+
+                                return null;
+                            })
+                        .takeUntil(this._sequenceDOMInteraction.mouseLeaveDirection$)
+                        .concat(rx.Observable.just<string>(null));
+                })
+            .distinctUntilChanged()
+            .share();
     }
 
     public get defaultConfiguration(): ISequenceConfiguration {
         return { direction: EdgeDirection.Next, playing: false };
+    }
+
+    public get hoveredKey$(): rx.Observable<string> {
+        return this._hoveredKey$;
     }
 
     /**
@@ -92,7 +120,8 @@ export class SequenceComponent extends Component {
                     let node: Node = nc[0];
                     let configuration: ISequenceConfiguration = nc[1];
 
-                    let vNode: vd.VNode = this._sequenceDOMRenderer.render(node, configuration, this, this._navigator);
+                    let vNode: vd.VNode = this._sequenceDOMRenderer
+                        .render(node, configuration, this, this._sequenceDOMInteraction, this._navigator);
 
                     return {name: this._name, vnode: vNode };
                 })
