@@ -104,11 +104,11 @@ export class MouseService {
                 (e: MouseEvent) => {
                     return (previous: MouseEvent): MouseEvent => {
                         if (e.movementX == null) {
-                            e.movementX = e.offsetX - previous.offsetX;
+                            e.movementX = e.clientX - previous.clientX;
                         }
 
                         if (e.movementY == null) {
-                            e.movementY = e.offsetY - previous.offsetY;
+                            e.movementY = e.clientY - previous.clientY;
                         }
 
                         return e;
