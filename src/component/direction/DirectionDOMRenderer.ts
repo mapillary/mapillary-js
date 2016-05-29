@@ -13,9 +13,8 @@ import {Navigator} from "../../Viewer";
 
 export class DirectionDOMRenderer {
     private _node: Node;
-    private _direction: THREE.Vector3;
-    private _up: THREE.Vector3;
 
+    private _rotation: IRotation;
     private _epsilon: number;
 
     private _spatial: Spatial;
@@ -40,9 +39,8 @@ export class DirectionDOMRenderer {
 
     constructor() {
         this._node = null;
-        this._direction = new THREE.Vector3(0, 0, 0);
-        this._up = new THREE.Vector3(0, 0, 0);
 
+        this._rotation = { phi: 0, theta: 0 };
         this._epsilon = 0.5 * Math.PI / 180;
 
         this._spatial = new Spatial();
@@ -87,7 +85,7 @@ export class DirectionDOMRenderer {
     public render(navigator: Navigator): vd.VNode {
         this._needsRender = false;
 
-        let rotation: IRotation = this._getRotation();
+        let rotation: IRotation = this._rotation;
 
         let steps: vd.VNode[] = [];
         let turns: vd.VNode[] = [];
@@ -114,14 +112,13 @@ export class DirectionDOMRenderer {
         let camera: Camera = renderCamera.camera;
 
         let direction: THREE.Vector3 = this._directionFromCamera(camera);
+        let rotation: IRotation = this._getRotation(direction, camera.up);
 
-        if (this._direction != null &&
-            this._direction.angleTo(direction) < this._epsilon) {
+        if (Math.abs(rotation.phi - this._rotation.phi) < this._epsilon) {
             return;
         }
 
-        this._direction.copy(direction);
-        this._up.copy(camera.up);
+        this._rotation = rotation;
 
         if (this._node != null) {
             this._needsRender = true;
@@ -186,10 +183,7 @@ export class DirectionDOMRenderer {
         return camera.lookat.clone().sub(camera.position);
     }
 
-    private _getRotation(): IRotation {
-       let direction: THREE.Vector3 = this._direction;
-       let up: THREE.Vector3 = this._up;
-
+    private _getRotation(direction: THREE.Vector3, up: THREE.Vector3): IRotation {
        let upProjection: number = direction.clone().dot(up);
        let planeProjection: THREE.Vector3 = direction.clone().sub(up.clone().multiplyScalar(upProjection));
 
