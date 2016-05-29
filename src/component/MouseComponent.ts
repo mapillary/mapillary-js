@@ -88,17 +88,20 @@ export class MouseComponent extends Component {
                     let canvasX: number = m.clientX - clientRect.left;
                     let canvasY: number = m.clientY - clientRect.top;
 
-                    let unprojected: THREE.Vector3 =
-                        this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, r.perspective);
+                    let direction: THREE.Vector3 =
+                        this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, r.perspective)
+                        .sub(r.perspective.position);
 
-                    let unprojectedX: THREE.Vector3 =
-                        this._unproject(canvasX - m.movementX, canvasY, offsetWidth, offsetHeight, r.perspective);
+                    let directionX: THREE.Vector3 =
+                        this._unproject(canvasX - m.movementX, canvasY, offsetWidth, offsetHeight, r.perspective)
+                        .sub(r.perspective.position);
 
-                    let unprojectedY: THREE.Vector3 =
-                        this._unproject(canvasX, canvasY - m.movementY, offsetWidth, offsetHeight, r.perspective);
+                    let directionY: THREE.Vector3 =
+                        this._unproject(canvasX, canvasY - m.movementY, offsetWidth, offsetHeight, r.perspective)
+                        .sub(r.perspective.position);
 
-                    let phi: number = (m.movementX > 0 ? 1 : -1) * unprojectedX.angleTo(unprojected);
-                    let theta: number = (m.movementY > 0 ? -1 : 1) * unprojectedY.angleTo(unprojected);
+                    let phi: number = (m.movementX > 0 ? 1 : -1) * directionX.angleTo(direction);
+                    let theta: number = (m.movementY > 0 ? -1 : 1) * directionY.angleTo(direction);
 
                     this._navigator.stateService.rotate({ phi: phi, theta: theta });
                 });
