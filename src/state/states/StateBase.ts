@@ -216,9 +216,9 @@ export abstract class StateBase implements IState {
     }
 
     protected _motionlessTransition(): boolean {
-        let nodesNotSet: boolean = this._currentNode == null || this._previousNode == null;
+        let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
 
-        return nodesNotSet || !(
+        return nodesSet && !(
             this._currentNode.merged &&
             this._previousNode.merged &&
             this._withinOriginalDistance() &&

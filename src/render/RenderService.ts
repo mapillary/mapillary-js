@@ -3,6 +3,7 @@
 import * as rx from "rx";
 
 import {Camera, Transform} from "../Geo";
+import {Node} from "../Graph";
 import {RenderCamera, RenderMode, ISize} from "../Render";
 import {IFrame} from "../State";
 
@@ -75,11 +76,16 @@ export class RenderService {
                         if (rc.alpha !== frame.state.alpha ||
                             rc.zoom !== frame.state.zoom ||
                             rc.camera.diff(camera) > 0.00001) {
+
                             let currentTransform: Transform = frame.state.currentTransform;
                             let previousTransform: Transform = frame.state.previousTransform;
-
                             if (previousTransform == null) {
                                 previousTransform = frame.state.currentTransform;
+                            }
+
+                            let previousNode: Node = frame.state.previousNode;
+                            if (previousNode == null) {
+                                previousNode = frame.state.currentNode;
                             }
 
                             rc.currentAspect = currentTransform.aspect;
@@ -87,7 +93,7 @@ export class RenderService {
                             rc.currentPano = frame.state.currentNode.fullPano;
                             rc.previousAspect = previousTransform.aspect;
                             rc.previousOrientation = previousTransform.orientation;
-                            rc.previousPano = frame.state.previousNode != null && frame.state.previousNode.fullPano;
+                            rc.previousPano = previousNode.fullPano;
 
                             rc.alpha = frame.state.alpha;
                             rc.zoom = frame.state.zoom;

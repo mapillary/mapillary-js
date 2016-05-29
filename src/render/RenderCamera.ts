@@ -26,6 +26,7 @@ export class RenderCamera {
 
     constructor(perspectiveCameraAspect: number, renderMode: RenderMode) {
         this.alpha = -1;
+        this.zoom = 0;
 
         this._frameId = -1;
 
