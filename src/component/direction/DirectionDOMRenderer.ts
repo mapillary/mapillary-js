@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
+import {IDirectionConfiguration} from "../../Component";
 import {EdgeDirection, IEdge} from "../../Edge";
 import {Camera, Spatial} from "../../Geo";
 import {Node} from "../../Graph";
@@ -22,13 +23,16 @@ export class DirectionDOMRenderer {
     private _arrowOffset: number;
     private _innerArrowOffset: number;
     private _dropShadowOffset: number;
+
     private _offsetScale: number;
+    private _highlightKey: string;
 
     private _needsRender: boolean;
 
     private _stepEdges: IEdge[];
     private _turnEdges: IEdge[];
     private _panoEdges: IEdge[];
+    private _sequenceEdgeKeys: string[];
 
     private _stepDirections: EdgeDirection[];
     private _turnDirections: EdgeDirection[];
@@ -46,13 +50,16 @@ export class DirectionDOMRenderer {
         this._arrowOffset = 62;
         this._innerArrowOffset = 25;
         this._dropShadowOffset = 3;
+
         this._offsetScale = 1;
+        this._highlightKey = null;
 
         this._needsRender = false;
 
         this._stepEdges = [];
         this._turnEdges = [];
         this._panoEdges = [];
+        this._sequenceEdgeKeys = [];
 
         this._stepDirections = [
             EdgeDirection.StepForward,
@@ -121,8 +128,14 @@ export class DirectionDOMRenderer {
         }
     }
 
-    public setOffsetScale(offsetScale: number): void {
-        this._offsetScale = Math.max(1, offsetScale);
+    public setConfiguration(configuration: IDirectionConfiguration): void {
+        if (this._offsetScale === configuration.offsetScale &&
+            this._highlightKey === configuration.highlightKey) {
+                return;
+            }
+
+        this._offsetScale = Math.max(1, configuration.offsetScale);
+        this._highlightKey = configuration.highlightKey;
 
         if (this._node != null) {
             this._needsRender = true;
@@ -133,6 +146,7 @@ export class DirectionDOMRenderer {
         this._stepEdges = [];
         this._turnEdges = [];
         this._panoEdges = [];
+        this._sequenceEdgeKeys = [];
 
         for (let edge of node.edges) {
             let direction: EdgeDirection = edge.data.direction;
@@ -149,6 +163,21 @@ export class DirectionDOMRenderer {
 
             if (edge.data.direction === EdgeDirection.Pano) {
                 this._panoEdges.push(edge);
+            }
+        }
+
+        let edges: IEdge[] = this._panoEdges
+            .concat(this._stepEdges)
+            .concat(this._turnEdges);
+
+        for (let edge of edges) {
+            let edgeKey: string = edge.to;
+
+            for (let sequenceKey of this._node.sequence.keys) {
+                if (sequenceKey === edgeKey) {
+                    this._sequenceEdgeKeys.push(edgeKey);
+                    break;
+                }
             }
         }
     }
@@ -377,7 +406,17 @@ export class DirectionDOMRenderer {
 
         let turn: vd.VNode = vd.h(`div.${className}`, {}, []);
 
-        return vd.h("div.TurnCircle", circleProperties, [turn]);
+        let circleClassName: string = "TurnCircle";
+
+        if (this._sequenceEdgeKeys.indexOf(key) > -1) {
+            circleClassName += "Sequence";
+        }
+
+        if (this._highlightKey === key) {
+            circleClassName += "Highlight";
+        }
+
+        return vd.h("div." + circleClassName, circleProperties, [turn]);
     }
 
     private _createVNodeDisabled(key: string, azimuth: number, rotation: IRotation): vd.VNode {
@@ -431,6 +470,14 @@ export class DirectionDOMRenderer {
             onclick: onClick,
             style: { transform: circleTransform },
         };
+
+        if (this._sequenceEdgeKeys.indexOf(key) > -1) {
+            circleClassName += "Sequence";
+        }
+
+        if (this._highlightKey === key) {
+            circleClassName += "Highlight";
+        }
 
         return vd.h("div." + circleClassName, circleProperties, [chevron]);
     }

@@ -26,7 +26,10 @@
 }
 
 .DirectionsCircle,
-.DirectionsCircleDisabled {
+.DirectionsCircleSequence,
+.DirectionsCircleDisabled,
+.DirectionsCircleHighlight,
+.DirectionsCircleSequenceHighlight {
     position: absolute;
     width: 68px;
     height: 68px;
@@ -37,21 +40,39 @@
     margin-top: -34px;
 }
 
-.DirectionsCircle {
-    background: rgba(0, 0, 0, 0.25);
+.DirectionsCircle,
+.DirectionsCircleSequence,
+.DirectionsCircleHighlight,
+.DirectionsCircleSequenceHighlight {
     pointer-events: all;
+}
+
+.DirectionsCircle:hover,
+.DirectionsCircleSequence:hover,
+.DirectionsCircleHighlight:hover,
+.DirectionsCircleSequenceHighlight:hover {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.DirectionsCircle,
+.DirectionsCircleSequence {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.DirectionsCircle:hover,
+.DirectionsCircleSequence:hover {
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .DirectionsCircleDisabled {
     background: rgba(0, 0, 0, 0.1);
-    pointer-events: none;
     z-index: -10;
 }
 
-.DirectionsCircle:hover {
+.DirectionsCircleHighlight,
+.DirectionsCircleSequenceHighlight {
     background: rgba(0, 0, 0, 0.4);
-    cursor: pointer;
-    cursor: hand;
 }
 
 .DirectionsArrowStep,
@@ -73,7 +94,6 @@
     opacity: 1;
 }
 
-
 .DirectionsArrowStep,
 .DirectionsArrowDisabled {
     border-right: 10px solid white;
@@ -85,24 +105,42 @@
     z-index: -10;
 }
 
-
 .DirectionsArrowPano {
     border-right: 10px solid wheat;
     border-top: 10px solid wheat;
 }
 
-.TurnCircle {
+.TurnCircle,
+.TurnCircleSequence,
+.TurnCircleHighlight,
+.TurnCircleSequenceHighlight {
     position: absolute;
     width: 56px;
     height: 56px;
     border-radius: 25px;
-    background: rgba(0, 0, 0, 0.25);
     pointer-events: all;
 }
 
-.TurnCircle:hover {
+.TurnCircle:hover,
+.TurnCircleSequence:hover,
+.TurnCircleHighlight:hover,
+.TurnCircleSequenceHighlight:hover {
     cursor: pointer;
     cursor: hand;
+}
+
+.TurnCircle,
+.TurnCircleSequence {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.TurnCircle:hover,
+.TurnCircleSequence:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.TurnCircleHighlight,
+.TurnCircleSequenceHighlight {
     background: rgba(0, 0, 0, 0.4);
 }
 

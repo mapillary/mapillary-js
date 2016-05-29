@@ -65,7 +65,7 @@ export class DirectionComponent extends Component {
                     return null;
                 })
             .distinctUntilChanged()
-            .shareReplay(1);
+            .share();
     }
 
     public get defaultConfiguration(): IDirectionConfiguration {
@@ -76,11 +76,15 @@ export class DirectionComponent extends Component {
         return this._hoveredKey$;
     }
 
+    public setHighlightKey(highlightKey: string): void {
+        this.configure({ highlightKey: highlightKey });
+    }
+
     protected _activate(): void {
         this._configurationSubscription = this._configuration$
             .subscribe(
                 (configuration: IDirectionConfiguration): void => {
-                    this._directionDOMRenderer.setOffsetScale(configuration.offsetScale);
+                    this._directionDOMRenderer.setConfiguration(configuration);
                 });
 
         this._nodeSubscription = this._navigator.stateService.currentNode$
