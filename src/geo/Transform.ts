@@ -23,7 +23,7 @@ export class Transform {
         this._height = this._getValue(node.apiNavImIm.height, 3);
         this._focal = this._getValue(node.apiNavImIm.cfocal, 1);
         this._orientation = this._getValue(node.apiNavImIm.orientation, 1);
-        this._scale = this._getValue(node.apiNavImIm.atomic_scale, 1);
+        this._scale = this._getValue(node.apiNavImIm.atomic_scale, 0);
         this._aspect = this._orientation < 5 ?
             this._width / this._height :
             this._height / this._width;

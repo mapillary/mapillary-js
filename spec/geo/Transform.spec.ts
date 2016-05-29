@@ -348,7 +348,7 @@ describe("Transform.scale", () => {
 
         let transform: Transform = new Transform(node, t);
 
-        expect(transform.orientation).toBe(1);
+        expect(transform.scale).toBe(0);
     });
 
     it("should have scale of node", () => {
