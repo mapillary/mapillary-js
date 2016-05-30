@@ -36,7 +36,6 @@ export class SequenceComponent extends Component {
     private _nodesAhead: number = 5;
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
-    private _stop$: rx.Subject<void> = new rx.Subject<void>();
     private _hoveredKey$: rx.Observable<string>;
 
     private _configurationSubscription: rx.IDisposable;
@@ -172,21 +171,6 @@ export class SequenceComponent extends Component {
                 })
             .subscribe(this._configurationOperation$);
 
-        this._stop$
-            .map<IConfigurationOperation>(
-                () => {
-                    return (configuration: ISequenceConfiguration): ISequenceConfiguration => {
-                        if (configuration.playing) {
-                            this._stop();
-                        }
-
-                        configuration.playing = false;
-
-                        return configuration;
-                    };
-                })
-            .subscribe(this._configurationOperation$);
-
         this._stopSubscription = this._configuration$
             .flatMapLatest(
                 (configuration: ISequenceConfiguration): rx.Observable<[Node, EdgeDirection]> => {
@@ -255,16 +239,32 @@ export class SequenceComponent extends Component {
                 (lastNode: Node, configuration: ISequenceConfiguration): [Node, EdgeDirection] => {
                     return [lastNode, configuration.direction];
                 })
+            .map<string>(
+                (nd: [Node, EdgeDirection]): string => {
+                    let direction: EdgeDirection = nd[1];
+
+                    for (let edge of nd[0].edges) {
+                        if (edge.data.direction === direction) {
+                            return edge.to;
+                        }
+                    }
+
+                    return null;
+                })
+            .filter(
+                (key: string): boolean => {
+                    return key != null;
+                })
             .flatMapLatest<Node>(
-                (nd: [Node, EdgeDirection]): rx.Observable<Node> => {
-                    return this._navigator.graphService.nextNode$(nd[0], nd[1]);
+                (key: string): rx.Observable<Node> => {
+                    return this._navigator.graphService.node$(key);
                 })
             .subscribe(
                 (node: Node): void => {
                     this._navigator.stateService.appendNodes([node]);
                 },
                 (error: Error): void => {
-                    this._stop$.onNext(null);
+                    this.stop();
                 }
             );
 
