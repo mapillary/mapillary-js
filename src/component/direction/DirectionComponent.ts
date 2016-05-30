@@ -69,7 +69,7 @@ export class DirectionComponent extends Component {
     }
 
     public get defaultConfiguration(): IDirectionConfiguration {
-        return { offsetScale: 1 };
+        return { distinguishSequence: false, offsetScale: 1 };
     }
 
     public get hoveredKey$(): rx.Observable<string> {

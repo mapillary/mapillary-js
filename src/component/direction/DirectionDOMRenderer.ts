@@ -25,6 +25,7 @@ export class DirectionDOMRenderer {
 
     private _offsetScale: number;
     private _highlightKey: string;
+    private _distinguishSequence: boolean;
 
     private _needsRender: boolean;
 
@@ -51,6 +52,7 @@ export class DirectionDOMRenderer {
 
         this._offsetScale = 1;
         this._highlightKey = null;
+        this._distinguishSequence = false;
 
         this._needsRender = false;
 
@@ -127,12 +129,14 @@ export class DirectionDOMRenderer {
 
     public setConfiguration(configuration: IDirectionConfiguration): void {
         if (this._offsetScale === configuration.offsetScale &&
-            this._highlightKey === configuration.highlightKey) {
+            this._highlightKey === configuration.highlightKey &&
+            this._distinguishSequence === configuration.distinguishSequence) {
                 return;
             }
 
         this._offsetScale = Math.max(1, configuration.offsetScale);
         this._highlightKey = configuration.highlightKey;
+        this._distinguishSequence = configuration.distinguishSequence;
 
         if (this._node != null) {
             this._needsRender = true;
@@ -163,17 +167,19 @@ export class DirectionDOMRenderer {
             }
         }
 
-        let edges: IEdge[] = this._panoEdges
-            .concat(this._stepEdges)
-            .concat(this._turnEdges);
+        if (this._distinguishSequence) {
+            let edges: IEdge[] = this._panoEdges
+                .concat(this._stepEdges)
+                .concat(this._turnEdges);
 
-        for (let edge of edges) {
-            let edgeKey: string = edge.to;
+            for (let edge of edges) {
+                let edgeKey: string = edge.to;
 
-            for (let sequenceKey of this._node.sequence.keys) {
-                if (sequenceKey === edgeKey) {
-                    this._sequenceEdgeKeys.push(edgeKey);
-                    break;
+                for (let sequenceKey of this._node.sequence.keys) {
+                    if (sequenceKey === edgeKey) {
+                        this._sequenceEdgeKeys.push(edgeKey);
+                        break;
+                    }
                 }
             }
         }
