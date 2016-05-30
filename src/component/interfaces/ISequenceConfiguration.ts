@@ -5,6 +5,7 @@ export interface ISequenceConfiguration extends IComponentConfiguration {
     direction?: EdgeDirection;
     highlightKey?: string;
     playing?: boolean;
+    visible?: boolean;
 }
 
 export default ISequenceConfiguration;

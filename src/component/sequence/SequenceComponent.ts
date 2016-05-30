@@ -73,7 +73,11 @@ export class SequenceComponent extends Component {
     }
 
     public get defaultConfiguration(): ISequenceConfiguration {
-        return { direction: EdgeDirection.Next, playing: false };
+        return {
+            direction: EdgeDirection.Next,
+            playing: false,
+            visible: true,
+        };
     }
 
     public get hoveredKey$(): rx.Observable<string> {

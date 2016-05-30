@@ -19,6 +19,10 @@ export class SequenceDOMRenderer {
         interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode {
 
+        if (configuration.visible === false) {
+            return vd.h("div.SequenceContainer", {}, []);
+        }
+
         let nextKey: string = null;
         let prevKey: string = null;
 
