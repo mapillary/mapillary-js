@@ -25,6 +25,8 @@ interface IContextAction {
 }
 
 export class StateService {
+    private _start$: rx.Subject<void>;
+
     private _frame$: rx.Subject<number>;
 
     private _contextOperation$: rx.BehaviorSubject<IContextOperation>;
@@ -45,6 +47,7 @@ export class StateService {
     private _fpsSampleRate: number;
 
     constructor () {
+        this._start$ = new rx.Subject<void>();
         this._frame$ = new rx.Subject<number>();
         this._fpsSampleRate = 30;
 
@@ -69,22 +72,26 @@ export class StateService {
             .distinctUntilChanged()
             .shareReplay(1);
 
-        this._fps$ = this._frame$
-            .filter(
-                (frameId: number): boolean => {
-                    return (frameId % this._fpsSampleRate) === 0;
+        this._fps$ = this._start$
+            .flatMapLatest<number>(
+                (): rx.Observable<number> => {
+                    return this._frame$
+                        .filter(
+                            (frameId: number): boolean => {
+                                return frameId % this._fpsSampleRate === 0;
+                            })
+                        .map<number>(
+                            (frameId: number): number => {
+                                return new Date().getTime();
+                            })
+                        .pairwise()
+                        .map<number>(
+                            (times: [number, number]): number => {
+                                return Math.max(20, 1000 * this._fpsSampleRate / (times[1] - times[0]));
+                            })
+                        .startWith(60);
                 })
-            .scan<[number, number]>(
-                (fps: [number, number], frameId: number): [number, number] => {
-                    let now: number = new Date().getTime();
-                    return [now, (this._fpsSampleRate / (now - fps[0])) * 1000];
-                },
-                [new Date().getTime(), 60])
-            .map<number>(
-                (fps: [number, number]): number => {
-                    return Math.max(20, fps[1]);
-                })
-            .startWith(60);
+            .share();
 
         this._currentState$ = this._frame$
             .withLatestFrom(
@@ -235,7 +242,9 @@ export class StateService {
 
     public start(): void {
         if (this._frameId == null) {
+            this._start$.onNext(null);
             this._frameId = this._frameGenerator.requestAnimationFrame(this._frame.bind(this));
+            this._frame$.onNext(this._frameId);
         }
     }
 
