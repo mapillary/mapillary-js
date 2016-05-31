@@ -446,10 +446,7 @@ export class DirectionDOMRenderer {
         let translationX: number = -this._offsetScale * offset * translation[1];
         let translationY: number = -this._offsetScale * offset * translation[0];
 
-        // chevron is created from top and right border, i.e. shifted 45 degrees
-        let azimuthShifted: number = azimuth + Math.PI / 4;
-
-        let shadowTranslation: Array<number> = this._calcShadowTranslation(azimuthShifted, rotation.phi);
+        let shadowTranslation: Array<number> = this._calcShadowTranslation(azimuth, rotation.phi);
         let shadowTranslationX: number = -this._offsetScale * this._dropShadowOffset * shadowTranslation[1];
         let shadowTranslationY: number = this._offsetScale * this._dropShadowOffset * shadowTranslation[0];
 
@@ -464,9 +461,9 @@ export class DirectionDOMRenderer {
 
         let chevron: vd.VNode = vd.h("div." + className, properties, []);
 
-        let azimuthShiftedDeg: number = -this._spatial.radToDeg(azimuthShifted);
+        let azimuthDeg: number = -this._spatial.radToDeg(azimuth);
 
-        let circleTransform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthShiftedDeg}deg)`;
+        let circleTransform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
         let circleProperties: vd.createProperties = {
             attributes: { "data-key": key },
             onclick: onClick,
