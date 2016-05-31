@@ -377,7 +377,9 @@ export class DirectionDOMRenderer {
         let onClick: (e: Event) => void =
             (e: Event): void => { navigator.moveDir(direction).subscribe(); };
 
-        let style: any = {};
+        let style: any = {
+            transform: "rotate(0)", // apply transform to preserve 3D
+        };
 
         switch (direction) {
             case EdgeDirection.TurnLeft:
@@ -500,6 +502,7 @@ export class DirectionDOMRenderer {
 
         let perspectiveStyle: any = {
             transform: `perspective(325px) rotateX(60deg)`,
+            transformStyle: "preserve-3d",
         };
 
         let style: any = {
