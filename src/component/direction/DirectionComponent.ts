@@ -16,7 +16,7 @@ import {Container, Navigator} from "../../Viewer";
 export class DirectionComponent extends Component {
     public static componentName: string = "direction";
 
-    private _directionDOMRenderer: DirectionDOMRenderer;
+    private _renderer: DirectionDOMRenderer;
 
     private _hoveredKey$: rx.Observable<string>;
 
@@ -27,7 +27,7 @@ export class DirectionComponent extends Component {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._directionDOMRenderer = new DirectionDOMRenderer();
+        this._renderer = new DirectionDOMRenderer(container.element);
 
         this._hoveredKey$ = rx.Observable
             .combineLatest(
@@ -80,11 +80,15 @@ export class DirectionComponent extends Component {
         this.configure({ highlightKey: highlightKey });
     }
 
+    public resize(): void {
+        this._renderer.resize(this._container.element);
+    }
+
     protected _activate(): void {
         this._configurationSubscription = this._configuration$
             .subscribe(
                 (configuration: IDirectionConfiguration): void => {
-                    this._directionDOMRenderer.setConfiguration(configuration);
+                    this._renderer.setConfiguration(configuration);
                 });
 
         this._nodeSubscription = this._navigator.stateService.currentNode$
@@ -94,21 +98,21 @@ export class DirectionComponent extends Component {
                 })
             .subscribe(
                 (node: Node): void => {
-                    this._directionDOMRenderer.setNode(node);
+                    this._renderer.setNode(node);
                 });
 
         this._renderCameraSubscription = this._container.renderService.renderCameraFrame$
             .do(
                 (renderCamera: RenderCamera): void => {
-                    this._directionDOMRenderer.setRenderCamera(renderCamera);
+                    this._renderer.setRenderCamera(renderCamera);
                 })
             .map<DirectionDOMRenderer>(
                 (renderCamera: RenderCamera): DirectionDOMRenderer => {
-                    return this._directionDOMRenderer;
+                    return this._renderer;
                 })
             .filter(
                 (renderer: DirectionDOMRenderer): boolean => {
-                    return renderer.needsRender;
+                    return true; // renderer.needsRender;
                 })
             .map<IVNodeHash>(
                 (renderer: DirectionDOMRenderer): IVNodeHash => {

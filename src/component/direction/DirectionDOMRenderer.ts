@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {IDirectionConfiguration} from "../../Component";
+import {DirectionDOMCalculator, IDirectionConfiguration} from "../../Component";
 import {EdgeDirection, IEdge} from "../../Edge";
 import {Camera, Spatial} from "../../Geo";
 import {Node} from "../../Graph";
@@ -12,18 +12,14 @@ import {IRotation} from "../../State";
 import {Navigator} from "../../Viewer";
 
 export class DirectionDOMRenderer {
+    private _spatial: Spatial;
+    private _calculator: DirectionDOMCalculator;
+
     private _node: Node;
 
     private _rotation: IRotation;
     private _epsilon: number;
 
-    private _spatial: Spatial;
-
-    private _arrowOffset: number;
-    private _innerArrowOffset: number;
-    private _dropShadowOffset: number;
-
-    private _offsetScale: number;
     private _highlightKey: string;
     private _distinguishSequence: boolean;
 
@@ -38,19 +34,15 @@ export class DirectionDOMRenderer {
     private _turnDirections: EdgeDirection[];
     private _turnNames: {[dir: number]: string};
 
-    constructor() {
+    constructor(element: HTMLElement) {
+        this._spatial = new Spatial();
+        this._calculator = new DirectionDOMCalculator(element);
+
         this._node = null;
 
         this._rotation = { phi: 0, theta: 0 };
         this._epsilon = 0.5 * Math.PI / 180;
 
-        this._spatial = new Spatial();
-
-        this._arrowOffset = 62;
-        this._innerArrowOffset = 25;
-        this._dropShadowOffset = 3;
-
-        this._offsetScale = 1;
         this._highlightKey = null;
         this._distinguishSequence = false;
 
@@ -128,19 +120,23 @@ export class DirectionDOMRenderer {
     }
 
     public setConfiguration(configuration: IDirectionConfiguration): void {
-        if (this._offsetScale === configuration.offsetScale &&
-            this._highlightKey === configuration.highlightKey &&
+        if (this._highlightKey === configuration.highlightKey &&
             this._distinguishSequence === configuration.distinguishSequence) {
                 return;
             }
 
-        this._offsetScale = Math.max(1, configuration.offsetScale);
         this._highlightKey = configuration.highlightKey;
         this._distinguishSequence = configuration.distinguishSequence;
 
         if (this._node != null) {
             this._needsRender = true;
         }
+    }
+
+    public resize(element: HTMLElement): void {
+        this._calculator.resize(element);
+
+        this._needsRender = true;
     }
 
     private _setEdges(node: Node): void {
@@ -199,17 +195,6 @@ export class DirectionDOMRenderer {
        return { phi: phi, theta: theta };
     }
 
-
-    private _calcTranslation(angle: number): Array<number> {
-        return [Math.cos(angle), Math.sin(angle)];
-    }
-
-    private _calcShadowTranslation(azimuth: number, phi: number): Array<number> {
-        let angle: number = this._spatial.wrapAngle(azimuth - phi);
-
-        return this._calcTranslation(angle);
-    }
-
     private _createPanoArrows(navigator: Navigator, rotation: IRotation): Array<vd.VNode> {
         let arrows: Array<vd.VNode> = [];
 
@@ -220,7 +205,7 @@ export class DirectionDOMRenderer {
                     panoEdge.to,
                     panoEdge.data.worldMotionAzimuth,
                     rotation,
-                    this._arrowOffset,
+                    this._calculator.outerRadius,
                     "DirectionsArrowPano"));
         }
 
@@ -268,7 +253,7 @@ export class DirectionDOMRenderer {
                 key,
                 azimuth,
                 rotation,
-                this._arrowOffset,
+                this._calculator.outerRadius,
                 "DirectionsArrowStep");
         }
 
@@ -285,7 +270,7 @@ export class DirectionDOMRenderer {
                     panoEdge.to,
                     panoEdge.data.worldMotionAzimuth,
                     rotation,
-                    this._innerArrowOffset,
+                    this._calculator.innerRadius,
                     "DirectionsArrowPano"));
         }
 
@@ -362,7 +347,7 @@ export class DirectionDOMRenderer {
             key,
             azimuth,
             rotation,
-            this._arrowOffset,
+            this._calculator.outerRadius,
             "DirectionsArrowStep",
             "DirectionsCircle",
             onClick);
@@ -378,20 +363,22 @@ export class DirectionDOMRenderer {
             (e: Event): void => { navigator.moveDir(direction).subscribe(); };
 
         let style: any = {
+            height: this._calculator.turnCircleSizeCss,
             transform: "rotate(0)", // apply transform to preserve 3D
+            width: this._calculator.turnCircleSizeCss,
         };
 
         switch (direction) {
             case EdgeDirection.TurnLeft:
-                style.left = "0";
+                style.left = "5px";
                 style.top = "5px";
                 break;
             case EdgeDirection.TurnRight:
-                style.right = "0";
+                style.right = "5px";
                 style.top = "5px";
                 break;
             case EdgeDirection.TurnU:
-                style.left = "0";
+                style.left = "5px";
                 style.bottom = "5px";
                 break;
             default:
@@ -406,8 +393,6 @@ export class DirectionDOMRenderer {
             style: style,
         };
 
-        let turn: vd.VNode = vd.h(`div.${className}`, {}, []);
-
         let circleClassName: string = "TurnCircle";
 
         if (this._sequenceEdgeKeys.indexOf(key) > -1) {
@@ -418,6 +403,8 @@ export class DirectionDOMRenderer {
             circleClassName += "Highlight";
         }
 
+        let turn: vd.VNode = vd.h(`div.${className}`, {}, []);
+
         return vd.h("div." + circleClassName, circleProperties, [turn]);
     }
 
@@ -426,7 +413,7 @@ export class DirectionDOMRenderer {
             key,
             azimuth,
             rotation,
-            this._arrowOffset,
+            this._calculator.outerRadius,
             "DirectionsArrowDisabled",
             "DirectionsCircleDisabled");
     }
@@ -435,20 +422,21 @@ export class DirectionDOMRenderer {
         key: string,
         azimuth: number,
         rotation: IRotation,
-        offset: number,
+        radius: number,
         className: string,
         circleClassName: string,
         onClick?: (e: Event) => void): vd.VNode {
 
-        let translation: Array<number> = this._calcTranslation(azimuth);
+        let translation: Array<number> = this._calculator.angleToCoordinates(azimuth);
 
         // rotate 90 degrees clockwise and flip over X-axis
-        let translationX: number = -this._offsetScale * offset * translation[1];
-        let translationY: number = -this._offsetScale * offset * translation[0];
+        let translationX: number = -Math.round(radius * translation[1]);
+        let translationY: number = -Math.round(radius * translation[0]);
 
-        let shadowTranslation: Array<number> = this._calcShadowTranslation(azimuth, rotation.phi);
-        let shadowTranslationX: number = -this._offsetScale * this._dropShadowOffset * shadowTranslation[1];
-        let shadowTranslationY: number = this._offsetScale * this._dropShadowOffset * shadowTranslation[0];
+        let shadowTranslation: Array<number> = this._calculator.relativeAngleToCoordiantes(azimuth, rotation.phi);
+        let shadowOffset: number = this._calculator.shadowOffset;
+        let shadowTranslationX: number = -shadowOffset * shadowTranslation[1];
+        let shadowTranslationY: number = shadowOffset * shadowTranslation[0];
 
         let filter: string = `drop-shadow(${shadowTranslationX}px ${shadowTranslationY}px 1px rgba(0,0,0,0.8))`;
 
@@ -462,12 +450,17 @@ export class DirectionDOMRenderer {
         let chevron: vd.VNode = vd.h("div." + className, properties, []);
 
         let azimuthDeg: number = -this._spatial.radToDeg(azimuth);
-
         let circleTransform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
         let circleProperties: vd.createProperties = {
             attributes: { "data-key": key },
             onclick: onClick,
-            style: { transform: circleTransform },
+            style: {
+                height: this._calculator.stepCircleSizeCss,
+                marginLeft: this._calculator.stepCircleMarginCss,
+                marginTop: this._calculator.stepCircleMarginCss,
+                transform: circleTransform,
+                width: this._calculator.stepCircleSizeCss,
+            },
         };
 
         if (this._sequenceEdgeKeys.indexOf(key) > -1) {
@@ -481,40 +474,30 @@ export class DirectionDOMRenderer {
         return vd.h("div." + circleClassName, circleProperties, [chevron]);
     }
 
-    private _getVNodePanoIndication(panorama: boolean): vd.VNode {
-        if (panorama) {
-            return vd.h("div.PanoIndication", {}, []);
-        } else {
-            return undefined;
-        }
-    }
-
     private _getContainer(
         steps: vd.VNode[],
         turns: vd.VNode[],
         rotation: IRotation,
-        pano: boolean): any {
+        pano: boolean): vd.VNode {
 
         let rotateZ: number = this._spatial.radToDeg(rotation.phi);
 
         let perspectiveStyle: any = {
-            transform: `perspective(325px) rotateX(60deg)`,
-            transformStyle: "preserve-3d",
+            height: this._calculator.containerHeightCss,
+            left: this._calculator.containerLeftCss,
+            marginLeft: this._calculator.containerMarginCss,
+            transform: `perspective(${this._calculator.containerWidthCss}) rotateX(60deg)`,
+            width: this._calculator.containerWidthCss,
         };
 
         let style: any = {
             transform: `rotateZ(${rotateZ}deg)`,
         };
 
-        return vd.h("div", {}, [
-                this._getVNodePanoIndication(pano),
-                vd.h("div.DirectionsWrapper", {}, [
-                    vd.h("div.DirectionsPerspective", { style: perspectiveStyle }, [
-                        turns,
-                        vd.h("div.Directions", { style: style }, steps),
-                    ]),
-                ]),
-            ]);
+        return vd.h("div.DirectionsPerspective", { style: perspectiveStyle }, [
+                    turns,
+                    vd.h("div.Directions", { style: style }, steps),
+                ]);
     }
 }
 
