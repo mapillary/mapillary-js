@@ -1,8 +1,6 @@
 .DirectionsPerspective {
     display: block;
     position: absolute;
-    left: 50%;
-    bottom: 0;
     pointer-events: none;
     transform-style: preserve-3d;
 }

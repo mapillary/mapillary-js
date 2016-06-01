@@ -34,9 +34,9 @@ export class DirectionDOMRenderer {
     private _turnDirections: EdgeDirection[];
     private _turnNames: {[dir: number]: string};
 
-    constructor(element: HTMLElement) {
+    constructor(configuration: IDirectionConfiguration, element: HTMLElement) {
         this._spatial = new Spatial();
-        this._calculator = new DirectionDOMCalculator(element);
+        this._calculator = new DirectionDOMCalculator(configuration, element);
 
         this._node = null;
 
@@ -120,15 +120,22 @@ export class DirectionDOMRenderer {
     }
 
     public setConfiguration(configuration: IDirectionConfiguration): void {
-        if (this._highlightKey === configuration.highlightKey &&
-            this._distinguishSequence === configuration.distinguishSequence) {
-                return;
-            }
+        let needsRender: boolean = false;
+        if (this._highlightKey !== configuration.highlightKey ||
+            this._distinguishSequence !== configuration.distinguishSequence) {
+            this._highlightKey = configuration.highlightKey;
+            this._distinguishSequence = configuration.distinguishSequence;
 
-        this._highlightKey = configuration.highlightKey;
-        this._distinguishSequence = configuration.distinguishSequence;
+            needsRender = true;
+        }
 
-        if (this._node != null) {
+        if (this._calculator.minWidth !== configuration.minWidth ||
+            this._calculator.maxWidth !== configuration.maxWidth) {
+            this._calculator.configure(configuration);
+            needsRender = true;
+        }
+
+        if (needsRender && this._node != null) {
             this._needsRender = true;
         }
     }
@@ -271,7 +278,8 @@ export class DirectionDOMRenderer {
                     panoEdge.data.worldMotionAzimuth,
                     rotation,
                     this._calculator.innerRadius,
-                    "DirectionsArrowPano"));
+                    "DirectionsArrowPano",
+                    true));
         }
 
         return arrows;
@@ -318,7 +326,8 @@ export class DirectionDOMRenderer {
         azimuth: number,
         rotation: IRotation,
         offset: number,
-        className: string): vd.VNode {
+        className: string,
+        shiftVertically?: boolean): vd.VNode {
 
         let onClick: (e: Event) => void =
             (e: Event): void => { navigator.moveToKey(key).subscribe(); };
@@ -330,7 +339,8 @@ export class DirectionDOMRenderer {
             offset,
             className,
             "DirectionsCircle",
-            onClick);
+            onClick,
+            shiftVertically);
     }
 
     private _createVNodeByDirection(
@@ -425,7 +435,8 @@ export class DirectionDOMRenderer {
         radius: number,
         className: string,
         circleClassName: string,
-        onClick?: (e: Event) => void): vd.VNode {
+        onClick?: (e: Event) => void,
+        shiftVertically?: boolean): vd.VNode {
 
         let translation: Array<number> = this._calculator.angleToCoordinates(azimuth);
 
@@ -450,7 +461,10 @@ export class DirectionDOMRenderer {
         let chevron: vd.VNode = vd.h("div." + className, properties, []);
 
         let azimuthDeg: number = -this._spatial.radToDeg(azimuth);
-        let circleTransform: string = `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
+        let circleTransform: string = shiftVertically ?
+            `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg) translateZ(-0.01px)` :
+            `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
+
         let circleProperties: vd.createProperties = {
             attributes: { "data-key": key },
             onclick: onClick,
@@ -483,6 +497,7 @@ export class DirectionDOMRenderer {
         let rotateZ: number = this._spatial.radToDeg(rotation.phi);
 
         let perspectiveStyle: any = {
+            bottom: this._calculator.containerBottomCss,
             height: this._calculator.containerHeightCss,
             left: this._calculator.containerLeftCss,
             marginLeft: this._calculator.containerMarginCss,

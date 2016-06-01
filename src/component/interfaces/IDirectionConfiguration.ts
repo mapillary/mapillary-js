@@ -7,19 +7,39 @@ import {IComponentConfiguration} from "../../Component";
  */
 export interface IDirectionConfiguration extends IComponentConfiguration {
     /**
+     * Determines if the sequence arrow appearance should be different from
+     * the non sequence arrows.
+     *
+     * @description Needs to be set for the sequence suffixed classes to be
+     * applied to the navigation elements. Additional calculations will be
+     * performed resulting in a performance cost.
+     */
+    distinguishSequence?: boolean;
+
+    /**
      * The node key representing the direction arrow to be highlighted.
      */
     highlightKey?: string;
 
     /**
-     * Determines if the sequence arrow appearance should be different from
-     * the non sequence arrows.
+     * The min width of the non transformed container element holding
+     * the navigation arrows.
      *
-     * @description: Needs to be set for the sequence suffixed classes to be
-     * applied to the navigation elements. Additional calculations will be
-     * performed resulting in a performance cost.
+     * @description If the min width is larger than the max width the
+     * min width value will be used.
+     * @default 260
      */
-    distinguishSequence?: boolean;
+    minWidth?: number;
+
+    /**
+     * The max width of the non transformed container element holding
+     * the navigation arrows.
+     *
+     * @description If the min width is larger than the max width the
+     * min width value will be used.
+     * @default 460
+     */
+    maxWidth?: number;
 
     /**
      * The scale for the offset of the direction arrows.

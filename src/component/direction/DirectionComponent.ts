@@ -27,7 +27,7 @@ export class DirectionComponent extends Component {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._renderer = new DirectionDOMRenderer(container.element);
+        this._renderer = new DirectionDOMRenderer(this.defaultConfiguration, container.element);
 
         this._hoveredKey$ = rx.Observable
             .combineLatest(
@@ -69,7 +69,12 @@ export class DirectionComponent extends Component {
     }
 
     public get defaultConfiguration(): IDirectionConfiguration {
-        return { distinguishSequence: false, offsetScale: 1 };
+        return {
+            distinguishSequence: false,
+            maxWidth: 460,
+            minWidth: 260,
+            offsetScale: 1,
+        };
     }
 
     public get hoveredKey$(): rx.Observable<string> {
@@ -78,6 +83,14 @@ export class DirectionComponent extends Component {
 
     public setHighlightKey(highlightKey: string): void {
         this.configure({ highlightKey: highlightKey });
+    }
+
+    public setMinWidth(minWidth: number): void {
+        this.configure({ minWidth: minWidth });
+    }
+
+    public setMaxWidth(maxWidth: number): void {
+        this.configure({ maxWidth: maxWidth });
     }
 
     public resize(): void {
@@ -112,7 +125,7 @@ export class DirectionComponent extends Component {
                 })
             .filter(
                 (renderer: DirectionDOMRenderer): boolean => {
-                    return true; // renderer.needsRender;
+                    return renderer.needsRender;
                 })
             .map<IVNodeHash>(
                 (renderer: DirectionDOMRenderer): IVNodeHash => {

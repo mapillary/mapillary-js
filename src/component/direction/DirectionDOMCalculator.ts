@@ -1,3 +1,4 @@
+import {IDirectionConfiguration} from "../../Component";
 import {Spatial} from "../../Geo";
 
 export class DirectionDOMCalculator {
@@ -20,6 +21,7 @@ export class DirectionDOMCalculator {
     private _containerLeftCss: string;
     private _containerHeight: number;
     private _containerHeightCss: string;
+    private _containerBottomCss: string;
 
     private _stepCircleSize: number;
     private _stepCircleSizeCss: string;
@@ -33,17 +35,25 @@ export class DirectionDOMCalculator {
 
     private _shadowOffset: number;
 
-    constructor(element: HTMLElement) {
+    constructor(configuration: IDirectionConfiguration, element: HTMLElement) {
         this._spatial = new Spatial();
 
-        this._minWidth = 260;
-        this._maxWidth = 460;
         this._minThresholdWidth = 320;
         this._maxThresholdWidth = 1480;
         this._minThresholdHeight = 240;
         this._maxThresholdHeight = 820;
 
-        this.resize(element);
+        this._configure(configuration);
+        this._resize(element);
+        this._reset();
+    }
+
+    public get minWidth(): number {
+        return this._minWidth;
+    }
+
+    public get maxWidth(): number {
+        return this._maxWidth;
     }
 
     public get containerWidth(): number {
@@ -68,6 +78,10 @@ export class DirectionDOMCalculator {
 
     public get containerHeightCss(): string {
         return this._containerHeightCss;
+    }
+
+    public get containerBottomCss(): string {
+        return this._containerBottomCss;
     }
 
     public get stepCircleSize(): number {
@@ -103,6 +117,17 @@ export class DirectionDOMCalculator {
     }
 
     /**
+     * Configures the min and max width values.
+     *
+     * @param {IDirectionConfiguration} configuration Configuration
+     * with min and max width values.
+     */
+    public configure(configuration: IDirectionConfiguration): void {
+        this._configure(configuration);
+        this._reset();
+    }
+
+    /**
      * Resizes all properties according to the width and height
      * of the element.
      *
@@ -110,25 +135,8 @@ export class DirectionDOMCalculator {
      * the width and height.
      */
     public resize(element: HTMLElement): void {
-        this._elementWidth = element.offsetWidth;
-        this._elementHeight = element.offsetHeight;
-
-        this._containerWidth = this._getContainerWidth(element.offsetWidth, element.offsetHeight);
-        this._containerHeight = this._getContainerHeight(this.containerWidth);
-        this._stepCircleSize = this._getStepCircleDiameter(this._containerHeight);
-        this._turnCircleSize = this._getTurnCircleDiameter(this.containerHeight);
-        this._outerRadius = this._getOuterRadius(this._containerHeight);
-        this._innerRadius = this._getInnerRadius(this._containerHeight);
-
-        this._shadowOffset = 3;
-
-        this._containerWidthCss = this._numberToCssPixels(this._containerWidth);
-        this._containerMarginCss = this._numberToCssPixels(-0.5 * this._containerWidth);
-        this._containerLeftCss = this._numberToCssPixels(Math.floor(0.5 * this._elementWidth));
-        this._containerHeightCss = this._numberToCssPixels(this._containerHeight);
-        this._stepCircleSizeCss = this._numberToCssPixels(this._stepCircleSize);
-        this._stepCircleMarginCss = this._numberToCssPixels(-0.5 * this._stepCircleSize);
-        this._turnCircleSizeCss = this._numberToCssPixels(this._turnCircleSize);
+        this._resize(element);
+        this._reset();
     }
 
     /**
@@ -154,6 +162,36 @@ export class DirectionDOMCalculator {
         let relativeAngle: number = this._spatial.wrapAngle(first - second);
 
         return this.angleToCoordinates(relativeAngle);
+    }
+
+    private _configure(configuration: IDirectionConfiguration): void {
+        this._minWidth = configuration.minWidth;
+        this._maxWidth = this._getMaxWidth(configuration.minWidth, configuration.maxWidth);
+    }
+
+    private _resize(element: HTMLElement): void {
+        this._elementWidth = element.offsetWidth;
+        this._elementHeight = element.offsetHeight;
+    }
+
+    private _reset(): void {
+        this._containerWidth = this._getContainerWidth(this._elementWidth, this._elementHeight);
+        this._containerHeight = this._getContainerHeight(this.containerWidth);
+        this._stepCircleSize = this._getStepCircleDiameter(this._containerHeight);
+        this._turnCircleSize = this._getTurnCircleDiameter(this.containerHeight);
+        this._outerRadius = this._getOuterRadius(this._containerHeight);
+        this._innerRadius = this._getInnerRadius(this._containerHeight);
+
+        this._shadowOffset = 3;
+
+        this._containerWidthCss = this._numberToCssPixels(this._containerWidth);
+        this._containerMarginCss = this._numberToCssPixels(-0.5 * this._containerWidth);
+        this._containerLeftCss = this._numberToCssPixels(Math.floor(0.5 * this._elementWidth));
+        this._containerHeightCss = this._numberToCssPixels(this._containerHeight);
+        this._containerBottomCss = this._numberToCssPixels(Math.floor(-0.08 * this._containerHeight));
+        this._stepCircleSizeCss = this._numberToCssPixels(this._stepCircleSize);
+        this._stepCircleMarginCss = this._numberToCssPixels(-0.5 * this._stepCircleSize);
+        this._turnCircleSizeCss = this._numberToCssPixels(this._turnCircleSize);
     }
 
     private _getContainerWidth(elementWidth: number, elementHeight: number): number {
@@ -191,6 +229,10 @@ export class DirectionDOMCalculator {
 
     private _numberToCssPixels(value: number): string {
         return value + "px";
+    }
+
+    private _getMaxWidth(value: number, minWidth: number): number {
+        return value > minWidth ? value : minWidth;
     }
 }
 
