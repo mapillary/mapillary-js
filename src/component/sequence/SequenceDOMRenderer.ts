@@ -12,6 +12,36 @@ import {Node} from "../../Graph";
 import {Navigator} from "../../Viewer";
 
 export class SequenceDOMRenderer {
+    private _minThresholdWidth: number;
+    private _maxThresholdWidth: number;
+    private _minThresholdHeight: number;
+    private _maxThresholdHeight: number;
+
+    private _minWidth: number;
+    private _maxWidth: number;
+
+    private _containerWidth: string;
+    private _containerHeight: string;
+
+    constructor(element: HTMLElement) {
+        this._minThresholdWidth = 320;
+        this._maxThresholdWidth = 1480;
+        this._minThresholdHeight = 240;
+        this._maxThresholdHeight = 820;
+
+        this._minWidth = 70;
+        this._maxWidth = 117;
+
+        this.resize(element);
+    }
+
+    public resize(element: HTMLElement): void {
+        let containerWidth: number = this._getContainerWidth(element.offsetWidth, element.offsetHeight);
+
+        this._containerWidth = containerWidth + "px";
+        this._containerHeight = (0.27 * containerWidth) + "px";
+    }
+
     public render(
         node: Node,
         configuration: ISequenceConfiguration,
@@ -40,7 +70,7 @@ export class SequenceDOMRenderer {
         let arrows: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, node, configuration, interaction, navigator);
 
         let containerProperties: vd.createProperties = {
-            style: { height: "30px", width: "117px" },
+            style: { height: this._containerHeight, width: this._containerWidth },
         };
 
         return vd.h("div.SequenceContainer", containerProperties, arrows.concat([playingButton]));
@@ -129,6 +159,17 @@ export class SequenceDOMRenderer {
         }
 
         return className;
+    }
+
+    private _getContainerWidth(elementWidth: number, elementHeight: number): number {
+        let relativeWidth: number =
+            (elementWidth - this._minThresholdWidth) / (this._maxThresholdWidth - this._minThresholdWidth);
+        let relativeHeight: number =
+            (elementHeight - this._minThresholdHeight) / (this._maxThresholdHeight - this._minThresholdHeight);
+
+        let coeff: number = Math.max(0, Math.min(1, Math.min(relativeWidth, relativeHeight)));
+
+        return this._minWidth + coeff * (this._maxWidth - this._minWidth);
     }
 }
 

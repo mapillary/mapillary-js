@@ -1,7 +1,7 @@
 .SequenceContainer {
     position: absolute;
     left: 50%;
-    top: 20px;
+    top: 14px;
     transform: translate(-50%, 0);
     display: flex;
 }

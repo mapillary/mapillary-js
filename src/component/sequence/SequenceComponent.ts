@@ -37,6 +37,7 @@ export class SequenceComponent extends Component {
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
     private _hoveredKey$: rx.Observable<string>;
+    private _resize$: rx.BehaviorSubject<void>;
 
     private _configurationSubscription: rx.IDisposable;
     private _renderSubscription: rx.IDisposable;
@@ -47,8 +48,10 @@ export class SequenceComponent extends Component {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._sequenceDOMRenderer = new SequenceDOMRenderer();
+        this._sequenceDOMRenderer = new SequenceDOMRenderer(container.element);
         this._sequenceDOMInteraction = new SequenceDOMInteraction();
+
+        this._resize$ = new rx.BehaviorSubject<void>(null);
 
         this._hoveredKey$ = this._sequenceDOMInteraction.mouseEnterDirection$
             .flatMapLatest<string>(
@@ -114,11 +117,17 @@ export class SequenceComponent extends Component {
         this.configure({ highlightKey: highlightKey });
     }
 
+    public resize(): void {
+        this._sequenceDOMRenderer.resize(this._container.element);
+        this._resize$.onNext(null);
+    }
+
     protected _activate(): void {
         this._renderSubscription = rx.Observable
             .combineLatest(
                 this._navigator.stateService.currentNode$,
                 this._configuration$,
+                this._resize$,
                 (node: Node, configuration: ISequenceConfiguration): [Node, ISequenceConfiguration] => {
                     return [node, configuration];
                 })
