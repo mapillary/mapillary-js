@@ -37,10 +37,11 @@ export class SequenceComponent extends Component {
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
     private _hoveredKey$: rx.Observable<string>;
-    private _resize$: rx.BehaviorSubject<void>;
+    private _containerWidth$: rx.Subject<number>;
 
     private _configurationSubscription: rx.IDisposable;
     private _renderSubscription: rx.IDisposable;
+    private _containerWidthSubscription: rx.IDisposable;
 
     private _playingSubscription: rx.IDisposable;
     private _stopSubscription: rx.IDisposable;
@@ -51,7 +52,7 @@ export class SequenceComponent extends Component {
         this._sequenceDOMRenderer = new SequenceDOMRenderer(container.element);
         this._sequenceDOMInteraction = new SequenceDOMInteraction();
 
-        this._resize$ = new rx.BehaviorSubject<void>(null);
+        this._containerWidth$ = new rx.Subject<number>();
 
         this._hoveredKey$ = this._sequenceDOMInteraction.mouseEnterDirection$
             .flatMapLatest<string>(
@@ -77,6 +78,8 @@ export class SequenceComponent extends Component {
     public get defaultConfiguration(): ISequenceConfiguration {
         return {
             direction: EdgeDirection.Next,
+            maxWidth: 117,
+            minWidth: 70,
             playing: false,
             visible: true,
         };
@@ -118,8 +121,18 @@ export class SequenceComponent extends Component {
     }
 
     public resize(): void {
-        this._sequenceDOMRenderer.resize(this._container.element);
-        this._resize$.onNext(null);
+        this._configuration$
+            .first()
+            .map<number>(
+                (configuration: ISequenceConfiguration): number => {
+                    return this._sequenceDOMRenderer.getContainerWidth(
+                        this._container.element,
+                        configuration);
+                })
+            .subscribe(
+                (containerWidth: number): void => {
+                    this._containerWidth$.onNext(containerWidth);
+                });
     }
 
     protected _activate(): void {
@@ -127,21 +140,45 @@ export class SequenceComponent extends Component {
             .combineLatest(
                 this._navigator.stateService.currentNode$,
                 this._configuration$,
-                this._resize$,
-                (node: Node, configuration: ISequenceConfiguration): [Node, ISequenceConfiguration] => {
-                    return [node, configuration];
+                this._containerWidth$,
+                (node: Node, configuration: ISequenceConfiguration, containerWidth: number):
+                [Node, ISequenceConfiguration, number] => {
+                    return [node, configuration, containerWidth];
                 })
             .map<IVNodeHash>(
-                (nc: [Node, ISequenceConfiguration]): IVNodeHash => {
+                (nc: [Node, ISequenceConfiguration, number]): IVNodeHash => {
                     let node: Node = nc[0];
                     let configuration: ISequenceConfiguration = nc[1];
+                    let containerWidth: number = nc[2];
 
                     let vNode: vd.VNode = this._sequenceDOMRenderer
-                        .render(node, configuration, this, this._sequenceDOMInteraction, this._navigator);
+                        .render(
+                            node,
+                            configuration,
+                            containerWidth,
+                            this,
+                            this._sequenceDOMInteraction,
+                            this._navigator);
 
                     return {name: this._name, vnode: vNode };
                 })
             .subscribe(this._container.domRenderer.render$);
+
+        this._containerWidthSubscription = this._configuration$
+            .distinctUntilChanged(
+                (configuration: ISequenceConfiguration) => {
+                    return [configuration.minWidth, configuration.maxWidth];
+                },
+                (value1: [number, number], value2: [number, number]): boolean => {
+                    return value1[0] === value2[0] && value1[1] === value2[1];
+                })
+            .map<number>(
+                (configuration: ISequenceConfiguration): number => {
+                    return this._sequenceDOMRenderer.getContainerWidth(
+                        this._container.element,
+                        configuration);
+                })
+            .subscribe(this._containerWidth$);
 
         this._configurationSubscription = this._configurationOperation$
             .scan<ISequenceConfiguration>(
@@ -227,6 +264,7 @@ export class SequenceComponent extends Component {
         this._stopSubscription.dispose();
         this._renderSubscription.dispose();
         this._configurationSubscription.dispose();
+        this._containerWidthSubscription.dispose();
     }
 
     private _play(): void {
