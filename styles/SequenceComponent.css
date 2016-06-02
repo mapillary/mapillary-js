@@ -14,8 +14,11 @@
 .SequenceStepNextHighlight,
 .SequencePlay,
 .SequencePlayDisabled  {
-    background: lightgray;
+    display: flex;
     flex: auto;
+    align-items: center;
+    justify-content: center;
+    background: rgba(36,36,40, 0.3);
 }
 
 .SequenceStepPrev,
@@ -40,16 +43,49 @@
 .SequencePlay:hover {
     cursor: pointer;
     cursor: hand;
-    background: darkgray;
+    background: rgba(36, 37, 40, 0.6);
 }
 
 .SequenceStepPrevDisabled,
 .SequenceStepNextDisabled,
 .SequencePlayDisabled {
-    background: dimgray;
+    background: rgba(36,36,40, 0.30);
 }
 
 .SequenceStepPrevHighlight,
 .SequenceStepNextHighlight {
-    background: darkgray;
+    background: rgba(36, 37, 40, 0.6);
+}
+
+.SequenceStepPrev {
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+}
+
+.SequenceStepNext {
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+}
+
+.Play.icon {
+    background-image: url('./stepper-play.svg');
+}
+
+.Stop.icon {
+    background-image: url('./stepper-stop.svg');
+}
+
+.SequenceStepPrev .icon {
+    background-image: url('./stepper-left.svg');
+}
+
+.SequenceStepNext .icon {
+    background-image: url('./stepper-right.svg');
+}
+
+.icon {
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 50%;
+    padding-bottom: 50%;
 }

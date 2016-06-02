@@ -101,7 +101,7 @@ export class SequenceDOMRenderer {
 
         let buttonClass: string = canPlay ? "SequencePlay" : "SequencePlayDisabled";
 
-        let icon: vd.VNode = vd.h("span", { textContent: configuration.playing ? "s" : "p" }, []);
+        let icon: vd.VNode = vd.h("div.icon", { className: configuration.playing ? "Stop" : "Play" }, []);
 
         return vd.h("div." + buttonClass, buttonProperties, [icon]);
     }
@@ -139,8 +139,8 @@ export class SequenceDOMRenderer {
         let nextClass: string = this._getStepClassName(EdgeDirection.Next, nextKey, configuration.highlightKey);
         let prevClass: string = this._getStepClassName(EdgeDirection.Prev, prevKey, configuration.highlightKey);
 
-        let nextIcon: vd.VNode = vd.h("span", { textContent: "n" }, []);
-        let prevIcon: vd.VNode = vd.h("span", { textContent: "p" }, []);
+        let nextIcon: vd.VNode = vd.h("div.icon", []);
+        let prevIcon: vd.VNode = vd.h("div.icon", []);
 
         return [
             vd.h("div." + nextClass, nextProperties, [nextIcon]),
