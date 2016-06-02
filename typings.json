@@ -1,9 +1,9 @@
 {
   "name": "mapillary-js",
-  "ambientDevDependencies": {
+  "globalDevDependencies": {
     "jasmine": "github:DefinitelyTyped/DefinitelyTyped/jasmine/jasmine.d.ts#001ca36ba58cef903c4c063555afb07bbc36bb58"
   },
-  "ambientDependencies": {
+  "globalDependencies": {
     "falcor": "file:typings/created/falcor/falcor.d.ts",
     "falcor-http-datasource": "file:typings/created/falcor-http-datasource/falcor-http-datasource.d.ts",
     "graphlib": "file:typings/created/graphlib/graphlib.d.ts",

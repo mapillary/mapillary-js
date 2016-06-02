@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/browser.d.ts" />
+/// <reference path="../../../typings/index.d.ts" />
 
 import {IGPano} from "../../../src/API";
 import {RectGeometry, GeometryTagError} from "../../../src/Component";

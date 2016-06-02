@@ -1,4 +1,4 @@
-/// <reference path="../../typings/browser.d.ts" />
+/// <reference path="../../typings/index.d.ts" />
 
 import {IAPINavImIm, IAPINavImS} from "../../src/API";
 import {Node, Sequence} from "../../src/Graph";

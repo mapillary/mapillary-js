@@ -1,4 +1,4 @@
-/// <reference path="../../../../typings/browser.d.ts" />
+/// <reference path="../../../../typings/index.d.ts" />
 
 import {VertexGeometry, GeometryTagError} from "../../../Component";
 import {Transform} from "../../../Geo";

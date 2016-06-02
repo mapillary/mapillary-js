@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/browser.d.ts" />
+/// <reference path="../../../typings/index.d.ts" />
 
 import {ParameterMapillaryError} from "../../Error";
 import {IState} from "../../State";

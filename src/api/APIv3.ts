@@ -1,4 +1,4 @@
-/// <reference path="../../typings/browser.d.ts" />
+/// <reference path="../../typings/index.d.ts" />
 
 import * as falcor from "falcor";
 import * as HttpDataSource from "falcor-http-datasource";
