@@ -40,7 +40,7 @@ export class SequenceDOMRenderer {
         let arrows: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, node, configuration, interaction, navigator);
 
         let containerProperties: vd.createProperties = {
-            style: { height: "30px", width: "100px" },
+            style: { height: "30px", width: "117px" },
         };
 
         return vd.h("div.SequenceContainer", containerProperties, arrows.concat([playingButton]));
@@ -62,10 +62,7 @@ export class SequenceDOMRenderer {
         let buttonProperties: vd.createProperties = {
             onclick: onclick,
             style: {
-                height: "100%",
-                left: "33%",
-                position: "absolute",
-                width: "34%",
+
             },
         };
 
@@ -91,10 +88,7 @@ export class SequenceDOMRenderer {
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.onNext(EdgeDirection.Next); },
             onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.onNext(EdgeDirection.Next); },
             style: {
-                height: "100%",
-                left: "67%",
-                position: "absolute",
-                width: "33%",
+
             },
         };
 
@@ -105,15 +99,12 @@ export class SequenceDOMRenderer {
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.onNext(EdgeDirection.Prev); },
             onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.onNext(EdgeDirection.Prev); },
             style: {
-                height: "100%",
-                left: "0%",
-                position: "absolute",
-                width: "33%",
+
             },
         };
 
-        let nextClass: string = this._getStepClassName(nextKey, configuration.highlightKey);
-        let prevClass: string = this._getStepClassName(prevKey, configuration.highlightKey);
+        let nextClass: string = this._getStepClassName(EdgeDirection.Next, nextKey, configuration.highlightKey);
+        let prevClass: string = this._getStepClassName(EdgeDirection.Prev, prevKey, configuration.highlightKey);
 
         let nextIcon: vd.VNode = vd.h("span", { textContent: "n" }, []);
         let prevIcon: vd.VNode = vd.h("span", { textContent: "p" }, []);
@@ -124,12 +115,20 @@ export class SequenceDOMRenderer {
         ];
     }
 
-    private _getStepClassName(key: string, highlightKey: string): string {
-        if (highlightKey != null && highlightKey === key) {
-            return "SequenceStepHighlight";
+    private _getStepClassName(direction: EdgeDirection, key: string, highlightKey: string): string {
+        let className: string = direction === EdgeDirection.Next ?
+            "SequenceStepNext" :
+            "SequenceStepPrev";
+
+        if (key == null) {
+            return className + "Disabled";
         }
 
-        return key != null ? "SequenceStep" : "SequenceStepDisabled";
+        if (highlightKey != null && highlightKey === key) {
+            return className + "Highlight";
+        }
+
+        return className;
     }
 }
 

@@ -3,25 +3,53 @@
     left: 50%;
     top: 20px;
     transform: translate(-50%, 0);
+    display: flex;
 }
 
-.SequenceStep,
-.SequencePlay {
+.SequenceStepPrev,
+.SequenceStepPrevDisabled,
+.SequenceStepPrevHighlight,
+.SequenceStepNext,
+.SequenceStepNextDisabled,
+.SequenceStepNextHighlight,
+.SequencePlay,
+.SequencePlayDisabled  {
     background: lightgray;
+    flex: auto;
 }
 
-.SequenceStep:hover,
+.SequenceStepPrev,
+.SequenceStepPrevDisabled,
+.SequenceStepPrevHighlight {
+    order: 0;
+}
+
+.SequenceStepNext,
+.SequenceStepNextDisabled,
+.SequenceStepNextHighlight {
+    order: 2;
+}
+
+.SequencePlay,
+.SequencePlayDisabled {
+    order: 1;
+}
+
+.SequenceStepPrev:hover,
+.SequenceStepNext:hover,
 .SequencePlay:hover {
     cursor: pointer;
     cursor: hand;
     background: darkgray;
 }
 
-.SequenceStepDisabled,
+.SequenceStepPrevDisabled,
+.SequenceStepNextDisabled,
 .SequencePlayDisabled {
     background: dimgray;
 }
 
-.SequenceStepHighlight {
+.SequenceStepPrevHighlight,
+.SequenceStepNextHighlight {
     background: darkgray;
 }
