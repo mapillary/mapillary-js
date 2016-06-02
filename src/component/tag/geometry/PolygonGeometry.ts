@@ -1,34 +1,59 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-import {VertexGeometry} from "../../../Component";
+import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
 export class PolygonGeometry extends VertexGeometry {
-    private _vertices2d: number[][];
+    private _polygon: number[][];
 
-    constructor(vertices2d: number[][]) {
+    constructor(polygon: number[][]) {
         super();
 
-        this._vertices2d = [];
-        for (let vertex2d of vertices2d) {
-            this._vertices2d.push(vertex2d.slice());
+        let length: number = polygon.length;
+
+        if (length < 4) {
+            throw new GeometryTagError("A polygon must have four or more positions.");
+        }
+
+        if (polygon[0][0] !== polygon[length - 1][0] ||
+            polygon[0][1] !== polygon[length - 1][1]) {
+            throw new GeometryTagError("First and last positions must be equivalent.");
+        }
+
+        this._polygon = [];
+        for (let vertex of polygon) {
+            if (vertex[0] < 0 || vertex[0] > 1 ||
+                vertex[1] < 0 || vertex[1] > 1) {
+                throw new GeometryTagError("Basic coordinates must be on the interval [0, 1].");
+            }
+
+            this._polygon.push(vertex.slice());
         }
     }
 
+    public get polygon(): number[][] {
+        return this._polygon;
+    }
+
     public setVertex2d(index: number, value: number[], transform: Transform): void {
-        if (index === 0 || index === this._vertices2d.length - 1) {
-            this._vertices2d[0] = value.slice();
-            this._vertices2d[this._vertices2d.length - 1] = value.slice();
+        let changed: number[] = [
+            Math.max(0, Math.min(1, value[0])),
+            Math.max(0, Math.min(1, value[1])),
+        ];
+
+        if (index === 0 || index === this._polygon.length - 1) {
+            this._polygon[0] = changed.slice();
+            this._polygon[this._polygon.length - 1] = changed.slice();
         } else {
-            this._vertices2d[index] = value.slice();
+            this._polygon[index] = changed.slice();
         }
 
         this._notifyChanged$.onNext(this);
     }
 
     public setCentroid2d(value: number[], transform: Transform): void {
-        let xs: number[] = this._vertices2d.map((point: number[]): number => { return point[0]; });
-        let ys: number[] = this._vertices2d.map((point: number[]): number => { return point[1]; });
+        let xs: number[] = this._polygon.map((point: number[]): number => { return point[0]; });
+        let ys: number[] = this._polygon.map((point: number[]): number => { return point[1]; });
 
         let minX: number = Math.min.apply(Math, xs);
         let maxX: number = Math.max.apply(Math, xs);
@@ -45,7 +70,7 @@ export class PolygonGeometry extends VertexGeometry {
         let translationX: number = Math.max(minTranslationX, Math.min(maxTranslationX, value[0] - centroid[0]));
         let translationY: number = Math.max(minTranslationY, Math.min(maxTranslationY, value[1] - centroid[1]));
 
-        for (let point of this._vertices2d) {
+        for (let point of this._polygon) {
             point[0] += translationX;
             point[1] += translationY;
         }
@@ -58,7 +83,7 @@ export class PolygonGeometry extends VertexGeometry {
     }
 
     public getVertices3d(transform: Transform): number[][] {
-        return this._vertices2d
+        return this._polygon
             .map(
                 (point: number[]) => {
                     return transform.unprojectBasic(point, 200);
@@ -72,7 +97,7 @@ export class PolygonGeometry extends VertexGeometry {
     }
 
     private _getCentroid2d(): number[] {
-        let polygon: number[][] = this._vertices2d;
+        let polygon: number[][] = this._polygon;
 
         let area: number = 0;
         let centroidX: number = 0;

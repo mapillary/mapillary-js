@@ -5,14 +5,14 @@ import {PointGeometry, GeometryTagError} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
 import {Node} from "../../../src/Graph";
 
-describe("RectGeometry.ctor", () => {
+describe("PointGeometry.ctor", () => {
     it("should be defined", () => {
         let pointGeometry: PointGeometry = new PointGeometry([0.5, 0.5]);
 
         expect(pointGeometry).toBeDefined();
     });
 
-    it("rect should be set", () => {
+    it("point should be set", () => {
         let original: number[] = [0.5, 0.5]
 
         let pointGeometry: PointGeometry = new PointGeometry([0.5, 0.5]);
@@ -32,7 +32,7 @@ describe("RectGeometry.ctor", () => {
     });
 });
 
-describe("RectGeometry.setVertex2d", () => {
+describe("PointGeometry.setVertex2d", () => {
     let createTransform = (pano: boolean): Transform => {
         let gpano: IGPano = pano ?
             {
