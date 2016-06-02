@@ -1,9 +1,8 @@
 .mapillary-js {
-    background-color: #000;
-    width: 320px;
-    height: 240px;
     position: relative;
+    overflow: hidden;
     user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 .domRenderer {
@@ -12,19 +11,4 @@
     position: absolute;
     z-index: 10;
     overflow: hidden;
-}
-
-.rectContainer {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 10;
-}
-
-
-.Rect {
-    position: absolute;
-    outline: 2px solid lime;
 }
