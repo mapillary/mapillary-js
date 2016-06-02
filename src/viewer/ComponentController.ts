@@ -40,6 +40,10 @@ export class ComponentController {
         this._coverComponent.configure({loading: true, visible: true});
     }
 
+    public resize(): void {
+        this._componentService.resize();
+    }
+
     public activate(name: string): void {
         this._componentService.activate(name);
     }

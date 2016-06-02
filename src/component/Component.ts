@@ -69,6 +69,8 @@ export abstract class Component extends EventEmitter {
         this._activated$.onNext(false);
     };
 
+    public resize(): void { return; }
+
     protected abstract _deactivate(): void;
 
     public get activated(): boolean {

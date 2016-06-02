@@ -94,6 +94,12 @@ export class ComponentService {
         }
     }
 
+    public resize(): void {
+        for (let component of _.values(this._components)) {
+            component.component.resize();
+        }
+    }
+
     public get(name: string): Component {
         return this._components[name].component;
     }

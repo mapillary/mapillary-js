@@ -123,9 +123,13 @@ export class Viewer extends EventEmitter {
 
     /**
      * Detect the viewer's new width and height and resize it.
+     *
+     * @description The components will also detect the viewer's
+     * new size and resize their rendered elements if needed.
      */
     public resize(): void {
         this._container.renderService.resize$.onNext(null);
+        this._componentController.resize();
     }
 
     /**
