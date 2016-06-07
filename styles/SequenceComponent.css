@@ -6,25 +6,32 @@
     display: flex;
 }
 
-.SequenceStepPrev,
-.SequenceStepPrevDisabled,
-.SequenceStepPrevHighlight,
+.SequencePlay,
+.SequencePlayDisabled,
 .SequenceStepNext,
 .SequenceStepNextDisabled,
 .SequenceStepNextHighlight,
-.SequencePlay,
-.SequencePlayDisabled  {
+.SequenceStepPrev,
+.SequenceStepPrevDisabled,
+.SequenceStepPrevHighlight {
     display: flex;
     flex: auto;
     align-items: center;
     justify-content: center;
+}
+
+.SequencePlay,
+.SequencePlayDisabled,
+.SequenceStepNext,
+.SequenceStepNextDisabled,
+.SequenceStepPrev,
+.SequenceStepPrevDisabled {
     background: rgba(36,36,40, 0.3);
 }
 
-.SequenceStepPrev,
-.SequenceStepPrevDisabled,
+.SequenceStepNextHighlight,
 .SequenceStepPrevHighlight {
-    order: 0;
+    background: rgba(36, 37, 40, 0.6);
 }
 
 .SequenceStepNext,
@@ -33,54 +40,73 @@
     order: 2;
 }
 
+.SequenceStepPrev,
+.SequenceStepPrevDisabled,
+.SequenceStepPrevHighlight {
+    order: 0;
+}
+
 .SequencePlay,
 .SequencePlayDisabled {
     order: 1;
 }
 
-.SequenceStepPrev:hover,
+.SequencePlay:hover,
 .SequenceStepNext:hover,
-.SequencePlay:hover {
+.SequenceStepNextHighlight:hover,
+.SequenceStepPrev:hover,
+.SequenceStepPrevHighlight:hover {
     cursor: pointer;
     cursor: hand;
+}
+
+.SequencePlay:hover,
+.SequenceStepPrev:hover,
+.SequenceStepNext:hover {
     background: rgba(36, 37, 40, 0.6);
 }
 
-.SequenceStepPrevDisabled,
+.SequenceStepNext,
 .SequenceStepNextDisabled,
-.SequencePlayDisabled {
-    background: rgba(36,36,40, 0.30);
-}
-
-.SequenceStepPrevHighlight,
 .SequenceStepNextHighlight {
-    background: rgba(36, 37, 40, 0.6);
-}
-
-.SequenceStepPrev {
-    border-top-left-radius: 100px;
-    border-bottom-left-radius: 100px;
-}
-
-.SequenceStepNext {
     border-top-right-radius: 100px;
     border-bottom-right-radius: 100px;
 }
 
-.Play.icon {
+.SequenceStepPrev,
+.SequenceStepPrevDisabled,
+.SequenceStepPrevHighlight {
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+}
+
+.Play.icon,
+.PlayDisabled.icon {
     background-image: url('./stepper-play.svg');
 }
 
-.Stop.icon {
+.Stop.icon,
+.StopDisabled.icon {
     background-image: url('./stepper-stop.svg');
 }
 
-.SequenceStepPrev .icon {
+.SequenceStepPrev .icon,
+.SequenceStepPrevDisabled .icon,
+.SequenceStepPrevHighlight .icon {
     background-image: url('./stepper-left.svg');
 }
 
-.SequenceStepNext .icon {
+.SequenceStepNext .icon,
+.SequenceStepNextDisabled .icon,
+.SequenceStepNextHighlight .icon {
     background-image: url('./stepper-right.svg');
+}
+
+.PlayDisabled.icon,
+.SequenceStepNextDisabled .icon,
+.SequenceStepPrevDisabled .icon,
+.StopDisabled.icon {
+    opacity: 0.35;
 }
 
 .icon {

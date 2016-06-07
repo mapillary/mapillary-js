@@ -99,9 +99,13 @@ export class SequenceDOMRenderer {
             },
         };
 
-        let buttonClass: string = canPlay ? "SequencePlay" : "SequencePlayDisabled";
+        let iconClass: string = configuration.playing ?
+            "Stop" :
+            canPlay ? "Play" : "PlayDisabled";
 
-        let icon: vd.VNode = vd.h("div.icon", { className: configuration.playing ? "Stop" : "Play" }, []);
+        let icon: vd.VNode = vd.h("div.icon", { className: iconClass }, []);
+
+        let buttonClass: string = canPlay ? "SequencePlay" : "SequencePlayDisabled";
 
         return vd.h("div." + buttonClass, buttonProperties, [icon]);
     }
@@ -154,11 +158,11 @@ export class SequenceDOMRenderer {
             "SequenceStepPrev";
 
         if (key == null) {
-            return className + "Disabled";
-        }
-
-        if (highlightKey != null && highlightKey === key) {
-            return className + "Highlight";
+            className += "Disabled";
+        } else {
+            if (highlightKey === key) {
+                className += "Highlight";
+            }
         }
 
         return className;
