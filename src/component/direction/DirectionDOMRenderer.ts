@@ -438,11 +438,11 @@ export class DirectionDOMRenderer {
         onClick?: (e: Event) => void,
         shiftVertically?: boolean): vd.VNode {
 
-        let translation: Array<number> = this._calculator.angleToCoordinates(azimuth);
+        let translation: Array<number> = this._calculator.angleToCoordinates(azimuth - rotation.phi);
 
         // rotate 90 degrees clockwise and flip over X-axis
-        let translationX: number = -Math.round(radius * translation[1]);
-        let translationY: number = -Math.round(radius * translation[0]);
+        let translationX: number = Math.round(-radius * translation[1] + 0.5 * this._calculator.containerWidth);
+        let translationY: number = Math.round(-radius * translation[0] + 0.5 * this._calculator.containerHeight);
 
         let shadowTranslation: Array<number> = this._calculator.relativeAngleToCoordiantes(azimuth, rotation.phi);
         let shadowOffset: number = this._calculator.shadowOffset;
@@ -460,7 +460,7 @@ export class DirectionDOMRenderer {
 
         let chevron: vd.VNode = vd.h("div." + className, properties, []);
 
-        let azimuthDeg: number = -this._spatial.radToDeg(azimuth);
+        let azimuthDeg: number = -this._spatial.radToDeg(azimuth - rotation.phi);
         let circleTransform: string = shiftVertically ?
             `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg) translateZ(-0.01px)` :
             `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
@@ -494,8 +494,6 @@ export class DirectionDOMRenderer {
         rotation: IRotation,
         pano: boolean): vd.VNode {
 
-        let rotateZ: number = this._spatial.radToDeg(rotation.phi);
-
         let perspectiveStyle: any = {
             bottom: this._calculator.containerBottomCss,
             height: this._calculator.containerHeightCss,
@@ -505,14 +503,7 @@ export class DirectionDOMRenderer {
             width: this._calculator.containerWidthCss,
         };
 
-        let style: any = {
-            transform: `rotateZ(${rotateZ}deg)`,
-        };
-
-        return vd.h("div.DirectionsPerspective", { style: perspectiveStyle }, [
-                    turns,
-                    vd.h("div.Directions", { style: style }, steps),
-                ]);
+        return vd.h("div.DirectionsPerspective", { style: perspectiveStyle }, turns.concat(steps));
     }
 }
 
