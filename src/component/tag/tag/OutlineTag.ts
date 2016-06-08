@@ -377,16 +377,13 @@ export class OutlineTag extends Tag {
         // build a mesh using the 3d points
         let points3d: number[][] = this._geometry.getPoints3d(transform);
         let vertices: number[] = [];
-        let flatIndices: number[] = [];
         for (let i: number = 0; i < indices.length; ++i) {
             for (let j: number = 0; j < 3; ++j) {
-                flatIndices.push(indices[i][j]);
                 for (let k: number = 0; k < 3; ++k) {
                     vertices.push(points3d[indices[i][j]][k]);
                 }
             }
         }
-        console.log(flatIndices);
         let vertexArray: Float32Array = new Float32Array(vertices);
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
         geometry.addAttribute("position", new THREE.BufferAttribute(vertexArray, 3));
