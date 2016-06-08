@@ -40,10 +40,11 @@ interface ITagGLRendererOperation extends Function {
 }
 
 /**
- * @class TagCompoennt
- * @classdesc Component for showing and editing tags with rectangle geometries.
+ * @class TagComponent
+ * @classdesc Component for showing and editing tags with different geometries.
  */
 export class TagComponent extends Component {
+    /** @inheritdoc */
     public static componentName: string = "tag";
 
     /**

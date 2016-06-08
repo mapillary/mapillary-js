@@ -20,7 +20,13 @@ interface IConfigurationOperation {
     (configuration: ISequenceConfiguration): ISequenceConfiguration;
 }
 
+/**
+ * @class SequenceComponent
+ * @classdesc Component showing navigation arrows for sequence directions
+ * as well as playing button. Exposes an API to start and stop play.
+ */
 export class SequenceComponent extends Component {
+    /** @inheritdoc */
     public static componentName: string = "sequence";
 
     /**
@@ -75,6 +81,11 @@ export class SequenceComponent extends Component {
             .share();
     }
 
+   /**
+    * Get default configuration.
+    *
+    * @returns {ISequenceConfiguration}
+    */
     public get defaultConfiguration(): ISequenceConfiguration {
         return {
             direction: EdgeDirection.Next,
@@ -85,6 +96,15 @@ export class SequenceComponent extends Component {
         };
     }
 
+    /**
+     * Get hovered key observable.
+     *
+     * @description An observable emitting the key of the node for the direction
+     * arrow that is being hovered. When the mouse leaves a direction arrow null
+     * is emitted.
+     *
+     * @returns {Observable<string>}
+     */
     public get hoveredKey$(): rx.Observable<string> {
         return this._hoveredKey$;
     }
@@ -116,10 +136,19 @@ export class SequenceComponent extends Component {
         this.configure({ direction: direction });
     }
 
+    /**
+     * Set highlight key.
+     *
+     * @description The arrow pointing towards the node corresponding to the
+     * highlight key will be highlighted.
+     *
+     * @param {string} highlightKey Key of node to be highlighted if existing.
+     */
     public setHighlightKey(highlightKey: string): void {
         this.configure({ highlightKey: highlightKey });
     }
 
+    /** @inheritdoc */
     public resize(): void {
         this._configuration$
             .first()

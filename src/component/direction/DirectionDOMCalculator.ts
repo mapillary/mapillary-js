@@ -1,6 +1,10 @@
 import {IDirectionConfiguration} from "../../Component";
 import {Spatial} from "../../Geo";
 
+/**
+ * @class DirectionDOMCalculator
+ * @classdesc Helper class for calculating DOM CSS properties.
+ */
 export class DirectionDOMCalculator {
     private _spatial: Spatial;
 

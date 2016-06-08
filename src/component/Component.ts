@@ -5,6 +5,9 @@ import {EventEmitter} from "../Utils";
 import * as rx from "rx";
 
 export abstract class Component extends EventEmitter {
+    /**
+     * Component name. Used when interacting with component through the Viewer's API.
+     */
     public static componentName: string = "not_worthy";
 
     protected _activated: boolean;
@@ -41,6 +44,22 @@ export abstract class Component extends EventEmitter {
         this._configuration$.subscribe();
     }
 
+    public get activated(): boolean {
+        return this._activated;
+    }
+
+    public get activated$(): rx.Observable<boolean> {
+        return this._activated$;
+    }
+
+    public get defaultConfiguration(): IComponentConfiguration {
+        return {};
+    }
+
+    public get configuration$(): rx.Observable<IComponentConfiguration> {
+        return this._configuration$;
+    }
+
     public activate(conf?: IComponentConfiguration): void {
         if (this._activated) {
             return;
@@ -55,7 +74,9 @@ export abstract class Component extends EventEmitter {
         this._activated$.onNext(true);
     };
 
-    protected abstract _activate(): void;
+    public configure(conf: IComponentConfiguration): void {
+        this._configurationSubject$.onNext(conf);
+    }
 
     public deactivate(): void {
         if (!this._activated) {
@@ -69,29 +90,15 @@ export abstract class Component extends EventEmitter {
         this._activated$.onNext(false);
     };
 
+    /**
+     * Detect the viewer's new width and height and resize the component's
+     * rendered elements accordingly if applicable.
+     */
     public resize(): void { return; }
 
+    protected abstract _activate(): void;
+
     protected abstract _deactivate(): void;
-
-    public get activated(): boolean {
-        return this._activated;
-    }
-
-    public get activated$(): rx.Observable<boolean> {
-        return this._activated$;
-    }
-
-    public configure(conf: IComponentConfiguration): void {
-        this._configurationSubject$.onNext(conf);
-    }
-
-    public get defaultConfiguration(): IComponentConfiguration {
-        return {};
-    }
-
-    public get configuration$(): rx.Observable<IComponentConfiguration> {
-        return this._configuration$;
-    }
 }
 
 export default Component;

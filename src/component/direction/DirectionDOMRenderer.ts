@@ -11,6 +11,10 @@ import {RenderCamera} from "../../Render";
 import {IRotation} from "../../State";
 import {Navigator} from "../../Viewer";
 
+/**
+ * @class DirectionDOMRenderer
+ * @classdesc DOM renderer for direction arrows.
+ */
 export class DirectionDOMRenderer {
     private _spatial: Spatial;
     private _calculator: DirectionDOMCalculator;

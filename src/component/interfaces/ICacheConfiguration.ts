@@ -1,5 +1,10 @@
 import {IComponentConfiguration} from "../../Component";
 
+/**
+ * Interface for configuration of cache depth.
+ *
+ * @interface
+ */
 export interface ICacheDepth {
     /**
      * Cache depth in the sequence directions.
@@ -38,7 +43,15 @@ export interface ICacheDepth {
     turn: number;
 }
 
+/**
+ * Interface for configuration of cache component.
+ *
+ * @interface
+ */
 export interface ICacheConfiguration extends IComponentConfiguration {
+    /**
+     * Cache depth struct.
+     */
     depth?: ICacheDepth;
 }
 
