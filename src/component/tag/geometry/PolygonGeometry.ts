@@ -35,6 +35,10 @@ export class PolygonGeometry extends VertexGeometry {
         return this._polygon;
     }
 
+    public getVertices2d(transform: Transform): number[][] {
+        return this._polygon;
+    }
+
     public setVertex2d(index: number, value: number[], transform: Transform): void {
         let changed: number[] = [
             Math.max(0, Math.min(1, value[0])),

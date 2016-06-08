@@ -17,7 +17,7 @@ export interface IOutlineTagOptions {
     icon?: string;
 
     /**
-     * Color for the edge lines of the color specified as a hexadecimal number.
+     * Color for the edge lines as a hexadecimal number.
      * @default 0xFFFFFF
      */
     lineColor?: number;
@@ -27,6 +27,18 @@ export interface IOutlineTagOptions {
      * @default 1
      */
     lineWidth?: number;
+
+    /**
+     * Color for the interior fill as a hexadecimal number.
+     * @default 0x008888
+     */
+    fillColor?: number;
+
+    /**
+     * Opacity of the interior fill between 0 and 1.
+     * @default 0.3
+     */
+    fillOpacity?: number;
 
     /**
      * Text shown as label if no icon is provided.

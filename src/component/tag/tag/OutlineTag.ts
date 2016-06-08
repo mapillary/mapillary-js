@@ -23,6 +23,8 @@ export class OutlineTag extends Tag {
     private _icon: string;
     private _lineColor: number;
     private _lineWidth: number;
+    private _fillColor: number;
+    private _fillOpacity: number;
     private _text: string;
     private _textColor: number;
 
@@ -43,6 +45,8 @@ export class OutlineTag extends Tag {
         this._icon = options.icon ? options.icon : null;
         this._lineColor = options.lineColor ? options.lineColor : 0xFFFFFF;
         this._lineWidth = options.lineWidth ? options.lineWidth : 1;
+        this._fillColor = options.fillColor ? options.fillColor : 0x008888;
+        this._fillOpacity = options.fillOpacity ? options.fillOpacity : 0.3;
         this._text = options.text ? options.text : null;
         this._textColor = options.textColor ? options.textColor : 0xFFFFFF;
     }
@@ -124,6 +128,44 @@ export class OutlineTag extends Tag {
     }
 
     /**
+     * Get fill color property.
+     * @returns {number}
+     */
+    public get fillColor(): number {
+        return this._fillColor;
+    }
+
+    /**
+     * Set fill color property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
+    public set fillColor(value: number) {
+        this._fillColor = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
+     * Get fill opacity property.
+     * @returns {number}
+     */
+    public get fillOpacity(): number {
+        return this._fillOpacity;
+    }
+
+    /**
+     * Set fill opacity property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
+    public set fillOpacity(value: number) {
+        this._fillOpacity = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
      * Get text property.
      * @returns {string}
      */
@@ -162,20 +204,8 @@ export class OutlineTag extends Tag {
     }
 
     public getGLObjects(transform: Transform): THREE.Object3D[] {
-        let points3d: number[][] = this._geometry.getPoints3d(transform);
-        let positions: Float32Array = this._getPositions(points3d);
-
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-        let material: THREE.LineBasicMaterial =
-            new THREE.LineBasicMaterial(
-                {
-                    color: this._lineColor,
-                    linewidth: this._lineWidth,
-                });
-
-        return [new THREE.Line(geometry, material)];
+        return [this._getGLLine(transform),
+                this._getGLMesh(transform)];
     }
 
     public getDOMObjects(
@@ -316,6 +346,57 @@ export class OutlineTag extends Tag {
         }
 
         return positions;
+    }
+
+    private _getGLLine(transform: Transform): THREE.Object3D {
+        let points3d: number[][] = this._geometry.getPoints3d(transform);
+        let positions: Float32Array = this._getPositions(points3d);
+
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        let material: THREE.LineBasicMaterial =
+            new THREE.LineBasicMaterial(
+                {
+                    color: this._lineColor,
+                    linewidth: this._lineWidth,
+                });
+
+        return new THREE.Line(geometry, material);
+    }
+
+    private _getGLMesh(transform: Transform): THREE.Object3D {
+        // triangulate the 2d points
+        let points2d: number[][] = this._geometry.getVertices2d(transform);
+        let contour: any = points2d.map((point: number[]): THREE.Vector2 => {
+            return new THREE.Vector2(point[0], point[1]);
+        });
+        contour.pop();
+        let indices: any = THREE.ShapeUtils.triangulate(contour, true);
+
+        // build a mesh using the 3d points
+        let points3d: number[][] = this._geometry.getPoints3d(transform);
+        let vertices: number[] = [];
+        let flatIndices: number[] = [];
+        for (let i: number = 0; i < indices.length; ++i) {
+            for (let j: number = 0; j < 3; ++j) {
+                flatIndices.push(indices[i][j]);
+                for (let k: number = 0; k < 3; ++k) {
+                    vertices.push(points3d[indices[i][j]][k]);
+                }
+            }
+        }
+        console.log(flatIndices);
+        let vertexArray: Float32Array = new Float32Array(vertices);
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        geometry.addAttribute("position", new THREE.BufferAttribute(vertexArray, 3));
+        let material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
+            color: this._fillColor,
+            opacity: this._fillOpacity,
+            side: THREE.BackSide,
+            transparent: true,
+        });
+        return new THREE.Mesh(geometry, material);
     }
 }
 

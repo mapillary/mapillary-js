@@ -50,6 +50,10 @@ export class RectGeometry extends VertexGeometry {
         return this._rect;
     }
 
+    public getVertices2d(transform: Transform): number[][] {
+        return this._rectToVertices2d(this._rect);
+    }
+
     /**
      * Set the value of a vertex in the polygon representation of the rectangle.
      *
