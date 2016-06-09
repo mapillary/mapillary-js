@@ -76,10 +76,20 @@ export class DirectionDOMRenderer {
         this._turnNames[EdgeDirection.TurnU] = "TurnAround";
     }
 
+    /**
+     * Get needs render.
+     *
+     * @returns {boolean} Value indicating whether render should be called.
+     */
     public get needsRender(): boolean {
         return this._needsRender;
     }
 
+    /**
+     * Renders virtual DOM elements.
+     *
+     * @description Calling render resets the needs render property.
+     */
     public render(navigator: Navigator): vd.VNode {
         this._needsRender = false;
 
@@ -99,13 +109,23 @@ export class DirectionDOMRenderer {
         return this._getContainer(steps, turns, rotation, this._node.pano);
     }
 
+    /**
+     * Set node for which to show edges.
+     *
+     * @param {Node} node
+     */
     public setNode(node: Node): void {
         this._node = node;
         this._setEdges(node);
 
-        this._needsRender = true;
+        this._setNeedsRender();
     }
 
+    /**
+     * Set the render camera to use for calculating rotations.
+     *
+     * @param {RenderCamera} renderCamera
+     */
     public setRenderCamera(renderCamera: RenderCamera): void {
         let camera: Camera = renderCamera.camera;
 
@@ -118,11 +138,14 @@ export class DirectionDOMRenderer {
 
         this._rotation = rotation;
 
-        if (this._node != null) {
-            this._needsRender = true;
-        }
+        this._setNeedsRender();
     }
 
+    /**
+     * Set configuration values.
+     *
+     * @param {IDirectionConfiguration} configuration
+     */
     public setConfiguration(configuration: IDirectionConfiguration): void {
         let needsRender: boolean = false;
         if (this._highlightKey !== configuration.highlightKey ||
@@ -139,15 +162,27 @@ export class DirectionDOMRenderer {
             needsRender = true;
         }
 
-        if (needsRender && this._node != null) {
-            this._needsRender = true;
+        if (needsRender) {
+            this._setNeedsRender();
         }
     }
 
+    /**
+     * Detect the element's width and height and resize
+     * elements accordingly.
+     *
+     * @param {HTMLElement} element Viewer container element.
+     */
     public resize(element: HTMLElement): void {
         this._calculator.resize(element);
 
-        this._needsRender = true;
+        this._setNeedsRender();
+    }
+
+    private _setNeedsRender(): void {
+        if (this._node != null) {
+            this._needsRender = true;
+        }
     }
 
     private _setEdges(node: Node): void {
