@@ -209,6 +209,23 @@ export class RectGeometry extends VertexGeometry {
      * representing the rectangle.
      */
     public getPoints3d(transform: Transform): number[][] {
+        return this.getPoints2d(transform)
+            .map(
+                (point: number[]) => {
+                    return transform.unprojectBasic(point, 200);
+                });
+    }
+
+    /**
+     * Get the 2D coordinates for the vertices of the rectangle with
+     * interpolated points along the lines.
+     *
+     * @param {Transform} transform - The transform of the node related to
+     * the rectangle.
+     * @returns {Array<Array<number>>} Polygon array of 2D basic coordinates
+     * representing the rectangle.
+     */
+    public getPoints2d(transform: Transform): number[][] {
         let vertices2d: number[][] = this._rectToVertices2d(this._rect);
 
         let sides: number = vertices2d.length - 1;
@@ -236,11 +253,7 @@ export class RectGeometry extends VertexGeometry {
             }
         }
 
-        return points2d
-            .map(
-                (point: number[]) => {
-                    return transform.unprojectBasic(point, 200);
-                });
+        return points2d;
     }
 
     /**

@@ -367,7 +367,7 @@ export class OutlineTag extends Tag {
 
     private _getGLMesh(transform: Transform): THREE.Object3D {
         // triangulate the 2d points
-        let points2d: number[][] = this._geometry.getVertices2d(transform);
+        let points2d: number[][] = this._geometry.getPoints2d(transform);
         let contour: any = points2d.map((point: number[]): THREE.Vector2 => {
             return new THREE.Vector2(point[0], point[1]);
         });

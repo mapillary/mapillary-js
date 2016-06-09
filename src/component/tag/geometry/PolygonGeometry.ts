@@ -35,6 +35,10 @@ export class PolygonGeometry extends VertexGeometry {
         return this._polygon;
     }
 
+    public getPoints2d(transform: Transform): number[][] {
+        return this.getVertices2d(transform);
+    }
+
     public getVertices2d(transform: Transform): number[][] {
         return this._polygon;
     }
