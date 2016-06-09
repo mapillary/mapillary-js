@@ -23,54 +23,22 @@ export class DirectionComponent extends Component {
 
     private _renderer: DirectionDOMRenderer;
 
+    private _hoveredKeySubject$: rx.Subject<string>;
     private _hoveredKey$: rx.Observable<string>;
 
     private _configurationSubscription: rx.IDisposable;
     private _nodeSubscription: rx.IDisposable;
     private _renderCameraSubscription: rx.IDisposable;
+    private _hoveredKeySubscription: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
         this._renderer = new DirectionDOMRenderer(this.defaultConfiguration, container.element);
 
-        this._hoveredKey$ = rx.Observable
-            .combineLatest(
-                this._container.domRenderer.element$,
-                this._container.renderService.renderCamera$,
-                this._container.mouseService.mouseMove$.startWith(null),
-                this._container.mouseService.mouseUp$.startWith(null),
-                (e: Element, rc: RenderCamera, mm: MouseEvent, mu: MouseEvent): Element => {
-                    return e;
-                })
-            .map<string>(
-                (element: Element): string => {
-                    let hovered: Element = null;
+        this._hoveredKeySubject$ = new rx.Subject<string>();
 
-                    let steps: NodeListOf<Element> = element.getElementsByClassName("Directions");
-
-                    for (let i: number = 0; i < steps.length; i++) {
-                        hovered = steps.item(i).querySelector(":hover");
-
-                        if (hovered != null && hovered.hasAttribute("data-key")) {
-                            return hovered.getAttribute("data-key");
-                        }
-                    }
-
-                    let turns: NodeListOf<Element> = element.getElementsByClassName("DirectionsPerspective");
-
-                    for (let i: number = 0; i < steps.length; i++) {
-                        hovered = turns.item(i).querySelector(":hover");
-
-                        if (hovered != null && hovered.hasAttribute("data-key")) {
-                            return hovered.getAttribute("data-key");
-                        }
-                    }
-
-                    return null;
-                })
-            .distinctUntilChanged()
-            .share();
+        this._hoveredKey$ = this._hoveredKeySubject$.share();
     }
 
    /**
@@ -184,12 +152,39 @@ export class DirectionComponent extends Component {
                     return { name: this._name, vnode: renderer.render(this._navigator) };
                 })
             .subscribe(this._container.domRenderer.render$);
+
+        this._hoveredKeySubscription = rx.Observable
+            .combineLatest(
+                this._container.domRenderer.element$,
+                this._container.renderService.renderCamera$,
+                this._container.mouseService.mouseMove$.startWith(null),
+                this._container.mouseService.mouseUp$.startWith(null),
+                (e: Element, rc: RenderCamera, mm: MouseEvent, mu: MouseEvent): Element => {
+                    return e;
+                })
+            .map<string>(
+                (element: Element): string => {
+                    let elements: NodeListOf<Element> = element.getElementsByClassName("DirectionsPerspective");
+
+                    for (let i: number = 0; i < elements.length; i++) {
+                        let hovered: Element = elements.item(i).querySelector(":hover");
+
+                        if (hovered != null && hovered.hasAttribute("data-key")) {
+                            return hovered.getAttribute("data-key");
+                        }
+                    }
+
+                    return null;
+                })
+            .distinctUntilChanged()
+            .subscribe(this._hoveredKeySubject$);
     }
 
     protected _deactivate(): void {
         this._configurationSubscription.dispose();
         this._nodeSubscription.dispose();
         this._renderCameraSubscription.dispose();
+        this._hoveredKeySubscription.dispose();
     }
 }
 
