@@ -5,6 +5,7 @@ import * as vd from "virtual-dom";
 
 import {
     VertexGeometry,
+    PolygonGeometry,
     IOutlineTagOptions,
     Tag,
     TagOperation,
@@ -204,8 +205,12 @@ export class OutlineTag extends Tag {
     }
 
     public getGLObjects(transform: Transform): THREE.Object3D[] {
-        return [this._getGLLine(transform),
-                this._getGLMesh(transform)];
+        let objects: THREE.Object3D[] = [];
+        objects.push(this._getGLLine(transform));
+        if (this._geometry instanceof PolygonGeometry) {
+            objects.push(this._getGLMesh(transform));
+        }
+        return objects
     }
 
     public getDOMObjects(
