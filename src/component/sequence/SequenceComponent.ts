@@ -293,13 +293,13 @@ export class SequenceComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this.stop();
-
         this._stopSubscription.dispose();
         this._renderSubscription.dispose();
         this._configurationSubscription.dispose();
         this._containerWidthSubscription.dispose();
         this._hoveredKeySubscription.dispose();
+
+        this.stop();
     }
 
     private _play(): void {

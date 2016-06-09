@@ -98,7 +98,7 @@ export class TraversingState extends StateBase {
         this._minZoom = 0;
         this._maxZoom = 3;
 
-        this._desiredLookat = new THREE.Vector3();
+        this._desiredLookat = null;
     }
 
     public traverse(): StateBase {

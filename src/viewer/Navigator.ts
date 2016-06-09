@@ -18,6 +18,7 @@ export class Navigator {
     public apiV3: APIv3;
 
     private _keyRequested$: rx.BehaviorSubject<string> = new rx.BehaviorSubject<string>(null);
+    private _movedToKey$: rx.Subject<string> = new rx.Subject<string>();
     private _dirRequested$: rx.BehaviorSubject<EdgeDirection> = new rx.BehaviorSubject<EdgeDirection>(null);
     private _latLonRequested$: rx.BehaviorSubject<ILatLon> = new rx.BehaviorSubject<ILatLon>(null);
 
@@ -37,6 +38,7 @@ export class Navigator {
             .map<Node>((node: Node) => {
                 this.loadingService.stopLoading("navigator");
                 this.stateService.setNodes([node]);
+                this._movedToKey$.onNext(node.key);
                 return node;
             })
             .first();
@@ -73,6 +75,10 @@ export class Navigator {
 
     public get keyRequested$(): rx.Observable<string> {
         return this._keyRequested$;
+    }
+
+    public get movedToKey$(): rx.Observable<string> {
+        return this._movedToKey$;
     }
 }
 

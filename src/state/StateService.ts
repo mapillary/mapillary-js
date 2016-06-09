@@ -100,6 +100,10 @@ export class StateService {
                 (frameId: number, fps: number, context: IStateContext): [number, number, IStateContext] => {
                     return [frameId, fps, context];
                 })
+            .filter(
+                (fc: [number, number, IStateContext]): boolean => {
+                    return fc[2].currentNode != null;
+                })
             .do(
                 (fc: [number, number, IStateContext]): void => {
                     fc[2].update(fc[1]);
@@ -111,10 +115,6 @@ export class StateService {
             .share();
 
         let nodeChanged$: rx.Observable<IFrame> = this._currentState$
-            .filter(
-                (f: IFrame): boolean => {
-                    return f.state.currentNode != null;
-                })
             .distinctUntilChanged(
                 (f: IFrame): string => {
                     return f.state.currentNode.key;

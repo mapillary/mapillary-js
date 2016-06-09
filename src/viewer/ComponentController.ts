@@ -17,43 +17,49 @@ export class ComponentController {
         this._options = options;
         this._key = key;
         this._componentService = new ComponentService(this._container, this._navigator);
+        this._coverComponent = <CoverComponent>this._componentService.getCover();
+
+        this._initializeComponents();
 
         if (key) {
-            this._initializeComponents();
+            this._initilizeCoverComponent();
+            this._subscribeCoverComponent();
         } else {
-            this._navigator.loadingService.loading$
-                .filter((loading: boolean) => { return loading; }).first().subscribe((loading: boolean) => {
-                    this._navigator.stateService.start();
-                    this._navigator.stateService.currentNode$.first().subscribe((node: Node) => {
-                        this._key = node.key;
-                        this._initializeComponents();
+            this._navigator.movedToKey$
+                .first()
+                .subscribe(
+                    (movedToKey: string): void => {
+                        this._key = movedToKey;
+                        this._componentService.deactivateCover();
+                        this._coverComponent.configure({ key: this._key, loading: false, visible: false });
+                        this._subscribeCoverComponent();
+                        this._navigator.stateService.start();
                     });
-                });
         }
     }
 
-    public activateCover(): void {
-        this._coverComponent.configure({loading: false, visible: true});
-    }
-
-    public deactivateCover(): void {
-        this._coverComponent.configure({loading: true, visible: true});
-    }
-
-    public resize(): void {
-        this._componentService.resize();
+    public get(name: string): Component {
+        return this._componentService.get(name);
     }
 
     public activate(name: string): void {
         this._componentService.activate(name);
     }
 
+    public activateCover(): void {
+        this._coverComponent.configure({ loading: false, visible: true });
+    }
+
     public deactivate(name: string): void {
         this._componentService.deactivate(name);
     }
 
-    public get(name: string): Component {
-        return this._componentService.get(name);
+    public deactivateCover(): void {
+        this._coverComponent.configure({ loading: true, visible: true });
+    }
+
+    public resize(): void {
+        this._componentService.resize();
     }
 
     private _initializeComponents(): void {
@@ -62,12 +68,13 @@ export class ComponentController {
         this._uFalse(options.background, "background");
         this._uFalse(options.debug, "debug");
         this._uFalse(options.detection, "detection");
-        this._uFalse(options.tag, "tag");
         this._uFalse(options.image, "image");
         this._uFalse(options.marker, "marker");
         this._uFalse(options.navigation, "navigation");
         this._uFalse(options.route, "route");
         this._uFalse(options.slider, "slider");
+        this._uFalse(options.tag, "tag");
+
         this._uTrue(options.attribution, "attribution");
         this._uTrue(options.cache, "cache");
         this._uTrue(options.direction, "direction");
@@ -76,21 +83,25 @@ export class ComponentController {
         this._uTrue(options.loading, "loading");
         this._uTrue(options.mouse, "mouse");
         this._uTrue(options.sequence, "sequence");
+    }
 
-        this._coverComponent = <CoverComponent> this._componentService.getCover();
+    private _initilizeCoverComponent(): void {
+        let options: IViewerOptions = this._options;
 
-        this._coverComponent.configure({key: this._key});
+        this._coverComponent.configure({ key: this._key });
         if (options.cover === undefined || options.cover) {
             this.activateCover();
         } else {
             this.deactivateCover();
         }
+    }
 
+    private _subscribeCoverComponent(): void {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
                 this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
                     this._navigator.stateService.start();
-                    this._coverComponent.configure({loading: false, visible: false});
+                    this._coverComponent.configure({ loading: false, visible: false });
                     this._componentService.deactivateCover();
                 });
             } else if (conf.visible) {

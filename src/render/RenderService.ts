@@ -78,15 +78,15 @@ export class RenderService {
                             rc.camera.diff(camera) > 0.00001) {
 
                             let currentTransform: Transform = frame.state.currentTransform;
-                            let previousTransform: Transform = frame.state.previousTransform;
-                            if (previousTransform == null) {
-                                previousTransform = frame.state.currentTransform;
-                            }
+                            let previousTransform: Transform =
+                                frame.state.previousTransform != null ?
+                                    frame.state.previousTransform :
+                                    frame.state.currentTransform;
 
-                            let previousNode: Node = frame.state.previousNode;
-                            if (previousNode == null) {
-                                previousNode = frame.state.currentNode;
-                            }
+                            let previousNode: Node =
+                                frame.state.previousNode != null ?
+                                    frame.state.previousNode :
+                                    frame.state.currentNode;
 
                             rc.currentAspect = currentTransform.aspect;
                             rc.currentOrientation = currentTransform.orientation;
