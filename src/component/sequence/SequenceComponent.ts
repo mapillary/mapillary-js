@@ -42,12 +42,14 @@ export class SequenceComponent extends Component {
     private _nodesAhead: number = 5;
 
     private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
+    private _hoveredKeySubject$: rx.Subject<string>;
     private _hoveredKey$: rx.Observable<string>;
     private _containerWidth$: rx.Subject<number>;
 
     private _configurationSubscription: rx.IDisposable;
     private _renderSubscription: rx.IDisposable;
     private _containerWidthSubscription: rx.IDisposable;
+    private _hoveredKeySubscription: rx.IDisposable;
 
     private _playingSubscription: rx.IDisposable;
     private _stopSubscription: rx.IDisposable;
@@ -59,26 +61,9 @@ export class SequenceComponent extends Component {
         this._sequenceDOMInteraction = new SequenceDOMInteraction();
 
         this._containerWidth$ = new rx.Subject<number>();
+        this._hoveredKeySubject$ = new rx.Subject<string>();
 
-        this._hoveredKey$ = this._sequenceDOMInteraction.mouseEnterDirection$
-            .flatMapLatest<string>(
-                (direction: EdgeDirection): rx.Observable<string> => {
-                    return this._navigator.stateService.currentNode$
-                        .map<string>(
-                            (node: Node): string => {
-                                for (let edge of node.edges) {
-                                    if (edge.data.direction === direction) {
-                                        return edge.to;
-                                    }
-                                }
-
-                                return null;
-                            })
-                        .takeUntil(this._sequenceDOMInteraction.mouseLeaveDirection$)
-                        .concat(rx.Observable.just<string>(null));
-                })
-            .distinctUntilChanged()
-            .share();
+        this._hoveredKey$ = this._hoveredKeySubject$.share();
     }
 
    /**
@@ -285,6 +270,26 @@ export class SequenceComponent extends Component {
                     return { playing: false };
                 })
             .subscribe(this._configurationSubject$);
+
+        this._hoveredKeySubscription = this._sequenceDOMInteraction.mouseEnterDirection$
+            .flatMapLatest<string>(
+                (direction: EdgeDirection): rx.Observable<string> => {
+                    return this._navigator.stateService.currentNode$
+                        .map<string>(
+                            (node: Node): string => {
+                                for (let edge of node.edges) {
+                                    if (edge.data.direction === direction) {
+                                        return edge.to;
+                                    }
+                                }
+
+                                return null;
+                            })
+                        .takeUntil(this._sequenceDOMInteraction.mouseLeaveDirection$)
+                        .concat(rx.Observable.just<string>(null));
+                })
+            .distinctUntilChanged()
+            .subscribe(this._hoveredKeySubject$);
     }
 
     protected _deactivate(): void {
@@ -294,6 +299,7 @@ export class SequenceComponent extends Component {
         this._renderSubscription.dispose();
         this._configurationSubscription.dispose();
         this._containerWidthSubscription.dispose();
+        this._hoveredKeySubscription.dispose();
     }
 
     private _play(): void {
