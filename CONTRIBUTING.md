@@ -4,7 +4,7 @@
 
 Install [GNU Make](http://www.gnu.org/software/make/) and [git](https://git-scm.com/):
 ```bash
-sudo apt-get update
+sudo apt-get update &&
 sudo apt-get install build-essential git
 ```
 
@@ -17,7 +17,7 @@ git clone https://github.com/mapillary/mapillary-js.git
 
 Change to the mapillary-js directory and install node module dependencies:
 ```bash
-cd mapillary-js
+cd mapillary-js &&
 npm install
 ```
 
@@ -43,7 +43,7 @@ git clone https://github.com/mapillary/mapillary-js.git
 
 Change to the mapillary-js directory and install node module dependencies:
 ```bash
-cd mapillary-js
+cd mapillary-js &&
 npm install
 ```
 
