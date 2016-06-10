@@ -256,6 +256,10 @@ export class RectGeometry extends VertexGeometry {
         return points2d;
     }
 
+    public getVertex3d(index: number, transform: Transform): number[] {
+        return transform.unprojectBasic(this._rectToVertices2d(this._rect)[index], 200);
+    }
+
     /**
      * Get a polygon representation of the 3D coordinates for the vertices of the rectangle.
      *

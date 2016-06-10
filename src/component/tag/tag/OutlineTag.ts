@@ -210,7 +210,7 @@ export class OutlineTag extends Tag {
         if (this._geometry instanceof PolygonGeometry) {
             objects.push(this._getGLMesh(transform));
         }
-        return objects
+        return objects;
     }
 
     public getDOMObjects(
@@ -221,13 +221,14 @@ export class OutlineTag extends Tag {
         vd.VNode[] {
 
         let vNodes: vd.VNode[] = [];
-        let vertices3d: number[][] = this._geometry.getVertices3d(transform);
 
         let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
             this._abort$.onNext(this._id);
         };
 
-        let symbolVertex: THREE.Vector3 = this._convertToCameraSpace(vertices3d[3], matrixWorldInverse);
+        let aVertex: number[] = this._geometry.getVertex3d(3, transform);
+
+        let symbolVertex: THREE.Vector3 = this._convertToCameraSpace(aVertex, matrixWorldInverse);
         if (symbolVertex.z < 0) {
             let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
                 this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
@@ -278,6 +279,7 @@ export class OutlineTag extends Tag {
             return vNodes;
         }
 
+        let vertices3d: number[][] = this._geometry.getVertices3d(transform);
         let lineColor: string = "#" + ("000000" + this._lineColor.toString(16)).substr(-6);
 
         for (let i: number = 0; i < vertices3d.length - 1; i++) {

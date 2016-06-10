@@ -90,6 +90,10 @@ export class PolygonGeometry extends VertexGeometry {
         return this.getVertices3d(transform);
     }
 
+    public getVertex3d(index: number, transform: Transform): number[] {
+        return transform.unprojectBasic(this._polygon[index], 200);
+    }
+
     public getVertices3d(transform: Transform): number[][] {
         return this._polygon
             .map(

@@ -9,6 +9,7 @@ export abstract class VertexGeometry extends Geometry {
     }
 
     public abstract getPoints3d(transform: Transform): number[][];
+    public abstract getVertex3d(index: number, transform: Transform): number[];
     public abstract getVertices3d(transform: Transform): number[][];
 
     public abstract getVertices2d(transform: Transform): number[][];
