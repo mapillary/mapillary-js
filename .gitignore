@@ -21,5 +21,4 @@ debug/**/*.css
 spec/*.js
 
 # Docs
-docs-out/
-docs/index.html
+docs/

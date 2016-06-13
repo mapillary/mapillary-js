@@ -4,7 +4,7 @@
 
 MapillaryJS is a JavaScript & WebGL library that renders street level photos from [Mapillary](https://www.mapillary.com).
 
-[<img width="438" style="margin-right: 4px;" alt="San Francisco on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964788/9d75b25e-2f1a-11e6-9c5f-b4a42853a1eb.png">](https://www.mapillary.com/map/im/VKf9Ay98ubkclhS2cCEWDg/photo) [<img width="438" alt="Frigilana on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964789/9d8256c6-2f1a-11e6-9d4b-bd906875078c.png">](https://www.mapillary.com/map/im/FjsftlSr2Vqigl8P2zpOAw/photo)
+[<img width="49%" alt="San Francisco on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964788/9d75b25e-2f1a-11e6-9c5f-b4a42853a1eb.png">](https://www.mapillary.com/map/im/VKf9Ay98ubkclhS2cCEWDg/photo) [<img width="49%" alt="Frigilana on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964789/9d8256c6-2f1a-11e6-9d4b-bd906875078c.png">](https://www.mapillary.com/map/im/FjsftlSr2Vqigl8P2zpOAw/photo)
 
 ## Using MapillaryJS
 
@@ -26,7 +26,7 @@ To use MapillaryJS you must [create an account](http://www.mapillary.com/map/sig
             'mly',
             '<your client id>',
             '<your photo id for initializing the viewer>'
-       );
+        );
     </script>
 </body>
 </html>

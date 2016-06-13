@@ -1,9 +1,14 @@
 #!/bin/sh
 
-gulp documentation
+npm run gulp documentation
 git checkout -- .
 git checkout gh-pages
-\cp -rf docs-out/index.html index.html
+\cp -rf -a ./docs/. ./
+git add assets/
+git add classes/
+git add enums/
+git add interfaces/
+git add globals.html
 git add index.html
 git commit -m "Update docs [ci skip]"
 git push origin gh-pages

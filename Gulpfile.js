@@ -61,10 +61,10 @@ var config = {
     options: {
       target: 'ES5',
       module: 'commonjs',
-      theme: 'minimal',
+      theme: './node_modules/typedoc-default-themes/bin/default',
       mode: 'file',
-      out: './docs-out',
-      name: 'mapillary-js',
+      out: './docs',
+      name: 'MapillaryJS',
       excludeExternals: ''
     }
   }
@@ -83,11 +83,14 @@ for (var key in config.typedoc.options) {
   parsedOptions.push('--' + key + ' ' + config.typedoc.options[key])
 }
 
-gulp.task('documentation', shell.task('./node_modules/typedoc/bin/typedoc ' +
-                                      parsedOptions.join(' ') +
-                                      ' ' +
-                                      config.typedoc.includes.join(' ')
-                                     ))
+gulp.task(
+  'documentation',
+  shell.task(
+    './node_modules/typedoc/bin/typedoc ' +
+    parsedOptions.join(' ') +
+    ' ' +
+    config.typedoc.includes.join(' ')
+))
 
 gulp.task('js-lint', function () {
   return gulp.src('./Gulpfile.js')
