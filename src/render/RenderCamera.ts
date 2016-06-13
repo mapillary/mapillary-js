@@ -9,10 +9,8 @@ export class RenderCamera {
     public alpha: number;
     public zoom: number;
     public currentAspect: number;
-    public currentOrientation: number;
     public currentPano: boolean;
     public previousAspect: number;
-    public previousOrientation: number;
     public previousPano: boolean;
     public renderMode: RenderMode;
 
@@ -34,10 +32,8 @@ export class RenderCamera {
         this._changedForFrame = -1;
 
         this.currentAspect = 1;
-        this.currentOrientation = 1;
         this.currentPano = false;
         this.previousAspect = 1;
-        this.previousOrientation = 1;
         this.previousPano = false;
 
         this.renderMode = renderMode;
@@ -78,13 +74,11 @@ export class RenderCamera {
     public updateProjection(): void {
         let currentAspect: number = this._getAspect(
             this.currentAspect,
-            this.currentOrientation,
             this.currentPano,
             this.perspective.aspect);
 
         let previousAspect: number = this._getAspect(
             this.previousAspect,
-            this.previousOrientation,
             this.previousPano,
             this.perspective.aspect);
 
@@ -112,7 +106,6 @@ export class RenderCamera {
 
     private _getAspect(
         nodeAspect: number,
-        orientation: number,
         pano: boolean,
         perspectiveCameraAspect: number): number {
 
@@ -120,9 +113,7 @@ export class RenderCamera {
             return 1;
         }
 
-        let coeff: number = orientation < 5 ?
-            1 :
-            1 / nodeAspect / nodeAspect;
+        let coeff: number = Math.max(1, 1 / nodeAspect / nodeAspect);
 
         let usePerspective: boolean = this.renderMode === RenderMode.Letterbox ?
             nodeAspect > perspectiveCameraAspect :
