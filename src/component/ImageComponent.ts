@@ -37,16 +37,16 @@ export class ImageComponent extends Component {
                     return null;
                 }
 
-                let ctx: any = canvas.getContext("2d");
-                let cw: number = canvas.clientWidth;
-                let ch: number = canvas.clientHeight;
-
                 let adaptableDomRenderer: HTMLElement = canvas.parentElement;
 
-                canvas.width = adaptableDomRenderer.offsetWidth;
-                canvas.height = adaptableDomRenderer.offsetHeight;
+                let width: number = adaptableDomRenderer.offsetWidth;
+                let height: number = adaptableDomRenderer.offsetHeight;
 
-                ctx.drawImage(node.image, 0, 0, cw, ch);
+                canvas.width = width;
+                canvas.height = height;
+
+                let ctx: any = canvas.getContext("2d");
+                ctx.drawImage(node.image, 0, 0, width, height);
             });
 
         this._container.domRenderer.renderAdaptive$.onNext({name: this._name, vnode: vd.h(`canvas#${this._canvasId}`, [])});
