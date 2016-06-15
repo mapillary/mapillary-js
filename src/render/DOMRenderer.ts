@@ -110,7 +110,7 @@ export class DOMRenderer {
                 })
             .map<number>(
                 (frame: IFrame): number => {
-                    return frame.state.currentTransform.aspect;
+                    return frame.state.currentTransform.basicAspect;
                 })
             .map<IAdaptiveOperation>(
                  (aspect: number): IAdaptiveOperation => {

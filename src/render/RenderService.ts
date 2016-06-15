@@ -88,9 +88,9 @@ export class RenderService {
                                     frame.state.previousNode :
                                     frame.state.currentNode;
 
-                            rc.currentAspect = currentTransform.aspect;
+                            rc.currentAspect = currentTransform.basicAspect;
                             rc.currentPano = frame.state.currentNode.fullPano;
-                            rc.previousAspect = previousTransform.aspect;
+                            rc.previousAspect = previousTransform.basicAspect;
                             rc.previousPano = previousNode.fullPano;
 
                             rc.alpha = frame.state.alpha;

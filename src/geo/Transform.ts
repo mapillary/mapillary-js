@@ -11,7 +11,7 @@ export class Transform {
     private _focal: number;
     private _orientation: number;
     private _scale: number;
-    private _aspect: number;
+    private _basicAspect: number;
 
     private _gpano: IGPano;
 
@@ -24,7 +24,7 @@ export class Transform {
         this._focal = this._getValue(node.apiNavImIm.cfocal, 1);
         this._orientation = this._getValue(node.apiNavImIm.orientation, 1);
         this._scale = this._getValue(node.apiNavImIm.atomic_scale, 0);
-        this._aspect = this._orientation < 5 ?
+        this._basicAspect = this._orientation < 5 ?
             this._width / this._height :
             this._height / this._width;
 
@@ -54,8 +54,8 @@ export class Transform {
         return this._scale;
     }
 
-    public get aspect(): number {
-        return this._aspect;
+    public get basicAspect(): number {
+        return this._basicAspect;
     }
 
     public get gpano(): IGPano {
