@@ -79,15 +79,6 @@ export class Camera {
     }
 
     private _getFocal(transform: Transform): number {
-        if (transform.gpano != null) {
-            return 0.5;
-        }
-
-        let size: number = Math.max(transform.width, transform.height);
-        if (transform.orientation > 4) {
-            return transform.focal / size * transform.height;
-        }
-
-        return transform.focal / size * transform.width;
+        return transform.gpano == null ? transform.focal : 0.5;
     }
 }

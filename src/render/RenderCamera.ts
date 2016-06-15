@@ -101,7 +101,7 @@ export class RenderCamera {
     }
 
     private _getVerticalFov(aspect: number, focal: number, zoom: number): number {
-        return Math.pow(2, 1 - zoom) * Math.atan(0.5 / aspect / focal) * 180 / Math.PI;
+        return 2 * Math.atan(0.5 / (Math.pow(2, zoom) * aspect * focal)) * 180 / Math.PI;
     }
 
     private _getAspect(
@@ -113,7 +113,7 @@ export class RenderCamera {
             return 1;
         }
 
-        let coeff: number = Math.max(1, 1 / nodeAspect / nodeAspect);
+        let coeff: number = Math.max(1, 1 / nodeAspect);
 
         let usePerspective: boolean = this.renderMode === RenderMode.Letterbox ?
             nodeAspect > perspectiveCameraAspect :
