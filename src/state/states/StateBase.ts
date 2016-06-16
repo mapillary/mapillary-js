@@ -215,6 +215,13 @@ export abstract class StateBase implements IState {
         this._setCurrentCamera();
     }
 
+    protected _setCurrentCamera(): void {
+        this._currentCamera = this._trajectoryCameras[this._currentIndex].clone();
+        this._previousCamera = this._currentIndex > 0 ?
+            this._trajectoryCameras[this._currentIndex - 1].clone() :
+            this._currentCamera.clone();
+    }
+
     protected _motionlessTransition(): boolean {
         let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
 
@@ -253,22 +260,6 @@ export abstract class StateBase implements IState {
         this._previousNode = this._currentIndex > 0 ?
             this._trajectory[this._currentIndex - 1] :
             null;
-    }
-
-    private _setCurrentCamera(): void {
-        this._currentCamera = this._trajectoryCameras[this._currentIndex].clone();
-        this._previousCamera = this._currentIndex > 0 ?
-            this._trajectoryCameras[this._currentIndex - 1].clone() :
-            this._currentCamera.clone();
-
-        if (this._previousNode != null) {
-            let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
-            this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
-
-            if (this._currentNode.pano) {
-                this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
-            }
-        }
     }
 
     private _setTrajectory(nodes: Node[]): void {
