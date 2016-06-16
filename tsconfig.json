@@ -3,5 +3,8 @@
         "noImplicitAny": true,
         "target": "ES5",
         "module": "commonjs"
-    }
+    },
+    "files": [
+        "src/Mapillary.ts"
+    ]
 }

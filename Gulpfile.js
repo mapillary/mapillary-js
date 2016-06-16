@@ -17,7 +17,6 @@ var ts = require('gulp-typescript')
 var tsify = require('tsify')
 var tslint = require('gulp-tslint')
 var util = require('gulp-util')
-var uglify = require('gulp-uglify')
 var watchify = require('watchify')
 var argv = require('yargs').argv
 
@@ -187,23 +186,6 @@ function extendKarmaConfig (path, conf) {
   conf.configFile = path
   return conf
 }
-
-gulp.task('prepublish', ['typings', 'ts-lint', 'css'], function () {
-  browserify(config.browserify)
-    .plugin(tsify, config.ts)
-    .transform('brfs')
-    .transform('envify')
-    .bundle()
-    .on('error', function (error) {
-      console.error(error.toString())
-    })
-    .pipe(source('mapillary-js.min.js'))
-    .pipe(buffer())
-    .pipe(sourcemaps.init({loadMaps: true}))
-    .pipe(uglify())
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('./dist'))
-})
 
 // TODO: Refine this task
 gulp.task('ts', ['ts-lint'], function () {
