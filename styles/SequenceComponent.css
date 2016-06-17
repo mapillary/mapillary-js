@@ -80,36 +80,36 @@
     border-bottom-left-radius: 100px;
 }
 
-.Play.icon,
-.PlayDisabled.icon {
+.Play.SequenceComponentIcon,
+.PlayDisabled.SequenceComponentIcon {
     background-image: url('./stepper-play.svg');
 }
 
-.Stop.icon,
-.StopDisabled.icon {
+.Stop.SequenceComponentIcon,
+.StopDisabled.SequenceComponentIcon {
     background-image: url('./stepper-stop.svg');
 }
 
-.SequenceStepPrev .icon,
-.SequenceStepPrevDisabled .icon,
-.SequenceStepPrevHighlight .icon {
+.SequenceStepPrev .SequenceComponentIcon,
+.SequenceStepPrevDisabled .SequenceComponentIcon,
+.SequenceStepPrevHighlight .SequenceComponentIcon {
     background-image: url('./stepper-left.svg');
 }
 
-.SequenceStepNext .icon,
-.SequenceStepNextDisabled .icon,
-.SequenceStepNextHighlight .icon {
+.SequenceStepNext .SequenceComponentIcon,
+.SequenceStepNextDisabled .SequenceComponentIcon,
+.SequenceStepNextHighlight .SequenceComponentIcon {
     background-image: url('./stepper-right.svg');
 }
 
-.PlayDisabled.icon,
-.SequenceStepNextDisabled .icon,
-.SequenceStepPrevDisabled .icon,
-.StopDisabled.icon {
+.PlayDisabled.SequenceComponentIcon,
+.SequenceStepNextDisabled .SequenceComponentIcon,
+.SequenceStepPrevDisabled .SequenceComponentIcon,
+.StopDisabled.SequenceComponentIcon {
     opacity: 0.35;
 }
 
-.icon {
+.SequenceComponentIcon {
     background-size: contain;
     background-repeat: no-repeat;
     width: 50%;
