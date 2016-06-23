@@ -14,6 +14,7 @@
 </head>
 <body>
     <div id='viewer'></div>
+    <button onclick="createGeometry('polygon')">Create polygon</button>
     <button onclick="createGeometry('rect')">Create rectangle</button>
     <button onclick="createGeometry('point')">Create point</button>
     <button onclick="stopCreate()">Stop create</button>
@@ -79,14 +80,14 @@
 
         var createdIndex = 0;
 
-        function createOutlineTag(geometry) {
+        function createOutlineTag(geometry, text) {
             createdIndex += 1;
             var id = "created" + createdIndex;
             var options = {
                 editable: true,
                 lineColor: 0x00FFFF,
                 lineWidth: 1,
-                text: "Rectangle",
+                text: text,
                 textColor: 0x00FFFF,
             };
 
@@ -114,7 +115,9 @@
 
         tagComponent.on(Mapillary.TagComponent.TagComponent.geometrycreated, function(geometry) {
             if (geometry instanceof Mapillary.TagComponent.RectGeometry) {
-                createOutlineTag(geometry);
+                createOutlineTag(geometry, "Rectangle");
+            } else if (geometry instanceof Mapillary.TagComponent.PolygonGeometry) {
+                createOutlineTag(geometry, "Polygon");
             } else if (geometry instanceof Mapillary.TagComponent.PointGeometry) {
                 createSpotTag(geometry);
             }

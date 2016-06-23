@@ -12,6 +12,8 @@ import {
     ITagConfiguration,
     PointGeometry,
     OutlineCreateTag,
+    PolygonGeometry,
+    RectGeometry,
     Tag,
     TagCreator,
     TagDOMRenderer,
@@ -413,7 +415,8 @@ export class TagComponent extends Component {
             .flatMapLatest<number[]>(
                 (configuration: ITagConfiguration): rx.Observable<number[]> => {
                     return configuration.creating &&
-                        configuration.createType === "rect" ?
+                        configuration.createType === "rect" ||
+                        configuration.createType === "polygon" ?
                         this._validBasicClick$.take(1) :
                         rx.Observable.empty<number[]>();
                 })
@@ -468,7 +471,11 @@ export class TagComponent extends Component {
                         camera,
                         transform);
 
-                    tag.geometry.setVertex2d(3, basic, transform);
+                    if (tag.geometry instanceof RectGeometry) {
+                        tag.geometry.setVertex2d(3, basic, transform);
+                    } else if (tag.geometry instanceof PolygonGeometry) {
+                        tag.geometry.setVertex2d((<PolygonGeometry>tag.geometry).polygon.length - 2, basic, transform);
+                    }
                 });
 
         this._addPointSubscription = this._creating$
@@ -621,7 +628,7 @@ export class TagComponent extends Component {
                 this._container.spriteService.spriteAtlas$,
                 this._tags$.startWith([]),
                 this._tagChanged$.startWith(null),
-                this._tagCreator.tag$.startWith(null),
+                this._tagCreator.tag$.merge(this._createGeometryChanged$).startWith(null),
                 (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag, createTag: OutlineCreateTag):
                 [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag] => {
                     return [rc, atlas, tags, tag, createTag];

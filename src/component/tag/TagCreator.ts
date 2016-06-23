@@ -5,6 +5,7 @@ import * as rx from "rx";
 import {
     GeometryType,
     OutlineCreateTag,
+    PolygonGeometry,
     RectGeometry,
 } from "../../Component";
 
@@ -54,6 +55,14 @@ export class TagCreator {
                                 coordinate[1],
                                 coordinate[0],
                                 coordinate[1],
+                            ]);
+
+                            return new OutlineCreateTag(geometry);
+                        } else if (type === "polygon") {
+                            let geometry: PolygonGeometry = new PolygonGeometry([
+                                [coordinate[0], coordinate[1]],
+                                [coordinate[0], coordinate[1]],
+                                [coordinate[0], coordinate[1]],
                             ]);
 
                             return new OutlineCreateTag(geometry);

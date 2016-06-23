@@ -4,7 +4,11 @@ import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {VertexGeometry, RectGeometry} from "../../../Component";
+import {
+    PolygonGeometry,
+    RectGeometry,
+    VertexGeometry,
+} from "../../../Component";
 import {Transform} from "../../../Geo";
 
 export class OutlineCreateTag {
@@ -64,41 +68,117 @@ export class OutlineCreateTag {
         vd.VNode[] {
 
         let vNodes: vd.VNode[] = [];
-        let polygonPoints3d: number[][] = this._geometry.getVertices3d(transform);
-
         let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
+            e.stopPropagation();
             this._aborted$.onNext(this);
         };
 
-        let topLeftCameraSpace: THREE.Vector3 = this._convertToCameraSpace(polygonPoints3d[1], matrixWorldInverse);
-        if (topLeftCameraSpace.z < 0) {
-            let centerCanvas: number[] = this._projectToCanvas(topLeftCameraSpace, projectionMatrix);
-            let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+        if (this._geometry instanceof RectGeometry) {
+            let topLeftPoint3d: number[] = this._geometry.getVertex3d(1, transform);
 
-            let pointProperties: vd.createProperties = {
-                style: { background: "#FFFFFF", left: centerCss[0], position: "absolute", top: centerCss[1] },
-            };
+            let topLeftCameraSpace: THREE.Vector3 = this._convertToCameraSpace(topLeftPoint3d, matrixWorldInverse);
+            if (topLeftCameraSpace.z < 0) {
+                let centerCanvas: number[] = this._projectToCanvas(topLeftCameraSpace, projectionMatrix);
+                let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
-            let completerProperties: vd.createProperties = {
-                onclick: abort,
-                style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
-            };
+                let pointProperties: vd.createProperties = {
+                    style: { background: "#FFFFFF", left: centerCss[0], position: "absolute", top: centerCss[1] },
+                };
 
-            vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
-            vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+                let completerProperties: vd.createProperties = {
+                    onclick: abort,
+                    style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
+                };
+
+                vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
+                vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+            }
+        } else if (this._geometry instanceof PolygonGeometry) {
+            let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
+
+            if (polygonGeometry.polygon.length > 3) {
+                let lastVertex3d: number[] = this._geometry.getVertex3d(polygonGeometry.polygon.length - 3, transform);
+
+                let lastCameraSpace: THREE.Vector3 = this._convertToCameraSpace(lastVertex3d, matrixWorldInverse);
+                if (lastCameraSpace.z < 0) {
+                    let centerCanvas: number[] = this._projectToCanvas(lastCameraSpace, projectionMatrix);
+                    let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+                    let remove: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                        e.stopPropagation();
+                        polygonGeometry.removeVertex2d(polygonGeometry.polygon.length - 3);
+                    };
+
+                    let completerProperties: vd.createProperties = {
+                        onclick: remove,
+                        style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
+                    };
+
+                    vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
+                }
+            }
+
+            let firstVertex3d: number[] = this._geometry.getVertex3d(0, transform);
+            let firstCameraSpace: THREE.Vector3 = this._convertToCameraSpace(firstVertex3d, matrixWorldInverse);
+            if (firstCameraSpace.z < 0) {
+                let centerCanvas: number[] = this._projectToCanvas(firstCameraSpace, projectionMatrix);
+                let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+                let firstOnclick: (e: MouseEvent) => void = polygonGeometry.polygon.length > 4 ?
+                    (e: MouseEvent): void => {
+                        e.stopPropagation();
+                        polygonGeometry.removeVertex2d(polygonGeometry.polygon.length - 2);
+                        this._created$.onNext(this);
+                    } :
+                    abort;
+
+                let completerProperties: vd.createProperties = {
+                    onclick: firstOnclick,
+                    style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
+                };
+
+                let firstClass: string = polygonGeometry.polygon.length > 4 ?
+                    "TagCompleter" :
+                    "TagInteractor";
+
+                vNodes.push(vd.h("div." + firstClass, completerProperties, []));
+            }
+
+            let vertices3d: number[][] = this._geometry.getVertices3d(transform);
+            vertices3d.splice(-2, 2);
+
+            for (let vertex of vertices3d) {
+                let vertexCameraSpace: THREE.Vector3 = this._convertToCameraSpace(vertex, matrixWorldInverse);
+                if (vertexCameraSpace.z < 0) {
+                    let centerCanvas: number[] = this._projectToCanvas(vertexCameraSpace, projectionMatrix);
+                    let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+                    let pointProperties: vd.createProperties = {
+                        style: { background: "#FFFFFF", left: centerCss[0], position: "absolute", top: centerCss[1] },
+                    };
+
+                    vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+                }
+            }
         }
 
         return vNodes;
     }
 
     public addPoint(point: number[]): void {
-        let rectGeometry: RectGeometry = <RectGeometry>this._geometry;
+        if (this._geometry instanceof RectGeometry) {
+            let rectGeometry: RectGeometry = <RectGeometry>this._geometry;
 
-        if (!rectGeometry.validate(point)) {
-            return;
+            if (!rectGeometry.validate(point)) {
+                return;
+            }
+
+            this._created$.onNext(this);
+        } else if (this._geometry instanceof PolygonGeometry) {
+            let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
+
+            polygonGeometry.addVertex2d(point);
         }
-
-        this._created$.onNext(this);
     }
 
     private _getPositions(polygon3d: number[][]): Float32Array {

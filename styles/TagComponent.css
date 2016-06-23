@@ -49,6 +49,7 @@
 }
 
 .TagInteractor,
+.TagCompleter,
 .TagSpotInteractor {
     transform: translate(-50%, -50%);
     pointer-events: all;
@@ -58,10 +59,15 @@
     opacity: 0;
 }
 
+.TagCompleter {
+    background: limegreen;
+}
+
 .TagInteractor {
     background: orangered;
 }
 
+.TagCompleter:hover,
 .TagInteractor:hover {
     opacity: 0.6;
 }
