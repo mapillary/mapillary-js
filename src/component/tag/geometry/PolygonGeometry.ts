@@ -11,8 +11,8 @@ export class PolygonGeometry extends VertexGeometry {
 
         let length: number = polygon.length;
 
-        if (length < 4) {
-            throw new GeometryTagError("A polygon must have four or more positions.");
+        if (length < 3) {
+            throw new GeometryTagError("A polygon must have three or more positions.");
         }
 
         if (polygon[0][0] !== polygon[length - 1][0] ||
@@ -41,6 +41,37 @@ export class PolygonGeometry extends VertexGeometry {
 
     public getVertices2d(transform: Transform): number[][] {
         return this._polygon;
+    }
+
+    public addVertex2d(value: number[]): void {
+        let clamped: number[] = [
+            Math.max(0, Math.min(1, value[0])),
+            Math.max(0, Math.min(1, value[1])),
+        ];
+
+        this._polygon.splice(this._polygon.length - 1, 0, clamped);
+
+        this._notifyChanged$.onNext(this);
+    }
+
+    public removeVertex2d(index: number): void {
+        if (index < 0 ||
+            index >= this._polygon.length ||
+            this._polygon.length < 4) {
+            throw new GeometryTagError("Index for removed vertex must be valid.");
+        }
+
+        if (index > 0 && index < this._polygon.length - 1) {
+            this._polygon.splice(index, 1);
+        } else {
+            this._polygon.splice(0, 1);
+            this._polygon.pop();
+
+            let closing: number[] = this._polygon[0].slice();
+            this._polygon.push(closing);
+        }
+
+        this._notifyChanged$.onNext(this);
     }
 
     public setVertex2d(index: number, value: number[], transform: Transform): void {
