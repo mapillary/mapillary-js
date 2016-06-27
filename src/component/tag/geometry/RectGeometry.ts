@@ -50,10 +50,6 @@ export class RectGeometry extends VertexGeometry {
         return this._rect;
     }
 
-    public getVertices2d(transform: Transform): number[][] {
-        return this._rectToVertices2d(this._rect);
-    }
-
     /**
      * Set the value of a vertex in the polygon representation of the rectangle.
      *
@@ -209,51 +205,11 @@ export class RectGeometry extends VertexGeometry {
      * representing the rectangle.
      */
     public getPoints3d(transform: Transform): number[][] {
-        return this.getPoints2d(transform)
+        return this._getPoints2d(transform)
             .map(
                 (point: number[]) => {
                     return transform.unprojectBasic(point, 200);
                 });
-    }
-
-    /**
-     * Get the 2D coordinates for the vertices of the rectangle with
-     * interpolated points along the lines.
-     *
-     * @param {Transform} transform - The transform of the node related to
-     * the rectangle.
-     * @returns {Array<Array<number>>} Polygon array of 2D basic coordinates
-     * representing the rectangle.
-     */
-    public getPoints2d(transform: Transform): number[][] {
-        let vertices2d: number[][] = this._rectToVertices2d(this._rect);
-
-        let sides: number = vertices2d.length - 1;
-        let sections: number = 10;
-
-        let points2d: number[][] = [];
-
-        for (let i: number = 0; i < sides; ++i) {
-            let startX: number = vertices2d[i][0];
-            let startY: number = vertices2d[i][1];
-
-            let endX: number = vertices2d[i + 1][0];
-            let endY: number = vertices2d[i + 1][1];
-
-            let intervalX: number = (endX - startX) / (sections - 1);
-            let intervalY: number = (endY - startY) / (sections - 1);
-
-            for (let j: number = 0; j < sections; ++j) {
-                let point: number[] = [
-                    startX + j * intervalX,
-                    startY + j * intervalY,
-                ];
-
-                points2d.push(point);
-            }
-        }
-
-        return points2d;
     }
 
     public getVertex3d(index: number, transform: Transform): number[] {
@@ -299,6 +255,10 @@ export class RectGeometry extends VertexGeometry {
         return transform.unprojectBasic([centroidX, centroidY], 200);
     }
 
+    public getTriangles3d(transform: Transform): number[] {
+        return this._triangulate(this._getPoints2d(transform), this.getPoints3d(transform));
+    }
+
     /**
      * Check if a particular bottom-right value is valid according to the current
      * rectangle coordinates.
@@ -317,6 +277,46 @@ export class RectGeometry extends VertexGeometry {
         }
 
         return true;
+    }
+
+    /**
+     * Get the 2D coordinates for the vertices of the rectangle with
+     * interpolated points along the lines.
+     *
+     * @param {Transform} transform - The transform of the node related to
+     * the rectangle.
+     * @returns {Array<Array<number>>} Polygon array of 2D basic coordinates
+     * representing the rectangle.
+     */
+    private _getPoints2d(transform: Transform): number[][] {
+        let vertices2d: number[][] = this._rectToVertices2d(this._rect);
+
+        let sides: number = vertices2d.length - 1;
+        let sections: number = 10;
+
+        let points2d: number[][] = [];
+
+        for (let i: number = 0; i < sides; ++i) {
+            let startX: number = vertices2d[i][0];
+            let startY: number = vertices2d[i][1];
+
+            let endX: number = vertices2d[i + 1][0];
+            let endY: number = vertices2d[i + 1][1];
+
+            let intervalX: number = (endX - startX) / (sections - 1);
+            let intervalY: number = (endY - startY) / (sections - 1);
+
+            for (let j: number = 0; j < sections; ++j) {
+                let point: number[] = [
+                    startX + j * intervalX,
+                    startY + j * intervalY,
+                ];
+
+                points2d.push(point);
+            }
+        }
+
+        return points2d;
     }
 
     /**

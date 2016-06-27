@@ -35,14 +35,6 @@ export class PolygonGeometry extends VertexGeometry {
         return this._polygon;
     }
 
-    public getPoints2d(transform: Transform): number[][] {
-        return this.getVertices2d(transform);
-    }
-
-    public getVertices2d(transform: Transform): number[][] {
-        return this._polygon;
-    }
-
     public addVertex2d(value: number[]): void {
         let clamped: number[] = [
             Math.max(0, Math.min(1, value[0])),
@@ -137,6 +129,10 @@ export class PolygonGeometry extends VertexGeometry {
         let centroid2d: number[] = this._getCentroid2d();
 
         return transform.unprojectBasic(centroid2d, 200);
+    }
+
+    public getTriangles3d(transform: Transform): number[] {
+        return this._triangulate(this._polygon, this.getPoints3d(transform));
     }
 
     private _getCentroid2d(): number[] {

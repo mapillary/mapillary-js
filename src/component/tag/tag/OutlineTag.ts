@@ -373,25 +373,9 @@ export class OutlineTag extends Tag {
     }
 
     private _getGLMesh(transform: Transform): THREE.Object3D {
-        // triangulate the 2d points
-        let points2d: number[][] = this._geometry.getPoints2d(transform);
-        let contour: any = points2d.map((point: number[]): THREE.Vector2 => {
-            return new THREE.Vector2(point[0], point[1]);
-        });
-        contour.pop();
-        let indices: any = THREE.ShapeUtils.triangulate(contour, true);
+        let triangles: number[] = this._geometry.getTriangles3d(transform);
 
-        // build a mesh using the 3d points
-        let points3d: number[][] = this._geometry.getPoints3d(transform);
-        let vertices: number[] = [];
-        for (let i: number = 0; i < indices.length; ++i) {
-            for (let j: number = 0; j < 3; ++j) {
-                for (let k: number = 0; k < 3; ++k) {
-                    vertices.push(points3d[indices[i][j]][k]);
-                }
-            }
-        }
-        let vertexArray: Float32Array = new Float32Array(vertices);
+        let vertexArray: Float32Array = new Float32Array(triangles);
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
         geometry.addAttribute("position", new THREE.BufferAttribute(vertexArray, 3));
         let material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
