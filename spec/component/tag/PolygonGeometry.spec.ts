@@ -189,3 +189,169 @@ describe("PolygonGeometry.removeVertex2d", () => {
         expect(polygon[2][1]).toBe(1);
     });
 });
+
+describe("RectGeometry.setVertex2d", () => {
+    let createTransform = (pano: boolean): Transform => {
+        let gpano: IGPano = pano ?
+            {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                FullPanoHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+            } :
+            null;
+
+        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+
+        return new Transform(node, [0, 0, 0]);
+    }
+
+    it("should set the vertex with index 2", () => {
+        let original: number[][] = [[0, 0], [1, 1], [1, 1], [0, 0]];
+
+        let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
+
+        let vertex: number[] = [0.5, 0.6];
+        let transform: Transform = createTransform(false);
+
+        polygonGeometry.setVertex2d(2, vertex, transform);
+
+        let polygon: number[][] = polygonGeometry.polygon;
+
+        expect(polygon[2][0]).toBe(vertex[0]);
+        expect(polygon[2][1]).toBe(vertex[1]);
+    });
+
+    it("should clamp the set vertex", () => {
+        let original: number[][] = [[0, 0], [1, 1], [1, 1], [0, 0]];
+
+        let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
+
+        let vertex: number[] = [2, -1];
+        let transform: Transform = createTransform(false);
+
+        polygonGeometry.setVertex2d(2, vertex, transform);
+
+        let polygon: number[][] = polygonGeometry.polygon;
+
+        expect(polygon[2][0]).toBe(1);
+        expect(polygon[2][1]).toBe(0);
+    });
+
+    it("should set both the first and last vertex when setting index 0", () => {
+        let original: number[][] = [[0, 0], [1, 1], [1, 1], [0, 0]];
+
+        let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
+
+        let vertex: number[] = [0.5, 0.6];
+        let transform: Transform = createTransform(false);
+
+        polygonGeometry.setVertex2d(0, vertex, transform);
+
+        let polygon: number[][] = polygonGeometry.polygon;
+
+        expect(polygon[0][0]).toBe(vertex[0]);
+        expect(polygon[0][1]).toBe(vertex[1]);
+
+        expect(polygon[3][0]).toBe(vertex[0]);
+        expect(polygon[3][1]).toBe(vertex[1]);
+    });
+
+    it("should set both the first and last vertex when setting last", () => {
+        let original: number[][] = [[0, 0], [1, 1], [1, 1], [0, 0]];
+
+        let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
+
+        let vertex: number[] = [0.5, 0.6];
+        let transform: Transform = createTransform(false);
+
+        polygonGeometry.setVertex2d(3, vertex, transform);
+
+        let polygon: number[][] = polygonGeometry.polygon;
+
+        expect(polygon[0][0]).toBe(vertex[0]);
+        expect(polygon[0][1]).toBe(vertex[1]);
+
+        expect(polygon[3][0]).toBe(vertex[0]);
+        expect(polygon[3][1]).toBe(vertex[1]);
+    });
+});
+
+describe("RectGeometry.setCentroid2d", () => {
+    let precision: number = 1e-8;
+
+    let createTransform = (pano: boolean): Transform => {
+        let gpano: IGPano = pano ?
+            {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                FullPanoHeightPixels: 1,
+                FullPanoWidthPixels: 1,
+            } :
+            null;
+
+        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+
+        return new Transform(node, [0, 0, 0]);
+    }
+
+    it("should set the vertices according to the new centroid", () => {
+        let original: number[][] = [[0.2, 0.2], [0.6, 0.2], [0.6, 0.4], [0.2, 0.4], [0.2, 0.2]];
+
+        let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
+
+        let vertex: number[] = [0.5, 0.6];
+        let transform: Transform = createTransform(false);
+
+        polygonGeometry.setCentroid2d(vertex, transform);
+
+        let polygon: number[][] = polygonGeometry.polygon;
+
+        expect(polygon[0][0]).toBeCloseTo(0.3, precision);
+        expect(polygon[0][1]).toBeCloseTo(0.5, precision);
+
+        expect(polygon[1][0]).toBeCloseTo(0.7, precision);
+        expect(polygon[1][1]).toBeCloseTo(0.5, precision);
+
+        expect(polygon[2][0]).toBeCloseTo(0.7, precision);
+        expect(polygon[2][1]).toBeCloseTo(0.7, precision);
+
+        expect(polygon[3][0]).toBeCloseTo(0.3, precision);
+        expect(polygon[3][1]).toBeCloseTo(0.7, precision);
+
+        expect(polygon[4][0]).toBeCloseTo(0.3, precision);
+        expect(polygon[4][1]).toBeCloseTo(0.5, precision);
+    });
+
+    it("should limit centroid translation to keep vertices within basic coordinates", () => {
+        let original: number[][] = [[0.2, 0.2], [0.6, 0.2], [0.6, 0.4], [0.2, 0.4], [0.2, 0.2]];
+
+        let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
+
+        let vertex: number[] = [0.0, 0.0];
+        let transform: Transform = createTransform(false);
+
+        polygonGeometry.setCentroid2d(vertex, transform);
+
+        let polygon: number[][] = polygonGeometry.polygon;
+
+        expect(polygon[0][0]).toBeCloseTo(0.0, precision);
+        expect(polygon[0][1]).toBeCloseTo(0.0, precision);
+
+        expect(polygon[1][0]).toBeCloseTo(0.4, precision);
+        expect(polygon[1][1]).toBeCloseTo(0.0, precision);
+
+        expect(polygon[2][0]).toBeCloseTo(0.4, precision);
+        expect(polygon[2][1]).toBeCloseTo(0.2, precision);
+
+        expect(polygon[3][0]).toBeCloseTo(0.0, precision);
+        expect(polygon[3][1]).toBeCloseTo(0.2, precision);
+
+        expect(polygon[4][0]).toBeCloseTo(0.0, precision);
+        expect(polygon[4][1]).toBeCloseTo(0.0, precision);
+    });
+});
