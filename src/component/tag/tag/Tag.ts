@@ -14,6 +14,7 @@ import {ISpriteAtlas} from "../../../Viewer";
 
 /**
  * @class Tag
+ * @abstract
  * @classdesc Abstract class representing the basic functionality of for a tag.
  */
 export abstract class Tag extends EventEmitter {

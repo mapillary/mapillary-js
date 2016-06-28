@@ -43,14 +43,14 @@ export class OutlineTag extends Tag {
     constructor(id: string, geometry: VertexGeometry, options: IOutlineTagOptions) {
         super(id, geometry);
 
-        this._editable = options.editable ? options.editable : false;
-        this._icon = options.icon ? options.icon : null;
-        this._lineColor = options.lineColor ? options.lineColor : 0xFFFFFF;
-        this._lineWidth = options.lineWidth ? options.lineWidth : 1;
-        this._fillColor = options.fillColor ? options.fillColor : 0x008888;
-        this._fillOpacity = options.fillOpacity ? options.fillOpacity : 0.3;
-        this._text = options.text ? options.text : null;
-        this._textColor = options.textColor ? options.textColor : 0xFFFFFF;
+        this._editable = options.editable == null ? false : options.editable;
+        this._icon = options.icon === undefined ? null : options.icon;
+        this._lineColor = options.lineColor == null ? 0xFFFFFF : options.lineColor;
+        this._lineWidth = options.lineWidth == null ? 1 : options.lineWidth;
+        this._fillColor = options.fillColor == null ? 0xFFFFFF : options.fillColor;
+        this._fillOpacity = options.fillOpacity == null ? 0.0 : options.fillOpacity;
+        this._text = options.text === undefined ? null : options.text;
+        this._textColor = options.textColor == null ? 0xFFFFFF : options.textColor;
     }
 
     /**
@@ -69,6 +69,44 @@ export class OutlineTag extends Tag {
      */
     public set editable(value: boolean) {
         this._editable = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
+     * Get fill color property.
+     * @returns {number}
+     */
+    public get fillColor(): number {
+        return this._fillColor;
+    }
+
+    /**
+     * Set fill color property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
+    public set fillColor(value: number) {
+        this._fillColor = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
+     * Get fill opacity property.
+     * @returns {number}
+     */
+    public get fillOpacity(): number {
+        return this._fillOpacity;
+    }
+
+    /**
+     * Set fill opacity property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
+    public set fillOpacity(value: number) {
+        this._fillOpacity = value;
         this._notifyChanged$.onNext(this);
     }
 
@@ -130,44 +168,6 @@ export class OutlineTag extends Tag {
     }
 
     /**
-     * Get fill color property.
-     * @returns {number}
-     */
-    public get fillColor(): number {
-        return this._fillColor;
-    }
-
-    /**
-     * Set fill color property.
-     * @param {number}
-     *
-     * @fires Tag#changed
-     */
-    public set fillColor(value: number) {
-        this._fillColor = value;
-        this._notifyChanged$.onNext(this);
-    }
-
-    /**
-     * Get fill opacity property.
-     * @returns {number}
-     */
-    public get fillOpacity(): number {
-        return this._fillOpacity;
-    }
-
-    /**
-     * Set fill opacity property.
-     * @param {number}
-     *
-     * @fires Tag#changed
-     */
-    public set fillOpacity(value: number) {
-        this._fillOpacity = value;
-        this._notifyChanged$.onNext(this);
-    }
-
-    /**
      * Get text property.
      * @returns {string}
      */
@@ -202,6 +202,28 @@ export class OutlineTag extends Tag {
      */
     public set textColor(value: number) {
         this._textColor = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
+     * Set options for tag.
+     *
+     * @description Sets all the option properties provided and keps
+     * the rest of the values as is.
+     *
+     * @param {IOutlineTagOptions} options - Outline tag options
+     *
+     * @fires {Tag#changed}
+     */
+    public setOptions(options: IOutlineTagOptions): void {
+        this._editable = options.editable == null ? this._editable : options.editable;
+        this._icon = options.icon === undefined ? this._icon : options.icon;
+        this._lineColor = options.lineColor == null ? this._lineColor : options.lineColor;
+        this._lineWidth = options.lineWidth == null ? this._lineWidth : options.lineWidth;
+        this._fillColor = options.fillColor == null ? this._fillColor : options.fillColor;
+        this._fillOpacity = options.fillOpacity == null ? this._fillOpacity : options.fillOpacity;
+        this._text = options.text === undefined ? this._text : options.text;
+        this._textColor = options.textColor == null ? this._textColor : options.textColor;
         this._notifyChanged$.onNext(this);
     }
 

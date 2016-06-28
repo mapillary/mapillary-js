@@ -38,11 +38,11 @@ export class SpotTag extends Tag {
     constructor(id: string, geometry: Geometry, options: ISpotTagOptions) {
         super(id, geometry);
 
-        this._color = options.color ? options.color : 0xFFFFFF;
-        this._editable = options.editable ? options.editable : false;
-        this._icon = options.icon ? options.icon : null;
-        this._text = options.text ? options.text : null;
-        this._textColor = options.textColor ? options.textColor : 0xFFFFFF;
+        this._color = options.color == null ? 0xFFFFFF : options.color;
+        this._editable = options.editable == null ? false : options.editable;
+        this._icon = options.icon === undefined ? null : options.icon;
+        this._text = options.text === undefined ? null : options.text;
+        this._textColor = options.textColor == null ? 0xFFFFFF : options.textColor;
     }
 
     /**
@@ -137,6 +137,25 @@ export class SpotTag extends Tag {
      */
     public set textColor(value: number) {
         this._textColor = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
+     * Set options for tag.
+     *
+     * @description Sets all the option properties provided and keps
+     * the rest of the values as is.
+     *
+     * @param {ISpotTagOptions} options - Spot tag options
+     *
+     * @fires {Tag#changed}
+     */
+    public setOptions(options: ISpotTagOptions): void {
+        this._color = options.color == null ? this._color : options.color;
+        this._editable = options.editable == null ? this._editable : options.editable;
+        this._icon = options.icon === undefined ? this._icon : options.icon;
+        this._text = options.text === undefined ? this._text : options.text;
+        this._textColor = options.textColor == null ? this._textColor : options.textColor;
         this._notifyChanged$.onNext(this);
     }
 
