@@ -1,6 +1,6 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-import {VertexGeometry, GeometryTagError} from "../../../Component";
+import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
 /**
@@ -137,12 +137,7 @@ export class RectGeometry extends VertexGeometry {
         this._notifyChanged$.onNext(this);
     }
 
-    /**
-     * Set the centroid of the rectangle.
-     *
-     * @param {Array<number>} value - The new value of the centroid.
-     * @param {Transform} transform - The transform of the node related to the rectangle.
-     */
+    /** @inheritdoc */
     public setCentroid2d(value: number[], transform: Transform): void {
         let original: number[] = this._rect.slice();
 
@@ -212,6 +207,18 @@ export class RectGeometry extends VertexGeometry {
                 });
     }
 
+    /**
+     * Get a vertex from the polygon representation of the 3D coordinates for the
+     * vertices of the geometry.
+     *
+     * @description The first vertex represents the bottom-left corner with the rest of
+     * the vertices following in clockwise order.
+     *
+     * @param {number} index - Vertex index.
+     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
+     * the vertices of the geometry.
+     */
     public getVertex3d(index: number, transform: Transform): number[] {
         return transform.unprojectBasic(this._rectToVertices2d(this._rect)[index], 200);
     }
@@ -234,12 +241,7 @@ export class RectGeometry extends VertexGeometry {
                 });
     }
 
-    /**
-     * Get the 3D world coordinate for the centroid of the rectangle.
-     *
-     * @param {Transform} transform - The transform of the node related to the rectangle.
-     * @returns {Array<number>} 3D world coordinate representing the centroid.
-     */
+    /** @inheritdoc */
     public getCentroid3d(transform: Transform): number[] {
         let rect: number[] = this._rect;
 
@@ -255,6 +257,7 @@ export class RectGeometry extends VertexGeometry {
         return transform.unprojectBasic([centroidX, centroidY], 200);
     }
 
+    /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
         return this._triangulate(this._getPoints2d(transform), this.getPoints3d(transform));
     }

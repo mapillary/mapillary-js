@@ -3,9 +3,21 @@
 import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
+/**
+ * @class PolygonGeometry
+ * @classdesc Represents a polygon geometry in the basic coordinate system.
+ */
 export class PolygonGeometry extends VertexGeometry {
     private _polygon: number[][];
 
+    /**
+     * Create a polygon geometry.
+     *
+     * @constructor
+     * @param {Array<Array<number>>} polygon - An array of polygon vertices. Must be closed.
+     *
+     * @throws {GeometryTagError} Polygon coordinates must be valid basic coordinates.
+     */
     constructor(polygon: number[][]) {
         super();
 
@@ -31,14 +43,23 @@ export class PolygonGeometry extends VertexGeometry {
         }
     }
 
+    /**
+     * Get polygon property.
+     * @returns {Array<Array<number>>} Closed 2d polygon.
+     */
     public get polygon(): number[][] {
         return this._polygon;
     }
 
-    public addVertex2d(value: number[]): void {
+    /**
+     * Add a vertex to the polygon by appending it after the last vertex.
+     *
+     * @param {Array<number>} vertex - Vertex to add.
+     */
+    public addVertex2d(vertex: number[]): void {
         let clamped: number[] = [
-            Math.max(0, Math.min(1, value[0])),
-            Math.max(0, Math.min(1, value[1])),
+            Math.max(0, Math.min(1, vertex[0])),
+            Math.max(0, Math.min(1, vertex[1])),
         ];
 
         this._polygon.splice(this._polygon.length - 1, 0, clamped);
@@ -46,6 +67,11 @@ export class PolygonGeometry extends VertexGeometry {
         this._notifyChanged$.onNext(this);
     }
 
+    /**
+     * Remove a vertex from the polygon.
+     *
+     * @param {number} index - The index of the vertex to remove.
+     */
     public removeVertex2d(index: number): void {
         if (index < 0 ||
             index >= this._polygon.length ||
@@ -66,6 +92,7 @@ export class PolygonGeometry extends VertexGeometry {
         this._notifyChanged$.onNext(this);
     }
 
+    /** @inheritdoc */
     public setVertex2d(index: number, value: number[], transform: Transform): void {
         let changed: number[] = [
             Math.max(0, Math.min(1, value[0])),
@@ -82,6 +109,7 @@ export class PolygonGeometry extends VertexGeometry {
         this._notifyChanged$.onNext(this);
     }
 
+    /** @inheritdoc */
     public setCentroid2d(value: number[], transform: Transform): void {
         let xs: number[] = this._polygon.map((point: number[]): number => { return point[0]; });
         let ys: number[] = this._polygon.map((point: number[]): number => { return point[1]; });
@@ -109,14 +137,17 @@ export class PolygonGeometry extends VertexGeometry {
         this._notifyChanged$.onNext(this);
     }
 
+    /** @inheritdoc */
     public getPoints3d(transform: Transform): number[][] {
         return this.getVertices3d(transform);
     }
 
+    /** @inheritdoc */
     public getVertex3d(index: number, transform: Transform): number[] {
         return transform.unprojectBasic(this._polygon[index], 200);
     }
 
+    /** @inheritdoc */
     public getVertices3d(transform: Transform): number[][] {
         return this._polygon
             .map(
@@ -125,12 +156,14 @@ export class PolygonGeometry extends VertexGeometry {
                 });
     }
 
+    /** @inheritdoc */
     public getCentroid3d(transform: Transform): number[] {
         let centroid2d: number[] = this._getCentroid2d();
 
         return transform.unprojectBasic(centroid2d, 200);
     }
 
+    /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
         return this._triangulate(this._polygon, this.getPoints3d(transform));
     }
