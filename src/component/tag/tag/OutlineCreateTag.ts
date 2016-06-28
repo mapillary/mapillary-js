@@ -96,28 +96,6 @@ export class OutlineCreateTag {
         } else if (this._geometry instanceof PolygonGeometry) {
             let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
 
-            if (polygonGeometry.polygon.length > 3) {
-                let lastVertex3d: number[] = this._geometry.getVertex3d(polygonGeometry.polygon.length - 3, transform);
-
-                let lastCameraSpace: THREE.Vector3 = this._convertToCameraSpace(lastVertex3d, matrixWorldInverse);
-                if (lastCameraSpace.z < 0) {
-                    let centerCanvas: number[] = this._projectToCanvas(lastCameraSpace, projectionMatrix);
-                    let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                    let remove: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                        e.stopPropagation();
-                        polygonGeometry.removeVertex2d(polygonGeometry.polygon.length - 3);
-                    };
-
-                    let completerProperties: vd.createProperties = {
-                        onclick: remove,
-                        style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
-                    };
-
-                    vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
-                }
-            }
-
             let firstVertex3d: number[] = this._geometry.getVertex3d(0, transform);
             let firstCameraSpace: THREE.Vector3 = this._convertToCameraSpace(firstVertex3d, matrixWorldInverse);
             if (firstCameraSpace.z < 0) {
@@ -142,6 +120,28 @@ export class OutlineCreateTag {
                     "TagInteractor";
 
                 vNodes.push(vd.h("div." + firstClass, completerProperties, []));
+            }
+
+            if (polygonGeometry.polygon.length > 3) {
+                let lastVertex3d: number[] = this._geometry.getVertex3d(polygonGeometry.polygon.length - 3, transform);
+
+                let lastCameraSpace: THREE.Vector3 = this._convertToCameraSpace(lastVertex3d, matrixWorldInverse);
+                if (lastCameraSpace.z < 0) {
+                    let centerCanvas: number[] = this._projectToCanvas(lastCameraSpace, projectionMatrix);
+                    let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+                    let remove: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                        e.stopPropagation();
+                        polygonGeometry.removeVertex2d(polygonGeometry.polygon.length - 3);
+                    };
+
+                    let completerProperties: vd.createProperties = {
+                        onclick: remove,
+                        style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
+                    };
+
+                    vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
+                }
             }
 
             let vertices3d: number[][] = this._geometry.getVertices3d(transform);

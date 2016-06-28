@@ -17,9 +17,7 @@ export abstract class VertexGeometry extends Geometry {
 
     public abstract setVertex2d(index: number, value: number[], transform: Transform): void;
 
-    protected _triangulate(
-        points2d: number[][],
-        points3d: number[][]): number[] {
+    protected _triangulate(points2d: number[][], points3d: number[][]): number[] {
         let contour: THREE.Vector2[] = points2d
             .map<THREE.Vector2>((point: number[]): THREE.Vector2 => {
                 return new THREE.Vector2(point[0], point[1]);

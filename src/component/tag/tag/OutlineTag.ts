@@ -6,6 +6,7 @@ import * as vd from "virtual-dom";
 import {
     VertexGeometry,
     PolygonGeometry,
+    RectGeometry,
     IOutlineTagOptions,
     Tag,
     TagOperation,
@@ -207,9 +208,11 @@ export class OutlineTag extends Tag {
     public getGLObjects(transform: Transform): THREE.Object3D[] {
         let objects: THREE.Object3D[] = [];
         objects.push(this._getGLLine(transform));
-        if (this._geometry instanceof PolygonGeometry) {
+
+        if (this._geometry instanceof PolygonGeometry && !transform.gpano) {
             objects.push(this._getGLMesh(transform));
         }
+
         return objects;
     }
 
@@ -226,18 +229,36 @@ export class OutlineTag extends Tag {
             this._abort$.onNext(this._id);
         };
 
-        let aVertex: number[] = this._geometry.getVertex3d(3, transform);
+        if (this._geometry instanceof RectGeometry) {
+            let aVertex: number[] = this._geometry.getVertex3d(3, transform);
 
-        let symbolVertex: THREE.Vector3 = this._convertToCameraSpace(aVertex, matrixWorldInverse);
-        if (symbolVertex.z < 0) {
-            let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
-            };
+            let symbolVertex: THREE.Vector3 = this._convertToCameraSpace(aVertex, matrixWorldInverse);
+            if (symbolVertex.z < 0) {
+                let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                    this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
+                };
 
-            if (this._icon != null) {
-                if (atlas.loaded) {
-                    let sprite: vd.VNode = atlas.getDOMSprite(this._icon);
+                if (this._icon != null) {
+                    if (atlas.loaded) {
+                        let sprite: vd.VNode = atlas.getDOMSprite(this._icon);
 
+                        let labelCanvas: number[] = this._projectToCanvas(symbolVertex, projectionMatrix);
+                        let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+                        let properties: vd.createProperties = {
+                            onmousedown: interact,
+                            onmouseup: abort,
+                            style: {
+                                left: labelCss[0],
+                                pointerEvents: "all",
+                                position: "absolute",
+                                top: labelCss[1],
+                            },
+                        };
+
+                        vNodes.push(vd.h("div", properties, [sprite]));
+                    }
+                } else if (this._text != null) {
                     let labelCanvas: number[] = this._projectToCanvas(symbolVertex, projectionMatrix);
                     let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
@@ -245,33 +266,17 @@ export class OutlineTag extends Tag {
                         onmousedown: interact,
                         onmouseup: abort,
                         style: {
+                            color: "#" + ("000000" + this._textColor.toString(16)).substr(-6),
                             left: labelCss[0],
                             pointerEvents: "all",
                             position: "absolute",
                             top: labelCss[1],
                         },
+                        textContent: this._text,
                     };
 
-                    vNodes.push(vd.h("div", properties, [sprite]));
+                    vNodes.push(vd.h("span.TagSymbol", properties, []));
                 }
-            } else if (this._text != null) {
-                let labelCanvas: number[] = this._projectToCanvas(symbolVertex, projectionMatrix);
-                let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                let properties: vd.createProperties = {
-                    onmousedown: interact,
-                    onmouseup: abort,
-                    style: {
-                        color: "#" + ("000000" + this._textColor.toString(16)).substr(-6),
-                        left: labelCss[0],
-                        pointerEvents: "all",
-                        position: "absolute",
-                        top: labelCss[1],
-                    },
-                    textContent: this._text,
-                };
-
-                vNodes.push(vd.h("span.TagSymbol", properties, []));
             }
         }
 
@@ -279,8 +284,28 @@ export class OutlineTag extends Tag {
             return vNodes;
         }
 
-        let vertices3d: number[][] = this._geometry.getVertices3d(transform);
         let lineColor: string = "#" + ("000000" + this._lineColor.toString(16)).substr(-6);
+
+        if (this._geometry instanceof RectGeometry) {
+            let centroid3d: number[] = this._geometry.getCentroid3d(transform);
+            let centroidCameraSpace: THREE.Vector3 = this._convertToCameraSpace(centroid3d, matrixWorldInverse);
+            if (centroidCameraSpace.z < 0) {
+                let interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid);
+
+                let centerCanvas: number[] = this._projectToCanvas(centroidCameraSpace, projectionMatrix);
+                let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+                let properties: vd.createProperties = {
+                    onmousedown: interact,
+                    onmouseup: abort,
+                    style: { background: lineColor, left: centerCss[0], position: "absolute", top: centerCss[1] },
+                };
+
+                vNodes.push(vd.h("div.TagMover", properties, []));
+            }
+        }
+
+        let vertices3d: number[][] = this._geometry.getVertices3d(transform);
 
         for (let i: number = 0; i < vertices3d.length - 1; i++) {
             let vertexCameraSpace: THREE.Vector3 = this._convertToCameraSpace(vertices3d[i], matrixWorldInverse);
@@ -291,33 +316,21 @@ export class OutlineTag extends Tag {
 
             let interact: (e: MouseEvent) => void = this._interact(TagOperation.Vertex, i);
 
-            let cornerCanvas: number[] = this._projectToCanvas(vertexCameraSpace, projectionMatrix);
-            let cornerCss: string[] = cornerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+            let vertexCanvas: number[] = this._projectToCanvas(vertexCameraSpace, projectionMatrix);
+            let vertexCss: string[] = vertexCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
             let properties: vd.createProperties = {
                 onmousedown: interact,
                 onmouseup: abort,
-                style: { background: lineColor, left: cornerCss[0], position: "absolute", top: cornerCss[1] },
+                style: { background: lineColor, left: vertexCss[0], position: "absolute", top: vertexCss[1] },
+            };
+
+            let pointProperties: vd.createProperties = {
+                style: { background: lineColor, left: vertexCss[0], position: "absolute", top: vertexCss[1] },
             };
 
             vNodes.push(vd.h("div.TagResizer", properties, []));
-        }
-
-        let centroid3d: number[] = this._geometry.getCentroid3d(transform);
-        let centroidCameraSpace: THREE.Vector3 = this._convertToCameraSpace(centroid3d, matrixWorldInverse);
-        if (centroidCameraSpace.z < 0) {
-            let interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid);
-
-            let centerCanvas: number[] = this._projectToCanvas(centroidCameraSpace, projectionMatrix);
-            let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-            let properties: vd.createProperties = {
-                onmousedown: interact,
-                onmouseup: abort,
-                style: { background: lineColor, left: centerCss[0], position: "absolute", top: centerCss[1] },
-            };
-
-            vNodes.push(vd.h("div.TagMover", properties, []));
+            vNodes.push(vd.h("div.TagVertex", pointProperties, []));
         }
 
         return vNodes;
@@ -338,16 +351,15 @@ export class OutlineTag extends Tag {
         };
     }
 
-    private _getPositions(points3d: number[][]): Float32Array {
+    private _getLinePositions(points3d: number[][]): Float32Array {
         let length: number = points3d.length;
         let positions: Float32Array = new Float32Array(length * 3);
 
         for (let i: number = 0; i < length; ++i) {
             let index: number = 3 * i;
-
             let position: number[] = points3d[i];
 
-            positions[index] = position[0];
+            positions[index + 0] = position[0];
             positions[index + 1] = position[1];
             positions[index + 2] = position[2];
         }
@@ -357,7 +369,7 @@ export class OutlineTag extends Tag {
 
     private _getGLLine(transform: Transform): THREE.Object3D {
         let points3d: number[][] = this._geometry.getPoints3d(transform);
-        let positions: Float32Array = this._getPositions(points3d);
+        let positions: Float32Array = this._getLinePositions(points3d);
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
         geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -374,16 +386,20 @@ export class OutlineTag extends Tag {
 
     private _getGLMesh(transform: Transform): THREE.Object3D {
         let triangles: number[] = this._geometry.getTriangles3d(transform);
+        let positions: Float32Array = new Float32Array(triangles);
 
-        let vertexArray: Float32Array = new Float32Array(triangles);
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(vertexArray, 3));
-        let material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
-            color: this._fillColor,
-            opacity: this._fillOpacity,
-            side: THREE.BackSide,
-            transparent: true,
-        });
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        let material: THREE.MeshBasicMaterial =
+            new THREE.MeshBasicMaterial(
+                {
+                    color: this._fillColor,
+                    opacity: this._fillOpacity,
+                    side: THREE.BackSide,
+                    transparent: true,
+                });
+
         return new THREE.Mesh(geometry, material);
     }
 }
