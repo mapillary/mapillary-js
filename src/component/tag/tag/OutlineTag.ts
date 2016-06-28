@@ -229,9 +229,14 @@ export class OutlineTag extends Tag {
 
     public getGLObjects(transform: Transform): THREE.Object3D[] {
         let objects: THREE.Object3D[] = [];
-        objects.push(this._getGLLine(transform));
 
-        if (this._geometry instanceof PolygonGeometry && !transform.gpano) {
+        if (this._lineWidth > 0) {
+            objects.push(this._getGLLine(transform));
+        }
+
+        if (this._fillOpacity > 0 &&
+            this._geometry instanceof PolygonGeometry &&
+            !transform.gpano) {
             objects.push(this._getGLMesh(transform));
         }
 
