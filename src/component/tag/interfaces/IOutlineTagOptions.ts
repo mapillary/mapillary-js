@@ -48,6 +48,14 @@ export interface IOutlineTagOptions {
     iconIndex?: number;
 
     /**
+     * Determines whether vertices should be indicated by points
+     * when tag is editable.
+     *
+     * @default true
+     */
+    indicateVertices?: boolean;
+
+    /**
      * Color for the edge lines as a hexadecimal number.
      * @default 0xFFFFFF
      */

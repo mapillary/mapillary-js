@@ -28,6 +28,7 @@ export class OutlineTag extends Tag {
     private _icon: string;
     private _iconAlignment: Alignment;
     private _iconIndex: number;
+    private _indicateVertices: boolean;
     private _lineColor: number;
     private _lineWidth: number;
     private _fillColor: number;
@@ -54,6 +55,7 @@ export class OutlineTag extends Tag {
         this._icon = options.icon === undefined ? null : options.icon;
         this._iconAlignment = options.iconAlignment == null ? Alignment.Outer : options.iconAlignment;
         this._iconIndex = options.iconIndex == null ? 3 : options.iconIndex;
+        this._indicateVertices = options.indicateVertices == null ? true : options.indicateVertices;
         this._lineColor = options.lineColor == null ? 0xFFFFFF : options.lineColor;
         this._lineWidth = options.lineWidth == null ? 1 : options.lineWidth;
         this._text = options.text === undefined ? null : options.text;
@@ -175,6 +177,26 @@ export class OutlineTag extends Tag {
     }
 
     /**
+     * Get indicate vertices property.
+     * @returns {boolean} Value indicating if vertices should be indicated
+     * when tag is editable.
+     */
+    public get indicateVertices(): boolean {
+        return this._indicateVertices;
+    }
+
+    /**
+     * Set indicate vertices property.
+     * @param {boolean}
+     *
+     * @fires Tag#changed
+     */
+    public set indicateVertices(value: boolean) {
+        this._indicateVertices = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
      * Get line color property.
      * @returns {number}
      */
@@ -263,6 +285,9 @@ export class OutlineTag extends Tag {
     public setOptions(options: IOutlineTagOptions): void {
         this._editable = options.editable == null ? this._editable : options.editable;
         this._icon = options.icon === undefined ? this._icon : options.icon;
+        this._iconAlignment = options.iconAlignment == null ? this._iconAlignment : options.iconAlignment;
+        this._iconIndex = options.iconIndex == null ? this._iconIndex : options.iconIndex;
+        this._indicateVertices = options.indicateVertices == null ? this._indicateVertices : options.indicateVertices;
         this._lineColor = options.lineColor == null ? this._lineColor : options.lineColor;
         this._lineWidth = options.lineWidth == null ? this._lineWidth : options.lineWidth;
         this._fillColor = options.fillColor == null ? this._fillColor : options.fillColor;
@@ -413,11 +438,16 @@ export class OutlineTag extends Tag {
                 style: { background: lineColor, left: vertexCss[0], position: "absolute", top: vertexCss[1] },
             };
 
+            vNodes.push(vd.h("div.TagResizer", properties, []));
+
+            if (!this._indicateVertices) {
+                continue;
+            }
+
             let pointProperties: vd.createProperties = {
                 style: { background: lineColor, left: vertexCss[0], position: "absolute", top: vertexCss[1] },
             };
 
-            vNodes.push(vd.h("div.TagResizer", properties, []));
             vNodes.push(vd.h("div.TagVertex", pointProperties, []));
         }
 
