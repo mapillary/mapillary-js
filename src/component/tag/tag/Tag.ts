@@ -59,7 +59,7 @@ export abstract class Tag extends EventEmitter {
         this._interact$ = new rx.Subject<IInteraction>();
         this._notifyChanged$ = new rx.Subject<Tag>();
 
-        this.changed$
+        this._notifyChanged$
             .subscribe(
                 (t: Tag): void => {
                     this.fire(Tag.changed, this);

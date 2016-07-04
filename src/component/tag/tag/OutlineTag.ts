@@ -1,5 +1,6 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
+import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
@@ -22,6 +23,14 @@ import {
  * @classdesc Tag visualizing a geometry outline.
  */
 export class OutlineTag extends Tag {
+    /**
+     * Event fired when the icon of the outline tag is clicked.
+     *
+     * @event OutlineTag#click
+     * @type {OutlineTag} The tag instance that was clicked.
+     */
+    public static click: string = "click";
+
     protected _geometry: VertexGeometry;
 
     private _editable: boolean;
@@ -35,6 +44,8 @@ export class OutlineTag extends Tag {
     private _fillOpacity: number;
     private _text: string;
     private _textColor: number;
+
+    private _click$: rx.Subject<OutlineTag>;
 
     /**
      * Create an outline tag.
@@ -60,6 +71,26 @@ export class OutlineTag extends Tag {
         this._lineWidth = options.lineWidth == null ? 1 : options.lineWidth;
         this._text = options.text === undefined ? null : options.text;
         this._textColor = options.textColor == null ? 0xFFFFFF : options.textColor;
+
+        this._click$ = new rx.Subject<OutlineTag>();
+
+        this._click$
+            .subscribe(
+                (t: Tag): void => {
+                    this.fire(OutlineTag.click, this);
+                });
+    }
+
+    /**
+     * Click observable.
+     *
+     * @description An observable emitting the tag when the icon of the
+     * tag has been clicked.
+     *
+     * @returns {Observable<Tag>}
+     */
+    public get click$(): rx.Observable<OutlineTag> {
+        return this._click$;
     }
 
     /**
@@ -341,10 +372,15 @@ export class OutlineTag extends Tag {
                         let sprite: vd.VNode =
                             atlas.getDOMSprite(this._icon, spriteAlignments[0], spriteAlignments[1]);
 
+                        let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                            this._click$.onNext(this);
+                        };
+
                         let iconCanvas: number[] = this._projectToCanvas(iconCameraSpace, projectionMatrix);
                         let iconCss: string[] = iconCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
                         let properties: vd.createProperties = {
+                            onclick: click,
                             onmousedown: interact,
                             onmouseup: abort,
                             style: {
