@@ -543,25 +543,28 @@ export class TagComponent extends Component {
                     this._container.mouseService.claimMouse(this._name, 1);
                 });
 
-        this._mouseDragSubscription = this._container.mouseService
-            .filtered$(this._name, this._container.mouseService.mouseDrag$)
+        this._mouseDragSubscription = rx.Observable
+            .combineLatest(
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$),
+                this._container.renderService.renderCamera$,
+                (e: MouseEvent, c: RenderCamera): [MouseEvent, RenderCamera] => {
+                    return [e, c];
+                })
             .withLatestFrom(
                 this._activeTag$,
-                this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
                 (
-                    event: MouseEvent,
+                    ec: [MouseEvent, RenderCamera],
                     activeTag: IInteraction,
-                    renderCamera: RenderCamera,
                     transform: Transform):
-                    [MouseEvent, IInteraction, RenderCamera, Transform] => {
-                    return [event, activeTag, renderCamera, transform];
+                    [MouseEvent, RenderCamera, IInteraction, Transform] => {
+                    return [ec[0], ec[1], activeTag, transform];
                 })
             .subscribe(
-                (args: [MouseEvent, IInteraction, RenderCamera, Transform]): void => {
+                (args: [MouseEvent, RenderCamera, IInteraction, Transform]): void => {
                     let mouseEvent: MouseEvent = args[0];
-                    let activeTag: IInteraction = args[1];
-                    let renderCamera: RenderCamera = args[2];
+                    let renderCamera: RenderCamera = args[1];
+                    let activeTag: IInteraction = args[2];
                     let transform: Transform = args[3];
 
                     if (activeTag.operation === TagOperation.None) {

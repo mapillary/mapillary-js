@@ -254,6 +254,7 @@ export class OutlineTag extends Tag {
 
         let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
             this._abort$.onNext(this._id);
+            this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this, vertexIndex: 0 });
         };
 
         if (this._geometry instanceof RectGeometry) {
