@@ -640,21 +640,23 @@ export class TagComponent extends Component {
                 this._tags$.startWith([]),
                 this._tagChanged$.startWith(null),
                 this._tagCreator.tag$.merge(this._createGeometryChanged$).startWith(null),
-                (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag, createTag: OutlineCreateTag):
-                [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag] => {
-                    return [rc, atlas, tags, tag, createTag];
+                this._configuration$,
+                (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag, ct: OutlineCreateTag, c: ITagConfiguration):
+                [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration] => {
+                    return [rc, atlas, tags, tag, ct, c];
                 })
             .withLatestFrom(
                 this._navigator.stateService.currentTransform$,
-                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag], transform: Transform):
-                    [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, Transform] => {
-                    return [rcts[0], rcts[1], rcts[2], rcts[3], rcts[4], transform];
+                (args: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration], transform: Transform):
+                    [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration, Transform] => {
+                    return [args[0], args[1], args[2], args[3], args[4], args[5], transform];
                 })
             .map<IVNodeHash>(
-                (rcts: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, Transform]): IVNodeHash => {
+                (args: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration, Transform]):
+                    IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._tagDomRenderer.render(rcts[2], rcts[4], rcts[1], rcts[0].perspective, rcts[5]),
+                        vnode: this._tagDomRenderer.render(args[2], args[4], args[1], args[0].perspective, args[6], args[5]),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);
