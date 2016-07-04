@@ -5,7 +5,6 @@ import * as vd from "virtual-dom";
 
 import {
     VertexGeometry,
-    PolygonGeometry,
     RectGeometry,
     IOutlineTagOptions,
     Tag,
@@ -234,9 +233,7 @@ export class OutlineTag extends Tag {
             objects.push(this._getGLLine(transform));
         }
 
-        if (this._fillOpacity > 0 &&
-            this._geometry instanceof PolygonGeometry &&
-            !transform.gpano) {
+        if (this._fillOpacity > 0 && !transform.gpano) {
             objects.push(this._getGLMesh(transform));
         }
 

@@ -259,7 +259,7 @@ export class RectGeometry extends VertexGeometry {
 
     /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
-        return this._triangulate(this._getPoints2d(transform), this.getPoints3d(transform));
+        return this._triangulate(this._rectToVertices2d(this._rect), this.getVertices3d(transform));
     }
 
     /**
