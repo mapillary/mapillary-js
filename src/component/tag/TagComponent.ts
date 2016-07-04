@@ -106,7 +106,7 @@ export class TagComponent extends Component {
     private _updateTagSubscription: rx.IDisposable;
 
     private _stopCreateSubscription: rx.IDisposable;
-    private _geometryTypeSubscription: rx.IDisposable;
+    private _creatorConfigurationSubscription: rx.IDisposable;
     private _createSubscription: rx.IDisposable;
     private _createPointSubscription: rx.IDisposable;
     private _setCreateVertexSubscription: rx.IDisposable;
@@ -302,6 +302,18 @@ export class TagComponent extends Component {
         this._tagInteractionAbort$.subscribe();
     }
 
+   /**
+    * Get default configuration.
+    *
+    * @returns {ITagConfiguration}
+    */
+    public get defaultConfiguration(): ITagConfiguration {
+        return {
+            createColor: 0xFFFFFF,
+            creating: false,
+        };
+    }
+
     /**
      * Get tags observable.
      *
@@ -404,12 +416,8 @@ export class TagComponent extends Component {
                 pointGeometryCreated$)
             .subscribe((): void => { this.stopCreate(); });
 
-        this._geometryTypeSubscription = this._configuration$
-            .map<GeometryType>(
-                (configuration: ITagConfiguration): GeometryType => {
-                    return configuration.createType;
-                })
-            .subscribe(this._tagCreator.geometryType$);
+        this._creatorConfigurationSubscription = this._configuration$
+            .subscribe(this._tagCreator.configuration$);
 
         this._createSubscription = this._creatingConfiguration$
             .flatMapLatest<number[]>(
@@ -694,7 +702,7 @@ export class TagComponent extends Component {
         this._updateTagSubscription.dispose();
 
         this._stopCreateSubscription.dispose();
-        this._geometryTypeSubscription.dispose();
+        this._creatorConfigurationSubscription.dispose();
         this._createSubscription.dispose();
         this._createPointSubscription.dispose();
         this._setCreateVertexSubscription.dispose();

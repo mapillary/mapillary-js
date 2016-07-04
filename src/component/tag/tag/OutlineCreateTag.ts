@@ -5,6 +5,7 @@ import * as THREE from "three";
 import * as vd from "virtual-dom";
 
 import {
+    IOutlineCreateTagOptions,
     PolygonGeometry,
     RectGeometry,
     VertexGeometry,
@@ -13,12 +14,14 @@ import {Transform} from "../../../Geo";
 
 export class OutlineCreateTag {
     private _geometry: VertexGeometry;
+    private _options: IOutlineCreateTagOptions;
 
     private _created$: rx.Subject<OutlineCreateTag>;
     private _aborted$: rx.Subject<OutlineCreateTag>;
 
-    constructor(geometry: VertexGeometry) {
+    constructor(geometry: VertexGeometry, options: IOutlineCreateTagOptions) {
         this._geometry = geometry;
+        this._options = { color: options.color == null ? 0xFFFFFF : options.color };
 
         this._created$ = new rx.Subject<OutlineCreateTag>();
         this._aborted$ = new rx.Subject<OutlineCreateTag>();
@@ -54,7 +57,7 @@ export class OutlineCreateTag {
         let material: THREE.LineBasicMaterial =
             new THREE.LineBasicMaterial(
                 {
-                    color: 0xFFFFFF,
+                    color: this._options.color,
                     linewidth: 2,
                 });
 
@@ -82,7 +85,12 @@ export class OutlineCreateTag {
                 let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
                 let pointProperties: vd.createProperties = {
-                    style: { background: "#FFFFFF", left: centerCss[0], position: "absolute", top: centerCss[1] },
+                    style: {
+                        background: "#" + ("000000" + this._options.color.toString(16)).substr(-6),
+                        left: centerCss[0],
+                        position: "absolute",
+                        top: centerCss[1],
+                    },
                 };
 
                 let completerProperties: vd.createProperties = {
@@ -154,7 +162,12 @@ export class OutlineCreateTag {
                     let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
                     let pointProperties: vd.createProperties = {
-                        style: { background: "#FFFFFF", left: centerCss[0], position: "absolute", top: centerCss[1] },
+                        style: {
+                            background: "#" + ("000000" + this._options.color.toString(16)).substr(-6),
+                            left: centerCss[0],
+                            position: "absolute",
+                            top: centerCss[1],
+                        },
                     };
 
                     vNodes.push(vd.h("div.TagVertex", pointProperties, []));

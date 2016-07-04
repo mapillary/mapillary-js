@@ -3,7 +3,7 @@
 import * as rx from "rx";
 
 import {
-    GeometryType,
+    ITagConfiguration,
     OutlineCreateTag,
     PolygonGeometry,
     RectGeometry,
@@ -20,14 +20,14 @@ export class TagCreator {
     private _create$: rx.Subject<number[]>;
     private _delete$: rx.Subject<void>;
 
-    private _geometryType$: rx.Subject<GeometryType>;
+    private _configuration$: rx.Subject<ITagConfiguration>;
 
     constructor() {
         this._tagOperation$ = new rx.Subject<ICreateTagOperation>();
         this._create$ = new rx.Subject<number[]>();
         this._delete$ = new rx.Subject<void>();
 
-        this._geometryType$ = new rx.Subject<GeometryType>();
+        this._configuration$ = new rx.Subject<ITagConfiguration>();
 
         this._tag$ = this._tagOperation$
             .scan<OutlineCreateTag>(
@@ -39,17 +39,17 @@ export class TagCreator {
 
         this._create$
             .withLatestFrom(
-                this._geometryType$,
-                (coordinate: number[], type: GeometryType): [number[], GeometryType] => {
+                this._configuration$,
+                (coordinate: number[], type: ITagConfiguration): [number[], ITagConfiguration] => {
                     return [coordinate, type];
                 })
             .map<ICreateTagOperation>(
-                (ct: [number[], GeometryType]): ICreateTagOperation => {
+                (ct: [number[], ITagConfiguration]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
                         let coordinate: number[] = ct[0];
-                        let type: GeometryType = ct[1];
+                        let configuration: ITagConfiguration = ct[1];
 
-                        if (type === "rect") {
+                        if (configuration.createType === "rect") {
                             let geometry: RectGeometry = new RectGeometry([
                                 coordinate[0],
                                 coordinate[1],
@@ -57,15 +57,15 @@ export class TagCreator {
                                 coordinate[1],
                             ]);
 
-                            return new OutlineCreateTag(geometry);
-                        } else if (type === "polygon") {
+                            return new OutlineCreateTag(geometry, { color: configuration.createColor });
+                        } else if (configuration.createType === "polygon") {
                             let geometry: PolygonGeometry = new PolygonGeometry([
                                 [coordinate[0], coordinate[1]],
                                 [coordinate[0], coordinate[1]],
                                 [coordinate[0], coordinate[1]],
                             ]);
 
-                            return new OutlineCreateTag(geometry);
+                            return new OutlineCreateTag(geometry, { color: configuration.createColor });
                         }
 
                         return null;
@@ -91,8 +91,8 @@ export class TagCreator {
         return this._delete$;
     }
 
-    public get geometryType$(): rx.Subject<GeometryType> {
-        return this._geometryType$;
+    public get configuration$(): rx.Subject<ITagConfiguration> {
+        return this._configuration$;
     }
 
     public get tag$(): rx.Observable<OutlineCreateTag> {
