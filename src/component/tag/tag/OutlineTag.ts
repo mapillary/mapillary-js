@@ -11,7 +11,7 @@ import {
     TagOperation,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
-import {ISpriteAtlas} from "../../../Viewer";
+import {ISpriteAtlas, SpriteAlignment} from "../../../Viewer";
 
 /**
  * @class OutlineTag
@@ -22,6 +22,7 @@ export class OutlineTag extends Tag {
 
     private _editable: boolean;
     private _icon: string;
+    private _iconIndex: number;
     private _lineColor: number;
     private _lineWidth: number;
     private _fillColor: number;
@@ -43,11 +44,12 @@ export class OutlineTag extends Tag {
         super(id, geometry);
 
         this._editable = options.editable == null ? false : options.editable;
-        this._icon = options.icon === undefined ? null : options.icon;
-        this._lineColor = options.lineColor == null ? 0xFFFFFF : options.lineColor;
-        this._lineWidth = options.lineWidth == null ? 1 : options.lineWidth;
         this._fillColor = options.fillColor == null ? 0xFFFFFF : options.fillColor;
         this._fillOpacity = options.fillOpacity == null ? 0.0 : options.fillOpacity;
+        this._icon = options.icon === undefined ? null : options.icon;
+        this._iconIndex = options.iconIndex == null ? 3 : options.iconIndex;
+        this._lineColor = options.lineColor == null ? 0xFFFFFF : options.lineColor;
+        this._lineWidth = options.lineWidth == null ? 1 : options.lineWidth;
         this._text = options.text === undefined ? null : options.text;
         this._textColor = options.textColor == null ? 0xFFFFFF : options.textColor;
     }
@@ -125,6 +127,25 @@ export class OutlineTag extends Tag {
      */
     public set icon(value: string) {
         this._icon = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
+     * Get icon index property.
+     * @returns {number}
+     */
+    public get iconIndex(): number {
+        return this._iconIndex;
+    }
+
+    /**
+     * Set icon index property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
+    public set iconIndex(value: number) {
+        this._iconIndex = value;
         this._notifyChanged$.onNext(this);
     }
 
@@ -251,40 +272,47 @@ export class OutlineTag extends Tag {
 
         let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
             this._abort$.onNext(this._id);
-            this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this, vertexIndex: 0 });
+            this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
         };
 
         if (this._geometry instanceof RectGeometry) {
-            let aVertex: number[] = this._geometry.getVertex3d(3, transform);
+            if (this._icon != null) {
+                let iconVertex: number[] = this._geometry.getVertex3d(this._iconIndex, transform);
+                let iconCameraSpace: THREE.Vector3 = this._convertToCameraSpace(iconVertex, matrixWorldInverse);
+                if (iconCameraSpace.z < 0) {
+                    let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                        this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
+                    };
 
-            let symbolVertex: THREE.Vector3 = this._convertToCameraSpace(aVertex, matrixWorldInverse);
-            if (symbolVertex.z < 0) {
-                let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                    this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
-                };
-
-                if (this._icon != null) {
                     if (atlas.loaded) {
-                        let sprite: vd.VNode = atlas.getDOMSprite(this._icon);
+                        let sprite: vd.VNode = atlas.getDOMSprite(this._icon, SpriteAlignment.Start, SpriteAlignment.Start);
 
-                        let labelCanvas: number[] = this._projectToCanvas(symbolVertex, projectionMatrix);
-                        let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+                        let iconCanvas: number[] = this._projectToCanvas(iconCameraSpace, projectionMatrix);
+                        let iconCss: string[] = iconCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
                         let properties: vd.createProperties = {
                             onmousedown: interact,
                             onmouseup: abort,
                             style: {
-                                left: labelCss[0],
+                                left: iconCss[0],
                                 pointerEvents: "all",
                                 position: "absolute",
-                                top: labelCss[1],
+                                top: iconCss[1],
                             },
                         };
 
-                        vNodes.push(vd.h("div", properties, [sprite]));
+                        vNodes.push(vd.h("div.TagSymbol", properties, [sprite]));
                     }
-                } else if (this._text != null) {
-                    let labelCanvas: number[] = this._projectToCanvas(symbolVertex, projectionMatrix);
+                }
+            } else if (this._text != null) {
+                let textVertex: number[] = this._geometry.getVertex3d(3, transform);
+                let textCameraSpace: THREE.Vector3 = this._convertToCameraSpace(textVertex, matrixWorldInverse);
+                if (textCameraSpace.z < 0) {
+                    let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                        this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
+                    };
+
+                    let labelCanvas: number[] = this._projectToCanvas(textCameraSpace, projectionMatrix);
                     let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
                     let properties: vd.createProperties = {
@@ -333,6 +361,12 @@ export class OutlineTag extends Tag {
         let vertices3d: number[][] = this._geometry.getVertices3d(transform);
 
         for (let i: number = 0; i < vertices3d.length - 1; i++) {
+            if (this._geometry instanceof RectGeometry &&
+                ((this._icon != null && i === this._iconIndex) ||
+                (this._icon == null && this._text != null && i === 3))) {
+                continue;
+            }
+
             let vertexCameraSpace: THREE.Vector3 = this._convertToCameraSpace(vertices3d[i], matrixWorldInverse);
 
             if (vertexCameraSpace.z > 0) {
