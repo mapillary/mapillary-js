@@ -1,3 +1,5 @@
+import {Alignment} from "../../../Component";
+
 /**
  * Interface for the options that define the behavior and
  * appearance of the outline tag.
@@ -27,6 +29,13 @@ export interface IOutlineTagOptions {
      * A string referencing the sprite data property to pull from.
      */
     icon?: string;
+
+    /**
+     * Alignment value determining how to align the icon when rendering
+     *
+     * @default {Alignment.Outer}
+     */
+    iconAlignment: Alignment;
 
     /**
      * Number representing the index for where to show the icon or

@@ -29,6 +29,7 @@ export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders";
 export {SimpleMarker} from "./component/marker/SimpleMarker";
 export {SliderComponent} from "./component/imageplane/SliderComponent";
 export {Tag} from "./component/tag/tag/Tag";
+export {Alignment} from "./component/tag/tag/Alignment";
 export {OutlineTag} from "./component/tag/tag/OutlineTag";
 export {OutlineCreateTag} from "./component/tag/tag/OutlineCreateTag";
 export {SpotTag} from "./component/tag/tag/SpotTag";

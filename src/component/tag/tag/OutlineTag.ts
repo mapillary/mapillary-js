@@ -4,14 +4,18 @@ import * as THREE from "three";
 import * as vd from "virtual-dom";
 
 import {
-    VertexGeometry,
-    RectGeometry,
+    Alignment,
     IOutlineTagOptions,
+    RectGeometry,
     Tag,
     TagOperation,
+    VertexGeometry,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
-import {ISpriteAtlas, SpriteAlignment} from "../../../Viewer";
+import {
+    ISpriteAtlas,
+    SpriteAlignment,
+} from "../../../Viewer";
 
 /**
  * @class OutlineTag
@@ -22,6 +26,7 @@ export class OutlineTag extends Tag {
 
     private _editable: boolean;
     private _icon: string;
+    private _iconAlignment: Alignment;
     private _iconIndex: number;
     private _lineColor: number;
     private _lineWidth: number;
@@ -47,6 +52,7 @@ export class OutlineTag extends Tag {
         this._fillColor = options.fillColor == null ? 0xFFFFFF : options.fillColor;
         this._fillOpacity = options.fillOpacity == null ? 0.0 : options.fillOpacity;
         this._icon = options.icon === undefined ? null : options.icon;
+        this._iconAlignment = options.iconAlignment == null ? Alignment.Outer : options.iconAlignment;
         this._iconIndex = options.iconIndex == null ? 3 : options.iconIndex;
         this._lineColor = options.lineColor == null ? 0xFFFFFF : options.lineColor;
         this._lineWidth = options.lineWidth == null ? 1 : options.lineWidth;
@@ -127,6 +133,25 @@ export class OutlineTag extends Tag {
      */
     public set icon(value: string) {
         this._icon = value;
+        this._notifyChanged$.onNext(this);
+    }
+
+    /**
+     * Get icon alignment property.
+     * @returns {Alignment}
+     */
+    public get iconAlignment(): Alignment {
+        return this._iconAlignment;
+    }
+
+    /**
+     * Set icon alignment property.
+     * @param {Alignment}
+     *
+     * @fires Tag#changed
+     */
+    public set iconAlignment(value: Alignment) {
+        this._iconAlignment = value;
         this._notifyChanged$.onNext(this);
     }
 
@@ -285,7 +310,11 @@ export class OutlineTag extends Tag {
                     };
 
                     if (atlas.loaded) {
-                        let sprite: vd.VNode = atlas.getDOMSprite(this._icon, SpriteAlignment.Start, SpriteAlignment.Start);
+                        let spriteAlignments: [SpriteAlignment, SpriteAlignment] =
+                            this._getSpriteAlignment(this._iconIndex, this._iconAlignment);
+
+                        let sprite: vd.VNode =
+                            atlas.getDOMSprite(this._icon, spriteAlignments[0], spriteAlignments[1]);
 
                         let iconCanvas: number[] = this._projectToCanvas(iconCameraSpace, projectionMatrix);
                         let iconCss: string[] = iconCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
@@ -460,6 +489,36 @@ export class OutlineTag extends Tag {
                 });
 
         return new THREE.Mesh(geometry, material);
+    }
+
+    private _getSpriteAlignment(index: number, alignment: Alignment): [SpriteAlignment, SpriteAlignment] {
+        let horizontalAlignment: SpriteAlignment = SpriteAlignment.Center;
+        let verticalAlignment: SpriteAlignment = SpriteAlignment.Center;
+
+        if (alignment === Alignment.Outer) {
+            switch (index) {
+                case 0:
+                    horizontalAlignment = SpriteAlignment.End;
+                    verticalAlignment = SpriteAlignment.Start;
+                    break;
+                case 1:
+                    horizontalAlignment = SpriteAlignment.End;
+                    verticalAlignment = SpriteAlignment.End;
+                    break;
+                case 2:
+                    horizontalAlignment = SpriteAlignment.Start;
+                    verticalAlignment = SpriteAlignment.End;
+                    break;
+                case 3:
+                    horizontalAlignment = SpriteAlignment.Start;
+                    verticalAlignment = SpriteAlignment.Start;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return [horizontalAlignment, verticalAlignment];
     }
 }
 
