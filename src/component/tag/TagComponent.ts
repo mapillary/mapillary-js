@@ -551,22 +551,45 @@ export class TagComponent extends Component {
                     this._container.mouseService.claimMouse(this._name, 1);
                 });
 
-        this._mouseDragSubscription = rx.Observable
-            .combineLatest(
-                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$),
-                this._container.renderService.renderCamera$,
-                (e: MouseEvent, c: RenderCamera): [MouseEvent, RenderCamera] => {
-                    return [e, c];
-                })
+        this._mouseDragSubscription = this._activeTag$
             .withLatestFrom(
-                this._activeTag$,
-                this._navigator.stateService.currentTransform$,
-                (
-                    ec: [MouseEvent, RenderCamera],
-                    activeTag: IInteraction,
-                    transform: Transform):
-                    [MouseEvent, RenderCamera, IInteraction, Transform] => {
-                    return [ec[0], ec[1], activeTag, transform];
+                this._container.mouseService.mouseMove$,
+                (a: IInteraction, e: MouseEvent): [IInteraction, MouseEvent] => {
+                    return [a, e];
+                })
+            .flatMapLatest(
+                (args: [IInteraction, MouseEvent]): rx.Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
+                    let activeTag: IInteraction = args[0];
+                    let mouseMove: MouseEvent = args[1];
+
+                    if (activeTag.operation === TagOperation.None) {
+                        return rx.Observable.empty<[MouseEvent, RenderCamera, IInteraction, Transform]>();
+                    }
+
+                    let mouseDrag$: rx.Observable<MouseEvent> = rx.Observable
+                        .just<MouseEvent>(mouseMove)
+                        .concat(
+                            this._container.mouseService.filtered$(
+                                this._name,
+                                this._container.mouseService.mouseDrag$));
+
+                    return rx.Observable
+                        .combineLatest(
+                            mouseDrag$,
+                            this._container.renderService.renderCamera$,
+                            (e: MouseEvent, c: RenderCamera): [MouseEvent, RenderCamera] => {
+                                return [e, c];
+                            })
+                        .withLatestFrom(
+                            rx.Observable.just(activeTag),
+                            this._navigator.stateService.currentTransform$,
+                            (
+                                ec: [MouseEvent, RenderCamera],
+                                a: IInteraction,
+                                t: Transform):
+                                [MouseEvent, RenderCamera, IInteraction, Transform] => {
+                                return [ec[0], ec[1], a, t];
+                            });
                 })
             .subscribe(
                 (args: [MouseEvent, RenderCamera, IInteraction, Transform]): void => {
