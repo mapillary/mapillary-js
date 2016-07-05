@@ -36,6 +36,7 @@ export class StateService {
 
     private _currentState$: rx.Observable<IFrame>;
     private _currentNode$: rx.Observable<Node>;
+    private _currentNodeExternal$: rx.Observable<Node>;
     private _currentTransform$: rx.Observable<Transform>;
     private _reference$: rx.Observable<ILatLonAlt>;
 
@@ -121,21 +122,25 @@ export class StateService {
                 })
             .shareReplay(1);
 
-        this._currentNode$ = nodeChanged$
+        let nodeChangedSubject$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+
+        nodeChanged$.subscribe(nodeChangedSubject$);
+
+        this._currentNode$ = nodeChangedSubject$
             .map<Node>(
                 (f: IFrame): Node => {
                     return f.state.currentNode;
                 })
             .shareReplay(1);
 
-        this._currentTransform$ = nodeChanged$
+        this._currentTransform$ = nodeChangedSubject$
             .map<Transform>(
                 (f: IFrame): Transform => {
                     return f.state.currentTransform;
                 })
             .shareReplay(1);
 
-        this._reference$ = nodeChanged$
+        this._reference$ = nodeChangedSubject$
             .map<ILatLonAlt>(
                 (f: IFrame): ILatLonAlt => {
                     return f.state.reference;
@@ -143,6 +148,13 @@ export class StateService {
             .distinctUntilChanged(
                 (reference: ILatLonAlt): number => {
                     return reference.lat * reference.lon;
+                })
+            .shareReplay(1);
+
+        this._currentNodeExternal$ = nodeChanged$
+            .map<Node>(
+                (f: IFrame): Node => {
+                    return f.state.currentNode;
                 })
             .shareReplay(1);
 
@@ -161,6 +173,7 @@ export class StateService {
         this._currentNode$.subscribe();
         this._currentTransform$.subscribe();
         this._reference$.subscribe();
+        this._currentNodeExternal$.subscribe();
 
         this._frameId = null;
         this._frameGenerator = new FrameGenerator();
@@ -172,6 +185,10 @@ export class StateService {
 
     public get currentNode$(): rx.Observable<Node> {
         return this._currentNode$;
+    }
+
+    public get currentNodeExternal$(): rx.Observable<Node> {
+        return this._currentNodeExternal$;
     }
 
     public get currentTransform$(): rx.Observable<Transform> {

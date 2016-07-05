@@ -22,7 +22,7 @@ export class EventLauncher {
                 this._eventEmitter.fire("loadingchanged", loading);
             });
 
-        this._stateSubscription = this._navigator.stateService.currentNode$
+        this._stateSubscription = this._navigator.stateService.currentNodeExternal$
             .subscribe((node: Node): void => {
                 this._eventEmitter.fire("nodechanged", node);
             });
