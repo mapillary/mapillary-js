@@ -16,6 +16,7 @@ export class RenderService {
     private _currentFrame$: rx.Observable<IFrame>;
 
     private _renderCameraOperation$: rx.Subject<IRenderCameraOperation>;
+    private _renderCameraHolder$: rx.Observable<RenderCamera>;
     private _renderCameraFrame$: rx.Observable<RenderCamera>;
     private _renderCamera$: rx.Observable<RenderCamera>;
 
@@ -27,6 +28,7 @@ export class RenderService {
     constructor(element: HTMLElement, currentFrame$: rx.Observable<IFrame>, renderMode: RenderMode) {
         this._element = element;
         this._currentFrame$ = currentFrame$;
+
         renderMode = renderMode != null ? renderMode : RenderMode.Letterbox;
 
         this._resize$ = new rx.Subject<void>();
@@ -39,8 +41,6 @@ export class RenderService {
                     width: this._element.offsetWidth,
                 });
 
-        this._renderMode$ = new rx.BehaviorSubject<RenderMode>(renderMode);
-
         this._resize$
             .map<ISize>(
                 (): ISize => {
@@ -48,15 +48,67 @@ export class RenderService {
                 })
             .subscribe(this._size$);
 
-        this._renderCameraFrame$ = this._renderCameraOperation$
+        this._renderMode$ = new rx.BehaviorSubject<RenderMode>(renderMode);
+
+        this._renderCameraHolder$ = this._renderCameraOperation$
+            .startWith(
+                (rc: RenderCamera): RenderCamera => {
+                    return rc;
+                })
             .scan<RenderCamera>(
                 (rc: RenderCamera, operation: IRenderCameraOperation): RenderCamera => {
                     return operation(rc);
                 },
                 new RenderCamera(this._element.offsetWidth / this._element.offsetHeight, renderMode))
-            .distinctUntilChanged(
-                (rc: RenderCamera): number => {
-                    return rc.frameId;
+            .shareReplay(1);
+
+        this._renderCameraFrame$ = this._currentFrame$
+            .withLatestFrom(
+                this._renderCameraHolder$,
+                (frame: IFrame, renderCamera: RenderCamera): [IFrame, RenderCamera] => {
+                    return [frame, renderCamera];
+                })
+            .do(
+                (args: [IFrame, RenderCamera]): void => {
+                    let frame: IFrame = args[0];
+                    let rc: RenderCamera = args[1];
+
+                    let camera: Camera = frame.state.camera;
+
+                    if (rc.alpha !== frame.state.alpha ||
+                        rc.zoom !== frame.state.zoom ||
+                        rc.camera.diff(camera) > 0.00001) {
+
+                        let currentTransform: Transform = frame.state.currentTransform;
+                        let previousTransform: Transform =
+                            frame.state.previousTransform != null ?
+                                frame.state.previousTransform :
+                                frame.state.currentTransform;
+
+                        let previousNode: Node =
+                            frame.state.previousNode != null ?
+                                frame.state.previousNode :
+                                frame.state.currentNode;
+
+                        rc.currentAspect = currentTransform.basicAspect;
+                        rc.currentPano = frame.state.currentNode.fullPano;
+                        rc.previousAspect = previousTransform.basicAspect;
+                        rc.previousPano = previousNode.fullPano;
+
+                        rc.alpha = frame.state.alpha;
+                        rc.zoom = frame.state.zoom;
+
+                        rc.camera.copy(camera);
+                        rc.updatePerspective(camera);
+
+                        rc.updateProjection();
+                    }
+
+                    rc.frameId = frame.id;
+                })
+            .map<RenderCamera>(
+                (args: [IFrame, RenderCamera]): RenderCamera => {
+                    return args[1];
                 })
             .shareReplay(1);
 
@@ -66,48 +118,6 @@ export class RenderService {
                     return rc.changed;
                 })
             .shareReplay(1);
-
-        this._currentFrame$
-            .map<IRenderCameraOperation>(
-                (frame: IFrame): IRenderCameraOperation => {
-                    return (rc: RenderCamera): RenderCamera => {
-                        let camera: Camera = frame.state.camera;
-
-                        if (rc.alpha !== frame.state.alpha ||
-                            rc.zoom !== frame.state.zoom ||
-                            rc.camera.diff(camera) > 0.00001) {
-
-                            let currentTransform: Transform = frame.state.currentTransform;
-                            let previousTransform: Transform =
-                                frame.state.previousTransform != null ?
-                                    frame.state.previousTransform :
-                                    frame.state.currentTransform;
-
-                            let previousNode: Node =
-                                frame.state.previousNode != null ?
-                                    frame.state.previousNode :
-                                    frame.state.currentNode;
-
-                            rc.currentAspect = currentTransform.basicAspect;
-                            rc.currentPano = frame.state.currentNode.fullPano;
-                            rc.previousAspect = previousTransform.basicAspect;
-                            rc.previousPano = previousNode.fullPano;
-
-                            rc.alpha = frame.state.alpha;
-                            rc.zoom = frame.state.zoom;
-
-                            rc.camera.copy(camera);
-                            rc.updatePerspective(camera);
-
-                            rc.updateProjection();
-                        }
-
-                        rc.frameId = frame.id;
-
-                        return rc;
-                    };
-                })
-            .subscribe(this._renderCameraOperation$);
 
         this._size$
             .skip(1)
@@ -134,6 +144,10 @@ export class RenderService {
                     };
                 })
             .subscribe(this._renderCameraOperation$);
+
+        this._renderCameraHolder$.subscribe();
+        this._size$.subscribe();
+        this._renderMode$.subscribe();
     }
 
     public get element(): HTMLElement {
