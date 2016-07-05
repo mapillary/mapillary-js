@@ -14,8 +14,8 @@ To use MapillaryJS you must [create an account](http://www.mapillary.com/map/sig
 <!DOCTYPE html>
 <html>
 <head>
-    <script src='https://npmcdn.com/mapillary-js@1.4.1/dist/mapillary-js.min.js'></script>
-    <link href='https://npmcdn.com/mapillary-js@1.4.1/dist/mapillary-js.min.css' rel='stylesheet' />
+    <script src='https://npmcdn.com/mapillary-js@1.4.2/dist/mapillary-js.min.js'></script>
+    <link href='https://npmcdn.com/mapillary-js@1.4.2/dist/mapillary-js.min.css' rel='stylesheet' />
 </head>
 
 <body>
