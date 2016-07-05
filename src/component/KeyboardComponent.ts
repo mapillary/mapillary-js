@@ -68,10 +68,18 @@ export class KeyboardComponent extends Component {
 
         switch (event.keyCode) {
             case 37: // left
+                if (event.shiftKey || event.altKey) {
+                    break;
+                }
+
                 navigationAngle = Math.PI / 2 + phi;
                 stepDirection = EdgeDirection.StepLeft;
                 break;
             case 38: // up
+                if (event.shiftKey) {
+                    break;
+                }
+
                 if (event.altKey) {
                     sequenceDirection = EdgeDirection.Next;
                     break;
@@ -81,10 +89,18 @@ export class KeyboardComponent extends Component {
                 stepDirection = EdgeDirection.StepForward;
                 break;
             case 39: // right
+                if (event.shiftKey || event.altKey) {
+                    break;
+                }
+
                 navigationAngle = -Math.PI / 2 + phi;
                 stepDirection = EdgeDirection.StepRight;
                 break;
             case 40: // down
+                if (event.shiftKey) {
+                    break;
+                }
+
                 if (event.altKey) {
                     sequenceDirection = EdgeDirection.Prev;
                     break;
@@ -101,6 +117,10 @@ export class KeyboardComponent extends Component {
 
         if (sequenceDirection != null) {
             this._moveDir(sequenceDirection, node);
+            return;
+        }
+
+        if (stepDirection == null) {
             return;
         }
 
@@ -153,6 +173,10 @@ export class KeyboardComponent extends Component {
 
         switch (event.keyCode) {
             case 37: // left
+                if (event.altKey) {
+                    break;
+                }
+
                 direction = event.shiftKey ? EdgeDirection.TurnLeft : EdgeDirection.StepLeft;
                 break;
             case 38: // up
@@ -164,6 +188,10 @@ export class KeyboardComponent extends Component {
                 direction = event.shiftKey ? EdgeDirection.Pano : EdgeDirection.StepForward;
                 break;
             case 39: // right
+                if (event.altKey) {
+                    break;
+                }
+
                 direction = event.shiftKey ? EdgeDirection.TurnRight : EdgeDirection.StepRight;
                 break;
             case 40: // down
@@ -184,6 +212,10 @@ export class KeyboardComponent extends Component {
     }
 
     private _moveDir(direction: EdgeDirection, node: Node): void {
+        if (direction == null) {
+            return;
+        }
+
         let directionExist: boolean =
             node.edges.some(
                 (edge: IEdge): boolean => {
