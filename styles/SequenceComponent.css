@@ -26,7 +26,7 @@
 .SequenceStepNextDisabled,
 .SequenceStepPrev,
 .SequenceStepPrevDisabled {
-    background: rgba(36,36,40, 0.3);
+    background: rgba(36, 37, 40, 0.3);
 }
 
 .SequenceStepNextHighlight,
@@ -58,12 +58,6 @@
 .SequenceStepPrevHighlight:hover {
     cursor: pointer;
     cursor: hand;
-}
-
-.SequencePlay:hover,
-.SequenceStepPrev:hover,
-.SequenceStepNext:hover {
-    background: rgba(36, 37, 40, 0.6);
 }
 
 .SequenceStepNext,
@@ -114,4 +108,12 @@
     background-repeat: no-repeat;
     width: 50%;
     padding-bottom: 50%;
+}
+
+@media (hover: hover) {
+    .SequencePlay:hover,
+    .SequenceStepPrev:hover,
+    .SequenceStepNext:hover {
+        background: rgba(36, 37, 40, 0.6);
+    }
 }

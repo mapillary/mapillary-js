@@ -133,6 +133,47 @@ export class SequenceComponent extends Component {
         this.configure({ highlightKey: highlightKey });
     }
 
+    /**
+     * Set max width of container element.
+     *
+     * @description Set max width of the container element holding
+     * the sequence navigation elements. If the min width is larger than the
+     * max width the min width value will be used.
+     *
+     * The container element is automatically resized when the resize
+     * method on the Viewer class is called.
+     *
+     * @param {number} minWidth
+     */
+    public setMaxWidth(maxWidth: number): void {
+        this.configure({ maxWidth: maxWidth });
+    }
+
+    /**
+     * Set min width of container element.
+     *
+     * @description Set min width of the container element holding
+     * the sequence navigation elements. If the min width is larger than the
+     * max width the min width value will be used.
+     *
+     * The container element is automatically resized when the resize
+     * method on the Viewer class is called.
+     *
+     * @param {number} minWidth
+     */
+    public setMinWidth(minWidth: number): void {
+        this.configure({ minWidth: minWidth });
+    }
+
+    /**
+     * Set the value indicating whether the sequence UI elements should be visible.
+     *
+     * @param {boolean} visible
+     */
+    public setVisible(visible: boolean): void {
+        this.configure({ visible: visible });
+    }
+
     /** @inheritdoc */
     public resize(): void {
         this._configuration$
