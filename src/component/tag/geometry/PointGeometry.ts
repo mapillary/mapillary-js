@@ -19,7 +19,6 @@ export class PointGeometry extends Geometry {
      *
      * @throws {GeometryTagError} Point coordinates must be valid basic coordinates.
      */
-
     constructor(point: number[]) {
         super();
 

@@ -3,11 +3,20 @@
 import * as rx from "rx";
 import * as THREE from "three";
 
-import {ComponentService, Component} from "../Component";
+import {
+    ComponentService,
+    Component,
+    IMouseConfiguration,
+} from "../Component";
 import {Transform} from "../Geo";
 import {Node} from "../Graph";
 import {RenderCamera} from "../Render";
-import {Container, Navigator, TouchMove, IPinch} from "../Viewer";
+import {
+    Container,
+    Navigator,
+    TouchMove,
+    IPinch,
+} from "../Viewer";
 
 interface IMovement {
     clientX: number;
@@ -16,13 +25,27 @@ interface IMovement {
     movementY: number;
 }
 
+/**
+ * @class MouseComponent
+ * @classdesc Component handling mouse and touch events for camera movement.
+ */
 export class MouseComponent extends Component {
+    /** @inheritdoc */
     public static componentName: string = "mouse";
 
     private _movementSubscription: rx.IDisposable;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+    }
+
+   /**
+    * Get default configuration.
+    *
+    * @returns {IMouseConfiguration}
+    */
+    public get defaultConfiguration(): IMouseConfiguration {
+        return { freePerspectiveMovement: false };
     }
 
     protected _activate(): void {
@@ -57,16 +80,17 @@ export class MouseComponent extends Component {
                 touchMovement$)
             .withLatestFrom(
                 this._navigator.stateService.currentNode$,
-                (m: IMovement, n: Node): [IMovement, Node] => {
-                    return [m, n];
+                this._configuration$,
+                (m: IMovement, n: Node, c: IMouseConfiguration): [IMovement, Node, IMouseConfiguration] => {
+                    return [m, n, c];
                 })
             .filter(
-                (mn: [IMovement, Node]): boolean => {
-                    return mn[1].fullPano;
+                (args: [IMovement, Node, IMouseConfiguration]): boolean => {
+                    return args[1].fullPano || args[2].freePerspectiveMovement;
                 })
             .map<IMovement>(
-                (mn: [IMovement, Node]): IMovement => {
-                    return mn[0];
+                (args: [IMovement, Node, IMouseConfiguration]): IMovement => {
+                    return args[0];
                 })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
@@ -109,16 +133,17 @@ export class MouseComponent extends Component {
         this._container.mouseService.mouseWheel$
             .withLatestFrom(
                 this._navigator.stateService.currentNode$,
-                (w: WheelEvent, n: Node): [WheelEvent, Node] => {
-                    return [w, n];
+                this._configuration$,
+                (w: WheelEvent, n: Node, c: IMouseConfiguration): [WheelEvent, Node, IMouseConfiguration] => {
+                    return [w, n, c];
                 })
             .filter(
-                (wn: [WheelEvent, Node]): boolean => {
-                    return wn[1].fullPano;
+                (args: [WheelEvent, Node, IMouseConfiguration]): boolean => {
+                    return args[1].fullPano || args[2].freePerspectiveMovement;
                 })
             .map<WheelEvent>(
-                (wn: [WheelEvent, Node]): WheelEvent => {
-                    return wn[0];
+                (args: [WheelEvent, Node, IMouseConfiguration]): WheelEvent => {
+                    return args[0];
                 })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
