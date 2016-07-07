@@ -83,9 +83,9 @@ export abstract class Component extends EventEmitter {
             return;
         }
 
+        this._deactivate();
         this._container.domRenderer.clear(this._name);
         this._container.glRenderer.clear(this._name);
-        this._deactivate();
         this._activated = false;
         this._activated$.onNext(false);
     };
