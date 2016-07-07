@@ -281,17 +281,24 @@ export class TagComponent extends Component {
 
         this._creatingConfiguration$ = this._configuration$
             .distinctUntilChanged(
-                (configuration: ITagConfiguration): boolean => {
-                    return configuration.creating;
+                (configuration: ITagConfiguration): ITagConfiguration => {
+                    return {
+                        createColor: configuration.createColor,
+                        createType: configuration.createType,
+                        creating: configuration.creating,
+                    };
+                },
+                (c1: ITagConfiguration, c2: ITagConfiguration): boolean => {
+                    return c1.creating === c2.creating && c1.createType === c2.createType;
                 })
-            .share();
+            .shareReplay(1);
 
         this._creating$ = this._creatingConfiguration$
             .map<boolean>(
                 (configuration: ITagConfiguration): boolean => {
                     return configuration.creating;
                 })
-            .share();
+            .shareReplay(1);
 
         this._creating$
             .subscribe(
@@ -300,6 +307,7 @@ export class TagComponent extends Component {
                 });
 
         this._tagInteractionAbort$.subscribe();
+        this._creating$.subscribe();
     }
 
    /**
@@ -356,7 +364,6 @@ export class TagComponent extends Component {
      * @param {string} geometryType - String specifying the geometry type.
      */
     public startCreate(geometryType: GeometryType): void {
-        this.configure({ createType: null, creating: false });
         this.configure({ createType: geometryType, creating: true });
     }
 
@@ -486,11 +493,14 @@ export class TagComponent extends Component {
                     }
                 });
 
-        this._addPointSubscription = this._creating$
+        this._addPointSubscription = this._creatingConfiguration$
             .flatMapLatest<number[]>(
-                (creating: boolean): rx.Observable<number[]> => {
-                    return creating ?
-                        this._basicClick$.skipUntil(this._validBasicClick$) :
+                (configuration: ITagConfiguration): rx.Observable<number[]> => {
+                    let createType: GeometryType = configuration.createType;
+
+                    return configuration.creating &&
+                        (createType === "rect" || createType === "polygon") ?
+                        this._basicClick$.skipUntil(this._validBasicClick$).skip(1) :
                         rx.Observable.empty<number[]>();
                 })
             .withLatestFrom(
@@ -507,7 +517,6 @@ export class TagComponent extends Component {
                 });
 
         this._deleteCreatedSubscription = this._creating$
-            .filter((creating: boolean): boolean => { return !creating; })
             .subscribe(
                 (creating: boolean): void => {
                     this._tagCreator.delete$.onNext(null);
