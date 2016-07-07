@@ -84,7 +84,7 @@ export class TagComponent extends Component {
     private _tags$: rx.Observable<Tag[]>;
     private _tagChanged$: rx.Observable<Tag>;
     private _tagInterationInitiated$: rx.Observable<string>;
-    private _tagInteractionAbort$: rx.Observable<string>;
+    private _tagInteractionAbort$: rx.Observable<void>;
     private _activeTag$: rx.Observable<IInteraction>;
 
     private _basicClick$: rx.Observable<number[]>;
@@ -185,15 +185,13 @@ export class TagComponent extends Component {
                 })
             .share();
 
-        this._tagInteractionAbort$ = this._tags$
-            .flatMapLatest<string>(
-                (tags: Tag[]): rx.Observable<string> => {
-                    return rx.Observable
-                        .fromArray(tags)
-                        .flatMap<string>(
-                            (tag: Tag): rx.Observable<string> => {
-                                return tag.abort$;
-                            });
+        this._tagInteractionAbort$ = rx.Observable
+            .merge(
+                this._container.mouseService.mouseUp$,
+                this._container.mouseService.mouseLeave$)
+            .map<void>(
+                (e: MouseEvent): void => {
+                    return;
                 })
             .share();
 
@@ -207,6 +205,12 @@ export class TagComponent extends Component {
                                 return tag.interact$;
                             });
                 })
+            .merge(
+                this._tagInteractionAbort$
+                    .map<IInteraction>(
+                        (): IInteraction => {
+                            return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
+                        }))
             .share();
 
         this._createGeometryChanged$ = this._tagCreator.tag$
@@ -306,7 +310,6 @@ export class TagComponent extends Component {
                     this.fire(TagComponent.creatingchanged, creating);
                 });
 
-        this._tagInteractionAbort$.subscribe();
         this._creating$.subscribe();
     }
 

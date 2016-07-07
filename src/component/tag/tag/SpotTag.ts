@@ -172,10 +172,6 @@ export class SpotTag extends Tag {
 
         let vNodes: vd.VNode[] = [];
 
-        let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
-            this._abort$.onNext(this._id);
-        };
-
         let centroid3d: number[] = this._geometry.getCentroid3d(transform);
         let centroidCameraSpace: THREE.Vector3 = this._convertToCameraSpace(centroid3d, matrixWorldInverse);
         if (centroidCameraSpace.z < 0) {
@@ -192,7 +188,6 @@ export class SpotTag extends Tag {
 
                     let properties: vd.createProperties = {
                         onmousedown: interactNone,
-                        onmouseup: abort,
                         style: {
                             bottom: 100 * (1 - centroidCanvas[1]) + "%",
                             left: centroidCss[0],
@@ -207,7 +202,6 @@ export class SpotTag extends Tag {
             } else if (this._text != null) {
                 let properties: vd.createProperties = {
                     onmousedown: interactNone,
-                    onmouseup: abort,
                     style: {
                         bottom: 100 * (1 - centroidCanvas[1]) + "%",
                         color: "#" + ("000000" + this._textColor.toString(16)).substr(-6),
@@ -229,7 +223,6 @@ export class SpotTag extends Tag {
             if (this._editable) {
                 let interactorProperties: vd.createProperties = {
                     onmousedown: interact,
-                    onmouseup: abort,
                     style: {
                         background: background,
                         left: centroidCss[0],

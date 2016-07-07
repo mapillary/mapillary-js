@@ -351,11 +351,6 @@ export class OutlineTag extends Tag {
 
         let vNodes: vd.VNode[] = [];
 
-        let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
-            this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
-            this._abort$.onNext(this._id);
-        };
-
         if (this._geometry instanceof RectGeometry) {
             if (this._icon != null) {
                 let iconVertex: number[] = this._geometry.getVertex3d(this._iconIndex, transform);
@@ -383,7 +378,6 @@ export class OutlineTag extends Tag {
                         let properties: vd.createProperties = {
                             onclick: click,
                             onmousedown: interact,
-                            onmouseup: abort,
                             style: {
                                 left: iconCss[0],
                                 pointerEvents: "all",
@@ -408,7 +402,6 @@ export class OutlineTag extends Tag {
 
                     let properties: vd.createProperties = {
                         onmousedown: interact,
-                        onmouseup: abort,
                         style: {
                             color: "#" + ("000000" + this._textColor.toString(16)).substr(-6),
                             left: labelCss[0],
@@ -441,7 +434,6 @@ export class OutlineTag extends Tag {
 
                 let properties: vd.createProperties = {
                     onmousedown: interact,
-                    onmouseup: abort,
                     style: { background: lineColor, left: centerCss[0], position: "absolute", top: centerCss[1] },
                 };
 
@@ -471,7 +463,6 @@ export class OutlineTag extends Tag {
 
             let properties: vd.createProperties = {
                 onmousedown: interact,
-                onmouseup: abort,
                 style: { background: lineColor, left: vertexCss[0], position: "absolute", top: vertexCss[1] },
             };
 

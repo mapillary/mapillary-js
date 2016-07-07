@@ -38,7 +38,6 @@ export abstract class Tag extends EventEmitter {
     protected _id: string;
     protected _geometry: Geometry;
 
-    protected _abort$: rx.Subject<string>;
     protected _interact$: rx.Subject<IInteraction>;
     protected _notifyChanged$: rx.Subject<Tag>;
 
@@ -55,7 +54,6 @@ export abstract class Tag extends EventEmitter {
         this._id = id;
         this._geometry = geometry;
 
-        this._abort$ = new rx.Subject<string>();
         this._interact$ = new rx.Subject<IInteraction>();
         this._notifyChanged$ = new rx.Subject<Tag>();
 
@@ -90,10 +88,6 @@ export abstract class Tag extends EventEmitter {
 
     public get interact$(): rx.Observable<IInteraction> {
         return this._interact$;
-    }
-
-    public get abort$(): rx.Observable<string> {
-        return this._abort$;
     }
 
     /**
