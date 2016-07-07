@@ -58,7 +58,7 @@ export class OutlineCreateTag {
             new THREE.LineBasicMaterial(
                 {
                     color: this._options.color,
-                    linewidth: 2,
+                    linewidth: 1,
                 });
 
         return new THREE.Line(geometry, material);

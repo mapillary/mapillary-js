@@ -373,6 +373,7 @@ export class OutlineTag extends Tag {
                             atlas.getDOMSprite(this._icon, spriteAlignments[0], spriteAlignments[1]);
 
                         let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                            e.stopPropagation();
                             this._click$.onNext(this);
                         };
 
