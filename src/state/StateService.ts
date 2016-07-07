@@ -4,6 +4,7 @@ import * as rx from "rx";
 
 import {Node} from "../Graph";
 import {
+    ILatLon,
     ILatLonAlt,
     Transform,
 } from "../Geo";
@@ -146,8 +147,11 @@ export class StateService {
                     return f.state.reference;
                 })
             .distinctUntilChanged(
-                (reference: ILatLonAlt): number => {
-                    return reference.lat * reference.lon;
+                (reference: ILatLonAlt): ILatLon => {
+                    return { lat: reference.lat, lon: reference.lon };
+                },
+                (r1: ILatLon, r2: ILatLon): boolean => {
+                    return r1.lat === r2.lat && r1.lon === r2.lon;
                 })
             .shareReplay(1);
 
