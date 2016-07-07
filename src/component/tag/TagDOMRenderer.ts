@@ -41,4 +41,8 @@ export class TagDOMRenderer {
 
         return vd.h("div.TagContainer", properties, vNodes);
     }
+
+    public clear(): vd.VNode {
+        return vd.h("div", {}, []);
+    }
 }

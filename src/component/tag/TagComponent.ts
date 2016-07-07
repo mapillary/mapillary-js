@@ -665,15 +665,22 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._tagGlRendererOperation$);
 
-        this._domSubscription = rx.Observable
+        this._domSubscription = this.tags$
+            .startWith([])
+            .do(
+                (tags: Tag[]): void => {
+                    this._container.domRenderer.render$.onNext({
+                        name: this._name,
+                        vnode: this._tagDomRenderer.clear(),
+                    });
+                })
             .combineLatest(
                 this._container.renderService.renderCamera$,
                 this._container.spriteService.spriteAtlas$,
-                this._tags$.startWith([]),
                 this._tagChanged$.startWith(null),
                 this._tagCreator.tag$.merge(this._createGeometryChanged$).startWith(null),
                 this._configuration$,
-                (rc: RenderCamera, atlas: ISpriteAtlas, tags: Tag[], tag: Tag, ct: OutlineCreateTag, c: ITagConfiguration):
+                (tags: Tag[], rc: RenderCamera, atlas: ISpriteAtlas, tag: Tag, ct: OutlineCreateTag, c: ITagConfiguration):
                 [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration] => {
                     return [rc, atlas, tags, tag, ct, c];
                 })
