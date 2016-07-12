@@ -24,4 +24,4 @@ dependencies:
 test:
   override:
     - npm run typings -- install
-    - npm run test -- --single-run
+    - npm run test

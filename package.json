@@ -6,6 +6,7 @@
   "scripts": {
     "bundle": "browserify -p tsify -t brfs -s Mapillary src/Mapillary.ts | uglifyjs > dist/mapillary-js.min.js",
     "build": "browserify -p tsify -t brfs -d -s Mapillary src/Mapillary.ts | exorcist build/bundle.js.map > build/bundle.js",
+    "build-watch": "watchify -v -p tsify -t brfs -d -s Mapillary src/Mapillary.ts -o 'exorcist build/bundle.js.map > build/bundle.js'",
     "clean": "rm -rf dist && mkdir dist",
     "docs": "typedoc --mode file --target ES5 --module commonjs --theme default --excludeExternals --name MapillaryJS --out docs/",
     "gulp": "gulp",
@@ -13,7 +14,9 @@
     "lint-spec": "tslint -c tslint.json ./spec/**/*.ts ./spec/**/**/*.ts",
     "lint-src": "tslint -c tslint.json src/*.ts src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts",
     "prepublish": "npm run clean && npm run bundle && gulp css",
-    "test": "karma start",
+    "start":"node server.js",
+    "test": "karma start --single-run",
+    "test-watch": "karma start",
     "typings": "typings"
   },
   "repository": {
@@ -34,8 +37,10 @@
     "brfs": "^1.4.1",
     "browser-sync": "^2.12.3",
     "browserify": "^13.0.0",
+    "browserify-middleware": "^7.0.0",
     "del": "^2.2.0",
     "exorcist": "^0.4.0",
+    "express": "^4.14.0",
     "ghooks": "^1.2.1",
     "gulp": "~3.9.0",
     "gulp-autoprefixer": "3.1.0",
