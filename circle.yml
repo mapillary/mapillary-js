@@ -5,6 +5,7 @@ general:
     only:
       - master
       - /feature-.*/
+      - /chore-.*/
 
 machine:
   node:
