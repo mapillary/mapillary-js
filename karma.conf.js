@@ -4,14 +4,13 @@ module.exports = function(config) {
   config.set({
     browserify: {
       debug: true,
-      transform: ['brfs'],
+      extensions: ['.ts'],
       plugin: [['tsify', JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions]],
-      extensions: ['.ts']
+      transform: ['brfs'],
     },
     browsers: ['Firefox'],
     files: [
-      'build/bundle.js',
-      'spec/**/**.spec.ts'
+      'spec/**/*.spec.ts'
     ],
     frameworks: ['jasmine', 'browserify'],
     preprocessors: {

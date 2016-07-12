@@ -16,7 +16,6 @@ dependencies:
     - node_modules
     - typings
   pre:
-    - npm install -g gulp
     - export DISPLAY=:99.0
   override:
     - npm install:
@@ -24,6 +23,5 @@ dependencies:
 
 test:
   override:
-    - gulp typings
-    - gulp ts --env=TEST
-    - gulp test
+    - npm run typings -- install
+    - npm run test -- --single-run

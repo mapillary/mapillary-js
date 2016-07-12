@@ -13,7 +13,8 @@
     "lint-spec": "tslint -c tslint.json ./spec/**/*.ts ./spec/**/**/*.ts",
     "lint-src": "tslint -c tslint.json src/*.ts src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts",
     "prepublish": "npm run clean && npm run bundle && gulp css",
-    "test": "karma start --single-run"
+    "test": "karma start",
+    "typings": "typings"
   },
   "repository": {
     "type": "git",
