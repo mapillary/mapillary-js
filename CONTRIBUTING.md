@@ -50,7 +50,7 @@ npm install
 ## Serving the Debug Page
 
 ```bash
-npm run gulp
+npm start
 ```
 
 Open the debug page at [http://localhost:3000](http://localhost:3000).
@@ -58,5 +58,5 @@ Open the debug page at [http://localhost:3000](http://localhost:3000).
 ## Running Tests
 
 ```bash
-npm run gulp test
+npm run test
 ```

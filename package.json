@@ -77,7 +77,7 @@
   "config": {
     "ghooks": {
       "pre-commit": "npm run lint",
-      "pre-push": "gulp test"
+      "pre-push": "npm run test"
     }
   },
   "dependencies": {
