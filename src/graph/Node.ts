@@ -179,12 +179,6 @@ export class Node {
             let img: HTMLImageElement = new Image();
             img.crossOrigin = "Anonymous";
 
-            if (process.env.MAPENV === "development") {
-                observer.onNext({ loaded: {loaded: 1, total: 1}, object: this._image });
-                observer.onCompleted();
-                return;
-            }
-
             let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
             let imageSize: ImageSize = this.fullPano ?
                 Settings.basePanoramaSize :
@@ -214,12 +208,6 @@ export class Node {
 
     public cacheMesh(): rx.Observable<ILoadStatusObject> {
         return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
-            if (process.env.MAPENV === "development") {
-                observer.onNext({loaded: { loaded: 1, total: 1}, object: { faces: [[-1]], vertices: [[-1]] } });
-                observer.onCompleted();
-                return;
-            }
-
             if (!this.merged) {
                 let mesh: IMesh = { faces: [], vertices: [] };
                 observer.onNext({ loaded: { loaded: 0, total: 0 }, object: mesh });

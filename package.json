@@ -4,7 +4,7 @@
   "description": "WebGL JavaScript library for displaying street level imagery from mapillary.com",
   "main": "dist/mapillary-js.min",
   "scripts": {
-    "bundle": "browserify -p tsify -t brfs -t envify --standalone Mapillary ./src/Mapillary.ts | uglifyjs > dist/mapillary-js.min.js",
+    "bundle": "browserify -p tsify -t brfs --standalone Mapillary ./src/Mapillary.ts | uglifyjs > dist/mapillary-js.min.js",
     "gulp": "gulp",
     "clean": "rm -rf dist && mkdir dist",
     "prepublish": "npm run clean && npm run bundle && gulp css",
@@ -29,7 +29,6 @@
     "browser-sync": "^2.12.3",
     "browserify": "^13.0.0",
     "del": "^2.2.0",
-    "envify": "^3.4.0",
     "ghooks": "^1.2.1",
     "gulp": "~3.9.0",
     "gulp-autoprefixer": "3.1.0",
