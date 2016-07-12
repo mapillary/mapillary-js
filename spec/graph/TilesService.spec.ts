@@ -7,11 +7,11 @@ import {TilesService} from "../../src/Graph";
 import {TileFactory} from "../helper/TileFactory.spec";
 
 describe("TilesService", () => {
-    var tilesService: TilesService;
-    var apiV2: APIv2;
+    let tilesService: TilesService;
+    let apiV2: APIv2;
 
     beforeEach(() => {
-        apiV2 = new APIv2("clientId")
+        apiV2 = new APIv2("clientId");
         tilesService = new TilesService(apiV2);
     });
 
@@ -23,7 +23,7 @@ describe("TilesService", () => {
         let key: string = "key";
         let h: string = "h";
 
-        spyOn(apiV2.nav, 'im').and.callFake(() => {
+        spyOn(apiV2.nav, "im").and.callFake(() => {
             let result: IAPINavIm = {
                 hs: [h],
                 ims: [{key: key}],
@@ -45,7 +45,7 @@ describe("TilesService", () => {
         let key: string = "key";
         let h: string = "h";
 
-        spyOn(apiV2.nav, 'h').and.callFake(() => {
+        spyOn(apiV2.nav, "h").and.callFake(() => {
             let result: IAPINavIm = {
                 hs: [h],
                 ims: [{key: key}],
@@ -65,9 +65,9 @@ describe("TilesService", () => {
 
     it("cache generated h tile", (done) => {
         let tileFactory: TileFactory = new TileFactory();
-        let hash = tileFactory.createHash({ row: 0, col: 0, size: 1 });
+        let hash: string = tileFactory.createHash({ col: 0, row: 0, size: 1 });
 
-        spyOn(apiV2.nav, 'h').and.callFake((h: string) => {
+        spyOn(apiV2.nav, "h").and.callFake((h: string) => {
             let tile: IAPINavIm = tileFactory.create(h);
 
             return when(tile);

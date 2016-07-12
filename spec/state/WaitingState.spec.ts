@@ -16,7 +16,7 @@ describe("WaitingState.ctor", () => {
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
             zoom: 0,
-        }
+        };
 
         let waitingState: WaitingState = new WaitingState(state);
 
@@ -59,7 +59,7 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let apiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [0, 0, 0] };
+        let apiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
         let node: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, apiNavImIm, null);
 
         waitingState.set([node]);
@@ -89,10 +89,10 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [Math.PI, 0, 0] };
+        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
         let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
 
-        let currentApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [0, 0, 0] };
+        let currentApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
         let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
 
         waitingState.set([previousNode]);
@@ -123,19 +123,21 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [Math.PI, 0, 0] };
+        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
         let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
 
         let currentApiNavImIm: IAPINavImIm = {
-            key: "", calt: 0, rotation: [0, 0, 0],
+            calt: 0,
             gpano: {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
                 CroppedAreaLeftPixels: 0,
                 CroppedAreaTopPixels: 0.5,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaImageHeightPixels: 1,
+                FullPanoHeightPixels: 1,
                 FullPanoWidthPixels: 1,
-                FullPanoHeightPixels: 1
             },
+            key: "",
+            rotation: [0, 0, 0],
         };
 
         let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
@@ -174,7 +176,7 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let apiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [0, 0, 0] };
+        let apiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
         let node: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, apiNavImIm, null);
 
         waitingState.set([node]);
@@ -204,10 +206,10 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [0, 0, 0] };
+        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
         let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
 
-        let currentApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [Math.PI, 0, 0] };
+        let currentApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
 
         let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
 
@@ -239,20 +241,22 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-       let previousApiNavImIm: IAPINavImIm = {
-            key: "", calt: 0, rotation: [0, 0, 0],
-            gpano: {
+        let previousApiNavImIm: IAPINavImIm = {
+                calt: 0,
+                gpano: {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
                 CroppedAreaLeftPixels: 0,
                 CroppedAreaTopPixels: 0.5,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaImageHeightPixels: 1,
+                FullPanoHeightPixels: 1,
                 FullPanoWidthPixels: 1,
-                FullPanoHeightPixels: 1
             },
+            key: "",
+            rotation: [0, 0, 0],
         };
         let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
 
-        let currentApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [Math.PI, 0, 0] };
+        let currentApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
         let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
 
         waitingState.set([previousNode]);

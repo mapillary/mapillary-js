@@ -1,7 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as THREE from "three";
-
 import {GeoCoords, ILatLonAlt, ILatLon} from "../../src/Geo";
 import {IAPINavIm, IAPINavImIm, IAPINavImS} from "../../src/API";
 
@@ -60,7 +58,7 @@ export class TileFactory {
                     continue;
                 }
 
-                neighbours.push(this.createHash({ row: row, col: col, size: tile.size }));
+                neighbours.push(this.createHash({ col: col, row: row, size: tile.size }));
             }
         }
 
@@ -93,7 +91,7 @@ export class TileFactory {
                 this._originCoords.lon,
                 this._originCoords.alt);
 
-        return { sw: { lat: bl[0], lon: bl[1] }, ne: { lat: tr[0], lon: tr[1] } };
+        return { ne: { lat: tr[0], lon: tr[1] }, sw: { lat: bl[0], lon: bl[1] } };
     }
 
     public createHash(tile: ITile): string {
@@ -132,8 +130,8 @@ export class TileFactory {
                     key: hash + "_" + j.toString() + ":" + i.toString(),
                     lat: coords[0],
                     lon: coords[1],
-                    merge_version: 7,
                     merge_cc: Math.round(Math.random() * 1e9),
+                    merge_version: 7,
                     orientation: 1,
                     rotation: [-Math.PI / 2, 0, 0],
                     user: Math.random().toString().substring(2, 8),
@@ -145,7 +143,7 @@ export class TileFactory {
                 let s: IAPINavImS = {
                     key: Math.random().toString().substring(2, 8),
                     keys: [im.key],
-                }
+                };
 
                 ss.push(s);
             }
@@ -181,7 +179,7 @@ export class TileFactory {
         let coords: number[] = hash
             .split(":")
             .map((coord: string): number => {
-                return parseInt(coord);
+                return parseInt(coord, 10);
             });
 
         if (coords.length !== 3) {

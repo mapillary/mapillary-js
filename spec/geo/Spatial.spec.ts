@@ -71,7 +71,7 @@ describe("Spatial.opticalCenter", () => {
     it("should return the correct optical center", () => {
         let C: number[] = [1, 0, 0];
 
-        // Random rotation by 120 degrees
+        // random rotation by 120 degrees
         let r: THREE.Vector3 = new THREE.Vector3(1, 1, 1).normalize().multiplyScalar(2 * Math.PI / 3);
         let R: THREE.Matrix4 = spatial.rotationMatrix(r.toArray());
 
@@ -88,7 +88,7 @@ describe("Spatial.opticalCenter", () => {
     it("should return the correct optical center", () => {
         let C: number[] = [54, 22, -34];
 
-        // Random rotation by 60 degrees
+        // random rotation by 60 degrees
         let r: THREE.Vector3 = new THREE.Vector3(-1, 1, -2).normalize().multiplyScalar(Math.PI / 3);
         let R: THREE.Matrix4 = spatial.rotationMatrix(r.toArray());
 
@@ -134,7 +134,7 @@ describe("Spatial.wrap", () => {
         let min: number = -1;
         let max: number = 1;
 
-        let result = spatial.wrap(value, min, max);
+        let result: number = spatial.wrap(value, min, max);
 
         expect(result).toBe(value);
     });
@@ -301,7 +301,7 @@ describe("Spatial.relativeRotationAngle", () => {
         let rotation1: number[] = [Math.PI / 2, 0, 0];
         let rotation2: number[] = [Math.PI / 2, 0, 0];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(0, precision);
     });
@@ -310,7 +310,7 @@ describe("Spatial.relativeRotationAngle", () => {
         let rotation1: number[] = [Math.PI / 4, 0, 0];
         let rotation2: number[] = [Math.PI / 2, 0, 0];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(Math.PI / 4, precision);
     });
@@ -319,7 +319,7 @@ describe("Spatial.relativeRotationAngle", () => {
         let rotation1: number[] = [Math.PI / 2, 0, 0];
         let rotation2: number[] = [Math.PI, 0, 0];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
@@ -328,7 +328,7 @@ describe("Spatial.relativeRotationAngle", () => {
         let rotation1: number[] = [0, Math.PI / 2, 0];
         let rotation2: number[] = [0, Math.PI, 0];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
@@ -337,7 +337,7 @@ describe("Spatial.relativeRotationAngle", () => {
         let rotation1: number[] = [0, 0, Math.PI / 2];
         let rotation2: number[] = [0, 0, Math.PI];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
@@ -346,7 +346,7 @@ describe("Spatial.relativeRotationAngle", () => {
         let rotation1: number[] = [0, 0, 0];
         let rotation2: number[] = [Math.PI, 0, 0];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(Math.PI, precision);
     });
@@ -355,16 +355,16 @@ describe("Spatial.relativeRotationAngle", () => {
         let rotation1: number[] = [0, 0, 0];
         let rotation2: number[] = [-Math.PI / 2, 0, 0];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
 
     it("should be 180 degrees when rotating 180 degrees in negative direction", () => {
-        let rotation1: number[] = [0, 0, 0]
-        let rotation2: number[] = [-Math.PI, 0, 0]
+        let rotation1: number[] = [0, 0, 0];
+        let rotation2: number[] = [-Math.PI, 0, 0];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2)
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(Math.PI, precision);
     });
@@ -375,7 +375,7 @@ describe("Spatial.relativeRotationAngle", () => {
         let rotation1: number[] = [k1, k1, k1];
         let rotation2: number[] = [k2, k2, k2];
 
-        let theta = spatial.relativeRotationAngle(rotation1, rotation2);
+        let theta: number = spatial.relativeRotationAngle(rotation1, rotation2);
 
         expect(theta).toBeCloseTo(Math.PI / 2, precision);
     });
@@ -442,7 +442,7 @@ describe("Spatial.angleDifference", () => {
         expect(result).toBeCloseTo(Math.PI / 4, precision);
     });
 
-     it("should be minus 45 degress when passing PI", () => {
+    it("should be minus 45 degress when passing PI", () => {
         let angle1: number = -7 * Math.PI / 8;
         let angle2: number = 7 * Math.PI / 8;
 

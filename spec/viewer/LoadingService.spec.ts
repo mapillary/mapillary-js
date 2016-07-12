@@ -3,7 +3,7 @@
 import {LoadingService} from "../../src/Viewer";
 
 describe("LoadingService", () => {
-    var loadingService: LoadingService;
+    let loadingService: LoadingService;
 
     beforeEach(() => {
         loadingService = new LoadingService();

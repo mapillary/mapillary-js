@@ -6,7 +6,7 @@ import {
     EdgeCalculatorDirections,
     EdgeDirection,
     IEdge,
-    IPotentialEdge
+    IPotentialEdge,
 } from "../../../src/Edge";
 import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";

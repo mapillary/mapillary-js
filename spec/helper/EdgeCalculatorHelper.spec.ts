@@ -5,21 +5,21 @@ import {IPotentialEdge} from "../../src/Edge";
 export class EdgeCalculatorHelper {
     public createPotentialEdge(key: string = "pkey"): IPotentialEdge {
         return {
-            distance: 0,
-            motionChange: 0,
-            verticalMotion: 0,
+            apiNavImIm: { key: key },
             directionChange: 0,
-            verticalDirectionChange: 0,
-            rotation: 0,
-            worldMotionAzimuth: 0,
-            sameSequence: false,
-            sameMergeCc: false,
+            distance: 0,
             fullPano: false,
-            apiNavImIm: { key: key }
+            motionChange: 0,
+            rotation: 0,
+            sameMergeCc: false,
+            sameSequence: false,
+            verticalDirectionChange: 0,
+            verticalMotion: 0,
+            worldMotionAzimuth: 0,
         };
     }
 
-    public createNode(fullPano = false): Node {
+    public createNode(fullPano: boolean = false): Node {
         let key: string = "key";
 
         let apiNavImS: IAPINavImS = { key: "skey", keys: [key] };
@@ -29,13 +29,13 @@ export class EdgeCalculatorHelper {
 
         if (fullPano) {
             apiNavImIm.gpano = {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
                 CroppedAreaLeftPixels: 0,
                 CroppedAreaTopPixels: 0,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaImageHeightPixels: 1,
+                FullPanoHeightPixels: 1,
                 FullPanoWidthPixels: 1,
-                FullPanoHeightPixels: 1
-            }
+            };
         }
 
         let node: Node = new Node(0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, []);

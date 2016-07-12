@@ -6,7 +6,7 @@ import {
     EdgeCalculatorDirections,
     EdgeDirection,
     IEdge,
-    IPotentialEdge
+    IPotentialEdge,
 } from "../../../src/Edge";
 import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
@@ -55,7 +55,7 @@ describe("EdgeCalculator.computeRotationEdges", () => {
         expect(rotationEdge.data.direction).toBe(EdgeDirection.RotateLeft);
     });
 
-        it("should have a rotate right edge", () => {
+    it("should have a rotate right edge", () => {
         potentialEdge.directionChange = -settings.rotationMaxDirectionChange / 2;
 
         let rotationEdges: IEdge[] = edgeCalculator.computeRotationEdges(node, [potentialEdge]);

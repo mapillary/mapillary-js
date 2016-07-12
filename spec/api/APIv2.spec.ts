@@ -5,10 +5,10 @@ import * as when from "when";
 import {APIv2, IAPINavIm} from "../../src/API";
 
 describe("APIv2", () => {
-    var apiV2: APIv2;
+    let apiV2: APIv2;
 
     beforeEach(() => {
-        apiV2 = new APIv2("clientId")
+        apiV2 = new APIv2("clientId");
     });
 
     it("exists", () => {

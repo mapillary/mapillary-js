@@ -6,7 +6,7 @@ import {
     EdgeCalculatorDirections,
     EdgeDirection,
     IEdge,
-    IPotentialEdge
+    IPotentialEdge,
 } from "../../../src/Edge";
 import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
@@ -46,7 +46,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
-        potentialEdge1.fullPano = true
+        potentialEdge1.fullPano = true;
     });
 
     it("should have a pano edge", () => {
@@ -143,11 +143,11 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
-        potentialEdge1.fullPano = true
+        potentialEdge1.fullPano = true;
 
         potentialEdge2 = helper.createPotentialEdge("pkey2");
         potentialEdge2.distance = settings.panoPreferredDistance;
-        potentialEdge2.fullPano = true
+        potentialEdge2.fullPano = true;
     });
 
     it("should have a pano edge closest to preferred distance", () => {
@@ -308,7 +308,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
             potentialEdge1.apiNavImIm.key,
             potentialEdge2.apiNavImIm.key,
             potentialEdge3.apiNavImIm.key,
-            potentialEdge4.apiNavImIm.key
+            potentialEdge4.apiNavImIm.key,
         ];
 
         for (let key of keys) {
@@ -337,7 +337,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let keys: string[] = [
             potentialEdge1.apiNavImIm.key,
-            potentialEdge3.apiNavImIm.key
+            potentialEdge3.apiNavImIm.key,
         ];
 
         for (let key of keys) {
@@ -405,7 +405,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
-        potentialEdge1.fullPano = false
+        potentialEdge1.fullPano = false;
     });
 
     it("should have a step forward edge", () => {
@@ -566,9 +566,9 @@ describe("EdgeCalculator.computePanoEdges", () => {
         expect(panoEdges.length).toBe(0);
     });
 
-        it("should not have a step left edge when turn is to large", () => {
+    it("should not have a step left edge when turn is to large", () => {
         potentialEdge1.motionChange = 0;
-        potentialEdge1.directionChange = Math.PI / 2 +settings.panoMaxStepTurnChange + Math.PI / 18;
+        potentialEdge1.directionChange = Math.PI / 2 + settings.panoMaxStepTurnChange + Math.PI / 18;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
 
@@ -577,7 +577,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     it("should not have a step left edge when turn is to large", () => {
         potentialEdge1.motionChange = 0;
-        potentialEdge1.directionChange = Math.PI / 2 -settings.panoMaxStepTurnChange - Math.PI / 18;
+        potentialEdge1.directionChange = Math.PI / 2 - settings.panoMaxStepTurnChange - Math.PI / 18;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
 
@@ -622,11 +622,11 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
-        potentialEdge1.fullPano = false
+        potentialEdge1.fullPano = false;
 
         potentialEdge2 = helper.createPotentialEdge("pkey2");
         potentialEdge2.distance = settings.panoPreferredDistance;
-        potentialEdge2.fullPano = false
+        potentialEdge2.fullPano = false;
     });
 
     it("should prefer a step forward edge with preferred distance", () => {

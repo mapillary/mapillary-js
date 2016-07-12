@@ -13,8 +13,6 @@ describe("PointGeometry.ctor", () => {
     });
 
     it("point should be set", () => {
-        let original: number[] = [0.5, 0.5]
-
         let pointGeometry: PointGeometry = new PointGeometry([0.5, 0.5]);
 
         expect(pointGeometry.point[0]).toBe(0.5);
@@ -22,18 +20,18 @@ describe("PointGeometry.ctor", () => {
     });
 
     it("should throw if basic coord is below supported range", () => {
-        expect(() => { new PointGeometry([-1, 0.5]); }).toThrowError(GeometryTagError);
-        expect(() => { new PointGeometry([0.5, -1]); }).toThrowError(GeometryTagError);
+        expect(() => { return new PointGeometry([-1, 0.5]); }).toThrowError(GeometryTagError);
+        expect(() => { return new PointGeometry([0.5, -1]); }).toThrowError(GeometryTagError);
     });
 
     it("should throw if basic coord is above supported range", () => {
-        expect(() => { new PointGeometry([2, 0.5]); }).toThrowError(GeometryTagError);
-        expect(() => { new PointGeometry([0.5, 2]); }).toThrowError(GeometryTagError);
+        expect(() => { return new PointGeometry([2, 0.5]); }).toThrowError(GeometryTagError);
+        expect(() => { return new PointGeometry([0.5, 2]); }).toThrowError(GeometryTagError);
     });
 });
 
 describe("PointGeometry.setVertex2d", () => {
-    let createTransform = (pano: boolean): Transform => {
+    let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
         let gpano: IGPano = pano ?
             {
                 CroppedAreaImageHeightPixels: 1,
@@ -45,10 +43,10 @@ describe("PointGeometry.setVertex2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
 
         return new Transform(node, [0, 0, 0]);
-    }
+    };
 
     it("should set point to value", () => {
         let original: number[] = [0, 0];

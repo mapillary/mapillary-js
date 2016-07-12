@@ -25,29 +25,29 @@ describe("PolygonGeometry.ctor", () => {
     });
 
     it("should throw if polygon has less then three positions", () => {
-        expect(() => { new PolygonGeometry([[0, 0], [0, 0]]); })
+        expect(() => { return new PolygonGeometry([[0, 0], [0, 0]]); })
             .toThrowError(GeometryTagError);
     });
 
     it("should throw if first and last positions are not equivalent", () => {
-        expect(() => { new PolygonGeometry([[0, 0], [1, 0], [1, 1], [0, 1]]); })
+        expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [1, 1], [0, 1]]); })
             .toThrowError(GeometryTagError);
     });
 
 
     it("should throw if basic coord is below supported range", () => {
-        expect(() => { new PolygonGeometry([[-0.5, 0], [1, 0], [1, 1], [-0.5, 0]]); })
+        expect(() => { return new PolygonGeometry([[-0.5, 0], [1, 0], [1, 1], [-0.5, 0]]); })
             .toThrowError(GeometryTagError);
 
-        expect(() => { new PolygonGeometry([[0, -0.5], [1, 0], [1, 1], [0, -0.5]]); })
+        expect(() => { return new PolygonGeometry([[0, -0.5], [1, 0], [1, 1], [0, -0.5]]); })
             .toThrowError(GeometryTagError);
     });
 
     it("should throw if basic coord is above supported range", () => {
-        expect(() => { new PolygonGeometry([[1.5, 0], [1, 0], [1, 1], [1.5, 0]]); })
+        expect(() => { return new PolygonGeometry([[1.5, 0], [1, 0], [1, 1], [1.5, 0]]); })
             .toThrowError(GeometryTagError);
 
-        expect(() => { new PolygonGeometry([[0, 1.5], [1, 0], [1, 1], [0, 1.5]]); })
+        expect(() => { return new PolygonGeometry([[0, 1.5], [1, 0], [1, 1], [0, 1.5]]); })
             .toThrowError(GeometryTagError);
    });
 });
@@ -191,7 +191,7 @@ describe("PolygonGeometry.removeVertex2d", () => {
 });
 
 describe("RectGeometry.setVertex2d", () => {
-    let createTransform = (pano: boolean): Transform => {
+    let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
         let gpano: IGPano = pano ?
             {
                 CroppedAreaImageHeightPixels: 1,
@@ -203,10 +203,10 @@ describe("RectGeometry.setVertex2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
 
         return new Transform(node, [0, 0, 0]);
-    }
+    };
 
     it("should set the vertex with index 2", () => {
         let original: number[][] = [[0, 0], [1, 1], [1, 1], [0, 0]];
@@ -282,7 +282,7 @@ describe("RectGeometry.setVertex2d", () => {
 describe("RectGeometry.setCentroid2d", () => {
     let precision: number = 1e-8;
 
-    let createTransform = (pano: boolean): Transform => {
+    let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
         let gpano: IGPano = pano ?
             {
                 CroppedAreaImageHeightPixels: 1,
@@ -294,10 +294,10 @@ describe("RectGeometry.setCentroid2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
 
         return new Transform(node, [0, 0, 0]);
-    }
+    };
 
     it("should set the vertices according to the new centroid", () => {
         let original: number[][] = [[0.2, 0.2], [0.6, 0.2], [0.6, 0.4], [0.2, 0.4], [0.2, 0.2]];

@@ -18,9 +18,9 @@ describe("Transform.rt", () => {
         let node: Node = new Node(0, null, true, null, { key: "", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
-        let Rt: THREE.Matrix4 = transform.rt;
+        let rt: THREE.Matrix4 = transform.rt;
 
-        let elements: Float32Array = Rt.elements;
+        let elements: Float32Array = rt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(1);
@@ -48,9 +48,9 @@ describe("Transform.rt", () => {
         let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
-        let Rt: THREE.Matrix4 = transform.rt;
+        let rt: THREE.Matrix4 = transform.rt;
 
-        let elements: Float32Array = Rt.elements;
+        let elements: Float32Array = rt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(-1);
@@ -78,9 +78,9 @@ describe("Transform.rt", () => {
         let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
-        let Rt: THREE.Matrix4 = transform.rt;
+        let rt: THREE.Matrix4 = transform.rt;
 
-        let elements: Float32Array = Rt.elements;
+        let elements: Float32Array = rt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(1);
@@ -108,9 +108,9 @@ describe("Transform.rt", () => {
         let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
-        let Rt: THREE.Matrix4 = transform.rt;
+        let rt: THREE.Matrix4 = transform.rt;
 
-        let elements: Float32Array = Rt.elements;
+        let elements: Float32Array = rt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(1);
@@ -139,7 +139,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: r, atomic_scale: 1 }, []);
+        let node: Node = new Node(0, null, true, null, { atomic_scale: 1, key: "", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -169,7 +169,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, Math.PI / 2, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: r, atomic_scale: 3 }, []);
+        let node: Node = new Node(0, null, true, null, { atomic_scale: 3, key: "", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -199,7 +199,7 @@ describe("Transform.srt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [-10, 20, -30];
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: r, atomic_scale: 0.5 }, []);
+        let node: Node = new Node(0, null, true, null, { atomic_scale: 0.5, key: "", rotation: r }, []);
 
         let transform: Transform = new Transform(node, t);
         let sRt: THREE.Matrix4 = transform.srt;
@@ -245,7 +245,7 @@ describe("Transform.width", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             0, null, true, null,
-            { width: width, key: "",  rotation: [0, 0, 0] },
+            { key: "",  rotation: [0, 0, 0], width: width },
             []);
 
         let transform: Transform = new Transform(node, t);
@@ -329,7 +329,7 @@ describe("Transform.orientation", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             0, null, true, null,
-            { orientation: orientation, key: "",  rotation: [0, 0, 0] },
+            { key: "", orientation: orientation, rotation: [0, 0, 0] },
             []);
 
         let transform: Transform = new Transform(node, t);
@@ -381,13 +381,13 @@ describe("Transform.gpano", () => {
 
     it("should have gpano set", () => {
         let gpano: IGPano = {
+            CroppedAreaImageHeightPixels: 1,
+            CroppedAreaImageWidthPixels: 1,
             CroppedAreaLeftPixels: 0,
             CroppedAreaTopPixels: 0,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaImageHeightPixels: 1,
+            FullPanoHeightPixels: 1,
             FullPanoWidthPixels: 1,
-            FullPanoHeightPixels: 1
-        }
+        };
 
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
@@ -559,7 +559,7 @@ describe("Transform.unprojectBasic", () => {
         let t: number[] = [10, 20, 30];
         let node: Node = new Node(
             0, null, true, null,
-            { key: "",  rotation: [0.1, 0.2, 0.3], orientation: 3 },
+            { key: "", orientation: 3, rotation: [0.1, 0.2, 0.3] },
             []);
 
         let transform: Transform = new Transform(node, t);
@@ -578,7 +578,7 @@ describe("Transform.unprojectBasic", () => {
         let t: number[] = [10, 20, 30];
         let node: Node = new Node(
             0, null, true, null,
-            { key: "",  rotation: [0.1, 0.2, 0.3], orientation: 6 },
+            { key: "", orientation: 6, rotation: [0.1, 0.2, 0.3] },
             []);
 
         let transform: Transform = new Transform(node, t);
@@ -597,7 +597,7 @@ describe("Transform.unprojectBasic", () => {
         let t: number[] = [10, 20, 30];
         let node: Node = new Node(
             0, null, true, null,
-            { key: "",  rotation: [0.1, 0.2, 0.3], orientation: 8 },
+            { key: "",  orientation: 8, rotation: [0.1, 0.2, 0.3] },
             []);
 
         let transform: Transform = new Transform(node, t);
@@ -618,15 +618,16 @@ describe("Transform.unprojectBasic", () => {
             0, null, true, null,
             {
                 gpano: {
+                    CroppedAreaImageHeightPixels: 1,
+                    CroppedAreaImageWidthPixels: 1,
                     CroppedAreaLeftPixels: 0,
                     CroppedAreaTopPixels: 0,
-                    CroppedAreaImageWidthPixels: 1,
-                    CroppedAreaImageHeightPixels: 1,
-                    FullPanoWidthPixels: 1,
                     FullPanoHeightPixels: 1,
+                    FullPanoWidthPixels: 1,
                 },
                 key: "",
-                rotation: [0.5, -0.2, 0.3] },
+                rotation: [0.5, -0.2, 0.3],
+            },
             []);
 
         let transform: Transform = new Transform(node, t);

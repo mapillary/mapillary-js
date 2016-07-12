@@ -4,11 +4,14 @@
   "description": "WebGL JavaScript library for displaying street level imagery from mapillary.com",
   "main": "dist/mapillary-js.min",
   "scripts": {
-    "bundle": "browserify -p tsify -t brfs --standalone Mapillary ./src/Mapillary.ts | uglifyjs > dist/mapillary-js.min.js",
-    "gulp": "gulp",
+    "bundle": "browserify -p tsify -t brfs -s Mapillary ./src/Mapillary.ts | uglifyjs > dist/mapillary-js.min.js",
     "clean": "rm -rf dist && mkdir dist",
+    "gulp": "gulp",
+    "lint": "npm run lint-spec && npm run lint-src",
+    "lint-spec": "tslint -c tslint.json ./spec/**/*.ts ./spec/**/**/*.ts",
+    "lint-src": "tslint -c tslint.json src/*.ts src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts",
     "prepublish": "npm run clean && npm run bundle && gulp css",
-    "test": "./node_modules/karma/bin/karma start"
+    "test": "karma start --single-run"
   },
   "repository": {
     "type": "git",
@@ -63,7 +66,7 @@
   },
   "config": {
     "ghooks": {
-      "pre-commit": "gulp js-lint && gulp ts-lint",
+      "pre-commit": "npm run lint",
       "pre-push": "gulp test"
     }
   },

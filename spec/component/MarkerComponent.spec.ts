@@ -8,7 +8,7 @@ import {Container, Navigator} from "../../src/Viewer";
 type MarkerIndex = rbush.RBush<ISpatialMarker>;
 
 describe("MarkerComponent", () => {
-    var markerComponent: MarkerComponent;
+    let markerComponent: MarkerComponent;
 
     beforeEach(() => {
         document.body.innerHTML = "<div id='dummy'></div>";
@@ -27,23 +27,25 @@ describe("MarkerComponent", () => {
 
         let options: IMarkerOptions = {
             id: "test1",
-            type: "marker",
             style: {
-                color: "#F00"
-            }
-        }
-        let m1: Marker = markerComponent.createMarker({lat: 0, lon: 0, alt: 0}, options);
+                color: "#F00",
+            },
+            type: "marker",
+        };
+
+        let m1: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
         markerComponent.addMarker(m1);
         expect(markers.all().length).toBe(1);
 
         options = {
             id: "test2",
-            type: "marker",
             style: {
-                color: "#F00"
-            }
-        }
-        let m2: Marker = markerComponent.createMarker({lat: 0, lon: 0, alt: 0}, options);
+                color: "#F00",
+            },
+            type: "marker",
+        };
+
+        let m2: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
         markerComponent.addMarker(m2);
         expect(markers.all().length).toBe(2);
 
@@ -63,16 +65,17 @@ describe("MarkerComponent", () => {
 
         let options: IMarkerOptions = {
             id: "test",
-            type: "marker",
             style: {
-                color: "#F00"
-            }
-        }
-        let m1: Marker = markerComponent.createMarker({lat: 0, lon: 0, alt: 0}, options);
+                color: "#F00",
+            },
+            type: "marker",
+        };
+
+        let m1: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
         markerComponent.addMarker(m1);
         expect(markers.all().length).toBe(1);
 
-        let m2: Marker = markerComponent.createMarker({lat: 1, lon: 1, alt: 1}, options);
+        let m2: Marker = markerComponent.createMarker({ alt: 1, lat: 1, lon: 1 }, options);
         markerComponent.addMarker(m2);
         expect(markers.all().length).toBe(1);
     });

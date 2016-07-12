@@ -1,16 +1,6 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as when from "when";
-import * as THREE from "three";
-
-import {IAPINavIm} from "../../src/API";
-import {EdgeDirection} from "../../src/Edge";
-import {Node} from "../../src/Graph";
-import {Viewer} from "../../src/Viewer";
-
 describe("Viewer", () => {
-    var viewer: Viewer;
-
     // beforeEach(() => {
     //     spyOn(document, 'getElementById').and.callFake(() => { return document.createElement('div'); });
     //     spyOn(window, 'requestAnimationFrame').and.callFake(() => { return () => {}; })

@@ -3,7 +3,7 @@
 import {EventEmitter} from "../../src/Utils";
 
 describe("EventEmitter", () => {
-    var eventEmitter: EventEmitter;
+    let eventEmitter: EventEmitter;
 
     beforeEach(() => {
         eventEmitter = new EventEmitter();
@@ -49,7 +49,6 @@ describe("EventEmitter", () => {
 
     it("should get the same event twice", (done) => {
         let data: string = "testdata";
-        let data2: string = "testdata2";
 
         let i: number = 0;
 

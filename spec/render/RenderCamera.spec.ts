@@ -1,7 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as THREE from "three";
-
 import {Camera, Spatial} from "../../src/Geo";
 import {RenderCamera, RenderMode} from "../../src/Render";
 
@@ -60,11 +58,16 @@ describe("RenderCamera.perspective.fov", () => {
     /**
      * fov = 2 arctan(d / 2f)
      */
-    let getVerticalFov = (d: number, focal: number): number => {
+    let getVerticalFov: (d: number, focal: number) => number = (d: number, focal: number): number => {
         return spatial.radToDeg(2 * Math.atan(d / (2 * focal)));
     };
 
-    let createRenderCamera = (
+    let createRenderCamera: (
+        focal: number,
+        zoom: number,
+        perspectiveAspect: number,
+        nodeAspect: number,
+        renderMode: RenderMode) => RenderCamera = (
         focal: number,
         zoom: number,
         perspectiveAspect: number,

@@ -5,7 +5,7 @@ import {
     EdgeCalculatorSettings,
     EdgeCalculatorDirections,
     EdgeDirection,
-    IEdge
+    IEdge,
 } from "../../../src/Edge";
 import {Node, Sequence} from "../../../src/Graph";
 import {IAPINavImS, IAPINavImIm} from "../../../src/API";
@@ -15,26 +15,23 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
     let settings: EdgeCalculatorSettings;
     let directions: EdgeCalculatorDirections;
 
-    let createNode = (key: string, keys: string[]): Node => {
-        let apiNavImS: IAPINavImS = { key: "skey", keys: keys };
-        let sequence: Sequence = new Sequence(apiNavImS);
+    let createNode: (key: string, keys: string[]) => Node =
+        (key: string, keys: string[]): Node => {
+            let apiNavImS: IAPINavImS = { key: "skey", keys: keys };
+            let sequence: Sequence = new Sequence(apiNavImS);
 
-        let apiNavImIm: IAPINavImIm = { key: key };
+            let apiNavImIm: IAPINavImIm = { key: key };
 
-        let node: Node = new Node(0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, []);
+            let node: Node = new Node(0, {lat: 0, lon: 0}, true, sequence, apiNavImIm, []);
 
-        return node;
-    }
+            return node;
+        };
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
         directions = new EdgeCalculatorDirections();
 
         edgeCalculator = new EdgeCalculator(settings, directions);
-    });
-
-    beforeEach(() => {
-
     });
 
     it("should return a next edge", () => {

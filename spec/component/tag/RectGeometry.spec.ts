@@ -26,24 +26,24 @@ describe("RectGeometry.ctor", () => {
     it("should throw if y values are inverted", () => {
         let original: number[] = [0.2, 0.4, 0.4, 0.2];
 
-        expect(() => { new RectGeometry(original); }).toThrowError(GeometryTagError);
+        expect(() => { return new RectGeometry(original); }).toThrowError(GeometryTagError);
     });
 
     it("should throw if value is below supported range", () => {
         let original: number[] = [-1, 0.4, 0.4, 0.2];
 
-        expect(() => { new RectGeometry(original); }).toThrowError(GeometryTagError);
+        expect(() => { return new RectGeometry(original); }).toThrowError(GeometryTagError);
     });
 
     it("should throw if value is above supported range", () => {
         let original: number[] = [2, 0.4, 0.4, 0.2];
 
-        expect(() => { new RectGeometry(original); }).toThrowError(GeometryTagError);
+        expect(() => { return new RectGeometry(original); }).toThrowError(GeometryTagError);
     });
 });
 
 describe("RectGeometry.setVertex2d", () => {
-    let createTransform = (pano: boolean): Transform => {
+    let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
         let gpano: IGPano = pano ?
             {
                 CroppedAreaImageHeightPixels: 1,
@@ -55,10 +55,10 @@ describe("RectGeometry.setVertex2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
 
         return new Transform(node, [0, 0, 0]);
-    }
+    };
 
     it("should set rect according to bottom left value", () => {
         let original: number[] = [0, 0, 1, 1];
@@ -319,7 +319,7 @@ describe("RectGeometry.setVertex2d", () => {
 describe("RectGeometry.setCentroid2d", () => {
     let precision: number = 8;
 
-    let createTransform = (pano: boolean): Transform => {
+    let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
         let gpano: IGPano = pano ?
             {
                 CroppedAreaImageHeightPixels: 1,
@@ -331,10 +331,10 @@ describe("RectGeometry.setCentroid2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: [0, 0, 0], gpano: gpano }, []);
+        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
 
         return new Transform(node, [0, 0, 0]);
-    }
+    };
 
     it("should set rect according to new centroid", () => {
         let original: number[] = [0.2, 0.2, 0.3, 0.3];

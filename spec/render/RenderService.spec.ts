@@ -1,12 +1,13 @@
 /// <reference path="../../typings/index.d.ts" />
 
+/*
 import * as rx from "rx";
 
 import {ISize, RenderCamera, RenderMode, RenderService} from "../../src/Render";
 import {IFrame, ICurrentState} from "../../src/State";
 import {Camera} from "../../src/Geo";
 
-/*
+
 describe("RenderService.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");

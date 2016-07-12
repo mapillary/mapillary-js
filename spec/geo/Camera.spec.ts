@@ -4,8 +4,6 @@ import * as THREE from "three";
 
 import {Camera} from "../../src/Geo";
 
-import {GeoHelper} from "../helper/GeoHelper.spec";
-
 describe("Camera.ctor", () => {
     it("should be initialized to default values", () => {
         let camera: Camera = new Camera();
@@ -240,7 +238,7 @@ describe("Camera.diff", () => {
 
     it("should have difference based on focal", () => {
         let camera: Camera = new Camera();
-        camera.focal = 0.85
+        camera.focal = 0.85;
 
         let other: Camera = new Camera();
         other.focal = 0.89;

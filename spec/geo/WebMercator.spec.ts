@@ -154,7 +154,7 @@ describe("WebMercator.getBounds", () => {
                 let neLat: number = latitudeMax * (1 - y);
                 let neLon: number = 180 * x;
 
-                setup.push({ swLat: swLat, swLon: swLon, neLat: neLat, neLon: neLon, x: x, y: y });
+                setup.push({ neLat: neLat, neLon: neLon, swLat: swLat, swLon: swLon, x: x, y: y });
             }
         }
 

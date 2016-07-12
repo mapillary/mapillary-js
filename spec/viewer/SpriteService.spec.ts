@@ -3,18 +3,18 @@
 import {ISpriteAtlas, SpriteService} from "../../src/Viewer";
 
 class XMLHTTPRequestMock {
-    private _extension: string;
-
     public response: string;
     public responseType: string;
 
     public onload: (e: Event) => any;
 
+    private _extension: string;
+
     public open(...args: any[]): void {
         this._extension = args[1].split(".").pop();
     };
 
-    public send(...args: any[]): void {};
+    public send(...args: any[]): void { return; };
 
     public fireLoad(extension: string): void {
         if (extension === this._extension) {
@@ -35,6 +35,8 @@ describe("SpriteService.ctor", () => {
         let spriteService: SpriteService = new SpriteService();
 
         expect(xmlHTTPRequestSpy.calls.count()).toBe(0);
+
+        return spriteService;
     });
 });
 
@@ -59,7 +61,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 (atlas: ISpriteAtlas): void => {
                     expect(atlas.loaded).toBe(false);
 
-                    expect(atlas.getGLSprite).toThrowError(Error)
+                    expect(atlas.getGLSprite).toThrowError(Error);
 
                     done();
                 });
@@ -73,7 +75,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 (atlas: ISpriteAtlas): void => {
                     expect(atlas.loaded).toBe(false);
 
-                    expect(atlas.getDOMSprite).toThrowError(Error)
+                    expect(atlas.getDOMSprite).toThrowError(Error);
 
                     done();
                 });
@@ -138,7 +140,6 @@ describe("SpriteService.spriteAtlas$", () => {
     it("should retrieve json definition if a sprite is provided", (done) => {
         let pngXmlHTTPRequestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         let jsonXmlHTTPRequestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
-        let imageMock: ImageMock = new ImageMock();
 
         let json: boolean = false;
 

@@ -1,14 +1,12 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as when from "when";
-
-import {IAPINavIm, APIv2, APIv3} from "../../src/API";
-import {GraphService, Graph, Node} from "../../src/Graph";
+import {APIv2, APIv3} from "../../src/API";
+import {GraphService, Graph} from "../../src/Graph";
 
 describe("GraphService", () => {
-    var apiV2: APIv2;
-    var apiV3: APIv3;
-    var graphService: GraphService;
+    let apiV2: APIv2;
+    let apiV3: APIv3;
+    let graphService: GraphService;
 
     beforeEach(() => {
         apiV2 = new APIv2("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
@@ -34,7 +32,7 @@ describe("GraphService", () => {
     it("contains an empty graph from the start", (done) => {
         graphService.graph$.subscribe((graph: Graph) => {
             done();
-        })
+        });
     });
 
 //    it("should get a key", (done) => {

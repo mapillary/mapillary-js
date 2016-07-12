@@ -6,7 +6,7 @@ import {
     EdgeCalculatorDirections,
     EdgeDirection,
     IEdge,
-    IPotentialEdge
+    IPotentialEdge,
 } from "../../../src/Edge";
 import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
@@ -149,8 +149,11 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
         potentialEdge.motionChange = 0;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node,
-            [potentialEdge], potentialEdge.apiNavImIm.key, null);
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
+            node,
+            [potentialEdge],
+            potentialEdge.apiNavImIm.key,
+            null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -164,8 +167,11 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
         potentialEdge.motionChange = Math.PI;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node,
-            [potentialEdge], null, potentialEdge.apiNavImIm.key);
+        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
+            node,
+            [potentialEdge],
+            null,
+            potentialEdge.apiNavImIm.key);
 
         expect(stepEdges.length).toBe(0);
     });

@@ -1,7 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
-
 import {StateService} from "../../src/State";
 
 describe("StateService.ctor", () => {

@@ -14,17 +14,17 @@ import {
     RenderService,
     ISize,
 } from "../../src/Render";
-import {Camera, Transform} from "../../src/Geo";
+import {Camera} from "../../src/Geo";
 import {IFrame, ICurrentState} from "../../src/State";
 
 class RendererMock implements THREE.Renderer {
     public domElement: HTMLCanvasElement = document.createElement("canvas");
 
-    public render(s: THREE.Scene, c: THREE.Camera): void { }
-    public setSize(w: number, h: number, updateStyle?: boolean): void { }
-    public setClearColor(c: THREE.Color, o: number): void { }
-    public clear(): void { }
-    public clearDepth(): void { }
+    public render(s: THREE.Scene, c: THREE.Camera): void { return; }
+    public setSize(w: number, h: number, updateStyle?: boolean): void { return; }
+    public setClearColor(c: THREE.Color, o: number): void { return; }
+    public clear(): void { return; }
+    public clearDepth(): void { return; }
 }
 
 class RenderServiceMock extends RenderService {
@@ -37,7 +37,7 @@ class RenderServiceMock extends RenderService {
     }
 
     public get size$(): rx.Subject<ISize> {
-        return this._sizeMock$
+        return this._sizeMock$;
     }
 
     public set size$(value: rx.Subject<ISize>) {
@@ -49,7 +49,7 @@ class RenderServiceMock extends RenderService {
     }
 
     public set renderMode$(value: rx.Subject<RenderMode>) {
-        this._renderModeMock$;
+        this._renderModeMock$ = value;
     }
 
     public get renderCameraFrame$(): rx.Subject<RenderCamera> {
@@ -77,48 +77,51 @@ describe("GLRenderer.ctor", () => {
         let renderService: RenderService = new RenderServiceMock(element);
         let glRenderer: GLRenderer = new GLRenderer(renderService);
 
+        expect(glRenderer).toBeDefined();
+
         expect(THREE.WebGLRenderer).not.toHaveBeenCalled();
     });
 });
 
 describe("GLRenderer.renderer", () => {
-    let createGLRenderHash = (frameId: number, needsRender: boolean, name?: string): IGLRenderHash => {
-        let renderFunction: IGLRenderFunction =
-            (pc: THREE.PerspectiveCamera, r: THREE.WebGLRenderer): void => {
-                r.render(new THREE.Scene(), pc);
+    let createGLRenderHash: (frameId: number, needsRender: boolean, name?: string) => IGLRenderHash =
+        (frameId: number, needsRender: boolean, name?: string): IGLRenderHash => {
+            let renderFunction: IGLRenderFunction =
+                (pc: THREE.PerspectiveCamera, r: THREE.WebGLRenderer): void => {
+                    r.render(new THREE.Scene(), pc);
+                };
+
+            let render: IGLRender = {
+                frameId: frameId,
+                needsRender: needsRender,
+                render: renderFunction,
+                stage: GLRenderStage.Background,
             };
 
-        let render: IGLRender = {
-            frameId: frameId,
-            needsRender: needsRender,
-            render: renderFunction,
-            stage: GLRenderStage.Background,
+            let renderHash: IGLRenderHash = {
+                name: name != null ? name : "mock",
+                render: render,
+            };
+
+            return renderHash;
         };
 
-        let renderHash: IGLRenderHash = {
-            name: name != null ? name : "mock",
-            render: render,
-        };
-
-        return renderHash;
-    };
-
-    let createFrame = (frameId: number): IFrame => {
+    let createFrame: (frameId: number) => IFrame = (frameId: number): IFrame => {
         let state: ICurrentState = {
             alpha: 0,
             camera: new Camera(),
-            zoom: 0,
-            currentNode: null,
-            previousNode: null,
-            trajectory: [],
             currentIndex: 0,
-            lastNode: null,
-            nodesAhead: 0,
-            reference: { lat: 0, lon: 0, alt: 0 },
+            currentNode: null,
             currentTransform: null,
-            previousTransform: null,
+            lastNode: null,
             motionless: false,
-        }
+            nodesAhead: 0,
+            previousNode: null,
+            previousTransform: null,
+            reference: { alt: 0, lat: 0, lon: 0 },
+            trajectory: [],
+            zoom: 0,
+        };
 
         spyOn(state, "currentNode").and.returnValue({ });
         spyOn(state, "currentTransform").and.returnValue({ });
@@ -126,7 +129,7 @@ describe("GLRenderer.renderer", () => {
         spyOn(state, "previousTransform").and.returnValue({ });
 
         return { fps: 60, id: frameId, state: state };
-    }
+    };
 
     it("should be created on first render", () => {
         let rendererMock: RendererMock = new RendererMock();
@@ -193,7 +196,7 @@ describe("GLRenderer.renderer", () => {
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
-        let frameSubscription: rx.IDisposable = frame$
+        frame$
             .map<IGLRenderHash>(
                 (frame: IFrame): IGLRenderHash => {
                     let renderHash: IGLRenderHash = createGLRenderHash(frame.id, true);
@@ -255,6 +258,8 @@ describe("GLRenderer.renderer", () => {
         renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
+
+        expect(glRenderer).toBeDefined();
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);

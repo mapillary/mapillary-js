@@ -16,7 +16,7 @@ describe("TraversingState.ctor", () => {
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
             zoom: 0,
-        }
+        };
 
         let traversingState: TraversingState = new TraversingState(state);
 
@@ -59,7 +59,7 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let apiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [0, 0, 0] };
+        let apiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
         let node: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, apiNavImIm, null);
 
         traversingState.set([node]);
@@ -89,10 +89,10 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [Math.PI, 0, 0] };
+        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
         let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
 
-        let currentApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [0, 0, 0] };
+        let currentApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
         let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
 
         traversingState.set([previousNode]);
@@ -123,19 +123,21 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [Math.PI, 0, 0] };
+        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
         let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
 
         let currentApiNavImIm: IAPINavImIm = {
-            key: "", calt: 0, rotation: [0, 0, 0],
+            calt: 0,
             gpano: {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
                 CroppedAreaLeftPixels: 0,
                 CroppedAreaTopPixels: 0.5,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaImageHeightPixels: 1,
+                FullPanoHeightPixels: 1,
                 FullPanoWidthPixels: 1,
-                FullPanoHeightPixels: 1
             },
+            key: "",
+            rotation: [0, 0, 0],
         };
 
         let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
@@ -174,7 +176,7 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let apiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [0, 0, 0] };
+        let apiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
         let node: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, apiNavImIm, null);
 
         traversingState.set([node]);
@@ -204,10 +206,10 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [Math.PI, 0, 0] };
+        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
         let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
 
-        let currentApiNavImIm: IAPINavImIm = { key: "", calt: 0, rotation: [0, 0, 0] };
+        let currentApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
 
         let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
 

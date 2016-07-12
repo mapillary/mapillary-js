@@ -2,7 +2,7 @@
 
 import {
     DirectionDOMRenderer,
-    IDirectionConfiguration
+    IDirectionConfiguration,
 } from "../../../src/Component";
 import {Node} from "../../../src/Graph";
 import {RenderCamera, RenderMode} from "../../../src/Render";
