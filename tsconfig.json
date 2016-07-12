@@ -5,6 +5,10 @@
         "module": "commonjs"
     },
     "files": [
-        "src/Mapillary.ts"
+      "./src/graph/edge/EdgeDirection.ts",
+      "./src/render/RenderMode.ts",
+      "./src/viewer/interfaces/IViewerOptions.ts",
+      "./src/viewer/ImageSize.ts",
+      "./src/viewer/Viewer.ts"
     ]
 }
