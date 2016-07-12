@@ -1,6 +1,5 @@
-/// <reference path="../../../../typings/index.d.ts" />
-
-import * as rx from "rx";
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
 import {Transform} from "../../../Geo";
 
@@ -10,7 +9,7 @@ import {Transform} from "../../../Geo";
  * @classdesc Represents a geometry.
  */
 export abstract class Geometry {
-    protected _notifyChanged$: rx.Subject<Geometry>;
+    protected _notifyChanged$: Subject<Geometry>;
 
     /**
      * Create a geometry.
@@ -18,7 +17,7 @@ export abstract class Geometry {
      * @constructor
      */
     constructor() {
-        this._notifyChanged$ = new rx.Subject<Geometry>();
+        this._notifyChanged$ = new Subject<Geometry>();
     }
 
     /**
@@ -29,7 +28,7 @@ export abstract class Geometry {
      *
      * @returns {Observable<Geometry>} Observable emitting the geometry instance.
      */
-    public get changed$(): rx.Observable<Geometry> {
+    public get changed$(): Observable<Geometry> {
         return this._notifyChanged$;
     }
 

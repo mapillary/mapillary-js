@@ -61,7 +61,7 @@ export class SpotTag extends Tag {
      */
     public set color(value: number) {
         this._color = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -80,7 +80,7 @@ export class SpotTag extends Tag {
      */
     public set editable(value: boolean) {
         this._editable = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -99,7 +99,7 @@ export class SpotTag extends Tag {
      */
     public set icon(value: string) {
         this._icon = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -118,7 +118,7 @@ export class SpotTag extends Tag {
      */
     public set text(value: string) {
         this._text = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -137,7 +137,7 @@ export class SpotTag extends Tag {
      */
     public set textColor(value: number) {
         this._textColor = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -156,7 +156,7 @@ export class SpotTag extends Tag {
         this._icon = options.icon === undefined ? this._icon : options.icon;
         this._text = options.text === undefined ? this._text : options.text;
         this._textColor = options.textColor == null ? this._textColor : options.textColor;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     public getGLObjects(transform: Transform): THREE.Object3D[] {
@@ -179,7 +179,7 @@ export class SpotTag extends Tag {
             let centroidCss: string[] = centroidCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
             let interactNone: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
+                this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
             };
 
             if (this._icon != null) {
@@ -255,7 +255,7 @@ export class SpotTag extends Tag {
             let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
             let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
 
-            this._interact$.onNext({
+            this._interact$.next({
                 offsetX: offsetX,
                 offsetY: offsetY,
                 operation: operation,

@@ -1,6 +1,9 @@
-/// <reference path="../../typings/index.d.ts" />
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
 
-import * as rx from "rx";
+import "rxjs/add/observable/fromEvent";
+
+import "rxjs/add/operator/withLatestFrom";
 
 import {EdgeDirection, IEdge} from "../Edge";
 import {ComponentService, Component} from "../Component";
@@ -19,7 +22,7 @@ export class KeyboardComponent extends Component {
 
     private _spatial: Spatial;
 
-    private _disposable: rx.IDisposable;
+    private _disposable: Subscription;
     private _perspectiveDirections: EdgeDirection[];
 
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -39,7 +42,7 @@ export class KeyboardComponent extends Component {
     }
 
     protected _activate(): void {
-        this._disposable = rx.Observable
+        this._disposable = Observable
             .fromEvent(document, "keydown")
             .withLatestFrom(
                 this._navigator.stateService.currentState$,
@@ -56,7 +59,7 @@ export class KeyboardComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._disposable.dispose();
+        this._disposable.unsubscribe();
     }
 
     private _navigatePanorama(event: KeyboardEvent, node: Node, camera: Camera): void {

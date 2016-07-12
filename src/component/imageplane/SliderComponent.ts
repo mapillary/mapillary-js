@@ -1,8 +1,27 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import * as THREE from "three";
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/observable/combineLatest";
+import "rxjs/add/observable/fromEvent";
+import "rxjs/add/observable/of";
+import "rxjs/add/observable/zip";
+
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/first";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/merge";
+import "rxjs/add/operator/mergeMap";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/withLatestFrom";
+import "rxjs/add/operator/zip";
 
 import {Node} from "../../Graph";
 import {ICurrentState, IFrame, State} from "../../State";
@@ -213,19 +232,19 @@ class SliderState {
 export class SliderComponent extends Component {
     public static componentName: string = "slider";
 
-    private _sliderStateOperation$: rx.Subject<ISliderStateOperation>;
-    private _sliderState$: rx.Observable<SliderState>;
-    private _sliderStateCreator$: rx.Subject<void>;
-    private _sliderStateDisposer$: rx.Subject<void>;
+    private _sliderStateOperation$: Subject<ISliderStateOperation>;
+    private _sliderState$: Observable<SliderState>;
+    private _sliderStateCreator$: Subject<void>;
+    private _sliderStateDisposer$: Subject<void>;
 
-    private _setKeysSubscription: rx.IDisposable;
-    private _setSliderVisibleSubscription: rx.IDisposable;
-    private _elementSubscription: rx.IDisposable;
+    private _setKeysSubscription: Subscription;
+    private _setSliderVisibleSubscription: Subscription;
+    private _elementSubscription: Subscription;
 
-    private _stateSubscription: rx.IDisposable;
-    private _glRenderSubscription: rx.IDisposable;
-    private _domRenderSubscription: rx.IDisposable;
-    private _nodeSubscription: rx.IDisposable;
+    private _stateSubscription: Subscription;
+    private _glRenderSubscription: Subscription;
+    private _domRenderSubscription: Subscription;
+    private _nodeSubscription: Subscription;
 
     /**
      * Create a new slider component instance.
@@ -234,9 +253,9 @@ export class SliderComponent extends Component {
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._sliderStateOperation$ = new rx.Subject<ISliderStateOperation>();
-        this._sliderStateCreator$ = new rx.Subject<void>();
-        this._sliderStateDisposer$ = new rx.Subject<void>();
+        this._sliderStateOperation$ = new Subject<ISliderStateOperation>();
+        this._sliderStateCreator$ = new Subject<void>();
+        this._sliderStateDisposer$ = new Subject<void>();
 
         this._sliderState$ = this._sliderStateOperation$
             .scan<SliderState>(
@@ -249,6 +268,7 @@ export class SliderComponent extends Component {
                     return sliderState != null;
                 })
             .distinctUntilChanged(
+                undefined,
                 (sliderState: SliderState): number => {
                     return sliderState.frameId;
                 });
@@ -310,16 +330,13 @@ export class SliderComponent extends Component {
     }
 
     protected _activate(): void {
-        this._container.mouseService.preventDefaultMouseDown$.onNext(false);
-        this._container.touchService.preventDefaultTouchMove$.onNext(false);
+        this._container.mouseService.preventDefaultMouseDown$.next(false);
+        this._container.touchService.preventDefaultTouchMove$.next(false);
 
-        rx.Observable
-            .combineLatest(
+        Observable
+            .combineLatest<State, ISliderConfiguration>(
                 this._navigator.stateService.state$,
-                this._configuration$,
-                (state: State, configuration: ISliderConfiguration): [State, ISliderConfiguration] => {
-                    return [state, configuration];
-                })
+                this._configuration$)
             .first()
             .subscribe(
                 (stateConfig: [State, ISliderConfiguration]): void => {
@@ -395,9 +412,9 @@ export class SliderComponent extends Component {
                 (input: HTMLInputElement): boolean => {
                     return input != null;
                 })
-            .flatMapLatest<Event>(
-                (input: HTMLInputElement): rx.Observable<Event> => {
-                    return rx.Observable.fromEvent<Event>(input, "input");
+            .switchMap<Event>(
+                (input: HTMLInputElement): Observable<Event> => {
+                    return Observable.fromEvent<Event>(input, "input");
                 })
             .map<number>(
                 (e: Event): number => {
@@ -408,7 +425,7 @@ export class SliderComponent extends Component {
                     this._navigator.stateService.moveTo(curtain);
                 });
 
-        this._sliderStateCreator$.onNext(null);
+        this._sliderStateCreator$.next(null);
 
         this._stateSubscription = this._navigator.stateService.currentState$
             .map<ISliderStateOperation>(
@@ -442,16 +459,18 @@ export class SliderComponent extends Component {
                 (configuration: ISliderConfiguration): boolean => {
                     return configuration.keys != null;
                 })
-            .flatMapLatest<ISliderCombination>(
-                (configuration: ISliderConfiguration): rx.Observable<ISliderCombination> => {
-                    return rx.Observable
-                        .zip<Node, Node, ISliderNodes>(
-                            this._navigator.graphService.node$(configuration.keys.background),
-                            this._navigator.graphService.node$(configuration.keys.foreground),
+            .switchMap<ISliderCombination>(
+                (configuration: ISliderConfiguration): Observable<ISliderCombination> => {
+                    return Observable
+                        .zip<ISliderNodes>(
+                            [
+                                this._navigator.graphService.node$(configuration.keys.background),
+                                this._navigator.graphService.node$(configuration.keys.foreground),
+                            ],
                             (background: Node, foreground: Node): ISliderNodes => {
                                 return { background: background, foreground: foreground };
                             })
-                        .withLatestFrom(
+                        .withLatestFrom<ISliderCombination>(
                             this._navigator.stateService.currentState$,
                             (nodes: ISliderNodes, frame: IFrame): ISliderCombination => {
                                 return { nodes: nodes, state: frame.state };
@@ -484,7 +503,7 @@ export class SliderComponent extends Component {
                     console.log(e);
                 });
 
-        let previousNode$: rx.Observable<Node> = this._navigator.stateService.currentState$
+        let previousNode$: Observable<Node> = this._navigator.stateService.currentState$
             .map<Node>(
                 (frame: IFrame): Node => {
                     return frame.state.previousNode;
@@ -494,11 +513,12 @@ export class SliderComponent extends Component {
                     return node != null;
                 })
             .distinctUntilChanged(
+                undefined,
                 (node: Node): string => {
                     return node.key;
                 });
 
-        this._nodeSubscription = rx.Observable
+        this._nodeSubscription = Observable
             .merge(
                 previousNode$,
                 this._navigator.stateService.currentNode$)
@@ -508,13 +528,13 @@ export class SliderComponent extends Component {
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
-            .flatMap(
-                (node: Node): rx.Observable<[THREE.Texture, Node]> => {
+            .mergeMap(
+                (node: Node): Observable<[THREE.Texture, Node]> => {
                     let textureLoader: TextureLoader = new TextureLoader();
 
                     return textureLoader.load(node.key, Settings.maxImageSize)
                         .zip(
-                            rx.Observable.just<Node>(node),
+                            Observable.of<Node>(node),
                             (t: THREE.Texture, n: Node): [THREE.Texture, Node] => {
                                 return [t, n];
                             });
@@ -531,8 +551,8 @@ export class SliderComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._container.mouseService.preventDefaultMouseDown$.onNext(true);
-        this._container.touchService.preventDefaultTouchMove$.onNext(true);
+        this._container.mouseService.preventDefaultMouseDown$.next(true);
+        this._container.touchService.preventDefaultTouchMove$.next(true);
 
         this._navigator.stateService.state$
             .first()
@@ -543,15 +563,15 @@ export class SliderComponent extends Component {
                     }
                 });
 
-        this._sliderStateDisposer$.onNext(null);
+        this._sliderStateDisposer$.next(null);
 
-        this._setKeysSubscription.dispose();
-        this._setSliderVisibleSubscription.dispose();
-        this._elementSubscription.dispose();
-        this._stateSubscription.dispose();
-        this._glRenderSubscription.dispose();
-        this._domRenderSubscription.dispose();
-        this._nodeSubscription.dispose();
+        this._setKeysSubscription.unsubscribe();
+        this._setSliderVisibleSubscription.unsubscribe();
+        this._elementSubscription.unsubscribe();
+        this._stateSubscription.unsubscribe();
+        this._glRenderSubscription.unsubscribe();
+        this._domRenderSubscription.unsubscribe();
+        this._nodeSubscription.unsubscribe();
 
         this.configure({ keys: null });
     }

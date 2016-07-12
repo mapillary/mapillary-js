@@ -1,8 +1,12 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import * as _ from "underscore";
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Subscription} from "rxjs/Subscription";
+
+import "rxjs/add/operator/combineLatest";
 
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
@@ -13,9 +17,9 @@ export class DebugComponent extends Component {
     public static componentName: string = "debug";
 
     private _displaying: boolean;
-    private _disposable: rx.IDisposable;
+    private _disposable: Subscription;
 
-    private _open$: rx.BehaviorSubject<boolean> = new rx.BehaviorSubject<boolean>(false);
+    private _open$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -24,15 +28,17 @@ export class DebugComponent extends Component {
 
     public _activate(): void {
         this._disposable = this._navigator.stateService.currentState$
-            .combineLatest(this._open$, this._navigator.graphService.imageLoadingService.loadstatus$,
-                           (frame: IFrame, open: boolean, loadStatus: any): IVNodeHash => {
-                               return {name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame, loadStatus))};
-                           })
+            .combineLatest(
+                this._open$,
+                this._navigator.graphService.imageLoadingService.loadstatus$,
+                (frame: IFrame, open: boolean, loadStatus: any): IVNodeHash => {
+                    return {name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame, loadStatus))};
+                })
             .subscribe(this._container.domRenderer.render$);
     }
 
     public _deactivate(): void {
-        this._disposable.dispose();
+        this._disposable.unsubscribe();
     }
 
     private _getDebugInfo(frame: IFrame, loadStatus: any): vd.VNode[] {
@@ -112,11 +118,11 @@ export class DebugComponent extends Component {
     }
 
     private _closeDebugElement(open: boolean): void {
-        this._open$.onNext(false);
+        this._open$.next(false);
     }
 
     private _openDebugElement(): void {
-        this._open$.onNext(true);
+        this._open$.next(true);
     }
 }
 

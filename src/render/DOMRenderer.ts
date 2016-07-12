@@ -1,8 +1,17 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import * as _ from "underscore";
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/operator/combineLatest";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/pluck";
+import "rxjs/add/operator/scan";
 
 import {ISize, IVNodeHash, RenderMode, RenderService} from "../Render";
 import {IFrame} from "../State";
@@ -36,18 +45,18 @@ interface IAdaptiveOperation {
 
 export class DOMRenderer {
     private _renderService: RenderService;
-    private _currentFrame$: rx.Observable<IFrame>;
+    private _currentFrame$: Observable<IFrame>;
 
-    private _adaptiveOperation$: rx.Subject<IAdaptiveOperation> = new rx.Subject<IAdaptiveOperation>();
-    private _offset$: rx.Observable<IOffset>;
+    private _adaptiveOperation$: Subject<IAdaptiveOperation> = new Subject<IAdaptiveOperation>();
+    private _offset$: Observable<IOffset>;
 
-    private _element$: rx.Observable<Element>;
-    private _vPatch$: rx.Observable<vd.VPatch[]>;
-    private _vNode$: rx.Observable<vd.VNode>;
-    private _render$: rx.Subject<IVNodeHash> = new rx.Subject<IVNodeHash>();
-    private _renderAdaptive$: rx.Subject<IVNodeHash> = new rx.Subject<IVNodeHash>();
+    private _element$: Observable<Element>;
+    private _vPatch$: Observable<vd.VPatch[]>;
+    private _vNode$: Observable<vd.VNode>;
+    private _render$: Subject<IVNodeHash> = new Subject<IVNodeHash>();
+    private _renderAdaptive$: Subject<IVNodeHash> = new Subject<IVNodeHash>();
 
-    constructor (element: HTMLElement, renderService: RenderService, currentFrame$: rx.Observable<IFrame>) {
+    constructor (element: HTMLElement, renderService: RenderService, currentFrame$: Observable<IFrame>) {
         this._renderService = renderService;
         this._currentFrame$ = currentFrame$;
 
@@ -105,6 +114,9 @@ export class DOMRenderer {
                     return frame.state.currentNode != null;
                 })
             .distinctUntilChanged(
+                (k1: string, k2: string): boolean => {
+                    return k1 === k2;
+                },
                 (frame: IFrame): string => {
                     return frame.state.currentNode.key;
                 })
@@ -133,11 +145,7 @@ export class DOMRenderer {
                     return vNodeHashes;
                 },
                 {})
-            .combineLatest(
-                this._offset$,
-                (vNodeHashes: IVNodeHashes, offset: IOffset): [IVNodeHashes, IOffset] => {
-                    return [vNodeHashes, offset];
-                })
+            .combineLatest(this._offset$)
             .map<IVNodeHash>(
                 (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
                     let vNodes: vd.VNode[] = _.values(vo[0]);
@@ -195,7 +203,8 @@ export class DOMRenderer {
                     return vd.patch(oldElement, vPatch);
                 },
                 rootNode)
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._element$.subscribe();
 
@@ -223,21 +232,21 @@ export class DOMRenderer {
             .subscribe(this._adaptiveOperation$);
     }
 
-    public get element$(): rx.Observable<Element> {
+    public get element$(): Observable<Element> {
         return this._element$;
     }
 
-    public get render$(): rx.Subject<IVNodeHash> {
+    public get render$(): Subject<IVNodeHash> {
         return this._render$;
     }
 
-    public get renderAdaptive$(): rx.Subject<IVNodeHash> {
+    public get renderAdaptive$(): Subject<IVNodeHash> {
         return this._renderAdaptive$;
     }
 
     public clear(name: string): void {
-        this._renderAdaptive$.onNext({name: name, vnode: null});
-        this._render$.onNext({name: name, vnode: null});
+        this._renderAdaptive$.next({name: name, vnode: null});
+        this._render$.next({name: name, vnode: null});
     }
 }
 

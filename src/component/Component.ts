@@ -2,7 +2,13 @@ import {IComponentConfiguration} from "../Component";
 import {Container, Navigator} from "../Viewer";
 import {EventEmitter} from "../Utils";
 
-import * as rx from "rx";
+import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/startWith";
+
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
 export abstract class Component extends EventEmitter {
     /**
@@ -11,12 +17,13 @@ export abstract class Component extends EventEmitter {
     public static componentName: string = "not_worthy";
 
     protected _activated: boolean;
-    protected _activated$: rx.BehaviorSubject<boolean> = new rx.BehaviorSubject<boolean>(false);
-    protected _configurationSubject$: rx.Subject<IComponentConfiguration> = new rx.Subject<IComponentConfiguration>();
-    protected _configuration$: rx.Observable<IComponentConfiguration>;
     protected _container: Container;
     protected _name: string;
     protected _navigator: Navigator;
+
+    protected _activated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    protected _configurationSubject$: Subject<IComponentConfiguration> = new Subject<IComponentConfiguration>();
+    protected _configuration$: Observable<IComponentConfiguration>;
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super();
@@ -39,7 +46,8 @@ export abstract class Component extends EventEmitter {
 
                         return conf;
                     })
-                .shareReplay(1);
+                .publishReplay(1)
+                .refCount();
 
         this._configuration$.subscribe();
     }
@@ -48,7 +56,7 @@ export abstract class Component extends EventEmitter {
         return this._activated;
     }
 
-    public get activated$(): rx.Observable<boolean> {
+    public get activated$(): Observable<boolean> {
         return this._activated$;
     }
 
@@ -56,7 +64,7 @@ export abstract class Component extends EventEmitter {
         return {};
     }
 
-    public get configuration$(): rx.Observable<IComponentConfiguration> {
+    public get configuration$(): Observable<IComponentConfiguration> {
         return this._configuration$;
     }
 
@@ -66,16 +74,16 @@ export abstract class Component extends EventEmitter {
         }
 
         if (conf !== undefined) {
-            this._configurationSubject$.onNext(conf);
+            this._configurationSubject$.next(conf);
         }
 
         this._activate();
         this._activated = true;
-        this._activated$.onNext(true);
+        this._activated$.next(true);
     };
 
     public configure(conf: IComponentConfiguration): void {
-        this._configurationSubject$.onNext(conf);
+        this._configurationSubject$.next(conf);
     }
 
     public deactivate(): void {
@@ -87,7 +95,7 @@ export abstract class Component extends EventEmitter {
         this._container.domRenderer.clear(this._name);
         this._container.glRenderer.clear(this._name);
         this._activated = false;
-        this._activated$.onNext(false);
+        this._activated$.next(false);
     };
 
     /**

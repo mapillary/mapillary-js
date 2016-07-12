@@ -1,7 +1,11 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {Subscription} from "rxjs/Subscription";
+
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/first";
 
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
@@ -13,7 +17,7 @@ import {IVNodeHash} from "../Render";
 export class NavigationComponent extends Component {
     public static componentName: string = "navigation";
 
-    private _disposable: rx.IDisposable;
+    private _renderSubscription: Subscription;
 
     private _dirNames: {[dir: number]: string};
 
@@ -31,31 +35,35 @@ export class NavigationComponent extends Component {
     }
 
     protected _activate(): void {
-        this._disposable = this._navigator.stateService.currentNode$.map((node: Node): IVNodeHash => {
-            let btns: vd.VNode[] = [];
+        this._renderSubscription = this._navigator.stateService.currentNode$
+            .map(
+                (node: Node): IVNodeHash => {
+                    let btns: vd.VNode[] = [];
 
-            for (let edge of node.edges) {
-                let direction: EdgeDirection = edge.data.direction;
-                let name: string = this._dirNames[direction];
-                if (name == null) {
-                    continue;
-                }
+                    for (let edge of node.edges) {
+                        let direction: EdgeDirection = edge.data.direction;
+                        let name: string = this._dirNames[direction];
+                        if (name == null) {
+                            continue;
+                        }
 
-                btns.push(this._createVNode(direction, name));
-            }
+                        btns.push(this._createVNode(direction, name));
+                    }
 
-            return {name: this._name, vnode: vd.h(`div.NavigationComponent`, btns)};
-        }).subscribe(this._container.domRenderer.render$);
+                    return {name: this._name, vnode: vd.h(`div.NavigationComponent`, btns)};
+                })
+            .subscribe(this._container.domRenderer.render$);
     }
 
     protected _deactivate(): void {
-        this._disposable.dispose();
+        this._renderSubscription.unsubscribe();
     }
 
     private _createVNode(direction: EdgeDirection, name: string): vd.VNode {
-        return vd.h(`span.Direction.Direction${name}`,
-                    {onclick: (ev: Event): void => { this._navigator.moveDir(direction).first().subscribe(); }},
-                    []);
+        return vd.h(
+            `span.Direction.Direction${name}`,
+            {onclick: (ev: Event): void => { this._navigator.moveDir(direction).first().subscribe(); }},
+            []);
     }
 }
 

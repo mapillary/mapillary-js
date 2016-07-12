@@ -1,7 +1,18 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/observable/combineLatest";
+
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/share";
 
 import {
     ComponentService,
@@ -23,20 +34,20 @@ export class DirectionComponent extends Component {
 
     private _renderer: DirectionDOMRenderer;
 
-    private _hoveredKeySubject$: rx.Subject<string>;
-    private _hoveredKey$: rx.Observable<string>;
+    private _hoveredKeySubject$: Subject<string>;
+    private _hoveredKey$: Observable<string>;
 
-    private _configurationSubscription: rx.IDisposable;
-    private _nodeSubscription: rx.IDisposable;
-    private _renderCameraSubscription: rx.IDisposable;
-    private _hoveredKeySubscription: rx.IDisposable;
+    private _configurationSubscription: Subscription;
+    private _nodeSubscription: Subscription;
+    private _renderCameraSubscription: Subscription;
+    private _hoveredKeySubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
         this._renderer = new DirectionDOMRenderer(this.defaultConfiguration, container.element);
 
-        this._hoveredKeySubject$ = new rx.Subject<string>();
+        this._hoveredKeySubject$ = new Subject<string>();
 
         this._hoveredKey$ = this._hoveredKeySubject$.share();
     }
@@ -63,7 +74,7 @@ export class DirectionComponent extends Component {
      *
      * @returns {Observable<string>}
      */
-    public get hoveredKey$(): rx.Observable<string> {
+    public get hoveredKey$(): Observable<string> {
         return this._hoveredKey$;
     }
 
@@ -127,7 +138,7 @@ export class DirectionComponent extends Component {
         this._nodeSubscription = this._navigator.stateService.currentNode$
             .do(
                 (node: Node): void => {
-                    this._container.domRenderer.render$.onNext({name: this._name, vnode: vd.h("div", {}, [])});
+                    this._container.domRenderer.render$.next({name: this._name, vnode: vd.h("div", {}, [])});
                 })
             .subscribe(
                 (node: Node): void => {
@@ -153,12 +164,14 @@ export class DirectionComponent extends Component {
                 })
             .subscribe(this._container.domRenderer.render$);
 
-        this._hoveredKeySubscription = rx.Observable
-            .combineLatest(
-                this._container.domRenderer.element$,
-                this._container.renderService.renderCamera$,
-                this._container.mouseService.mouseMove$.startWith(null),
-                this._container.mouseService.mouseUp$.startWith(null),
+        this._hoveredKeySubscription = Observable
+            .combineLatest<Element>(
+                [
+                    this._container.domRenderer.element$,
+                    this._container.renderService.renderCamera$,
+                    this._container.mouseService.mouseMove$.startWith(null),
+                    this._container.mouseService.mouseUp$.startWith(null),
+                ],
                 (e: Element, rc: RenderCamera, mm: MouseEvent, mu: MouseEvent): Element => {
                     return e;
                 })
@@ -181,10 +194,10 @@ export class DirectionComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._configurationSubscription.dispose();
-        this._nodeSubscription.dispose();
-        this._renderCameraSubscription.dispose();
-        this._hoveredKeySubscription.dispose();
+        this._configurationSubscription.unsubscribe();
+        this._nodeSubscription.unsubscribe();
+        this._renderCameraSubscription.unsubscribe();
+        this._hoveredKeySubscription.unsubscribe();
     }
 }
 

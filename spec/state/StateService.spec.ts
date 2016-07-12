@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {StateService} from "../../src/State";
 
 describe("StateService.ctor", () => {

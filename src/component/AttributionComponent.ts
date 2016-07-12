@@ -1,7 +1,8 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {Subscription} from "rxjs/Subscription";
 
 import {Container, Navigator} from "../Viewer";
 import {Node} from "../Graph";
@@ -11,20 +12,23 @@ import {IVNodeHash} from "../Render";
 
 export class AttributionComponent extends Component {
     public static componentName: string = "attribution";
-    private _disposable: rx.IDisposable;
+    private _disposable: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     protected _activate(): void {
-        this._disposable = this._navigator.stateService.currentNode$.map((node: Node): IVNodeHash => {
-            return {name: this._name, vnode: this._getAttributionNode(node.user, node.key)};
-        }).subscribe(this._container.domRenderer.render$);
+        this._disposable = this._navigator.stateService.currentNode$
+            .map(
+                (node: Node): IVNodeHash => {
+                    return {name: this._name, vnode: this._getAttributionNode(node.user, node.key)};
+                })
+            .subscribe(this._container.domRenderer.render$);
     }
 
     protected _deactivate(): void {
-        this._disposable.dispose();
+        this._disposable.unsubscribe();
     }
 
     private _getAttributionNode(username: string, photoId: string): vd.VNode {

@@ -2,7 +2,10 @@
 
 import * as _ from "underscore";
 import * as vd from "virtual-dom";
-import * as rx from "rx";
+
+import {Subscription} from "rxjs/Subscription";
+
+import "rxjs/add/operator/combineLatest";
 
 import {Container, Navigator} from "../Viewer";
 import {ComponentService, Component} from "../Component";
@@ -11,14 +14,15 @@ import {IVNodeHash} from "../Render";
 
 export class LoadingComponent extends Component {
     public static componentName: string = "loading";
-    private _disposable: rx.IDisposable;
+
+    private _loadingSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     protected _activate(): void {
-        this._disposable = this._navigator.loadingService.loading$
+        this._loadingSubscription = this._navigator.loadingService.loading$
             .combineLatest(
                 this._navigator.graphService.imageLoadingService.loadstatus$,
                 (loading: boolean, loadStatus: any): IVNodeHash => {
@@ -42,11 +46,12 @@ export class LoadingComponent extends Component {
                     }
 
                     return {name: this._name, vnode: this._getBarVNode(percentage)};
-                }).subscribe(this._container.domRenderer.render$);
+                })
+            .subscribe(this._container.domRenderer.render$);
     }
 
     protected _deactivate(): void {
-        this._disposable.dispose();
+        this._loadingSubscription.unsubscribe();
     }
 
     private _getBarVNode(percentage: number): vd.VNode {

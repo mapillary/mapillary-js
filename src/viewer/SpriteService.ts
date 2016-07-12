@@ -1,8 +1,14 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/startWith";
 
 import {ISpriteAtlas, SpriteAlignment} from "../Viewer";
 
@@ -145,11 +151,11 @@ interface ISpriteAtlasOperation {
 }
 
 export class SpriteService {
-    private _spriteAtlasOperation$: rx.Subject<ISpriteAtlasOperation>;
-    private _spriteAtlas$: rx.Observable<SpriteAtlas>;
+    private _spriteAtlasOperation$: Subject<ISpriteAtlasOperation>;
+    private _spriteAtlas$: Observable<SpriteAtlas>;
 
     constructor(sprite?: string) {
-        this._spriteAtlasOperation$ = new rx.Subject<ISpriteAtlasOperation>();
+        this._spriteAtlasOperation$ = new Subject<ISpriteAtlasOperation>();
 
         this._spriteAtlas$ = this._spriteAtlasOperation$
             .startWith(
@@ -161,7 +167,8 @@ export class SpriteService {
                     return operation(atlas);
                 },
                 new SpriteAtlas())
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._spriteAtlas$.subscribe();
 
@@ -177,7 +184,7 @@ export class SpriteService {
         imageXmlHTTP.onload = () => {
             let image: HTMLImageElement = new Image();
             image.onload = () => {
-                this._spriteAtlasOperation$.onNext(
+                this._spriteAtlasOperation$.next(
                     (atlas: SpriteAtlas): SpriteAtlas => {
                         atlas.image = image;
 
@@ -197,7 +204,7 @@ export class SpriteService {
         jsonXmlHTTP.onload = () => {
             let json: ISprites = <ISprites>JSON.parse(jsonXmlHTTP.response);
 
-            this._spriteAtlasOperation$.onNext(
+            this._spriteAtlasOperation$.next(
                     (atlas: SpriteAtlas): SpriteAtlas => {
                         atlas.json = json;
 
@@ -208,7 +215,7 @@ export class SpriteService {
         jsonXmlHTTP.send();
     }
 
-    public get spriteAtlas$(): rx.Observable<ISpriteAtlas> {
+    public get spriteAtlas$(): Observable<ISpriteAtlas> {
         return this._spriteAtlas$;
     }
 }

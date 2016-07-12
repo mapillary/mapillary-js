@@ -38,7 +38,7 @@ describe("TilesService", () => {
             done();
         });
 
-        tilesService.cacheIm$.onNext(key);
+        tilesService.cacheIm$.next(key);
     });
 
     it("cache h tile", (done) => {
@@ -60,7 +60,7 @@ describe("TilesService", () => {
             done();
         });
 
-        tilesService.cacheH$.onNext(h);
+        tilesService.cacheH$.next(h);
     });
 
     it("cache generated h tile", (done) => {
@@ -78,6 +78,6 @@ describe("TilesService", () => {
             done();
         });
 
-        tilesService.cacheH$.onNext(hash);
+        tilesService.cacheH$.next(hash);
     });
 });

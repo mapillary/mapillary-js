@@ -1,5 +1,3 @@
-/// <reference path="../../../../typings/index.d.ts" />
-
 import {Geometry, GeometryTagError} from "../../../Component";
 import {Transform} from "../../../Geo";
 
@@ -66,6 +64,6 @@ export class PointGeometry extends Geometry {
         this._point[0] = changed[0];
         this._point[1] = changed[1];
 
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 }

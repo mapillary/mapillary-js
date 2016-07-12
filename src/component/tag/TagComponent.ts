@@ -1,7 +1,35 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/observable/combineLatest";
+import "rxjs/add/observable/empty";
+import "rxjs/add/observable/from";
+import "rxjs/add/observable/merge";
+import "rxjs/add/observable/of";
+
+import "rxjs/add/operator/combineLatest";
+import "rxjs/add/operator/concat";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/merge";
+import "rxjs/add/operator/mergeMap";
+import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/share";
+import "rxjs/add/operator/skip";
+import "rxjs/add/operator/skipUntil";
+import "rxjs/add/operator/startWith";
+import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/take";
+import "rxjs/add/operator/takeUntil";
+import "rxjs/add/operator/withLatestFrom";
 
 import {
     ComponentService,
@@ -78,47 +106,47 @@ export class TagComponent extends Component {
     private _tagSet: TagSet;
     private _tagCreator: TagCreator;
 
-    private _tagGlRendererOperation$: rx.Subject<ITagGLRendererOperation>;
-    private _tagGlRenderer$: rx.Observable<TagGLRenderer>;
+    private _tagGlRendererOperation$: Subject<ITagGLRendererOperation>;
+    private _tagGlRenderer$: Observable<TagGLRenderer>;
 
-    private _tags$: rx.Observable<Tag[]>;
-    private _tagChanged$: rx.Observable<Tag>;
-    private _tagInterationInitiated$: rx.Observable<string>;
-    private _tagInteractionAbort$: rx.Observable<void>;
-    private _activeTag$: rx.Observable<IInteraction>;
+    private _tags$: Observable<Tag[]>;
+    private _tagChanged$: Observable<Tag>;
+    private _tagInterationInitiated$: Observable<string>;
+    private _tagInteractionAbort$: Observable<void>;
+    private _activeTag$: Observable<IInteraction>;
 
-    private _basicClick$: rx.Observable<number[]>;
-    private _validBasicClick$: rx.Observable<number[]>;
+    private _basicClick$: Observable<number[]>;
+    private _validBasicClick$: Observable<number[]>;
 
-    private _createGeometryChanged$: rx.Observable<OutlineCreateTag>;
-    private _tagCreated$: rx.Observable<OutlineCreateTag>;
-    private _vertexGeometryCreated$: rx.Observable<Geometry>;
-    private _pointGeometryCreated$: rx.Subject<Geometry>;
-    private _geometryCreated$: rx.Observable<Geometry>;
+    private _createGeometryChanged$: Observable<OutlineCreateTag>;
+    private _tagCreated$: Observable<OutlineCreateTag>;
+    private _vertexGeometryCreated$: Observable<Geometry>;
+    private _pointGeometryCreated$: Subject<Geometry>;
+    private _geometryCreated$: Observable<Geometry>;
 
-    private _creating$: rx.Observable<boolean>;
-    private _creatingConfiguration$: rx.Observable<ITagConfiguration>;
+    private _creating$: Observable<boolean>;
+    private _creatingConfiguration$: Observable<ITagConfiguration>;
 
-    private _claimMouseSubscription: rx.IDisposable;
-    private _mouseDragSubscription: rx.IDisposable;
-    private _unclaimMouseSubscription: rx.IDisposable;
-    private _setTagsSubscription: rx.IDisposable;
-    private _updateTagSubscription: rx.IDisposable;
+    private _claimMouseSubscription: Subscription;
+    private _mouseDragSubscription: Subscription;
+    private _unclaimMouseSubscription: Subscription;
+    private _setTagsSubscription: Subscription;
+    private _updateTagSubscription: Subscription;
 
-    private _stopCreateSubscription: rx.IDisposable;
-    private _creatorConfigurationSubscription: rx.IDisposable;
-    private _createSubscription: rx.IDisposable;
-    private _createPointSubscription: rx.IDisposable;
-    private _setCreateVertexSubscription: rx.IDisposable;
-    private _addPointSubscription: rx.IDisposable;
-    private _deleteCreatedSubscription: rx.IDisposable;
-    private _setGLCreateTagSubscription: rx.IDisposable;
+    private _stopCreateSubscription: Subscription;
+    private _creatorConfigurationSubscription: Subscription;
+    private _createSubscription: Subscription;
+    private _createPointSubscription: Subscription;
+    private _setCreateVertexSubscription: Subscription;
+    private _addPointSubscription: Subscription;
+    private _deleteCreatedSubscription: Subscription;
+    private _setGLCreateTagSubscription: Subscription;
 
-    private _domSubscription: rx.IDisposable;
-    private _glSubscription: rx.IDisposable;
+    private _domSubscription: Subscription;
+    private _glSubscription: Subscription;
 
-    private _geometryCreatedEventSubscription: rx.IDisposable;
-    private _tagsChangedEventSubscription: rx.IDisposable;
+    private _geometryCreatedEventSubscription: Subscription;
+    private _tagsChangedEventSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -127,7 +155,7 @@ export class TagComponent extends Component {
         this._tagSet = new TagSet();
         this._tagCreator = new TagCreator();
 
-        this._tagGlRendererOperation$ = new rx.Subject<ITagGLRendererOperation>();
+        this._tagGlRendererOperation$ = new Subject<ITagGLRendererOperation>();
 
         this._tagGlRenderer$ = this._tagGlRendererOperation$
             .startWith(
@@ -156,26 +184,27 @@ export class TagComponent extends Component {
             .share();
 
         this._tagChanged$ = this._tags$
-            .flatMapLatest<Tag>(
-                (tags: Tag[]): rx.Observable<Tag> => {
-                    return rx.Observable
-                        .fromArray(tags)
-                        .flatMap<Tag>(
-                            (tag: Tag): rx.Observable<Tag> => {
-                                return rx.Observable.merge(
-                                    tag.changed$,
-                                    tag.geometryChanged$);
+            .switchMap<Tag>(
+                (tags: Tag[]): Observable<Tag> => {
+                    return Observable
+                        .from(tags)
+                        .mergeMap<Tag>(
+                            (tag: Tag): Observable<Tag> => {
+                                return Observable
+                                    .merge<Tag>(
+                                        tag.changed$,
+                                        tag.geometryChanged$);
                             });
                 })
             .share();
 
         this._tagInterationInitiated$ = this._tags$
-            .flatMapLatest<string>(
-                (tags: Tag[]): rx.Observable<string> => {
-                    return rx.Observable
-                        .fromArray(tags)
-                        .flatMap<string>(
-                            (tag: Tag): rx.Observable<string> => {
+            .switchMap<string>(
+                (tags: Tag[]): Observable<string> => {
+                    return Observable
+                        .from(tags)
+                        .mergeMap<string>(
+                            (tag: Tag): Observable<string> => {
                                 return tag.interact$
                                     .map<string>(
                                         (interaction: IInteraction): string => {
@@ -185,7 +214,7 @@ export class TagComponent extends Component {
                 })
             .share();
 
-        this._tagInteractionAbort$ = rx.Observable
+        this._tagInteractionAbort$ = Observable
             .merge(
                 this._container.mouseService.mouseUp$,
                 this._container.mouseService.mouseLeave$)
@@ -196,16 +225,16 @@ export class TagComponent extends Component {
             .share();
 
         this._activeTag$ = this._tags$
-            .flatMapLatest<IInteraction>(
-                (tags: Tag[]): rx.Observable<IInteraction> => {
-                    return rx.Observable
-                        .fromArray(tags)
-                        .flatMap<IInteraction>(
-                            (tag: Tag): rx.Observable<IInteraction> => {
+            .switchMap<IInteraction>(
+                (tags: Tag[]): Observable<IInteraction> => {
+                    return Observable
+                        .from(tags)
+                        .mergeMap<IInteraction>(
+                            (tag: Tag): Observable<IInteraction> => {
                                 return tag.interact$;
                             });
                 })
-            .merge(
+            .merge<IInteraction>(
                 this._tagInteractionAbort$
                     .map<IInteraction>(
                         (): IInteraction => {
@@ -214,20 +243,20 @@ export class TagComponent extends Component {
             .share();
 
         this._createGeometryChanged$ = this._tagCreator.tag$
-            .flatMapLatest<OutlineCreateTag>(
-                (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
+            .switchMap<OutlineCreateTag>(
+                (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.geometryChanged$ :
-                        rx.Observable.empty<OutlineCreateTag>();
+                        Observable.empty<OutlineCreateTag>();
                 })
             .share();
 
         this._tagCreated$ = this._tagCreator.tag$
-            .flatMapLatest<OutlineCreateTag>(
-                (tag: OutlineCreateTag): rx.Observable<OutlineCreateTag> => {
+            .switchMap<OutlineCreateTag>(
+                (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.created$ :
-                        rx.Observable.empty<OutlineCreateTag>();
+                        Observable.empty<OutlineCreateTag>();
                 })
             .share();
 
@@ -238,10 +267,10 @@ export class TagComponent extends Component {
                 })
             .share();
 
-        this._pointGeometryCreated$ = new rx.Subject<Geometry>();
+        this._pointGeometryCreated$ = new Subject<Geometry>();
 
-        this._geometryCreated$ = rx.Observable
-            .merge(
+        this._geometryCreated$ = Observable
+            .merge<Geometry>(
                 this._vertexGeometryCreated$,
                 this._pointGeometryCreated$)
              .share();
@@ -285,32 +314,32 @@ export class TagComponent extends Component {
 
         this._creatingConfiguration$ = this._configuration$
             .distinctUntilChanged(
+                (c1: ITagConfiguration, c2: ITagConfiguration): boolean => {
+                    return c1.creating === c2.creating && c1.createType === c2.createType;
+                },
                 (configuration: ITagConfiguration): ITagConfiguration => {
                     return {
                         createColor: configuration.createColor,
                         createType: configuration.createType,
                         creating: configuration.creating,
                     };
-                },
-                (c1: ITagConfiguration, c2: ITagConfiguration): boolean => {
-                    return c1.creating === c2.creating && c1.createType === c2.createType;
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._creating$ = this._creatingConfiguration$
             .map<boolean>(
                 (configuration: ITagConfiguration): boolean => {
                     return configuration.creating;
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._creating$
             .subscribe(
                 (creating: boolean): void => {
                     this.fire(TagComponent.creatingchanged, creating);
                 });
-
-        this._creating$.subscribe();
     }
 
    /**
@@ -333,7 +362,7 @@ export class TagComponent extends Component {
      *
      * @returns {Observable<Tag[]>}
      */
-    public get tags$(): rx.Observable<Tag[]> {
+    public get tags$(): Observable<Tag[]> {
         return this._tags$;
     }
 
@@ -345,7 +374,7 @@ export class TagComponent extends Component {
      *
      * @returns {Observable<Geometry>}
      */
-    public get geometryCreated$(): rx.Observable<Geometry> {
+    public get geometryCreated$(): Observable<Geometry> {
         return this._geometryCreated$;
     }
 
@@ -355,7 +384,7 @@ export class TagComponent extends Component {
      * @param {Tag[]} tags - The tags.
      */
     public setTags(tags: Tag[]): void {
-        this._tagSet.set$.onNext(tags);
+        this._tagSet.set$.next(tags);
     }
 
     /**
@@ -392,33 +421,33 @@ export class TagComponent extends Component {
                     this.fire(TagComponent.tagschanged, tags);
                 });
 
-        let nodeChanged$: rx.Observable<void> = this.configuration$
-            .flatMapLatest<void>(
-                (configuration: ITagConfiguration): rx.Observable<void> => {
+        let nodeChanged$: Observable<void> = this.configuration$
+            .switchMap<void>(
+                (configuration: ITagConfiguration): Observable<void> => {
                     return configuration.creating ?
                         this._navigator.stateService.currentNode$
                             .skip(1)
                             .take(1)
                             .map<void>((n: Node): void => { return null; }) :
-                        rx.Observable.empty<void>();
+                        Observable.empty<void>();
                 });
 
-        let tagAborted$: rx.Observable<void> = this._tagCreator.tag$
-            .flatMapLatest<void>(
-                (tag: OutlineCreateTag): rx.Observable<void> => {
+        let tagAborted$: Observable<void> = this._tagCreator.tag$
+            .switchMap<void>(
+                (tag: OutlineCreateTag): Observable<void> => {
                     return tag != null ?
                         tag.aborted$
                             .map<void>((t: OutlineCreateTag): void => { return null; }) :
-                        rx.Observable.empty<void>();
+                        Observable.empty<void>();
                 });
 
-        let tagCreated$: rx.Observable<void> = this._tagCreated$
+        let tagCreated$: Observable<void> = this._tagCreated$
             .map<void>((t: OutlineCreateTag): void => { return null; });
 
-        let pointGeometryCreated$: rx.Observable<void> = this._pointGeometryCreated$
+        let pointGeometryCreated$: Observable<void> = this._pointGeometryCreated$
             .map<void>((p: PointGeometry): void => { return null; });
 
-        this._stopCreateSubscription = rx.Observable
+        this._stopCreateSubscription = Observable
             .merge(
                 nodeChanged$,
                 tagAborted$,
@@ -430,23 +459,23 @@ export class TagComponent extends Component {
             .subscribe(this._tagCreator.configuration$);
 
         this._createSubscription = this._creatingConfiguration$
-            .flatMapLatest<number[]>(
-                (configuration: ITagConfiguration): rx.Observable<number[]> => {
+            .switchMap<number[]>(
+                (configuration: ITagConfiguration): Observable<number[]> => {
                     return configuration.creating &&
                         configuration.createType === "rect" ||
                         configuration.createType === "polygon" ?
                         this._validBasicClick$.take(1) :
-                        rx.Observable.empty<number[]>();
+                        Observable.empty<number[]>();
                 })
             .subscribe(this._tagCreator.create$);
 
         this._createPointSubscription = this._creatingConfiguration$
-            .flatMapLatest<number[]>(
-                (configuration: ITagConfiguration): rx.Observable<number[]> => {
+            .switchMap<number[]>(
+                (configuration: ITagConfiguration): Observable<number[]> => {
                     return configuration.creating &&
                         configuration.createType === "point" ?
                         this._validBasicClick$.take(1) :
-                        rx.Observable.empty<number[]>();
+                        Observable.empty<number[]>();
                 })
             .map<Geometry>(
                 (basic: number[]): Geometry => {
@@ -454,18 +483,11 @@ export class TagComponent extends Component {
                 })
             .subscribe(this._pointGeometryCreated$);
 
-        this._setCreateVertexSubscription = rx.Observable
-            .combineLatest(
+        this._setCreateVertexSubscription = Observable
+            .combineLatest<MouseEvent, OutlineCreateTag, RenderCamera>(
                 this._container.mouseService.mouseMove$,
                 this._tagCreator.tag$,
-                this._container.renderService.renderCamera$,
-                (
-                    event: MouseEvent,
-                    tag: OutlineCreateTag,
-                    renderCamera: RenderCamera):
-                    [MouseEvent, OutlineCreateTag, RenderCamera] => {
-                    return [event, tag, renderCamera];
-                })
+                this._container.renderService.renderCamera$)
             .filter(
                 (etr: [MouseEvent, OutlineCreateTag, RenderCamera]): boolean => {
                     return etr[1] != null;
@@ -497,14 +519,14 @@ export class TagComponent extends Component {
                 });
 
         this._addPointSubscription = this._creatingConfiguration$
-            .flatMapLatest<number[]>(
-                (configuration: ITagConfiguration): rx.Observable<number[]> => {
+            .switchMap<number[]>(
+                (configuration: ITagConfiguration): Observable<number[]> => {
                     let createType: GeometryType = configuration.createType;
 
                     return configuration.creating &&
                         (createType === "rect" || createType === "polygon") ?
                         this._basicClick$.skipUntil(this._validBasicClick$).skip(1) :
-                        rx.Observable.empty<number[]>();
+                        Observable.empty<number[]>();
                 })
             .withLatestFrom(
                 this._tagCreator.tag$,
@@ -522,10 +544,10 @@ export class TagComponent extends Component {
         this._deleteCreatedSubscription = this._creating$
             .subscribe(
                 (creating: boolean): void => {
-                    this._tagCreator.delete$.onNext(null);
+                    this._tagCreator.delete$.next(null);
                 });
 
-        this._setGLCreateTagSubscription = rx.Observable
+        this._setGLCreateTagSubscription = Observable
             .merge(
                 this._tagCreator.tag$,
                 this._createGeometryChanged$)
@@ -552,8 +574,8 @@ export class TagComponent extends Component {
             .subscribe(this._tagGlRendererOperation$);
 
         this._claimMouseSubscription = this._tagInterationInitiated$
-            .flatMapLatest(
-                (id: string): rx.Observable<MouseEvent> => {
+            .switchMap(
+                (id: string): Observable<MouseEvent> => {
                     return this._container.mouseService.mouseMove$
                         .takeUntil(this._tagInteractionAbort$)
                         .take(1);
@@ -569,31 +591,28 @@ export class TagComponent extends Component {
                 (a: IInteraction, e: MouseEvent): [IInteraction, MouseEvent] => {
                     return [a, e];
                 })
-            .flatMapLatest(
-                (args: [IInteraction, MouseEvent]): rx.Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
+            .switchMap(
+                (args: [IInteraction, MouseEvent]): Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
                     let activeTag: IInteraction = args[0];
                     let mouseMove: MouseEvent = args[1];
 
                     if (activeTag.operation === TagOperation.None) {
-                        return rx.Observable.empty<[MouseEvent, RenderCamera, IInteraction, Transform]>();
+                        return Observable.empty<[MouseEvent, RenderCamera, IInteraction, Transform]>();
                     }
 
-                    let mouseDrag$: rx.Observable<MouseEvent> = rx.Observable
-                        .just<MouseEvent>(mouseMove)
-                        .concat(
+                    let mouseDrag$: Observable<MouseEvent> = Observable
+                        .of<MouseEvent>(mouseMove)
+                        .concat<MouseEvent>(
                             this._container.mouseService.filtered$(
                                 this._name,
                                 this._container.mouseService.mouseDrag$));
 
-                    return rx.Observable
-                        .combineLatest(
+                    return Observable
+                        .combineLatest<MouseEvent, RenderCamera>(
                             mouseDrag$,
-                            this._container.renderService.renderCamera$,
-                            (e: MouseEvent, c: RenderCamera): [MouseEvent, RenderCamera] => {
-                                return [e, c];
-                            })
+                            this._container.renderService.renderCamera$)
                         .withLatestFrom(
-                            rx.Observable.just(activeTag),
+                            Observable.of(activeTag),
                             this._navigator.stateService.currentTransform$,
                             (
                                 ec: [MouseEvent, RenderCamera],
@@ -672,7 +691,7 @@ export class TagComponent extends Component {
             .startWith([])
             .do(
                 (tags: Tag[]): void => {
-                    this._container.domRenderer.render$.onNext({
+                    this._container.domRenderer.render$.next({
                         name: this._name,
                         vnode: this._tagDomRenderer.clear(),
                     });
@@ -729,36 +748,36 @@ export class TagComponent extends Component {
 
     protected _deactivate(): void {
         this._tagGlRendererOperation$
-            .onNext(
+            .next(
                 (renderer: TagGLRenderer): TagGLRenderer => {
                     renderer.dispose();
 
                     return renderer;
                 });
 
-        this._tagSet.set$.onNext([]);
-        this._tagCreator.delete$.onNext(null);
+        this._tagSet.set$.next([]);
+        this._tagCreator.delete$.next(null);
 
-        this._claimMouseSubscription.dispose();
-        this._mouseDragSubscription.dispose();
-        this._unclaimMouseSubscription.dispose();
-        this._setTagsSubscription.dispose();
-        this._updateTagSubscription.dispose();
+        this._claimMouseSubscription.unsubscribe();
+        this._mouseDragSubscription.unsubscribe();
+        this._unclaimMouseSubscription.unsubscribe();
+        this._setTagsSubscription.unsubscribe();
+        this._updateTagSubscription.unsubscribe();
 
-        this._stopCreateSubscription.dispose();
-        this._creatorConfigurationSubscription.dispose();
-        this._createSubscription.dispose();
-        this._createPointSubscription.dispose();
-        this._setCreateVertexSubscription.dispose();
-        this._addPointSubscription.dispose();
-        this._deleteCreatedSubscription.dispose();
-        this._setGLCreateTagSubscription.dispose();
+        this._stopCreateSubscription.unsubscribe();
+        this._creatorConfigurationSubscription.unsubscribe();
+        this._createSubscription.unsubscribe();
+        this._createPointSubscription.unsubscribe();
+        this._setCreateVertexSubscription.unsubscribe();
+        this._addPointSubscription.unsubscribe();
+        this._deleteCreatedSubscription.unsubscribe();
+        this._setGLCreateTagSubscription.unsubscribe();
 
-        this._domSubscription.dispose();
-        this._glSubscription.dispose();
+        this._domSubscription.unsubscribe();
+        this._glSubscription.unsubscribe();
 
-        this._geometryCreatedEventSubscription.dispose();
-        this._tagsChangedEventSubscription.dispose();
+        this._geometryCreatedEventSubscription.unsubscribe();
+        this._tagsChangedEventSubscription.unsubscribe();
     }
 
     private _mouseEventToBasic(

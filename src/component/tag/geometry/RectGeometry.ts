@@ -1,5 +1,3 @@
-/// <reference path="../../../../typings/index.d.ts" />
-
 import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
@@ -134,7 +132,7 @@ export class RectGeometry extends VertexGeometry {
         this._rect[2] = rect[2];
         this._rect[3] = rect[3];
 
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /** @inheritdoc */
@@ -187,7 +185,7 @@ export class RectGeometry extends VertexGeometry {
             this._inverted = !this._inverted;
         }
 
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**

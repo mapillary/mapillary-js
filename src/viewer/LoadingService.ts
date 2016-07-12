@@ -1,7 +1,16 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import * as _ from "underscore";
-import * as rx from "rx";
+
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/operator/debounceTime";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/startWith";
 
 interface ILoader {
     task: string;
@@ -9,8 +18,8 @@ interface ILoader {
 }
 
 export class LoadingService {
-    private _loaders$: rx.Observable<{[key: string]: boolean}>;
-    private _loadersSubject$: rx.Subject<any> = new rx.Subject<any>();
+    private _loaders$: Observable<{[key: string]: boolean}>;
+    private _loadersSubject$: Subject<any> = new Subject<any>();
 
     constructor () {
         this._loaders$ = this._loadersSubject$
@@ -22,32 +31,42 @@ export class LoadingService {
                     return loaders;
                 },
                 {})
-            .startWith({}).shareReplay(1);
+            .startWith({})
+            .publishReplay(1)
+            .refCount();
     }
 
-    public get loading$(): rx.Observable<boolean> {
-        return this._loaders$.map((loaders: {[key: string]: boolean}): boolean => {
-            return _.reduce(
-                loaders,
-                (loader: boolean, acc: boolean) => {
-                    return (loader || acc);
-                },
-                false);
-        }).debounce(100).distinctUntilChanged();
+    public get loading$(): Observable<boolean> {
+        return this._loaders$
+            .map(
+                (loaders: {[key: string]: boolean}): boolean => {
+                    return _.reduce(
+                        loaders,
+                        (loader: boolean, acc: boolean) => {
+                            return (loader || acc);
+                        },
+                        false);
+                })
+            .debounceTime(100)
+            .distinctUntilChanged();
     }
 
-    public taskLoading$(task: string): rx.Observable<boolean> {
-        return this._loaders$.map((loaders: {[key: string]: boolean}): boolean => {
-            return !!loaders[task];
-        }).debounce(100).distinctUntilChanged();
+    public taskLoading$(task: string): Observable<boolean> {
+        return this._loaders$
+            .map(
+                (loaders: {[key: string]: boolean}): boolean => {
+                    return !!loaders[task];
+                })
+            .debounceTime(100)
+            .distinctUntilChanged();
     }
 
     public startLoading(task: string): void {
-        this._loadersSubject$.onNext({loading: true, task: task});
+        this._loadersSubject$.next({loading: true, task: task});
     }
 
     public stopLoading(task: string): void {
-        this._loadersSubject$.onNext({loading: false, task: task});
+        this._loadersSubject$.next({loading: false, task: task});
     }
 }
 

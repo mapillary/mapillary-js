@@ -1,8 +1,10 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
 import {
     Alignment,
@@ -45,7 +47,7 @@ export class OutlineTag extends Tag {
     private _text: string;
     private _textColor: number;
 
-    private _click$: rx.Subject<OutlineTag>;
+    private _click$: Subject<OutlineTag>;
 
     /**
      * Create an outline tag.
@@ -72,7 +74,7 @@ export class OutlineTag extends Tag {
         this._text = options.text === undefined ? null : options.text;
         this._textColor = options.textColor == null ? 0xFFFFFF : options.textColor;
 
-        this._click$ = new rx.Subject<OutlineTag>();
+        this._click$ = new Subject<OutlineTag>();
 
         this._click$
             .subscribe(
@@ -89,7 +91,7 @@ export class OutlineTag extends Tag {
      *
      * @returns {Observable<Tag>}
      */
-    public get click$(): rx.Observable<OutlineTag> {
+    public get click$(): Observable<OutlineTag> {
         return this._click$;
     }
 
@@ -109,7 +111,7 @@ export class OutlineTag extends Tag {
      */
     public set editable(value: boolean) {
         this._editable = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -128,7 +130,7 @@ export class OutlineTag extends Tag {
      */
     public set fillColor(value: number) {
         this._fillColor = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -147,7 +149,7 @@ export class OutlineTag extends Tag {
      */
     public set fillOpacity(value: number) {
         this._fillOpacity = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -166,7 +168,7 @@ export class OutlineTag extends Tag {
      */
     public set icon(value: string) {
         this._icon = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -185,7 +187,7 @@ export class OutlineTag extends Tag {
      */
     public set iconAlignment(value: Alignment) {
         this._iconAlignment = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -204,7 +206,7 @@ export class OutlineTag extends Tag {
      */
     public set iconIndex(value: number) {
         this._iconIndex = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -224,7 +226,7 @@ export class OutlineTag extends Tag {
      */
     public set indicateVertices(value: boolean) {
         this._indicateVertices = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -243,7 +245,7 @@ export class OutlineTag extends Tag {
      */
     public set lineColor(value: number) {
         this._lineColor = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -262,7 +264,7 @@ export class OutlineTag extends Tag {
      */
     public set lineWidth(value: number) {
         this._lineWidth = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -281,7 +283,7 @@ export class OutlineTag extends Tag {
      */
     public set text(value: string) {
         this._text = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -300,7 +302,7 @@ export class OutlineTag extends Tag {
      */
     public set textColor(value: number) {
         this._textColor = value;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -325,7 +327,7 @@ export class OutlineTag extends Tag {
         this._fillOpacity = options.fillOpacity == null ? this._fillOpacity : options.fillOpacity;
         this._text = options.text === undefined ? this._text : options.text;
         this._textColor = options.textColor == null ? this._textColor : options.textColor;
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     public getGLObjects(transform: Transform): THREE.Object3D[] {
@@ -357,7 +359,7 @@ export class OutlineTag extends Tag {
                 let iconCameraSpace: THREE.Vector3 = this._convertToCameraSpace(iconVertex, matrixWorldInverse);
                 if (iconCameraSpace.z < 0) {
                     let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                        this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
+                        this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
                     };
 
                     if (atlas.loaded) {
@@ -369,7 +371,7 @@ export class OutlineTag extends Tag {
 
                         let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
                             e.stopPropagation();
-                            this._click$.onNext(this);
+                            this._click$.next(this);
                         };
 
                         let iconCanvas: number[] = this._projectToCanvas(iconCameraSpace, projectionMatrix);
@@ -394,7 +396,7 @@ export class OutlineTag extends Tag {
                 let textCameraSpace: THREE.Vector3 = this._convertToCameraSpace(textVertex, matrixWorldInverse);
                 if (textCameraSpace.z < 0) {
                     let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                        this._interact$.onNext({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
+                        this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
                     };
 
                     let labelCanvas: number[] = this._projectToCanvas(textCameraSpace, projectionMatrix);
@@ -487,7 +489,7 @@ export class OutlineTag extends Tag {
             let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
             let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
 
-            this._interact$.onNext({
+            this._interact$.next({
                 offsetX: offsetX,
                 offsetY: offsetY,
                 operation: operation,

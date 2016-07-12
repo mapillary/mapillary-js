@@ -1,6 +1,10 @@
-/// <reference path="../../../typings/index.d.ts" />
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
-import * as rx from "rx";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/share";
+import "rxjs/add/operator/withLatestFrom";
 
 import {
     ITagConfiguration,
@@ -14,20 +18,20 @@ interface ICreateTagOperation {
 }
 
 export class TagCreator {
-    private _tagOperation$: rx.Subject<ICreateTagOperation>;
-    private _tag$: rx.Observable<OutlineCreateTag>;
+    private _tagOperation$: Subject<ICreateTagOperation>;
+    private _tag$: Observable<OutlineCreateTag>;
 
-    private _create$: rx.Subject<number[]>;
-    private _delete$: rx.Subject<void>;
+    private _create$: Subject<number[]>;
+    private _delete$: Subject<void>;
 
-    private _configuration$: rx.Subject<ITagConfiguration>;
+    private _configuration$: Subject<ITagConfiguration>;
 
     constructor() {
-        this._tagOperation$ = new rx.Subject<ICreateTagOperation>();
-        this._create$ = new rx.Subject<number[]>();
-        this._delete$ = new rx.Subject<void>();
+        this._tagOperation$ = new Subject<ICreateTagOperation>();
+        this._create$ = new Subject<number[]>();
+        this._delete$ = new Subject<void>();
 
-        this._configuration$ = new rx.Subject<ITagConfiguration>();
+        this._configuration$ = new Subject<ITagConfiguration>();
 
         this._tag$ = this._tagOperation$
             .scan<OutlineCreateTag>(
@@ -83,19 +87,19 @@ export class TagCreator {
             .subscribe(this._tagOperation$);
     }
 
-    public get create$(): rx.Subject<number[]> {
+    public get create$(): Subject<number[]> {
         return this._create$;
     }
 
-    public get delete$(): rx.Subject<void> {
+    public get delete$(): Subject<void> {
         return this._delete$;
     }
 
-    public get configuration$(): rx.Subject<ITagConfiguration> {
+    public get configuration$(): Subject<ITagConfiguration> {
         return this._configuration$;
     }
 
-    public get tag$(): rx.Observable<OutlineCreateTag> {
+    public get tag$(): Observable<OutlineCreateTag> {
         return this._tag$;
     }
 }

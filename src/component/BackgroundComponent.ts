@@ -15,7 +15,7 @@ export class BackgroundComponent extends Component {
 
     protected _activate(): void {
         this._container.domRenderer.render$
-            .onNext({name: this._name, vnode: this._getBackgroundNode("The viewer can't display the given photo.")});
+            .next({name: this._name, vnode: this._getBackgroundNode("The viewer can't display the given photo.")});
     }
 
     protected _deactivate(): void {

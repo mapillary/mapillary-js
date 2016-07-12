@@ -1,6 +1,5 @@
-/// <reference path="../../typings/index.d.ts" />
-
-import * as rx from "rx";
+import {Observable} from "rxjs/Observable";
+import {Subscriber} from "rxjs/Subscriber";
 
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
@@ -153,90 +152,95 @@ export class Node {
         return this.sequence.findPrevKey(this.key);
     }
 
-    public cacheAssets(): rx.Observable<Node> {
-        return this.cacheImage().combineLatest(this.cacheMesh(), (image: ILoadStatusObject, mesh: ILoadStatusObject): Node => {
-            this._loadStatus.loaded = 0;
-            this._loadStatus.total = 0;
+    public cacheAssets(): Observable<Node> {
+        return this.cacheImage()
+            .combineLatest(
+                this.cacheMesh(),
+                (image: ILoadStatusObject, mesh: ILoadStatusObject): Node => {
+                    this._loadStatus.loaded = 0;
+                    this._loadStatus.total = 0;
 
-            if (mesh) {
-                this._mesh = mesh.object;
-                this._loadStatus.loaded += mesh.loaded.loaded;
-                this._loadStatus.total += mesh.loaded.total;
-            }
+                    if (mesh) {
+                        this._mesh = mesh.object;
+                        this._loadStatus.loaded += mesh.loaded.loaded;
+                        this._loadStatus.total += mesh.loaded.total;
+                    }
 
-            if (image) {
-                this._image = image.object;
-                this._loadStatus.loaded += image.loaded.loaded;
-                this._loadStatus.total += image.loaded.total;
-            }
+                    if (image) {
+                        this._image = image.object;
+                        this._loadStatus.loaded += image.loaded.loaded;
+                        this._loadStatus.total += image.loaded.total;
+                    }
 
-            return this;
-        });
+                    return this;
+                });
     }
 
-    public cacheImage(): rx.Observable<ILoadStatusObject> {
-        return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
-            let img: HTMLImageElement = new Image();
-            img.crossOrigin = "Anonymous";
+    public cacheImage(): Observable<ILoadStatusObject> {
+        return Observable.create(
+            (subscriber: Subscriber<ILoadStatusObject>): void => {
+                let img: HTMLImageElement = new Image();
+                img.crossOrigin = "Anonymous";
 
-            let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            let imageSize: ImageSize = this.fullPano ?
-                Settings.basePanoramaSize :
-                Settings.baseImageSize;
+                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+                let imageSize: ImageSize = this.fullPano ?
+                    Settings.basePanoramaSize :
+                    Settings.baseImageSize;
 
-            xmlHTTP.open("GET", Urls.image(this.key, imageSize), true);
-            xmlHTTP.responseType = "arraybuffer";
-            xmlHTTP.onload = (e: any) => {
-                img.onload = () => {
-                    observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: img });
-                    observer.onCompleted();
+                xmlHTTP.open("GET", Urls.image(this.key, imageSize), true);
+                xmlHTTP.responseType = "arraybuffer";
+                xmlHTTP.onload = (e: any) => {
+                    img.onload = () => {
+                        subscriber.next({ loaded: { loaded: e.loaded, total: e.total }, object: img });
+                        subscriber.complete();
+                    };
+
+                    img.onerror = (err: Event) => {
+                        subscriber.error(err);
+                    };
+
+                    let blob: Blob = new Blob([xmlHTTP.response]);
+                    img.src = window.URL.createObjectURL(blob);
                 };
-
-                img.onerror = (err: Event) => {
-                    observer.onError(err);
+                xmlHTTP.onprogress = (e: any) => {
+                    subscriber.next({loaded: { loaded: e.loaded, total: e.total}, object: null });
                 };
-
-                let blob: Blob = new Blob([xmlHTTP.response]);
-                img.src = window.URL.createObjectURL(blob);
-            };
-            xmlHTTP.onprogress = (e: any) => {
-                observer.onNext({loaded: { loaded: e.loaded, total: e.total}, object: null });
-            };
-            xmlHTTP.send();
-        });
+                xmlHTTP.send();
+            });
     }
 
-    public cacheMesh(): rx.Observable<ILoadStatusObject> {
-        return rx.Observable.create<ILoadStatusObject>((observer: rx.Observer<ILoadStatusObject>): void => {
-            if (!this.merged) {
-                let mesh: IMesh = { faces: [], vertices: [] };
-                observer.onNext({ loaded: { loaded: 0, total: 0 }, object: mesh });
-                observer.onCompleted();
+    public cacheMesh(): Observable<ILoadStatusObject> {
+        return Observable.create(
+            (subscriber: Subscriber<ILoadStatusObject>): void => {
+                if (!this.merged) {
+                    let mesh: IMesh = { faces: [], vertices: [] };
+                    subscriber.next({ loaded: { loaded: 0, total: 0 }, object: mesh });
+                    subscriber.complete();
 
-                return;
-            }
-
-            let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-            xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
-            xmlHTTP.responseType = "arraybuffer";
-            xmlHTTP.onload = (e: any) => {
-                let mesh: IMesh;
-                if (xmlHTTP.status === 200) {
-                    mesh = MeshReader.read(new Buffer(xmlHTTP.response));
-                } else {
-                    mesh = { faces: [], vertices: [] };
+                    return;
                 }
 
-                observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: mesh });
-                observer.onCompleted();
-            };
+                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+                xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
+                xmlHTTP.responseType = "arraybuffer";
+                xmlHTTP.onload = (e: any) => {
+                    let mesh: IMesh;
+                    if (xmlHTTP.status === 200) {
+                        mesh = MeshReader.read(new Buffer(xmlHTTP.response));
+                    } else {
+                        mesh = { faces: [], vertices: [] };
+                    }
 
-            xmlHTTP.onprogress = (e: any) => {
-                observer.onNext({ loaded: { loaded: e.loaded, total: e.total }, object: null });
-            };
+                    subscriber.next({ loaded: { loaded: e.loaded, total: e.total }, object: mesh });
+                    subscriber.complete();
+                };
 
-            xmlHTTP.send(null);
-        });
+                xmlHTTP.onprogress = (e: any) => {
+                    subscriber.next({ loaded: { loaded: e.loaded, total: e.total }, object: null });
+                };
+
+                xmlHTTP.send(null);
+            });
     }
 }
 

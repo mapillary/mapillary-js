@@ -1,23 +1,21 @@
-/// <reference path="../../../typings/index.d.ts" />
-
-import * as rx from "rx";
+import {Subject} from "rxjs/Subject";
 
 import {EdgeDirection} from "../../Edge";
 
 export class SequenceDOMInteraction {
-    private _mouseEnterDirection$: rx.Subject<EdgeDirection>;
-    private _mouseLeaveDirection$: rx.Subject<EdgeDirection>;
+    private _mouseEnterDirection$: Subject<EdgeDirection>;
+    private _mouseLeaveDirection$: Subject<EdgeDirection>;
 
     constructor() {
-        this._mouseEnterDirection$ = new rx.Subject<EdgeDirection>();
-        this._mouseLeaveDirection$ = new rx.Subject<EdgeDirection>();
+        this._mouseEnterDirection$ = new Subject<EdgeDirection>();
+        this._mouseLeaveDirection$ = new Subject<EdgeDirection>();
     }
 
-    public get mouseEnterDirection$(): rx.Subject<EdgeDirection> {
+    public get mouseEnterDirection$(): Subject<EdgeDirection> {
         return this._mouseEnterDirection$;
     }
 
-    public get mouseLeaveDirection$(): rx.Subject<EdgeDirection> {
+    public get mouseLeaveDirection$(): Subject<EdgeDirection> {
         return this._mouseLeaveDirection$;
     }
 }

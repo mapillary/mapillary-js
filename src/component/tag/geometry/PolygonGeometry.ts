@@ -1,5 +1,3 @@
-/// <reference path="../../../../typings/index.d.ts" />
-
 import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
@@ -64,7 +62,7 @@ export class PolygonGeometry extends VertexGeometry {
 
         this._polygon.splice(this._polygon.length - 1, 0, clamped);
 
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /**
@@ -89,7 +87,7 @@ export class PolygonGeometry extends VertexGeometry {
             this._polygon.push(closing);
         }
 
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /** @inheritdoc */
@@ -106,7 +104,7 @@ export class PolygonGeometry extends VertexGeometry {
             this._polygon[index] = changed.slice();
         }
 
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /** @inheritdoc */
@@ -134,7 +132,7 @@ export class PolygonGeometry extends VertexGeometry {
             point[1] += translationY;
         }
 
-        this._notifyChanged$.onNext(this);
+        this._notifyChanged$.next(this);
     }
 
     /** @inheritdoc */

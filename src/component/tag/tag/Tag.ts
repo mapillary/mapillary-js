@@ -1,8 +1,13 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/share";
 
 import {
     Geometry,
@@ -38,8 +43,8 @@ export abstract class Tag extends EventEmitter {
     protected _id: string;
     protected _geometry: Geometry;
 
-    protected _interact$: rx.Subject<IInteraction>;
-    protected _notifyChanged$: rx.Subject<Tag>;
+    protected _interact$: Subject<IInteraction>;
+    protected _notifyChanged$: Subject<Tag>;
 
     /**
      * Create a tag.
@@ -54,8 +59,8 @@ export abstract class Tag extends EventEmitter {
         this._id = id;
         this._geometry = geometry;
 
-        this._interact$ = new rx.Subject<IInteraction>();
-        this._notifyChanged$ = new rx.Subject<Tag>();
+        this._interact$ = new Subject<IInteraction>();
+        this._notifyChanged$ = new Subject<Tag>();
 
         this._notifyChanged$
             .subscribe(
@@ -86,7 +91,7 @@ export abstract class Tag extends EventEmitter {
         return this._geometry;
     }
 
-    public get interact$(): rx.Observable<IInteraction> {
+    public get interact$(): Observable<IInteraction> {
         return this._interact$;
     }
 
@@ -94,7 +99,7 @@ export abstract class Tag extends EventEmitter {
      * Get changed observable.
      * @returns {Observable<Tag>}
      */
-    public get changed$(): rx.Observable<Tag> {
+    public get changed$(): Observable<Tag> {
         return this._notifyChanged$;
     }
 
@@ -102,7 +107,7 @@ export abstract class Tag extends EventEmitter {
      * Get geometry changed observable.
      * @returns {Observable<Tag>}
      */
-    public get geometryChanged$(): rx.Observable<Tag> {
+    public get geometryChanged$(): Observable<Tag> {
         return this._geometry.changed$
             .map<Tag>(
                 (geometry: Geometry): Tag => {

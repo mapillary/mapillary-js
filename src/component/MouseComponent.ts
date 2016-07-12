@@ -1,7 +1,15 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+
+import "rxjs/add/observable/merge";
+
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/withLatestFrom";
 
 import {
     ComponentService,
@@ -33,7 +41,7 @@ export class MouseComponent extends Component {
     /** @inheritdoc */
     public static componentName: string = "mouse";
 
-    private _movementSubscription: rx.IDisposable;
+    private _movementSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -49,7 +57,7 @@ export class MouseComponent extends Component {
     }
 
     protected _activate(): void {
-        let mouseMovement$: rx.Observable<IMovement> =
+        let mouseMovement$: Observable<IMovement> =
             this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDrag$)
                 .map<IMovement>(
@@ -62,7 +70,7 @@ export class MouseComponent extends Component {
                         };
                     });
 
-        let touchMovement$: rx.Observable<IMovement> =
+        let touchMovement$: Observable<IMovement> =
             this._container.touchService.singleTouchMove$
                 .map<IMovement>(
                     (touch: TouchMove): IMovement => {
@@ -74,8 +82,8 @@ export class MouseComponent extends Component {
                         };
                     });
 
-        this._movementSubscription = rx.Observable
-            .merge(
+        this._movementSubscription = Observable
+            .merge<IMovement>(
                 mouseMovement$,
                 touchMovement$)
             .withLatestFrom(
@@ -231,7 +239,7 @@ export class MouseComponent extends Component {
     protected _deactivate(): void {
         this._container.mouseService.unclaimMouse(this._name);
 
-        this._movementSubscription.dispose();
+        this._movementSubscription.unsubscribe();
     }
 
     private _unproject(

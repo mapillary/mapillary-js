@@ -1,18 +1,22 @@
-/// <reference path="../../typings/index.d.ts" />
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
-/*
-import * as rx from "rx";
+import "rxjs/add/observable/empty";
+
+import "rxjs/add/operator/count";
+import "rxjs/add/operator/first";
+import "rxjs/add/operator/skip";
+import "rxjs/add/operator/take";
 
 import {ISize, RenderCamera, RenderMode, RenderService} from "../../src/Render";
 import {IFrame, ICurrentState} from "../../src/State";
 import {Camera} from "../../src/Geo";
 
-
 describe("RenderService.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, rx.Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
 
         expect(renderService).toBeDefined();
     });
@@ -22,7 +26,7 @@ describe("RenderService.renderMode", () => {
     it("should default to letterboxing", (done) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, rx.Observable.empty<IFrame>(), null);
+            new RenderService(element, Observable.empty<IFrame>(), null);
 
         renderService.renderMode$
             .first()
@@ -37,7 +41,7 @@ describe("RenderService.renderMode", () => {
     it("should default set render mode to constructor parameter", (done) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, rx.Observable.empty<IFrame>(), RenderMode.Fill);
+            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Fill);
 
         renderService.renderMode$
             .first()
@@ -52,9 +56,9 @@ describe("RenderService.renderMode", () => {
     it("should return latest render mode on subscripion", (done) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, rx.Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
 
-        renderService.renderMode$.onNext(RenderMode.Fill);
+        renderService.renderMode$.next(RenderMode.Fill);
 
         renderService.renderMode$
             .first()
@@ -71,7 +75,7 @@ describe("RenderService.size", () => {
     it("should be defined", (done) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, rx.Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
 
         renderService.size$
             .first()
@@ -86,7 +90,7 @@ describe("RenderService.size", () => {
     it("should have an initial value", (done) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, rx.Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
 
         renderService.size$
             .first()
@@ -102,7 +106,7 @@ describe("RenderService.size", () => {
     it("should emit new value on resize", (done) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, rx.Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
 
         renderService.size$
             .take(2)
@@ -111,40 +115,41 @@ describe("RenderService.size", () => {
                 (e: Error): void => { return; },
                 (): void => { done(); });
 
-        renderService.resize$.onNext(null);
+        renderService.resize$.next(null);
     });
 });
 
 describe("RenderService.renderCameraFrame", () => {
-    let createFrame = (frameId: number, alpha?: number, camera?: Camera): IFrame => {
-        let state: ICurrentState = {
-            alpha: alpha != null ? alpha : 0,
-            camera: camera != null ? camera : new Camera(),
-            zoom: 0,
-            currentNode: null,
-            previousNode: null,
-            trajectory: [],
-            currentIndex: 0,
-            lastNode: null,
-            nodesAhead: 0,
-            reference: { lat: 0, lon: 0, alt: 0 },
-            currentTransform: null,
-            previousTransform: null,
-            motionless: false,
-        }
+    let createFrame: (frameId: number, alpha?: number, camera?: Camera) => IFrame =
+        (frameId: number, alpha?: number, camera?: Camera): IFrame => {
+            let state: ICurrentState = {
+                alpha: alpha != null ? alpha : 0,
+                camera: camera != null ? camera : new Camera(),
+                currentIndex: 0,
+                currentNode: null,
+                currentTransform: null,
+                lastNode: null,
+                motionless: false,
+                nodesAhead: 0,
+                previousNode: null,
+                previousTransform: null,
+                reference: { alt: 0, lat: 0, lon: 0 },
+                trajectory: [],
+                zoom: 0,
+            };
 
-        spyOn(state, "currentNode").and.returnValue({ });
-        spyOn(state, "currentTransform").and.returnValue({ });
-        spyOn(state, "previousNode").and.returnValue({ });
-        spyOn(state, "previousTransform").and.returnValue({ });
+            spyOn(state, "currentNode").and.returnValue({ });
+            spyOn(state, "currentTransform").and.returnValue({ });
+            spyOn(state, "previousNode").and.returnValue({ });
+            spyOn(state, "previousTransform").and.returnValue({ });
 
-        return { fps: 60, id: frameId, state: state };
-    }
+            return { fps: 60, id: frameId, state: state };
+        };
 
     it("should be defined", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -157,13 +162,13 @@ describe("RenderService.renderCameraFrame", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
+        frame$.next(createFrame(0));
     });
 
     it("should be changed for first frame", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -176,13 +181,13 @@ describe("RenderService.renderCameraFrame", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
+        frame$.next(createFrame(0));
     });
 
     it("should not be changed for two identical frames", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -196,14 +201,14 @@ describe("RenderService.renderCameraFrame", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
-        frame$.onNext(createFrame(1));
+        frame$.next(createFrame(0));
+        frame$.next(createFrame(1));
     });
 
     it("should be changed for alpha changes between two frames", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -217,14 +222,14 @@ describe("RenderService.renderCameraFrame", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0, 0.00));
-        frame$.onNext(createFrame(1, 0.01));
+        frame$.next(createFrame(0, 0.00));
+        frame$.next(createFrame(1, 0.01));
     });
 
     it("should be changed for camera changes between two frames", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -239,16 +244,16 @@ describe("RenderService.renderCameraFrame", () => {
                 });
 
         let camera: Camera = new Camera();
-        frame$.onNext(createFrame(0, 0, camera));
+        frame$.next(createFrame(0, 0, camera));
 
         camera.position.x = 0.01;
-        frame$.onNext(createFrame(1, 0, camera));
+        frame$.next(createFrame(1, 0, camera));
     });
 
     it("should be changed for resize", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -262,16 +267,16 @@ describe("RenderService.renderCameraFrame", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
+        frame$.next(createFrame(0));
 
-        renderService.resize$.onNext(null);
-        frame$.onNext(createFrame(1));
+        renderService.resize$.next(null);
+        frame$.next(createFrame(1));
     });
 
     it("should be changed for changed render mode", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -285,20 +290,20 @@ describe("RenderService.renderCameraFrame", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
+        frame$.next(createFrame(0));
 
-        renderService.renderMode$.onNext(RenderMode.Fill);
-        frame$.onNext(createFrame(1));
+        renderService.renderMode$.next(RenderMode.Fill);
+        frame$.next(createFrame(1));
     });
 
     it("should have correct render mode when changed before subscribe", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderMode$.onNext(RenderMode.Fill);
+        renderService.renderMode$.next(RenderMode.Fill);
 
         renderService.renderCameraFrame$
             .first()
@@ -309,13 +314,13 @@ describe("RenderService.renderCameraFrame", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
+        frame$.next(createFrame(0));
     });
 
     it("should emit once for each frame", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -328,50 +333,51 @@ describe("RenderService.renderCameraFrame", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
-        frame$.onNext(createFrame(1));
+        frame$.next(createFrame(0));
+        frame$.next(createFrame(1));
 
-        renderService.renderMode$.onNext(RenderMode.Fill);
-        renderService.resize$.onNext(null);
+        renderService.renderMode$.next(RenderMode.Fill);
+        renderService.resize$.next(null);
 
-        frame$.onNext(createFrame(2));
+        frame$.next(createFrame(2));
 
-        frame$.onNext(createFrame(3));
+        frame$.next(createFrame(3));
 
-        frame$.onCompleted();
+        frame$.complete();
     });
 });
 
 describe("RenderService.renderCamera", () => {
-    let createFrame = (frameId: number, alpha?: number, camera?: Camera): IFrame => {
-        let state: ICurrentState = {
-            alpha: alpha != null ? alpha : 0,
-            camera: camera != null ? camera : new Camera(),
-            zoom: 0,
-            currentNode: null,
-            previousNode: null,
-            trajectory: [],
-            currentIndex: 0,
-            lastNode: null,
-            nodesAhead: 0,
-            reference: { lat: 0, lon: 0, alt: 0 },
-            currentTransform: null,
-            previousTransform: null,
-            motionless: false,
-        }
+    let createFrame: (frameId: number, alpha?: number, camera?: Camera) => IFrame =
+        (frameId: number, alpha?: number, camera?: Camera): IFrame => {
+            let state: ICurrentState = {
+                alpha: alpha != null ? alpha : 0,
+                camera: camera != null ? camera : new Camera(),
+                currentIndex: 0,
+                currentNode: null,
+                currentTransform: null,
+                lastNode: null,
+                motionless: false,
+                nodesAhead: 0,
+                previousNode: null,
+                previousTransform: null,
+                reference: { alt: 0, lat: 0, lon: 0 },
+                trajectory: [],
+                zoom: 0,
+            };
 
-        spyOn(state, "currentNode").and.returnValue({ });
-        spyOn(state, "currentTransform").and.returnValue({ });
-        spyOn(state, "previousNode").and.returnValue({ });
-        spyOn(state, "previousTransform").and.returnValue({ });
+            spyOn(state, "currentNode").and.returnValue({ });
+            spyOn(state, "currentTransform").and.returnValue({ });
+            spyOn(state, "previousNode").and.returnValue({ });
+            spyOn(state, "previousTransform").and.returnValue({ });
 
-        return { fps: 60, id: frameId, state: state };
-    }
+            return { fps: 60, id: frameId, state: state };
+        };
 
     it("should be defined", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -384,13 +390,13 @@ describe("RenderService.renderCamera", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
+        frame$.next(createFrame(0));
     });
 
     it("should only emit when camera has changed", (done) => {
         let element: HTMLDivElement = document.createElement("div");
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -404,9 +410,9 @@ describe("RenderService.renderCamera", () => {
                     done();
                 });
 
-        frame$.onNext(createFrame(0));
-        frame$.onNext(createFrame(1));
-        frame$.onNext(createFrame(2, 0.5));
+        frame$.next(createFrame(0));
+        frame$.next(createFrame(1));
+        frame$.next(createFrame(2, 0.5));
     });
 
     it("should check width and height only once on resize", () => {
@@ -423,10 +429,10 @@ describe("RenderService.renderCamera", () => {
             getOffsetWidth(): number {
                 return 0;
             },
-            appendChild(element: HTMLElement): void { }
+            appendChild(htmlElement: HTMLElement): void { return; },
         };
 
-        let frame$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -436,10 +442,9 @@ describe("RenderService.renderCamera", () => {
         spyOn(element, "getOffsetHeight");
         spyOn(element, "getOffsetWidth");
 
-        renderService.resize$.onNext(null);
+        renderService.resize$.next(null);
 
         expect((<jasmine.Spy>element.getOffsetHeight).calls.count()).toBe(1);
         expect((<jasmine.Spy>element.getOffsetWidth).calls.count()).toBe(1);
     });
 });
-*/

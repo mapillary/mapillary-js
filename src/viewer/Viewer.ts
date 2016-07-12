@@ -1,11 +1,11 @@
+import * as when from "when";
+
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher} from "../Viewer";
 import {Component} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
 import {RenderMode} from "../Render";
-
-import * as when from "when";
 
 export class Viewer extends EventEmitter {
     /**
@@ -128,7 +128,7 @@ export class Viewer extends EventEmitter {
      * new size and resize their rendered elements if needed.
      */
     public resize(): void {
-        this._container.renderService.resize$.onNext(null);
+        this._container.renderService.resize$.next(null);
         this._componentController.resize();
     }
 
@@ -139,7 +139,7 @@ export class Viewer extends EventEmitter {
      * @example `viewer.setRenderMode(Mapillary.RenderMode.Letterbox);`
      */
     public setRenderMode(renderMode: RenderMode): void {
-        this._container.renderService.renderMode$.onNext(renderMode);
+        this._container.renderService.renderMode$.next(renderMode);
     }
 
     /**

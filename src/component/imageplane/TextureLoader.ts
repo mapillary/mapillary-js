@@ -1,22 +1,28 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
+
+import {Observable} from "rxjs/Observable";
+
+import "rxjs/add/observable/bindCallback";
+
+import "rxjs/add/operator/do";
 
 import {ImageSize} from "../../Viewer";
 import {Urls} from "../../Utils";
 
 export class TextureLoader {
-    public load(key: string, imageSize: ImageSize): rx.Observable<THREE.Texture> {
+    public load(key: string, imageSize: ImageSize): Observable<THREE.Texture> {
         let textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
         textureLoader.setCrossOrigin("Anonymous");
 
-        let load: (url: string) => rx.Observable<THREE.Texture> =
-            rx.Observable.fromCallback<THREE.Texture, string>(
-                textureLoader.load,
-                textureLoader);
+        let load: (url: string) => Observable<THREE.Texture> = Observable
+            .bindCallback<THREE.Texture>(
+                (url: string, onLoad: (texture: THREE.Texture) => void): THREE.Texture => {
+                    return textureLoader.load(url, onLoad);
+                });
 
-        let textureSource: rx.Observable<THREE.Texture> =
+        let textureSource: Observable<THREE.Texture> =
             load(Urls.image(key, imageSize))
                 .do(
                     (texture: THREE.Texture): void => {

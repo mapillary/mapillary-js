@@ -1,6 +1,21 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+
+import "rxjs/add/observable/combineLatest";
+
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/skip";
+import "rxjs/add/operator/startWith";
+import "rxjs/add/operator/withLatestFrom";
+
+
 
 import {Camera, Transform} from "../Geo";
 import {Node} from "../Graph";
@@ -13,29 +28,29 @@ interface IRenderCameraOperation {
 
 export class RenderService {
     private _element: HTMLElement;
-    private _currentFrame$: rx.Observable<IFrame>;
+    private _currentFrame$: Observable<IFrame>;
 
-    private _renderCameraOperation$: rx.Subject<IRenderCameraOperation>;
-    private _renderCameraHolder$: rx.Observable<RenderCamera>;
-    private _renderCameraFrame$: rx.Observable<RenderCamera>;
-    private _renderCamera$: rx.Observable<RenderCamera>;
+    private _renderCameraOperation$: Subject<IRenderCameraOperation>;
+    private _renderCameraHolder$: Observable<RenderCamera>;
+    private _renderCameraFrame$: Observable<RenderCamera>;
+    private _renderCamera$: Observable<RenderCamera>;
 
-    private _resize$: rx.Subject<void>;
-    private _size$: rx.BehaviorSubject<ISize>;
+    private _resize$: Subject<void>;
+    private _size$: BehaviorSubject<ISize>;
 
-    private _renderMode$: rx.BehaviorSubject<RenderMode>;
+    private _renderMode$: BehaviorSubject<RenderMode>;
 
-    constructor(element: HTMLElement, currentFrame$: rx.Observable<IFrame>, renderMode: RenderMode) {
+    constructor(element: HTMLElement, currentFrame$: Observable<IFrame>, renderMode: RenderMode) {
         this._element = element;
         this._currentFrame$ = currentFrame$;
 
         renderMode = renderMode != null ? renderMode : RenderMode.Letterbox;
 
-        this._resize$ = new rx.Subject<void>();
-        this._renderCameraOperation$ = new rx.Subject<IRenderCameraOperation>();
+        this._resize$ = new Subject<void>();
+        this._renderCameraOperation$ = new Subject<IRenderCameraOperation>();
 
         this._size$ =
-            new rx.BehaviorSubject<ISize>(
+            new BehaviorSubject<ISize>(
                 {
                     height: this._element.offsetHeight,
                     width: this._element.offsetWidth,
@@ -48,7 +63,7 @@ export class RenderService {
                 })
             .subscribe(this._size$);
 
-        this._renderMode$ = new rx.BehaviorSubject<RenderMode>(renderMode);
+        this._renderMode$ = new BehaviorSubject<RenderMode>(renderMode);
 
         this._renderCameraHolder$ = this._renderCameraOperation$
             .startWith(
@@ -60,7 +75,8 @@ export class RenderService {
                     return operation(rc);
                 },
                 new RenderCamera(this._element.offsetWidth / this._element.offsetHeight, renderMode))
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._renderCameraFrame$ = this._currentFrame$
             .withLatestFrom(
@@ -110,14 +126,16 @@ export class RenderService {
                 (args: [IFrame, RenderCamera]): RenderCamera => {
                     return args[1];
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._renderCamera$ = this._renderCameraFrame$
             .filter(
                 (rc: RenderCamera): boolean => {
                     return rc.changed;
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._size$
             .skip(1)
@@ -154,23 +172,23 @@ export class RenderService {
         return this._element;
     }
 
-    public get resize$(): rx.Subject<void> {
+    public get resize$(): Subject<void> {
         return this._resize$;
     }
 
-    public get size$(): rx.Observable<ISize> {
+    public get size$(): Observable<ISize> {
         return this._size$;
     }
 
-    public get renderMode$(): rx.Subject<RenderMode> {
+    public get renderMode$(): Subject<RenderMode> {
         return this._renderMode$;
     }
 
-    public get renderCameraFrame$(): rx.Observable<RenderCamera> {
+    public get renderCameraFrame$(): Observable<RenderCamera> {
         return this._renderCameraFrame$;
     }
 
-    public get renderCamera$(): rx.Observable<RenderCamera> {
+    public get renderCamera$(): Observable<RenderCamera> {
         return this._renderCamera$;
     }
 }

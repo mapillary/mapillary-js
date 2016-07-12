@@ -1,6 +1,13 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/merge";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/switchMap";
 
 export class TouchMove implements Touch {
     public movementX: number;
@@ -70,32 +77,32 @@ interface IPreventTouchMoveOperation {
 export class TouchService {
     private _element: HTMLElement;
 
-    private _touchStart$: rx.Observable<TouchEvent>;
-    private _touchMove$: rx.Observable<TouchEvent>;
-    private _touchEnd$: rx.Observable<TouchEvent>;
-    private _touchCancel$: rx.Observable<TouchEvent>;
+    private _touchStart$: Observable<TouchEvent>;
+    private _touchMove$: Observable<TouchEvent>;
+    private _touchEnd$: Observable<TouchEvent>;
+    private _touchCancel$: Observable<TouchEvent>;
 
-    private _singleTouchMoveOperation$: rx.Subject<ITouchMoveOperation>;
-    private _singleTouchMove$: rx.Observable<TouchMove>;
-    private _singleTouch$: rx.Observable<TouchMove>;
+    private _singleTouchMoveOperation$: Subject<ITouchMoveOperation>;
+    private _singleTouchMove$: Observable<TouchMove>;
+    private _singleTouch$: Observable<TouchMove>;
 
-    private _pinchOperation$: rx.Subject<IPinchOperation>;
-    private _pinch$: rx.Observable<IPinch>;
-    private _pinchChange$: rx.Observable<IPinch>;
+    private _pinchOperation$: Subject<IPinchOperation>;
+    private _pinch$: Observable<IPinch>;
+    private _pinchChange$: Observable<IPinch>;
 
-    private _preventTouchMoveOperation$: rx.Subject<IPreventTouchMoveOperation>;
-    private _preventTouchMove$: rx.Subject<boolean>;
+    private _preventTouchMoveOperation$: Subject<IPreventTouchMoveOperation>;
+    private _preventTouchMove$: Subject<boolean>;
 
     constructor(element: HTMLElement) {
         this._element = element;
 
-        this._touchStart$ = rx.Observable.fromEvent<TouchEvent>(element, "touchstart");
-        this._touchMove$ = rx.Observable.fromEvent<TouchEvent>(element, "touchmove");
-        this._touchEnd$ = rx.Observable.fromEvent<TouchEvent>(element, "touchend");
-        this._touchCancel$ = rx.Observable.fromEvent<TouchEvent>(element, "touchcancel");
+        this._touchStart$ = Observable.fromEvent<TouchEvent>(element, "touchstart");
+        this._touchMove$ = Observable.fromEvent<TouchEvent>(element, "touchmove");
+        this._touchEnd$ = Observable.fromEvent<TouchEvent>(element, "touchend");
+        this._touchCancel$ = Observable.fromEvent<TouchEvent>(element, "touchcancel");
 
-        this._preventTouchMoveOperation$ = new rx.Subject<IPreventTouchMoveOperation>();
-        this._preventTouchMove$ = new rx.Subject<boolean>();
+        this._preventTouchMoveOperation$ = new Subject<IPreventTouchMoveOperation>();
+        this._preventTouchMove$ = new Subject<boolean>();
 
         this._preventTouchMoveOperation$
             .scan<boolean>(
@@ -127,7 +134,7 @@ export class TouchService {
                 })
             .subscribe(this._preventTouchMoveOperation$);
 
-        this._singleTouchMoveOperation$ = new rx.Subject<ITouchMoveOperation>();
+        this._singleTouchMoveOperation$ = new Subject<ITouchMoveOperation>();
 
         this._singleTouchMove$ = this._singleTouchMoveOperation$
             .scan<TouchMove>(
@@ -156,8 +163,8 @@ export class TouchService {
                 })
             .subscribe(this._singleTouchMoveOperation$);
 
-        let singleTouchStart$: rx.Observable<TouchEvent> = rx.Observable
-            .merge(
+        let singleTouchStart$: Observable<TouchEvent> = Observable
+            .merge<TouchEvent>(
                 this._touchStart$,
                 this._touchEnd$,
                 this._touchCancel$)
@@ -166,8 +173,8 @@ export class TouchService {
                     return te.touches.length === 1 && te.targetTouches.length === 1;
                 });
 
-        let multipleTouchStart$: rx.Observable<TouchEvent> = rx.Observable
-            .merge(
+        let multipleTouchStart$: Observable<TouchEvent> = Observable
+            .merge<TouchEvent>(
                 this._touchStart$,
                 this._touchEnd$,
                 this._touchCancel$)
@@ -176,8 +183,8 @@ export class TouchService {
                     return te.touches.length >= 1;
                 });
 
-        let touchStop$: rx.Observable<TouchEvent> = rx.Observable
-            .merge(
+        let touchStop$: Observable<TouchEvent> = Observable
+            .merge<TouchEvent>(
                 this._touchEnd$,
                 this._touchCancel$)
             .filter(
@@ -186,34 +193,35 @@ export class TouchService {
                 });
 
         this._singleTouch$ = singleTouchStart$
-            .flatMapLatest(
-                (te: TouchEvent): rx.Observable<TouchMove> => {
+            .switchMap<TouchMove>(
+                (te: TouchEvent): Observable<TouchMove> => {
                     return this._singleTouchMove$
                         .skip(1)
                         .takeUntil(
-                            rx.Observable.merge(
-                                multipleTouchStart$,
-                                touchStop$));
+                            Observable
+                                .merge(
+                                    multipleTouchStart$,
+                                    touchStop$));
                 });
 
-        let touchesChanged$: rx.Observable<TouchEvent> = rx.Observable
-            .merge(
+        let touchesChanged$: Observable<TouchEvent> = Observable
+            .merge<TouchEvent>(
                 this._touchStart$,
                 this._touchEnd$,
                 this._touchCancel$);
 
-        let pinchStart$: rx.Observable<TouchEvent> = touchesChanged$
+        let pinchStart$: Observable<TouchEvent> = touchesChanged$
             .filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 2 && te.targetTouches.length === 2;
                 });
 
-        let pinchStop$: rx.Observable<TouchEvent> = touchesChanged$
+        let pinchStop$: Observable<TouchEvent> = touchesChanged$
             .filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length !== 2 || te.targetTouches.length !== 2;
                 });
-        this._pinchOperation$ = new rx.Subject<IPinchOperation>();
+        this._pinchOperation$ = new Subject<IPinchOperation>();
 
         this._pinch$ = this._pinchOperation$
             .scan<IPinch>(
@@ -296,39 +304,39 @@ export class TouchService {
             .subscribe(this._pinchOperation$);
 
         this._pinchChange$ = pinchStart$
-            .flatMapLatest(
-                (te: TouchEvent): rx.Observable<IPinch> => {
+            .switchMap<IPinch>(
+                (te: TouchEvent): Observable<IPinch> => {
                     return this._pinch$
                         .skip(1)
                         .takeUntil(pinchStop$);
                 });
     }
 
-    public get touchStart$(): rx.Observable<TouchEvent> {
+    public get touchStart$(): Observable<TouchEvent> {
         return this._touchStart$;
     }
 
-    public get touchMove$(): rx.Observable<TouchEvent> {
+    public get touchMove$(): Observable<TouchEvent> {
         return this._touchMove$;
     }
 
-    public get touchEnd$(): rx.Observable<TouchEvent> {
+    public get touchEnd$(): Observable<TouchEvent> {
         return this._touchEnd$;
     }
 
-    public get touchCancel$(): rx.Observable<TouchEvent> {
+    public get touchCancel$(): Observable<TouchEvent> {
         return this._touchCancel$;
     }
 
-    public get singleTouchMove$(): rx.Observable<TouchMove> {
+    public get singleTouchMove$(): Observable<TouchMove> {
         return this._singleTouch$;
     }
 
-    public get pinch$(): rx.Observable<IPinch> {
+    public get pinch$(): Observable<IPinch> {
         return this._pinchChange$;
     }
 
-    public get preventDefaultTouchMove$(): rx.Subject<boolean> {
+    public get preventDefaultTouchMove$(): Subject<boolean> {
         return this._preventTouchMove$;
     }
 }

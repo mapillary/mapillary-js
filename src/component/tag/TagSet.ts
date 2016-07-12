@@ -1,6 +1,9 @@
-/// <reference path="../../../typings/index.d.ts" />
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
-import * as rx from "rx";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/share";
 
 import {Tag} from "../../Component";
 
@@ -11,10 +14,10 @@ interface ITagDataOperation extends Function {
 }
 
 export class TagSet {
-    private _tagDataOperation$: rx.Subject<ITagDataOperation> = new rx.Subject<ITagDataOperation>();
-    private _tagData$: rx.Observable<TagData>;
+    private _tagDataOperation$: Subject<ITagDataOperation> = new Subject<ITagDataOperation>();
+    private _tagData$: Observable<TagData>;
 
-    private _set$: rx.Subject<Tag[]> = new rx.Subject<Tag[]>();
+    private _set$: Subject<Tag[]> = new Subject<Tag[]>();
 
     constructor() {
         this._tagData$ = this._tagDataOperation$
@@ -43,11 +46,11 @@ export class TagSet {
             .subscribe(this._tagDataOperation$);
     }
 
-    public get tagData$(): rx.Observable<TagData> {
+    public get tagData$(): Observable<TagData> {
         return this._tagData$;
     }
 
-    public get set$(): rx.Subject<Tag[]> {
+    public get set$(): Subject<Tag[]> {
         return this._set$;
     }
 }

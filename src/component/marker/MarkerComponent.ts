@@ -3,7 +3,19 @@
 import * as _ from "underscore";
 import * as THREE from "three";
 import * as rbush from "rbush";
-import * as rx from "rx";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/observable/combineLatest";
+
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/switchMap";
 
 import {
     IMarkerConfiguration,
@@ -37,10 +49,10 @@ interface IUpdateArgs {
 }
 
 export class MarkerSet {
-    private _create$: rx.Subject<Marker> = new rx.Subject<Marker>();
-    private _remove$: rx.Subject<string> = new rx.Subject<string>();
-    private _update$: rx.Subject<IMarkerOperation> = new rx.Subject<IMarkerOperation>();
-    private _markers$: rx.Observable<MarkerIndex>;
+    private _create$: Subject<Marker> = new Subject<Marker>();
+    private _remove$: Subject<string> = new Subject<string>();
+    private _update$: Subject<IMarkerOperation> = new Subject<IMarkerOperation>();
+    private _markers$: Observable<MarkerIndex>;
 
     constructor() {
         // markers list stream is the result of applying marker updates.
@@ -49,57 +61,60 @@ export class MarkerSet {
                 (markers: IMarkerData, operation: IMarkerOperation): IMarkerData => {
                     return operation(markers);
                 },
-                {hash: {}, spatial: rbush<ISpatialMarker>(20000, [".lon", ".lat", ".lon", ".lat"])}
-            ).map(
+                {hash: {}, spatial: rbush<ISpatialMarker>(20000, [".lon", ".lat", ".lon", ".lat"])})
+            .map(
                 (markers: IMarkerData): MarkerIndex => {
                     return markers.spatial;
-                }
-            ).shareReplay(1);
+                })
+            .publishReplay(1)
+            .refCount();
 
         // creation stream generate creation updates from given markers.
         this._create$
-            .map(function(marker: Marker): IMarkerOperation {
-                return (markers: IMarkerData) => {
-                    if (markers.hash[marker.id]) {
-                        markers.spatial.remove(markers.hash[marker.id]);
-                    }
+            .map(
+                (marker: Marker): IMarkerOperation => {
+                    return (markers: IMarkerData) => {
+                        if (markers.hash[marker.id]) {
+                            markers.spatial.remove(markers.hash[marker.id]);
+                        }
 
-                    let rbushObj: ISpatialMarker = {
-                        id: marker.id,
-                        lat: marker.latLonAlt.lat,
-                        lon: marker.latLonAlt.lon,
-                        marker: marker,
+                        let rbushObj: ISpatialMarker = {
+                            id: marker.id,
+                            lat: marker.latLonAlt.lat,
+                            lon: marker.latLonAlt.lon,
+                            marker: marker,
+                        };
+
+                        markers.spatial.insert(rbushObj);
+                        markers.hash[marker.id] = rbushObj;
+                        return markers;
                     };
-
-                    markers.spatial.insert(rbushObj);
-                    markers.hash[marker.id] = rbushObj;
-                    return markers;
-                };
-            })
+                })
             .subscribe(this._update$);
 
         // remove stream generates remove updates from given markers
         this._remove$
-            .map(function(id: string): IMarkerOperation {
-                return (markers: IMarkerData) => {
-                    let rbushObj: ISpatialMarker = markers.hash[id];
-                    markers.spatial.remove(rbushObj);
-                    delete markers.hash[id];
-                    return markers;
-                };
-            })
+            .map(
+                (id: string): IMarkerOperation => {
+                    return (markers: IMarkerData) => {
+                        let rbushObj: ISpatialMarker = markers.hash[id];
+                        markers.spatial.remove(rbushObj);
+                        delete markers.hash[id];
+                        return markers;
+                    };
+                })
             .subscribe(this._update$);
     }
 
     public addMarker(marker: Marker): void {
-        this._create$.onNext(marker);
+        this._create$.next(marker);
     }
 
     public removeMarker(id: string): void {
-        this._remove$.onNext(id);
+        this._remove$.next(id);
     }
 
-    public get markers$(): rx.Observable<MarkerIndex> {
+    public get markers$(): Observable<MarkerIndex> {
         return this._markers$;
     }
 }
@@ -107,8 +122,8 @@ export class MarkerSet {
 export class MarkerComponent extends Component {
     public static componentName: string = "marker";
 
-    private _disposable: rx.IDisposable;
-    private _disposableConfiguration: rx.IDisposable;
+    private _disposable: Subscription;
+    private _disposableConfiguration: Subscription;
     private _markerSet: MarkerSet;
 
     private _scene: THREE.Scene;
@@ -123,60 +138,71 @@ export class MarkerComponent extends Component {
         this._markerSet = new MarkerSet();
         this._markerObjects = {};
 
-        this._disposable = rx.Observable.combineLatest(
-            this._navigator.stateService.currentState$,
-            this._markerSet.markers$,
-            (frame: IFrame, markers: MarkerIndex): IUpdateArgs => {
-                return { frame: frame, markers: markers };
-            })
-            .distinctUntilChanged((args: IUpdateArgs) => {
-                return args.frame.id;
-            })
-            .map<IGLRenderHash>((args: IUpdateArgs): IGLRenderHash => {
-                return this._renderHash(args);
-            })
+        this._disposable = Observable
+            .combineLatest<IUpdateArgs>(
+                [
+                    this._navigator.stateService.currentState$,
+                    this._markerSet.markers$,
+                ],
+                (frame: IFrame, markers: MarkerIndex): IUpdateArgs => {
+                    return { frame: frame, markers: markers };
+                })
+            .distinctUntilChanged(
+                undefined,
+                (args: IUpdateArgs): number => {
+                    return args.frame.id;
+                })
+            .map<IGLRenderHash>(
+                (args: IUpdateArgs): IGLRenderHash => {
+                    return this._renderHash(args);
+                })
             .subscribe(this._container.glRenderer.render$);
 
-        this._disposableConfiguration = this.configuration$.filter((conf: IMarkerConfiguration) => {
-            return conf.mapillaryObjects;
-        }).flatMapLatest<Marker>((conf: IMarkerConfiguration) => {
-            return this._navigator.graphService.vectorTilesService
-                .mapillaryObjects$.map<Marker>((mapillaryObject: MapillaryObject): Marker => {
-                    let views: string[] = _.map(mapillaryObject.rects, (rect: any): string => {
-                        return rect.image_key;
-                    });
+        this._disposableConfiguration = this.configuration$
+            .filter(
+                (conf: IMarkerConfiguration) => {
+                    return conf.mapillaryObjects;
+                })
+            .switchMap<Marker>(
+                (conf: IMarkerConfiguration) => {
+                    return this._navigator.graphService.vectorTilesService.mapillaryObjects$
+                        .map<Marker>((mapillaryObject: MapillaryObject): Marker => {
+                            let views: string[] = _.map(mapillaryObject.rects, (rect: any): string => {
+                                return rect.image_key;
+                            });
 
-                    let latLonAlt: ILatLonAlt = {
-                        alt: mapillaryObject.alt,
-                        lat: mapillaryObject.latLon.lat,
-                        lon: mapillaryObject.latLon.lon,
-                    };
+                            let latLonAlt: ILatLonAlt = {
+                                alt: mapillaryObject.alt,
+                                lat: mapillaryObject.latLon.lat,
+                                lon: mapillaryObject.latLon.lon,
+                            };
 
-                    let options: IMarkerOptions = {
-                        id: `mapillary-object-${mapillaryObject.key}`,
-                        style: {
-                            ballColor: "#00FF00",
-                            ballOpacity: 1,
-                            color: "#FF0000",
-                            opacity: 0.2,
-                        },
-                        type: "marker",
-                    };
+                            let options: IMarkerOptions = {
+                                id: `mapillary-object-${mapillaryObject.key}`,
+                                style: {
+                                    ballColor: "#00FF00",
+                                    ballOpacity: 1,
+                                    color: "#FF0000",
+                                    opacity: 0.2,
+                                },
+                                type: "marker",
+                            };
 
-                    let marker: Marker = this.createMarker(latLonAlt, options);
-                    marker.visibleInKeys = views;
-                    return marker;
-                });
-        }).subscribe((marker: Marker): void => {
-            this.addMarker(marker);
-        });
+                            let marker: Marker = this.createMarker(latLonAlt, options);
+                            marker.visibleInKeys = views;
+                            return marker;
+                        });
+                })
+            .subscribe((marker: Marker): void => {
+                this.addMarker(marker);
+            });
     }
 
     protected _deactivate(): void {
         // release memory
         this._disposeScene();
-        this._disposable.dispose();
-        this._disposableConfiguration.dispose();
+        this._disposable.unsubscribe();
+        this._disposableConfiguration.unsubscribe();
     }
 
     public createMarker(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions): Marker {
@@ -191,7 +217,7 @@ export class MarkerComponent extends Component {
         this._markerSet.addMarker(marker);
     }
 
-    public get markers$(): rx.Observable<MarkerIndex> {
+    public get markers$(): Observable<MarkerIndex> {
         return this._markerSet.markers$;
     }
 
@@ -238,10 +264,10 @@ export class MarkerComponent extends Component {
         let maxLat: number = node.latLon.lat + boxWidth / 2;
 
         let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialMarker) => {
-            return item.marker;
-        }).filter((marker: Marker) => {
-            return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);
-        });
+                return item.marker;
+            }).filter((marker: Marker) => {
+                return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);
+            });
 
         for (let marker of markers) {
             if (marker.id in oldObjects) {

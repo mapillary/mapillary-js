@@ -1,8 +1,10 @@
+/// <reference path="../../typings/index.d.ts" />
+
+import * as _ from "underscore";
+
 import {ParameterMapillaryError} from "../Error";
 import {Container, Navigator} from "../Viewer";
 import {CoverComponent, Component, IComponentConfiguration} from "../Component";
-
-import * as _ from "underscore";
 
 interface IActiveComponent {
     active: boolean;

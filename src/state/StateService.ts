@@ -1,6 +1,17 @@
-/// <reference path="../../typings/index.d.ts" />
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
-import * as rx from "rx";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/pairwise";
+import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/startWith";
+import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/withLatestFrom";
 
 import {Node} from "../Graph";
 import {
@@ -26,22 +37,22 @@ interface IContextAction {
 }
 
 export class StateService {
-    private _start$: rx.Subject<void>;
+    private _start$: Subject<void>;
 
-    private _frame$: rx.Subject<number>;
+    private _frame$: Subject<number>;
 
-    private _contextOperation$: rx.BehaviorSubject<IContextOperation>;
-    private _context$: rx.Observable<IStateContext>;
-    private _fps$: rx.Observable<number>;
-    private _state$: rx.Observable<State>;
+    private _contextOperation$: BehaviorSubject<IContextOperation>;
+    private _context$: Observable<IStateContext>;
+    private _fps$: Observable<number>;
+    private _state$: Observable<State>;
 
-    private _currentState$: rx.Observable<IFrame>;
-    private _currentNode$: rx.Observable<Node>;
-    private _currentNodeExternal$: rx.Observable<Node>;
-    private _currentTransform$: rx.Observable<Transform>;
-    private _reference$: rx.Observable<ILatLonAlt>;
+    private _currentState$: Observable<IFrame>;
+    private _currentNode$: Observable<Node>;
+    private _currentNodeExternal$: Observable<Node>;
+    private _currentTransform$: Observable<Transform>;
+    private _reference$: Observable<ILatLonAlt>;
 
-    private _appendNode$: rx.Subject<Node> = new rx.Subject<Node>();
+    private _appendNode$: Subject<Node> = new Subject<Node>();
 
     private _frameGenerator: FrameGenerator;
     private _frameId: number;
@@ -49,11 +60,11 @@ export class StateService {
     private _fpsSampleRate: number;
 
     constructor () {
-        this._start$ = new rx.Subject<void>();
-        this._frame$ = new rx.Subject<number>();
+        this._start$ = new Subject<void>();
+        this._frame$ = new Subject<number>();
         this._fpsSampleRate = 30;
 
-        this._contextOperation$ = new rx.BehaviorSubject<IContextOperation>(
+        this._contextOperation$ = new BehaviorSubject<IContextOperation>(
             (context: IStateContext): IStateContext => {
                 return context;
             });
@@ -64,7 +75,8 @@ export class StateService {
                     return operation(context);
                 },
                 new StateContext())
-             .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._state$ = this._context$
             .map<State>(
@@ -72,11 +84,12 @@ export class StateService {
                     return context.state;
                 })
             .distinctUntilChanged()
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._fps$ = this._start$
-            .flatMapLatest<number>(
-                (): rx.Observable<number> => {
+            .switchMap<number>(
+                (): Observable<number> => {
                     return this._frame$
                         .filter(
                             (frameId: number): boolean => {
@@ -116,14 +129,16 @@ export class StateService {
                 })
             .share();
 
-        let nodeChanged$: rx.Observable<IFrame> = this._currentState$
+        let nodeChanged$: Observable<IFrame> = this._currentState$
             .distinctUntilChanged(
+                undefined,
                 (f: IFrame): string => {
                     return f.state.currentNode.key;
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
-        let nodeChangedSubject$: rx.Subject<IFrame> = new rx.Subject<IFrame>();
+        let nodeChangedSubject$: Subject<IFrame> = new Subject<IFrame>();
 
         nodeChanged$.subscribe(nodeChangedSubject$);
 
@@ -132,14 +147,16 @@ export class StateService {
                 (f: IFrame): Node => {
                     return f.state.currentNode;
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._currentTransform$ = nodeChangedSubject$
             .map<Transform>(
                 (f: IFrame): Transform => {
                     return f.state.currentTransform;
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._reference$ = nodeChangedSubject$
             .map<ILatLonAlt>(
@@ -147,20 +164,22 @@ export class StateService {
                     return f.state.reference;
                 })
             .distinctUntilChanged(
-                (reference: ILatLonAlt): ILatLon => {
-                    return { lat: reference.lat, lon: reference.lon };
-                },
                 (r1: ILatLon, r2: ILatLon): boolean => {
                     return r1.lat === r2.lat && r1.lon === r2.lon;
+                },
+                (reference: ILatLonAlt): ILatLon => {
+                    return { lat: reference.lat, lon: reference.lon };
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._currentNodeExternal$ = nodeChanged$
             .map<Node>(
                 (f: IFrame): Node => {
                     return f.state.currentNode;
                 })
-            .shareReplay(1);
+            .publishReplay(1)
+            .refCount();
 
         this._appendNode$
             .map<IContextOperation>(
@@ -183,31 +202,31 @@ export class StateService {
         this._frameGenerator = new FrameGenerator();
     }
 
-    public get currentState$(): rx.Observable<IFrame> {
+    public get currentState$(): Observable<IFrame> {
         return this._currentState$;
     }
 
-    public get currentNode$(): rx.Observable<Node> {
+    public get currentNode$(): Observable<Node> {
         return this._currentNode$;
     }
 
-    public get currentNodeExternal$(): rx.Observable<Node> {
+    public get currentNodeExternal$(): Observable<Node> {
         return this._currentNodeExternal$;
     }
 
-    public get currentTransform$(): rx.Observable<Transform> {
+    public get currentTransform$(): Observable<Transform> {
         return this._currentTransform$;
     }
 
-    public get state$(): rx.Observable<State> {
+    public get state$(): Observable<State> {
         return this._state$;
     }
 
-    public get reference$(): rx.Observable<ILatLonAlt> {
+    public get reference$(): Observable<ILatLonAlt> {
         return this._reference$;
     }
 
-    public get appendNode$(): rx.Subject<Node> {
+    public get appendNode$(): Subject<Node> {
         return this._appendNode$;
     }
 
@@ -263,9 +282,9 @@ export class StateService {
 
     public start(): void {
         if (this._frameId == null) {
-            this._start$.onNext(null);
+            this._start$.next(null);
             this._frameId = this._frameGenerator.requestAnimationFrame(this._frame.bind(this));
-            this._frame$.onNext(this._frameId);
+            this._frame$.next(this._frameId);
         }
     }
 
@@ -278,7 +297,7 @@ export class StateService {
 
     private _invokeContextOperation(action: (context: IStateContext) => void): void {
         this._contextOperation$
-            .onNext(
+            .next(
                 (context: IStateContext): IStateContext => {
                     action(context);
 
@@ -288,6 +307,6 @@ export class StateService {
 
     private _frame(time: number): void {
         this._frameId = this._frameGenerator.requestAnimationFrame(this._frame.bind(this));
-        this._frame$.onNext(this._frameId);
+        this._frame$.next(this._frameId);
     }
 }

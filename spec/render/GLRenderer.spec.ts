@@ -1,7 +1,15 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
+
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/observable/empty";
+
+import "rxjs/add/operator/map";
 
 import {
     GLRenderer,
@@ -28,35 +36,35 @@ class RendererMock implements THREE.Renderer {
 }
 
 class RenderServiceMock extends RenderService {
-    private _sizeMock$: rx.Subject<ISize> = new rx.Subject<ISize>();
-    private _renderModeMock$: rx.Subject<RenderMode> = new rx.Subject<RenderMode>();
-    private _renderCameraFrameMock$: rx.Subject<RenderCamera> = new rx.Subject<RenderCamera>();
+    private _sizeMock$: Subject<ISize> = new Subject<ISize>();
+    private _renderModeMock$: Subject<RenderMode> = new Subject<RenderMode>();
+    private _renderCameraFrameMock$: Subject<RenderCamera> = new Subject<RenderCamera>();
 
     constructor(element: HTMLElement) {
-        super(element, rx.Observable.empty<IFrame>(), RenderMode.Letterbox);
+        super(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
     }
 
-    public get size$(): rx.Subject<ISize> {
+    public get size$(): Subject<ISize> {
         return this._sizeMock$;
     }
 
-    public set size$(value: rx.Subject<ISize>) {
+    public set size$(value: Subject<ISize>) {
         this._sizeMock$ = value;
     }
 
-    public get renderMode$(): rx.Subject<RenderMode> {
+    public get renderMode$(): Subject<RenderMode> {
         return this._renderModeMock$;
     }
 
-    public set renderMode$(value: rx.Subject<RenderMode>) {
+    public set renderMode$(value: Subject<RenderMode>) {
         this._renderModeMock$ = value;
     }
 
-    public get renderCameraFrame$(): rx.Subject<RenderCamera> {
+    public get renderCameraFrame$(): Subject<RenderCamera> {
         return this._renderCameraFrameMock$;
     }
 
-    public set renderCameraFrame$(value: rx.Subject<RenderCamera>) {
+    public set renderCameraFrame$(value: Subject<RenderCamera>) {
         this._renderCameraFrameMock$ = value;
     }
 }
@@ -139,7 +147,7 @@ describe("GLRenderer.renderer", () => {
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
         let renderHash: IGLRenderHash = createGLRenderHash(0, true);
 
-        glRenderer.render$.onNext(renderHash);
+        glRenderer.render$.next(renderHash);
 
         expect(THREE.WebGLRenderer).toHaveBeenCalled();
     });
@@ -153,11 +161,11 @@ describe("GLRenderer.renderer", () => {
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
         let renderHash: IGLRenderHash = createGLRenderHash(0, true);
-        glRenderer.render$.onNext(renderHash);
+        glRenderer.render$.next(renderHash);
 
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = 0;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
     });
@@ -171,13 +179,13 @@ describe("GLRenderer.renderer", () => {
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
         let renderHash: IGLRenderHash = createGLRenderHash(0, true);
-        glRenderer.render$.onNext(renderHash);
+        glRenderer.render$.next(renderHash);
 
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = 0;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
 
-        glRenderer.render$.onNext(renderHash);
+        glRenderer.render$.next(renderHash);
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
     });
@@ -187,12 +195,12 @@ describe("GLRenderer.renderer", () => {
         spyOn(rendererMock, "render");
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
-        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(1));
+        let frame$: BehaviorSubject<IFrame> = new BehaviorSubject<IFrame>(createFrame(1));
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = 1;
-        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
@@ -208,8 +216,8 @@ describe("GLRenderer.renderer", () => {
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
         renderCamera.frameId = 2;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
-        frame$.onNext(createFrame(2));
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
+        frame$.next(createFrame(2));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
     });
@@ -219,16 +227,16 @@ describe("GLRenderer.renderer", () => {
         spyOn(rendererMock, "clear");
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
-        let frame$: rx.BehaviorSubject<IFrame> = new rx.BehaviorSubject<IFrame>(createFrame(1));
+        let frame$: BehaviorSubject<IFrame> = new BehaviorSubject<IFrame>(createFrame(1));
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = 1;
-        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
-        let frameSubscription: rx.IDisposable = frame$
+        let frameSubscription: Subscription = frame$
             .map<IGLRenderHash>(
                 (frame: IFrame): IGLRenderHash => {
                     let renderHash: IGLRenderHash = createGLRenderHash(frame.id, true);
@@ -239,7 +247,7 @@ describe("GLRenderer.renderer", () => {
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
 
-        frameSubscription.dispose();
+        frameSubscription.unsubscribe();
 
         glRenderer.clear("mock");
 
@@ -255,7 +263,7 @@ describe("GLRenderer.renderer", () => {
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = 1;
-        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
@@ -265,7 +273,7 @@ describe("GLRenderer.renderer", () => {
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
 
         renderCamera.frameId = 2;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
@@ -280,18 +288,18 @@ describe("GLRenderer.renderer", () => {
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
-        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+        glRenderer.render$.next(createGLRenderHash(frameId, true));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
         frameId = 2;
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
-        glRenderer.render$.onNext(createGLRenderHash(frameId, false));
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
+        glRenderer.render$.next(createGLRenderHash(frameId, false));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
     });
@@ -305,19 +313,19 @@ describe("GLRenderer.renderer", () => {
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
-        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+        glRenderer.render$.next(createGLRenderHash(frameId, true));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
         frameId = 2;
         renderCamera.updateProjection();
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
-        glRenderer.render$.onNext(createGLRenderHash(frameId, false));
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
+        glRenderer.render$.next(createGLRenderHash(frameId, false));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
     });
@@ -331,20 +339,20 @@ describe("GLRenderer.renderer", () => {
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
-        glRenderer.render$.onNext(createGLRenderHash(frameId, true));
+        glRenderer.render$.next(createGLRenderHash(frameId, true));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
-        renderServiceMock.size$.onNext({ height: 1, width: 1});
+        renderServiceMock.size$.next({ height: 1, width: 1});
 
         frameId = 2;
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
-        glRenderer.render$.onNext(createGLRenderHash(frameId, false));
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
+        glRenderer.render$.next(createGLRenderHash(frameId, false));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
     });
@@ -361,22 +369,22 @@ describe("GLRenderer.renderer", () => {
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
         let renderHash1: IGLRenderHash = createGLRenderHash(frameId, true, hash1);
         let renderHash2: IGLRenderHash = createGLRenderHash(frameId, true, hash2);
 
-        glRenderer.render$.onNext(renderHash1);
-        glRenderer.render$.onNext(renderHash2);
+        glRenderer.render$.next(renderHash1);
+        glRenderer.render$.next(renderHash2);
 
         spyOn(rendererMock, "clear");
         spyOn(rendererMock, "render");
 
         frameId = 2;
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
@@ -384,12 +392,12 @@ describe("GLRenderer.renderer", () => {
         renderHash1 = createGLRenderHash(frameId, true, hash1);
         renderHash2 = createGLRenderHash(frameId, true, hash2);
 
-        glRenderer.render$.onNext(renderHash1);
+        glRenderer.render$.next(renderHash1);
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
 
-        glRenderer.render$.onNext(renderHash2);
+        glRenderer.render$.next(renderHash2);
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(2);
@@ -407,28 +415,28 @@ describe("GLRenderer.renderer", () => {
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$ = new rx.BehaviorSubject<RenderCamera>(renderCamera);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
         let renderHash1: IGLRenderHash = createGLRenderHash(frameId, true, hash1);
         let renderHash2: IGLRenderHash = createGLRenderHash(frameId, true, hash2);
 
-        glRenderer.render$.onNext(renderHash1);
-        glRenderer.render$.onNext(renderHash2);
+        glRenderer.render$.next(renderHash1);
+        glRenderer.render$.next(renderHash2);
 
         spyOn(rendererMock, "clear");
         spyOn(rendererMock, "render");
 
         frameId = 2;
         renderCamera.frameId = frameId;
-        renderServiceMock.renderCameraFrame$.onNext(renderCamera);
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);
 
         renderHash1 = createGLRenderHash(frameId, false, hash1);
-        glRenderer.render$.onNext(renderHash1);
+        glRenderer.render$.next(renderHash1);
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(0);
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(0);

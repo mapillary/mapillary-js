@@ -1,14 +1,12 @@
-/// <reference path="../../typings/index.d.ts" />
-
-import * as rx from "rx";
+import {Subscription} from "rxjs/Subscription";
 
 import {Node} from "../Graph";
 import {EventEmitter} from "../Utils";
 import {Navigator} from "../Viewer";
 
 export class EventLauncher {
-    private _stateSubscription: rx.IDisposable;
-    private _loadingSubscription: rx.IDisposable;
+    private _stateSubscription: Subscription;
+    private _loadingSubscription: Subscription;
 
     private _eventEmitter: EventEmitter;
     private _navigator: Navigator;
@@ -29,8 +27,8 @@ export class EventLauncher {
     }
 
     public dispose(): void {
-        this._loadingSubscription.dispose();
-        this._stateSubscription.dispose();
+        this._loadingSubscription.unsubscribe();
+        this._stateSubscription.unsubscribe();
     }
 }
 

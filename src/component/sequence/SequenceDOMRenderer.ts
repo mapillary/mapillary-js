@@ -122,8 +122,8 @@ export class SequenceDOMRenderer {
             onclick: nextKey != null ?
                 (e: Event): void => { navigator.moveDir(EdgeDirection.Next).subscribe(); } :
                 null,
-            onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.onNext(EdgeDirection.Next); },
-            onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.onNext(EdgeDirection.Next); },
+            onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Next); },
+            onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.next(EdgeDirection.Next); },
             style: {
 
             },
@@ -133,8 +133,8 @@ export class SequenceDOMRenderer {
             onclick: prevKey != null ?
                 (e: Event): void => { navigator.moveDir(EdgeDirection.Prev).subscribe(); } :
                 null,
-            onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.onNext(EdgeDirection.Prev); },
-            onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.onNext(EdgeDirection.Prev); },
+            onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Prev); },
+            onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.next(EdgeDirection.Prev); },
             style: {
 
             },

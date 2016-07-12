@@ -1,8 +1,22 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import * as _ from "underscore";
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+
+import "rxjs/add/observable/fromPromise";
+import "rxjs/add/observable/of";
+
+import "rxjs/add/operator/combineLatest";
+import "rxjs/add/operator/distinct";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/mergeMap";
+import "rxjs/add/operator/pluck";
+import "rxjs/add/operator/scan";
 
 import {IAPISGet} from "../API";
 import {Container, Navigator} from "../Viewer";
@@ -54,32 +68,33 @@ class RouteTrack {
 
 export class RouteComponent extends Component {
     public static componentName: string = "route";
-    private _disposable: rx.IDisposable;
-    private _disposableDescription: rx.IDisposable;
+
+    private _disposable: Subscription;
+    private _disposableDescription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     protected _activate(): void {
-        let _slowedStream$: rx.Observable<IFrame>;
+        let _slowedStream$: Observable<IFrame>;
 
         _slowedStream$ = this._navigator.stateService.currentState$.filter((frame: IFrame) => {
             return (frame.id % 2) === 0;
         }).filter((frame: IFrame) => {
             return frame.state.nodesAhead < 15;
-        }).distinctUntilChanged((frame: IFrame): string => {
+        }).distinctUntilChanged(undefined, (frame: IFrame): string => {
             return frame.state.lastNode.key;
         });
 
-        let _routeTrack$: rx.Observable<RouteTrack>;
+        let _routeTrack$: Observable<RouteTrack>;
 
-        _routeTrack$ = this.configuration$.selectMany((conf: IRouteConfiguration): rx.Observable<IRoutePath> => {
-            return rx.Observable.from(conf.paths);
-        }).distinct((path: IRoutePath): string => {
-            return path.sequenceKey;
-        }).flatMap<IAPISGet>((path: IRoutePath): rx.Observable<IAPISGet> => {
-            return rx.Observable.fromPromise(this._navigator.apiV2.s.get(path.sequenceKey));
+        _routeTrack$ = this.configuration$.mergeMap((conf: IRouteConfiguration): Observable<IRoutePath> => {
+            return Observable.from<IRoutePath>(conf.paths);
+        }).distinct((p1: IRoutePath, p2: IRoutePath): boolean => {
+            return p1.sequenceKey === p2.sequenceKey;
+        }).mergeMap<IAPISGet>((path: IRoutePath): Observable<IAPISGet> => {
+            return Observable.fromPromise<IAPISGet>(this._navigator.apiV2.s.get(path.sequenceKey));
         }).combineLatest(this.configuration$, (apiSGet: IAPISGet, conf: IRouteConfiguration): IInstructionPlace[] => {
             let i: number = 0;
             let instructionPlaces: IInstructionPlace[] = [];
@@ -153,9 +168,9 @@ export class RouteComponent extends Component {
                     }
                 }
                 return false;
-            }).distinctUntilChanged((routeState: RouteState): string => {
+            }).distinctUntilChanged(undefined, (routeState: RouteState): string => {
                 return routeState.lastNode.key;
-            }).selectMany<Node>((routeState: RouteState): rx.Observable<Node> => {
+            }).mergeMap<Node>((routeState: RouteState): Observable<Node> => {
                 let i: number = 0;
                 for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
                     if (nodeInstruction.key === routeState.lastNode.key) {
@@ -166,7 +181,7 @@ export class RouteComponent extends Component {
 
                 let nextInstruction: INodeInstruction = routeState.routeTrack.nodeInstructions[i + 1];
                 if (!nextInstruction) {
-                    return rx.Observable.just<Node>(null);
+                    return Observable.of<Node>(null);
                 }
 
                 return this._navigator.graphService.node$(nextInstruction.key);
@@ -219,8 +234,8 @@ export class RouteComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._disposable.dispose();
-        this._disposableDescription.dispose();
+        this._disposable.unsubscribe();
+        this._disposableDescription.unsubscribe();
     }
 
     public play(): void {

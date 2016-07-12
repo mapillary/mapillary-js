@@ -1,8 +1,10 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
 import {
     IOutlineCreateTagOptions,
@@ -16,30 +18,30 @@ export class OutlineCreateTag {
     private _geometry: VertexGeometry;
     private _options: IOutlineCreateTagOptions;
 
-    private _created$: rx.Subject<OutlineCreateTag>;
-    private _aborted$: rx.Subject<OutlineCreateTag>;
+    private _created$: Subject<OutlineCreateTag>;
+    private _aborted$: Subject<OutlineCreateTag>;
 
     constructor(geometry: VertexGeometry, options: IOutlineCreateTagOptions) {
         this._geometry = geometry;
         this._options = { color: options.color == null ? 0xFFFFFF : options.color };
 
-        this._created$ = new rx.Subject<OutlineCreateTag>();
-        this._aborted$ = new rx.Subject<OutlineCreateTag>();
+        this._created$ = new Subject<OutlineCreateTag>();
+        this._aborted$ = new Subject<OutlineCreateTag>();
     }
 
     public get geometry(): VertexGeometry {
         return this._geometry;
     }
 
-    public get created$(): rx.Observable<OutlineCreateTag> {
+    public get created$(): Observable<OutlineCreateTag> {
         return this._created$;
     }
 
-    public get aborted$(): rx.Observable<OutlineCreateTag> {
+    public get aborted$(): Observable<OutlineCreateTag> {
         return this._aborted$;
     }
 
-    public get geometryChanged$(): rx.Observable<OutlineCreateTag> {
+    public get geometryChanged$(): Observable<OutlineCreateTag> {
         return this._geometry.changed$
             .map<OutlineCreateTag>(
                 (geometry: VertexGeometry): OutlineCreateTag => {
@@ -73,7 +75,7 @@ export class OutlineCreateTag {
         let vNodes: vd.VNode[] = [];
         let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
             e.stopPropagation();
-            this._aborted$.onNext(this);
+            this._aborted$.next(this);
         };
 
         if (this._geometry instanceof RectGeometry) {
@@ -114,7 +116,7 @@ export class OutlineCreateTag {
                     (e: MouseEvent): void => {
                         e.stopPropagation();
                         polygonGeometry.removeVertex2d(polygonGeometry.polygon.length - 2);
-                        this._created$.onNext(this);
+                        this._created$.next(this);
                     } :
                     abort;
 
@@ -186,7 +188,7 @@ export class OutlineCreateTag {
                 return;
             }
 
-            this._created$.onNext(this);
+            this._created$.next(this);
         } else if (this._geometry instanceof PolygonGeometry) {
             let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
 

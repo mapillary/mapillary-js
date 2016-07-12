@@ -1,7 +1,25 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/observable/combineLatest";
+import "rxjs/add/observable/of";
+
+import "rxjs/add/operator/concat";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/finally";
+import "rxjs/add/operator/first";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/share";
+import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/takeUntil";
+import "rxjs/add/operator/withLatestFrom";
 
 import {
     Component,
@@ -41,18 +59,18 @@ export class SequenceComponent extends Component {
     private _sequenceDOMInteraction: SequenceDOMInteraction;
     private _nodesAhead: number = 5;
 
-    private _configurationOperation$: rx.Subject<IConfigurationOperation> = new rx.Subject<IConfigurationOperation>();
-    private _hoveredKeySubject$: rx.Subject<string>;
-    private _hoveredKey$: rx.Observable<string>;
-    private _containerWidth$: rx.Subject<number>;
+    private _configurationOperation$: Subject<IConfigurationOperation> = new Subject<IConfigurationOperation>();
+    private _hoveredKeySubject$: Subject<string>;
+    private _hoveredKey$: Observable<string>;
+    private _containerWidth$: Subject<number>;
 
-    private _configurationSubscription: rx.IDisposable;
-    private _renderSubscription: rx.IDisposable;
-    private _containerWidthSubscription: rx.IDisposable;
-    private _hoveredKeySubscription: rx.IDisposable;
+    private _configurationSubscription: Subscription;
+    private _renderSubscription: Subscription;
+    private _containerWidthSubscription: Subscription;
+    private _hoveredKeySubscription: Subscription;
 
-    private _playingSubscription: rx.IDisposable;
-    private _stopSubscription: rx.IDisposable;
+    private _playingSubscription: Subscription;
+    private _stopSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -60,8 +78,8 @@ export class SequenceComponent extends Component {
         this._sequenceDOMRenderer = new SequenceDOMRenderer(container.element);
         this._sequenceDOMInteraction = new SequenceDOMInteraction();
 
-        this._containerWidth$ = new rx.Subject<number>();
-        this._hoveredKeySubject$ = new rx.Subject<string>();
+        this._containerWidth$ = new Subject<number>();
+        this._hoveredKeySubject$ = new Subject<string>();
 
         this._hoveredKey$ = this._hoveredKeySubject$.share();
     }
@@ -90,7 +108,7 @@ export class SequenceComponent extends Component {
      *
      * @returns {Observable<string>}
      */
-    public get hoveredKey$(): rx.Observable<string> {
+    public get hoveredKey$(): Observable<string> {
         return this._hoveredKey$;
     }
 
@@ -186,20 +204,16 @@ export class SequenceComponent extends Component {
                 })
             .subscribe(
                 (containerWidth: number): void => {
-                    this._containerWidth$.onNext(containerWidth);
+                    this._containerWidth$.next(containerWidth);
                 });
     }
 
     protected _activate(): void {
-        this._renderSubscription = rx.Observable
-            .combineLatest(
+        this._renderSubscription = Observable
+            .combineLatest<Node, ISequenceConfiguration, number>(
                 this._navigator.stateService.currentNode$,
                 this._configuration$,
-                this._containerWidth$,
-                (node: Node, configuration: ISequenceConfiguration, containerWidth: number):
-                [Node, ISequenceConfiguration, number] => {
-                    return [node, configuration, containerWidth];
-                })
+                this._containerWidth$)
             .map<IVNodeHash>(
                 (nc: [Node, ISequenceConfiguration, number]): IVNodeHash => {
                     let node: Node = nc[0];
@@ -221,11 +235,11 @@ export class SequenceComponent extends Component {
 
         this._containerWidthSubscription = this._configuration$
             .distinctUntilChanged(
-                (configuration: ISequenceConfiguration) => {
-                    return [configuration.minWidth, configuration.maxWidth];
-                },
                 (value1: [number, number], value2: [number, number]): boolean => {
                     return value1[0] === value2[0] && value1[1] === value2[1];
+                },
+                (configuration: ISequenceConfiguration) => {
+                    return [configuration.minWidth, configuration.maxWidth];
                 })
             .map<number>(
                 (configuration: ISequenceConfiguration): number => {
@@ -273,21 +287,17 @@ export class SequenceComponent extends Component {
             .subscribe(this._configurationOperation$);
 
         this._stopSubscription = this._configuration$
-            .flatMapLatest(
-                (configuration: ISequenceConfiguration): rx.Observable<[Node, EdgeDirection]> => {
-                    let node$: rx.Observable<Node> = configuration.playing ?
+            .switchMap(
+                (configuration: ISequenceConfiguration): Observable<[Node, EdgeDirection]> => {
+                    let node$: Observable<Node> = configuration.playing ?
                         this._navigator.stateService.currentNode$ :
-                        rx.Observable.empty<Node>();
+                        Observable.empty<Node>();
 
-                    let edgeDirection$: rx.Observable<EdgeDirection> = rx.Observable
-                        .just(configuration.direction);
+                    let edgeDirection$: Observable<EdgeDirection> = Observable
+                        .of(configuration.direction);
 
-                    return rx.Observable.combineLatest(
-                        node$,
-                        edgeDirection$,
-                        (n: Node, e: EdgeDirection): [Node, EdgeDirection] => {
-                            return [n, e];
-                        });
+                    return Observable
+                        .combineLatest<Node, EdgeDirection>(node$, edgeDirection$);
                 })
             .map<boolean>(
                 (ne: [Node, EdgeDirection]): boolean => {
@@ -313,8 +323,8 @@ export class SequenceComponent extends Component {
             .subscribe(this._configurationSubject$);
 
         this._hoveredKeySubscription = this._sequenceDOMInteraction.mouseEnterDirection$
-            .flatMapLatest<string>(
-                (direction: EdgeDirection): rx.Observable<string> => {
+            .switchMap<string>(
+                (direction: EdgeDirection): Observable<string> => {
                     return this._navigator.stateService.currentNode$
                         .map<string>(
                             (node: Node): string => {
@@ -327,18 +337,18 @@ export class SequenceComponent extends Component {
                                 return null;
                             })
                         .takeUntil(this._sequenceDOMInteraction.mouseLeaveDirection$)
-                        .concat(rx.Observable.just<string>(null));
+                        .concat<string>(Observable.of<string>(null));
                 })
             .distinctUntilChanged()
             .subscribe(this._hoveredKeySubject$);
     }
 
     protected _deactivate(): void {
-        this._stopSubscription.dispose();
-        this._renderSubscription.dispose();
-        this._configurationSubscription.dispose();
-        this._containerWidthSubscription.dispose();
-        this._hoveredKeySubscription.dispose();
+        this._stopSubscription.unsubscribe();
+        this._renderSubscription.unsubscribe();
+        this._configurationSubscription.unsubscribe();
+        this._containerWidthSubscription.unsubscribe();
+        this._hoveredKeySubscription.unsubscribe();
 
         this.stop();
     }
@@ -354,9 +364,10 @@ export class SequenceComponent extends Component {
                     return frame.state.lastNode;
                 })
             .distinctUntilChanged(
-                 (lastNode: Node): string => {
-                     return lastNode.key;
-                 })
+                undefined,
+                (lastNode: Node): string => {
+                    return lastNode.key;
+                })
             .withLatestFrom(
                 this._configuration$,
                 (lastNode: Node, configuration: ISequenceConfiguration): [Node, EdgeDirection] => {
@@ -378,8 +389,8 @@ export class SequenceComponent extends Component {
                 (key: string): boolean => {
                     return key != null;
                 })
-            .flatMapLatest<Node>(
-                (key: string): rx.Observable<Node> => {
+            .switchMap<Node>(
+                (key: string): Observable<Node> => {
                     return this._navigator.graphService.node$(key);
                 })
             .subscribe(
@@ -395,7 +406,7 @@ export class SequenceComponent extends Component {
     }
 
     private _stop(): void {
-        this._playingSubscription.dispose();
+        this._playingSubscription.unsubscribe();
         this._playingSubscription = null;
 
         this.fire(SequenceComponent.playingchanged, false);

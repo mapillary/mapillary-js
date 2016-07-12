@@ -1,7 +1,12 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rx from "rx";
 import * as vd from "virtual-dom";
+
+import {Subscription} from "rxjs/Subscription";
+
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/withLatestFrom";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
@@ -12,8 +17,8 @@ import {IVNodeHash} from "../Render";
 export class CoverComponent extends Component {
     public static componentName: string = "cover";
 
-    private _disposable: rx.IDisposable;
-    private _keyDisposable: rx.IDisposable;
+    private _disposable: Subscription;
+    private _keyDisposable: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -54,8 +59,8 @@ export class CoverComponent extends Component {
     }
 
     public _deactivate(): void {
-        this._disposable.dispose();
-        this._keyDisposable.dispose();
+        this._disposable.unsubscribe();
+        this._keyDisposable.unsubscribe();
     }
 
     public get defaultConfiguration(): IComponentConfiguration {

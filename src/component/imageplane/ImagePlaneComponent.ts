@@ -1,7 +1,19 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import * as THREE from "three";
-import * as rx from "rx";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+import {Subject} from "rxjs/Subject";
+
+import "rxjs/add/observable/of";
+
+import "rxjs/add/operator/delay";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/scan";
+import "rxjs/add/operator/switchMap";
 
 import {ComponentService, Component, ImagePlaneGLRenderer, TextureLoader} from "../../Component";
 import {IFrame} from "../../State";
@@ -17,21 +29,21 @@ interface IImagePlaneGLRendererOperation {
 export class ImagePlaneComponent extends Component {
     public static componentName: string = "imageplane";
 
-    private _rendererOperation$: rx.Subject<IImagePlaneGLRendererOperation>;
-    private _renderer$: rx.Observable<ImagePlaneGLRenderer>;
-    private _rendererCreator$: rx.Subject<void>;
-    private _rendererDisposer$: rx.Subject<void>;
+    private _rendererOperation$: Subject<IImagePlaneGLRendererOperation>;
+    private _renderer$: Observable<ImagePlaneGLRenderer>;
+    private _rendererCreator$: Subject<void>;
+    private _rendererDisposer$: Subject<void>;
 
-    private _rendererSubscription: rx.IDisposable;
-    private _stateSubscription: rx.IDisposable;
-    private _nodeSubscription: rx.IDisposable;
+    private _rendererSubscription: Subscription;
+    private _stateSubscription: Subscription;
+    private _nodeSubscription: Subscription;
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._rendererOperation$ = new rx.Subject<IImagePlaneGLRendererOperation>();
-        this._rendererCreator$ = new rx.Subject<void>();
-        this._rendererDisposer$ = new rx.Subject<void>();
+        this._rendererOperation$ = new Subject<IImagePlaneGLRendererOperation>();
+        this._rendererCreator$ = new Subject<void>();
+        this._rendererDisposer$ = new Subject<void>();
 
         this._renderer$ = this._rendererOperation$
             .scan<ImagePlaneGLRenderer>(
@@ -44,6 +56,7 @@ export class ImagePlaneComponent extends Component {
                     return renderer != null;
                 })
             .distinctUntilChanged(
+                undefined,
                 (renderer: ImagePlaneGLRenderer): number => {
                     return renderer.frameId;
                 });
@@ -93,7 +106,7 @@ export class ImagePlaneComponent extends Component {
                 })
             .subscribe(this._container.glRenderer.render$);
 
-        this._rendererCreator$.onNext(null);
+        this._rendererCreator$.next(null);
 
         this._stateSubscription = this._navigator.stateService.currentState$
             .map<IImagePlaneGLRendererOperation>(
@@ -113,19 +126,19 @@ export class ImagePlaneComponent extends Component {
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
-            .flatMapLatest(
-                (node: Node): rx.Observable<[THREE.Texture, Node]> => {
-                    return rx.Observable
-                        .just<void>(null)
+            .switchMap<[THREE.Texture, Node]>(
+                (node: Node): Observable<[THREE.Texture, Node]> => {
+                    return Observable
+                        .of<void>(null)
                         .delay(2000)
                         .flatMap<THREE.Texture>(
-                            (): rx.Observable<THREE.Texture> => {
+                            (): Observable<THREE.Texture> => {
                                 let textureLoader: TextureLoader = new TextureLoader();
 
                                 return textureLoader.load(node.key, Settings.maxImageSize);
                             })
                         .zip(
-                            rx.Observable.just<Node>(node),
+                            Observable.of<Node>(node),
                             (t: THREE.Texture, n: Node): [THREE.Texture, Node] => {
                                 return [t, n];
                             });
@@ -142,11 +155,11 @@ export class ImagePlaneComponent extends Component {
     }
 
     protected _deactivate(): void {
-        this._rendererDisposer$.onNext(null);
+        this._rendererDisposer$.next(null);
 
-        this._rendererSubscription.dispose();
-        this._stateSubscription.dispose();
-        this._nodeSubscription.dispose();
+        this._rendererSubscription.unsubscribe();
+        this._stateSubscription.unsubscribe();
+        this._nodeSubscription.unsubscribe();
     }
 }
 
