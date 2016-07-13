@@ -13,7 +13,7 @@
     "lint": "npm run lint-spec && npm run lint-src",
     "lint-spec": "tslint -c tslint.json ./spec/**/*.ts ./spec/**/**/*.ts",
     "lint-src": "tslint -c tslint.json src/*.ts src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts",
-    "prepublish": "npm run clean && npm run build-min && npm run build-dev && gulp css",
+    "prepublish": "npm run clean && npm run lint-src && typings install && npm run build-min && npm run build-dev && gulp css",
     "start":"node server.js",
     "test": "karma start --single-run",
     "test-watch": "karma start",
