@@ -3,36 +3,35 @@
   "version": "1.4.2",
   "description": "WebGL JavaScript library for displaying street level imagery from mapillary.com",
   "main": "dist/mapillary-js.min",
-  "scripts": {
-    "build-dev": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug | exorcist dist/mapillary-js.js.map > dist/mapillary-js.js",
-    "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary-js.js.map > dist/mapillary-js.js'",
-    "build-docs": "typedoc --mode file --target ES5 --module commonjs --theme default --excludeExternals --name MapillaryJS --out docs/",
-    "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs > dist/mapillary-js.min.js",
-    "clean": "rm -rf dist && mkdir dist",
-    "gulp": "gulp",
-    "lint": "npm run lint-spec && npm run lint-src",
-    "lint-spec": "tslint -c tslint.json ./spec/**/*.ts ./spec/**/**/*.ts",
-    "lint-src": "tslint -c tslint.json src/*.ts src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts",
-    "prepublish": "npm run clean && npm run lint-src && typings install && npm run build-min && npm run build-dev && gulp css",
-    "start":"node server.js",
-    "test": "karma start --single-run",
-    "test-watch": "karma start",
-    "typings": "typings"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mapillary/mapillary-js.git"
-  },
+  "license": "MIT",
+  "homepage": "https://github.com/mapillary/mapillary-js#readme",
   "keywords": [
     "mapillary",
     "webgl",
     "viewer"
   ],
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mapillary/mapillary-js.git"
+  },
   "bugs": {
     "url": "https://github.com/mapillary/mapillary-js/issues"
   },
-  "homepage": "https://github.com/mapillary/mapillary-js#readme",
+  "dependencies": {
+    "falcor": "^0.1.16",
+    "falcor-http-datasource": "^0.1.3",
+    "graphlib": "^2.1.0",
+    "latlon-geohash": "^1.0.1",
+    "pbf": "^1.3.5",
+    "rbush": "~1.4.1",
+    "rest": "~1.3.1",
+    "rx": "^4.0.7",
+    "three": "^0.76.1",
+    "underscore": "~1.8.3",
+    "unitbezier": "0.0.0",
+    "virtual-dom": "^2.1.1",
+    "when": "~3.7.4"
+  },
   "devDependencies": {
     "brfs": "^1.4.1",
     "browser-sync": "^2.12.3",
@@ -74,29 +73,30 @@
     "watchify": "3.7.0",
     "yargs": "^4.6.0"
   },
+  "browser": {
+    "rx": "./node_modules/rx/dist/rx.all.min.js",
+    "three": "./node_modules/three/three.min.js"
+  },
   "config": {
     "ghooks": {
       "pre-commit": "npm run lint",
       "pre-push": "npm run test"
     }
   },
-  "dependencies": {
-    "falcor": "^0.1.16",
-    "falcor-http-datasource": "^0.1.3",
-    "graphlib": "^2.1.0",
-    "latlon-geohash": "^1.0.1",
-    "pbf": "^1.3.5",
-    "rbush": "~1.4.1",
-    "rest": "~1.3.1",
-    "rx": "^4.0.7",
-    "three": "^0.76.1",
-    "underscore": "~1.8.3",
-    "unitbezier": "0.0.0",
-    "virtual-dom": "^2.1.1",
-    "when": "~3.7.4"
-  },
-  "browser": {
-    "rx": "./node_modules/rx/dist/rx.all.min.js",
-    "three": "./node_modules/three/three.min.js"
+  "scripts": {
+    "build-dev": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug | exorcist dist/mapillary-js.js.map > dist/mapillary-js.js",
+    "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary-js.js.map > dist/mapillary-js.js'",
+    "build-docs": "typedoc --mode file --target ES5 --module commonjs --theme default --excludeExternals --name MapillaryJS --out docs/",
+    "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs > dist/mapillary-js.min.js",
+    "clean": "rm -rf dist && mkdir dist",
+    "gulp": "gulp",
+    "lint": "npm run lint-spec && npm run lint-src",
+    "lint-spec": "tslint -c tslint.json ./spec/**/*.ts ./spec/**/**/*.ts",
+    "lint-src": "tslint -c tslint.json src/*.ts src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts",
+    "prepublish": "npm run clean && npm run lint-src && typings install && npm run build-min && npm run build-dev && gulp css",
+    "start":"node server.js",
+    "test": "karma start --single-run",
+    "test-watch": "karma start",
+    "typings": "typings"
   }
 }
