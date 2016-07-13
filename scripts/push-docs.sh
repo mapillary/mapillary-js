@@ -1,6 +1,6 @@
 #!/bin/sh
 
-npm run gulp documentation
+npm run build-docs
 git checkout -- .
 git checkout gh-pages
 \cp -rf -a ./docs/. ./

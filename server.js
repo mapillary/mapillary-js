@@ -9,7 +9,7 @@ var tsify = require('tsify');
 
 var app = express();
 
-app.get('/build/bundle.js', browserify('./src/Mapillary.ts', {
+app.get('/dist/mapillary-js.js', browserify('./src/Mapillary.ts', {
     cache: 'dynamic',
     debug: true,
     plugins: [{
@@ -27,7 +27,6 @@ app.get('/debug', function(req, res) {
 
 app.use(express.static(path.join(__dirname, 'debug')));
 app.use('/dist', express.static(path.join(__dirname, 'dist')));
-app.use('/build', express.static(path.join(__dirname, 'build')));
 
 app.listen(3000, function () {
     console.log('mapillary-js debug server running at http://localhost:3000');

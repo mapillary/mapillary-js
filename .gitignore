@@ -15,9 +15,6 @@ typings/*
 
 # Build artifacts
 dist/
-build/
-debug/**/*.js
-debug/**/*.css
 spec/*.js
 
 # Docs
