@@ -61,7 +61,7 @@ export class MarkerSet {
                 (markers: IMarkerData, operation: IMarkerOperation): IMarkerData => {
                     return operation(markers);
                 },
-                {hash: {}, spatial: rbush<ISpatialMarker>(20000, [".lon", ".lat", ".lon", ".lat"])})
+                {hash: {}, spatial: rbush<ISpatialMarker>(16, [".lon", ".lat", ".lon", ".lat"])})
             .map(
                 (markers: IMarkerData): MarkerIndex => {
                     return markers.spatial;
@@ -263,7 +263,9 @@ export class MarkerComponent extends Component {
         let maxLon: number = node.latLon.lon + boxWidth / 2;
         let maxLat: number = node.latLon.lat + boxWidth / 2;
 
-        let markers: Marker[] = _.map(args.markers.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialMarker) => {
+        let markers: Marker[] = _.map(
+            args.markers.search({ maxX: maxLon, maxY: maxLat, minX: minLon, minY: minLat }),
+            (item: ISpatialMarker) => {
                 return item.marker;
             }).filter((marker: Marker) => {
                 return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);

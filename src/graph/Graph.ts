@@ -55,7 +55,7 @@ export class Graph {
     constructor () {
         this._sequences = {};
         this._sequenceHashes = {};
-        this._nodeIndex = rbush<ISpatialItem>(20000, [".lon", ".lat", ".lon", ".lat"]);
+        this._nodeIndex = rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = new graphlib.Graph({multigraph: true});
         this._cachedNodes = {};
         this._unWorthyNodes = {};
@@ -258,9 +258,11 @@ export class Graph {
         let maxLon: number = node.latLon.lon + this._boxWidth / 2;
         let maxLat: number = node.latLon.lat + this._boxWidth / 2;
 
-        let nodes: Node[] = _.map(this._nodeIndex.search([minLon, minLat, maxLon, maxLat]), (item: ISpatialItem) => {
-            return item.node;
-        });
+        let nodes: Node[] = _.map(
+            this._nodeIndex.search({ maxX: maxLon, maxY: maxLat, minX: minLon, minY: minLat }),
+            (item: ISpatialItem) => {
+                return item.node;
+            });
 
         let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, nodes, fallbackKeys);
 
@@ -301,7 +303,7 @@ export class Graph {
             return;
         }
 
-        this._nodeIndex.insert({lat: node.latLon.lat, lon: node.latLon.lon, node: node});
+        this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
         this._graph.setNode(node.key, node);
     }
 
