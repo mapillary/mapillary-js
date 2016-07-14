@@ -33,10 +33,12 @@
     "when": "~3.7.4"
   },
   "devDependencies": {
+    "autoprefixer": "^6.3.7",
     "brfs": "^1.4.1",
     "browser-sync": "^2.12.3",
     "browserify": "^13.0.0",
     "browserify-middleware": "^7.0.0",
+    "cssnano": "^3.7.3",
     "del": "^2.2.0",
     "exorcist": "^0.4.0",
     "express": "^4.14.0",
@@ -60,6 +62,7 @@
     "karma-chrome-launcher": "^0.2.3",
     "karma-firefox-launcher": "0.1.7",
     "karma-jasmine": "^0.3.8",
+    "postcss-cli": "^2.5.2",
     "tsify": "^0.16.0",
     "tslint": "3.7.4",
     "typedoc": "^0.4.4",
@@ -84,17 +87,18 @@
     }
   },
   "scripts": {
+    "build-css": "cat styles/*.css | postcss --use autoprefixer --autoprefixer.browsers 'last 2 versions, safari 7, ie 11' --use cssnano -o dist/mapillary-js.min.css",
     "build-dev": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug | exorcist dist/mapillary-js.js.map > dist/mapillary-js.js",
     "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary-js.js.map > dist/mapillary-js.js'",
     "build-docs": "typedoc --mode file --target ES5 --module commonjs --theme default --excludeExternals --name MapillaryJS --out docs/",
     "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs > dist/mapillary-js.min.js",
     "clean": "rm -rf dist && mkdir dist",
-    "gulp": "gulp",
+    "copy-assets": "cp -a styles/*.svg dist",
     "lint": "npm run lint-spec && npm run lint-src",
     "lint-spec": "tslint -c tslint.json ./spec/**/*.ts ./spec/**/**/*.ts",
     "lint-src": "tslint -c tslint.json src/*.ts src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts",
-    "prepublish": "npm run clean && npm run lint-src && typings install && npm run build-min && npm run build-dev && gulp css",
-    "start":"node server.js",
+    "prepublish": "npm run clean && npm run lint-src && typings install && npm run build-min && npm run build-dev && npm run build-css && npm run copy-assets",
+    "start": "node server.js",
     "test": "karma start --single-run",
     "test-watch": "karma start",
     "typings": "typings"
