@@ -19,7 +19,7 @@ dependencies:
     - export DISPLAY=:99.0
   override:
     - npm install:
-        timeout: 1200
+        timeout: 600
 
 test:
   override:
