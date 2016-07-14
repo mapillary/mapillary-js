@@ -1,10 +1,13 @@
 'use strict';
 
+var autoprefixer = require('autoprefixer');
+var cssnano = require('cssnano');
 var express = require('express');
 var brfs = require('brfs');
 var browserify = require('browserify-middleware');
 var fs = require('fs')
 var path = require('path');
+var postcss = require('postcss-middleware');
 var tsify = require('tsify');
 
 var app = express();
@@ -19,6 +22,14 @@ app.get('/dist/mapillary-js.js', browserify('./src/Mapillary.ts', {
     precompile: true,
     standalone: 'Mapillary',
     transform: ['brfs'],
+}));
+
+app.get('/dist/mapillary-js.min.css', postcss({
+	src: function(req) { return path.join(__dirname, 'styles', '*.css'); },
+	plugins: [
+        autoprefixer({ browsers: ['last 2 versions', 'safari 7', 'ie 11'] }),
+        cssnano()
+    ]
 }));
 
 app.get('/debug', function(req, res) {
