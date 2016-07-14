@@ -20,7 +20,7 @@ import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {MapillaryObject, Node} from "../../Graph";
 import {GeoCoords, ILatLonAlt} from "../../Geo";
 
-type MarkerIndex = rbush.RBush<ISpatialMarker>;
+export type MarkerIndex = rbush.RBush<ISpatialMarker>;
 
 interface IMarkerData {
     hash: { [id: string]: ISpatialMarker };

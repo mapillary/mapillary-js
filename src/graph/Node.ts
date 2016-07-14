@@ -9,7 +9,7 @@ import {IMesh, ILoadStatus, MeshReader, Sequence} from "../Graph";
 import {Settings, Urls} from "../Utils";
 import {ImageSize} from "../Viewer";
 
-interface ILoadStatusObject {
+export interface ILoadStatusObject {
     loaded: ILoadStatus;
     object: any;
 }

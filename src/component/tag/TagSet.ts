@@ -4,7 +4,7 @@ import * as rx from "rx";
 
 import {Tag} from "../../Component";
 
-type TagData = { [id: string]: Tag };
+export type TagData = { [id: string]: Tag };
 
 interface ITagDataOperation extends Function {
     (tags: TagData): TagData;
