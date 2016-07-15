@@ -1,6 +1,6 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-import * as THREE from "three";
+import * as earcut from "earcut";
 
 import {Geometry} from "../../../Component";
 import {Transform} from "../../../Geo";
@@ -82,23 +82,16 @@ export abstract class VertexGeometry extends Geometry {
      * @returns {Array<number>} Flattened array of 3d points ordered based on the triangles.
      */
     protected _triangulate(points2d: number[][], points3d: number[][]): number[] {
-        let contour: THREE.Vector2[] = points2d
-            .map<THREE.Vector2>((point: number[]): THREE.Vector2 => {
-                return new THREE.Vector2(point[0], point[1]);
-            });
+        let data: earcut.Data = earcut.flatten([points2d.slice(0, -1)]);
+        let indices: number[] = earcut(data.vertices);
 
-        contour.pop();
-
-        let indices: number[][] = <number[][]><any>THREE.ShapeUtils.triangulate(<any[]>contour, true);
         let triangles: number[] = [];
         for (let i: number = 0; i < indices.length; ++i) {
-            for (let j: number = 0; j < 3; ++j) {
-                let point3d: number[] = points3d[indices[i][j]];
+            let point3d: number[] = points3d[indices[i]];
 
-                triangles.push(point3d[0]);
-                triangles.push(point3d[1]);
-                triangles.push(point3d[2]);
-            }
+            triangles.push(point3d[0]);
+            triangles.push(point3d[1]);
+            triangles.push(point3d[2]);
         }
 
         return triangles;

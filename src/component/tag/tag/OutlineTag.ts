@@ -560,7 +560,7 @@ export class OutlineTag extends Tag {
                 {
                     color: this._fillColor,
                     opacity: this._fillOpacity,
-                    side: THREE.BackSide,
+                    side: THREE.DoubleSide,
                     transparent: true,
                 });
 

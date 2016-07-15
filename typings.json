@@ -17,6 +17,7 @@
     "when": "github:DefinitelyTyped/DefinitelyTyped/when/when.d.ts#001ca36ba58cef903c4c063555afb07bbc36bb58"
   },
   "dependencies": {
+    "earcut": "file:typings/created/earcut/earcut.d.ts",
     "latlon-geohash": "file:typings/created/latlon-geohash/latlon-geohash.d.ts",
     "pbf": "file:typings/created/pbf/pbf.d.ts",
     "rbush": "file:typings/created/rbush/rbush.d.ts",
