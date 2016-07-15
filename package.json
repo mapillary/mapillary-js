@@ -22,11 +22,11 @@
     "falcor-http-datasource": "^0.1.3",
     "graphlib": "^2.1.0",
     "latlon-geohash": "^1.0.1",
-    "pbf": "^1.3.5",
+    "pbf": "^2.0.1",
     "rbush": "^2.0.1",
     "rest": "~1.3.1",
     "rxjs": "^5.0.0-beta.10",
-    "three": "^0.76.1",
+    "three": "^0.79.0",
     "underscore": "~1.8.3",
     "unitbezier": "0.0.0",
     "virtual-dom": "^2.1.1",
@@ -59,7 +59,7 @@
     "watchify": "3.7.0"
   },
   "browser": {
-    "three": "./node_modules/three/three.min.js"
+    "three": "./node_modules/three/build/three.min.js"
   },
   "config": {
     "ghooks": {
