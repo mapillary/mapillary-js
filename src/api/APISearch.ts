@@ -11,6 +11,10 @@ export class APISearch {
         this._clientId = clientId;
         this.im = new APISearchIm(clientId);
     };
+
+    public auth(token?: string, projectKey?: string): void {
+        this.im.auth(token, projectKey);
+    }
 }
 
 export default APISearch;

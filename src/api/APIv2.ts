@@ -26,6 +26,13 @@ export class APIv2 {
         this.s = new APIS(clientId);
         this.search = new APISearch(clientId);
     };
+
+    public auth(token?: string, projectKey?: string): void {
+        this.im.auth(token, projectKey);
+        this.nav.auth(token, projectKey);
+        this.s.auth(token, projectKey);
+        this.search.auth(token, projectKey);
+    }
 }
 
 export default APIv2;

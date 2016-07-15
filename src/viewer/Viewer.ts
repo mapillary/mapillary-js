@@ -179,4 +179,17 @@ export class Viewer extends EventEmitter {
     public deactivateCover(): void {
         this._componentController.deactivateCover();
     }
+
+    /**
+     * Set an OAuth 2.0 bearer token for API requests of protected resources.
+     *
+     * @description When the supplied access token is an empty string
+     * or null, any previously set access token will be cleared.
+     *
+     * @param {string} token OAuth 2.0 bearer token.
+     * @param {string} projectKey Deprecated
+     */
+    public auth(token: string, projectKey?: string): void {
+        this._navigator.auth(token, projectKey);
+    }
 }

@@ -41,6 +41,18 @@ export class Navigator {
         this.loadingService = new LoadingService();
     }
 
+    public get keyRequested$(): Observable<string> {
+        return this._keyRequested$;
+    }
+
+    public get movedToKey$(): Observable<string> {
+        return this._movedToKey$;
+    }
+
+    public auth(token: string, projectKey?: string): void {
+        this.apiV2.auth(token, projectKey);
+    }
+
     public moveToKey(key: string): Observable<Node> {
         this.loadingService.startLoading("navigator");
         this._keyRequested$.next(key);
@@ -83,14 +95,6 @@ export class Navigator {
                         this.moveToKey(data.key);
                 })
             .first();
-    }
-
-    public get keyRequested$(): Observable<string> {
-        return this._keyRequested$;
-    }
-
-    public get movedToKey$(): Observable<string> {
-        return this._movedToKey$;
     }
 }
 
