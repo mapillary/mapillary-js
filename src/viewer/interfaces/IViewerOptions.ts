@@ -20,6 +20,12 @@ export interface IViewerOptions {
     background?: boolean;
 
     /**
+     * Show indicator for panoramas.
+     * @default true
+     */
+    bearing?: boolean;
+
+    /**
      * Cache images ahead.
      * @default true
      */

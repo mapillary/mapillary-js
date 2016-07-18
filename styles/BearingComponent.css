@@ -1,0 +1,10 @@
+.BearingIndicator {
+    position: absolute;
+    bottom: 28px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: url(./pano-indicator.svg);
+    background-size: contain;
+    opacity: 0.5;
+}

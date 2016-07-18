@@ -76,6 +76,7 @@ export class ComponentController {
         this._uFalse(options.tag, "tag");
 
         this._uTrue(options.attribution, "attribution");
+        this._uTrue(options.bearing, "bearing");
         this._uTrue(options.cache, "cache");
         this._uTrue(options.direction, "direction");
         this._uTrue(options.imageplane, "imageplane");

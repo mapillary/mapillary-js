@@ -151,14 +151,3 @@
         background: rgba(0, 0, 0, 0.4);
     }
 }
-
-.PanoIndication {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 32px;
-    height: 24px;
-    background: url(./pano-icon.svg);
-    background-size: contain;
-    opacity: 0.8;
-}
