@@ -446,7 +446,9 @@ export class OutlineTag extends Tag {
         let vertices3d: number[][] = this._geometry.getVertices3d(transform);
 
         for (let i: number = 0; i < vertices3d.length - 1; i++) {
-            if (this._geometry instanceof RectGeometry &&
+            let isRectGeometry: boolean = this._geometry instanceof RectGeometry;
+
+            if (isRectGeometry &&
                 ((this._icon != null && i === this._iconIndex) ||
                 (this._icon == null && this._text != null && i === 3))) {
                 continue;
@@ -465,8 +467,17 @@ export class OutlineTag extends Tag {
 
             let properties: vd.createProperties = {
                 onmousedown: interact,
-                style: { background: lineColor, left: vertexCss[0], position: "absolute", top: vertexCss[1] },
+                style: {
+                    background: lineColor,
+                    left: vertexCss[0],
+                    position: "absolute",
+                    top: vertexCss[1],
+                },
             };
+
+            if (isRectGeometry) {
+                properties.style.cursor = i % 2 === 0 ? "nesw-resize" : "nwse-resize";
+            }
 
             vNodes.push(vd.h("div.TagResizer", properties, []));
 
@@ -475,7 +486,12 @@ export class OutlineTag extends Tag {
             }
 
             let pointProperties: vd.createProperties = {
-                style: { background: lineColor, left: vertexCss[0], position: "absolute", top: vertexCss[1] },
+                style: {
+                    background: lineColor,
+                    left: vertexCss[0],
+                    position: "absolute",
+                    top: vertexCss[1],
+                },
             };
 
             vNodes.push(vd.h("div.TagVertex", pointProperties, []));
