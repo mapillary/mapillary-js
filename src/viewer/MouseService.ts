@@ -108,13 +108,17 @@ export class MouseService {
                 (e: MouseEvent, operation: IMouseMoveOperation): MouseEvent => {
                     return operation(e);
                 },
-                new MouseEvent("mousemove"));
+                null);
 
         Observable
             .fromEvent<MouseEvent>(element, "mousemove")
             .map<IMouseMoveOperation>(
                 (e: MouseEvent) => {
                     return (previous: MouseEvent): MouseEvent => {
+                        if (previous == null) {
+                            previous = e;
+                        }
+
                         if (e.movementX == null) {
                             e.movementX = e.clientX - previous.clientX;
                         }
