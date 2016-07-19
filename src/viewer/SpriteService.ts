@@ -94,6 +94,9 @@ class SpriteAtlas implements ISpriteAtlas {
         let left: number = -definition.x;
         let top: number = -definition.y;
 
+        let height: number = this._image.height;
+        let width: number = this._image.width;
+
         switch (horizontalAlign) {
             case SpriteAlignment.Center:
                 left -= definition.width / 2;
@@ -120,13 +123,26 @@ class SpriteAtlas implements ISpriteAtlas {
                 break;
         }
 
+        let pixelRatioInverse: number = 1 / definition.pixelRatio;
+
+        clipTop *= pixelRatioInverse;
+        clipRigth *= pixelRatioInverse;
+        clipBottom *= pixelRatioInverse;
+        clipLeft *= pixelRatioInverse;
+        left *= pixelRatioInverse;
+        top *= pixelRatioInverse;
+        height *= pixelRatioInverse;
+        width *= pixelRatioInverse;
+
         let properties: vd.createProperties = {
             src: this._image.src,
             style: {
                 clip: `rect(${clipTop}px, ${clipRigth}px, ${clipBottom}px, ${clipLeft}px)`,
+                height: `${height}px`,
                 left: `${left}px`,
                 position: "absolute",
                 top: `${top}px`,
+                width: `${width}px`,
             },
         };
 
@@ -151,10 +167,14 @@ interface ISpriteAtlasOperation {
 }
 
 export class SpriteService {
+    private _retina: boolean;
+
     private _spriteAtlasOperation$: Subject<ISpriteAtlasOperation>;
     private _spriteAtlas$: Observable<SpriteAtlas>;
 
     constructor(sprite?: string) {
+        this._retina = window.devicePixelRatio > 1;
+
         this._spriteAtlasOperation$ = new Subject<ISpriteAtlasOperation>();
 
         this._spriteAtlas$ = this._spriteAtlasOperation$
@@ -176,7 +196,7 @@ export class SpriteService {
             return;
         }
 
-        let format: string = window.devicePixelRatio > 1 ? "@2x" : "";
+        let format: string = this._retina ? "@2x" : "";
 
         let imageXmlHTTP: XMLHttpRequest = new XMLHttpRequest();
         imageXmlHTTP.open("GET", sprite + format + ".png", true);
