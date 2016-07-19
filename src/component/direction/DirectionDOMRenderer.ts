@@ -38,6 +38,8 @@ export class DirectionDOMRenderer {
     private _turnDirections: EdgeDirection[];
     private _turnNames: {[dir: number]: string};
 
+    private _isEdge: boolean = false;
+
     constructor(configuration: IDirectionConfiguration, element: HTMLElement) {
         this._spatial = new Spatial();
         this._calculator = new DirectionDOMCalculator(configuration, element);
@@ -74,6 +76,9 @@ export class DirectionDOMRenderer {
         this._turnNames[EdgeDirection.TurnLeft] = "TurnLeft";
         this._turnNames[EdgeDirection.TurnRight] = "TurnRight";
         this._turnNames[EdgeDirection.TurnU] = "TurnAround";
+
+        let isIE: boolean = /*@cc_on!@*/false || !!(<any>document).documentMode;
+        this._isEdge = !isIE && !!(<any>window).StyleMedia;
     }
 
     /**
@@ -533,12 +538,17 @@ export class DirectionDOMRenderer {
         rotation: IRotation,
         pano: boolean): vd.VNode {
 
+        // edge does not handle hover on perspective transforms.
+        let transform: string = this._isEdge ?
+            "rotateX(60deg)" :
+            `perspective(${this._calculator.containerWidthCss}) rotateX(60deg)`;
+
         let perspectiveStyle: any = {
             bottom: this._calculator.containerBottomCss,
             height: this._calculator.containerHeightCss,
             left: this._calculator.containerLeftCss,
             marginLeft: this._calculator.containerMarginCss,
-            transform: `perspective(${this._calculator.containerWidthCss}) rotateX(60deg)`,
+            transform: transform,
             width: this._calculator.containerWidthCss,
         };
 
