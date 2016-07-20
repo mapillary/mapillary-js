@@ -40,14 +40,16 @@ export class NavigationComponent extends Component {
                 (node: Node): IVNodeHash => {
                     let btns: vd.VNode[] = [];
 
-                    for (let edge of node.edges) {
-                        let direction: EdgeDirection = edge.data.direction;
-                        let name: string = this._dirNames[direction];
-                        if (name == null) {
-                            continue;
-                        }
+                    if (!node.pano) {
+                        for (let edge of node.edges) {
+                            let direction: EdgeDirection = edge.data.direction;
+                            let name: string = this._dirNames[direction];
+                            if (name == null) {
+                                continue;
+                            }
 
-                        btns.push(this._createVNode(direction, name));
+                            btns.push(this._createVNode(direction, name));
+                        }
                     }
 
                     return {name: this._name, vnode: vd.h(`div.NavigationComponent`, btns)};
