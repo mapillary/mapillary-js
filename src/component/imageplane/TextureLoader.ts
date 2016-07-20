@@ -3,34 +3,48 @@
 import * as THREE from "three";
 
 import {Observable} from "rxjs/Observable";
-
-import "rxjs/add/observable/bindCallback";
-
-import "rxjs/add/operator/do";
+import {Subscriber} from "rxjs/Subscriber";
 
 import {ImageSize} from "../../Viewer";
 import {Urls} from "../../Utils";
 
 export class TextureLoader {
     public load(key: string, imageSize: ImageSize): Observable<THREE.Texture> {
-        let textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
-        textureLoader.setCrossOrigin("Anonymous");
+        return Observable.create(
+            (subscriber: Subscriber<THREE.Texture>): void => {
+                let image: HTMLImageElement = new Image();
+                image.crossOrigin = "Anonymous";
 
-        let load: (url: string) => Observable<THREE.Texture> = Observable
-            .bindCallback<THREE.Texture>(
-                (url: string, onLoad: (texture: THREE.Texture) => void): THREE.Texture => {
-                    return textureLoader.load(url, onLoad);
-                });
+                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
 
-        let textureSource: Observable<THREE.Texture> =
-            load(Urls.image(key, imageSize))
-                .do(
-                    (texture: THREE.Texture): void => {
+                xmlHTTP.open("GET", Urls.image(key, imageSize), true);
+                xmlHTTP.responseType = "arraybuffer";
+                xmlHTTP.onload = (event: Event) => {
+                    if (xmlHTTP.status !== 200) {
+                        console.warn("Image texture could not be loaded for key " + key);
+                        subscriber.complete();
+                        return;
+                    }
+
+                    image.onload = () => {
+                        let texture: THREE.Texture = new THREE.Texture(image);
                         texture.minFilter = THREE.LinearFilter;
                         texture.needsUpdate = true;
-                    });
 
-        return textureSource;
+                        subscriber.next(texture);
+                        subscriber.complete();
+                    };
+
+                    image.onerror = (err: Event) => {
+                        console.warn("Image texture could not be loaded for key " + key);
+                    };
+
+                    let blob: Blob = new Blob([xmlHTTP.response]);
+                    image.src = window.URL.createObjectURL(blob);
+                };
+
+                xmlHTTP.send();
+            });
     }
 }
 

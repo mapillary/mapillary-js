@@ -12,6 +12,7 @@ import "rxjs/add/operator/delay";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
+import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/switchMap";
 
@@ -131,7 +132,7 @@ export class ImagePlaneComponent extends Component {
                     return Observable
                         .of<void>(null)
                         .delay(2000)
-                        .flatMap<THREE.Texture>(
+                        .mergeMap<THREE.Texture>(
                             (): Observable<THREE.Texture> => {
                                 let textureLoader: TextureLoader = new TextureLoader();
 
