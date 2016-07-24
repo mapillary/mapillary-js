@@ -1,5 +1,6 @@
 export {Graph} from "./graph/Graph";
 export {GraphService} from "./graph/GraphService";
+export {ImageLoader} from "./graph/ImageLoader";
 export {ImageLoadingService} from "./graph/ImageLoadingService";
 export {MapillaryObject} from "./graph/MapillaryObject";
 export {MapillaryRect} from "./graph/MapillaryRect";

@@ -1,17 +1,24 @@
 import {Observable} from "rxjs/Observable";
 import {Subscriber} from "rxjs/Subscriber";
 
+import "rxjs/add/observable/combineLatest";
+
 import {IAPINavImIm} from "../API";
 import {IEdge} from "../Edge";
 import {ILatLon} from "../Geo";
-import {IMesh, ILoadStatus, MeshReader, Sequence} from "../Graph";
-import {Settings, Urls} from "../Utils";
+import {
+    IMesh,
+    ILoadStatus,
+    ILoadStatusObject,
+    ImageLoader,
+    MeshReader,
+    Sequence,
+} from "../Graph";
+import {
+    Settings,
+    Urls,
+} from "../Utils";
 import {ImageSize} from "../Viewer";
-
-export interface ILoadStatusObject {
-    loaded: ILoadStatus;
-    object: any;
-}
 
 export class Node {
     public worthy: boolean;
@@ -153,90 +160,64 @@ export class Node {
     }
 
     public cacheAssets(): Observable<Node> {
-        return this.cacheImage()
+        return Observable
             .combineLatest(
+                this.cacheImage(),
                 this.cacheMesh(),
-                (image: ILoadStatusObject, mesh: ILoadStatusObject): Node => {
+                (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): Node => {
                     this._loadStatus.loaded = 0;
                     this._loadStatus.total = 0;
 
-                    if (mesh) {
-                        this._mesh = mesh.object;
-                        this._loadStatus.loaded += mesh.loaded.loaded;
-                        this._loadStatus.total += mesh.loaded.total;
+                    if (meshStatus) {
+                        this._mesh = meshStatus.object;
+                        this._loadStatus.loaded += meshStatus.loaded.loaded;
+                        this._loadStatus.total += meshStatus.loaded.total;
                     }
 
-                    if (image) {
-                        this._image = image.object;
-                        this._loadStatus.loaded += image.loaded.loaded;
-                        this._loadStatus.total += image.loaded.total;
+                    if (imageStatus) {
+                        this._image = imageStatus.object;
+                        this._loadStatus.loaded += imageStatus.loaded.loaded;
+                        this._loadStatus.total += imageStatus.loaded.total;
                     }
 
                     return this;
                 });
     }
 
-    public cacheImage(): Observable<ILoadStatusObject> {
-        return Observable.create(
-            (subscriber: Subscriber<ILoadStatusObject>): void => {
-                let img: HTMLImageElement = new Image();
-                img.crossOrigin = "Anonymous";
+    public cacheImage(): Observable<ILoadStatusObject<HTMLImageElement>> {
+        let imageSize: ImageSize = this.fullPano ?
+            Settings.basePanoramaSize :
+            Settings.baseImageSize;
 
-                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-                let imageSize: ImageSize = this.fullPano ?
-                    Settings.basePanoramaSize :
-                    Settings.baseImageSize;
-
-                xmlHTTP.open("GET", Urls.image(this.key, imageSize), true);
-                xmlHTTP.responseType = "arraybuffer";
-                xmlHTTP.onload = (e: any) => {
-                    img.onload = () => {
-                        subscriber.next({ loaded: { loaded: e.loaded, total: e.total }, object: img });
-                        subscriber.complete();
-                    };
-
-                    img.onerror = (err: Event) => {
-                        subscriber.error(err);
-                    };
-
-                    let blob: Blob = new Blob([xmlHTTP.response]);
-                    img.src = window.URL.createObjectURL(blob);
-                };
-                xmlHTTP.onprogress = (e: any) => {
-                    subscriber.next({loaded: { loaded: e.loaded, total: e.total}, object: null });
-                };
-                xmlHTTP.send();
-            });
+        return ImageLoader.load(this.key, imageSize);
     }
 
-    public cacheMesh(): Observable<ILoadStatusObject> {
+    public cacheMesh(): Observable<ILoadStatusObject<IMesh>> {
         return Observable.create(
-            (subscriber: Subscriber<ILoadStatusObject>): void => {
+            (subscriber: Subscriber<ILoadStatusObject<IMesh>>): void => {
                 if (!this.merged) {
-                    let mesh: IMesh = { faces: [], vertices: [] };
-                    subscriber.next({ loaded: { loaded: 0, total: 0 }, object: mesh });
+                    subscriber.next({
+                        loaded: { loaded: 0, total: 0 },
+                        object: { faces: [], vertices: [] },
+                    });
                     subscriber.complete();
-
                     return;
                 }
 
                 let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
                 xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
                 xmlHTTP.responseType = "arraybuffer";
-                xmlHTTP.onload = (e: any) => {
-                    let mesh: IMesh;
-                    if (xmlHTTP.status === 200) {
-                        mesh = MeshReader.read(new Buffer(xmlHTTP.response));
-                    } else {
-                        mesh = { faces: [], vertices: [] };
-                    }
+                xmlHTTP.onload = (pe: ProgressEvent) => {
+                    let mesh: IMesh = xmlHTTP.status === 200 ?
+                        MeshReader.read(new Buffer(xmlHTTP.response)) :
+                        { faces: [], vertices: [] };
 
-                    subscriber.next({ loaded: { loaded: e.loaded, total: e.total }, object: mesh });
+                    subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: mesh });
                     subscriber.complete();
                 };
 
-                xmlHTTP.onprogress = (e: any) => {
-                    subscriber.next({ loaded: { loaded: e.loaded, total: e.total }, object: null });
+                xmlHTTP.onprogress = (pe: ProgressEvent) => {
+                    subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: null });
                 };
 
                 xmlHTTP.send(null);

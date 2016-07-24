@@ -23,7 +23,7 @@ import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 import "rxjs/add/operator/zip";
 
-import {Node} from "../../Graph";
+import {ILoadStatusObject, ImageLoader, Node} from "../../Graph";
 import {ICurrentState, IFrame, State} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage, IVNodeHash} from "../../Render";
@@ -35,7 +35,6 @@ import {
     ImagePlaneFactory,
     ISliderKeys,
     ISliderConfiguration,
-    TextureLoader,
 } from "../../Component";
 
 interface ISliderNodes {
@@ -129,7 +128,7 @@ class SliderState {
         this._domNeedsRender = needsRender || this._domNeedsRender;
     }
 
-    public updateTexture(texture: THREE.Texture, node: Node): void {
+    public updateTexture(image: HTMLImageElement, node: Node): void {
         let imagePlanes: THREE.Mesh[] = node.key === this._currentKey ?
             this._imagePlaneScene.imagePlanes :
             node.key === this._previousKey ?
@@ -143,12 +142,11 @@ class SliderState {
         this._glNeedsRender = true;
 
         for (let plane of imagePlanes) {
-            let textureOld: THREE.Texture = (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value;
-            if (textureOld != null) {
-                textureOld.dispose();
-            }
+            let material: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
+            let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
-            (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value = texture;
+            texture.image = image;
+            texture.needsUpdate = true;
         }
     }
 
@@ -529,20 +527,27 @@ export class SliderComponent extends Component {
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
             .mergeMap(
-                (node: Node): Observable<[THREE.Texture, Node]> => {
-                    let textureLoader: TextureLoader = new TextureLoader();
-
-                    return textureLoader.load(node.key, Settings.maxImageSize)
+                (node: Node): Observable<[HTMLImageElement, Node]> => {
+                    return ImageLoader.load(node.key, Settings.maxImageSize)
+                        .filter(
+                            (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
+                                return statusObject.object != null;
+                            })
+                        .first()
+                        .map<HTMLImageElement>(
+                            (statusObject: ILoadStatusObject<HTMLImageElement>): HTMLImageElement => {
+                                return statusObject.object;
+                            })
                         .zip(
                             Observable.of<Node>(node),
-                            (t: THREE.Texture, n: Node): [THREE.Texture, Node] => {
+                            (t: HTMLImageElement, n: Node): [HTMLImageElement, Node] => {
                                 return [t, n];
                             });
                 })
             .map<ISliderStateOperation>(
-                (tn: [THREE.Texture, Node]): ISliderStateOperation => {
+                (imn: [HTMLImageElement, Node]): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
-                        sliderState.updateTexture(tn[0], tn[1]);
+                        sliderState.updateTexture(imn[0], imn[1]);
 
                         return sliderState;
                     };

@@ -56,7 +56,7 @@ export class ImagePlaneGLRenderer {
         this._needsRender = this._updateImagePlanes(frame.state) || this._needsRender;
     }
 
-    public updateTexture(texture: THREE.Texture, node: Node): void {
+    public updateTexture(image: HTMLImageElement, node: Node): void {
         if (this._currentKey !== node.key) {
             return;
         }
@@ -65,12 +65,10 @@ export class ImagePlaneGLRenderer {
 
         for (let plane of this._imagePlaneScene.imagePlanes) {
             let material: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
-            let textureOld: THREE.Texture = material.uniforms.projectorTex.value;
-            if (textureOld != null) {
-                textureOld.dispose();
-            }
+            let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
-            material.uniforms.projectorTex.value = texture;
+            texture.image = image;
+            texture.needsUpdate = true;
         }
     }
 

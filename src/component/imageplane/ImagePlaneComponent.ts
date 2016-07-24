@@ -1,7 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
-import * as THREE from "three";
-
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
@@ -16,11 +12,11 @@ import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/switchMap";
 
-import {ComponentService, Component, ImagePlaneGLRenderer, TextureLoader} from "../../Component";
+import {ComponentService, Component, ImagePlaneGLRenderer} from "../../Component";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {Node} from "../../Graph";
+import {ILoadStatusObject, ImageLoader, Node} from "../../Graph";
 import {Settings} from "../../Utils";
 
 interface IImagePlaneGLRendererOperation {
@@ -127,27 +123,29 @@ export class ImagePlaneComponent extends Component {
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
-            .switchMap<[THREE.Texture, Node]>(
-                (node: Node): Observable<[THREE.Texture, Node]> => {
-                    return Observable
-                        .of<void>(null)
-                        .delay(2000)
-                        .mergeMap<THREE.Texture>(
-                            (): Observable<THREE.Texture> => {
-                                let textureLoader: TextureLoader = new TextureLoader();
-
-                                return textureLoader.load(node.key, Settings.maxImageSize);
+            .debounceTime(1000)
+            .switchMap<[HTMLImageElement, Node]>(
+                (node: Node): Observable<[HTMLImageElement, Node]> => {
+                    return ImageLoader.load(node.key, Settings.maxImageSize)
+                        .filter(
+                            (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
+                                return statusObject.object != null;
+                            })
+                        .first()
+                        .map<HTMLImageElement>(
+                            (statusObject: ILoadStatusObject<HTMLImageElement>): HTMLImageElement => {
+                                return statusObject.object;
                             })
                         .zip(
                             Observable.of<Node>(node),
-                            (t: THREE.Texture, n: Node): [THREE.Texture, Node] => {
-                                return [t, n];
+                            (i: HTMLImageElement, n: Node): [HTMLImageElement, Node] => {
+                                return [i, n];
                             });
                 })
             .map<IImagePlaneGLRendererOperation>(
-                (tn: [THREE.Texture, Node]): IImagePlaneGLRendererOperation => {
+                (imn: [HTMLImageElement, Node]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
-                        renderer.updateTexture(tn[0], tn[1]);
+                        renderer.updateTexture(imn[0], imn[1]);
 
                         return renderer;
                     };
