@@ -88,7 +88,7 @@ export class Viewer extends EventEmitter {
      *
      * @param {EdgeDirection} dir - Direction towards which to move
      * @example
-     * `viewer.moveToDir(Mapillary.EdgeDirection.NEXT);`
+     * `viewer.moveDir(Mapillary.EdgeDirection.Next);`
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
