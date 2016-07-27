@@ -3,7 +3,7 @@
 npm run build-docs
 git checkout -- .
 git checkout gh-pages
-\cp -rf -a ./docs/. ./
+cp -Rf ./docs/. ./
 git add assets/
 git add classes/
 git add enums/

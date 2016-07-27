@@ -58,5 +58,5 @@ Open the debug page at [http://localhost:3000](http://localhost:3000).
 ## Running Tests
 
 ```bash
-npm run test
+npm test
 ```
