@@ -7,6 +7,10 @@ export class Urls {
         return `http://mapillary-vector.mapillary.io/v3/model.json?client_id=${clientId}`;
     }
 
+    public static falcorModelMagic(clientId: string): string {
+        return `https://a.mapillary.com/v3/model.json?client_id=${clientId}`;
+    }
+
     public static mesh(key: string): string {
         return `https://d1cuyjsrcm0gby.cloudfront.net/${key}/sfm/v1.0/atomic_mesh.json`;
     }
