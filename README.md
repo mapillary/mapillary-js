@@ -39,13 +39,13 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 ## Examples
 
 - [Simple MapillaryJS embedding](https://bl.ocks.org/knikel/4615432968a33f1fcd6b)
-- [Storytelling with MapillaryJS](http://bl.ocks.org/knikel/630c2d6fa37a8a0e082a)
-- [Slider displaying difference in two photos](http://bl.ocks.org/knikel/bc0f813f611a8787ff02)
-- MapillaryJS + Leaflet - [Panorama](http://bl.ocks.org/knikel/f04c4656d1adeaaf1555) - [Perspective photo](http://bl.ocks.org/knikel/151a77df042cd3890502)
-- MapillaryJS + Leaflet + Tangram - [Panorama](http://bl.ocks.org/knikel/0f297c5b1fcfd14e38ba) - [Perspective photo](http://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
-- MapillaryJS + Mapbox GL JS - [Panorama](http://bl.ocks.org/knikel/4ec4de69a0fc29318675) - [Perspective photo](http://bl.ocks.org/knikel/010115b08ebe30baba86)
-- MapillaryJS + Esri Leaflet -  [Panorama](http://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c) - [Perspective photo](http://bl.ocks.org/knikel/e85b802e97fd3390668f)
-- MapillaryJS + Google Maps - [Panorama](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
+- [Storytelling with MapillaryJS](https://bl.ocks.org/knikel/630c2d6fa37a8a0e082a)
+- [Slider displaying difference in two photos](https://bl.ocks.org/knikel/bc0f813f611a8787ff02)
+- MapillaryJS + Leaflet - [Panorama](https://bl.ocks.org/knikel/f04c4656d1adeaaf1555) - [Perspective photo](https://bl.ocks.org/knikel/151a77df042cd3890502)
+- MapillaryJS + Leaflet + Tangram - [Panorama](https://bl.ocks.org/knikel/0f297c5b1fcfd14e38ba) - [Perspective photo](https://bl.ocks.org/knikel/fbeda1c8f89c97612b10)
+- MapillaryJS + Mapbox GL JS - [Panorama](https://bl.ocks.org/knikel/4ec4de69a0fc29318675) - [Perspective photo](https://bl.ocks.org/knikel/010115b08ebe30baba86)
+- MapillaryJS + Esri Leaflet -  [Panorama](https://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c) - [Perspective photo](https://bl.ocks.org/knikel/e85b802e97fd3390668f)
+- MapillaryJS + Google Maps - [Panorama](https://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
 
 ## Documentation
 
