@@ -62,6 +62,12 @@ export interface IViewerOptions {
     tag?: boolean;
 
     /**
+     * Contribute viewing stats to Mapillary
+     * @default false
+     */
+    stats?: boolean;
+
+    /**
      * Show static navigation arrows in the corners.
      * @default false
      */
