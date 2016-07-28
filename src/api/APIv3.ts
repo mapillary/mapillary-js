@@ -8,6 +8,7 @@ import {Urls} from "../Utils";
 export class APIv3 {
     private _clientId: string;
     private _model: falcor.Model;
+    private _modelMagic: falcor.Model;
 
     constructor (clientId: string) {
         this._clientId = clientId;
@@ -19,10 +20,22 @@ export class APIv3 {
                     withCredentials: false,
                 }),
             });
+
+        this._modelMagic =
+            (<any> new falcor.Model({
+                source: new HttpDataSource(Urls.falcorModelMagic(clientId), {
+                    crossDomain: true,
+                    withCredentials: false,
+                }),
+            })).batch(40);
     };
 
     public get model(): falcor.Model {
         return this._model;
+    }
+
+    public get modelMagic(): falcor.Model {
+        return this._modelMagic;
     }
 
     public get clientId(): string {
