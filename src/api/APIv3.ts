@@ -22,12 +22,13 @@ export class APIv3 {
             });
 
         this._modelMagic =
-            (<any> new falcor.Model({
+            new falcor.Model({
                 source: new HttpDataSource(Urls.falcorModelMagic(clientId), {
                     crossDomain: true,
                     withCredentials: false,
                 }),
-            })).batch(40);
+            })
+            .batch(10);
     };
 
     public get model(): falcor.Model {

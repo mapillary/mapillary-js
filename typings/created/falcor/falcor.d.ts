@@ -4,12 +4,15 @@ declare module "falcor" {
         set(jsongEnv: any): any;
         call(callPath: any, args?: any, pathSuffix?: any, paths?: any): any;
     }
+
     export class Model implements IModel {
         constructor(...args: any[]);
         get(...args: any[]): any;
         set(jsongEnv: any): any;
         treatErrorsAsValues(): any;
         call(callPath: any, args?: any, pathSuffix?: any, paths?: any): any;
+        batch(milliseconds: number): Model;
     }
+
     export default Model;
 }
