@@ -1,69 +1,92 @@
-import * as _ from "underscore";
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+
+import "rxjs/add/observable/combineLatest";
+import "rxjs/add/observable/of";
+
+import "rxjs/add/operator/buffer";
+import "rxjs/add/operator/debounceTime";
+import "rxjs/add/operator/combineLatest";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/mergeMap";
 
 import {ComponentService, Component} from "../Component";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {Subscription} from "rxjs/Subscription";
 
-interface IStatsViews {
-    imKeys: string[];
-    sKey: string;
-    reportedSKeys: {[key: string]: boolean};
-}
+type Keys = { [key: string]: boolean };
 
 export class StatsComponent extends Component {
     public static componentName: string = "stats";
 
-    private _renderSubscription: Subscription;
+    private _sequenceSubscription: Subscription;
+    private _imageSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     protected _activate(): void {
-         this._renderSubscription = this._navigator.stateService.currentNode$
-            .scan(
-                (statsViews: IStatsViews, node: Node): IStatsViews => {
-                    let sKey: string = node.sequence.key;
+        this._sequenceSubscription = Observable
+            .combineLatest(
+                this._navigator.stateService.currentNode$,
+                Observable.of<Keys>({}))
+            .mergeMap<string>(
+                (args: [Node, Keys]): Observable<string> => {
+                    let sKey: string = args[0].sequence.key;
+                    let reportedKeys: Keys = args[1];
 
-                    if (sKey && !statsViews.reportedSKeys[sKey]) {
-                        this._navigator.apiV3.modelMagic
-                            .call(["sequenceViewAdd"], [[sKey]])
-                            .subscribe();
-                        statsViews.reportedSKeys[sKey] = true;
+                    if (!(sKey in reportedKeys)) {
+                        reportedKeys[sKey] = true;
+
+                        return Observable.of<string>(sKey);
                     }
-                    statsViews.sKey = node.sequence.key;
-                    statsViews.imKeys.push(node.key);
-                    statsViews.imKeys = _.uniq(statsViews.imKeys);
-                    return statsViews;
-                },
-                {imKeys: [], reportedSKeys: {}, sKey: null})
-            .debounceTime(5000)
-            .scan(
-                (reportedImKeys: {[key: string]: boolean}, statsViews: IStatsViews): {[key: string]: boolean} => {
+
+                    return Observable.empty<string>();
+                })
+            .subscribe(
+                (sKey: string): void => {
+                    this._navigator.apiV3.modelMagic
+                        .call(["sequenceViewAdd"], [[sKey]])
+                        .subscribe();
+                });
+
+        this._navigator.stateService.currentNode$
+            .map<string>(
+                (node: Node): string => {
+                    return node.key;
+                })
+            .buffer(this._navigator.stateService.currentNode$.debounceTime(5000))
+            .combineLatest(Observable.of<Keys>({}))
+            .mergeMap<string[]>(
+                (args: [string[], Keys]): Observable<string[]> => {
+                    let keys: string[] = args[0];
+                    let reportedKeys: Keys = args[1];
+
                     let reportKeys: string[] = [];
 
-                    for (let imKey of statsViews.imKeys) {
-                        if (!reportedImKeys[imKey]) {
-                            reportKeys.push(imKey);
-                            reportedImKeys[imKey] = true;
+                    for (let key of keys) {
+                        if (!(key in reportedKeys)) {
+                            reportedKeys[key] = true;
+                            reportKeys.push(key);
                         }
                     }
 
-                    if (reportKeys.length > 0) {
-                        this._navigator.apiV3.modelMagic
-                            .call(["imageViewAdd"], [reportKeys])
-                            .subscribe();
-                    }
-
-                    return reportedImKeys;
-                },
-                {})
-            .subscribe();
+                    return reportKeys.length > 0 ?
+                        Observable.of<string[]>(reportKeys) :
+                        Observable.empty<string[]>();
+                })
+            .subscribe(
+                (keys: string[]): void => {
+                    this._navigator.apiV3.modelMagic
+                        .call(["imageViewAdd"], [keys])
+                        .subscribe();
+                });
     }
 
     protected _deactivate(): void {
-        this._renderSubscription.unsubscribe();
+        this._sequenceSubscription.unsubscribe();
+        this._imageSubscription.unsubscribe();
     }
 }
 
