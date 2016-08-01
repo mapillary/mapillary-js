@@ -16,8 +16,7 @@ import {
     Component,
     IMouseConfiguration,
 } from "../Component";
-import {Transform} from "../Geo";
-import {Node} from "../Graph";
+import {Spatial, Transform} from "../Geo";
 import {RenderCamera} from "../Render";
 import {
     Container,
@@ -41,10 +40,16 @@ export class MouseComponent extends Component {
     /** @inheritdoc */
     public static componentName: string = "mouse";
 
+    private _spatial: Spatial;
+
     private _movementSubscription: Subscription;
+    private _mouseWheelSubscription: Subscription;
+    private _pinchSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._spatial = new Spatial();
     }
 
    /**
@@ -87,28 +92,16 @@ export class MouseComponent extends Component {
                 mouseMovement$,
                 touchMovement$)
             .withLatestFrom(
-                this._navigator.stateService.currentNode$,
-                this._configuration$,
-                (m: IMovement, n: Node, c: IMouseConfiguration): [IMovement, Node, IMouseConfiguration] => {
-                    return [m, n, c];
-                })
-            .filter(
-                (args: [IMovement, Node, IMouseConfiguration]): boolean => {
-                    return args[1].fullPano || args[2].freePerspectiveMovement;
-                })
-            .map<IMovement>(
-                (args: [IMovement, Node, IMouseConfiguration]): IMovement => {
-                    return args[0];
-                })
-            .withLatestFrom(
                 this._container.renderService.renderCamera$,
-                (m: IMovement, r: RenderCamera): [IMovement, RenderCamera] => {
-                    return [m, r];
+                this._navigator.stateService.currentTransform$,
+                (m: IMovement, r: RenderCamera, t: Transform): [IMovement, RenderCamera, Transform] => {
+                    return [m, r, t];
                 })
-            .subscribe(
-                (mr: [IMovement, RenderCamera]): void => {
+            .map<number[]>(
+                (mr: [IMovement, RenderCamera, Transform]): number[] => {
                     let m: IMovement = mr[0];
                     let r: RenderCamera = mr[1];
+                    let t: Transform = mr[2];
 
                     let element: HTMLElement = this._container.element;
 
@@ -120,7 +113,7 @@ export class MouseComponent extends Component {
                     let canvasX: number = m.clientX - clientRect.left;
                     let canvasY: number = m.clientY - clientRect.top;
 
-                    let direction: THREE.Vector3 =
+                    let currentDirection: THREE.Vector3 =
                         this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, r.perspective)
                         .sub(r.perspective.position);
 
@@ -132,27 +125,53 @@ export class MouseComponent extends Component {
                         this._unproject(canvasX, canvasY - m.movementY, offsetWidth, offsetHeight, r.perspective)
                         .sub(r.perspective.position);
 
-                    let phi: number = (m.movementX > 0 ? 1 : -1) * directionX.angleTo(direction);
-                    let theta: number = (m.movementY > 0 ? -1 : 1) * directionY.angleTo(direction);
+                    let deltaPhi: number = (m.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
+                    let deltaTheta: number = (m.movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
-                    this._navigator.stateService.rotate({ phi: phi, theta: theta });
+                    let camera: any = r.camera.clone();
+
+                    let upQuaternion: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
+                    let upQuaternionInverse: THREE.Quaternion = upQuaternion.clone().inverse();
+
+                    let offset: THREE.Vector3 = new THREE.Vector3();
+                    offset.copy(camera.lookat).sub(camera.position);
+                    offset.applyQuaternion(upQuaternion);
+                    let length: number = offset.length();
+
+                    let phi: number = Math.atan2(offset.y, offset.x);
+                    phi += deltaPhi;
+
+                    let theta: number = Math.atan2(Math.sqrt(offset.x * offset.x + offset.y * offset.y), offset.z);
+                    theta += deltaTheta;
+                    theta = Math.max(0.01, Math.min(Math.PI - 0.01, theta));
+
+                    offset.x = Math.sin(theta) * Math.cos(phi);
+                    offset.y = Math.sin(theta) * Math.sin(phi);
+                    offset.z = Math.cos(theta);
+                    offset.applyQuaternion(upQuaternionInverse);
+
+                    let lookat: THREE.Vector3 = new THREE.Vector3().copy(camera.position).add(offset.multiplyScalar(length));
+
+                    let basic: number[] = t.projectBasic(lookat.toArray());
+                    let original: number[] = t.projectBasic(r.camera.lookat.toArray());
+
+                    let x: number = basic[0] - original[0];
+                    let y: number = basic[1] - original[1];
+
+                    if (x > 0.5) {
+                        x = x - 1;
+                    } else if (x < -0.5) {
+                        x = x + 1;
+                    }
+
+                    return [x, y];
+                })
+            .subscribe(
+                (basicRotation: number[]): void => {
+                    this._navigator.stateService.rotateBasic(basicRotation);
                 });
 
-        this._container.mouseService.mouseWheel$
-            .withLatestFrom(
-                this._navigator.stateService.currentNode$,
-                this._configuration$,
-                (w: WheelEvent, n: Node, c: IMouseConfiguration): [WheelEvent, Node, IMouseConfiguration] => {
-                    return [w, n, c];
-                })
-            .filter(
-                (args: [WheelEvent, Node, IMouseConfiguration]): boolean => {
-                    return args[1].fullPano || args[2].freePerspectiveMovement;
-                })
-            .map<WheelEvent>(
-                (args: [WheelEvent, Node, IMouseConfiguration]): WheelEvent => {
-                    return args[0];
-                })
+        this._mouseWheelSubscription = this._container.mouseService.mouseWheel$
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
@@ -185,20 +204,7 @@ export class MouseComponent extends Component {
                     this._navigator.stateService.zoomIn(zoom, reference);
                 });
 
-        this._container.touchService.pinch$
-            .withLatestFrom(
-                this._navigator.stateService.currentNode$,
-                (p: IPinch, n: Node): [IPinch, Node] => {
-                    return [p, n];
-                })
-            .filter(
-                (pn: [IPinch, Node]): boolean => {
-                    return pn[1].fullPano;
-                })
-            .map<IPinch>(
-                (pn: [IPinch, Node]): IPinch => {
-                    return pn[0];
-                })
+        this._pinchSubscription = this._container.touchService.pinch$
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
@@ -240,6 +246,8 @@ export class MouseComponent extends Component {
         this._container.mouseService.unclaimMouse(this._name);
 
         this._movementSubscription.unsubscribe();
+        this._mouseWheelSubscription.unsubscribe();
+        this._pinchSubscription.unsubscribe();
     }
 
     private _unproject(

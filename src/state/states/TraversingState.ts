@@ -67,6 +67,10 @@ export class TraversingState extends StateBase {
 
     private _rotationDelta: RotationDelta;
     private _requestedRotationDelta: RotationDelta;
+
+    private _basicRotation: number[];
+    private _requestedBasicRotation: number[];
+
     private _rotationAcceleration: number;
     private _rotationIncreaseAlpha: number;
     private _rotationDecreaseAlpha: number;
@@ -89,6 +93,10 @@ export class TraversingState extends StateBase {
 
         this._rotationDelta = new RotationDelta(0, 0);
         this._requestedRotationDelta = null;
+
+        this._basicRotation = [0, 0];
+        this._requestedBasicRotation = null;
+
         this._rotationAcceleration = 0.86;
         this._rotationIncreaseAlpha = 0.97;
         this._rotationDecreaseAlpha = 0.9;
@@ -158,13 +166,36 @@ export class TraversingState extends StateBase {
         this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
     }
 
-    public zoomIn(delta: number, reference: number[]): void {
+    public rotateBasic(basicRotation: number[]): void {
         if (this._currentNode == null) {
             return;
         }
 
-        reference[0] = Math.max(0, Math.min(1, reference[0]));
-        reference[1] = Math.max(0, Math.min(1, reference[1]));
+        this._desiredZoom = this._zoom;
+        this._desiredLookat = null;
+
+        this._requestedBasicRotation = basicRotation.slice();
+    }
+
+    public rotateTo(basic: number[]): void {
+        if (this._currentNode == null) {
+            return;
+        }
+
+        this._desiredZoom = this._zoom;
+        this._desiredLookat = null;
+
+        basic[0] = this._spatial.clamp(basic[0], 0, 1);
+        basic[1] = this._spatial.clamp(basic[1], 0, 1);
+
+        let lookat: number[] = this.currentTransform.unprojectBasic(basic, 10);
+        this._currentCamera.lookat.fromArray(lookat);
+    }
+
+    public zoomIn(delta: number, reference: number[]): void {
+        if (this._currentNode == null) {
+            return;
+        }
 
         this._desiredZoom = Math.max(this._minZoom, Math.min(this._maxZoom, this._desiredZoom + delta));
 
@@ -180,20 +211,23 @@ export class TraversingState extends StateBase {
         let refX: number = reference[0];
         let refY: number = reference[1];
 
-        if (refX - currentCenterX > 0.5) {
-            refX = refX - 1;
-        } else if (currentCenterX - refX > 0.5) {
-            refX = 1 + refX;
+        if (this._currentNode.fullPano) {
+            if (refX - currentCenterX > 0.5) {
+                refX = refX - 1;
+            } else if (currentCenterX - refX > 0.5) {
+                refX = 1 + refX;
+            }
         }
 
-        let newCenterX: number = this._spatial.wrap(refX - zoom0 / zoom1 * (refX - currentCenterX), 0, 1);
+        let newCenterX: number = refX - zoom0 / zoom1 * (refX - currentCenterX);
         let newCenterY: number = refY - zoom0 / zoom1 * (refY - currentCenterY);
 
-        if (!this._currentNode.fullPano) {
-            let threshold: number = Math.pow(0.5, this._desiredZoom + 1);
-
-            newCenterX = Math.max(threshold, Math.min(1 - threshold, newCenterX));
-            newCenterY = Math.max(threshold, Math.min(1 - threshold, newCenterY));
+        if (this._currentNode.fullPano) {
+            newCenterX = this._spatial.wrap(newCenterX, 0, 1);
+            newCenterY = this._spatial.clamp(newCenterY, 0, 1);
+        } else {
+            newCenterX = this._spatial.clamp(newCenterX, 0, 1);
+            newCenterY = this._spatial.clamp(newCenterY, 0, 1);
         }
 
         this._desiredLookat = new THREE.Vector3()
@@ -227,6 +261,11 @@ export class TraversingState extends StateBase {
         if (!this._rotationDelta.isZero) {
             this._applyRotation(this._previousCamera);
             this._applyRotation(this._currentCamera);
+        }
+
+        this._updateRotationBasic();
+        if (this._basicRotation[0] !== 0 || this._basicRotation[1] !== 0) {
+            this._applyRotationBasic();
         }
 
         this._updateZoom(animationSpeed);
@@ -287,6 +326,26 @@ export class TraversingState extends StateBase {
         camera.lookat.copy(camera.position).add(offset.multiplyScalar(length));
     }
 
+    private _applyRotationBasic(): void {
+        let basic: number[] = this.currentTransform.projectBasic(this._currentCamera.lookat.toArray());
+
+        if (this._currentNode.fullPano) {
+            basic[0] = this._spatial.wrap(basic[0] + this._basicRotation[0], 0, 1);
+            basic[1] = this._spatial.clamp(basic[1] + this._basicRotation[1], 0.05, 0.95);
+        } else {
+            basic[0] = this._spatial.clamp(basic[0] + this._basicRotation[0], 0, 1);
+            basic[1] = this._spatial.clamp(basic[1] + this._basicRotation[1], 0, 1);
+        }
+
+        let currentLookat: number[] = this.currentTransform.unprojectBasic(basic, 10);
+        this._currentCamera.lookat.fromArray(currentLookat);
+
+        let previousLookat: number[] = this.previousTransform != null ?
+            this.previousTransform.unprojectBasic(basic, 10) :
+            currentLookat;
+        this._previousCamera.lookat.fromArray(previousLookat);
+    }
+
     private _updateZoom(animationSpeed: number): void {
         let diff: number = this._desiredZoom - this._zoom;
 
@@ -336,6 +395,42 @@ export class TraversingState extends StateBase {
 
         this._rotationDelta.multiply(this._rotationAcceleration);
         this._rotationDelta.threshold(this._rotationThreshold);
+    }
+
+    private _updateRotationBasic(): void {
+        if (this._requestedBasicRotation != null) {
+            let x: number = this._basicRotation[0];
+            let y: number = this._basicRotation[1];
+            let lengthSquared: number = x * x + y * y;
+
+            let reqX: number = this._requestedBasicRotation[0];
+            let reqY: number = this._requestedBasicRotation[1];
+            let reqLengthSquared: number = reqX * reqX + reqY * reqY;
+
+            if (reqLengthSquared > lengthSquared) {
+                this._basicRotation[0] = (1 - this._rotationIncreaseAlpha) * x + this._rotationIncreaseAlpha * reqX;
+                this._basicRotation[1] = (1 - this._rotationIncreaseAlpha) * y + this._rotationIncreaseAlpha * reqY;
+            } else {
+                this._basicRotation[0] = (1 - this._rotationDecreaseAlpha) * x + this._rotationDecreaseAlpha * reqX;
+                this._basicRotation[1] = (1 - this._rotationDecreaseAlpha) * y + this._rotationDecreaseAlpha * reqY;
+            }
+
+            this._requestedBasicRotation = null;
+
+            return;
+        }
+
+        if (this._basicRotation[0] === 0 && this._basicRotation[1] === 0) {
+            return;
+        }
+
+        this._basicRotation[0] = this._rotationAcceleration * this._basicRotation[0];
+        this._basicRotation[1] = this._rotationAcceleration * this._basicRotation[1];
+
+        if (Math.abs(this._basicRotation[0]) < this._rotationThreshold / Math.pow(2, this._zoom) &&
+            Math.abs(this._basicRotation[1]) < this._rotationThreshold / Math.pow(2, this._zoom)) {
+            this._basicRotation = [0, 0];
+        }
     }
 
     private _clearRotation(): void {

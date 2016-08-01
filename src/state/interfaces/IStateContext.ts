@@ -15,6 +15,8 @@ export interface IStateContext extends ICurrentState {
     set(nodes: Node[]): void;
 
     rotate(delta: IRotation): void;
+    rotateBasic(basicRotation: number[]): void;
+    rotateTo(basic: number[]): void;
     move(delta: number): void;
     moveTo(position: number): void;
     zoomIn(delta: number, reference: number[]): void;

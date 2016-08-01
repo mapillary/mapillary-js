@@ -121,6 +121,14 @@ export class StateContext implements IStateContext {
         this._state.rotate(delta);
     }
 
+    public rotateBasic(basicRotation: number[]): void {
+        this._state.rotateBasic(basicRotation);
+    }
+
+    public rotateTo(basic: number[]): void {
+        this._state.rotateTo(basic);
+    }
+
     public move(delta: number): void {
         this._state.move(delta);
     }
