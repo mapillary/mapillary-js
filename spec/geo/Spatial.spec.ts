@@ -228,6 +228,45 @@ describe("Spatial.wrap", () => {
     });
 });
 
+describe("Spatial.clamp", () => {
+    let spatial: Spatial;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should be equal to itself when it is inside the interval", () => {
+        let value: number = 0.5;
+        let min: number = 0;
+        let max: number = 1;
+
+        let result: number = spatial.clamp(value, min, max);
+
+        expect(result).toBe(value);
+    });
+
+    it("should be clamped to min smaller than min", () => {
+        let value: number = -1;
+        let min: number = 0;
+        let max: number = 1;
+
+        let result: number = spatial.clamp(value, min, max);
+
+        expect(result).toBe(min);
+    });
+
+    it("should be clamped to max larger than max", () => {
+        let value: number = 2;
+        let min: number = 0;
+        let max: number = 1;
+
+        let result: number = spatial.clamp(value, min, max);
+
+        expect(result).toBe(max);
+    });
+});
+
+
 describe("Spatial.angleBetweenVector2", () => {
     let spatial: Spatial;
 

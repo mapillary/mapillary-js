@@ -90,6 +90,8 @@ export class Spatial {
      * @param {number} value Value to wrap
      * @param {number} min Lower endpoint of interval
      * @param {number} max Upper endpoint of interval
+     *
+     * @returs {number} The wrapped number.
      */
     public wrap(value: number, min: number, max: number): number {
         if (max < min) {
@@ -113,9 +115,33 @@ export class Spatial {
      * Wrap an angle on the interval [-Pi, Pi]
      *
      * @param {number} angle Value to wrap
+     *
+     * @returs {number} The wrapped angle.
      */
     public wrapAngle(angle: number): number {
         return this.wrap(angle, -Math.PI, Math.PI);
+    }
+
+    /**
+     * Limit the value to the interval [min, max] by changing the value to
+     * the nearest available one when it is outside the interval.
+     *
+     * @param {number} value Value to clamp.
+     * @param {number} min Minimum of the interval.
+     * @param {number} max Maximum of the interval.
+     *
+     * @returns {number} The clamped value.
+     */
+    public clamp(value: number, min: number, max: number): number {
+        if (value < min) {
+            return min;
+        }
+
+        if (value > max) {
+            return max;
+        }
+
+        return value;
     }
 
     /**
