@@ -1,6 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import * as THREE from "three";
+import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
@@ -16,7 +17,7 @@ import {
     Component,
 } from "../Component";
 import {Spatial, Transform} from "../Geo";
-import {RenderCamera} from "../Render";
+import {IVNodeHash, RenderCamera} from "../Render";
 import {
     Container,
     Navigator,
@@ -41,6 +42,7 @@ export class MouseComponent extends Component {
 
     private _spatial: Spatial;
 
+    private _cursorSubscription: Subscription;
     private _movementSubscription: Subscription;
     private _mouseWheelSubscription: Subscription;
     private _pinchSubscription: Subscription;
@@ -52,6 +54,34 @@ export class MouseComponent extends Component {
     }
 
     protected _activate(): void {
+        let draggingStarted: Observable<boolean> =
+            this._container.mouseService.mouseDragStart$
+                .map<boolean>(
+                    (event: MouseEvent): boolean => {
+                        return true;
+                    });
+
+        let draggingStopped: Observable<boolean> =
+            this._container.mouseService.mouseDragEnd$
+                .map<boolean>(
+                    (event: MouseEvent): boolean => {
+                        return false;
+                    });
+
+        this._cursorSubscription = Observable
+            .merge(
+                draggingStarted,
+                draggingStopped)
+            .startWith(false)
+            .map<IVNodeHash>(
+                (dragging: boolean): IVNodeHash => {
+                    let className: string = dragging ? "MouseContainerGrabbing" : "MouseContainerGrab";
+                    let vNode: vd.VNode = vd.h("div." + className, {}, []);
+
+                    return { name: this._name, vnode: vNode };
+                })
+            .subscribe(this._container.domRenderer.render$);
+
         let mouseMovement$: Observable<IMovement> =
             this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDrag$)
@@ -235,6 +265,7 @@ export class MouseComponent extends Component {
     protected _deactivate(): void {
         this._container.mouseService.unclaimMouse(this._name);
 
+        this._cursorSubscription.unsubscribe();
         this._movementSubscription.unsubscribe();
         this._mouseWheelSubscription.unsubscribe();
         this._pinchSubscription.unsubscribe();
