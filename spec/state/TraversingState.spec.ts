@@ -107,7 +107,7 @@ describe("TraversingState.currentCamera.lookat", () => {
         expect(traversingState.currentCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to lookat of camera when pano", () => {
+    it("should correspond to lookat of camera when full pano", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -132,7 +132,7 @@ describe("TraversingState.currentCamera.lookat", () => {
                 CroppedAreaImageHeightPixels: 1,
                 CroppedAreaImageWidthPixels: 1,
                 CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0.5,
+                CroppedAreaTopPixels: 0,
                 FullPanoHeightPixels: 1,
                 FullPanoWidthPixels: 1,
             },

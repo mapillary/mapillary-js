@@ -19,8 +19,8 @@ export class Transform {
     private _srt: THREE.Matrix4;
 
     constructor(node: Node, translation: number[]) {
-        this._width = this._getValue(node.apiNavImIm.width, node.image.width);
-        this._height = this._getValue(node.apiNavImIm.height, node.image.height);
+        this._width = this._getValue(node.apiNavImIm.width, node.image != null ? node.image.width : 4);
+        this._height = this._getValue(node.apiNavImIm.height, node.image != null ? node.image.height : 3);
         this._focal = this._getValue(node.apiNavImIm.cfocal, 1);
         this._orientation = this._getValue(node.apiNavImIm.orientation, 1);
         this._scale = this._getValue(node.apiNavImIm.atomic_scale, 0);

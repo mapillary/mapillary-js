@@ -293,7 +293,7 @@ export class TraversingState extends StateBase {
             let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
             this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
 
-            if (this._currentNode.pano) {
+            if (this._currentNode.fullPano) {
                 this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
             }
         }

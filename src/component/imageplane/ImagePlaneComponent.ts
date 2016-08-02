@@ -123,7 +123,7 @@ export class ImagePlaneComponent extends Component {
         this._nodeSubscription = this._navigator.stateService.currentNode$
             .filter(
                 (node: Node): boolean => {
-                    return node.pano ?
+                    return node.fullPano ?
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
