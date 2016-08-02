@@ -18,6 +18,7 @@ import {
 } from "../Component";
 import {Spatial, Transform} from "../Geo";
 import {IVNodeHash, RenderCamera} from "../Render";
+import {ICurrentState, IFrame} from "../State";
 import {
     Container,
     Navigator,
@@ -112,16 +113,30 @@ export class MouseComponent extends Component {
                 mouseMovement$,
                 touchMovement$)
             .withLatestFrom(
+                this._navigator.stateService.currentState$,
+                (m: IMovement, f: IFrame): [IMovement, IFrame] => {
+                    return [m, f];
+                })
+            .filter(
+                (args: [IMovement, IFrame]): boolean => {
+                    let state: ICurrentState = args[1].state;
+                    return state.currentNode.fullPano || state.nodesAhead < 1;
+                })
+            .map<IMovement>(
+                (args: [IMovement, IFrame]): IMovement => {
+                    return args[0];
+                })
+            .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
                 (m: IMovement, r: RenderCamera, t: Transform): [IMovement, RenderCamera, Transform] => {
                     return [m, r, t];
                 })
             .map<number[]>(
-                (mr: [IMovement, RenderCamera, Transform]): number[] => {
-                    let m: IMovement = mr[0];
-                    let r: RenderCamera = mr[1];
-                    let t: Transform = mr[2];
+                (args: [IMovement, RenderCamera, Transform]): number[] => {
+                    let movement: IMovement = args[0];
+                    let render: RenderCamera = args[1];
+                    let transform: Transform = args[2];
 
                     let element: HTMLElement = this._container.element;
 
@@ -130,25 +145,25 @@ export class MouseComponent extends Component {
 
                     let clientRect: ClientRect = element.getBoundingClientRect();
 
-                    let canvasX: number = m.clientX - clientRect.left;
-                    let canvasY: number = m.clientY - clientRect.top;
+                    let canvasX: number = movement.clientX - clientRect.left;
+                    let canvasY: number = movement.clientY - clientRect.top;
 
                     let currentDirection: THREE.Vector3 =
-                        this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, r.perspective)
-                        .sub(r.perspective.position);
+                        this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective)
+                            .sub(render.perspective.position);
 
                     let directionX: THREE.Vector3 =
-                        this._unproject(canvasX - m.movementX, canvasY, offsetWidth, offsetHeight, r.perspective)
-                        .sub(r.perspective.position);
+                        this._unproject(canvasX - movement.movementX, canvasY, offsetWidth, offsetHeight, render.perspective)
+                            .sub(render.perspective.position);
 
                     let directionY: THREE.Vector3 =
-                        this._unproject(canvasX, canvasY - m.movementY, offsetWidth, offsetHeight, r.perspective)
-                        .sub(r.perspective.position);
+                        this._unproject(canvasX, canvasY - movement.movementY, offsetWidth, offsetHeight, render.perspective)
+                            .sub(render.perspective.position);
 
-                    let deltaPhi: number = (m.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
-                    let deltaTheta: number = (m.movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
+                    let deltaPhi: number = (movement.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
+                    let deltaTheta: number = (movement.movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
-                    let camera: any = r.camera.clone();
+                    let camera: any = render.camera.clone();
 
                     let upQuaternion: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
                     let upQuaternionInverse: THREE.Quaternion = upQuaternion.clone().inverse();
@@ -172,8 +187,8 @@ export class MouseComponent extends Component {
 
                     let lookat: THREE.Vector3 = new THREE.Vector3().copy(camera.position).add(offset.multiplyScalar(length));
 
-                    let basic: number[] = t.projectBasic(lookat.toArray());
-                    let original: number[] = t.projectBasic(r.camera.lookat.toArray());
+                    let basic: number[] = transform.projectBasic(lookat.toArray());
+                    let original: number[] = transform.projectBasic(render.camera.lookat.toArray());
 
                     let x: number = basic[0] - original[0];
                     let y: number = basic[1] - original[1];
@@ -191,7 +206,22 @@ export class MouseComponent extends Component {
                     this._navigator.stateService.rotateBasic(basicRotation);
                 });
 
-        this._mouseWheelSubscription = this._container.mouseService.mouseWheel$
+        this._mouseWheelSubscription = this._container.mouseService
+            .filtered$(this._name, this._container.mouseService.mouseWheel$)
+            .withLatestFrom(
+                this._navigator.stateService.currentState$,
+                (w: WheelEvent, f: IFrame): [WheelEvent, IFrame] => {
+                    return [w, f];
+                })
+            .filter(
+                (args: [WheelEvent, IFrame]): boolean => {
+                    let state: ICurrentState = args[1].state;
+                    return state.currentNode.fullPano || state.nodesAhead < 1;
+                })
+            .map<WheelEvent>(
+                (args: [WheelEvent, IFrame]): WheelEvent => {
+                    return args[0];
+                })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
@@ -199,10 +229,10 @@ export class MouseComponent extends Component {
                     return [w, r, t];
                 })
             .subscribe(
-                (wr: [WheelEvent, RenderCamera, Transform]): void => {
-                    let event: WheelEvent = wr[0];
-                    let render: RenderCamera = wr[1];
-                    let transform: Transform = wr[2];
+                (args: [WheelEvent, RenderCamera, Transform]): void => {
+                    let event: WheelEvent = args[0];
+                    let render: RenderCamera = args[1];
+                    let transform: Transform = args[2];
 
                     let element: HTMLElement = this._container.element;
 
@@ -226,16 +256,30 @@ export class MouseComponent extends Component {
 
         this._pinchSubscription = this._container.touchService.pinch$
             .withLatestFrom(
+                this._navigator.stateService.currentState$,
+                (p: IPinch, f: IFrame): [IPinch, IFrame] => {
+                    return [p, f];
+                })
+            .filter(
+                (args: [IPinch, IFrame]): boolean => {
+                    let state: ICurrentState = args[1].state;
+                    return state.currentNode.fullPano || state.nodesAhead < 1;
+                })
+            .map<IPinch>(
+                (args: [IPinch, IFrame]): IPinch => {
+                    return args[0];
+                })
+            .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
                 (p: IPinch, r: RenderCamera, t: Transform): [IPinch, RenderCamera, Transform] => {
                     return [p, r, t];
                 })
             .subscribe(
-                (prt: [IPinch, RenderCamera, Transform]): void => {
-                    let pinch: IPinch = prt[0];
-                    let render: RenderCamera = prt[1];
-                    let transform: Transform = prt[2];
+                (args: [IPinch, RenderCamera, Transform]): void => {
+                    let pinch: IPinch = args[0];
+                    let render: RenderCamera = args[1];
+                    let transform: Transform = args[2];
 
                     let element: HTMLElement = this._container.element;
 
