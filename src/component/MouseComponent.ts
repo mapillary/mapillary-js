@@ -14,7 +14,6 @@ import "rxjs/add/operator/withLatestFrom";
 import {
     ComponentService,
     Component,
-    IMouseConfiguration,
 } from "../Component";
 import {Spatial, Transform} from "../Geo";
 import {RenderCamera} from "../Render";
@@ -50,15 +49,6 @@ export class MouseComponent extends Component {
         super(name, container, navigator);
 
         this._spatial = new Spatial();
-    }
-
-   /**
-    * Get default configuration.
-    *
-    * @returns {IMouseConfiguration}
-    */
-    public get defaultConfiguration(): IMouseConfiguration {
-        return { freePerspectiveMovement: false };
     }
 
     protected _activate(): void {
