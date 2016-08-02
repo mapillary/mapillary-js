@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import * as UnitBezier from "unitbezier";
 
+import {IGPano} from "../../API";
 import {IState, StateBase, IRotation, WaitingState} from "../../State";
 import {Node} from "../../Graph";
 import {Camera} from "../../Geo";
@@ -211,7 +212,8 @@ export class TraversingState extends StateBase {
         let refX: number = reference[0];
         let refY: number = reference[1];
 
-        if (this._currentNode.fullPano) {
+        if (this.currentTransform.gpano != null &&
+            this.currentTransform.gpano.CroppedAreaImageWidthPixels === this.currentTransform.gpano.FullPanoWidthPixels) {
             if (refX - currentCenterX > 0.5) {
                 refX = refX - 1;
             } else if (currentCenterX - refX > 0.5) {
@@ -222,9 +224,15 @@ export class TraversingState extends StateBase {
         let newCenterX: number = refX - zoom0 / zoom1 * (refX - currentCenterX);
         let newCenterY: number = refY - zoom0 / zoom1 * (refY - currentCenterY);
 
+        let gpano: IGPano = this.currentTransform.gpano;
+
         if (this._currentNode.fullPano) {
-            newCenterX = this._spatial.wrap(newCenterX, 0, 1);
-            newCenterY = this._spatial.clamp(newCenterY, 0, 1);
+            newCenterX = this._spatial.wrap(newCenterX + this._basicRotation[0], 0, 1);
+            newCenterY = this._spatial.clamp(newCenterY + this._basicRotation[1], 0.05, 0.95);
+        } else if (gpano != null &&
+            this.currentTransform.gpano.CroppedAreaImageWidthPixels === this.currentTransform.gpano.FullPanoWidthPixels) {
+            newCenterX = this._spatial.wrap(newCenterX + this._basicRotation[0], 0, 1);
+            newCenterY = this._spatial.clamp(newCenterY + this._basicRotation[1], 0, 1);
         } else {
             newCenterX = this._spatial.clamp(newCenterX, 0, 1);
             newCenterY = this._spatial.clamp(newCenterY, 0, 1);
@@ -329,9 +337,15 @@ export class TraversingState extends StateBase {
     private _applyRotationBasic(): void {
         let basic: number[] = this.currentTransform.projectBasic(this._currentCamera.lookat.toArray());
 
+        let gpano: IGPano = this.currentTransform.gpano;
+
         if (this._currentNode.fullPano) {
             basic[0] = this._spatial.wrap(basic[0] + this._basicRotation[0], 0, 1);
             basic[1] = this._spatial.clamp(basic[1] + this._basicRotation[1], 0.05, 0.95);
+        } else if (gpano != null &&
+            this.currentTransform.gpano.CroppedAreaImageWidthPixels === this.currentTransform.gpano.FullPanoWidthPixels) {
+            basic[0] = this._spatial.wrap(basic[0] + this._basicRotation[0], 0, 1);
+            basic[1] = this._spatial.clamp(basic[1] + this._basicRotation[1], 0, 1);
         } else {
             basic[0] = this._spatial.clamp(basic[0] + this._basicRotation[0], 0, 1);
             basic[1] = this._spatial.clamp(basic[1] + this._basicRotation[1], 0, 1);
