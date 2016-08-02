@@ -19,8 +19,8 @@ export class Transform {
     private _srt: THREE.Matrix4;
 
     constructor(node: Node, translation: number[]) {
-        this._width = this._getValue(node.apiNavImIm.width, 4);
-        this._height = this._getValue(node.apiNavImIm.height, 3);
+        this._width = this._getValue(node.apiNavImIm.width, node.image.width);
+        this._height = this._getValue(node.apiNavImIm.height, node.image.height);
         this._focal = this._getValue(node.apiNavImIm.cfocal, 1);
         this._orientation = this._getValue(node.apiNavImIm.orientation, 1);
         this._scale = this._getValue(node.apiNavImIm.atomic_scale, 0);
@@ -144,9 +144,23 @@ export class Transform {
     }
 
     private _pixelToBearing(pixel: number[]): number[] {
-        if (this._gpano) {
+        if (this._fullPano()) {
             let lon: number = pixel[0] * 2 * Math.PI;
             let lat: number = -pixel[1] * 2 * Math.PI;
+            let x: number = Math.cos(lat) * Math.sin(lon);
+            let y: number = -Math.sin(lat);
+            let z: number = Math.cos(lat) * Math.cos(lon);
+            return [x, y, z];
+        } else if (this._gpano) {
+            let size: number = Math.max(
+                this.gpano.CroppedAreaImageWidthPixels,
+                this.gpano.CroppedAreaImageHeightPixels);
+
+            let phiLength: number = 2 * Math.PI * size / this.gpano.FullPanoWidthPixels;
+            let thetaLength: number = Math.PI * size / this.gpano.FullPanoHeightPixels;
+
+            let lon: number = pixel[0] * phiLength;
+            let lat: number = -pixel[1] * thetaLength;
             let x: number = Math.cos(lat) * Math.sin(lon);
             let y: number = -Math.sin(lat);
             let z: number = Math.cos(lat) * Math.cos(lon);
@@ -159,13 +173,28 @@ export class Transform {
     }
 
     private _bearingToPixel(bearing: number[]): number[] {
-        if (this._gpano) {
+        if (this._fullPano()) {
             let x: number = bearing[0];
             let y: number = bearing[1];
             let z: number = bearing[2];
             let lon: number = Math.atan2(x, z);
             let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
             return [lon / (2 * Math.PI), -lat / (2 * Math.PI)];
+        } else if (this._gpano) {
+            let x: number = bearing[0];
+            let y: number = bearing[1];
+            let z: number = bearing[2];
+            let lon: number = Math.atan2(x, z);
+            let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
+
+            let size: number = Math.max(
+                this.gpano.CroppedAreaImageWidthPixels,
+                this.gpano.CroppedAreaImageHeightPixels);
+
+            return [
+                lon / (2 * Math.PI * size / this.gpano.FullPanoWidthPixels),
+                -lat / (Math.PI * size / this.gpano.FullPanoHeightPixels),
+            ];
         } else {
             return [
                 bearing[0] * this._focal / bearing[2],
@@ -177,6 +206,7 @@ export class Transform {
     private _basicToSfm(point: number[]): number[] {
         let rotatedX: number;
         let rotatedY: number;
+
         switch (this._orientation) {
             case 1:
                 rotatedX = point[0];
@@ -199,11 +229,13 @@ export class Transform {
                 rotatedY = point[1];
                 break;
         }
+
         let w: number = this._width;
         let h: number = this._height;
         let s: number = Math.max(w, h);
         let sfmX: number = rotatedX * w / s - w / s / 2;
         let sfmY: number = rotatedY * h / s - h / s / 2;
+
         return [sfmX, sfmY];
     }
 
@@ -216,6 +248,7 @@ export class Transform {
 
         let basicX: number;
         let basicY: number;
+
         switch (this._orientation) {
             case 1:
                 basicX = rotatedX;
@@ -226,19 +259,28 @@ export class Transform {
                 basicY = 1 - rotatedY;
                 break;
             case 6:
-                basicY = rotatedX;
                 basicX = 1 - rotatedY;
+                basicY = rotatedX;
                 break;
             case 8:
-                basicY = 1 - rotatedX;
                 basicX = rotatedY;
+                basicY = 1 - rotatedX;
                 break;
             default:
                 basicX = rotatedX;
                 basicY = rotatedY;
                 break;
         }
+
         return [basicX, basicY];
+    }
+
+    private _fullPano(): boolean {
+        return this.gpano != null &&
+            this.gpano.CroppedAreaLeftPixels === 0 &&
+            this.gpano.CroppedAreaTopPixels === 0 &&
+            this.gpano.CroppedAreaImageWidthPixels === this.gpano.FullPanoWidthPixels &&
+            this.gpano.CroppedAreaImageHeightPixels === this.gpano.FullPanoHeightPixels;
     }
 
     private _getValue(value: number, fallback: number): number {
