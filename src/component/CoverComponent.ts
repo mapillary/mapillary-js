@@ -79,10 +79,11 @@ export class CoverComponent extends Component {
         let url: string = conf.src != null ?
             `url(${conf.src})` :
             `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-1024.jpg)`;
+        const spinner: vd.VNode = conf.loading ? vd.h("div.Spinner", {}, []) : undefined;
         return vd.h(
           "div.CoverBackground",
           { style: { backgroundImage: url } },
-          [ vd.h("div.CoverBackgroundGradient", {}, []) ]
+          [ spinner, vd.h("div.CoverBackgroundGradient", {}, []) ]
         );
     }
 }

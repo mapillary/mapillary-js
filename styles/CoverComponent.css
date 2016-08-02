@@ -100,3 +100,23 @@
     height: 60px;
     width: 60px;
 }
+
+.Spinner {
+  animation: rotate 3s linear infinite;
+  background-image: url('./spinner.svg');
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 32px;
+  left: 50%;
+  margin-left: -16px;
+  margin-top: -16px;
+  position: absolute;
+  top: 50%;
+  width: 32px;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
