@@ -68,27 +68,22 @@ export class CoverComponent extends Component {
     }
 
     private _getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
-        let coverBtn: string = "span.CoverButtonIcon";
-        let children: Array<vd.VNode> = [];
-        if (conf.loading) {
-            coverBtn = "div.uil-ripple-css";
-            children.push(vd.h("div", {}, []));
-        }
-
         return vd.h("div.Cover", [
             this._getCoverBackgroundVNode(conf),
-            vd.h("button.CoverButton", {onclick: (): void => { this.configure({ loading: true }); }}, [
-                vd.h(coverBtn, {}, children),
-            ]),
+            vd.h("button.CoverButton", {onclick: (): void => { this.configure({ loading: true }); }}, ["Explore"]),
+            vd.h("a.CoverLogo", {href: `https://www.mapillary.com/app/?pKey=${conf.key}`, target: "_blank"}, []),
         ]);
     }
 
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
         let url: string = conf.src != null ?
             `url(${conf.src})` :
-            `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-320.jpg)`;
-
-        return vd.h("div.CoverBackground", { style: { backgroundImage: url } }, []);
+            `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-1024.jpg)`;
+        return vd.h(
+          "div.CoverBackground",
+          { style: { backgroundImage: url } },
+          [ vd.h("div.CoverBackgroundGradient", {}, []) ]
+        );
     }
 }
 

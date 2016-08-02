@@ -1,242 +1,64 @@
-
-@-webkit-keyframes uil-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-    margin: 0 0 0 0;
-  }
-  33% {
-    width: 44%;
-    height: 44%;
-    margin: -22% 0 0 -22%;
-    opacity: 1;
-  }
-  100% {
-    width: 88%;
-    height: 88%;
-    margin: -44% 0 0 -44%;
-    opacity: 0;
-  }
-}
-@-webkit-keyframes uil-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-    margin: 0 0 0 0;
-  }
-  33% {
-    width: 44%;
-    height: 44%;
-    margin: -22% 0 0 -22%;
-    opacity: 1;
-  }
-  100% {
-    width: 88%;
-    height: 88%;
-    margin: -44% 0 0 -44%;
-    opacity: 0;
-  }
-}
-@-moz-keyframes uil-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-    margin: 0 0 0 0;
-  }
-  33% {
-    width: 44%;
-    height: 44%;
-    margin: -22% 0 0 -22%;
-    opacity: 1;
-  }
-  100% {
-    width: 88%;
-    height: 88%;
-    margin: -44% 0 0 -44%;
-    opacity: 0;
-  }
-}
-@-ms-keyframes uil-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-    margin: 0 0 0 0;
-  }
-  33% {
-    width: 44%;
-    height: 44%;
-    margin: -22% 0 0 -22%;
-    opacity: 1;
-  }
-  100% {
-    width: 88%;
-    height: 88%;
-    margin: -44% 0 0 -44%;
-    opacity: 0;
-  }
-}
-@-moz-keyframes uil-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-    margin: 0 0 0 0;
-  }
-  33% {
-    width: 44%;
-    height: 44%;
-    margin: -22% 0 0 -22%;
-    opacity: 1;
-  }
-  100% {
-    width: 88%;
-    height: 88%;
-    margin: -44% 0 0 -44%;
-    opacity: 0;
-  }
-}
-@-webkit-keyframes uil-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-    margin: 0 0 0 0;
-  }
-  33% {
-    width: 44%;
-    height: 44%;
-    margin: -22% 0 0 -22%;
-    opacity: 1;
-  }
-  100% {
-    width: 88%;
-    height: 88%;
-    margin: -44% 0 0 -44%;
-    opacity: 0;
-  }
-}
-@-o-keyframes uil-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-    margin: 0 0 0 0;
-  }
-  33% {
-    width: 44%;
-    height: 44%;
-    margin: -22% 0 0 -22%;
-    opacity: 1;
-  }
-  100% {
-    width: 88%;
-    height: 88%;
-    margin: -44% 0 0 -44%;
-    opacity: 0;
-  }
-}
-@keyframes uil-ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-    margin: 0 0 0 0;
-  }
-  33% {
-    width: 44%;
-    height: 44%;
-    margin: -22% 0 0 -22%;
-    opacity: 1;
-  }
-  100% {
-    width: 88%;
-    height: 88%;
-    margin: -44% 0 0 -44%;
-    opacity: 0;
-  }
-}
-
-.uil-ripple-css {
-  background: none;
-  position: relative;
-  width: 100px;
-  height: 100px;
-  top: -32px;
-  left: -28px;
-}
-
-.uil-ripple-css div {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: 0;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  border-radius: 50%;
-  border-width: 12px;
-  border-style: solid;
-  -ms-animation: uil-ripple 2s ease-out infinite;
-  -moz-animation: uil-ripple 2s ease-out infinite;
-  -webkit-animation: uil-ripple 2s ease-out infinite;
-  -o-animation: uil-ripple 2s ease-out infinite;
-  animation: uil-ripple 2s ease-out infinite;
-}
-
-.uil-ripple-css div:nth-of-type(1) {
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.uil-ripple-css div:nth-of-type(2) {
-  border-color: #ffffff;
-  -ms-animation-delay: 1s;
-  -moz-animation-delay: 1s;
-  -webkit-animation-delay: 1s;
-  -o-animation-delay: 1s;
-  animation-delay: 1s;
-}
-
 .Cover {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
     background-color: rgba(0, 0, 0, 0.5);
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
     z-index: 20;
+    position: absolute;
     overflow: hidden;
-    cursor: pointer;
-    transition: opacity .2s ease-in-out;
 }
 
 .CoverBackground {
-    transition: all ease-in-out 250ms, filter ease-in-out 100ms;
-    filter: blur(3px);
-    position: absolute;
-    top: 0;
-    right: 0;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform-style: preserve-3d;
+    background-position: center;
+    background-size: cover;
     bottom: 0;
     left: 0;
-    background-size: cover;
-    background-position: center;
+    margin-left: -3px;
+    right: 0;
+    top: 0;
+    transform: translateZ(0);
+    transition: transform 10s ease-out;
     z-index: -10;
+    position: absolute;
+    margin-right: -3px;
+}
+
+.CoverBackgroundGradient {
+    background: linear-gradient(-180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
+    bottom: 0;
+    height: 180px;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    z-index: 1;
+}
+
+.CoverLogo {
+    background-size: cover;
+    background: url(./cover-logo.svg);
+    bottom: 30px;
+    height: 32px;
+    left: 30px;
+    position: absolute;
+    width: 128px;
+    z-index: 300;
 }
 
 .Cover:hover .CoverBackground {
-    filter: blur(0);
+    transform: scale(1.2);
 }
 
 .Cover.CoverDone > .CoverBackground {
-    top: 0;
-    right: 0;
     bottom: 0;
     left: 0;
+    right: 0;
+    top: 0;
     z-index: 100;
 }
 
@@ -246,36 +68,35 @@
 }
 
 .CoverButton {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 80px;
-    height: 70px;
-    margin-left: -40px;
-    margin-top: -35px;
-    overflow: hidden;
-
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 999px;
+    border: 1px solid white;
+    bottom: 30px;
     color: white;
-
-    border-radius: 6px;
-    border: none;
-    padding: 5px;
-}
-
-.CoverButton:focus {
-    outline:0;
-}
-
-.CoverButtonIcon {
-    display: inline-block;
-    height: 60px;
-    width: 60px;
-    background: url(./pano.svg);
-    background-size: contain;
+    font-size: 14px;
+    height: 32px;
+    left: 50%;
+    margin-left: -70px;
+    padding: 5px 30px 7px;
+    position: absolute;
+    transition: all .2s ease-in-out;
+    width: 140px;
 }
 
 .CoverButton:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: white;
+    color: #5D6671;
     cursor: pointer;
+}
+
+.CoverButton:focus {
+    outline: 0;
+}
+
+.CoverButtonIcon {
+    background-size: contain;
+    background: url(./pano.svg);
+    display: inline-block;
+    height: 60px;
+    width: 60px;
 }
