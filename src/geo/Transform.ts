@@ -152,10 +152,10 @@ export class Transform {
             let z: number = Math.cos(lat) * Math.cos(lon);
             return [x, y, z];
         } else if (this._gpano) {
-            let size: number = Math.max(this._width, this._height);
+            let size: number = Math.max(this.gpano.CroppedAreaImageWidthPixels, this.gpano.CroppedAreaImageHeightPixels);
             let fullPanoPixel: number[] = [
-                pixel[0] * size + this._width / 2 + this.gpano.CroppedAreaLeftPixels,
-                pixel[1] * size + this._height / 2 + this.gpano.CroppedAreaTopPixels,
+                pixel[0] * size + this.gpano.CroppedAreaImageWidthPixels / 2 + this.gpano.CroppedAreaLeftPixels,
+                pixel[1] * size + this.gpano.CroppedAreaImageHeightPixels / 2 + this.gpano.CroppedAreaTopPixels,
             ];
             let lon: number = 2 * Math.PI * (fullPanoPixel[0] / this.gpano.FullPanoWidthPixels - 0.5);
             let lat: number = - Math.PI * (fullPanoPixel[1] / this.gpano.FullPanoHeightPixels - 0.5);
@@ -188,10 +188,10 @@ export class Transform {
                 (lon / (2 * Math.PI) + 0.5) * this.gpano.FullPanoWidthPixels,
                 (- lat / Math.PI + 0.5) * this.gpano.FullPanoHeightPixels,
             ];
-            let size: number = Math.max(this._width, this._height);
+            let size: number = Math.max(this.gpano.CroppedAreaImageWidthPixels, this.gpano.CroppedAreaImageHeightPixels);
             return [
-                (fullPanoPixel[0] - this.gpano.CroppedAreaLeftPixels - this._width / 2) / size,
-                (fullPanoPixel[1] - this.gpano.CroppedAreaTopPixels - this._height / 2) / size,
+                (fullPanoPixel[0] - this.gpano.CroppedAreaLeftPixels - this.gpano.CroppedAreaImageWidthPixels / 2) / size,
+                (fullPanoPixel[1] - this.gpano.CroppedAreaTopPixels - this.gpano.CroppedAreaImageHeightPixels / 2) / size,
             ];
         } else {
             return [

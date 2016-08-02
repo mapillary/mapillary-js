@@ -655,10 +655,8 @@ describe("Transform.unprojectBasic", () => {
                     FullPanoHeightPixels: 1000,
                     FullPanoWidthPixels: 2000,
                 },
-                height: 600,
                 key: "",
                 rotation: [0.5, -0.2, 0.3],
-                width: 400,
             },
             []);
 
