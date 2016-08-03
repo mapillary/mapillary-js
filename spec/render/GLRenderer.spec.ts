@@ -118,6 +118,7 @@ describe("GLRenderer.renderer", () => {
         let state: ICurrentState = {
             alpha: 0,
             camera: new Camera(),
+            currentCamera: new Camera(),
             currentIndex: 0,
             currentNode: null,
             currentTransform: null,

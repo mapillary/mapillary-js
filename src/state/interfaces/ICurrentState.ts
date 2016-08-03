@@ -7,6 +7,7 @@ export interface ICurrentState {
     camera: Camera;
     zoom: number;
     currentNode: Node;
+    currentCamera: Camera;
     previousNode: Node;
     trajectory: Node[];
     currentIndex: number;

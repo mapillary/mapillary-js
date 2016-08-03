@@ -125,6 +125,7 @@ describe("RenderService.renderCameraFrame", () => {
             let state: ICurrentState = {
                 alpha: alpha != null ? alpha : 0,
                 camera: camera != null ? camera : new Camera(),
+                currentCamera: camera != null ? camera : new Camera(),
                 currentIndex: 0,
                 currentNode: null,
                 currentTransform: null,
@@ -353,6 +354,7 @@ describe("RenderService.renderCamera", () => {
             let state: ICurrentState = {
                 alpha: alpha != null ? alpha : 0,
                 camera: camera != null ? camera : new Camera(),
+                currentCamera: camera != null ? camera : new Camera(),
                 currentIndex: 0,
                 currentNode: null,
                 currentTransform: null,

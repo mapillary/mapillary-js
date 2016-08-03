@@ -259,7 +259,7 @@ describe("Transform.height", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             0, null, true, null,
-            { height: -1, key: "",  rotation: [0, 0, 0] },
+            { height: -1, key: "", orientation: 1, rotation: [0, 0, 0] },
             []);
 
         let transform: Transform = new Transform(node, t);
@@ -273,7 +273,7 @@ describe("Transform.height", () => {
         let t: number[] = [0, 0, 0];
         let node: Node = new Node(
             0, null, true, null,
-            { height: height, key: "",  rotation: [0, 0, 0] },
+            { height: height, key: "", orientation: 1, rotation: [0, 0, 0] },
             []);
 
         let transform: Transform = new Transform(node, t);

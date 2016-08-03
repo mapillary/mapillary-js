@@ -16,7 +16,7 @@ import {
     ComponentService,
     Component,
 } from "../Component";
-import {Spatial, Transform} from "../Geo";
+import {Camera, Spatial, Transform} from "../Geo";
 import {IVNodeHash, RenderCamera} from "../Render";
 import {ICurrentState, IFrame} from "../State";
 import {
@@ -45,6 +45,7 @@ export class MouseComponent extends Component {
 
     private _cursorSubscription: Subscription;
     private _movementSubscription: Subscription;
+    private _fullPanoMovementSubscription: Subscription;
     private _mouseWheelSubscription: Subscription;
     private _pinchSubscription: Subscription;
 
@@ -129,14 +130,16 @@ export class MouseComponent extends Component {
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
-                (m: IMovement, r: RenderCamera, t: Transform): [IMovement, RenderCamera, Transform] => {
-                    return [m, r, t];
+                this._navigator.stateService.currentCamera$,
+                (m: IMovement, r: RenderCamera, t: Transform, c: Camera): [IMovement, RenderCamera, Transform, Camera] => {
+                    return [m, r, t, c];
                 })
             .map<number[]>(
-                (args: [IMovement, RenderCamera, Transform]): number[] => {
+                (args: [IMovement, RenderCamera, Transform, Camera]): number[] => {
                     let movement: IMovement = args[0];
                     let render: RenderCamera = args[1];
                     let transform: Transform = args[2];
+                    let camera: Camera = args[3].clone();
 
                     let element: HTMLElement = this._container.element;
 
@@ -163,8 +166,6 @@ export class MouseComponent extends Component {
                     let deltaPhi: number = (movement.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
                     let deltaTheta: number = (movement.movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
-                    let camera: any = render.camera.clone();
-
                     let upQuaternion: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
                     let upQuaternionInverse: THREE.Quaternion = upQuaternion.clone().inverse();
 
@@ -188,7 +189,7 @@ export class MouseComponent extends Component {
                     let lookat: THREE.Vector3 = new THREE.Vector3().copy(camera.position).add(offset.multiplyScalar(length));
 
                     let basic: number[] = transform.projectBasic(lookat.toArray());
-                    let original: number[] = transform.projectBasic(render.camera.lookat.toArray());
+                    let original: number[] = transform.projectBasic(camera.lookat.toArray());
 
                     let x: number = basic[0] - original[0];
                     let y: number = basic[1] - original[1];
@@ -313,6 +314,7 @@ export class MouseComponent extends Component {
 
         this._cursorSubscription.unsubscribe();
         this._movementSubscription.unsubscribe();
+        this._fullPanoMovementSubscription.unsubscribe();
         this._mouseWheelSubscription.unsubscribe();
         this._pinchSubscription.unsubscribe();
     }

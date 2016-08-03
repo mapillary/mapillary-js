@@ -15,6 +15,7 @@ import "rxjs/add/operator/withLatestFrom";
 
 import {Node} from "../Graph";
 import {
+    Camera,
     ILatLon,
     ILatLonAlt,
     Transform,
@@ -49,6 +50,7 @@ export class StateService {
     private _currentState$: Observable<IFrame>;
     private _currentNode$: Observable<Node>;
     private _currentNodeExternal$: Observable<Node>;
+    private _currentCamera$: Observable<Camera>;
     private _currentTransform$: Observable<Transform>;
     private _reference$: Observable<ILatLonAlt>;
 
@@ -150,6 +152,14 @@ export class StateService {
             .publishReplay(1)
             .refCount();
 
+        this._currentCamera$ = nodeChangedSubject$
+            .map<Camera>(
+                (f: IFrame): Camera => {
+                    return f.state.currentCamera;
+                })
+            .publishReplay(1)
+            .refCount();
+
         this._currentTransform$ = nodeChangedSubject$
             .map<Transform>(
                 (f: IFrame): Transform => {
@@ -194,6 +204,7 @@ export class StateService {
 
         this._state$.subscribe();
         this._currentNode$.subscribe();
+        this._currentCamera$.subscribe();
         this._currentTransform$.subscribe();
         this._reference$.subscribe();
         this._currentNodeExternal$.subscribe();
@@ -212,6 +223,10 @@ export class StateService {
 
     public get currentNodeExternal$(): Observable<Node> {
         return this._currentNodeExternal$;
+    }
+
+    public get currentCamera$(): Observable<Camera> {
+        return this._currentCamera$;
     }
 
     public get currentTransform$(): Observable<Transform> {
@@ -266,8 +281,8 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.rotateBasic(basicRotation); });
     }
 
-    public rotateTo(basic: number[]): void {
-        this._invokeContextOperation((context: IStateContext) => { context.rotateTo(basic); });
+    public rotateToBasic(basic: number[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.rotateToBasic(basic); });
     }
 
     public move(delta: number): void {

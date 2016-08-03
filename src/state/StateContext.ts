@@ -65,6 +65,10 @@ export class StateContext implements IStateContext {
         return this._state.previousNode;
     }
 
+    public get currentCamera(): Camera {
+        return this._state.currentCamera;
+    }
+
     public get currentTransform(): Transform {
         return this._state.currentTransform;
     }
@@ -125,8 +129,8 @@ export class StateContext implements IStateContext {
         this._state.rotateBasic(basicRotation);
     }
 
-    public rotateTo(basic: number[]): void {
-        this._state.rotateTo(basic);
+    public rotateToBasic(basic: number[]): void {
+        this._state.rotateToBasic(basic);
     }
 
     public move(delta: number): void {

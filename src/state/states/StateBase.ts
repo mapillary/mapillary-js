@@ -107,6 +107,10 @@ export abstract class StateBase implements IState {
         return this._previousNode;
     }
 
+    public get currentCamera(): Camera {
+        return this._currentCamera;
+    }
+
     public get currentTransform(): Transform {
         return this._trajectoryTransforms.length > 0 ?
             this._trajectoryTransforms[this.currentIndex] : null;
@@ -131,9 +135,9 @@ export abstract class StateBase implements IState {
 
     public abstract rotate(delta: IRotation): void;
 
-    public rotateBasic(basicRotation: number[]): void { return; }
+    public abstract rotateBasic(basicRotation: number[]): void;
 
-    public rotateTo(basic: number[]): void { return; }
+    public abstract rotateToBasic(basic: number[]): void;
 
     public abstract zoomIn(delta: number, reference: number[]): void;
 

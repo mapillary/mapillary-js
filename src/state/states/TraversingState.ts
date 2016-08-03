@@ -6,7 +6,7 @@ import * as UnitBezier from "unitbezier";
 import {IGPano} from "../../API";
 import {IState, StateBase, IRotation, WaitingState} from "../../State";
 import {Node} from "../../Graph";
-import {Camera} from "../../Geo";
+import {Camera, Transform} from "../../Geo";
 
 class RotationDelta implements IRotation {
     private _phi: number;
@@ -163,6 +163,7 @@ export class TraversingState extends StateBase {
 
         this._desiredZoom = this._zoom;
         this._desiredLookat = null;
+        this._requestedBasicRotation = [0, 0];
 
         this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
     }
@@ -174,11 +175,12 @@ export class TraversingState extends StateBase {
 
         this._desiredZoom = this._zoom;
         this._desiredLookat = null;
+        this._requestedRotationDelta = null;
 
         this._requestedBasicRotation = basicRotation.slice();
     }
 
-    public rotateTo(basic: number[]): void {
+    public rotateToBasic(basic: number[]): void {
         if (this._currentNode == null) {
             return;
         }
@@ -335,29 +337,54 @@ export class TraversingState extends StateBase {
     }
 
     private _applyRotationBasic(): void {
-        let basic: number[] = this.currentTransform.projectBasic(this._currentCamera.lookat.toArray());
+        let currentNode: Node = this._currentNode;
+        let previousNode: Node = this._previousNode != null ?
+            this.previousNode :
+            this.currentNode;
 
-        let gpano: IGPano = this.currentTransform.gpano;
+        let currentCamera: Camera = this._currentCamera;
+        let previousCamera: Camera = this._previousCamera;
 
-        if (this._currentNode.fullPano) {
-            basic[0] = this._spatial.wrap(basic[0] + this._basicRotation[0], 0, 1);
-            basic[1] = this._spatial.clamp(basic[1] + this._basicRotation[1], 0.05, 0.95);
-        } else if (gpano != null &&
-            this.currentTransform.gpano.CroppedAreaImageWidthPixels === this.currentTransform.gpano.FullPanoWidthPixels) {
-            basic[0] = this._spatial.wrap(basic[0] + this._basicRotation[0], 0, 1);
-            basic[1] = this._spatial.clamp(basic[1] + this._basicRotation[1], 0, 1);
+        let currentTransform: Transform = this.currentTransform;
+        let previousTransform: Transform = this.previousTransform != null ?
+            this.previousTransform :
+            this.currentTransform;
+
+        let currentBasic: number[] = currentTransform.projectBasic(currentCamera.lookat.toArray());
+        let previousBasic: number[] = previousTransform.projectBasic(previousCamera.lookat.toArray());
+
+        let currentGPano: IGPano = currentTransform.gpano;
+        let previousGPano: IGPano = previousTransform.gpano;
+
+        if (currentNode.fullPano) {
+            currentBasic[0] = this._spatial.wrap(currentBasic[0] + this._basicRotation[0], 0, 1);
+            currentBasic[1] = this._spatial.clamp(currentBasic[1] + this._basicRotation[1], 0.05, 0.95);
+        } else if (currentGPano != null &&
+            currentTransform.gpano.CroppedAreaImageWidthPixels === currentTransform.gpano.FullPanoWidthPixels) {
+            currentBasic[0] = this._spatial.wrap(currentBasic[0] + this._basicRotation[0], 0, 1);
+            currentBasic[1] = this._spatial.clamp(currentBasic[1] + this._basicRotation[1], 0, 1);
         } else {
-            basic[0] = this._spatial.clamp(basic[0] + this._basicRotation[0], 0, 1);
-            basic[1] = this._spatial.clamp(basic[1] + this._basicRotation[1], 0, 1);
+            currentBasic[0] = this._spatial.clamp(currentBasic[0] + this._basicRotation[0], 0, 1);
+            currentBasic[1] = this._spatial.clamp(currentBasic[1] + this._basicRotation[1], 0, 1);
         }
 
-        let currentLookat: number[] = this.currentTransform.unprojectBasic(basic, 10);
-        this._currentCamera.lookat.fromArray(currentLookat);
+        if (previousNode.fullPano) {
+            previousBasic[0] = this._spatial.wrap(previousBasic[0] + this._basicRotation[0], 0, 1);
+            previousBasic[1] = this._spatial.clamp(previousBasic[1] + this._basicRotation[1], 0.05, 0.95);
+        } else if (previousGPano != null &&
+            previousTransform.gpano.CroppedAreaImageWidthPixels === previousTransform.gpano.FullPanoWidthPixels) {
+            previousBasic[0] = this._spatial.wrap(previousBasic[0] + this._basicRotation[0], 0, 1);
+            previousBasic[1] = this._spatial.clamp(previousBasic[1] + this._basicRotation[1], 0, 1);
+        } else {
+            previousBasic[0] = this._spatial.clamp(previousBasic[0] + this._basicRotation[0], 0, 1);
+            previousBasic[1] = this._spatial.clamp(currentBasic[1] + this._basicRotation[1], 0, 1);
+        }
 
-        let previousLookat: number[] = this.previousTransform != null ?
-            this.previousTransform.unprojectBasic(basic, 10) :
-            currentLookat;
-        this._previousCamera.lookat.fromArray(previousLookat);
+        let currentLookat: number[] = currentTransform.unprojectBasic(currentBasic, 10);
+        currentCamera.lookat.fromArray(currentLookat);
+
+        let previousLookat: number[] = previousTransform.unprojectBasic(previousBasic, 10);
+        previousCamera.lookat.fromArray(previousLookat);
     }
 
     private _updateZoom(animationSpeed: number): void {
