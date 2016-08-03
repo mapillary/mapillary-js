@@ -193,7 +193,9 @@ export class MouseComponent extends Component {
                     let x: number = basic[0] - original[0];
                     let y: number = basic[1] - original[1];
 
-                    if (x > 0.5) {
+                    if (Math.abs(x) > 1) {
+                        x = 0;
+                    } else if (x > 0.5) {
                         x = x - 1;
                     } else if (x < -0.5) {
                         x = x + 1;

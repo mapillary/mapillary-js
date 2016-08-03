@@ -19,12 +19,16 @@ export class Transform {
     private _srt: THREE.Matrix4;
 
     constructor(node: Node, translation: number[]) {
-        this._width = this._getValue(node.apiNavImIm.width, node.image != null ? node.image.width : 4);
-        this._height = this._getValue(node.apiNavImIm.height, node.image != null ? node.image.height : 3);
+        let imageWidth: number = node.image != null ? node.image.width : 4;
+        let imageHeight: number = node.image != null ? node.image.height : 3;
+        let keepOrientation: boolean = node.apiNavImIm.orientation < 5;
+
+        this._width = this._getValue(node.apiNavImIm.width, keepOrientation ? imageWidth : imageHeight);
+        this._height = this._getValue(node.apiNavImIm.height, keepOrientation ? imageHeight : imageWidth);
         this._focal = this._getValue(node.apiNavImIm.cfocal, 1);
         this._orientation = this._getValue(node.apiNavImIm.orientation, 1);
         this._scale = this._getValue(node.apiNavImIm.atomic_scale, 0);
-        this._basicAspect = this._orientation < 5 ?
+        this._basicAspect = keepOrientation ?
             this._width / this._height :
             this._height / this._width;
 
