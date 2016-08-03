@@ -252,7 +252,14 @@ export class MouseComponent extends Component {
 
                     let reference: number[] = transform.projectBasic(unprojected.toArray());
 
-                    let zoom: number = -3 * event.deltaY / offsetHeight;
+                    let deltaY: number = event.deltaY;
+                    if (event.deltaMode === 1) {
+                        deltaY = 40 * deltaY;
+                    } else if (event.deltaMode === 2) {
+                        deltaY = 800 * deltaY;
+                    }
+
+                    let zoom: number = -3 * deltaY / offsetHeight;
 
                     this._navigator.stateService.zoomIn(zoom, reference);
                 });
