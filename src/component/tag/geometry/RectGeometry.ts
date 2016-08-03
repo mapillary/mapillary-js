@@ -150,7 +150,8 @@ export class RectGeometry extends VertexGeometry {
 
         let translationX: number = 0;
 
-        if (transform.gpano) {
+        if (transform.gpano != null &&
+            transform.gpano.CroppedAreaImageWidthPixels === transform.gpano.FullPanoWidthPixels) {
             translationX = this._inverted ? value[0] + 1 - centerX : value[0] - centerX;
         } else {
             let minTranslationX: number = -x0;
