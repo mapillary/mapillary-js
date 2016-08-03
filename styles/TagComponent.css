@@ -59,6 +59,14 @@
     width: 14px;
     height: 14px;
     opacity: 0;
+}
+
+.TagInteractor,
+.TagCompleter {
+    cursor: pointer;
+}
+
+.TagSpotInteractor {
     cursor: move;
 }
 
