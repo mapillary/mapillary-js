@@ -1,20 +1,21 @@
-import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
-
-import "rxjs/add/observable/combineLatest";
-import "rxjs/add/observable/of";
 
 import "rxjs/add/operator/buffer";
 import "rxjs/add/operator/debounceTime";
-import "rxjs/add/operator/combineLatest";
+import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
-import "rxjs/add/operator/mergeMap";
+import "rxjs/add/operator/scan";
 
 import {ComponentService, Component} from "../Component";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
 type Keys = { [key: string]: boolean };
+
+interface IKeys {
+    report: string[];
+    reported: Keys;
+}
 
 export class StatsComponent extends Component {
     public static componentName: string = "stats";
@@ -27,59 +28,59 @@ export class StatsComponent extends Component {
     }
 
     protected _activate(): void {
-        this._sequenceSubscription = Observable
-            .combineLatest(
-                this._navigator.stateService.currentNode$,
-                Observable.of<Keys>({}))
-            .mergeMap<string>(
-                (args: [Node, Keys]): Observable<string> => {
-                    let sKey: string = args[0].sequence.key;
-                    let reportedKeys: Keys = args[1];
+        this._sequenceSubscription = this._navigator.stateService.currentNode$
+            .scan<IKeys>(
+                (keys: IKeys, node: Node): IKeys => {
+                    let sKey: string = node.sequence.key;
+                    keys.report = [];
 
-                    if (!(sKey in reportedKeys)) {
-                        reportedKeys[sKey] = true;
-
-                        return Observable.of<string>(sKey);
+                    if (!(sKey in keys.reported)) {
+                        keys.report = [sKey];
+                        keys.reported[sKey] = true;
                     }
 
-                    return Observable.empty<string>();
+                    return keys;
+                },
+                { report: [], reported: {} })
+            .filter(
+                (keys: IKeys): boolean => {
+                    return keys.report.length > 0;
                 })
             .subscribe(
-                (sKey: string): void => {
+                (keys: IKeys): void => {
                     this._navigator.apiV3.modelMagic
-                        .call(["sequenceViewAdd"], [[sKey]])
+                        .call(["sequenceViewAdd"], [keys.report])
                         .subscribe();
                 });
 
-        this._navigator.stateService.currentNode$
+        this._imageSubscription = this._navigator.stateService.currentNode$
             .map<string>(
                 (node: Node): string => {
                     return node.key;
                 })
             .buffer(this._navigator.stateService.currentNode$.debounceTime(5000))
-            .combineLatest(Observable.of<Keys>({}))
-            .mergeMap<string[]>(
-                (args: [string[], Keys]): Observable<string[]> => {
-                    let keys: string[] = args[0];
-                    let reportedKeys: Keys = args[1];
+            .scan(
+                 (keys: IKeys, newKeys: string[]): IKeys => {
+                     keys.report = [];
 
-                    let reportKeys: string[] = [];
-
-                    for (let key of keys) {
-                        if (!(key in reportedKeys)) {
-                            reportedKeys[key] = true;
-                            reportKeys.push(key);
+                     for (let key of newKeys) {
+                        if (!(key in keys.reported)) {
+                            keys.report.push(key);
+                            keys.reported[key] = true;
                         }
-                    }
+                     }
 
-                    return reportKeys.length > 0 ?
-                        Observable.of<string[]>(reportKeys) :
-                        Observable.empty<string[]>();
+                     return keys;
+                 },
+                 { report: [], reported: {} })
+             .filter(
+                (keys: IKeys): boolean => {
+                    return keys.report.length > 0;
                 })
             .subscribe(
-                (keys: string[]): void => {
+                (keys: IKeys): void => {
                     this._navigator.apiV3.modelMagic
-                        .call(["imageViewAdd"], [keys])
+                        .call(["imageViewAdd"], [keys.report])
                         .subscribe();
                 });
     }
