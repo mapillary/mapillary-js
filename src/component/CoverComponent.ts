@@ -69,9 +69,10 @@ export class CoverComponent extends Component {
 
     private _getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
         const cover: string = conf.loading ? "div.Cover.CoverLoading" : "div.Cover";
+
         return vd.h(cover, [
             this._getCoverBackgroundVNode(conf),
-            vd.h("button.CoverButton", {onclick: (): void => { this.configure({ loading: true }); }}, ["Explore"]),
+            vd.h("button.CoverButton", { onclick: (): void => { this.configure({ loading: true }); } }, ["Explore"]),
             vd.h("a.CoverLogo", {href: `https://www.mapillary.com`, target: "_blank"}, []),
         ]);
     }
@@ -80,12 +81,17 @@ export class CoverComponent extends Component {
         let url: string = conf.src != null ?
             `url(${conf.src})` :
             `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-640.jpg)`;
-        const spinner: vd.VNode = conf.loading ? vd.h("div.Spinner", {}, []) : undefined;
-        return vd.h(
-          "div.CoverBackground",
-          { style: { backgroundImage: url } },
-          [ spinner, vd.h("div.CoverBackgroundGradient", {}, []) ]
-        );
+
+        let properties: vd.createProperties = { style: { backgroundImage: url } };
+
+        let children: vd.VNode[] = [];
+        if (conf.loading) {
+            children.push(vd.h("div.Spinner", {}, []));
+        }
+
+        children.push(vd.h("div.CoverBackgroundGradient", {}, []));
+
+        return vd.h("div.CoverBackground", properties, children);
     }
 }
 
