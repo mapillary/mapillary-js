@@ -50,7 +50,13 @@ export class ImagePlaneFactory {
 
     private _createSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let gpano: IGPano = transform.gpano;
+
+        let halfCroppedWidth: number = (gpano.FullPanoWidthPixels - gpano.CroppedAreaImageWidthPixels) / 2;
+        let phiShift: number = 2 * Math.PI * (gpano.CroppedAreaLeftPixels - halfCroppedWidth) / gpano.FullPanoWidthPixels;
         let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
+
+        let halfCroppedHeight: number = (gpano.FullPanoHeightPixels - gpano.CroppedAreaImageHeightPixels) / 2;
+        let thetaShift: number = Math.PI * (halfCroppedHeight - gpano.CroppedAreaTopPixels) / gpano.FullPanoHeightPixels;
         let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
 
         let materialParameters: THREE.ShaderMaterialParameters = {
@@ -67,6 +73,10 @@ export class ImagePlaneFactory {
                     type: "f",
                     value: phiLength,
                 },
+                phiShift: {
+                    type: "f",
+                    value: phiShift,
+                },
                 projectorMat: {
                     type: "m4",
                     value: transform.rt,
@@ -78,6 +88,10 @@ export class ImagePlaneFactory {
                 thetaLength: {
                     type: "f",
                     value: thetaLength,
+                },
+                thetaShift: {
+                    type: "f",
+                    value: thetaShift,
                 },
             },
             vertexShader: ImagePlaneShaders.equirectangular.vertex,
@@ -217,7 +231,9 @@ export class ImagePlaneFactory {
         let gpano: IGPano = transform.gpano;
         let phiStart: number = 2 * Math.PI * gpano.CroppedAreaLeftPixels / gpano.FullPanoWidthPixels;
         let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
-        let thetaStart: number = Math.PI * gpano.CroppedAreaTopPixels / gpano.FullPanoHeightPixels;
+        let thetaStart: number = Math.PI *
+            (gpano.FullPanoHeightPixels - gpano.CroppedAreaImageHeightPixels - gpano.CroppedAreaTopPixels) /
+            gpano.FullPanoHeightPixels;
         let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
         let geometry: THREE.SphereGeometry = new THREE.SphereGeometry(
             this._imageSphereRadius,
