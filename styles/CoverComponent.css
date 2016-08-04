@@ -22,20 +22,30 @@
     right: 0;
     top: 0;
     transform: translateZ(0);
-    transition: transform 10s ease-out;
+    transition: transform 5s ease-out, background-image .2s ease-in-out;
     z-index: -10;
     position: absolute;
     margin-right: -3px;
 }
 
+.Cover:hover .CoverBackground {
+    transform: scale(1.1);
+}
+
+.Cover.CoverLoading .CoverBackground{
+    transform: scale(1);
+    transition: transform .4s ease-out;
+}
+
 .CoverBackgroundGradient {
     background: linear-gradient(-180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
     bottom: 0;
-    height: 180px;
+    height: 110px;
     left: 0;
     pointer-events: none;
     position: absolute;
     right: 0;
+    transition: opacity .2s ease-in-out;
     z-index: 1;
 }
 
@@ -46,12 +56,15 @@
     height: 32px;
     left: 30px;
     position: absolute;
+    transition: opacity .2s ease-in-out;
     width: 128px;
     z-index: 300;
 }
 
-.Cover:hover .CoverBackground {
-    transform: scale(1.2);
+@media screen and (max-width: 560px) {
+  .CoverLogo {
+      display: none;
+  }
 }
 
 .Cover.CoverDone > .CoverBackground {
@@ -68,14 +81,16 @@
 }
 
 .CoverButton {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: transparent;
     border-radius: 999px;
     border: 1px solid white;
     bottom: 30px;
     color: white;
     font-size: 14px;
-    height: 32px;
+    font-weight: 300;
+    height: 34px;
     left: 50%;
+    letter-spacing: 1px;
     margin-left: -70px;
     padding: 5px 30px 7px;
     position: absolute;
@@ -119,4 +134,10 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+.Cover.CoverLoading .CoverButton,
+.Cover.CoverLoading .CoverLogo,
+.Cover.CoverLoading .CoverBackgroundGradient {
+    opacity: 0;
 }
