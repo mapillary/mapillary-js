@@ -171,7 +171,7 @@ export class TraversingState extends StateBase {
 
         this._desiredZoom = this._zoom;
         this._desiredLookat = null;
-        this._requestedBasicRotation = [0, 0];
+        this._requestedBasicRotation = null;
 
         if (this._requestedRotationDelta != null) {
             this._requestedRotationDelta.phi = this._requestedRotationDelta.phi + rotationDelta.phi;
@@ -493,7 +493,7 @@ export class TraversingState extends StateBase {
     }
 
     private _clearRotation(): void {
-        if (this._currentNode.pano) {
+        if (this._currentNode.fullPano) {
             return;
         }
 
@@ -501,10 +501,16 @@ export class TraversingState extends StateBase {
             this._requestedRotationDelta = null;
         }
 
-        if (this._rotationDelta.isZero) {
-            return;
+        if (!this._rotationDelta.isZero) {
+            this._rotationDelta.reset();
         }
 
-        this._rotationDelta.reset();
+        if (this._requestedBasicRotation != null) {
+            this._requestedBasicRotation = null;
+        }
+
+        if (this._basicRotation[0] > 0 || this._basicRotation[1] > 0) {
+            this._basicRotation = [0, 0];
+        }
     }
 }
