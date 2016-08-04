@@ -68,17 +68,18 @@ export class CoverComponent extends Component {
     }
 
     private _getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
-        return vd.h("div.Cover", [
+        const cover: string = conf.loading ? "div.Cover.CoverLoading" : "div.Cover";
+        return vd.h(cover, [
             this._getCoverBackgroundVNode(conf),
             vd.h("button.CoverButton", {onclick: (): void => { this.configure({ loading: true }); }}, ["Explore"]),
-            vd.h("a.CoverLogo", {href: `https://www.mapillary.com/app/?pKey=${conf.key}`, target: "_blank"}, []),
+            vd.h("a.CoverLogo", {href: `https://www.mapillary.com`, target: "_blank"}, []),
         ]);
     }
 
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
         let url: string = conf.src != null ?
             `url(${conf.src})` :
-            `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-1024.jpg)`;
+            `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-640.jpg)`;
         const spinner: vd.VNode = conf.loading ? vd.h("div.Spinner", {}, []) : undefined;
         return vd.h(
           "div.CoverBackground",
