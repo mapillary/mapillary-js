@@ -21,8 +21,16 @@ class RotationDelta implements IRotation {
         return this._phi;
     }
 
+    public set phi(value: number) {
+        this._phi = value;
+    }
+
     public get theta(): number {
         return this._theta;
+    }
+
+    public set theta(value: number) {
+        this._theta = value;
     }
 
     public get isZero(): boolean {
@@ -165,7 +173,12 @@ export class TraversingState extends StateBase {
         this._desiredLookat = null;
         this._requestedBasicRotation = [0, 0];
 
-        this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
+        if (this._requestedRotationDelta != null) {
+            this._requestedRotationDelta.phi = this._requestedRotationDelta.phi + rotationDelta.phi;
+            this._requestedRotationDelta.theta = this._requestedRotationDelta.theta + rotationDelta.theta;
+        } else {
+            this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
+        }
     }
 
     public rotateBasic(basicRotation: number[]): void {
@@ -177,7 +190,12 @@ export class TraversingState extends StateBase {
         this._desiredLookat = null;
         this._requestedRotationDelta = null;
 
-        this._requestedBasicRotation = basicRotation.slice();
+        if (this._requestedBasicRotation != null) {
+            this._requestedBasicRotation[0] += basicRotation[0];
+            this._requestedBasicRotation[1] += basicRotation[1];
+        } else {
+            this._requestedBasicRotation = basicRotation.slice();
+        }
     }
 
     public rotateToBasic(basic: number[]): void {
