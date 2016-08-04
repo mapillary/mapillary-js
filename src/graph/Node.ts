@@ -185,7 +185,7 @@ export class Node {
     }
 
     public cacheImage(): Observable<ILoadStatusObject<HTMLImageElement>> {
-        let imageSize: ImageSize = this.fullPano ?
+        let imageSize: ImageSize = this.pano ?
             Settings.basePanoramaSize :
             Settings.baseImageSize;
 
