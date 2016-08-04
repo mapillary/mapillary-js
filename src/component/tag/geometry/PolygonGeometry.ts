@@ -7,26 +7,29 @@ import {Transform} from "../../../Geo";
  */
 export class PolygonGeometry extends VertexGeometry {
     private _polygon: number[][];
+    private _holes: number[][][];
 
     /**
      * Create a polygon geometry.
      *
      * @constructor
-     * @param {Array<Array<number>>} polygon - An array of polygon vertices. Must be closed.
+     * @param {Array<Array<number>>} polygon - Array of polygon vertices. Must be closed.
+     * @param {Array<Array<Array<number>>>} [holes] - Array of arrays of hole vertices.
+     * Each array of holes vertices must be closed.
      *
      * @throws {GeometryTagError} Polygon coordinates must be valid basic coordinates.
      */
-    constructor(polygon: number[][]) {
+    constructor(polygon: number[][], holes?: number[][][]) {
         super();
 
-        let length: number = polygon.length;
+        let polygonLength: number = polygon.length;
 
-        if (length < 3) {
+        if (polygonLength < 3) {
             throw new GeometryTagError("A polygon must have three or more positions.");
         }
 
-        if (polygon[0][0] !== polygon[length - 1][0] ||
-            polygon[0][1] !== polygon[length - 1][1]) {
+        if (polygon[0][0] !== polygon[polygonLength - 1][0] ||
+            polygon[0][1] !== polygon[polygonLength - 1][1]) {
             throw new GeometryTagError("First and last positions must be equivalent.");
         }
 
@@ -34,10 +37,41 @@ export class PolygonGeometry extends VertexGeometry {
         for (let vertex of polygon) {
             if (vertex[0] < 0 || vertex[0] > 1 ||
                 vertex[1] < 0 || vertex[1] > 1) {
-                throw new GeometryTagError("Basic coordinates must be on the interval [0, 1].");
+                throw new GeometryTagError("Basic coordinate of polygon must be on the interval [0, 1].");
             }
 
             this._polygon.push(vertex.slice());
+        }
+
+        this._holes = [];
+
+        if (holes == null) {
+            return;
+        }
+
+        for (let i: number = 0; i < holes.length; i++) {
+            let hole: number[][] = holes[i];
+            let holeLength: number = hole.length;
+
+            if (holeLength < 3) {
+                throw new GeometryTagError("A polygon hole must have three or more positions.");
+            }
+
+            if (hole[0][0] !== hole[holeLength - 1][0] ||
+                hole[0][1] !== hole[holeLength - 1][1]) {
+                throw new GeometryTagError("First and last positions of hole must be equivalent.");
+            }
+
+            this._holes.push([]);
+
+            for (let vertex of hole) {
+                if (vertex[0] < 0 || vertex[0] > 1 ||
+                    vertex[1] < 0 || vertex[1] > 1) {
+                    throw new GeometryTagError("Basic coordinate of hole must be on the interval [0, 1].");
+                }
+
+                this._holes[i].push(vertex.slice());
+            }
         }
     }
 
@@ -47,6 +81,14 @@ export class PolygonGeometry extends VertexGeometry {
      */
     public get polygon(): number[][] {
         return this._polygon;
+    }
+
+    /**
+     * Get holes property.
+     * @returns {Array<Array<Array<number>>>} Holes of 2d polygon.
+     */
+    public get holes(): number[][][] {
+        return this._holes;
     }
 
     /**
@@ -154,6 +196,30 @@ export class PolygonGeometry extends VertexGeometry {
                 });
     }
 
+    /**
+     * Get a polygon representation of the 3D coordinates for the vertices of each hole
+     * of the geometry.
+     *
+     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @returns {Array<Array<Array<number>>>} Array of hole polygons in 3D world coordinates
+     * representing the vertices of each hole of the geometry.
+     */
+    public getHoleVertices3d(transform: Transform): number[][][] {
+        let holes3d: number[][][] = [];
+
+        for (let hole of this._holes) {
+            let hole3d: number[][] = hole
+                .map(
+                    (point: number[]) => {
+                        return transform.unprojectBasic(point, 200);
+                    });
+
+            holes3d.push(hole3d);
+        }
+
+        return holes3d;
+    }
+
     /** @inheritdoc */
     public getCentroid3d(transform: Transform): number[] {
         let centroid2d: number[] = this._getCentroid2d();
@@ -163,7 +229,11 @@ export class PolygonGeometry extends VertexGeometry {
 
     /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
-        return this._triangulate(this._polygon, this.getPoints3d(transform));
+        return this._triangulate(
+            this._polygon,
+            this.getPoints3d(transform),
+            this._holes,
+            this.getHoleVertices3d(transform));
     }
 
     private _getCentroid2d(): number[] {

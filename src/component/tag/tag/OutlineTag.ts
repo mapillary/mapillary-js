@@ -9,6 +9,7 @@ import {Subject} from "rxjs/Subject";
 import {
     Alignment,
     IOutlineTagOptions,
+    PolygonGeometry,
     RectGeometry,
     Tag,
     TagOperation,
@@ -334,7 +335,9 @@ export class OutlineTag extends Tag {
         let objects: THREE.Object3D[] = [];
 
         if (this._lineWidth > 0) {
-            objects.push(this._getGLLine(transform));
+            for (let line of this._getGLLines(transform)) {
+                objects.push(line);
+            }
         }
 
         if (this._fillOpacity > 0 && !transform.gpano) {
@@ -531,8 +534,7 @@ export class OutlineTag extends Tag {
         return positions;
     }
 
-    private _getGLLine(transform: Transform): THREE.Object3D {
-        let points3d: number[][] = this._geometry.getPoints3d(transform);
+    private _getGLLine(points3d: number[][], transform: Transform): THREE.Object3D {
         let positions: Float32Array = this._getLinePositions(points3d);
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -546,6 +548,25 @@ export class OutlineTag extends Tag {
                 });
 
         return new THREE.Line(geometry, material);
+    }
+
+    private _getGLLines(transform: Transform): THREE.Object3D[] {
+        let objects: THREE.Object3D[] = [];
+
+        let points3d: number[][] = this._geometry.getPoints3d(transform);
+        let outline: THREE.Object3D = this._getGLLine(points3d, transform);
+        objects.push(outline);
+
+        if (this._geometry instanceof PolygonGeometry) {
+            let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
+            let holes3d: number[][][] = polygonGeometry.getHoleVertices3d(transform);
+            for (let hole3d of holes3d) {
+                let hole: THREE.Object3D = this._getGLLine(hole3d, transform);
+                objects.push(hole);
+            }
+        }
+
+        return objects;
     }
 
     private _getGLMesh(transform: Transform): THREE.Object3D {

@@ -15,8 +15,6 @@ import "rxjs/add/operator/skip";
 import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/withLatestFrom";
 
-
-
 import {Camera, Transform} from "../Geo";
 import {Node} from "../Graph";
 import {RenderCamera, RenderMode, ISize} from "../Render";

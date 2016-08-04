@@ -77,21 +77,38 @@ export abstract class VertexGeometry extends Geometry {
      * Triangulates a 2d polygon and returns the triangle
      * representation as a flattened array of 3d points.
      *
-     * @param {Array<Array<number>>} points2d - 2d points to triangulate.
-     * @param {Array<Array<number>>} points3d - 3d points corresponding to the 2d points.
+     * @param {Array<Array<number>>} points2d - 2d points of outline to triangulate.
+     * @param {Array<Array<number>>} points3d - 3d points of outline corresponding to the 2d points.
+     * @param {Array<Array<Array<number>>>} [holes2d] - 2d points of holes to triangulate.
+     * @param {Array<Array<Array<number>>>} [holes3d] - 3d points of holes corresponding to the 2d points.
      * @returns {Array<number>} Flattened array of 3d points ordered based on the triangles.
      */
-    protected _triangulate(points2d: number[][], points3d: number[][]): number[] {
-        let data: earcut.Data = earcut.flatten([points2d.slice(0, -1)]);
-        let indices: number[] = earcut(data.vertices);
+    protected _triangulate(
+        points2d: number[][],
+        points3d: number[][],
+        holes2d?: number[][][],
+        holes3d?: number[][][]): number[] {
 
+        let data: number[][][] = [points2d.slice(0, -1)];
+        for (let hole2d of holes2d != null ? holes2d : []) {
+            data.push(hole2d.slice(0, -1));
+        }
+
+        let points: number[][] = points3d.slice(0, -1);
+        for (let hole3d of holes3d != null ? holes3d : []) {
+            points = points.concat(hole3d.slice(0, -1));
+        }
+
+        let flattened: earcut.Data = earcut.flatten(data);
+        let indices: number[] = earcut(flattened.vertices, flattened.holes, flattened.dimensions);
         let triangles: number[] = [];
-        for (let i: number = 0; i < indices.length; ++i) {
-            let point3d: number[] = points3d[indices[i]];
 
-            triangles.push(point3d[0]);
-            triangles.push(point3d[1]);
-            triangles.push(point3d[2]);
+        for (let i: number = 0; i < indices.length; ++i) {
+            let point: number[] = points[indices[i]];
+
+            triangles.push(point[0]);
+            triangles.push(point[1]);
+            triangles.push(point[2]);
         }
 
         return triangles;

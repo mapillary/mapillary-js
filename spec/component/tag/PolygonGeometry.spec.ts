@@ -24,7 +24,7 @@ describe("PolygonGeometry.ctor", () => {
         }
     });
 
-    it("should throw if polygon has less then three positions", () => {
+    it("should throw if polygon has less than three positions", () => {
         expect(() => { return new PolygonGeometry([[0, 0], [0, 0]]); })
             .toThrowError(GeometryTagError);
     });
@@ -33,7 +33,6 @@ describe("PolygonGeometry.ctor", () => {
         expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [1, 1], [0, 1]]); })
             .toThrowError(GeometryTagError);
     });
-
 
     it("should throw if basic coord is below supported range", () => {
         expect(() => { return new PolygonGeometry([[-0.5, 0], [1, 0], [1, 1], [-0.5, 0]]); })
@@ -49,7 +48,47 @@ describe("PolygonGeometry.ctor", () => {
 
         expect(() => { return new PolygonGeometry([[0, 1.5], [1, 0], [1, 1], [0, 1.5]]); })
             .toThrowError(GeometryTagError);
-   });
+    });
+
+    it("holes should be set", () => {
+        let polygon: number[][] = [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]];
+        let original: number[][] = [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]];
+
+        let polygonGeometry: PolygonGeometry = new PolygonGeometry(polygon, [original]);
+
+        expect(polygonGeometry.holes.length).toBe(1);
+
+        for (let i: number = 0; i < original.length; i++) {
+            expect(polygonGeometry.holes[0][i][0]).toBe(original[i][0]);
+            expect(polygonGeometry.holes[0][i][1]).toBe(original[i][1]);
+        }
+    });
+
+    it("should throw if hole has less than three positions", () => {
+        expect(() => { return new PolygonGeometry([[0, 0], [0, 0], [0, 0]], [[[0, 0], [0, 0]]]); })
+            .toThrowError(GeometryTagError);
+    });
+
+    it("should throw if first and last positions are not equivalent", () => {
+        expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[0, 0], [1, 0], [1, 1]]]); })
+            .toThrowError(GeometryTagError);
+    });
+
+    it("should throw if basic coord is below supported range for hole", () => {
+        expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[-0.5, 0], [1, 0], [1, 1], [-0.5, 0]]]); })
+            .toThrowError(GeometryTagError);
+
+        expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[0, -0.5], [1, 0], [1, 1], [0, -0.5]]]); })
+            .toThrowError(GeometryTagError);
+    });
+
+    it("should throw if basic coord is above supported range for hole", () => {
+        expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[1.5, 0], [1, 0], [1, 1], [1.5, 0]]]); })
+            .toThrowError(GeometryTagError);
+
+        expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[0, 1.5], [1, 0], [1, 1], [0, 1.5]]]); })
+            .toThrowError(GeometryTagError);
+    });
 });
 
 describe("PolygonGeometry.addVertex2d", () => {
