@@ -107,9 +107,9 @@ export class RenderService {
                                 frame.state.currentNode;
 
                         rc.currentAspect = currentTransform.basicAspect;
-                        rc.currentPano = frame.state.currentNode.fullPano;
+                        rc.currentPano = frame.state.currentNode.pano;
                         rc.previousAspect = previousTransform.basicAspect;
-                        rc.previousPano = previousNode.fullPano;
+                        rc.previousPano = previousNode.pano;
 
                         rc.alpha = frame.state.alpha;
                         rc.zoom = frame.state.zoom;
