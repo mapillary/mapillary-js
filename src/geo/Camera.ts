@@ -4,12 +4,21 @@ import * as THREE from "three";
 
 import {Transform} from "../Geo";
 
+/**
+ * @class Camera
+ *
+ * @classdesc Holds information about a camera.
+ */
 export class Camera {
     private _position: THREE.Vector3;
     private _lookat: THREE.Vector3;
     private _up: THREE.Vector3;
     private _focal: number;
 
+    /**
+     * Create a new camera instance.
+     * @param {Transform} [transform] - Optional transform instance.
+     */
     constructor(transform?: Transform) {
         if (transform != null) {
             this._position = transform.pixelToVertex(0, 0, 0);
@@ -24,26 +33,52 @@ export class Camera {
         }
     }
 
+   /**
+    * Get position.
+    * @returns {THREE.Vector3} The position vector.
+    */
     public get position(): THREE.Vector3 {
         return this._position;
     }
 
+   /**
+    * Get lookat.
+    * @returns {THREE.Vector3} The lookat vector.
+    */
     public get lookat(): THREE.Vector3 {
         return this._lookat;
     }
 
+   /**
+    * Get up.
+    * @returns {THREE.Vector3} The up vector.
+    */
     public get up(): THREE.Vector3 {
         return this._up;
     }
 
+   /**
+    * Get focal.
+    * @returns {number} The focal length.
+    */
     public get focal(): number {
         return this._focal;
     }
 
+   /**
+    * Set focal.
+    */
     public set focal(value: number) {
         this._focal = value;
     }
 
+    /**
+     * Update this camera to the linearly interpolated value of two other cameras.
+     *
+     * @param {Camera} a - First camera.
+     * @param {Camera} b - Second camera.
+     * @param {number} alpha - Interpolation value on the interval [0, 1].
+     */
     public lerpCameras(a: Camera, b: Camera, alpha: number): void {
       this._position.subVectors(b.position, a.position).multiplyScalar(alpha).add(a.position);
       this._lookat.subVectors(b.lookat, a.lookat).multiplyScalar(alpha).add(a.lookat);
@@ -51,6 +86,11 @@ export class Camera {
       this._focal = (1 - alpha) * a.focal + alpha * b.focal;
     }
 
+    /**
+     * Copy the properties of another camera to this camera.
+     *
+     * @param {Camera} other - Another camera.
+     */
     public copy(other: Camera): void {
         this._position.copy(other.position);
         this._lookat.copy(other.lookat);
@@ -58,6 +98,11 @@ export class Camera {
         this._focal = other.focal;
     }
 
+    /**
+     * Clone this camera.
+     *
+     * @returns {Camera} A camera with cloned properties equal to this camera.
+     */
     public clone(): Camera {
         let camera: Camera = new Camera();
 
@@ -69,6 +114,12 @@ export class Camera {
         return camera;
     }
 
+    /**
+     * Determine the distance between this camera and another camera.
+     *
+     * @param {Camera} other - Another camera.
+     * @returns {number} The distance between the cameras.
+     */
     public diff(other: Camera): number {
         let pd: number = this._position.distanceToSquared(other.position);
         let ld: number = this._lookat.distanceToSquared(other.lookat);
@@ -78,6 +129,14 @@ export class Camera {
         return Math.max(pd, ld, ud, fd);
     }
 
+    /**
+     * Get the focal length based on the transform.
+     *
+     * @description Returns 0.5 focal length if transform has gpano
+     * information.
+     *
+     * @returns {number} Focal length.
+     */
     private _getFocal(transform: Transform): number {
         return transform.gpano == null ? transform.focal : 0.5;
     }

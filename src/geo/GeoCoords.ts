@@ -1,7 +1,7 @@
 /**
  * @class GeoCoords
  *
- * @description Converts coordinates between the geodetic (WGS84),
+ * @classdesc Converts coordinates between the geodetic (WGS84),
  * Earth-Centered, Earth-Fixed (ECEF) and local topocentric
  * East, North, Up (ENU) reference frames.
  *

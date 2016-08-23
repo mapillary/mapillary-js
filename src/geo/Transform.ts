@@ -5,6 +5,12 @@ import * as THREE from "three";
 import {IGPano} from "../API";
 import {Node} from "../Graph";
 
+/**
+ * @class Transform
+ *
+ * @classdesc Class used for calculating coordinate transformations
+ * and projections.
+ */
 export class Transform {
     private _width: number;
     private _height: number;
@@ -18,6 +24,11 @@ export class Transform {
     private _rt: THREE.Matrix4;
     private _srt: THREE.Matrix4;
 
+    /**
+     * Create a new transform instance.
+     * @param {Node} node - Node instance.
+     * @param {Array<number>} translation - Translation vector in three dimensions.
+     */
     constructor(node: Node, translation: number[]) {
         this._orientation = this._getValue(node.apiNavImIm.orientation, 1);
 
@@ -40,42 +51,86 @@ export class Transform {
         this._srt = this._getSrt(this._rt, this._scale);
     }
 
-    public get width(): number {
-        return this._width;
-    }
-
-    public get height(): number {
-        return this._height;
-    }
-
-    public get focal(): number {
-        return this._focal;
-    }
-
-    public get orientation(): number {
-        return this._orientation;
-    }
-
-    public get scale(): number {
-        return this._scale;
-    }
-
+    /**
+     * Get basic aspect.
+     * @returns {number} The orientation adjusted aspect ratio.
+     */
     public get basicAspect(): number {
         return this._basicAspect;
     }
 
+    /**
+     * Get focal.
+     * @returns {number} The node focal length.
+     */
+    public get focal(): number {
+        return this._focal;
+    }
+
+    /**
+     * Get gpano.
+     * @returns {number} The node gpano information.
+     */
     public get gpano(): IGPano {
         return this._gpano;
     }
 
+    /**
+     * Get height.
+     * @returns {number} The orientation adjusted image height.
+     */
+    public get height(): number {
+        return this._height;
+    }
+
+    /**
+     * Get orientation.
+     * @returns {number} The image orientation.
+     */
+    public get orientation(): number {
+        return this._orientation;
+    }
+
+    /**
+     * Get rt.
+     * @returns {THREE.Matrix4} The extrinsic camera matrix.
+     */
     public get rt(): THREE.Matrix4 {
         return this._rt;
     }
 
+    /**
+     * Get srt.
+     * @returns {THREE.Matrix4} The scaled extrinsic camera matrix.
+     */
     public get srt(): THREE.Matrix4 {
         return this._srt;
     }
 
+    /**
+     * Get scale.
+     * @returns {number} The node atomic reconstruction scale.
+     */
+    public get scale(): number {
+        return this._scale;
+    }
+
+    /**
+     * Get width.
+     * @returns {number} The orientation adjusted image width.
+     */
+    public get width(): number {
+        return this._width;
+    }
+
+    /**
+     * Unproject SfM coordinates to a 3D world coordiantes.
+     *
+     * @param {number} x - SfM x-coordinate.
+     * @param {number} y - SfM y-coordinate.
+     * @param {number} depth - Depth to unproject 3D coordinate from camera center.
+     * @returns {THREE.Vector3} 3D world coordinate.
+     */
     public pixelToVertex(x: number, y: number, depth: number): THREE.Vector3 {
         let v: THREE.Vector4 = new THREE.Vector4(
             x / this._focal * depth,
@@ -88,6 +143,11 @@ export class Transform {
         return new THREE.Vector3(v.x / v.w, v.y / v.w, v.z / v.w);
     }
 
+    /**
+     * Calculate the up vector for the node transform.
+     *
+     * @returns {THREE.Vector3} Normalized and orientation adjusted up vector.
+     */
     public upVector(): THREE.Vector3 {
         let rte: Float32Array = this._rt.elements;
 
@@ -105,6 +165,11 @@ export class Transform {
         }
     }
 
+    /**
+     * Calculate projector matrix for projecting 3D points to pixels.
+     *
+     * @returns {THREE.Matrix4} Projection matrix for 3D point to pixel calculations.
+     */
     public projectorMatrix(): THREE.Matrix4 {
         let projector: THREE.Matrix4 = this._normalizedToTextureMatrix();
 
@@ -122,22 +187,48 @@ export class Transform {
         return projector;
     }
 
+    /**
+     * Project 3D world coordinates to basic coordinates.
+     *
+     * @param {Array<number>} point - 3D world coordinates.
+     * @return {Array<number>} 2D basic coordinates.
+     */
     public projectBasic(point: number[]): number[] {
         let sfm: number[] = this.projectSfM(point);
         return this._sfmToBasic(sfm);
     }
 
+    /**
+     * Unproject basic coordinates to a 3D world coordinates.
+     *
+     * @param {Array<number>} pixel - 2D basic coordinates.
+     * @param {Array<number>} distance - Depth to unproject from camera center.
+     * @returns {Array<number>} Unprojected 3D world coordinate.
+     */
     public unprojectBasic(pixel: number[], distance: number): number[] {
         let sfm: number[] = this._basicToSfm(pixel);
         return this.unprojectSfM(sfm, distance);
     }
 
+    /**
+     * Project 3D world coordinates to SfM coordinates.
+     *
+     * @param {Array<number>} point - 3D world coordinates.
+     * @return {Array<number>} 2D SfM coordinates.
+     */
     public projectSfM(point: number[]): number[] {
         let v: THREE.Vector4 = new THREE.Vector4(point[0], point[1], point[2], 1);
         v.applyMatrix4(this._rt);
         return this._bearingToPixel([v.x, v.y, v.z]);
     }
 
+    /**
+     * Unproject SfM coordinates to a 3D world coordinates.
+     *
+     * @param {Array<number>} pixel - 2D SfM coordinates.
+     * @param {Array<number>} distance - Depth to unproject from camera center.
+     * @returns {Array<number>} Unprojected 3D world coordinate.
+     */
     public unprojectSfM(pixel: number[], distance: number): number[] {
         let bearing: number[] = this._pixelToBearing(pixel);
         let v: THREE.Vector4 = new THREE.Vector4(
@@ -149,6 +240,12 @@ export class Transform {
         return [v.x / v.w, v.y / v.w, v.z / v.w];
     }
 
+    /**
+     * Transform SfM coordinates to 3D cartesian on the unit sphere.
+     *
+     * @param {Array<number>} pixel - 2D SfM coordinates.
+     * @returns {Array<number>} 3D cartesian coordinates on the unit sphere.
+     */
     private _pixelToBearing(pixel: number[]): number[] {
         if (this._fullPano()) {
             let lon: number = pixel[0] * 2 * Math.PI;
@@ -176,6 +273,12 @@ export class Transform {
         }
     }
 
+    /**
+     * Transform 3D cartesian on the unit sphere to SfM coordinates.
+     *
+     * @param {Array<number>} 3D cartesian coordinates on the unit sphere.
+     * @returns {Array<number>} pixel - 2D SfM coordinates.
+     */
     private _bearingToPixel(bearing: number[]): number[] {
         if (this._fullPano()) {
             let x: number = bearing[0];
@@ -207,6 +310,12 @@ export class Transform {
         }
     }
 
+    /**
+     * Convert basic coordinates to SfM coordinates.
+     *
+     * @param {Array<number>} point - 2D basic coordinates.
+     * @returns {Array<number>} 2D SfM coordinates.
+     */
     private _basicToSfm(point: number[]): number[] {
         let rotatedX: number;
         let rotatedY: number;
@@ -243,6 +352,12 @@ export class Transform {
         return [sfmX, sfmY];
     }
 
+    /**
+     * Convert SfM coordinates to basic coordinates.
+     *
+     * @param {Array<number>} point - 2D SfM coordinates.
+     * @returns {Array<number>} 2D basic coordinates.
+     */
     private _sfmToBasic(point: number[]): number[] {
         let w: number = this._width;
         let h: number = this._height;
@@ -279,6 +394,12 @@ export class Transform {
         return [basicX, basicY];
     }
 
+    /**
+     * Determines if the gpano information indicates a full panorama.
+     *
+     * @returns {boolean} Value determining if the gpano information indicates
+     * a full panorama.
+     */
     private _fullPano(): boolean {
         return this.gpano != null &&
             this.gpano.CroppedAreaLeftPixels === 0 &&
@@ -287,10 +408,24 @@ export class Transform {
             this.gpano.CroppedAreaImageHeightPixels === this.gpano.FullPanoHeightPixels;
     }
 
+    /**
+     * Checks a value and fallbacks if it is null.
+     *
+     * @param {number} value - Value to check.
+     * @param {number} fallback - Value to fall back to.
+     * @returns {number} The value or its fallback value if it is not defined or negative.
+     */
     private _getValue(value: number, fallback: number): number {
         return value != null && value > 0 ? value : fallback;
     }
 
+    /**
+     * Calculates the extrinsic camera matrix [ R | t ].
+     *
+     * @param {Node} node - Node with rotation value.
+     * @param {Array<number>} translation - Translation vector.
+     * @returns {THREE.Matrix4} Extrisic camera matrix.
+     */
     private _getRt(node: Node, translation: number[]): THREE.Matrix4 {
         let axis: THREE.Vector3 = new THREE.Vector3(
             node.apiNavImIm.rotation[0],
@@ -310,6 +445,13 @@ export class Transform {
         return rt;
     }
 
+    /**
+     * Calculates the scaled extrinsic camera matrix scale * [ R | t ].
+     *
+     * @param {THREE.Matrix4} rt - Extrisic camera matrix.
+     * @param {number} scale - Scale factor.
+     * @returns {THREE.Matrix4} Scaled extrisic camera matrix.
+     */
     private _getSrt(rt: THREE.Matrix4, scale: number): THREE.Matrix4 {
         let srt: THREE.Matrix4 = rt.clone();
         let elements: Float32Array = srt.elements;
@@ -323,6 +465,13 @@ export class Transform {
         return srt;
     }
 
+    /**
+     * Calculate a transformation matrix from normalized coordinates for
+     * texture coordinates.
+     *
+     * @returns {THREE.Matrix4} Normalized coordinates to texture coordinates
+     * transformation matrix.
+     */
     private _normalizedToTextureMatrix(): THREE.Matrix4 {
         let size: number = Math.max(this._width, this._height);
         let w: number = size / this._width;
