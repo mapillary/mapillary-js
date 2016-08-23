@@ -2,8 +2,7 @@
 
 import * as THREE from "three";
 
-import {IGPano} from "../API";
-import {Node} from "../Graph";
+import {IAPINavImIm, IGPano} from "../API";
 
 /**
  * @class Transform
@@ -26,28 +25,29 @@ export class Transform {
 
     /**
      * Create a new transform instance.
-     * @param {Node} node - Node instance.
-     * @param {Array<number>} translation - Translation vector in three dimensions.
+     * @param {IAPINavImIm} apiNavImIm - Node properties.
+     * @param {HTMLImageElement} image - Node image.
+     * @param {Array<number>} translation - Node translation vector in three dimensions.
      */
-    constructor(node: Node, translation: number[]) {
-        this._orientation = this._getValue(node.apiNavImIm.orientation, 1);
+    constructor(apiNavImIm: IAPINavImIm, image: HTMLImageElement, translation: number[]) {
+        this._orientation = this._getValue(apiNavImIm.orientation, 1);
 
-        let imageWidth: number = node.image != null ? node.image.width : 4;
-        let imageHeight: number = node.image != null ? node.image.height : 3;
+        let imageWidth: number = image != null ? image.width : 4;
+        let imageHeight: number = image != null ? image.height : 3;
         let keepOrientation: boolean = this._orientation < 5;
 
-        this._width = this._getValue(node.apiNavImIm.width, keepOrientation ? imageWidth : imageHeight);
-        this._height = this._getValue(node.apiNavImIm.height, keepOrientation ? imageHeight : imageWidth);
+        this._width = this._getValue(apiNavImIm.width, keepOrientation ? imageWidth : imageHeight);
+        this._height = this._getValue(apiNavImIm.height, keepOrientation ? imageHeight : imageWidth);
         this._basicAspect = keepOrientation ?
             this._width / this._height :
             this._height / this._width;
 
-        this._focal = this._getValue(node.apiNavImIm.cfocal, 1);
-        this._scale = this._getValue(node.apiNavImIm.atomic_scale, 0);
+        this._focal = this._getValue(apiNavImIm.cfocal, 1);
+        this._scale = this._getValue(apiNavImIm.atomic_scale, 0);
 
-        this._gpano = node.apiNavImIm.gpano ? node.apiNavImIm.gpano : null;
+        this._gpano = apiNavImIm.gpano ? apiNavImIm.gpano : null;
 
-        this._rt = this._getRt(node, translation);
+        this._rt = this._getRt(apiNavImIm.rotation, translation);
         this._srt = this._getSrt(this._rt, this._scale);
     }
 
@@ -422,18 +422,15 @@ export class Transform {
     /**
      * Calculates the extrinsic camera matrix [ R | t ].
      *
-     * @param {Node} node - Node with rotation value.
+     * @param {Array<number>} rotation - Rotation vector in angle axis representation.
      * @param {Array<number>} translation - Translation vector.
      * @returns {THREE.Matrix4} Extrisic camera matrix.
      */
-    private _getRt(node: Node, translation: number[]): THREE.Matrix4 {
-        let axis: THREE.Vector3 = new THREE.Vector3(
-            node.apiNavImIm.rotation[0],
-            node.apiNavImIm.rotation[1],
-            node.apiNavImIm.rotation[2]);
-
+    private _getRt(rotation: number[], translation: number[]): THREE.Matrix4 {
+        let axis: THREE.Vector3 = new THREE.Vector3(rotation[0], rotation[1], rotation[2]);
         let angle: number = axis.length();
         axis.normalize();
+
         let rt: THREE.Matrix4 = new THREE.Matrix4();
         rt.makeRotationAxis(axis, angle);
         rt.setPosition(

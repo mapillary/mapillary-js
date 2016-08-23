@@ -59,7 +59,7 @@ export class StatsComponent extends Component {
                     return node.key;
                 })
             .buffer(this._navigator.stateService.currentNode$.debounceTime(5000))
-            .scan(
+            .scan<IKeys>(
                  (keys: IKeys, newKeys: string[]): IKeys => {
                      keys.report = [];
 

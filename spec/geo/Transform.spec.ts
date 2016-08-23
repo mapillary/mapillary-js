@@ -2,11 +2,9 @@
 
 import * as THREE from "three";
 
-import {Transform} from "../../src/Geo";
-import {Node} from "../../src/Graph";
-import {IGPano} from "../../src/API";
-
 import {GeoHelper} from "../helper/GeoHelper.spec";
+import {IAPINavImIm, IGPano} from "../../src/API";
+import {Transform} from "../../src/Geo";
 
 describe("Transform.rt", () => {
     let epsilon: number = 10e-9;
@@ -14,10 +12,9 @@ describe("Transform.rt", () => {
     it("should have a unit Rt matrix", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
+        let apiNavImIm: IAPINavImIm = { key: "", rotation: r };
 
-        let node: Node = new Node(0, null, true, null, { key: "", rotation: r }, []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
         let rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = rt.elements;
@@ -44,10 +41,9 @@ describe("Transform.rt", () => {
     it("should have an Rt matrix with rotation around z-axis", () => {
         let r: number[] = [0, 0, Math.PI];
         let t: number[] = [0, 0, 0];
+        let apiNavImIm: IAPINavImIm = { key: "", rotation: r };
 
-        let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
         let rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = rt.elements;
@@ -74,10 +70,9 @@ describe("Transform.rt", () => {
     it("should have an Rt matrix with rotation around x-axis", () => {
         let r: number[] = [Math.PI / 2, 0, 0];
         let t: number[] = [0, 0, 0];
+        let apiNavImIm: IAPINavImIm = { key: "", rotation: r };
 
-        let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
         let rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = rt.elements;
@@ -104,10 +99,9 @@ describe("Transform.rt", () => {
     it("should have an Rt matrix with translation", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [10, 20, 30];
+        let apiNavImIm: IAPINavImIm = { key: "", rotation: r };
 
-        let node: Node = new Node(0, null, true, null, { key: "key", rotation: r }, []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
         let rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = rt.elements;
@@ -138,10 +132,9 @@ describe("Transform.srt", () => {
     it("should have a unit sRt matrix", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
+        let apiNavImIm: IAPINavImIm = { atomic_scale: 1, key: "", rotation: r };
 
-        let node: Node = new Node(0, null, true, null, { atomic_scale: 1, key: "", rotation: r }, []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -168,10 +161,9 @@ describe("Transform.srt", () => {
     it("should have a scaled sRt matrix with rotation around y-axis", () => {
         let r: number[] = [0, Math.PI / 2, 0];
         let t: number[] = [0, 0, 0];
+        let apiNavImIm: IAPINavImIm = { atomic_scale: 3, key: "", rotation: r };
 
-        let node: Node = new Node(0, null, true, null, { atomic_scale: 3, key: "", rotation: r }, []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -198,10 +190,9 @@ describe("Transform.srt", () => {
     it("should have a scaled sRt matrix with scaled translation values", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [-10, 20, -30];
+        let apiNavImIm: IAPINavImIm = { atomic_scale: 0.5, key: "", rotation: r };
 
-        let node: Node = new Node(0, null, true, null, { atomic_scale: 0.5, key: "", rotation: r }, []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -229,12 +220,9 @@ describe("Transform.srt", () => {
 describe("Transform.width", () => {
     it("should have fallback width", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.width).toBe(4);
     });
@@ -243,12 +231,9 @@ describe("Transform.width", () => {
         let width: number = 11;
 
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0], width: width },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0], width: width };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.width).toBe(width);
     });
@@ -257,12 +242,9 @@ describe("Transform.width", () => {
 describe("Transform.height", () => {
     it("should have fallback height", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { height: -1, key: "", orientation: 1, rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { height: -1, key: "", orientation: 1, rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.height).toBe(3);
     });
@@ -271,12 +253,9 @@ describe("Transform.height", () => {
         let height: number = 11;
 
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { height: height, key: "", orientation: 1, rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { height: height, key: "", orientation: 1, rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.height).toBe(height);
     });
@@ -285,12 +264,9 @@ describe("Transform.height", () => {
 describe("Transform.focal", () => {
     it("should have fallback focal", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.focal).toBe(1);
     });
@@ -299,12 +275,9 @@ describe("Transform.focal", () => {
         let focal: number = 0.84;
 
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { cfocal: focal, key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { cfocal: focal, key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.focal).toBe(focal);
     });
@@ -313,12 +286,9 @@ describe("Transform.focal", () => {
 describe("Transform.orientation", () => {
     it("should have fallback orientation", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.orientation).toBe(1);
     });
@@ -327,12 +297,9 @@ describe("Transform.orientation", () => {
         let orientation: number = 3;
 
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "", orientation: orientation, rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "", orientation: orientation, rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.orientation).toBe(orientation);
     });
@@ -341,12 +308,9 @@ describe("Transform.orientation", () => {
 describe("Transform.scale", () => {
     it("should have fallback scale", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.scale).toBe(0);
     });
@@ -355,12 +319,9 @@ describe("Transform.scale", () => {
         let scale: number = 0.4;
 
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { atomic_scale: scale, key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { atomic_scale: scale, key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.scale).toBe(scale);
     });
@@ -369,12 +330,9 @@ describe("Transform.scale", () => {
 describe("Transform.gpano", () => {
     it("should not have gpano set", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.gpano).toBeNull();
     });
@@ -390,12 +348,9 @@ describe("Transform.gpano", () => {
         };
 
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { gpano: gpano, key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { gpano: gpano, key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         expect(transform.gpano).not.toBeNull();
     });
@@ -412,12 +367,9 @@ describe("Transform.pixelToVertex", () => {
 
     it("should return vertex at origin", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
@@ -428,12 +380,9 @@ describe("Transform.pixelToVertex", () => {
 
     it("should return vertex at inverted translation", () => {
         let t: number[] = [10, -20, 30];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
@@ -446,13 +395,9 @@ describe("Transform.pixelToVertex", () => {
         let r: number[] = [0, Math.PI / 2, 0];
         let C: number[] = [5, 8, 12];
         let t: number[] = geoHelper.getTranslation(r, C);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: r };
 
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: r },
-            []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
 
@@ -463,12 +408,9 @@ describe("Transform.pixelToVertex", () => {
 
     it("should return vertex 10 units front of origin in camera direction", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let depth: number = 10;
         let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, depth);
@@ -482,13 +424,9 @@ describe("Transform.pixelToVertex", () => {
         let r: number[] = [Math.PI / 2, 0, 0];
         let C: number[] = [10, 10, 10];
         let t: number[] = geoHelper.getTranslation(r, C);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: r };
 
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: r },
-            []);
-
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let depth: number = 5;
         let vertex: THREE.Vector3 = transform.pixelToVertex(1, 1, depth);
@@ -504,12 +442,9 @@ describe("Transform.projectBasic", () => {
 
     it("should project to the image center", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let pixel: number[] = transform.projectBasic([0, 0, 10]);
 
@@ -519,12 +454,9 @@ describe("Transform.projectBasic", () => {
 
     it("should project to the first quadrant", () => {
         let t: number[] = [0, 0, 0];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0, 0, 0] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0, 0, 0] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let pixel: number[] = transform.projectBasic([1, 1, 10]);
 
@@ -538,12 +470,9 @@ describe("Transform.unprojectBasic", () => {
 
     it("should back-project to the same pixel", () => {
         let t: number[] = [10, 20, 30];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  rotation: [0.1, 0.2, 0.3] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  rotation: [0.1, 0.2, 0.3] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -557,12 +486,9 @@ describe("Transform.unprojectBasic", () => {
 
     it("should back-project to the same pixel for orientation 3", () => {
         let t: number[] = [10, 20, 30];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "", orientation: 3, rotation: [0.1, 0.2, 0.3] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "", orientation: 3, rotation: [0.1, 0.2, 0.3] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -576,12 +502,9 @@ describe("Transform.unprojectBasic", () => {
 
     it("should back-project to the same pixel for orientation 6", () => {
         let t: number[] = [10, 20, 30];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "", orientation: 6, rotation: [0.1, 0.2, 0.3] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "", orientation: 6, rotation: [0.1, 0.2, 0.3] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -595,12 +518,9 @@ describe("Transform.unprojectBasic", () => {
 
     it("should back-project to the same pixel for orientation 8", () => {
         let t: number[] = [10, 20, 30];
-        let node: Node = new Node(
-            0, null, true, null,
-            { key: "",  orientation: 8, rotation: [0.1, 0.2, 0.3] },
-            []);
+        let apiNavImIm: IAPINavImIm = { key: "",  orientation: 8, rotation: [0.1, 0.2, 0.3] };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -614,23 +534,20 @@ describe("Transform.unprojectBasic", () => {
 
     it("should back-project to the same pixel for full pano", () => {
         let t: number[] = [5, 15, 2];
-        let node: Node = new Node(
-            0, null, true, null,
-            {
-                gpano: {
-                    CroppedAreaImageHeightPixels: 1,
-                    CroppedAreaImageWidthPixels: 1,
-                    CroppedAreaLeftPixels: 0,
-                    CroppedAreaTopPixels: 0,
-                    FullPanoHeightPixels: 1,
-                    FullPanoWidthPixels: 1,
-                },
-                key: "",
-                rotation: [0.5, -0.2, 0.3],
+        let apiNavImIm: IAPINavImIm = {
+            gpano: {
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                FullPanoHeightPixels: 1,
+                FullPanoWidthPixels: 1,
             },
-            []);
+            key: "",
+            rotation: [0.5, -0.2, 0.3],
+        };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let basicPixel: number[] = [0.4534546, 0.72344564];
 
@@ -644,23 +561,20 @@ describe("Transform.unprojectBasic", () => {
 
     it("should back-project to the same pixel for cropped pano", () => {
         let t: number[] = [5, 15, 2];
-        let node: Node = new Node(
-            0, null, true, null,
-            {
-                gpano: {
-                    CroppedAreaImageHeightPixels: 600,
-                    CroppedAreaImageWidthPixels: 400,
-                    CroppedAreaLeftPixels: 200,
-                    CroppedAreaTopPixels: 100,
-                    FullPanoHeightPixels: 1000,
-                    FullPanoWidthPixels: 2000,
-                },
-                key: "",
-                rotation: [0.5, -0.2, 0.3],
+        let apiNavImIm: IAPINavImIm = {
+            gpano: {
+                CroppedAreaImageHeightPixels: 600,
+                CroppedAreaImageWidthPixels: 400,
+                CroppedAreaLeftPixels: 200,
+                CroppedAreaTopPixels: 100,
+                FullPanoHeightPixels: 1000,
+                FullPanoWidthPixels: 2000,
             },
-            []);
+            key: "",
+            rotation: [0.5, -0.2, 0.3],
+        };
 
-        let transform: Transform = new Transform(node, t);
+        let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let basicPixel: number[] = [0.4534546, 0.72344564];
 

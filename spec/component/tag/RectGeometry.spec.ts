@@ -1,9 +1,8 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import {IGPano} from "../../../src/API";
+import {IAPINavImIm, IGPano} from "../../../src/API";
 import {RectGeometry, GeometryTagError} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
-import {Node} from "../../../src/Graph";
 
 describe("RectGeometry.ctor", () => {
     it("should be defined", () => {
@@ -55,9 +54,9 @@ describe("RectGeometry.setVertex2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
+        let apiNavImIm: IAPINavImIm = { gpano: gpano, key: "", rotation: [0, 0, 0] };
 
-        return new Transform(node, [0, 0, 0]);
+        return new Transform(apiNavImIm, null, [0, 0, 0]);
     };
 
     it("should set rect according to bottom left value", () => {
@@ -331,9 +330,9 @@ describe("RectGeometry.setCentroid2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
+        let apiNavImIm: IAPINavImIm = { gpano: gpano, key: "", rotation: [0, 0, 0] };
 
-        return new Transform(node, [0, 0, 0]);
+        return new Transform(apiNavImIm, null, [0, 0, 0]);
     };
 
     it("should set rect according to new centroid", () => {

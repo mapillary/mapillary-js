@@ -1,9 +1,8 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import {IGPano} from "../../../src/API";
+import {IAPINavImIm, IGPano} from "../../../src/API";
 import {PolygonGeometry, GeometryTagError} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
-import {Node} from "../../../src/Graph";
 
 describe("PolygonGeometry.ctor", () => {
     it("should be defined", () => {
@@ -242,9 +241,9 @@ describe("RectGeometry.setVertex2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
+        let apiNavImIm: IAPINavImIm = { gpano: gpano, key: "", rotation: [0, 0, 0] };
 
-        return new Transform(node, [0, 0, 0]);
+        return new Transform(apiNavImIm, null, [0, 0, 0]);
     };
 
     it("should set the vertex with index 2", () => {
@@ -333,9 +332,9 @@ describe("RectGeometry.setCentroid2d", () => {
             } :
             null;
 
-        let node: Node = new Node(0, null, true, null, { gpano: gpano, key: "", rotation: [0, 0, 0] }, []);
+        let apiNavImIm: IAPINavImIm = { gpano: gpano, key: "", rotation: [0, 0, 0] };
 
-        return new Transform(node, [0, 0, 0]);
+        return new Transform(apiNavImIm, null, [0, 0, 0]);
     };
 
     it("should set the vertices according to the new centroid", () => {
