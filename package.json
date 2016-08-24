@@ -75,6 +75,7 @@
     "build-docs": "typedoc --mode file --target ES5 --module commonjs --theme default --excludeExternals --name MapillaryJS --out docs/",
     "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs > dist/mapillary-js.min.js",
     "clean": "rm -rf dist && mkdir dist",
+    "clean-typings": "rm -rf typings/modules && rm -rf typings/globals && rm typings/index.d.ts",
     "copy-assets": "cp -a styles/*.svg dist",
     "lint": "npm run lint-spec && npm run lint-src",
     "lint-spec": "tslint -c tslint.json ./spec/**/*.ts ./spec/**/**/*.ts",

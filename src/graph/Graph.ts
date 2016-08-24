@@ -36,7 +36,7 @@ export class Graph {
     private _sequences: SequenceHash;
     private _sequenceHashes: {[skey: string]: SequenceHash};
 
-    private _graph: any;
+    private _graph: graphlib.Graph<Node, IEdgeData>;
     private _nodeIndex: rbush.RBush<ISpatialItem>;
 
     private _unWorthyNodes: {[key: string]: boolean};
@@ -55,7 +55,7 @@ export class Graph {
         this._sequences = {};
         this._sequenceHashes = {};
         this._nodeIndex = rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
-        this._graph = new graphlib.Graph({multigraph: true});
+        this._graph = new graphlib.Graph<Node, IEdgeData>({ multigraph: true });
         this._unWorthyNodes = {};
         this._edgeCalculator = new EdgeCalculator();
         this._spatial = new Spatial();
@@ -159,13 +159,13 @@ export class Graph {
      * @return {IEdge}
      */
     public getEdges(node: Node): IEdge[] {
-        let outEdges: any[] = this._graph.outEdges(node.key);
+        let outEdges: graphlib.Edge[] = this._graph.outEdges(node.key);
 
-        return _.map(outEdges, (outEdge: any) => {
-            let edge: any = this._graph.edge(outEdge);
+        return _.map(outEdges, (outEdge: graphlib.Edge) => {
+            let data: IEdgeData = this._graph.edge(outEdge);
 
             return {
-                data: <IEdgeData>edge,
+                data: data,
                 from: outEdge.v,
                 to: outEdge.w,
             };
@@ -195,7 +195,7 @@ export class Graph {
     }
 
     public nextKey(node: Node, dir: EdgeDirection): string {
-        let outEdges: any[] = this._graph.outEdges(node.key);
+        let outEdges: graphlib.Edge[] = this._graph.outEdges(node.key);
 
         for (let outEdge of outEdges) {
             let edgeData: IEdgeData = this._graph.edge(outEdge);
@@ -214,14 +214,9 @@ export class Graph {
      * @param {IEdge[]} edges
      */
     private _addEdgesToNode(node: Node, edges: IEdge[]): void {
-        let outEdges: any[] = this._graph.outEdges(node.key);
+        let outEdges: graphlib.Edge[] = this._graph.outEdges(node.key);
 
-        for (let outEdgeKey in outEdges) {
-            if (!outEdges.hasOwnProperty(outEdgeKey)) {
-                continue;
-            }
-
-            let outEdge: any = outEdges[outEdgeKey];
+        for (let outEdge of outEdges) {
             this._graph.removeEdge(outEdge);
         }
 

@@ -9,6 +9,7 @@ typings/*
 !typings/created/
 
 # File types
+*.DS_Store
 *.log
 *.tgz
 .#*
