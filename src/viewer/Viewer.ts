@@ -1,3 +1,5 @@
+/// <reference path="../../typings/index.d.ts" />
+
 import * as when from "when";
 
 import {EdgeDirection} from "../Edge";
@@ -7,46 +9,63 @@ import {Component} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
 import {RenderMode} from "../Render";
 
+/**
+ * @class Viewer
+ *
+ * @classdesc The Viewer object represents the navigable photo viewer.
+ * Create a Viewer by specifying a container, client ID, photo key and
+ * other options. The viewer exposes methods and events for programmatic
+ * interaction.
+ */
 export class Viewer extends EventEmitter {
     /**
-     * Fired every time the viewer goes to a new node (photo)
+     * Fired every time the viewer navigates to a new node.
      * @event
+     * @type {Node} node - Current node.
      */
     public static nodechanged: string = "nodechanged";
 
     /**
-     * Fired when the viewer is loading more data
+     * Fired when the viewer is loading more data.
      * @event
+     * @type {boolean} loading - Value indicating whether the viewer is loading.
      */
     public static loadingchanged: string = "loadingchanged";
 
     /**
-     * Private Container object which maintains the DOM Element, renderers and relevant services
+     * Private Container object which maintains the DOM Element,
+     * renderers and relevant services.
      */
     private _container: Container;
 
     /**
-     * Private Navigator object which controls navigation throught the vast seas of Mapillary
+     * Private Navigator object which controls navigation throught
+     * the vast seas of Mapillary.
      */
     private _navigator: Navigator;
 
     /**
-     * Private ComponentController object which manages component states
+     * Private ComponentController object which manages component states.
      */
     private _componentController: ComponentController;
 
     /**
-     * Private EventLauncher object which fires events on behalf of the viewer
+     * Private EventLauncher object which fires events on behalf of
+     * the viewer.
      */
     private _eventLauncher: EventLauncher;
 
     /**
-     * Create a new viewer instance
-     * @class Viewer
-     * @param {string} id - required `id` of an DOM element which will be transformed into the viewer
-     * @param {string} clientId - required `Mapillary API ClientID`, can be obtained from http://www.mapillary.com/map/settings/integrations
-     * @param {string} key - optional `photoId` to start from, can be any Mapillary photo, if null no image is loaded
-     * @param {IViewerOptions} options - optional configuration object specifing Viewer's initial setup
+     * Create a new viewer instance.
+     *
+     * @param {string} id - required `id` of an DOM element which will
+     * be transformed into the viewer.
+     * @param {string} clientId - required `Mapillary API ClientID`, can
+     * be obtained from http://www.mapillary.com/map/settings/integrations.
+     * @param {string} key - optional `photoId` to start from, can be any
+     * Mapillary photo, if null no image is loaded.
+     * @param {IViewerOptions} options - optional configuration object
+     * specifing Viewer's initial setup.
      */
     constructor (id: string, clientId: string, key?: string, options?: IViewerOptions) {
         super();
@@ -64,9 +83,10 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Navigate to a given photo key
-     * @param {string} key - a valid Mapillary photo key
-     * @throws {ParamaterMapillaryError} If no key is provided
+     * Navigate to a given photo key.
+     *
+     * @param {string} key - A valid Mapillary photo key.
+     * @throws {ParamaterMapillaryError} If no key is provided.
      */
     public moveToKey(key: string): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -82,13 +102,12 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Move in a given direction
+     * Navigate in a given direction.
      *
-     * This method has to be called through EdgeDirection enumeration as in the example.
+     * @description This method has to be called through EdgeDirection enumeration as in the example.
      *
-     * @param {EdgeDirection} dir - Direction towards which to move
-     * @example
-     * `viewer.moveDir(Mapillary.EdgeDirection.Next);`
+     * @param {EdgeDirection} dir - Direction in which which to move.
+     * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -104,9 +123,10 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Move close to given latitude and longitude
-     * @param {Number} lat - Latitude
-     * @param {Number} lon - Longitude
+     * Move close to given latitude and longitude.
+     *
+     * @param {Number} lat - Latitude, in degrees.
+     * @param {Number} lon - Longitude, in degrees.
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -133,7 +153,7 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Sets the viewer's render mode.
+     * Set the viewer's render mode.
      * @param {RenderMode} renderMode - Render mode.
      *
      * @example `viewer.setRenderMode(Mapillary.RenderMode.Letterbox);`
@@ -143,38 +163,38 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Activate a Component
-     * @param {string} name - Name of the component which will become active
+     * Activate a component.
+     * @param {string} name - Name of the component which will become active.
      */
     public activateComponent(name: string): void {
         this._componentController.activate(name);
     }
 
     /**
-     * Deactivate a Component
-     * @param {string} name - Name of component which become inactive
+     * Deactivate a component.
+     * @param {string} name - Name of component which become inactive.
      */
     public deactivateComponent(name: string): void {
         this._componentController.deactivate(name);
     }
 
     /**
-     * Get a Component
-     * @param {string} name - Name of component
+     * Get a component.
+     * @param {string} name - Name of component.
      */
     public getComponent(name: string): Component {
         return this._componentController.get(name);
     }
 
     /**
-     * Activate the Cover (deactivates all other components)
+     * Activate the cover (deactivates all other components).
      */
     public activateCover(): void {
         this._componentController.activateCover();
     }
 
     /**
-     * Deactivate the Cover (activates all components marked as active)
+     * Deactivate the cover (activates all components marked as active).
      */
     public deactivateCover(): void {
         this._componentController.deactivateCover();
@@ -187,7 +207,7 @@ export class Viewer extends EventEmitter {
      * or null, any previously set access token will be cleared.
      *
      * @param {string} token OAuth 2.0 bearer token.
-     * @param {string} projectKey Deprecated
+     * @param {string} projectKey Deprecated.
      */
     public auth(token: string, projectKey?: string): void {
         this._navigator.auth(token, projectKey);

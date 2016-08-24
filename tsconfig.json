@@ -5,7 +5,17 @@
         "module": "commonjs"
     },
     "files": [
+      "./src/api/interfaces/IAPINavImIm.ts",
+      "./src/api/interfaces/IAPINavImS.ts",
+      "./src/api/interfaces/IGPano.ts",
+      "./src/geo/interfaces/ILatLon.ts",
+      "./src/graph/edge/interfaces/IEdge.ts",
+      "./src/graph/edge/interfaces/IEdgeData.ts",
       "./src/graph/edge/EdgeDirection.ts",
+      "./src/graph/interfaces/ILoadStatus.ts",
+      "./src/graph/interfaces/IMesh.ts",
+      "./src/graph/Node.ts",
+      "./src/graph/Sequence.ts",
       "./src/render/RenderMode.ts",
       "./src/viewer/interfaces/IViewerOptions.ts",
       "./src/viewer/ImageSize.ts",

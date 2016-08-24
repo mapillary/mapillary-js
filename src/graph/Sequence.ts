@@ -4,41 +4,76 @@ import * as _ from "underscore";
 
 import {IAPINavImS} from "../API";
 
+/**
+ * @class Sequence
+ *
+ * @classdesc Represents a sequence of ordered nodes.
+ */
 export class Sequence {
-    public key: string;
-    public keys: string[];
-    public path: any;
+    private _key: string;
+    private _keys: string[];
 
-    private _response: IAPINavImS;
-
-    constructor (response: IAPINavImS) {
-        this._response = response;
-
-        this.key = response.key;
-        this.keys = response.keys;
-        this.path = response.path;
+    /**
+     * Create a new sequene instance.
+     *
+     * @param {IAPINavImS} apiNavImS - Raw sequence data.
+     */
+    constructor (apiNavImS: IAPINavImS) {
+        this._key = apiNavImS.key;
+        this._keys = apiNavImS.keys;
     }
 
-    public findNextKey (key: string): string {
-        let i: number = _.indexOf(this.keys, key);
+    /**
+     * Get key.
+     *
+     * @returns {string} Unique sequence key.
+     */
+    public get key(): string {
+        return this._key;
+    }
 
-        if ((i + 1) >= this.keys.length || i === -1) {
+    /**
+     * Get keys.
+     *
+     * @returns {Array<string>} Array of ordered node keys in the sequence.
+     */
+    public get keys(): string[] {
+        return this._keys;
+    }
+
+    /**
+     * Find the next node key in the sequence with respect to
+     * the provided node key.
+     *
+     * @param {string} key - Reference node key.
+     * @returns {string} Next key in sequence if it exists, null otherwise.
+     */
+    public findNextKey(key: string): string {
+        let i: number = _.indexOf(this._keys, key);
+
+        if ((i + 1) >= this._keys.length || i === -1) {
             return null;
         } else {
-            return this.keys[i + 1];
+            return this._keys[i + 1];
         }
     }
 
-    public findPrevKey (key: string): string {
-        let i: number = _.indexOf(this.keys, key);
+    /**
+     * Find the previous node key in the sequence with respect to
+     * the provided node key.
+     *
+     * @param {string} key - Reference node key.
+     * @returns {string} Previous key in sequence if it exists, null otherwise.
+     */
+    public findPrevKey(key: string): string {
+        let i: number = _.indexOf(this._keys, key);
 
         if (i === 0 || i === -1) {
             return null;
         } else {
-            return this.keys[i - 1];
+            return this._keys[i - 1];
         }
     }
-
 }
 
 export default Sequence;
