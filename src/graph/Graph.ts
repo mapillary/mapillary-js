@@ -39,7 +39,6 @@ export class Graph {
     private _graph: any;
     private _nodeIndex: rbush.RBush<ISpatialItem>;
 
-    private _cachedNodes: {[key: string]: boolean};
     private _unWorthyNodes: {[key: string]: boolean};
 
     private _boxWidth: number = 0.001;
@@ -57,7 +56,6 @@ export class Graph {
         this._sequenceHashes = {};
         this._nodeIndex = rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = new graphlib.Graph({multigraph: true});
-        this._cachedNodes = {};
         this._unWorthyNodes = {};
         this._edgeCalculator = new EdgeCalculator();
         this._spatial = new Spatial();
@@ -182,30 +180,6 @@ export class Graph {
         if (this._computeEdges(node)) {
             node.cacheEdges(this.getEdges(node));
         }
-
-        node.lastUsed =  new Date().getTime();
-        this._cachedNodes[node.key] = true;
-    }
-
-    /**
-     * Clear node cache
-     */
-    public evictNodeCache(): void {
-        if (Object.keys(this._cachedNodes).length < 30) {
-            // no cleaning of cache
-            return;
-        }
-        // evice nodes from cache here
-        return;
-    }
-
-    /**
-     * Clear cache for the given node
-     * @param {Node} node - Node which cache will be cleared
-     */
-    public unCacheNode(node: Node): void {
-        delete this._cachedNodes[node.key];
-        node.lastCacheEvict = new Date().getTime();
     }
 
     /**

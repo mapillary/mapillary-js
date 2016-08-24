@@ -45,9 +45,7 @@ export class GraphService {
         this._graph$ = this._updates$
             .scan<Graph>(
                 (graph: Graph, operation: IGraphOperation): Graph => {
-                    let newGraph: Graph = operation(graph);
-                    newGraph.evictNodeCache();
-                    return newGraph;
+                    return operation(graph);
                 },
                 new Graph())
             .publishReplay(1)

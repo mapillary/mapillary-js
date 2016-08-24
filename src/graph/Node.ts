@@ -21,9 +21,6 @@ import {
 import {ImageSize} from "../Viewer";
 
 export class Node {
-    public lastCacheEvict: number;
-    public lastUsed: number;
-
     private _apiNavImIm: IAPINavImIm;
     private _ca: number;
     private _hs: string[];
@@ -55,9 +52,6 @@ export class Node {
         this._edges = null;
         this._image = null;
         this._mesh = null;
-
-        this.lastCacheEvict = 0;
-        this.lastUsed = new Date().getTime();
 
         this._loadStatus = { loaded: 0, total: 100 };
 
