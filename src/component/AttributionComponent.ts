@@ -22,7 +22,7 @@ export class AttributionComponent extends Component {
         this._disposable = this._navigator.stateService.currentNode$
             .map(
                 (node: Node): IVNodeHash => {
-                    return {name: this._name, vnode: this._getAttributionNode(node.user, node.key)};
+                    return {name: this._name, vnode: this._getAttributionNode(node.apiNavImIm.user, node.key)};
                 })
             .subscribe(this._container.domRenderer.render$);
     }

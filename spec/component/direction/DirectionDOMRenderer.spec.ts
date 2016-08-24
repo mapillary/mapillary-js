@@ -48,7 +48,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
         let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.edges = [];
+        node.cacheEdges([]);
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);
@@ -65,7 +65,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
         let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.edges = [];
+        node.cacheEdges([]);
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);
@@ -140,7 +140,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
         let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.edges = [];
+        node.cacheEdges([]);
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);
@@ -170,7 +170,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
         let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.edges = [];
+        node.cacheEdges([]);
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);
@@ -198,7 +198,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
         let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.edges = [];
+        node.cacheEdges([]);
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);

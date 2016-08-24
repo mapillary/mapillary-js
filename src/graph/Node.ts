@@ -21,25 +21,22 @@ import {
 import {ImageSize} from "../Viewer";
 
 export class Node {
-    public worthy: boolean;
-    public cached: boolean;
-
     public lastCacheEvict: number;
     public lastUsed: number;
 
     private _apiNavImIm: IAPINavImIm;
-    private _key: string;
     private _ca: number;
+    private _hs: string[];
     private _latLon: ILatLon;
     private _sequence: Sequence;
 
-    private _hs: string[];
-
+    private _edges: IEdge[];
     private _image: HTMLImageElement;
     private _mesh: IMesh;
-    private _edges: IEdge[];
 
     private _loadStatus: ILoadStatus;
+
+    private _worthy: boolean;
 
     constructor (
         ca: number,
@@ -50,91 +47,37 @@ export class Node {
         hs: string[]) {
 
         this._apiNavImIm = apiNavImIm;
-        this._key = apiNavImIm.key;
         this._ca = ca;
+        this._hs = hs;
         this._latLon = latLon;
         this._sequence = sequence;
 
-        this._hs = hs;
-
+        this._edges = null;
         this._image = null;
         this._mesh = null;
-        this._edges = null;
-
-        this.worthy = worthy;
-        this.cached = false;
 
         this.lastCacheEvict = 0;
         this.lastUsed = new Date().getTime();
 
         this._loadStatus = { loaded: 0, total: 100 };
+
+        this._worthy = worthy;
     }
 
     public get apiNavImIm(): IAPINavImIm {
         return this._apiNavImIm;
     }
 
-    public get user(): string {
-        return this._apiNavImIm.user;
-    }
-
-    public get capturedAt(): number {
-        return this._apiNavImIm.captured_at;
-    }
-
-    public get key(): string {
-        return this._key;
-    }
-
     public get ca(): number {
         return this._ca;
-    }
-
-    public get latLon(): ILatLon {
-        return this._latLon;
-    }
-
-    public get sequence(): Sequence {
-        return this._sequence;
-    }
-
-    public get hs(): string[] {
-        return this._hs;
-    }
-
-    public get image(): HTMLImageElement {
-        return this._image;
-    }
-
-    public get mesh(): IMesh {
-        return this._mesh;
     }
 
     public get edges(): IEdge[] {
         return this._edges;
     }
 
-    public set edges(value: IEdge[]) {
-        this._edges = value;
-    }
-
-    public get loadStatus(): ILoadStatus {
-        return this._loadStatus;
-    }
-
-    public get loaded(): boolean {
-        return this.cached && this._image != null;
-    }
-
-    public get merged(): boolean {
-        return this.apiNavImIm != null &&
-            this.apiNavImIm.merge_version != null &&
-            this.apiNavImIm.merge_version > 0;
-    }
-
-    public get pano(): boolean {
-        return this.apiNavImIm.gpano != null &&
-            this.apiNavImIm.gpano.FullPanoWidthPixels != null;
+    public get edgesCached(): boolean {
+        return this._edges != null;
     }
 
     public get fullPano(): boolean {
@@ -145,25 +88,58 @@ export class Node {
             this.apiNavImIm.gpano.CroppedAreaImageHeightPixels === this.apiNavImIm.gpano.FullPanoHeightPixels;
     }
 
-    public findNextKeyInSequence (): string {
-        if (this.sequence === undefined) {
-            return null;
-        }
-        return this.sequence.findNextKey(this.key);
+    public get hs(): string[] {
+        return this._hs;
     }
 
-    public findPrevKeyInSequence (): string {
-        if (this.sequence === undefined) {
-            return null;
-        }
-        return this.sequence.findPrevKey(this.key);
+    public get image(): HTMLImageElement {
+        return this._image;
+    }
+
+    public get key(): string {
+        return this._apiNavImIm.key;
+    }
+
+    public get latLon(): ILatLon {
+        return this._latLon;
+    }
+
+    public get loaded(): boolean {
+        return this.edgesCached && this._image != null;
+    }
+
+    public get loadStatus(): ILoadStatus {
+        return this._loadStatus;
+    }
+
+    public get merged(): boolean {
+        return this.apiNavImIm != null &&
+            this.apiNavImIm.merge_version != null &&
+            this.apiNavImIm.merge_version > 0;
+    }
+
+    public get mesh(): IMesh {
+        return this._mesh;
+    }
+
+    public get pano(): boolean {
+        return this.apiNavImIm.gpano != null &&
+            this.apiNavImIm.gpano.FullPanoWidthPixels != null;
+    }
+
+    public get sequence(): Sequence {
+        return this._sequence;
+    }
+
+    public get worthy(): boolean {
+        return this._worthy;
     }
 
     public cacheAssets(): Observable<Node> {
         return Observable
             .combineLatest(
-                this.cacheImage(),
-                this.cacheMesh(),
+                this._cacheImage(),
+                this._cacheMesh(),
                 (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): Node => {
                     this._loadStatus.loaded = 0;
                     this._loadStatus.total = 0;
@@ -184,15 +160,27 @@ export class Node {
                 });
     }
 
-    public cacheImage(): Observable<ILoadStatusObject<HTMLImageElement>> {
-        let imageSize: ImageSize = this.pano ?
-            Settings.basePanoramaSize :
-            Settings.baseImageSize;
-
-        return ImageLoader.load(this.key, imageSize);
+    public cacheEdges(edges: IEdge[]): void {
+        this._edges = edges;
     }
 
-    public cacheMesh(): Observable<ILoadStatusObject<IMesh>> {
+    public findNextKeyInSequence (): string {
+        return this._sequence != null ?
+            this.sequence.findNextKey(this._apiNavImIm.key) :
+            null;
+    }
+
+    public findPrevKeyInSequence (): string {
+        return this._sequence != null ?
+            this.sequence.findPrevKey(this._apiNavImIm.key) :
+            null;
+    }
+
+    public makeWorthy(): void {
+        this._worthy = true;
+    }
+
+    private _cacheMesh(): Observable<ILoadStatusObject<IMesh>> {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<IMesh>>): void => {
                 if (!this.merged) {
@@ -222,6 +210,14 @@ export class Node {
 
                 xmlHTTP.send(null);
             });
+    }
+
+    private _cacheImage(): Observable<ILoadStatusObject<HTMLImageElement>> {
+        let imageSize: ImageSize = this.pano ?
+            Settings.basePanoramaSize :
+            Settings.baseImageSize;
+
+        return ImageLoader.load(this.key, imageSize);
     }
 }
 

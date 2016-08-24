@@ -142,41 +142,8 @@ export class Graph {
             return node;
         });
 
-        this.insertNodes(nodes);
-        this.makeNodesWorthy(tiles);
-    }
-
-    public makeNodesWorthy(tiles: {[key: string]: boolean}): void {
-        let worthy: boolean;
-        let worthyKeys: string[] = [];
-        for (let key in this._unWorthyNodes) {
-            if (!this._unWorthyNodes.hasOwnProperty(key)) {
-                continue;
-            }
-
-            if (!this._unWorthyNodes[key]) {
-                worthyKeys.push(key);
-                continue;
-            }
-
-            let node: Node = this.getNode(key);
-            let hs: string[] = node.hs;
-
-            worthy = true;
-            _.each(hs, (h: string): void => {
-                worthy = worthy && !!tiles[h];
-            });
-
-            if (worthy) {
-                node.worthy = true;
-                this._unWorthyNodes[key] = false;
-                worthyKeys.push(key);
-            }
-        }
-
-        for (let key of worthyKeys) {
-            delete this._unWorthyNodes[key];
-        }
+        this._insertNodes(nodes);
+        this._makeNodesWorthy(tiles);
     }
 
     /**
@@ -212,8 +179,10 @@ export class Graph {
      * @param {Node} node - Node to be cached
      */
     public cacheNode(node: Node): void {
-        this.computeEdges(node);
-        node.cached = true;
+        if (this._computeEdges(node)) {
+            node.cacheEdges(this.getEdges(node));
+        }
+
         node.lastUsed =  new Date().getTime();
         this._cachedNodes[node.key] = true;
     }
@@ -240,11 +209,59 @@ export class Graph {
     }
 
     /**
+     * Find next node in the graph
+     * @param {Node} node
+     * @param {Direction} dir
+     * @return {Node}
+     */
+    public nextNode(node: Node, dir: EdgeDirection): Node {
+        let key: string = this.nextKey(node, dir);
+
+        return key == null ? null : this.getNode(key);
+    }
+
+    public nextKey(node: Node, dir: EdgeDirection): string {
+        let outEdges: any[] = this._graph.outEdges(node.key);
+
+        for (let outEdge of outEdges) {
+            let edgeData: IEdgeData = this._graph.edge(outEdge);
+
+            if (edgeData.direction === dir) {
+                return outEdge.w;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Add edges to given node
+     * @param {Node} node
+     * @param {IEdge[]} edges
+     */
+    private _addEdgesToNode(node: Node, edges: IEdge[]): void {
+        let outEdges: any[] = this._graph.outEdges(node.key);
+
+        for (let outEdgeKey in outEdges) {
+            if (!outEdges.hasOwnProperty(outEdgeKey)) {
+                continue;
+            }
+
+            let outEdge: any = outEdges[outEdgeKey];
+            this._graph.removeEdge(outEdge);
+        }
+
+        for (let edge of edges) {
+            this._graph.setEdge(node.key, edge.to, edge.data, node.key + edge.to + edge.data.direction);
+        }
+    }
+
+    /**
      * Compute edges for the given node
      * @param {Node} node
      * @return {boolean}
      */
-    public computeEdges(node: Node): boolean {
+    private _computeEdges(node: Node): boolean {
         if (!node.worthy) {
             return false;
         }
@@ -279,58 +296,7 @@ export class Graph {
 
         this._addEdgesToNode(node, edges);
 
-        node.edges = this.getEdges(node);
-
         return true;
-    }
-
-    /**
-     * Insert given nodes
-     * @param {Node[]}
-     */
-    public insertNodes(nodes: Node[]): void {
-        _.each(nodes, (node: Node) => {
-            this.insertNode(node);
-        });
-    }
-
-    /**
-     * Insert node
-     * @param {Node} node
-     */
-    public insertNode(node: Node): void {
-        if (this.getNode(node.key) != null) {
-            return;
-        }
-
-        this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
-        this._graph.setNode(node.key, node);
-    }
-
-    /**
-     * Find next node in the graph
-     * @param {Node} node
-     * @param {Direction} dir
-     * @return {Node}
-     */
-    public nextNode(node: Node, dir: EdgeDirection): Node {
-        let key: string = this.nextKey(node, dir);
-
-        return key == null ? null : this.getNode(key);
-    }
-
-    public nextKey(node: Node, dir: EdgeDirection): string {
-        let outEdges: any[] = this._graph.outEdges(node.key);
-
-        for (let outEdge of outEdges) {
-            let edgeData: IEdgeData = this._graph.edge(outEdge);
-
-            if (edgeData.direction === dir) {
-                return outEdge.w;
-            }
-        }
-
-        return null;
     }
 
     private _computeHs(
@@ -446,25 +412,60 @@ export class Graph {
     }
 
     /**
-     * Add edges to given node
-     * @param {Node} node
-     * @param {IEdge[]} edges
+     * Insert given nodes
+     * @param {Node[]}
      */
-    private _addEdgesToNode(node: Node, edges: IEdge[]): void {
-        let outEdges: any[] = this._graph.outEdges(node.key);
+    private _insertNodes(nodes: Node[]): void {
+        _.each(nodes, (node: Node) => {
+            this._insertNode(node);
+        });
+    }
 
-        for (let i in outEdges) {
-            if (outEdges.hasOwnProperty(i)) {
-                let e: any = outEdges[i];
-                this._graph.removeEdge(e);
+    /**
+     * Insert node
+     * @param {Node} node
+     */
+    private _insertNode(node: Node): void {
+        if (this.getNode(node.key) != null) {
+            return;
+        }
+
+        this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
+        this._graph.setNode(node.key, node);
+    }
+
+    private _makeNodesWorthy(tiles: {[key: string]: boolean}): void {
+        let worthy: boolean;
+        let worthyKeys: string[] = [];
+        for (let key in this._unWorthyNodes) {
+            if (!this._unWorthyNodes.hasOwnProperty(key)) {
+                continue;
+            }
+
+            if (!this._unWorthyNodes[key]) {
+                worthyKeys.push(key);
+                continue;
+            }
+
+            let node: Node = this.getNode(key);
+            let hs: string[] = node.hs;
+
+            worthy = true;
+            _.each(hs, (h: string): void => {
+                worthy = worthy && !!tiles[h];
+            });
+
+            if (worthy) {
+                node.makeWorthy();
+                this._unWorthyNodes[key] = false;
+                worthyKeys.push(key);
             }
         }
 
-        for (let edge of edges) {
-            this._graph.setEdge(node.key, edge.to, edge.data, node.key + edge.to + edge.data.direction);
+        for (let key of worthyKeys) {
+            delete this._unWorthyNodes[key];
         }
     }
-
 }
 
 export default Graph;

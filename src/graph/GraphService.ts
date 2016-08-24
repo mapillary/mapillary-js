@@ -142,7 +142,7 @@ export class GraphService {
                         return true;
                     }
 
-                    if (!node.cached) {
+                    if (!node.edgesCached) {
                         this._cache$.next(node);
                         return true;
                     }
@@ -157,7 +157,7 @@ export class GraphService {
     }
 
     public nextNode$(node: Node, dir: EdgeDirection): Observable<Node> {
-        if (!node.cached) {
+        if (!node.edgesCached) {
             Observable.throw<Node>(new Error("node is not yet cached"));
         }
 
