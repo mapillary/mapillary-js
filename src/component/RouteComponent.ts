@@ -66,7 +66,7 @@ class RouteTrack {
     public nodeInstructionsOrdered: INodeInstruction[][] = [];
 }
 
-export class RouteComponent extends Component {
+export class RouteComponent extends Component<IRouteConfiguration> {
     public static componentName: string = "route";
 
     private _disposable: Subscription;
@@ -236,6 +236,10 @@ export class RouteComponent extends Component {
     protected _deactivate(): void {
         this._disposable.unsubscribe();
         this._disposableDescription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IRouteConfiguration {
+        return {};
     }
 
     public play(): void {

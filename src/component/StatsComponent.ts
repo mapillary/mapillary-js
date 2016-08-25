@@ -6,7 +6,7 @@ import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/scan";
 
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
@@ -17,7 +17,7 @@ interface IKeys {
     reported: Keys;
 }
 
-export class StatsComponent extends Component {
+export class StatsComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "stats";
 
     private _sequenceSubscription: Subscription;
@@ -88,6 +88,10 @@ export class StatsComponent extends Component {
     protected _deactivate(): void {
         this._sequenceSubscription.unsubscribe();
         this._imageSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 }
 

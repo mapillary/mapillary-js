@@ -43,7 +43,7 @@ interface IConfigurationOperation {
  * @classdesc Component showing navigation arrows for sequence directions
  * as well as playing button. Exposes an API to start and stop play.
  */
-export class SequenceComponent extends Component {
+export class SequenceComponent extends Component<ISequenceConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "sequence";
 
@@ -82,21 +82,6 @@ export class SequenceComponent extends Component {
         this._hoveredKeySubject$ = new Subject<string>();
 
         this._hoveredKey$ = this._hoveredKeySubject$.share();
-    }
-
-   /**
-    * Get default configuration.
-    *
-    * @returns {ISequenceConfiguration}
-    */
-    public get defaultConfiguration(): ISequenceConfiguration {
-        return {
-            direction: EdgeDirection.Next,
-            maxWidth: 117,
-            minWidth: 70,
-            playing: false,
-            visible: true,
-        };
     }
 
     /**
@@ -351,6 +336,16 @@ export class SequenceComponent extends Component {
         this._hoveredKeySubscription.unsubscribe();
 
         this.stop();
+    }
+
+    protected _getDefaultConfiguration(): ISequenceConfiguration {
+        return {
+            direction: EdgeDirection.Next,
+            maxWidth: 117,
+            minWidth: 70,
+            playing: false,
+            visible: true,
+        };
     }
 
     private _play(): void {

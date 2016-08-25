@@ -9,7 +9,7 @@ import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 
 import {APIv3} from "../API";
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
 import {IVNodeHash} from "../Render";
 import {Container, Navigator} from "../Viewer";
@@ -23,7 +23,7 @@ interface IDetection {
     package: string;
 }
 
-export class DetectionComponent extends Component {
+export class DetectionComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "detection";
 
     private _apiV3: APIv3;
@@ -87,6 +87,10 @@ export class DetectionComponent extends Component {
 
     protected _deactivate(): void {
         this.renderSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 
     private _getRects(detections: IDetection[]): vd.VNode {

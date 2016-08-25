@@ -4,12 +4,12 @@ import * as vd from "virtual-dom";
 
 import {Subscription} from "rxjs/Subscription";
 
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
 import {IVNodeHash} from "../Render";
 import {Container, Navigator} from "../Viewer";
 
-export class BearingComponent extends Component {
+export class BearingComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "bearing";
 
     private _renderSubscription: Subscription;
@@ -36,6 +36,10 @@ export class BearingComponent extends Component {
 
     protected _deactivate(): void {
         this._renderSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 }
 

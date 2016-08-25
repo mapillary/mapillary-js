@@ -28,7 +28,7 @@ import {Container, Navigator} from "../../Viewer";
  * @class DirectionComponent
  * @classdesc Component showing navigation arrows for steps and turns.
  */
-export class DirectionComponent extends Component {
+export class DirectionComponent extends Component<IDirectionConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "direction";
 
@@ -50,19 +50,6 @@ export class DirectionComponent extends Component {
         this._hoveredKeySubject$ = new Subject<string>();
 
         this._hoveredKey$ = this._hoveredKeySubject$.share();
-    }
-
-   /**
-    * Get default configuration.
-    *
-    * @returns {IDirectionConfiguration}
-    */
-    public get defaultConfiguration(): IDirectionConfiguration {
-        return {
-            distinguishSequence: false,
-            maxWidth: 460,
-            minWidth: 260,
-        };
     }
 
     /**
@@ -198,6 +185,14 @@ export class DirectionComponent extends Component {
         this._nodeSubscription.unsubscribe();
         this._renderCameraSubscription.unsubscribe();
         this._hoveredKeySubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IDirectionConfiguration {
+        return {
+            distinguishSequence: false,
+            maxWidth: 460,
+            minWidth: 260,
+        };
     }
 }
 

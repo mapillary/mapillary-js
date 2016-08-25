@@ -1,16 +1,16 @@
-import {IComponentConfiguration} from "../Component";
-import {Container, Navigator} from "../Viewer";
-import {EventEmitter} from "../Utils";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 
 import "rxjs/add/operator/publishReplay";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/startWith";
 
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {IComponentConfiguration} from "../Component";
+import {Container, Navigator} from "../Viewer";
+import {EventEmitter} from "../Utils";
 
-export abstract class Component extends EventEmitter {
+export abstract class Component<TConfiguration extends IComponentConfiguration> extends EventEmitter {
     /**
      * Component name. Used when interacting with component through the Viewer's API.
      */
@@ -22,22 +22,22 @@ export abstract class Component extends EventEmitter {
     protected _navigator: Navigator;
 
     protected _activated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    protected _configurationSubject$: Subject<IComponentConfiguration> = new Subject<IComponentConfiguration>();
-    protected _configuration$: Observable<IComponentConfiguration>;
+    protected _configuration$: Observable<TConfiguration>;
+    protected _configurationSubject$: Subject<TConfiguration> = new Subject<TConfiguration>();
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super();
 
-        this._navigator = navigator;
-        this._container = container;
         this._activated = false;
+        this._container = container;
         this._name = name;
+        this._navigator = navigator;
 
         this._configuration$ =
             this._configurationSubject$
                 .startWith(this.defaultConfiguration)
-                .scan<IComponentConfiguration>(
-                    (conf: IComponentConfiguration, newConf: IComponentConfiguration): IComponentConfiguration => {
+                .scan<TConfiguration>(
+                    (conf: TConfiguration, newConf: TConfiguration): TConfiguration => {
                         for (let key in newConf) {
                             if (newConf.hasOwnProperty(key)) {
                                 conf[key] = <any>newConf[key];
@@ -60,15 +60,20 @@ export abstract class Component extends EventEmitter {
         return this._activated$;
     }
 
-    public get defaultConfiguration(): IComponentConfiguration {
-        return {};
+    /**
+     * Get default configuration.
+     *
+     * @returns {TConfiguration} Default configuration for component.
+     */
+    public get defaultConfiguration(): TConfiguration {
+        return this._getDefaultConfiguration();
     }
 
-    public get configuration$(): Observable<IComponentConfiguration> {
+    public get configuration$(): Observable<TConfiguration> {
         return this._configuration$;
     }
 
-    public activate(conf?: IComponentConfiguration): void {
+    public activate(conf?: TConfiguration): void {
         if (this._activated) {
             return;
         }
@@ -82,7 +87,7 @@ export abstract class Component extends EventEmitter {
         this._activated$.next(true);
     };
 
-    public configure(conf: IComponentConfiguration): void {
+    public configure(conf: TConfiguration): void {
         this._configurationSubject$.next(conf);
     }
 
@@ -107,6 +112,8 @@ export abstract class Component extends EventEmitter {
     protected abstract _activate(): void;
 
     protected abstract _deactivate(): void;
+
+    protected abstract _getDefaultConfiguration(): TConfiguration;
 }
 
 export default Component;

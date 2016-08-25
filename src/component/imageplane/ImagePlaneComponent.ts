@@ -12,7 +12,7 @@ import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/switchMap";
 
-import {ComponentService, Component, ImagePlaneGLRenderer} from "../../Component";
+import {ComponentService, Component, IComponentConfiguration, ImagePlaneGLRenderer} from "../../Component";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
@@ -23,7 +23,7 @@ interface IImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
 }
 
-export class ImagePlaneComponent extends Component {
+export class ImagePlaneComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "imageplane";
 
     private _rendererOperation$: Subject<IImagePlaneGLRendererOperation>;
@@ -159,6 +159,10 @@ export class ImagePlaneComponent extends Component {
         this._rendererSubscription.unsubscribe();
         this._stateSubscription.unsubscribe();
         this._nodeSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 }
 

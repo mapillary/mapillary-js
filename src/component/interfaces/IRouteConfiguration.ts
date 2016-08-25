@@ -13,7 +13,7 @@ export interface IRoutePath {
 }
 
 export interface IRouteConfiguration extends IComponentConfiguration {
-    paths: IRoutePath[];
+    paths?: IRoutePath[];
     playing?: boolean;
 }
 

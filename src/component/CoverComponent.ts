@@ -10,11 +10,11 @@ import "rxjs/add/operator/withLatestFrom";
 
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ICoverConfiguration, IComponentConfiguration, ComponentService, Component} from "../Component";
+import {ICoverConfiguration, ComponentService, Component} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
-export class CoverComponent extends Component {
+export class CoverComponent extends Component<ICoverConfiguration> {
     public static componentName: string = "cover";
 
     private _disposable: Subscription;
@@ -63,7 +63,7 @@ export class CoverComponent extends Component {
         this._keyDisposable.unsubscribe();
     }
 
-    public get defaultConfiguration(): IComponentConfiguration {
+    protected _getDefaultConfiguration(): ICoverConfiguration {
         return { "loading": false, "visible": true };
     }
 

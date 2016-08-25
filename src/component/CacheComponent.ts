@@ -20,17 +20,13 @@ import {Container, Navigator} from "../Viewer";
 
 type NodeDepth = [Node, number];
 
-export class CacheComponent extends Component {
+export class CacheComponent extends Component<ICacheConfiguration> {
     public static componentName: string = "cache";
 
     private _cacheSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
-    }
-
-    public get defaultConfiguration(): ICacheConfiguration {
-        return { depth: { pano: 1, sequence: 2, step: 1, turn: 0 } };
     }
 
     /**
@@ -100,6 +96,10 @@ export class CacheComponent extends Component {
 
     protected _deactivate(): void {
         this._cacheSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): ICacheConfiguration {
+        return { depth: { pano: 1, sequence: 2, step: 1, turn: 0 } };
     }
 
     private _cache$(node: Node, direction: EdgeDirection, depth: number): Observable<Node> {

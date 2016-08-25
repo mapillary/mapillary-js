@@ -119,7 +119,7 @@ export class MarkerSet {
     }
 }
 
-export class MarkerComponent extends Component {
+export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
 
     private _disposable: Subscription;
@@ -203,6 +203,10 @@ export class MarkerComponent extends Component {
         this._disposeScene();
         this._disposable.unsubscribe();
         this._disposableConfiguration.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IMarkerConfiguration {
+        return {};
     }
 
     public createMarker(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions): Marker {

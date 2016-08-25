@@ -6,7 +6,7 @@ import "rxjs/add/observable/fromEvent";
 import "rxjs/add/operator/withLatestFrom";
 
 import {EdgeDirection, IEdge} from "../Edge";
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Container, Navigator} from "../Viewer";
 import {IFrame, IRotation} from "../State";
 import {Node} from "../Graph";
@@ -17,7 +17,7 @@ interface IKeyboardFrame {
     frame: IFrame;
 }
 
-export class KeyboardComponent extends Component {
+export class KeyboardComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "keyboard";
 
     private _spatial: Spatial;
@@ -60,6 +60,10 @@ export class KeyboardComponent extends Component {
 
     protected _deactivate(): void {
         this._disposable.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 
     private _navigatePanorama(event: KeyboardEvent, node: Node, camera: Camera): void {

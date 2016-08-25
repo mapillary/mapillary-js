@@ -10,10 +10,10 @@ import "rxjs/add/operator/combineLatest";
 
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
-import {Component, ComponentService} from "../Component";
+import {Component, ComponentService, IComponentConfiguration} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-export class DebugComponent extends Component {
+export class DebugComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "debug";
 
     private _displaying: boolean;
@@ -39,6 +39,10 @@ export class DebugComponent extends Component {
 
     public _deactivate(): void {
         this._disposable.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 
     private _getDebugInfo(frame: IFrame, loadStatus: any): vd.VNode[] {

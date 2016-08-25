@@ -73,7 +73,7 @@ interface ITagGLRendererOperation extends Function {
  * @class TagComponent
  * @classdesc Component for showing and editing tags with different geometries.
  */
-export class TagComponent extends Component {
+export class TagComponent extends Component<ITagConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "tag";
 
@@ -340,18 +340,6 @@ export class TagComponent extends Component {
                 (creating: boolean): void => {
                     this.fire(TagComponent.creatingchanged, creating);
                 });
-    }
-
-   /**
-    * Get default configuration.
-    *
-    * @returns {ITagConfiguration}
-    */
-    public get defaultConfiguration(): ITagConfiguration {
-        return {
-            createColor: 0xFFFFFF,
-            creating: false,
-        };
     }
 
     /**
@@ -778,6 +766,13 @@ export class TagComponent extends Component {
 
         this._geometryCreatedEventSubscription.unsubscribe();
         this._tagsChangedEventSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): ITagConfiguration {
+        return {
+            createColor: 0xFFFFFF,
+            creating: false,
+        };
     }
 
     private _mouseEventToBasic(

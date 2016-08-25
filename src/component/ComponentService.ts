@@ -8,7 +8,7 @@ import {CoverComponent, Component, IComponentConfiguration} from "../Component";
 
 interface IActiveComponent {
     active: boolean;
-    component: Component;
+    component: Component<IComponentConfiguration>;
 }
 
 export class ComponentService {
@@ -83,7 +83,7 @@ export class ComponentService {
         }
     }
 
-    public configure(name: string, conf: IComponentConfiguration): void {
+    public configure<TConfiguration extends IComponentConfiguration>(name: string, conf: TConfiguration): void {
         this._checkName(name);
         this.get(name).configure(conf);
     }
@@ -102,8 +102,8 @@ export class ComponentService {
         }
     }
 
-    public get(name: string): Component {
-        return this._components[name].component;
+    public get<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
+        return <TComponent>this._components[name].component;
     }
 
     public getCover(): CoverComponent {

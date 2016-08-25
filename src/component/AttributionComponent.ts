@@ -7,10 +7,10 @@ import {Subscription} from "rxjs/Subscription";
 import {Container, Navigator} from "../Viewer";
 import {Node} from "../Graph";
 
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {IVNodeHash} from "../Render";
 
-export class AttributionComponent extends Component {
+export class AttributionComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "attribution";
     private _disposable: Subscription;
 
@@ -29,6 +29,10 @@ export class AttributionComponent extends Component {
 
     protected _deactivate(): void {
         this._disposable.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 
     private _getAttributionNode(username: string, photoId: string): vd.VNode {

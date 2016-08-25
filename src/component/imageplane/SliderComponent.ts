@@ -227,7 +227,7 @@ class SliderState {
     }
 }
 
-export class SliderComponent extends Component {
+export class SliderComponent extends Component<ISliderConfiguration> {
     public static componentName: string = "slider";
 
     private _sliderStateOperation$: Subject<ISliderStateOperation>;
@@ -579,6 +579,10 @@ export class SliderComponent extends Component {
         this._nodeSubscription.unsubscribe();
 
         this.configure({ keys: null });
+    }
+
+    protected _getDefaultConfiguration(): ISliderConfiguration {
+        return {};
     }
 }
 

@@ -6,7 +6,7 @@ import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/operator/combineLatest";
 
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
@@ -15,7 +15,7 @@ interface ICanvasNode {
     node: Node;
 }
 
-export class ImageComponent extends Component {
+export class ImageComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "image";
 
     private _canvasId: string;
@@ -60,6 +60,10 @@ export class ImageComponent extends Component {
 
     protected _deactivate(): void {
         this.drawSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 }
 

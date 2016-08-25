@@ -8,11 +8,11 @@ import {Subscription} from "rxjs/Subscription";
 import "rxjs/add/operator/combineLatest";
 
 import {Container, Navigator} from "../Viewer";
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
-export class LoadingComponent extends Component {
+export class LoadingComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "loading";
 
     private _loadingSubscription: Subscription;
@@ -52,6 +52,10 @@ export class LoadingComponent extends Component {
 
     protected _deactivate(): void {
         this._loadingSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 
     private _getBarVNode(percentage: number): vd.VNode {

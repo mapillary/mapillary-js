@@ -10,11 +10,11 @@ import "rxjs/add/operator/first";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
-export class NavigationComponent extends Component {
+export class NavigationComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "navigation";
 
     private _renderSubscription: Subscription;
@@ -59,6 +59,10 @@ export class NavigationComponent extends Component {
 
     protected _deactivate(): void {
         this._renderSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 
     private _createVNode(direction: EdgeDirection, name: string): vd.VNode {

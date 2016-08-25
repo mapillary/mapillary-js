@@ -1,6 +1,6 @@
-import {ComponentService, Component} from "../Component";
+import {ComponentService, Component, IComponentConfiguration} from "../Component";
 
-export class NoneComponent extends Component {
+export class NoneComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "none";
 
     protected _activate(): void {
@@ -9,6 +9,10 @@ export class NoneComponent extends Component {
 
     protected _deactivate(): void {
         return;
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 }
 

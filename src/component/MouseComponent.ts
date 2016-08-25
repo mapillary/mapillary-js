@@ -15,6 +15,7 @@ import "rxjs/add/operator/withLatestFrom";
 import {
     ComponentService,
     Component,
+    IComponentConfiguration,
 } from "../Component";
 import {Camera, Spatial, Transform} from "../Geo";
 import {IVNodeHash, RenderCamera} from "../Render";
@@ -37,7 +38,7 @@ interface IMovement {
  * @class MouseComponent
  * @classdesc Component handling mouse and touch events for camera movement.
  */
-export class MouseComponent extends Component {
+export class MouseComponent extends Component<IComponentConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "mouse";
 
@@ -324,6 +325,10 @@ export class MouseComponent extends Component {
         this._fullPanoMovementSubscription.unsubscribe();
         this._mouseWheelSubscription.unsubscribe();
         this._pinchSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
     }
 
     private _unproject(

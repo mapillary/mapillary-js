@@ -17,7 +17,7 @@ export class ComponentController {
         this._options = options;
         this._key = key;
         this._componentService = new ComponentService(this._container, this._navigator);
-        this._coverComponent = <CoverComponent>this._componentService.getCover();
+        this._coverComponent = this._componentService.getCover();
 
         this._initializeComponents();
 
@@ -38,8 +38,8 @@ export class ComponentController {
         }
     }
 
-    public get(name: string): Component {
-        return this._componentService.get(name);
+    public get<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
+        return this._componentService.get<TComponent>(name);
     }
 
     public activate(name: string): void {
@@ -113,7 +113,7 @@ export class ComponentController {
         });
     }
 
-    private _uFalse(option: boolean | IComponentConfiguration, name: string): void {
+    private _uFalse<TConfiguration extends IComponentConfiguration>(option: boolean | TConfiguration, name: string): void {
         if (option === undefined) {
             this._componentService.deactivate(name);
             return;
@@ -126,11 +126,11 @@ export class ComponentController {
             }
             return;
         }
-        this._componentService.configure(name, <IComponentConfiguration>option);
+        this._componentService.configure(name, <TConfiguration>option);
         this._componentService.activate(name);
     }
 
-    private _uTrue(option: boolean | IComponentConfiguration, name: string): void {
+    private _uTrue<TConfiguration extends IComponentConfiguration>(option: boolean | TConfiguration, name: string): void {
         if (option === undefined) {
             this._componentService.activate(name);
             return;
@@ -143,7 +143,7 @@ export class ComponentController {
             }
             return;
         }
-        this._componentService.configure(name, <IComponentConfiguration>option);
+        this._componentService.configure(name, <TConfiguration>option);
         this._componentService.activate(name);
     }
 }

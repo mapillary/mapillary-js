@@ -5,7 +5,7 @@ import * as when from "when";
 import {EdgeDirection} from "../Edge";
 import {Node} from "../Graph";
 import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher} from "../Viewer";
-import {Component} from "../Component";
+import {Component, IComponentConfiguration} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
 import {RenderMode} from "../Render";
 
@@ -181,9 +181,10 @@ export class Viewer extends EventEmitter {
     /**
      * Get a component.
      * @param {string} name - Name of component.
+     * @returns {Component} The requested component.
      */
-    public getComponent(name: string): Component {
-        return this._componentController.get(name);
+    public getComponent<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
+        return this._componentController.get<TComponent>(name);
     }
 
     /**
