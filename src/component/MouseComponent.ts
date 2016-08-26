@@ -46,7 +46,6 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
     private _cursorSubscription: Subscription;
     private _movementSubscription: Subscription;
-    private _fullPanoMovementSubscription: Subscription;
     private _mouseWheelSubscription: Subscription;
     private _pinchSubscription: Subscription;
 
@@ -322,7 +321,6 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
         this._cursorSubscription.unsubscribe();
         this._movementSubscription.unsubscribe();
-        this._fullPanoMovementSubscription.unsubscribe();
         this._mouseWheelSubscription.unsubscribe();
         this._pinchSubscription.unsubscribe();
     }
