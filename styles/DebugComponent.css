@@ -8,7 +8,7 @@
     font-size: 12px;
     padding: 1em;
     font-family: Input, Menlo, monospace;
-    z-index: 100;
+    z-index: 50;
 }
 
 .DebugButton {
@@ -18,7 +18,7 @@
     border-radius: 2px;
     cursor: pointer;
     cursor: hand;
-    z-index: 100;
+    z-index: 50;
 }
 
 .DebugButtonFixed {

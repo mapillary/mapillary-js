@@ -6,8 +6,8 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    z-index: 10;
     padding: 4px 2px;
+    z-index: 10;
 }
 
 .Attribution a,
@@ -15,6 +15,10 @@
     color: white;
     text-decoration: none;
     margin: 0 2px 4px;
+}
+
+.Attribution span {
+    pointer-events: none;
 }
 
 .Attribution a:hover {

@@ -35,7 +35,7 @@ export class ImageComponent extends Component<IComponentConfiguration> {
                     return {canvas: canvas, node: node};
                 })
             .subscribe(
-                (canvasNode: ICanvasNode) => {
+                (canvasNode: ICanvasNode): void => {
                     let canvas: HTMLCanvasElement = canvasNode.canvas;
                     let node: Node = canvasNode.node;
 

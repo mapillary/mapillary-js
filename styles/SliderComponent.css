@@ -4,6 +4,7 @@
     bottom: 40px;
     left: 0;
     right: 0;
+    z-index: 20;
 }
 
 .SliderControl {

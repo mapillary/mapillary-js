@@ -4,6 +4,7 @@
     top: 14px;
     transform: translate(-50%, 0);
     display: flex;
+    z-index: 10;
 }
 
 .SequencePlay,

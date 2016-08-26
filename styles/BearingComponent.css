@@ -6,5 +6,7 @@
     height: 28px;
     background: url(./pano-indicator.svg);
     background-size: contain;
+    pointer-events: none;
     opacity: 0.5;
+    z-index: 10;
 }

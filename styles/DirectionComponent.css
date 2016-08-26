@@ -3,6 +3,7 @@
     position: absolute;
     pointer-events: none;
     transform-style: preserve-3d;
+    z-index: 10;
 }
 
 .DirectionsCircle,

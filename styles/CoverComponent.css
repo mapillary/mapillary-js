@@ -6,14 +6,16 @@
     right: 0;
     top: 0;
     width: 100%;
-    z-index: 20;
+    z-index: 100;
     position: absolute;
     overflow: hidden;
 }
 
 .CoverBackground {
     -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
     background-position: center;
     background-size: cover;
     bottom: 0;

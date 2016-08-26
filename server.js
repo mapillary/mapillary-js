@@ -28,7 +28,7 @@ app.get('/dist/mapillary-js.min.css', postcss({
 	src: function(req) { return path.join(__dirname, 'styles', '*.css'); },
 	plugins: [
         autoprefixer({ browsers: ['last 2 versions', 'safari 7', 'ie 11'] }),
-        cssnano()
+        cssnano({ zindex: false })
     ]
 }));
 
