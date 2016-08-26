@@ -13,6 +13,8 @@ export class EdgeCalculatorHelper {
             rotation: 0,
             sameMergeCc: false,
             sameSequence: false,
+            sameUser: false,
+            sequenceKey: "skey",
             verticalDirectionChange: 0,
             verticalMotion: 0,
             worldMotionAzimuth: 0,

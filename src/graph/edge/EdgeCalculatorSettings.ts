@@ -1,4 +1,17 @@
 export class EdgeCalculatorSettings {
+    public panoMinDistance: number;
+    public panoMaxDistance: number;
+    public panoPreferredDistance: number;
+    public panoMaxItems: number;
+    public panoMaxStepTurnChange: number;
+
+    public rotationMaxDistance: number;
+    public rotationMaxDirectionChange: number;
+    public rotationMaxVerticalDirectionChange: number;
+
+    public similarMaxDirectionChange: number;
+    public similarMaxDistance: number;
+    public similarMinTimeDifference: number;
 
     public stepMaxDistance: number;
     public stepMaxDirectionChange: number;
@@ -10,27 +23,7 @@ export class EdgeCalculatorSettings {
     public turnMaxRigDistance: number;
     public turnMinRigDirectionChange: number;
 
-    public panoMinDistance: number;
-    public panoMaxDistance: number;
-    public panoPreferredDistance: number;
-    public panoMaxItems: number;
-    public panoMaxStepTurnChange: number;
-
-    public rotationMaxDistance: number;
-    public rotationMaxDirectionChange: number;
-    public rotationMaxVerticalDirectionChange: number;
-
     constructor() {
-        this.stepMaxDistance = 20;
-        this.stepMaxDirectionChange = Math.PI / 6;
-        this.stepMaxDrift = Math.PI / 6;
-        this.stepPreferredDistance = 4;
-
-        this.turnMaxDistance = 15;
-        this.turnMaxDirectionChange = 2 * Math.PI / 9;
-        this.turnMaxRigDistance = 0.65;
-        this.turnMinRigDirectionChange = Math.PI / 6;
-
         this.panoMinDistance = 0.1;
         this.panoMaxDistance = 20;
         this.panoPreferredDistance = 5;
@@ -40,12 +33,28 @@ export class EdgeCalculatorSettings {
         this.rotationMaxDistance = this.turnMaxRigDistance;
         this.rotationMaxDirectionChange = Math.PI / 6;
         this.rotationMaxVerticalDirectionChange = Math.PI / 8;
+
+        this.similarMaxDirectionChange = Math.PI / 8;
+        this.similarMaxDistance = 12;
+        this.similarMinTimeDifference = 12 * 3600 * 1000;
+
+        this.stepMaxDistance = 20;
+        this.stepMaxDirectionChange = Math.PI / 6;
+        this.stepMaxDrift = Math.PI / 6;
+        this.stepPreferredDistance = 4;
+
+        this.turnMaxDistance = 15;
+        this.turnMaxDirectionChange = 2 * Math.PI / 9;
+        this.turnMaxRigDistance = 0.65;
+        this.turnMinRigDirectionChange = Math.PI / 6;
     }
 
     public get maxDistance(): number {
         return Math.max(
             this.panoMaxDistance,
-            Math.max(this.stepMaxDistance, this.turnMaxDistance));
+            this.similarMaxDistance,
+            this.stepMaxDistance,
+            this.turnMaxDistance);
     }
 }
 

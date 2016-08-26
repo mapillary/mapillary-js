@@ -66,6 +66,20 @@ export interface IPotentialEdge {
     sameMergeCc: boolean;
 
     /**
+     * Determines if the origin and destination node have been captured
+     * by the same user.
+     * @property {boolean} sameUser
+     */
+    sameUser: boolean;
+
+    /**
+     * Determines which sequence the destination node of the potential edge
+     * belongs to.
+     * @property {string} sequenceKey
+     */
+    sequenceKey: string;
+
+    /**
      * Determines if the destination node is a full panorama.
      * @property {boolean} fullPano
      */

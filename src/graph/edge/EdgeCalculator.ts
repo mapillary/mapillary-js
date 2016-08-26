@@ -126,6 +126,9 @@ export class EdgeCalculator {
                  (potential.apiNavImIm.merge_cc == null && node.apiNavImIm.merge_cc == null) ||
                  potential.apiNavImIm.merge_cc === node.apiNavImIm.merge_cc;
 
+            let sameUser: boolean =
+                potential.apiNavImIm.user === node.apiNavImIm.user;
+
             let potentialEdge: IPotentialEdge = {
                 apiNavImIm: potential.apiNavImIm,
                 directionChange: directionChange,
@@ -135,6 +138,8 @@ export class EdgeCalculator {
                 rotation: rotation,
                 sameMergeCc: sameMergeCc,
                 sameSequence: sameSequence,
+                sameUser: sameUser,
+                sequenceKey: potential.sequence.key,
                 verticalDirectionChange: verticalDirectionChange,
                 verticalMotion: verticalMotion,
                 worldMotionAzimuth: worldMotionAzimuth,
@@ -183,6 +188,80 @@ export class EdgeCalculator {
         }
 
         return edges;
+    }
+
+    /**
+     * Computes the similar edges for a node.
+     *
+     * @description Similar edges look roughly in the same direction
+     * and are positioned closed to the node.
+     *
+     * @param {Node} node Source node
+     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     */
+    public computeSimilarEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+        if (!node.worthy) {
+            return [];
+        }
+
+        let sequenceGroups: { [key: string]: IPotentialEdge[] } = {};
+
+        for (let potentialEdge of potentialEdges) {
+            if (!potentialEdge.sameSequence &&
+                potentialEdge.sameMergeCc &&
+                potentialEdge.distance < this._settings.similarMaxDistance &&
+                Math.abs(potentialEdge.directionChange) < this._settings.similarMaxDirectionChange &&
+                (!potentialEdge.sameUser ||
+                Math.abs(potentialEdge.apiNavImIm.captured_at - node.apiNavImIm.captured_at) >
+                this._settings.similarMinTimeDifference)) {
+                    if (sequenceGroups[potentialEdge.sequenceKey] == null) {
+                        sequenceGroups[potentialEdge.sequenceKey] = [];
+                    }
+
+                    sequenceGroups[potentialEdge.sequenceKey].push(potentialEdge);
+                }
+        }
+
+        let similarEdges: IPotentialEdge[] = [];
+
+        for (let sequenceKey in sequenceGroups) {
+            if (!sequenceGroups.hasOwnProperty(sequenceKey)) {
+                continue;
+            }
+
+            let lowestScore: number = Number.MAX_VALUE;
+            let similarEdge: IPotentialEdge = null;
+
+            for (let potentialEdge of sequenceGroups[sequenceKey]) {
+                let score: number =
+                    this._coefficients.similarDistance * potentialEdge.distance +
+                    this._coefficients.similarRotation * potentialEdge.rotation;
+
+                if (score < lowestScore) {
+                    lowestScore = score;
+                    similarEdge = potentialEdge;
+                }
+            }
+
+            if (similarEdge == null) {
+                continue;
+            }
+
+            similarEdges.push(similarEdge);
+        }
+
+        return similarEdges
+            .map<IEdge>(
+                (potentialEdge: IPotentialEdge): IEdge => {
+                    return {
+                        data: {
+                            direction: EdgeDirection.Similar,
+                            worldMotionAzimuth: potentialEdge.worldMotionAzimuth,
+                        },
+                        from: node.key,
+                        to: potentialEdge.apiNavImIm.key,
+                    };
+                });
     }
 
     /**
