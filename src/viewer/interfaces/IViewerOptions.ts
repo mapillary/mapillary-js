@@ -50,13 +50,7 @@ export interface IViewerOptions {
     direction?: boolean;
 
     /**
-     * Show detection rectangles in images
-     * @default false
-     */
-    detection?: boolean;
-
-    /**
-     * Show detection rectangles in images
+     * Draw geometries on top of images.
      * @default false
      */
     tag?: boolean;

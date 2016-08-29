@@ -6,7 +6,6 @@ export {BearingComponent} from "./component/BearingComponent";
 export {CacheComponent} from "./component/CacheComponent";
 export {CoverComponent} from "./component/CoverComponent";
 export {DebugComponent} from "./component/DebugComponent";
-export {DetectionComponent} from "./component/DetectionComponent";
 export {DirectionComponent} from "./component/direction/DirectionComponent";
 export {DirectionDOMCalculator} from "./component/direction/DirectionDOMCalculator";
 export {DirectionDOMRenderer} from "./component/direction/DirectionDOMRenderer";
