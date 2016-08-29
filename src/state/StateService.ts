@@ -5,6 +5,7 @@ import {Subject} from "rxjs/Subject";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/filter";
+import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/pairwise";
 import "rxjs/add/operator/publishReplay";
@@ -52,6 +53,7 @@ export class StateService {
     private _state$: Observable<State>;
 
     private _currentState$: Observable<IFrame>;
+    private _lastState$: Observable<IFrame>;
     private _currentNode$: Observable<Node>;
     private _currentNodeExternal$: Observable<Node>;
     private _currentCamera$: Observable<Camera>;
@@ -137,6 +139,10 @@ export class StateService {
                     return { fps: fc[1], id: fc[0], state: fc[2] };
                 })
             .share();
+
+        this._lastState$ = this._currentState$
+            .publishReplay(1)
+            .refCount();
 
         let nodeChanged$: Observable<IFrame> = this._currentState$
             .distinctUntilChanged(
@@ -241,7 +247,7 @@ export class StateService {
                                 let c1: Camera = pair[0];
                                 let c2: Camera = pair[1];
 
-                                return c1.diff(c2) !== 0;
+                                return c1.diff(c2) > 1e-5;
                             })
                         .first(
                             (changed: boolean): boolean => {
@@ -260,6 +266,7 @@ export class StateService {
         this._currentTransform$.subscribe();
         this._reference$.subscribe();
         this._currentNodeExternal$.subscribe();
+        this._lastState$.subscribe();
 
         this._frameId = null;
         this._frameGenerator = new FrameGenerator();
@@ -327,7 +334,6 @@ export class StateService {
     }
 
     public setNodes(nodes: Node[]): void {
-        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.set(nodes); });
     }
 
@@ -365,6 +371,24 @@ export class StateService {
     public zoomIn(delta: number, reference: number[]): void {
         this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.zoomIn(delta, reference); });
+    }
+
+    public getCenter(): Observable<number[]> {
+        return this._lastState$
+            .first()
+            .map<number[]>(
+                (frame: IFrame): number[] => {
+                    return frame.state.getCenter();
+                });
+    }
+
+    public getZoom(): Observable<number> {
+        return this._lastState$
+            .first()
+            .map<number>(
+                (frame: IFrame): number => {
+                    return frame.state.zoom;
+                });
     }
 
     public start(): void {

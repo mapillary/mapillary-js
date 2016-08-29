@@ -77,8 +77,8 @@ export class Viewer extends EventEmitter {
         Settings.setOptions(options);
 
         this._navigator = new Navigator(clientId);
-        this._eventLauncher = new EventLauncher(this, this._navigator);
         this._container = new Container(id, this._navigator.stateService, options);
+        this._eventLauncher = new EventLauncher(this, this._navigator, this._container);
         this._componentController = new ComponentController(this._container, this._navigator, key, options);
     }
 
@@ -212,5 +212,35 @@ export class Viewer extends EventEmitter {
      */
     public auth(token: string, projectKey?: string): void {
         this._navigator.auth(token, projectKey);
+    }
+
+    public getCenter(): when.Promise<number[]> {
+        return when.promise<number[]>(
+            (resolve: any, reject: any): void => {
+                this._navigator.stateService.getCenter()
+                    .subscribe(
+                        (center: number[]): void => {
+                            resolve(center);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        }
+                    );
+            });
+    }
+
+    public getZoom(): when.Promise<number> {
+         return when.promise<number>(
+            (resolve: any, reject: any): void => {
+                this._navigator.stateService.getZoom()
+                    .subscribe(
+                        (zoom: number): void => {
+                            resolve(zoom);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        }
+                    );
+            });
     }
 }

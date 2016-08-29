@@ -16,4 +16,6 @@ export interface ICurrentState {
     currentTransform: Transform;
     previousTransform: Transform;
     motionless: boolean;
+
+    getCenter(): number[];
 }

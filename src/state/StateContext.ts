@@ -97,6 +97,10 @@ export class StateContext implements IStateContext {
         return this._state.motionless;
     }
 
+    public getCenter(): number[] {
+        return this._state.getCenter();
+    }
+
     public update(fps: number): void {
         this._state.update(fps);
     }

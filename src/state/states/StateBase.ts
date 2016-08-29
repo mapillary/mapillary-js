@@ -210,6 +210,10 @@ export abstract class StateBase implements IState {
         this._setCurrentCamera();
     }
 
+    public getCenter(): number[] {
+        return this.currentTransform.projectBasic(this._camera.lookat.toArray());
+    }
+
     protected abstract _getAlpha(): number;
 
     protected _setCurrent(): void {

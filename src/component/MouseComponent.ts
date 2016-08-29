@@ -44,6 +44,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
     private _spatial: Spatial;
 
+    private _activeSubscription: Subscription;
     private _cursorSubscription: Subscription;
     private _movementSubscription: Subscription;
     private _mouseWheelSubscription: Subscription;
@@ -56,25 +57,33 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        let draggingStarted: Observable<boolean> =
-            this._container.mouseService.mouseDragStart$
+        let draggingStarted$: Observable<boolean> =
+             this._container.mouseService
+                .filtered$(this._name, this._container.mouseService.mouseDragStart$)
                 .map<boolean>(
                     (event: MouseEvent): boolean => {
                         return true;
                     });
 
-        let draggingStopped: Observable<boolean> =
-            this._container.mouseService.mouseDragEnd$
+        let draggingStopped$: Observable<boolean> =
+             this._container.mouseService
+                .filtered$(this._name, this._container.mouseService.mouseDragEnd$)
                 .map<boolean>(
                     (event: MouseEvent): boolean => {
                         return false;
                     });
 
-        this._cursorSubscription = Observable
+        let dragging$: Observable<boolean> = Observable
             .merge(
-                draggingStarted,
-                draggingStopped)
+                draggingStarted$,
+                draggingStopped$)
             .startWith(false)
+            .share();
+
+        this._activeSubscription = dragging$
+            .subscribe(this._container.mouseService.activate$);
+
+        this._cursorSubscription = dragging$
             .map<IVNodeHash>(
                 (dragging: boolean): IVNodeHash => {
                     let className: string = dragging ? "MouseContainerGrabbing" : "MouseContainerGrab";
@@ -319,6 +328,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     protected _deactivate(): void {
         this._container.mouseService.unclaimMouse(this._name);
 
+        this._activeSubscription.unsubscribe();
         this._cursorSubscription.unsubscribe();
         this._movementSubscription.unsubscribe();
         this._mouseWheelSubscription.unsubscribe();

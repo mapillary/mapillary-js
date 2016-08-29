@@ -1,10 +1,12 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import "rxjs/add/observable/fromEvent";
 
+import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/merge";
@@ -26,6 +28,9 @@ interface IPreventMouseDownOperation {
 
 export class MouseService {
     private _element: HTMLElement;
+
+    private _activeSubject$: BehaviorSubject<boolean>;
+    private _active$: Observable<boolean>;
 
     private _preventMouseDownOperation$: Subject<IPreventMouseDownOperation>;
     private _preventMouseDown$: Subject<boolean>;
@@ -52,6 +57,13 @@ export class MouseService {
 
     constructor(element: HTMLElement) {
         this._element = element;
+
+        this._activeSubject$ = new BehaviorSubject<boolean>(false);
+
+        this._active$ = this._activeSubject$
+            .distinctUntilChanged()
+            .publishReplay(1)
+            .refCount();
 
         this._preventMouseDownOperation$ = new Subject<IPreventMouseDownOperation>();
         this._preventMouseDown$ = new Subject<boolean>();
@@ -191,29 +203,12 @@ export class MouseService {
             .refCount();
     }
 
-    public claimMouse(name: string, zindex: number): void {
-        this._claimMouse$.next({name: name, zindex: zindex});
+    public get active$(): Observable<boolean> {
+        return this._active$;
     }
 
-    public unclaimMouse(name: string): void {
-        this._claimMouse$.next({name: name, zindex: null});
-    }
-
-    public filtered$<T>(name: string, observable$: Observable<T>): Observable<T> {
-        return observable$
-            .withLatestFrom(
-                this.mouseOwner$,
-                (event: T, owner: string): [T, string] => {
-                    return [event, owner];
-                })
-            .filter(
-                (eo: [T, string]): boolean => {
-                    return eo[1] === name;
-                })
-            .map<T>(
-                (eo: [T, string]): T => {
-                    return eo[0];
-                });
+    public get activate$(): Subject<boolean> {
+        return this._activeSubject$;
     }
 
     public get mouseOwner$(): Observable<string> {
@@ -262,6 +257,31 @@ export class MouseService {
 
     public get preventDefaultMouseDown$(): Subject<boolean> {
         return this._preventMouseDown$;
+    }
+
+    public claimMouse(name: string, zindex: number): void {
+        this._claimMouse$.next({name: name, zindex: zindex});
+    }
+
+    public unclaimMouse(name: string): void {
+        this._claimMouse$.next({name: name, zindex: null});
+    }
+
+    public filtered$<T>(name: string, observable$: Observable<T>): Observable<T> {
+        return observable$
+            .withLatestFrom(
+                this.mouseOwner$,
+                (event: T, owner: string): [T, string] => {
+                    return [event, owner];
+                })
+            .filter(
+                (eo: [T, string]): boolean => {
+                    return eo[1] === name;
+                })
+            .map<T>(
+                (eo: [T, string]): T => {
+                    return eo[0];
+                });
     }
 }
 
