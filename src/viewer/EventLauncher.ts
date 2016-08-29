@@ -24,6 +24,16 @@ export class EventLauncher {
             .subscribe((node: Node): void => {
                 this._eventEmitter.fire("nodechanged", node);
             });
+
+        this._navigator.stateService.moving$
+            .subscribe(
+                (moving: boolean) => {
+                    if (moving) {
+                        this._eventEmitter.fire("movestart", null);
+                    } else {
+                        this._eventEmitter.fire("moveend", null);
+                    }
+                });
     }
 
     public dispose(): void {

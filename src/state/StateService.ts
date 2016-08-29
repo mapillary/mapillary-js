@@ -37,6 +37,10 @@ interface IContextAction {
     (context: IStateContext): void;
 }
 
+interface IMovingOperation {
+    (moving: boolean): boolean;
+}
+
 export class StateService {
     private _start$: Subject<void>;
 
@@ -53,6 +57,9 @@ export class StateService {
     private _currentCamera$: Observable<Camera>;
     private _currentTransform$: Observable<Transform>;
     private _reference$: Observable<ILatLonAlt>;
+
+    private _movingOperation$: Subject<boolean>;
+    private _moving$: Observable<boolean>;
 
     private _appendNode$: Subject<Node> = new Subject<Node>();
 
@@ -202,6 +209,51 @@ export class StateService {
                 })
             .subscribe(this._contextOperation$);
 
+        this._movingOperation$ = new Subject<boolean>();
+
+        nodeChanged$
+            .map<boolean>(
+                (frame: IFrame): boolean => {
+                    return true;
+                })
+            .subscribe(this._movingOperation$);
+
+        this._movingOperation$
+            .distinctUntilChanged()
+            .filter(
+                (moving: boolean): boolean => {
+                    return moving;
+                })
+            .switchMap<boolean>(
+                (moving: boolean): Observable<boolean> => {
+                    return this._currentState$
+                        .filter(
+                            (frame: IFrame): boolean => {
+                                return frame.state.nodesAhead === 0;
+                            })
+                        .map<Camera>(
+                            (frame: IFrame): Camera => {
+                                return frame.state.camera.clone();
+                            })
+                        .pairwise()
+                        .map<boolean>(
+                            (pair: [Camera, Camera]) => {
+                                let c1: Camera = pair[0];
+                                let c2: Camera = pair[1];
+
+                                return c1.diff(c2) !== 0;
+                            })
+                        .first(
+                            (changed: boolean): boolean => {
+                                return !changed;
+                            });
+                })
+            .subscribe(this._movingOperation$);
+
+        this._moving$ = this._movingOperation$
+            .distinctUntilChanged()
+            .share();
+
         this._state$.subscribe();
         this._currentNode$.subscribe();
         this._currentCamera$.subscribe();
@@ -241,11 +293,16 @@ export class StateService {
         return this._reference$;
     }
 
+    public get moving$(): Observable<boolean> {
+        return this._moving$;
+    }
+
     public get appendNode$(): Subject<Node> {
         return this._appendNode$;
     }
 
     public traverse(): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.traverse(); });
     }
 
@@ -270,26 +327,32 @@ export class StateService {
     }
 
     public setNodes(nodes: Node[]): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.set(nodes); });
     }
 
     public rotate(delta: IRotation): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotate(delta); });
     }
 
     public rotateBasic(basicRotation: number[]): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotateBasic(basicRotation); });
     }
 
     public rotateToBasic(basic: number[]): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotateToBasic(basic); });
     }
 
     public move(delta: number): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.move(delta); });
     }
 
     public moveTo(position: number): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
@@ -300,6 +363,7 @@ export class StateService {
      * @parameter {Array<number>} reference - Reference point in basic coordinates.
      */
     public zoomIn(delta: number, reference: number[]): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.zoomIn(delta, reference); });
     }
 
