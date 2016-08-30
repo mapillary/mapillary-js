@@ -185,7 +185,7 @@ export class Transform {
      *
      * @param {Array<number>} basic - 2D basic coordinates.
      * @param {Array<number>} distance - Depth to unproject from camera center.
-     * @returns {Array<number>} Unprojected 3D world coordinate.
+     * @returns {Array<number>} Unprojected 3D world coordinates.
      */
     public unprojectBasic(basic: number[], distance: number): number[] {
         let sfm: number[] = this._basicToSfm(basic);
@@ -209,7 +209,7 @@ export class Transform {
      *
      * @param {Array<number>} sfm - 2D SfM coordinates.
      * @param {Array<number>} distance - Depth to unproject from camera center.
-     * @returns {Array<number>} Unprojected 3D world coordinate.
+     * @returns {Array<number>} Unprojected 3D world coordinates.
      */
     public unprojectSfM(sfm: number[], distance: number): number[] {
         let bearing: number[] = this._sfmToBearing(sfm);

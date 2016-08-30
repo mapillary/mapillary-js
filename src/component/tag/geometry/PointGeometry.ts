@@ -39,11 +39,11 @@ export class PointGeometry extends Geometry {
     }
 
     /**
-     * Get the 3D world coordinate for the centroid of the point, i.e. the 3D
-     * world coordinate of the point itself.
+     * Get the 3D world coordinates for the centroid of the point, i.e. the 3D
+     * world coordinates of the point itself.
      *
      * @param {Transform} transform - The transform of the node related to the point.
-     * @returns {Array<number>} 3D world coordinate representing the centroid.
+     * @returns {Array<number>} 3D world coordinates representing the centroid.
      */
     public getCentroid3d(transform: Transform): number[] {
         return transform.unprojectBasic(this._point, 200);

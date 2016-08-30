@@ -37,7 +37,7 @@ export class PolygonGeometry extends VertexGeometry {
         for (let vertex of polygon) {
             if (vertex[0] < 0 || vertex[0] > 1 ||
                 vertex[1] < 0 || vertex[1] > 1) {
-                throw new GeometryTagError("Basic coordinate of polygon must be on the interval [0, 1].");
+                throw new GeometryTagError("Basic coordinates of polygon must be on the interval [0, 1].");
             }
 
             this._polygon.push(vertex.slice());
@@ -67,7 +67,7 @@ export class PolygonGeometry extends VertexGeometry {
             for (let vertex of hole) {
                 if (vertex[0] < 0 || vertex[0] > 1 ||
                     vertex[1] < 0 || vertex[1] > 1) {
-                    throw new GeometryTagError("Basic coordinate of hole must be on the interval [0, 1].");
+                    throw new GeometryTagError("Basic coordinates of hole must be on the interval [0, 1].");
                 }
 
                 this._holes[i].push(vertex.slice());

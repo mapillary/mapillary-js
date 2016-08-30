@@ -33,10 +33,10 @@ export abstract class Geometry {
     }
 
     /**
-     * Get the 3D world coordinate for the centroid of the geometry.
+     * Get the 3D world coordinates for the centroid of the geometry.
      *
      * @param {Transform} transform - The transform of the node related to the geometry.
-     * @returns {Array<number>} 3D world coordinate representing the centroid.
+     * @returns {Array<number>} 3D world coordinates representing the centroid.
      */
     public abstract getCentroid3d(transform: Transform): number[];
 

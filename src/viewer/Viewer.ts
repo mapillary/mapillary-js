@@ -33,6 +33,19 @@ export class Viewer extends EventEmitter {
     public static loadingchanged: string = "loadingchanged";
 
     /**
+     * Fired when the viewer starts transitioning from one view to another,
+     * either by changing the node or by interaction such as pan and zoom.
+     * @event
+     */
+    public static movestart: string = "movestart";
+
+    /**
+     * Fired when the viewer finishes transitioning and is in a fixed
+     * position with a fixed point of view.
+     */
+    public static moveend: string = "moveend";
+
+    /**
      * Private Container object which maintains the DOM Element,
      * renderers and relevant services.
      */
@@ -87,6 +100,7 @@ export class Viewer extends EventEmitter {
      *
      * @param {string} key - A valid Mapillary photo key.
      * @throws {ParamaterMapillaryError} If no key is provided.
+     * @returns {Promise<Node>} Promise to the node that was navigated to.
      */
     public moveToKey(key: string): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -108,6 +122,7 @@ export class Viewer extends EventEmitter {
      *
      * @param {EdgeDirection} dir - Direction in which which to move.
      * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
+     * @returns {Promise<Node>} Promise to the node that was navigated to.
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -127,6 +142,7 @@ export class Viewer extends EventEmitter {
      *
      * @param {Number} lat - Latitude, in degrees.
      * @param {Number} lon - Longitude, in degrees.
+     * @returns {Promise<Node>} Promise to the node that was navigated to.
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -214,6 +230,18 @@ export class Viewer extends EventEmitter {
         this._navigator.auth(token, projectKey);
     }
 
+    /**
+     * Get the basic coordinates of the current photo that is
+     * at the center of the viewport.
+     *
+     * @description Basic coordinates are on the [0, 1] interval and
+     * has the origin point, [0, 0], at the top left corner and the
+     * maximum value, [1, 1], at the bottom right corner of the original
+     * photo.
+     *
+     * @returns {Promise<number[]>} Promise to the basic coordinates
+     * of the current photo at the center for the viewport.
+     */
     public getCenter(): when.Promise<number[]> {
         return when.promise<number[]>(
             (resolve: any, reject: any): void => {
@@ -229,6 +257,12 @@ export class Viewer extends EventEmitter {
             });
     }
 
+    /**
+     * Get the photo's current zoom level.
+     *
+     * @returns {Promise<number>} Promise to the viewers's current
+     * zoom level.
+     */
     public getZoom(): when.Promise<number> {
          return when.promise<number>(
             (resolve: any, reject: any): void => {
@@ -244,10 +278,31 @@ export class Viewer extends EventEmitter {
             });
     }
 
+    /**
+     * Set the basic coordinates of the current photo to be in the
+     * center of the viewport.
+     *
+     * @description Basic coordinates are on the [0, 1] interval and
+     * has the origin point, [0, 0], at the top left corner and the
+     * maximum value, [1, 1], at the bottom right corner of the original
+     * photo.
+     *
+     * @param {number[]} The basic coordinates of the current
+     * photo to be at the center for the viewport.
+     */
     public setCenter(center: number[]): void {
         this._navigator.stateService.setCenter(center);
     }
 
+    /**
+     * Set the photo's current zoom level.
+     *
+     * @description Possible zoom level values are on the [0, 3] interval.
+     * Zero means zooming out to fit the photo to the view whereas three
+     * shows the highest level of detail.
+     *
+     * @param {number} The photo's current zoom level.
+     */
     public setZoom(zoom: number): void {
         this._navigator.stateService.setZoom(zoom);
     }

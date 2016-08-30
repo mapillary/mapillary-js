@@ -19,7 +19,7 @@ export class WebMercator {
     }
 
     /**
-     * Calculate the corresponding tile for a geographic coordinate and
+     * Calculate the corresponding tile for geographic coordinates and
      * a zoom level.
      *
      * @param {ILatLon} latLon - Latitude and longitude WGS 84 ellipsoidal datum.

@@ -23,7 +23,7 @@ export class RectGeometry extends VertexGeometry {
         super();
 
         if (rect[1] > rect[3]) {
-            throw new GeometryTagError("Basic Y coordinate values can not be inverted.");
+            throw new GeometryTagError("Basic Y coordinates values can not be inverted.");
         }
 
         for (let coord of rect) {
@@ -265,9 +265,9 @@ export class RectGeometry extends VertexGeometry {
      * Check if a particular bottom-right value is valid according to the current
      * rectangle coordinates.
      *
-     * @param {Array<number>} bottomRight - The bottom-right coordinate to validate
-     * @returns {boolean} Value indicating whether the provided bottom-right coordinate
-     * is valid.
+     * @param {Array<number>} bottomRight - The bottom-right coordinates to validate
+     * @returns {boolean} Value indicating whether the provided bottom-right coordinates
+     * are valid.
      */
     public validate(bottomRight: number[]): boolean {
         let rect: number[] = this._rect;
