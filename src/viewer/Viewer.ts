@@ -243,4 +243,12 @@ export class Viewer extends EventEmitter {
                     );
             });
     }
+
+    public setCenter(center: number[]): void {
+        this._navigator.stateService.setCenter(center);
+    }
+
+    public setZoom(zoom: number): void {
+        this._navigator.stateService.setZoom(zoom);
+    }
 }

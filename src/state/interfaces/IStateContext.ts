@@ -20,4 +20,8 @@ export interface IStateContext extends ICurrentState {
     move(delta: number): void;
     moveTo(position: number): void;
     zoomIn(delta: number, reference: number[]): void;
+
+    getCenter(): number[];
+    setCenter(center: number[]): void;
+    setZoom(zoom: number): void;
 }

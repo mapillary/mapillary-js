@@ -211,8 +211,14 @@ export abstract class StateBase implements IState {
     }
 
     public getCenter(): number[] {
-        return this.currentTransform.projectBasic(this._camera.lookat.toArray());
+        return this._currentNode != null ?
+            this.currentTransform.projectBasic(this._camera.lookat.toArray()) :
+            [0.5, 0.5];
     }
+
+    public abstract setCenter(center: number[]): void;
+
+    public abstract setZoom(zoom: number): void;
 
     protected abstract _getAlpha(): number;
 

@@ -88,7 +88,9 @@ export class TraversingState extends StateBase {
     private _desiredZoom: number;
     private _minZoom: number;
     private _maxZoom: number;
+    private _lookatDepth: number;
     private _desiredLookat: THREE.Vector3;
+    private _desiredCenter: number[];
 
     constructor (state: IState) {
         super(state);
@@ -114,8 +116,10 @@ export class TraversingState extends StateBase {
         this._desiredZoom = state.zoom;
         this._minZoom = 0;
         this._maxZoom = 3;
+        this._lookatDepth = 10;
 
         this._desiredLookat = null;
+        this._desiredCenter = null;
     }
 
     public traverse(): StateBase {
@@ -127,29 +131,45 @@ export class TraversingState extends StateBase {
     }
 
     public append(nodes: Node[]): void {
-        if (this._trajectory.length === 0) {
+        let emptyTrajectory: boolean = this._trajectory.length === 0;
+
+        if (emptyTrajectory) {
             this._resetTransition();
         }
 
         super.append(nodes);
+
+        if (emptyTrajectory) {
+            this._setDesiredCenter();
+            this._setDesiredZoom();
+        }
     }
 
     public prepend(nodes: Node[]): void {
-        if (this._trajectory.length === 0) {
+        let emptyTrajectory: boolean = this._trajectory.length === 0;
+
+        if (emptyTrajectory) {
             this._resetTransition();
         }
 
         super.prepend(nodes);
+
+        if (emptyTrajectory) {
+            this._setDesiredCenter();
+            this._setDesiredZoom();
+        }
     }
 
     public set(nodes: Node[]): void {
         super.set(nodes);
 
-        this._desiredZoom = this._currentNode.fullPano ? this._zoom : 0;
         this._desiredLookat = null;
 
         this._resetTransition();
         this._clearRotation();
+
+        this._setDesiredCenter();
+        this._setDesiredZoom();
 
         if (this._trajectory.length < 3) {
             this._useBezier = true;
@@ -209,7 +229,7 @@ export class TraversingState extends StateBase {
         basic[0] = this._spatial.clamp(basic[0], 0, 1);
         basic[1] = this._spatial.clamp(basic[1], 0, 1);
 
-        let lookat: number[] = this.currentTransform.unprojectBasic(basic, 10);
+        let lookat: number[] = this.currentTransform.unprojectBasic(basic, this._lookatDepth);
         this._currentCamera.lookat.fromArray(lookat);
     }
 
@@ -259,7 +279,47 @@ export class TraversingState extends StateBase {
         }
 
         this._desiredLookat = new THREE.Vector3()
-            .fromArray(this.currentTransform.unprojectBasic([newCenterX, newCenterY], 10));
+            .fromArray(this.currentTransform.unprojectBasic([newCenterX, newCenterY], this._lookatDepth));
+    }
+
+    public setCenter(center: number[]): void {
+        this._desiredLookat = null;
+        this._requestedRotationDelta = null;
+        this._requestedBasicRotation = null;
+        this._desiredZoom = this._zoom;
+
+        let clamped: number[] = [
+            this._spatial.clamp(center[0], 0, 1),
+            this._spatial.clamp(center[1], 0, 1),
+        ];
+
+        if (this._currentNode == null) {
+            this._desiredCenter = clamped;
+            return;
+        }
+
+        this._desiredCenter = null;
+
+        let currentLookat: THREE.Vector3 = new THREE.Vector3()
+            .fromArray(this.currentTransform.unprojectBasic(clamped, this._lookatDepth));
+
+        let previousTransform: Transform = this.previousTransform != null ?
+            this.previousTransform :
+            this.currentTransform;
+        let previousLookat: THREE.Vector3 = new THREE.Vector3()
+            .fromArray(previousTransform.unprojectBasic(clamped, this._lookatDepth));
+
+        this._currentCamera.lookat.copy(currentLookat);
+        this._previousCamera.lookat.copy(previousLookat);
+    }
+
+    public setZoom(zoom: number): void {
+        this._desiredLookat = null;
+        this._requestedRotationDelta = null;
+        this._requestedBasicRotation = null;
+
+        this._zoom = this._spatial.clamp(zoom, this._minZoom, this._maxZoom);
+        this._desiredZoom = this._zoom;
     }
 
     public update(fps: number): void {
@@ -274,6 +334,7 @@ export class TraversingState extends StateBase {
             this._clearRotation();
 
             this._desiredZoom = this._currentNode.fullPano ? this._zoom : 0;
+
             this._desiredLookat = null;
         }
 
@@ -398,10 +459,10 @@ export class TraversingState extends StateBase {
             previousBasic[1] = this._spatial.clamp(currentBasic[1] + this._basicRotation[1], 0, 1);
         }
 
-        let currentLookat: number[] = currentTransform.unprojectBasic(currentBasic, 10);
+        let currentLookat: number[] = currentTransform.unprojectBasic(currentBasic, this._lookatDepth);
         currentCamera.lookat.fromArray(currentLookat);
 
-        let previousLookat: number[] = previousTransform.unprojectBasic(previousBasic, 10);
+        let previousLookat: number[] = previousTransform.unprojectBasic(previousBasic, this._lookatDepth);
         previousCamera.lookat.fromArray(previousLookat);
     }
 
@@ -512,5 +573,25 @@ export class TraversingState extends StateBase {
         if (this._basicRotation[0] > 0 || this._basicRotation[1] > 0) {
             this._basicRotation = [0, 0];
         }
+    }
+
+    private _setDesiredCenter(): void {
+        if (this._desiredCenter == null) {
+            return;
+        }
+
+        let lookat: THREE.Vector3 = new THREE.Vector3()
+            .fromArray(this.currentTransform.unprojectBasic(this._desiredCenter, this._lookatDepth));
+
+        this._currentCamera.lookat.copy(lookat);
+        this._previousCamera.lookat.copy(lookat);
+
+        this._desiredCenter = null;
+    }
+
+    private _setDesiredZoom(): void {
+        this._desiredZoom =
+            this._currentNode.fullPano || this._previousNode == null ?
+            this._zoom : 0;
     }
 }

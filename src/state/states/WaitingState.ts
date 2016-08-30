@@ -48,6 +48,10 @@ export class WaitingState extends StateBase {
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }
 
+    public setCenter(center: number[]): void { return; }
+
+    public setZoom(zoom: number): void { return; }
+
     protected _getAlpha(): number {
         return this._motionless ? Math.ceil(this._alpha) : this._alpha;
     };

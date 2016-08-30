@@ -101,6 +101,14 @@ export class StateContext implements IStateContext {
         return this._state.getCenter();
     }
 
+    public setCenter(center: number[]): void {
+        this._state.setCenter(center);
+    }
+
+    public setZoom(zoom: number): void {
+        this._state.setZoom(zoom);
+    }
+
     public update(fps: number): void {
         this._state.update(fps);
     }

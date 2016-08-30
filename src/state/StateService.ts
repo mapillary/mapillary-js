@@ -378,7 +378,7 @@ export class StateService {
             .first()
             .map<number[]>(
                 (frame: IFrame): number[] => {
-                    return frame.state.getCenter();
+                    return (<IStateContext>frame.state).getCenter();
                 });
     }
 
@@ -389,6 +389,14 @@ export class StateService {
                 (frame: IFrame): number => {
                     return frame.state.zoom;
                 });
+    }
+
+    public setCenter(center: number[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.setCenter(center); });
+    }
+
+    public setZoom(zoom: number): void {
+        this._invokeContextOperation((context: IStateContext) => { context.setZoom(zoom); });
     }
 
     public start(): void {

@@ -122,7 +122,6 @@ describe("GLRenderer.renderer", () => {
             currentIndex: 0,
             currentNode: null,
             currentTransform: null,
-            getCenter: (): number[] => { return [0.5, 0.5]; },
             lastNode: null,
             motionless: false,
             nodesAhead: 0,
