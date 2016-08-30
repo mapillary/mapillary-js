@@ -237,17 +237,20 @@ export class StateService {
                             (frame: IFrame): boolean => {
                                 return frame.state.nodesAhead === 0;
                             })
-                        .map<Camera>(
-                            (frame: IFrame): Camera => {
-                                return frame.state.camera.clone();
+                        .map<[Camera, number]>(
+                            (frame: IFrame): [Camera, number] => {
+                                return [frame.state.camera.clone(), frame.state.zoom];
                             })
                         .pairwise()
                         .map<boolean>(
-                            (pair: [Camera, Camera]) => {
-                                let c1: Camera = pair[0];
-                                let c2: Camera = pair[1];
+                            (pair: [[Camera, number], [Camera, number]]): boolean => {
+                                let c1: Camera = pair[0][0];
+                                let c2: Camera = pair[1][0];
 
-                                return c1.diff(c2) > 1e-5;
+                                let z1: number = pair[0][1];
+                                let z2: number = pair[1][1];
+
+                                return c1.diff(c2) > 1e-5 || Math.abs(z1 - z2) > 1e-5;
                             })
                         .first(
                             (changed: boolean): boolean => {
