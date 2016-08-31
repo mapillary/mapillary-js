@@ -1,6 +1,7 @@
 export {ICacheConfiguration, ICacheDepth} from "./ICacheConfiguration";
 export {ICoverConfiguration} from "./ICoverConfiguration";
 export {IDirectionConfiguration} from "./IDirectionConfiguration";
+export {IImagePlaneConfiguration} from "./IImagePlaneConfiguration";
 export {IMarkerConfiguration} from "./IMarkerConfiguration";
 export {IRouteConfiguration, IRoutePath, IRouteInfoKey} from "./IRouteConfiguration";
 export {ISliderConfiguration, ISliderKeys} from "./ISliderConfiguration";
