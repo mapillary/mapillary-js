@@ -11,8 +11,10 @@ import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/withLatestFrom";
 
 import {ComponentService, Component, IComponentConfiguration, ImagePlaneGLRenderer} from "../../Component";
+import {Transform} from "../../Geo";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
@@ -26,6 +28,8 @@ interface IImagePlaneGLRendererOperation {
 export class ImagePlaneComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "imageplane";
 
+    private _maxDynamicImageSize: number;
+
     private _rendererOperation$: Subject<IImagePlaneGLRendererOperation>;
     private _renderer$: Observable<ImagePlaneGLRenderer>;
     private _rendererCreator$: Subject<void>;
@@ -37,6 +41,8 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._maxDynamicImageSize = 4096;
 
         this._rendererOperation$ = new Subject<IImagePlaneGLRendererOperation>();
         this._rendererCreator$ = new Subject<void>();
@@ -117,16 +123,32 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
             .subscribe(this._rendererOperation$);
 
         this._nodeSubscription = this._navigator.stateService.currentNode$
+            .debounceTime(1000)
+            .withLatestFrom(this._navigator.stateService.currentTransform$)
             .filter(
-                (node: Node): boolean => {
+                (nt: [Node, Transform]): boolean => {
+                    let node: Node = nt[0];
+                    let transform: Transform = nt[1];
+
                     return node.pano ?
-                        Settings.maxImageSize > Settings.basePanoramaSize :
+                        Math.max(transform.width, transform.height) > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
-            .debounceTime(1000)
             .switchMap<[HTMLImageElement, Node]>(
-                (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    return ImageLoader.load(node.key, Settings.maxImageSize)
+                (nt: [Node, Transform]): Observable<[HTMLImageElement, Node]> => {
+                    let node: Node = nt[0];
+                    let transform: Transform = nt[1];
+
+                    let image$: Observable<ILoadStatusObject<HTMLImageElement>> =
+                        node.pano ?
+                            ImageLoader.loadDynamic(
+                                node.key,
+                                Math.min(
+                                    Math.max(transform.width, transform.height),
+                                    this._maxDynamicImageSize)) :
+                            ImageLoader.loadThumbnail(node.key, Settings.maxImageSize);
+
+                    return image$
                         .filter(
                             (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
                                 return statusObject.object != null;

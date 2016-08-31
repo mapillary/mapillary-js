@@ -528,7 +528,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .mergeMap(
                 (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    return ImageLoader.load(node.key, Settings.maxImageSize)
+                    return ImageLoader.loadThumbnail(node.key, Settings.maxImageSize)
                         .filter(
                             (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
                                 return statusObject.object != null;

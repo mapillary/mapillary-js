@@ -365,7 +365,7 @@ export class Node {
             Settings.basePanoramaSize :
             Settings.baseImageSize;
 
-        return ImageLoader.load(this.key, imageSize);
+        return ImageLoader.loadThumbnail(this.key, imageSize);
     }
 }
 

@@ -1,5 +1,9 @@
 export class Urls {
-    public static image(key: string, size: number): string {
+    public static dynamicImage(key: string, size: number): string {
+        return `https://d2qb1440i7l50o.cloudfront.net/${key}/full/!${size},${size}/0/default.jpg?origin=mapillary.webgl`;
+    }
+
+    public static thumbnail(key: string, size: number): string {
         return `https://d1cuyjsrcm0gby.cloudfront.net/${key}/thumb-${size}.jpg?origin=mapillary.webgl`;
     }
 
