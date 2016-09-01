@@ -356,7 +356,7 @@ describe("Transform.gpano", () => {
     });
 });
 
-describe("Transform.pixelToVertex", () => {
+describe("Transform.unprojectSfM", () => {
     let precision: number = 8;
 
     let geoHelper: GeoHelper;
@@ -371,11 +371,11 @@ describe("Transform.pixelToVertex", () => {
 
         let transform: Transform = new Transform(apiNavImIm, null, t);
 
-        let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
+        let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
-        expect(vertex.x).toBeCloseTo(0, precision);
-        expect(vertex.y).toBeCloseTo(0, precision);
-        expect(vertex.z).toBeCloseTo(0, precision);
+        expect(sfm[0]).toBeCloseTo(0, precision);
+        expect(sfm[1]).toBeCloseTo(0, precision);
+        expect(sfm[2]).toBeCloseTo(0, precision);
     });
 
     it("should return vertex at inverted translation", () => {
@@ -384,11 +384,11 @@ describe("Transform.pixelToVertex", () => {
 
         let transform: Transform = new Transform(apiNavImIm, null, t);
 
-        let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
+        let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
-        expect(vertex.x).toBeCloseTo(-10, precision);
-        expect(vertex.y).toBeCloseTo(20, precision);
-        expect(vertex.z).toBeCloseTo(-30, precision);
+        expect(sfm[0]).toBeCloseTo(-10, precision);
+        expect(sfm[1]).toBeCloseTo(20, precision);
+        expect(sfm[2]).toBeCloseTo(-30, precision);
     });
 
     it("should return vertex at camera center", () => {
@@ -399,11 +399,11 @@ describe("Transform.pixelToVertex", () => {
 
         let transform: Transform = new Transform(apiNavImIm, null, t);
 
-        let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, 0);
+        let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
-        expect(vertex.x).toBeCloseTo(C[0], precision);
-        expect(vertex.y).toBeCloseTo(C[1], precision);
-        expect(vertex.z).toBeCloseTo(C[2], precision);
+        expect(sfm[0]).toBeCloseTo(C[0], precision);
+        expect(sfm[1]).toBeCloseTo(C[1], precision);
+        expect(sfm[2]).toBeCloseTo(C[2], precision);
     });
 
     it("should return vertex 10 units front of origin in camera direction", () => {
@@ -413,27 +413,26 @@ describe("Transform.pixelToVertex", () => {
         let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let depth: number = 10;
-        let vertex: THREE.Vector3 = transform.pixelToVertex(0, 0, depth);
+        let sfm: number[] = transform.unprojectSfM([0, 0], depth);
 
-        expect(vertex.x).toBeCloseTo(0, precision);
-        expect(vertex.y).toBeCloseTo(0, precision);
-        expect(vertex.z).toBeCloseTo(depth, precision);
+        expect(sfm[0]).toBeCloseTo(0, precision);
+        expect(sfm[1]).toBeCloseTo(0, precision);
+        expect(sfm[2]).toBeCloseTo(depth, precision);
     });
 
     it("should return vertex shifted 5 units in all directions from camera center", () => {
-        let r: number[] = [Math.PI / 2, 0, 0];
-        let C: number[] = [10, 10, 10];
-        let t: number[] = geoHelper.getTranslation(r, C);
+        let r: number[] = [0, 0, 0];
+        let t: number[] = [0, 0, 0];
         let apiNavImIm: IAPINavImIm = { key: "",  rotation: r };
 
         let transform: Transform = new Transform(apiNavImIm, null, t);
 
         let depth: number = 5;
-        let vertex: THREE.Vector3 = transform.pixelToVertex(1, 1, depth);
+        let sfm: number[] = transform.unprojectSfM([0.5, 0], depth);
 
-        expect(vertex.x).toBeCloseTo(C[0] + depth, precision);
-        expect(vertex.y).toBeCloseTo(C[1] + depth, precision);
-        expect(vertex.z).toBeCloseTo(C[2] - depth, precision);
+        expect(sfm[0]).toBeCloseTo(depth * Math.sin(Math.atan(0.5)), precision);
+        expect(sfm[1]).toBeCloseTo(0, precision);
+        expect(sfm[2]).toBeCloseTo(depth * Math.cos(Math.atan(0.5)), precision);
     });
 });
 

@@ -21,8 +21,8 @@ export class Camera {
      */
     constructor(transform?: Transform) {
         if (transform != null) {
-            this._position = transform.pixelToVertex(0, 0, 0);
-            this._lookat = transform.pixelToVertex(0, 0, 10);
+            this._position = new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0));
+            this._lookat = new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 10));
             this._up = transform.upVector();
             this._focal = this._getFocal(transform);
         } else {

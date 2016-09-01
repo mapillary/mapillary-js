@@ -257,18 +257,18 @@ export class ImagePlaneFactory {
         let dx: number = width / 2.0 / size;
         let dy: number = height / 2.0 / size;
 
-        let vertices: THREE.Vector3[] = [];
-        vertices.push(transform.pixelToVertex(-dx, -dy, this._imagePlaneDepth));
-        vertices.push(transform.pixelToVertex( dx, -dy, this._imagePlaneDepth));
-        vertices.push(transform.pixelToVertex( dx, dy, this._imagePlaneDepth));
-        vertices.push(transform.pixelToVertex(-dx, dy, this._imagePlaneDepth));
+        let vertices: number[][] = [];
+        vertices.push(transform.unprojectSfM([-dx, -dy], this._imagePlaneDepth));
+        vertices.push(transform.unprojectSfM([dx, -dy], this._imagePlaneDepth));
+        vertices.push(transform.unprojectSfM([dx, dy], this._imagePlaneDepth));
+        vertices.push(transform.unprojectSfM([-dx, dy], this._imagePlaneDepth));
 
         let positions: Float32Array = new Float32Array(12);
         for (let i: number = 0; i < vertices.length; i++) {
             let index: number = 3 * i;
-            positions[index + 0] = vertices[i].x;
-            positions[index + 1] = vertices[i].y;
-            positions[index + 2] = vertices[i].z;
+            positions[index + 0] = vertices[i][0];
+            positions[index + 1] = vertices[i][1];
+            positions[index + 2] = vertices[i][2];
         }
 
         let indices: Uint16Array = new Uint16Array(6);

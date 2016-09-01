@@ -124,26 +124,6 @@ export class Transform {
     }
 
     /**
-     * Unproject SfM coordinates to a 3D world coordiantes.
-     *
-     * @param {number} x - SfM x-coordinate.
-     * @param {number} y - SfM y-coordinate.
-     * @param {number} depth - Depth to unproject 3D coordinate from camera center.
-     * @returns {THREE.Vector3} 3D world coordinate.
-     */
-    public pixelToVertex(x: number, y: number, depth: number): THREE.Vector3 {
-        let v: THREE.Vector4 = new THREE.Vector4(
-            x / this._focal * depth,
-            y / this._focal * depth,
-            depth,
-            1);
-
-        v.applyMatrix4(new THREE.Matrix4().getInverse(this._rt));
-
-        return new THREE.Vector3(v.x / v.w, v.y / v.w, v.z / v.w);
-    }
-
-    /**
      * Calculate the up vector for the node transform.
      *
      * @returns {THREE.Vector3} Normalized and orientation adjusted up vector.
@@ -166,9 +146,11 @@ export class Transform {
     }
 
     /**
-     * Calculate projector matrix for projecting 3D points to pixels.
+     * Calculate projector matrix for projecting 3D points to texture map
+     * coordinates (u and v).
      *
-     * @returns {THREE.Matrix4} Projection matrix for 3D point to pixel calculations.
+     * @returns {THREE.Matrix4} Projection matrix for 3D point to texture
+     * map coordinate calculations.
      */
     public projectorMatrix(): THREE.Matrix4 {
         let projector: THREE.Matrix4 = this._normalizedToTextureMatrix();
@@ -190,47 +172,47 @@ export class Transform {
     /**
      * Project 3D world coordinates to basic coordinates.
      *
-     * @param {Array<number>} point - 3D world coordinates.
+     * @param {Array<number>} point3d - 3D world coordinates.
      * @return {Array<number>} 2D basic coordinates.
      */
-    public projectBasic(point: number[]): number[] {
-        let sfm: number[] = this.projectSfM(point);
+    public projectBasic(point3d: number[]): number[] {
+        let sfm: number[] = this.projectSfM(point3d);
         return this._sfmToBasic(sfm);
     }
 
     /**
-     * Unproject basic coordinates to a 3D world coordinates.
+     * Unproject basic coordinates to 3D world coordinates.
      *
-     * @param {Array<number>} pixel - 2D basic coordinates.
+     * @param {Array<number>} basic - 2D basic coordinates.
      * @param {Array<number>} distance - Depth to unproject from camera center.
      * @returns {Array<number>} Unprojected 3D world coordinate.
      */
-    public unprojectBasic(pixel: number[], distance: number): number[] {
-        let sfm: number[] = this._basicToSfm(pixel);
+    public unprojectBasic(basic: number[], distance: number): number[] {
+        let sfm: number[] = this._basicToSfm(basic);
         return this.unprojectSfM(sfm, distance);
     }
 
     /**
      * Project 3D world coordinates to SfM coordinates.
      *
-     * @param {Array<number>} point - 3D world coordinates.
+     * @param {Array<number>} point3d - 3D world coordinates.
      * @return {Array<number>} 2D SfM coordinates.
      */
-    public projectSfM(point: number[]): number[] {
-        let v: THREE.Vector4 = new THREE.Vector4(point[0], point[1], point[2], 1);
+    public projectSfM(point3d: number[]): number[] {
+        let v: THREE.Vector4 = new THREE.Vector4(point3d[0], point3d[1], point3d[2], 1);
         v.applyMatrix4(this._rt);
-        return this._bearingToPixel([v.x, v.y, v.z]);
+        return this._bearingToSfm([v.x, v.y, v.z]);
     }
 
     /**
      * Unproject SfM coordinates to a 3D world coordinates.
      *
-     * @param {Array<number>} pixel - 2D SfM coordinates.
+     * @param {Array<number>} sfm - 2D SfM coordinates.
      * @param {Array<number>} distance - Depth to unproject from camera center.
      * @returns {Array<number>} Unprojected 3D world coordinate.
      */
-    public unprojectSfM(pixel: number[], distance: number): number[] {
-        let bearing: number[] = this._pixelToBearing(pixel);
+    public unprojectSfM(sfm: number[], distance: number): number[] {
+        let bearing: number[] = this._sfmToBearing(sfm);
         let v: THREE.Vector4 = new THREE.Vector4(
             distance * bearing[0],
             distance * bearing[1],
@@ -241,15 +223,17 @@ export class Transform {
     }
 
     /**
-     * Transform SfM coordinates to 3D cartesian on the unit sphere.
+     * Transform SfM coordinates to bearing vector (3D cartesian
+     * coordinates on the unit sphere).
      *
-     * @param {Array<number>} pixel - 2D SfM coordinates.
-     * @returns {Array<number>} 3D cartesian coordinates on the unit sphere.
+     * @param {Array<number>} sfm - 2D SfM coordinates.
+     * @returns {Array<number>} Bearing vector (3D cartesian coordinates
+     * on the unit sphere).
      */
-    private _pixelToBearing(pixel: number[]): number[] {
+    private _sfmToBearing(sfm: number[]): number[] {
         if (this._fullPano()) {
-            let lon: number = pixel[0] * 2 * Math.PI;
-            let lat: number = -pixel[1] * 2 * Math.PI;
+            let lon: number = sfm[0] * 2 * Math.PI;
+            let lat: number = -sfm[1] * 2 * Math.PI;
             let x: number = Math.cos(lat) * Math.sin(lon);
             let y: number = -Math.sin(lat);
             let z: number = Math.cos(lat) * Math.cos(lon);
@@ -257,8 +241,8 @@ export class Transform {
         } else if (this._gpano) {
             let size: number = Math.max(this.gpano.CroppedAreaImageWidthPixels, this.gpano.CroppedAreaImageHeightPixels);
             let fullPanoPixel: number[] = [
-                pixel[0] * size + this.gpano.CroppedAreaImageWidthPixels / 2 + this.gpano.CroppedAreaLeftPixels,
-                pixel[1] * size + this.gpano.CroppedAreaImageHeightPixels / 2 + this.gpano.CroppedAreaTopPixels,
+                sfm[0] * size + this.gpano.CroppedAreaImageWidthPixels / 2 + this.gpano.CroppedAreaLeftPixels,
+                sfm[1] * size + this.gpano.CroppedAreaImageHeightPixels / 2 + this.gpano.CroppedAreaTopPixels,
             ];
             let lon: number = 2 * Math.PI * (fullPanoPixel[0] / this.gpano.FullPanoWidthPixels - 0.5);
             let lat: number = - Math.PI * (fullPanoPixel[1] / this.gpano.FullPanoHeightPixels - 0.5);
@@ -267,19 +251,21 @@ export class Transform {
             let z: number = Math.cos(lat) * Math.cos(lon);
             return [x, y, z];
         } else {
-            let v: THREE.Vector3 = new THREE.Vector3(pixel[0], pixel[1], this._focal);
+            let v: THREE.Vector3 = new THREE.Vector3(sfm[0], sfm[1], this._focal);
             v.normalize();
             return [v.x, v.y, v.z];
         }
     }
 
     /**
-     * Transform 3D cartesian on the unit sphere to SfM coordinates.
+     * Transform bearing vector (3D cartesian coordiantes on the unit sphere) to
+     * SfM coordinates.
      *
-     * @param {Array<number>} 3D cartesian coordinates on the unit sphere.
-     * @returns {Array<number>} pixel - 2D SfM coordinates.
+     * @param {Array<number>} bearing - Bearing vector (3D cartesian coordinates on the
+     * unit sphere).
+     * @returns {Array<number>} 2D SfM coordinates.
      */
-    private _bearingToPixel(bearing: number[]): number[] {
+    private _bearingToSfm(bearing: number[]): number[] {
         if (this._fullPano()) {
             let x: number = bearing[0];
             let y: number = bearing[1];
@@ -313,33 +299,33 @@ export class Transform {
     /**
      * Convert basic coordinates to SfM coordinates.
      *
-     * @param {Array<number>} point - 2D basic coordinates.
+     * @param {Array<number>} basic - 2D basic coordinates.
      * @returns {Array<number>} 2D SfM coordinates.
      */
-    private _basicToSfm(point: number[]): number[] {
+    private _basicToSfm(basic: number[]): number[] {
         let rotatedX: number;
         let rotatedY: number;
 
         switch (this._orientation) {
             case 1:
-                rotatedX = point[0];
-                rotatedY = point[1];
+                rotatedX = basic[0];
+                rotatedY = basic[1];
                 break;
             case 3:
-                rotatedX = 1 - point[0];
-                rotatedY = 1 - point[1];
+                rotatedX = 1 - basic[0];
+                rotatedY = 1 - basic[1];
                 break;
             case 6:
-                rotatedX = point[1];
-                rotatedY = 1 - point[0];
+                rotatedX = basic[1];
+                rotatedY = 1 - basic[0];
                 break;
             case 8:
-                rotatedX = 1 - point[1];
-                rotatedY = point[0];
+                rotatedX = 1 - basic[1];
+                rotatedY = basic[0];
                 break;
             default:
-                rotatedX = point[0];
-                rotatedY = point[1];
+                rotatedX = basic[0];
+                rotatedY = basic[1];
                 break;
         }
 
@@ -355,15 +341,15 @@ export class Transform {
     /**
      * Convert SfM coordinates to basic coordinates.
      *
-     * @param {Array<number>} point - 2D SfM coordinates.
+     * @param {Array<number>} sfm - 2D SfM coordinates.
      * @returns {Array<number>} 2D basic coordinates.
      */
-    private _sfmToBasic(point: number[]): number[] {
+    private _sfmToBasic(sfm: number[]): number[] {
         let w: number = this._width;
         let h: number = this._height;
         let s: number = Math.max(w, h);
-        let rotatedX: number = (point[0] + w / s / 2) / w * s;
-        let rotatedY: number = (point[1] + h / s / 2) / h * s;
+        let rotatedX: number = (sfm[0] + w / s / 2) / w * s;
+        let rotatedY: number = (sfm[1] + h / s / 2) / h * s;
 
         let basicX: number;
         let basicY: number;
@@ -409,7 +395,8 @@ export class Transform {
     }
 
     /**
-     * Checks a value and fallbacks if it is null.
+     * Checks a value and returns it if it exists and is larger than 0.
+     * Fallbacks if it is null.
      *
      * @param {number} value - Value to check.
      * @param {number} fallback - Value to fall back to.
@@ -420,7 +407,7 @@ export class Transform {
     }
 
     /**
-     * Calculates the extrinsic camera matrix [ R | t ].
+     * Creates the extrinsic camera matrix [ R | t ].
      *
      * @param {Array<number>} rotation - Rotation vector in angle axis representation.
      * @param {Array<number>} translation - Translation vector.
@@ -464,15 +451,16 @@ export class Transform {
 
     /**
      * Calculate a transformation matrix from normalized coordinates for
-     * texture coordinates.
+     * texture map coordinates.
      *
-     * @returns {THREE.Matrix4} Normalized coordinates to texture coordinates
-     * transformation matrix.
+     * @returns {THREE.Matrix4} Normalized coordinates to texture map
+     * coordinates transformation matrix.
      */
     private _normalizedToTextureMatrix(): THREE.Matrix4 {
         let size: number = Math.max(this._width, this._height);
         let w: number = size / this._width;
         let h: number = size / this._height;
+
         switch (this._orientation) {
             case 1:
                 return new THREE.Matrix4().set(w, 0, 0, 0.5, 0, -h, 0, 0.5, 0, 0, 1, 0, 0, 0, 0, 1);
