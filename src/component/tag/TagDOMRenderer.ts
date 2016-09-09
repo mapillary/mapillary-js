@@ -6,6 +6,7 @@ import * as vd from "virtual-dom";
 import {
     ITagConfiguration,
     OutlineCreateTag,
+    RenderTag,
     Tag,
 } from "../../Component";
 import {Transform} from "../../Geo";
@@ -13,7 +14,7 @@ import {ISpriteAtlas} from "../../Viewer";
 
 export class TagDOMRenderer {
     public render(
-        tags: Tag[],
+        tags: RenderTag<Tag>[],
         createTag: OutlineCreateTag,
         atlas: ISpriteAtlas,
         camera: THREE.PerspectiveCamera,
@@ -26,7 +27,7 @@ export class TagDOMRenderer {
         let vNodes: vd.VNode[] = [];
 
         for (let tag of tags) {
-            vNodes = vNodes.concat(tag.getDOMObjects(transform, atlas, matrixWorldInverse, projectionMatrix));
+            vNodes = vNodes.concat(tag.getDOMObjects(atlas, matrixWorldInverse, projectionMatrix));
         }
 
         if (createTag != null) {

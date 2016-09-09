@@ -1,25 +1,11 @@
-/// <reference path="../../../../typings/index.d.ts" />
-
-import * as THREE from "three";
-import * as vd from "virtual-dom";
-
-import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {
     Alignment,
     IOutlineTagOptions,
-    PolygonGeometry,
-    RectGeometry,
     Tag,
-    TagOperation,
     VertexGeometry,
 } from "../../../Component";
-import {Transform} from "../../../Geo";
-import {
-    ISpriteAtlas,
-    SpriteAlignment,
-} from "../../../Viewer";
 
 /**
  * @class OutlineTag
@@ -92,7 +78,7 @@ export class OutlineTag extends Tag {
      *
      * @returns {Observable<Tag>}
      */
-    public get click$(): Observable<OutlineTag> {
+    public get click$(): Subject<OutlineTag> {
         return this._click$;
     }
 
@@ -151,6 +137,10 @@ export class OutlineTag extends Tag {
     public set fillOpacity(value: number) {
         this._fillOpacity = value;
         this._notifyChanged$.next(this);
+    }
+
+    public get geometry(): VertexGeometry {
+        return this._geometry;
     }
 
     /**
@@ -329,293 +319,6 @@ export class OutlineTag extends Tag {
         this._text = options.text === undefined ? this._text : options.text;
         this._textColor = options.textColor == null ? this._textColor : options.textColor;
         this._notifyChanged$.next(this);
-    }
-
-    public getGLObjects(transform: Transform): THREE.Object3D[] {
-        let objects: THREE.Object3D[] = [];
-
-        if (this._lineWidth > 0) {
-            for (let line of this._getGLLines(transform)) {
-                objects.push(line);
-            }
-        }
-
-        if (this._fillOpacity > 0 && !transform.gpano) {
-            objects.push(this._getGLMesh(transform));
-        }
-
-        return objects;
-    }
-
-    public getDOMObjects(
-        transform: Transform,
-        atlas: ISpriteAtlas,
-        matrixWorldInverse: THREE.Matrix4,
-        projectionMatrix: THREE.Matrix4):
-        vd.VNode[] {
-
-        let vNodes: vd.VNode[] = [];
-
-        if (this._geometry instanceof RectGeometry) {
-            if (this._icon != null) {
-                let iconVertex: number[] = this._geometry.getVertex3d(this._iconIndex, transform);
-                let iconCameraSpace: THREE.Vector3 = this._convertToCameraSpace(iconVertex, matrixWorldInverse);
-                if (iconCameraSpace.z < 0) {
-                    let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                        this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
-                    };
-
-                    if (atlas.loaded) {
-                        let spriteAlignments: [SpriteAlignment, SpriteAlignment] =
-                            this._getSpriteAlignment(this._iconIndex, this._iconAlignment);
-
-                        let sprite: vd.VNode =
-                            atlas.getDOMSprite(this._icon, spriteAlignments[0], spriteAlignments[1]);
-
-                        let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                            e.stopPropagation();
-                            this._click$.next(this);
-                        };
-
-                        let iconCanvas: number[] = this._projectToCanvas(iconCameraSpace, projectionMatrix);
-                        let iconCss: string[] = iconCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                        let properties: vd.createProperties = {
-                            onclick: click,
-                            onmousedown: interact,
-                            style: {
-                                left: iconCss[0],
-                                pointerEvents: "all",
-                                position: "absolute",
-                                top: iconCss[1],
-                            },
-                        };
-
-                        vNodes.push(vd.h("div.TagSymbol", properties, [sprite]));
-                    }
-                }
-            } else if (this._text != null) {
-                let textVertex: number[] = this._geometry.getVertex3d(3, transform);
-                let textCameraSpace: THREE.Vector3 = this._convertToCameraSpace(textVertex, matrixWorldInverse);
-                if (textCameraSpace.z < 0) {
-                    let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                        this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this });
-                    };
-
-                    let labelCanvas: number[] = this._projectToCanvas(textCameraSpace, projectionMatrix);
-                    let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                    let properties: vd.createProperties = {
-                        onmousedown: interact,
-                        style: {
-                            color: "#" + ("000000" + this._textColor.toString(16)).substr(-6),
-                            left: labelCss[0],
-                            pointerEvents: "all",
-                            position: "absolute",
-                            top: labelCss[1],
-                        },
-                        textContent: this._text,
-                    };
-
-                    vNodes.push(vd.h("span.TagSymbol", properties, []));
-                }
-            }
-        }
-
-        if (!this._editable) {
-            return vNodes;
-        }
-
-        let lineColor: string = "#" + ("000000" + this._lineColor.toString(16)).substr(-6);
-
-        if (this._geometry instanceof RectGeometry) {
-            let centroid3d: number[] = this._geometry.getCentroid3d(transform);
-            let centroidCameraSpace: THREE.Vector3 = this._convertToCameraSpace(centroid3d, matrixWorldInverse);
-            if (centroidCameraSpace.z < 0) {
-                let interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid);
-
-                let centerCanvas: number[] = this._projectToCanvas(centroidCameraSpace, projectionMatrix);
-                let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                let properties: vd.createProperties = {
-                    onmousedown: interact,
-                    style: { background: lineColor, left: centerCss[0], position: "absolute", top: centerCss[1] },
-                };
-
-                vNodes.push(vd.h("div.TagMover", properties, []));
-            }
-        }
-
-        let vertices3d: number[][] = this._geometry.getVertices3d(transform);
-
-        for (let i: number = 0; i < vertices3d.length - 1; i++) {
-            let isRectGeometry: boolean = this._geometry instanceof RectGeometry;
-
-            if (isRectGeometry &&
-                ((this._icon != null && i === this._iconIndex) ||
-                (this._icon == null && this._text != null && i === 3))) {
-                continue;
-            }
-
-            let vertexCameraSpace: THREE.Vector3 = this._convertToCameraSpace(vertices3d[i], matrixWorldInverse);
-
-            if (vertexCameraSpace.z > 0) {
-                continue;
-            }
-
-            let interact: (e: MouseEvent) => void = this._interact(TagOperation.Vertex, i);
-
-            let vertexCanvas: number[] = this._projectToCanvas(vertexCameraSpace, projectionMatrix);
-            let vertexCss: string[] = vertexCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-            let properties: vd.createProperties = {
-                onmousedown: interact,
-                style: {
-                    background: lineColor,
-                    left: vertexCss[0],
-                    position: "absolute",
-                    top: vertexCss[1],
-                },
-            };
-
-            if (isRectGeometry) {
-                properties.style.cursor = i % 2 === 0 ? "nesw-resize" : "nwse-resize";
-            }
-
-            vNodes.push(vd.h("div.TagResizer", properties, []));
-
-            if (!this._indicateVertices) {
-                continue;
-            }
-
-            let pointProperties: vd.createProperties = {
-                style: {
-                    background: lineColor,
-                    left: vertexCss[0],
-                    position: "absolute",
-                    top: vertexCss[1],
-                },
-            };
-
-            vNodes.push(vd.h("div.TagVertex", pointProperties, []));
-        }
-
-        return vNodes;
-    }
-
-    private _interact(operation: TagOperation, vertexIndex?: number): (e: MouseEvent) => void {
-        return (e: MouseEvent): void => {
-            let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
-            let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
-
-            this._interact$.next({
-                offsetX: offsetX,
-                offsetY: offsetY,
-                operation: operation,
-                tag: this,
-                vertexIndex: vertexIndex,
-            });
-        };
-    }
-
-    private _getLinePositions(points3d: number[][]): Float32Array {
-        let length: number = points3d.length;
-        let positions: Float32Array = new Float32Array(length * 3);
-
-        for (let i: number = 0; i < length; ++i) {
-            let index: number = 3 * i;
-            let position: number[] = points3d[i];
-
-            positions[index + 0] = position[0];
-            positions[index + 1] = position[1];
-            positions[index + 2] = position[2];
-        }
-
-        return positions;
-    }
-
-    private _getGLLine(points3d: number[][], transform: Transform): THREE.Object3D {
-        let positions: Float32Array = this._getLinePositions(points3d);
-
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-        let material: THREE.LineBasicMaterial =
-            new THREE.LineBasicMaterial(
-                {
-                    color: this._lineColor,
-                    linewidth: this._lineWidth,
-                });
-
-        return new THREE.Line(geometry, material);
-    }
-
-    private _getGLLines(transform: Transform): THREE.Object3D[] {
-        let objects: THREE.Object3D[] = [];
-
-        let points3d: number[][] = this._geometry.getPoints3d(transform);
-        let outline: THREE.Object3D = this._getGLLine(points3d, transform);
-        objects.push(outline);
-
-        if (this._geometry instanceof PolygonGeometry) {
-            let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
-            let holes3d: number[][][] = polygonGeometry.getHoleVertices3d(transform);
-            for (let hole3d of holes3d) {
-                let hole: THREE.Object3D = this._getGLLine(hole3d, transform);
-                objects.push(hole);
-            }
-        }
-
-        return objects;
-    }
-
-    private _getGLMesh(transform: Transform): THREE.Object3D {
-        let triangles: number[] = this._geometry.getTriangles3d(transform);
-        let positions: Float32Array = new Float32Array(triangles);
-
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-        let material: THREE.MeshBasicMaterial =
-            new THREE.MeshBasicMaterial(
-                {
-                    color: this._fillColor,
-                    opacity: this._fillOpacity,
-                    side: THREE.DoubleSide,
-                    transparent: true,
-                });
-
-        return new THREE.Mesh(geometry, material);
-    }
-
-    private _getSpriteAlignment(index: number, alignment: Alignment): [SpriteAlignment, SpriteAlignment] {
-        let horizontalAlignment: SpriteAlignment = SpriteAlignment.Center;
-        let verticalAlignment: SpriteAlignment = SpriteAlignment.Center;
-
-        if (alignment === Alignment.Outer) {
-            switch (index) {
-                case 0:
-                    horizontalAlignment = SpriteAlignment.End;
-                    verticalAlignment = SpriteAlignment.Start;
-                    break;
-                case 1:
-                    horizontalAlignment = SpriteAlignment.End;
-                    verticalAlignment = SpriteAlignment.End;
-                    break;
-                case 2:
-                    horizontalAlignment = SpriteAlignment.Start;
-                    verticalAlignment = SpriteAlignment.End;
-                    break;
-                case 3:
-                    horizontalAlignment = SpriteAlignment.Start;
-                    verticalAlignment = SpriteAlignment.Start;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return [horizontalAlignment, verticalAlignment];
     }
 }
 

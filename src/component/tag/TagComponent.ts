@@ -40,8 +40,13 @@ import {
     ITagConfiguration,
     PointGeometry,
     OutlineCreateTag,
+    OutlineRenderTag,
+    OutlineTag,
     PolygonGeometry,
     RectGeometry,
+    RenderTag,
+    SpotRenderTag,
+    SpotTag,
     Tag,
     TagCreator,
     TagDOMRenderer,
@@ -110,7 +115,9 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _tagGlRenderer$: Observable<TagGLRenderer>;
 
     private _tags$: Observable<Tag[]>;
+    private _renderTags$: Observable<RenderTag<Tag>[]>;
     private _tagChanged$: Observable<Tag>;
+    private _renderTagGLChanged$: Observable<RenderTag<Tag>>;
     private _tagInterationInitiated$: Observable<string>;
     private _tagInteractionAbort$: Observable<void>;
     private _activeTag$: Observable<IInteraction>;
@@ -131,7 +138,8 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _mouseDragSubscription: Subscription;
     private _unclaimMouseSubscription: Subscription;
     private _setTagsSubscription: Subscription;
-    private _updateTagSubscription: Subscription;
+    private _updateGLTagSubscription: Subscription;
+    private _setNeedsRenderSubscription: Subscription;
 
     private _stopCreateSubscription: Subscription;
     private _creatorConfigurationSubscription: Subscription;
@@ -183,6 +191,29 @@ export class TagComponent extends Component<ITagConfiguration> {
                 })
             .share();
 
+        this._renderTags$ = this.tags$
+            .withLatestFrom(this._navigator.stateService.currentTransform$)
+            .map<RenderTag<Tag>[]>(
+                (args: [Tag[], Transform]): RenderTag<Tag>[] => {
+                    let tags: Tag[] = args[0];
+                    let transform: Transform = args[1];
+
+                    let renderTags: RenderTag<Tag>[] = tags
+                        .map(
+                            (tag: Tag): RenderTag<Tag> => {
+                                if (tag instanceof OutlineTag) {
+                                    return new OutlineRenderTag(<OutlineTag>tag, transform);
+                                } else if (tag instanceof SpotTag) {
+                                    return new SpotRenderTag(<SpotTag>tag, transform);
+                                }
+
+                                throw new Error("Tag type not supported");
+                            });
+
+                    return renderTags;
+                })
+            .share();
+
         this._tagChanged$ = this._tags$
             .switchMap<Tag>(
                 (tags: Tag[]): Observable<Tag> => {
@@ -198,13 +229,25 @@ export class TagComponent extends Component<ITagConfiguration> {
                 })
             .share();
 
-        this._tagInterationInitiated$ = this._tags$
+        this._renderTagGLChanged$ = this._renderTags$
+            .switchMap<RenderTag<Tag>>(
+                (tags: RenderTag<Tag>[]): Observable<RenderTag<Tag>> => {
+                    return Observable
+                        .from(tags)
+                        .mergeMap<RenderTag<Tag>>(
+                            (tag: RenderTag<Tag>): Observable<RenderTag<Tag>> => {
+                                return tag.glObjectsChanged$;
+                            });
+                })
+            .share();
+
+        this._tagInterationInitiated$ = this._renderTags$
             .switchMap<string>(
-                (tags: Tag[]): Observable<string> => {
+                (tags: RenderTag<Tag>[]): Observable<string> => {
                     return Observable
                         .from(tags)
                         .mergeMap<string>(
-                            (tag: Tag): Observable<string> => {
+                            (tag: RenderTag<Tag>): Observable<string> => {
                                 return tag.interact$
                                     .map<string>(
                                         (interaction: IInteraction): string => {
@@ -224,13 +267,13 @@ export class TagComponent extends Component<ITagConfiguration> {
                 })
             .share();
 
-        this._activeTag$ = this._tags$
+        this._activeTag$ = this._renderTags$
             .switchMap<IInteraction>(
-                (tags: Tag[]): Observable<IInteraction> => {
+                (tags: RenderTag<Tag>[]): Observable<IInteraction> => {
                     return Observable
                         .from(tags)
                         .mergeMap<IInteraction>(
-                            (tag: Tag): Observable<IInteraction> => {
+                            (tag: RenderTag<Tag>): Observable<IInteraction> => {
                                 return tag.interact$;
                             });
                 })
@@ -643,42 +686,43 @@ export class TagComponent extends Component<ITagConfiguration> {
                 this._container.mouseService.unclaimMouse(this._name);
              });
 
-        this._setTagsSubscription = this._tags$
-            .withLatestFrom(
-                this._navigator.stateService.currentTransform$,
-                (tags: Tag[], transform: Transform): [Tag[], Transform] => {
-                    return [tags, transform];
-                })
+        this._setTagsSubscription = this._renderTags$
             .map<ITagGLRendererOperation>(
-                (tt: [Tag[], Transform]): ITagGLRendererOperation => {
+                (tags: RenderTag<Tag>[]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
-                        renderer.setTags(tt[0], tt[1]);
+                        renderer.setTags(tags);
 
                         return renderer;
                     };
                 })
             .subscribe(this._tagGlRendererOperation$);
 
-        this._updateTagSubscription = this._tagChanged$
-            .withLatestFrom(
-                this._navigator.stateService.currentTransform$,
-                (tag: Tag, transform: Transform): [Tag, Transform] => {
-                    return [tag, transform];
-                })
+        this._updateGLTagSubscription = this._renderTagGLChanged$
             .map<ITagGLRendererOperation>(
-                (tt: [Tag, Transform]): ITagGLRendererOperation => {
+                (tag: RenderTag<Tag>): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
-                        renderer.updateTag(tt[0], tt[1]);
+                        renderer.updateTag(tag);
 
                         return renderer;
                     };
                 })
             .subscribe(this._tagGlRendererOperation$);
 
-        this._domSubscription = this.tags$
+        this._setNeedsRenderSubscription = this._tagChanged$
+            .map<ITagGLRendererOperation>(
+                (tag: Tag): ITagGLRendererOperation => {
+                    return (renderer: TagGLRenderer): TagGLRenderer => {
+                        renderer.setNeedsRender();
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._tagGlRendererOperation$);
+
+        this._domSubscription = this._renderTags$
             .startWith([])
             .do(
-                (tags: Tag[]): void => {
+                (tags: RenderTag<Tag>[]): void => {
                     this._container.domRenderer.render$.next({
                         name: this._name,
                         vnode: this._tagDomRenderer.clear(),
@@ -690,18 +734,18 @@ export class TagComponent extends Component<ITagConfiguration> {
                 this._tagChanged$.startWith(null),
                 this._tagCreator.tag$.merge(this._createGeometryChanged$).startWith(null),
                 this._configuration$,
-                (tags: Tag[], rc: RenderCamera, atlas: ISpriteAtlas, tag: Tag, ct: OutlineCreateTag, c: ITagConfiguration):
-                [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration] => {
-                    return [rc, atlas, tags, tag, ct, c];
+                (renderTags: RenderTag<Tag>[], rc: RenderCamera, atlas: ISpriteAtlas, tag: Tag, ct: OutlineCreateTag, c: ITagConfiguration):
+                [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration] => {
+                    return [rc, atlas, renderTags, tag, ct, c];
                 })
             .withLatestFrom(
                 this._navigator.stateService.currentTransform$,
-                (args: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration], transform: Transform):
-                    [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration, Transform] => {
+                (args: [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration], transform: Transform):
+                    [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration, Transform] => {
                     return [args[0], args[1], args[2], args[3], args[4], args[5], transform];
                 })
             .map<IVNodeHash>(
-                (args: [RenderCamera, ISpriteAtlas, Tag[], Tag, OutlineCreateTag, ITagConfiguration, Transform]):
+                (args: [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration, Transform]):
                     IVNodeHash => {
                     return {
                         name: this._name,
@@ -750,7 +794,8 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._mouseDragSubscription.unsubscribe();
         this._unclaimMouseSubscription.unsubscribe();
         this._setTagsSubscription.unsubscribe();
-        this._updateTagSubscription.unsubscribe();
+        this._updateGLTagSubscription.unsubscribe();
+        this._setNeedsRenderSubscription.unsubscribe();
 
         this._stopCreateSubscription.unsubscribe();
         this._creatorConfigurationSubscription.unsubscribe();

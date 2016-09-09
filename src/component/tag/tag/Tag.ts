@@ -1,21 +1,11 @@
-/// <reference path="../../../../typings/index.d.ts" />
-
-import * as THREE from "three";
-import * as vd from "virtual-dom";
-
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/share";
 
-import {
-    Geometry,
-    IInteraction,
-} from "../../../Component";
-import {Transform} from "../../../Geo";
+import {Geometry} from "../../../Component";
 import {EventEmitter} from "../../../Utils";
-import {ISpriteAtlas} from "../../../Viewer";
 
 /**
  * @class Tag
@@ -43,7 +33,6 @@ export abstract class Tag extends EventEmitter {
     protected _id: string;
     protected _geometry: Geometry;
 
-    protected _interact$: Subject<IInteraction>;
     protected _notifyChanged$: Subject<Tag>;
 
     /**
@@ -59,7 +48,6 @@ export abstract class Tag extends EventEmitter {
         this._id = id;
         this._geometry = geometry;
 
-        this._interact$ = new Subject<IInteraction>();
         this._notifyChanged$ = new Subject<Tag>();
 
         this._notifyChanged$
@@ -91,10 +79,6 @@ export abstract class Tag extends EventEmitter {
         return this._geometry;
     }
 
-    public get interact$(): Observable<IInteraction> {
-        return this._interact$;
-    }
-
     /**
      * Get changed observable.
      * @returns {Observable<Tag>}
@@ -114,45 +98,6 @@ export abstract class Tag extends EventEmitter {
                     return this;
                 })
             .share();
-    }
-
-    /**
-     * Get the GL objects for rendering of the tag.
-     * @abstract
-     * @return {Array<Object3D>}
-     */
-    public abstract getGLObjects(transform: Transform): THREE.Object3D[];
-
-    /**
-     * Get the DOM objects for rendering of the tag.
-     * @abstract
-     * @return {Array<VNode>}
-     */
-    public abstract getDOMObjects(
-        transform: Transform,
-        atlas: ISpriteAtlas,
-        matrixWorldInverse: THREE.Matrix4,
-        projectionMatrix: THREE.Matrix4):
-        vd.VNode[];
-
-    protected _projectToCanvas(
-        point: THREE.Vector3,
-        projectionMatrix: THREE.Matrix4):
-        number[] {
-
-        let projected: THREE.Vector3 =
-            new THREE.Vector3(point.x, point.y, point.z)
-                .applyProjection(projectionMatrix);
-
-        return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
-    }
-
-    protected _convertToCameraSpace(
-        point: number[],
-        matrixWorldInverse: THREE.Matrix4):
-        THREE.Vector3 {
-
-        return new THREE.Vector3(point[0], point[1], point[2]).applyMatrix4(matrixWorldInverse);
     }
 }
 
