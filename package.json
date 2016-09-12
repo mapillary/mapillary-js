@@ -59,6 +59,7 @@
     "watchify": "3.7.0"
   },
   "browser": {
+    "falcor": "./node_modules/falcor/dist/falcor.browser.min.js",
     "three": "./node_modules/three/build/three.min.js"
   },
   "config": {

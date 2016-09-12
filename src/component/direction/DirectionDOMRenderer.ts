@@ -77,7 +77,8 @@ export class DirectionDOMRenderer {
         this._turnNames[EdgeDirection.TurnRight] = "TurnRight";
         this._turnNames[EdgeDirection.TurnU] = "TurnAround";
 
-        let isIE: boolean = /*@cc_on!@*/false || !!(<any>document).documentMode;
+        // detects IE 8-11, then Edge 20+.
+        let isIE: boolean = !!(<any>document).documentMode;
         this._isEdge = !isIE && !!(<any>window).StyleMedia;
     }
 
