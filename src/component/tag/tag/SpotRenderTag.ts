@@ -14,8 +14,8 @@ import {
 } from "../../../Viewer";
 
 /**
- * @class OutlineTag
- * @classdesc Tag visualizing a geometry outline.
+ * @class SpotRenderTag
+ * @classdesc Tag visualizing the properties of a SpotTag.
  */
 export class SpotRenderTag extends RenderTag<SpotTag> {
     public dispose(): void { return; }

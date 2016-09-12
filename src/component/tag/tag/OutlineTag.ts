@@ -9,7 +9,7 @@ import {
 
 /**
  * @class OutlineTag
- * @classdesc Tag visualizing a geometry outline.
+ * @classdesc Tag holding properties for visualizing a geometry outline.
  */
 export class OutlineTag extends Tag {
     /**

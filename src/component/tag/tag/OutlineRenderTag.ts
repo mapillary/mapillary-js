@@ -19,8 +19,8 @@ import {
 } from "../../../Viewer";
 
 /**
- * @class OutlineTag
- * @classdesc Tag visualizing a geometry outline.
+ * @class OutlineRenderTag
+ * @classdesc Tag visualizing the properties of an OutlineTag.
  */
 export class OutlineRenderTag extends RenderTag<OutlineTag> {
     private _fill: THREE.Mesh;
@@ -34,11 +34,11 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
             this._createFill() :
             null;
 
-        this._holes = this._tag.lineWidth > 0 ?
+        this._holes = this._tag.lineWidth >= 1 ?
             this._createHoles() :
             [];
 
-        this._outline = this._tag.lineWidth > 0 ?
+        this._outline = this._tag.lineWidth >= 1 ?
             this._createOutline() :
             null;
 
@@ -66,17 +66,12 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                     let glObjectsChanged: boolean = false;
 
                     if (this._fill == null) {
-                        if (this._tag.fillOpacity > 0) {
+                        if (this._tag.fillOpacity > 0 && !this._transform.gpano) {
                             this._fill = this._createFill();
                             glObjectsChanged = true;
                         }
                     } else {
-                        if (this._tag.fillOpacity > 0) {
-                            this._updateFillMaterial();
-                        } else {
-                            this._disposeFill();
-                            glObjectsChanged = true;
-                        }
+                        this._updateFillMaterial();
                     }
 
                     if (this._outline == null) {
@@ -86,14 +81,8 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                             glObjectsChanged = true;
                         }
                     } else {
-                        if (this._tag.lineWidth > 0) {
-                            this._updateHoleMaterials();
-                            this._updateOutlineMaterial();
-                        } else {
-                            this._disposeHoles();
-                            this._disposeOutline();
-                            glObjectsChanged = true;
-                        }
+                        this._updateHoleMaterials();
+                        this._updateOutlineMaterial();
                     }
 
                     if (glObjectsChanged) {
@@ -283,6 +272,24 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         return new THREE.Mesh(geometry, material);
     }
 
+    private _createGLObjects(): THREE.Object3D[] {
+        let glObjects: THREE.Object3D[] = [];
+
+        if (this._fill != null) {
+            glObjects.push(this._fill);
+        }
+
+        for (let hole of this._holes) {
+            glObjects.push(hole);
+        }
+
+        if (this._outline != null) {
+            glObjects.push(this._outline);
+        }
+
+        return glObjects;
+    }
+
     private _createHoles(): THREE.Line[] {
         let holes: THREE.Line[] = [];
 
@@ -321,6 +328,10 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     }
 
     private _disposeFill(): void {
+        if (this._fill == null) {
+            return;
+        }
+
         this._fill.geometry.dispose();
         this._fill.material.dispose();
         this._fill = null;
@@ -336,6 +347,10 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     }
 
     private _disposeOutline(): void {
+        if (this._outline == null) {
+            return;
+        }
+
         this._outline.geometry.dispose();
         this._outline.material.dispose();
         this._outline = null;
@@ -421,24 +436,6 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         material.needsUpdate = true;
     }
 
-    private _createGLObjects(): THREE.Object3D[] {
-        let glObjects: THREE.Object3D[] = [];
-
-        if (this._fill != null) {
-            glObjects.push(this._fill);
-        }
-
-        for (let hole of this._holes) {
-            glObjects.push(hole);
-        }
-
-        if (this._outline != null) {
-            glObjects.push(this._outline);
-        }
-
-        return glObjects;
-    }
-
     private _updateHoleGeometries(): void {
         let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._tag.geometry;
         let holes3d: number[][][] = polygonGeometry.getHoleVertices3d(this._transform);
@@ -465,9 +462,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         for (let hole of this._holes) {
             let material: THREE.LineBasicMaterial = <THREE.LineBasicMaterial>hole.material;
 
-            material.color = new THREE.Color(this._tag.lineColor);
-            material.linewidth = this._tag.lineWidth;
-            material.needsUpdate = true;
+            this._updateLineBasicMaterial(material);
         }
     }
 
@@ -485,8 +480,14 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     private _updateOutlineMaterial(): void {
         let material: THREE.LineBasicMaterial = <THREE.LineBasicMaterial>this._outline.material;
 
+        this._updateLineBasicMaterial(material);
+    }
+
+    private _updateLineBasicMaterial(material: THREE.LineBasicMaterial): void {
         material.color = new THREE.Color(this._tag.lineColor);
-        material.linewidth = this._tag.lineWidth;
+        material.linewidth = Math.max(this._tag.lineWidth, 1);
+        material.opacity = this._tag.lineWidth >= 1 ? 1 : 0;
+        material.transparent = this._tag.lineWidth <= 0;
         material.needsUpdate = true;
     }
 }

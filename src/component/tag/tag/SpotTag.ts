@@ -6,7 +6,7 @@ import {
 
 /**
  * @class SpotTag
- * @classdesc Tag visualizing the centroid of a geometry.
+ * @classdesc Tag holding properties for visualizing the centroid of a geometry.
  */
 export class SpotTag extends Tag {
     protected _geometry: Geometry;
