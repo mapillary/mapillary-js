@@ -193,8 +193,9 @@ export class EdgeCalculator {
     /**
      * Computes the similar edges for a node.
      *
-     * @description Similar edges look roughly in the same direction
-     * and are positioned closed to the node.
+     * @description Similar edges for perspective images and cropped panoramas
+     * look roughly in the same direction and are positioned closed to the node.
+     * Similar edges for full panoramas only target other full panoramas.
      *
      * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
@@ -204,25 +205,55 @@ export class EdgeCalculator {
             return [];
         }
 
+        let nodeFullPano: boolean = node.fullPano;
         let sequenceGroups: { [key: string]: IPotentialEdge[] } = {};
 
         for (let potentialEdge of potentialEdges) {
-            if (!potentialEdge.sameSequence &&
-                potentialEdge.sameMergeCc &&
-                potentialEdge.distance < this._settings.similarMaxDistance &&
-                Math.abs(potentialEdge.directionChange) < this._settings.similarMaxDirectionChange &&
-                (!potentialEdge.sameUser ||
-                Math.abs(potentialEdge.apiNavImIm.captured_at - node.apiNavImIm.captured_at) >
-                this._settings.similarMinTimeDifference)) {
-                    if (sequenceGroups[potentialEdge.sequenceKey] == null) {
-                        sequenceGroups[potentialEdge.sequenceKey] = [];
-                    }
+            if (potentialEdge.sameSequence ||
+                !potentialEdge.sameMergeCc) {
+                continue;
+            }
 
-                    sequenceGroups[potentialEdge.sequenceKey].push(potentialEdge);
+            if (nodeFullPano) {
+                if (!potentialEdge.fullPano) {
+                    continue;
                 }
+            } else {
+                if (!potentialEdge.fullPano &&
+                    Math.abs(potentialEdge.directionChange) > this._settings.similarMaxDirectionChange) {
+                    continue;
+                }
+            }
+
+            if (potentialEdge.distance > this._settings.similarMaxDistance) {
+                continue;
+            }
+
+            if (potentialEdge.sameUser &&
+                Math.abs(potentialEdge.apiNavImIm.captured_at - node.apiNavImIm.captured_at) <
+                    this._settings.similarMinTimeDifference) {
+                continue;
+            }
+
+            if (sequenceGroups[potentialEdge.sequenceKey] == null) {
+                sequenceGroups[potentialEdge.sequenceKey] = [];
+            }
+
+            sequenceGroups[potentialEdge.sequenceKey].push(potentialEdge);
+
         }
 
         let similarEdges: IPotentialEdge[] = [];
+
+        let calculateScore: (potentialEdge: IPotentialEdge) => number =
+            node.fullPano ?
+                (potentialEdge: IPotentialEdge): number => {
+                    return potentialEdge.distance;
+                } :
+                (potentialEdge: IPotentialEdge): number => {
+                    return this._coefficients.similarDistance * potentialEdge.distance +
+                        this._coefficients.similarRotation * potentialEdge.rotation;
+                };
 
         for (let sequenceKey in sequenceGroups) {
             if (!sequenceGroups.hasOwnProperty(sequenceKey)) {
@@ -233,9 +264,7 @@ export class EdgeCalculator {
             let similarEdge: IPotentialEdge = null;
 
             for (let potentialEdge of sequenceGroups[sequenceKey]) {
-                let score: number =
-                    this._coefficients.similarDistance * potentialEdge.distance +
-                    this._coefficients.similarRotation * potentialEdge.rotation;
+                let score: number = calculateScore(potentialEdge);
 
                 if (score < lowestScore) {
                     lowestScore = score;
@@ -249,6 +278,7 @@ export class EdgeCalculator {
 
             similarEdges.push(similarEdge);
         }
+
 
         return similarEdges
             .map<IEdge>(

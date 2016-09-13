@@ -262,6 +262,7 @@ export class Graph {
         edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
         edges = edges.concat(this._edgeCalculator.computePanoEdges(node, potentialEdges));
         edges = edges.concat(this._edgeCalculator.computePerspectiveToPanoEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computeSimilarEdges(node, potentialEdges));
 
         this._addEdgesToNode(node, edges);
 

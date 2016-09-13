@@ -56,6 +56,18 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
     });
 
+    it("should not have a similar edge if node is full pano and potential node is not full pano", () => {
+        node = helper.createNode(true);
+
+        potentialEdge.sameMergeCc = true;
+        potentialEdge.sameSequence = true;
+        potentialEdge.sequenceKey = "other";
+
+        let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+
+        expect(similarEdges.length).toBe(0);
+    });
+
     it("should not have a similar edge if same sequence", () => {
         potentialEdge.sameMergeCc = true;
         potentialEdge.sameSequence = true;
@@ -85,6 +97,36 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
 
         expect(similarEdges.length).toBe(0);
+    });
+
+    it("should not have a similar edge if rotation is above threshold", () => {
+        settings.similarMaxDirectionChange = 0.5;
+
+        potentialEdge.directionChange = 1;
+        potentialEdge.sameMergeCc = true;
+        potentialEdge.sequenceKey = "other";
+
+        let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+
+        expect(similarEdges.length).toBe(0);
+    });
+
+    it("should have a similar edge even if rotation is above threshold when potential is full pano", () => {
+        settings.similarMaxDirectionChange = 0.5;
+
+        potentialEdge.directionChange = 1;
+        potentialEdge.fullPano = true;
+        potentialEdge.sameMergeCc = true;
+        potentialEdge.sequenceKey = "other";
+
+        let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+
+        expect(similarEdges.length).toBe(1);
+
+        let similarEdge: IEdge = similarEdges[0];
+
+        expect(similarEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
     });
 
     it("should not have a similar edge for the same user within min time diff", () => {
