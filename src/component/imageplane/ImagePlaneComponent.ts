@@ -4,12 +4,10 @@ import {Subject} from "rxjs/Subject";
 
 import "rxjs/add/observable/of";
 
-import "rxjs/add/operator/delay";
+import "rxjs/add/operator/debounceTime";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
-import "rxjs/add/operator/mergeMap";
-import "rxjs/add/operator/publishReplay";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
@@ -29,14 +27,10 @@ interface IImagePlaneGLRendererOperation {
 export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     public static componentName: string = "imageplane";
 
-    private _maxPanoramaSize: number;
-
     private _rendererOperation$: Subject<IImagePlaneGLRendererOperation>;
     private _renderer$: Observable<ImagePlaneGLRenderer>;
     private _rendererCreator$: Subject<void>;
     private _rendererDisposer$: Subject<void>;
-
-    private _clampedConfiguration$: Observable<IImagePlaneConfiguration>;
 
     private _rendererSubscription: Subscription;
     private _stateSubscription: Subscription;
@@ -44,8 +38,6 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
-
-        this._maxPanoramaSize = 4096;
 
         this._rendererOperation$ = new Subject<IImagePlaneGLRendererOperation>();
         this._rendererCreator$ = new Subject<void>();
@@ -90,23 +82,6 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     };
                 })
             .subscribe(this._rendererOperation$);
-
-        this._clampedConfiguration$ = this._configuration$
-            .map<IImagePlaneConfiguration>(
-                (configuration: IImagePlaneConfiguration): IImagePlaneConfiguration => {
-                    let maxPanoramaSize: number = Math.max(
-                        Settings.maxImageSize,
-                        Math.min(configuration.maxPanoramaSize, this._maxPanoramaSize));
-
-                    return {
-                        enableHighResPanorama: configuration.enableHighResPanorama,
-                        maxPanoramaSize: maxPanoramaSize,
-                    };
-                })
-            .publishReplay(1)
-            .refCount();
-
-        this._clampedConfiguration$.subscribe();
     }
 
     protected _activate(): void {
@@ -146,35 +121,43 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .debounceTime(1000)
             .withLatestFrom(
                 this._navigator.stateService.currentTransform$,
-                this._clampedConfiguration$)
-            .filter(
-                (params: [Node, Transform, IImagePlaneConfiguration]): boolean => {
+                this._configuration$)
+            .map<[Node, number]>(
+                (params: [Node, Transform, IImagePlaneConfiguration]): [Node, number] => {
                     let node: Node = params[0];
                     let transform: Transform = params[1];
                     let configuration: IImagePlaneConfiguration = params[2];
+
+                    let imageSize: number = Settings.maxImageSize;
 
                     if (node.pano) {
-                        return configuration.enableHighResPanorama &&
-                            Math.max(transform.width, transform.height) > Settings.basePanoramaSize &&
-                            configuration.maxPanoramaSize > Settings.basePanoramaSize;
-                    } else {
-                        return Settings.maxImageSize > Settings.baseImageSize;
+                        if (configuration.maxPanoramaResolution === "high") {
+                            imageSize = Math.max(imageSize, Math.min(4096, Math.max(transform.width, transform.height)));
+                        } else if (configuration.maxPanoramaResolution === "full") {
+                            imageSize = Math.max(imageSize, transform.width, transform.height);
+                        }
                     }
+
+                    return [node, imageSize];
+                })
+            .filter(
+                (params: [Node, number]): boolean => {
+                    let node: Node = params[0];
+                    let imageSize: number = params[1];
+
+                    return node.pano ?
+                        imageSize > Settings.basePanoramaSize :
+                        imageSize > Settings.baseImageSize;
                 })
             .switchMap<[HTMLImageElement, Node]>(
-                (params: [Node, Transform, IImagePlaneConfiguration]): Observable<[HTMLImageElement, Node]> => {
+                (params: [Node, number]): Observable<[HTMLImageElement, Node]> => {
                     let node: Node = params[0];
-                    let transform: Transform = params[1];
-                    let configuration: IImagePlaneConfiguration = params[2];
+                    let imageSize: number = params[1];
 
                     let image$: Observable<ILoadStatusObject<HTMLImageElement>> =
-                        node.pano ?
-                            ImageLoader.loadDynamic(
-                                node.key,
-                                Math.min(
-                                    Math.max(transform.width, transform.height),
-                                    configuration.maxPanoramaSize)) :
-                            ImageLoader.loadThumbnail(node.key, Settings.maxImageSize);
+                        node.pano && imageSize > Settings.maxImageSize ?
+                            ImageLoader.loadDynamic(node.key, imageSize) :
+                            ImageLoader.loadThumbnail(node.key, imageSize);
 
                     return image$
                         .filter(
@@ -212,10 +195,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IImagePlaneConfiguration {
-        return {
-            enableHighResPanorama: false,
-            maxPanoramaSize: 4096,
-        };
+        return { maxPanoramaResolution: "none" };
     }
 }
 
