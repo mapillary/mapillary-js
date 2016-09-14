@@ -1,6 +1,6 @@
 {
   "name": "mapillary-js",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "WebGL JavaScript library for displaying street level imagery from mapillary.com",
   "main": "dist/mapillary-js.min",
   "license": "MIT",
