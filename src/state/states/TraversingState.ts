@@ -580,11 +580,12 @@ export class TraversingState extends StateBase {
             return;
         }
 
-        let lookat: THREE.Vector3 = new THREE.Vector3()
-            .fromArray(this.currentTransform.unprojectBasic(this._desiredCenter, this._lookatDepth));
+        let lookatDirection: THREE.Vector3 = new THREE.Vector3()
+            .fromArray(this.currentTransform.unprojectBasic(this._desiredCenter, this._lookatDepth))
+            .sub(this._currentCamera.position);
 
-        this._currentCamera.lookat.copy(lookat);
-        this._previousCamera.lookat.copy(lookat);
+        this._currentCamera.lookat.copy(this._currentCamera.position.clone().add(lookatDirection));
+        this._previousCamera.lookat.copy(this._previousCamera.position.clone().add(lookatDirection));
 
         this._desiredCenter = null;
     }
