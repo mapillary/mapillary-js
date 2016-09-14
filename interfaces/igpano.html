@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RenderMode | MapillaryJS</title>
+	<title>IGPano | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="rendermode.html">RenderMode</a>
+					<a href="igpano.html">IGPano</a>
 				</li>
 			</ul>
-			<h1>Enumeration RenderMode</h1>
+			<h1>Interface IGPano</h1>
 		</div>
 	</div>
 </header>
@@ -68,84 +68,131 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Enumeration for render mode</p>
+						<p>Interface that describes panorama metadata.</p>
 					</div>
 					<dl class="tsd-comment-tags">
-						<dt>enum</dt>
-						<dd><p>{number}</p>
-						</dd>
-						<dt>readonly</dt>
-						<dd></dd>
-						<dt>description</dt>
-						<dd><p>Modes for specifying how rendering is done
-								in the viewer. All modes preserves the original aspect
-							ratio of the images.</p>
+						<dt>interface</dt>
+						<dd><p>IGPano</p>
 						</dd>
 					</dl>
 				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">IGPano</span>
+					</li>
+				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Enumeration members</h3>
+							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="rendermode.html#fill" class="tsd-kind-icon">Fill</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="rendermode.html#letterbox" class="tsd-kind-icon">Letterbox</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#croppedareaimageheightpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Height<wbr>Pixels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#croppedareaimagewidthpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Width<wbr>Pixels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#croppedarealeftpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Left<wbr>Pixels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#croppedareatoppixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Top<wbr>Pixels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#fullpanoheightpixels" class="tsd-kind-icon">Full<wbr>Pano<wbr>Height<wbr>Pixels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#fullpanowidthpixels" class="tsd-kind-icon">Full<wbr>Pano<wbr>Width<wbr>Pixels</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Enumeration members</h2>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="fill" class="tsd-anchor"></a>
-					<h3>Fill</h3>
-					<div class="tsd-signature tsd-kind-icon">Fill<span class="tsd-signature-symbol">:</span> </div>
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="croppedareaimageheightpixels" class="tsd-anchor"></a>
+					<h3>Cropped<wbr>Area<wbr>Image<wbr>Height<wbr>Pixels</h3>
+					<div class="tsd-signature tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Height<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/7764a5b/src/render/RenderMode.ts#L31">render/RenderMode.ts:31</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/7764a5b/src/api/interfaces/IGPano.ts#L20">api/interfaces/IGPano.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Fills the viewer by cropping content.</p>
+							<p>Height of cropped area in pixels.</p>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>description</dt>
-							<dd><p>Cropping is done either
-									in horizontal or vertical direction
-									depending on the aspect ratio relation
-								between the image and the viewer.</p>
-							</dd>
-						</dl>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="letterbox" class="tsd-anchor"></a>
-					<h3>Letterbox</h3>
-					<div class="tsd-signature tsd-kind-icon">Letterbox<span class="tsd-signature-symbol">:</span> </div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="croppedareaimagewidthpixels" class="tsd-anchor"></a>
+					<h3>Cropped<wbr>Area<wbr>Image<wbr>Width<wbr>Pixels</h3>
+					<div class="tsd-signature tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Width<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/7764a5b/src/render/RenderMode.ts#L21">render/RenderMode.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/7764a5b/src/api/interfaces/IGPano.ts#L25">api/interfaces/IGPano.ts:25</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Displays all content within the viewer.</p>
+							<p>Width of cropped area in pixels.</p>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>description</dt>
-							<dd><p>Black bars shown on both
-									sides of the content. Bars are shown
-									either below and above or to the left
-									and right of the content depending on
-									the aspect ratio relation between the
-								image and the viewer.</p>
-							</dd>
-						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="croppedarealeftpixels" class="tsd-anchor"></a>
+					<h3>Cropped<wbr>Area<wbr>Left<wbr>Pixels</h3>
+					<div class="tsd-signature tsd-kind-icon">Cropped<wbr>Area<wbr>Left<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/7764a5b/src/api/interfaces/IGPano.ts#L10">api/interfaces/IGPano.ts:10</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Margin of cropped area to left border in pixels.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="croppedareatoppixels" class="tsd-anchor"></a>
+					<h3>Cropped<wbr>Area<wbr>Top<wbr>Pixels</h3>
+					<div class="tsd-signature tsd-kind-icon">Cropped<wbr>Area<wbr>Top<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/7764a5b/src/api/interfaces/IGPano.ts#L15">api/interfaces/IGPano.ts:15</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Margin of cropped area to top border in pixels.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="fullpanoheightpixels" class="tsd-anchor"></a>
+					<h3>Full<wbr>Pano<wbr>Height<wbr>Pixels</h3>
+					<div class="tsd-signature tsd-kind-icon">Full<wbr>Pano<wbr>Height<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/7764a5b/src/api/interfaces/IGPano.ts#L30">api/interfaces/IGPano.ts:30</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Full height in pixels.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="fullpanowidthpixels" class="tsd-anchor"></a>
+					<h3>Full<wbr>Pano<wbr>Width<wbr>Pixels</h3>
+					<div class="tsd-signature tsd-kind-icon">Full<wbr>Pano<wbr>Width<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/7764a5b/src/api/interfaces/IGPano.ts#L35">api/interfaces/IGPano.ts:35</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Full width in pixels.</p>
+						</div>
 					</div>
 				</section>
 			</section>
@@ -161,26 +208,14 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-enum">
-						<a href="edgedirection.html" class="tsd-kind-icon">Edge<wbr>Direction</a>
+						<a href="../enums/edgedirection.html" class="tsd-kind-icon">Edge<wbr>Direction</a>
 					</li>
 					<li class=" tsd-kind-enum">
-						<a href="imagesize.html" class="tsd-kind-icon">Image<wbr>Size</a>
+						<a href="../enums/imagesize.html" class="tsd-kind-icon">Image<wbr>Size</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-enum">
-						<a href="rendermode.html" class="tsd-kind-icon">Render<wbr>Mode</a>
-						<ul>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="rendermode.html#fill" class="tsd-kind-icon">Fill</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="rendermode.html#letterbox" class="tsd-kind-icon">Letterbox</a>
-							</li>
-						</ul>
+					<li class=" tsd-kind-enum">
+						<a href="../enums/rendermode.html" class="tsd-kind-icon">Render<wbr>Mode</a>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-class">
 						<a href="../classes/node.html" class="tsd-kind-icon">Node</a>
 					</li>
@@ -191,31 +226,55 @@
 						<a href="../classes/viewer.html" class="tsd-kind-icon">Viewer</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iapinavimim.html" class="tsd-kind-icon">IAPINav<wbr>ImIm</a>
+						<a href="iapinavimim.html" class="tsd-kind-icon">IAPINav<wbr>ImIm</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iapinavims.html" class="tsd-kind-icon">IAPINav<wbr>ImS</a>
+						<a href="iapinavims.html" class="tsd-kind-icon">IAPINav<wbr>ImS</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iedge.html" class="tsd-kind-icon">IEdge</a>
+						<a href="iedge.html" class="tsd-kind-icon">IEdge</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iedgedata.html" class="tsd-kind-icon">IEdge<wbr>Data</a>
+						<a href="iedgedata.html" class="tsd-kind-icon">IEdge<wbr>Data</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
+						<a href="igpano.html" class="tsd-kind-icon">IGPano</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="igpano.html#croppedareaimageheightpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Height<wbr>Pixels</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="igpano.html#croppedareaimagewidthpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Width<wbr>Pixels</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="igpano.html#croppedarealeftpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Left<wbr>Pixels</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="igpano.html#croppedareatoppixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Top<wbr>Pixels</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="igpano.html#fullpanoheightpixels" class="tsd-kind-icon">Full<wbr>Pano<wbr>Height<wbr>Pixels</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="igpano.html#fullpanowidthpixels" class="tsd-kind-icon">Full<wbr>Pano<wbr>Width<wbr>Pixels</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="ilatlon.html" class="tsd-kind-icon">ILat<wbr>Lon</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/igpano.html" class="tsd-kind-icon">IGPano</a>
+						<a href="iloadstatus.html" class="tsd-kind-icon">ILoad<wbr>Status</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/ilatlon.html" class="tsd-kind-icon">ILat<wbr>Lon</a>
+						<a href="imesh.html" class="tsd-kind-icon">IMesh</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iloadstatus.html" class="tsd-kind-icon">ILoad<wbr>Status</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/imesh.html" class="tsd-kind-icon">IMesh</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/ivieweroptions.html" class="tsd-kind-icon">IViewer<wbr>Options</a>
+						<a href="ivieweroptions.html" class="tsd-kind-icon">IViewer<wbr>Options</a>
 					</li>
 				</ul>
 			</nav>
