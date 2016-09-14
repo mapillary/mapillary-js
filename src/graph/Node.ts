@@ -99,6 +99,15 @@ export class Node {
     }
 
     /**
+     * Get captured at.
+     *
+     * @returns {number} Timestamp when the image was captured.
+     */
+    public get capturedAt(): number {
+        return this._apiNavImIm.captured_at;
+    }
+
+    /**
      * Get edges.
      *
      * @returns {Array<IEdge>} Array of edges to nodes in the graph to which
@@ -234,6 +243,15 @@ export class Node {
      */
     public get sequence(): Sequence {
         return this._sequence;
+    }
+
+    /**
+     * Get user.
+     *
+     * @returns {string} Username of the user who uploaded the image.
+     */
+    public get user(): string {
+        return this._apiNavImIm.user;
     }
 
     /**
