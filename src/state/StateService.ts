@@ -395,10 +395,12 @@ export class StateService {
     }
 
     public setCenter(center: number[]): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.setCenter(center); });
     }
 
     public setZoom(zoom: number): void {
+        this._movingOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.setZoom(zoom); });
     }
 
