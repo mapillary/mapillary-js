@@ -22,11 +22,9 @@
     <button onclick="activate()">Activate</button>
     <script src='dist/mapillary-js.js'></script>
     <script>
-        var clientId = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4";
-
         var viewer = new Mapillary.Viewer(
             "viewer",
-            clientId,
+            "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4",
             "zarcRdNFZwg3FkXNcsFeGw",
             { cover: false, tag: true }
         );
@@ -42,11 +40,6 @@
             setTags();
         }
 
-        var currentNode = null;
-        var currentTags = {};
-        var changedTags = {};
-        var createdTags = {};
-
         var tagComponent = viewer.getComponent("tag");
 
         function createGeometry(geometryType) {
@@ -57,17 +50,10 @@
             tagComponent.stopCreate();
         }
 
-        function onTagGeometryChanged(tag) {
-            changedTags[tag.id] = tag;
-        }
+        var createdTags = {};
 
         function setTags() {
             var tags = [];
-            for (var t in currentTags) {
-                if (currentTags.hasOwnProperty(t)) {
-                    tags.push(currentTags[t]);
-                }
-            }
 
             for (var t in createdTags) {
                 if (createdTags.hasOwnProperty(t)) {
@@ -78,11 +64,14 @@
             tagComponent.setTags(tags);
         }
 
+        function onTagGeometryChanged(tag) {
+            return;
+        };
+
         var createdIndex = 0;
 
         function createOutlineTag(geometry, text) {
-            createdIndex += 1;
-            var id = "created" + createdIndex;
+            var id = "created" + createdIndex++;
             var options = {
                 editable: true,
                 fillColor: 0x00FFFF,
@@ -100,8 +89,7 @@
         }
 
         function createSpotTag(geometry) {
-            createdIndex += 1;
-            var id = "created" + createdIndex;
+            var id = "created" + createdIndex++;
             var options = {
                 editable: true,
                 color: 0x00FFFF,
@@ -128,73 +116,8 @@
         });
 
         viewer.on(Mapillary.Viewer.nodechanged, function(node) {
-            currentNode = node;
-            currentTags = {};
-            changedTags = {};
             createdTags = {};
-
-            tagComponent.setTags([]);
-
-            var url = "http://mapillary-vector.mapillary.io/v3/model.json";
-            var params = encodeURI(
-                "client_id=" + clientId +
-                "&paths=" +
-                "[[\"imageByKey\",\"" + node.key +
-                "\",\"ors\",{\"from\":0,\"to\":20},[\"key\",\"obj\",\"package\",\"rect\",\"score\",\"value\"]]]" +
-                "&method=get"
-            );
-
-            var http = new XMLHttpRequest();
-            http.open("GET", url + "?" + params, true);
-
-            http.onreadystatechange = function() {
-                if(http.readyState == 4 && http.status == 200) {
-                    var result = JSON.parse(http.responseText);
-
-                    var nodeKey = Object.keys(result.jsonGraph.imageByKey)[0];
-                    if (nodeKey !== currentNode.key) {
-                        return;
-                    }
-
-                    var orByKey = result.jsonGraph.orByKey;
-                    if (!orByKey) {
-                        return;
-                    }
-
-                    for (var key in orByKey) {
-                        if (!orByKey.hasOwnProperty(key)) {
-                            continue;
-                        }
-
-                        var or = orByKey[key];
-
-                        var id = or.key.value;
-                        var rect = [
-                            or.rect.value.geometry.coordinates[1][0],
-                            or.rect.value.geometry.coordinates[1][1],
-                            or.rect.value.geometry.coordinates[3][0],
-                            or.rect.value.geometry.coordinates[3][1],
-                        ];
-                        var geometry = new Mapillary.TagComponent.RectGeometry(rect);
-                        var options = {
-                            editable: true,
-                            lineColor: 0x00FFFF,
-                            lineWidth: 1,
-                            text: or.value.value,
-                            textColor: 0xFFFFFF,
-                        };
-
-                        var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, options);
-                        tag.on(Mapillary.TagComponent.OutlineTag.geometrychanged, onTagGeometryChanged);
-
-                        currentTags[tag.id] = tag;
-                    }
-
-                    setTags();
-                }
-            }
-
-            http.send();
+            setTags();
         });
     </script>
 </body>
