@@ -46,6 +46,7 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - MapillaryJS + Mapbox GL JS - [Panorama](https://bl.ocks.org/knikel/4ec4de69a0fc29318675) - [Perspective photo](https://bl.ocks.org/knikel/010115b08ebe30baba86)
 - MapillaryJS + Esri Leaflet -  [Panorama](http://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c) - [Perspective photo](http://bl.ocks.org/knikel/e85b802e97fd3390668f)
 - MapillaryJS + Google Maps - [Panorama](http://bl.ocks.org/knikel/451e2ee5d76ae72e669f)
+- MapillaryJS + Esri JavaScript API 3.x [Panorama](http://bl.ocks.org/raykendo/b2ff7b978efc44695940afd5d0cd36c1)
 
 ## Documentation
 
