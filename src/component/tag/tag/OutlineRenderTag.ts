@@ -259,6 +259,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
         geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.computeBoundingSphere();
 
         let material: THREE.MeshBasicMaterial =
             new THREE.MeshBasicMaterial(
@@ -311,6 +312,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
         geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.computeBoundingSphere();
 
         let material: THREE.LineBasicMaterial =
             new THREE.LineBasicMaterial(
@@ -424,8 +426,15 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         let geometry: THREE.BufferGeometry = <THREE.BufferGeometry>this._fill.geometry;
         let attribute: THREE.BufferAttribute = <THREE.BufferAttribute>geometry.getAttribute("position");
 
-        attribute.set(positions);
-        attribute.needsUpdate = true;
+        if (attribute.array.length === positions.length) {
+            attribute.set(positions);
+            attribute.needsUpdate = true;
+        } else {
+            geometry.removeAttribute("position");
+            geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        }
+
+        geometry.computeBoundingSphere();
     }
 
     private _updateFillMaterial(): void {
@@ -448,13 +457,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
             let holePoints3d: number[][] = holes3d[i];
             let hole: THREE.Line = this._holes[i];
 
-            let positions: Float32Array = this._getLinePositions(holePoints3d);
-
-            let geometry: THREE.BufferGeometry = <THREE.BufferGeometry>hole.geometry;
-            let attribute: THREE.BufferAttribute = <THREE.BufferAttribute>geometry.getAttribute("position");
-
-            attribute.set(positions);
-            attribute.needsUpdate = true;
+            this._updateLine(hole, holePoints3d);
         }
     }
 
@@ -466,15 +469,22 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         }
     }
 
-    private _updateOulineGeometry(): void {
-        let points3d: number[][] = this._tag.geometry.getPoints3d(this._transform);
+    private _updateLine(line: THREE.Line, points3d: number[][]): void {
         let positions: Float32Array = this._getLinePositions(points3d);
 
-        let geometry: THREE.BufferGeometry = <THREE.BufferGeometry>this._outline.geometry;
+        let geometry: THREE.BufferGeometry = <THREE.BufferGeometry>line.geometry;
         let attribute: THREE.BufferAttribute = <THREE.BufferAttribute>geometry.getAttribute("position");
 
         attribute.set(positions);
         attribute.needsUpdate = true;
+
+        geometry.computeBoundingSphere();
+    }
+
+    private _updateOulineGeometry(): void {
+        let points3d: number[][] = this._tag.geometry.getPoints3d(this._transform);
+
+        this._updateLine(this._outline, points3d);
     }
 
     private _updateOutlineMaterial(): void {
