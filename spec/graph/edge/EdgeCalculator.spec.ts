@@ -113,6 +113,26 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.sameMergeCc).toBe(true);
     });
 
+    it("should handle potential edge without sequence", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+
+        let sequence: Sequence = createSequence("skey", [key, edgeKey]);
+
+        let lla: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let node: Node = createNode(key, lla, sequence, [0, -Math.PI / 2, 0]);
+
+        let enu: number[] = [10, 0, 0];
+        let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
+        let edgeLla: ILatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeNode: Node = createNode(edgeKey, edgeLla, null, [0, -Math.PI / 2, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(1);
+    });
+
     it("should have correct distance", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";

@@ -56,6 +56,16 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
     });
 
+    it("should not have a similar edge if sequence is missing on potential edge", () => {
+        potentialEdge.apiNavImIm.captured_at = 24234;
+        potentialEdge.sameMergeCc = true;
+        potentialEdge.sequenceKey = null;
+
+        let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+
+        expect(similarEdges.length).toBe(0);
+    });
+
     it("should not have a similar edge if node is full pano and potential node is not full pano", () => {
         node = helper.createNode(true);
 

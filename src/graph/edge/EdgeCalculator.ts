@@ -139,7 +139,7 @@ export class EdgeCalculator {
                 sameMergeCc: sameMergeCc,
                 sameSequence: sameSequence,
                 sameUser: sameUser,
-                sequenceKey: potential.sequence.key,
+                sequenceKey: potential.sequence != null ? potential.sequence.key : null,
                 verticalDirectionChange: verticalDirectionChange,
                 verticalMotion: verticalMotion,
                 worldMotionAzimuth: worldMotionAzimuth,
@@ -209,6 +209,10 @@ export class EdgeCalculator {
         let sequenceGroups: { [key: string]: IPotentialEdge[] } = {};
 
         for (let potentialEdge of potentialEdges) {
+            if (potentialEdge.sequenceKey == null) {
+                continue;
+            }
+
             if (potentialEdge.sameSequence ||
                 !potentialEdge.sameMergeCc) {
                 continue;
