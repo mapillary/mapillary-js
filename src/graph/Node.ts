@@ -1,3 +1,4 @@
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subscriber} from "rxjs/Subscriber";
 
@@ -19,6 +20,74 @@ import {
     Urls,
 } from "../Utils";
 import {ImageSize} from "../Viewer";
+
+export class NewNode {
+    private _key: string;
+    private _sKey: string;
+
+    private _uKey: string;
+
+    private _cca: number;
+    private _oca: number;
+
+    private _cLatLon: ILatLon;
+    private _oLatLon: ILatLon;
+
+    private _h: string;
+
+    private _changed$: BehaviorSubject<NewNode>;
+
+    constructor(
+        key: string,
+        sKey: string,
+        uKey: string,
+        cLatLon: ILatLon,
+        oLatLon: ILatLon,
+        cca: number,
+        oca: number,
+        h: string) {
+
+        this._key = key;
+        this._sKey = sKey;
+
+        this._uKey = uKey;
+
+        this._cca = cca;
+        this._oca = oca;
+
+        this._cLatLon = cLatLon;
+        this._oLatLon = oLatLon;
+
+        this._h = h;
+
+        this._changed$ = new BehaviorSubject(this);
+        this._changed$.subscribe();
+    }
+
+    public get ca(): number  {
+        return this._cca != null ? this._cca : this._oca;
+    }
+
+    public get h(): string {
+        return this._h;
+    }
+
+    public get key(): string {
+        return this._key;
+    }
+
+    public get latLon(): ILatLon {
+        return this._cLatLon != null ? this._cLatLon : this._oLatLon;
+    }
+
+    public get uKey(): string {
+        return this._uKey;
+    }
+
+    public get changed$(): Observable<NewNode> {
+        return this._changed$;
+    }
+}
 
 /**
  * @class Node

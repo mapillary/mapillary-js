@@ -9,7 +9,31 @@ import * as geohash from "latlon-geohash";
 import {IAPINavIm, IAPINavImIm} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
 import {Spatial, GeoCoords, ILatLon} from "../Geo";
-import {Node, Sequence} from "../Graph";
+import {NewNode, Node, Sequence} from "../Graph";
+
+interface INewSpatialItem {
+    lat: number;
+    lon: number;
+    node: NewNode;
+}
+
+export class NewGraph {
+    private _nodeIndex: rbush.RBush<ISpatialItem>;
+    private _graph: graphlib.Graph<NewNode, IEdgeData>;
+
+    constructor(nodeIndex?: rbush.RBush<ISpatialItem>, graph?: graphlib.Graph<NewNode, IEdgeData>) {
+        this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
+        this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
+    }
+
+    public hasNode(key: string): boolean {
+        return this._graph.hasNode(key);
+    }
+
+    public getNode(key: string): NewNode {
+        return this._graph.node(key);
+    }
+}
 
 class GeoHashDirections {
     public static n: string = "n";
