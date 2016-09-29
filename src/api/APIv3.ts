@@ -3,6 +3,9 @@
 import * as falcor from "falcor";
 import * as HttpDataSource from "falcor-http-datasource";
 
+import {Observable} from "rxjs/Observable";
+
+import {IFillNode, IFullNode, ISequence} from "../API";
 import {Urls} from "../Utils";
 
 export class APIv3 {
@@ -64,16 +67,45 @@ export class APIv3 {
             });
     };
 
-    public imageByKeyFill(keys: string[]): any {
-        return this._modelMagic.get(["imageByKey", keys, this._spatialProperties, this._userProperties]);
+    public imageByKeyFill(keys: string[]): Observable<{ [key: string]: IFillNode }> {
+        return Observable
+            .fromPromise(
+                this._modelMagic.get([
+                    "imageByKey",
+                    keys,
+                    this._spatialProperties,
+                    this._userProperties]))
+            .map<{ [key: string]: IFillNode }>(
+                (value: any): { [key: string]: IFillNode } => {
+                    return value.json.imageByKey;
+                });
     }
 
-    public imageByKeyFull(keys: string[]): any {
-        return this._modelMagic.get(["imageByKey", keys, this._spatialProperties.concat(this._coreProperties), this._userProperties]);
+    public imageByKeyFull(keys: string[]): Observable<{ [key: string]: IFullNode }> {
+        return Observable
+            .fromPromise(
+                this._modelMagic.get([
+                    "imageByKey",
+                    keys,
+                    this._spatialProperties.concat(this._coreProperties),
+                    this._userProperties]))
+            .map<{ [key: string]: IFullNode }>(
+                (value: any): { [key: string]: IFullNode } => {
+                    return value.json.imageByKey;
+                });
     }
 
-    public sequenceByKey(sKeys: string[]): any {
-        return this._modelMagic.get(["sequenceByKey", sKeys, this._sequenceProperties]);
+    public sequenceByKey(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
+        return Observable
+            .fromPromise(
+                this._modelMagic.get([
+                    "sequenceByKey",
+                    sKeys,
+                    this._sequenceProperties]))
+            .map<{ [key: string]: ISequence }>(
+                (value: any): { [key: string]: ISequence } => {
+                    return value.json.sequenceByKey;
+                });
     }
 
     public get model(): falcor.Model {

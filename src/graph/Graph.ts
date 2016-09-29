@@ -76,9 +76,9 @@ export class NewGraph {
 
         this._fetching[key] = true;
         this._apiV3.imageByKeyFull([key])
-            .then(
-                (res: any): void => {
-                    let fn: IFullNode = <IFullNode>res.json.imageByKey[key];
+            .subscribe(
+                (imageByKeyFull: { [key: string]: IFullNode }): void => {
+                    let fn: IFullNode = imageByKeyFull[key];
                     let node: NewNode = new NewNode(fn);
                     node.makeFull(fn);
 
@@ -109,12 +109,12 @@ export class NewGraph {
 
         this._filling[key] = true;
         this._apiV3.imageByKeyFill([key])
-            .then(
-                (res: any): void => {
+            .subscribe(
+                (imageByKeyFill: { [key: string]: IFillNode }): void => {
                     delete this._filling[key];
 
                     if (node.fill == null) {
-                        node.makeFull(<IFillNode>res.json.imageByKey[key]);
+                        node.makeFull(imageByKeyFill[key]);
                     }
 
                     this._changed$.next(this);
@@ -142,10 +142,10 @@ export class NewGraph {
             this._changed$.next(this);
         } else {
             this._apiV3.sequenceByKey([node.sKey])
-                .then(
-                    (res: any): void => {
+                .subscribe(
+                    (sequenceByKey: { [key: string]: ISequence }): void => {
                         if (!(node.sKey in this._sequences)) {
-                            this._sequences[node.sKey] = new Sequence(<ISequence>res.json.sequenceByKey[node.sKey]);
+                            this._sequences[node.sKey] = new Sequence(sequenceByKey[node.sKey]);
                         }
 
                         node.cacheSequenceEdges([]);
