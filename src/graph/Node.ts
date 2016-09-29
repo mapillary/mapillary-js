@@ -25,23 +25,22 @@ export class NewNode {
     private _core: ICoreNode;
     private _fill: IFillNode;
 
-    private _h: string;
+    private _sequenceEdgesCached: boolean;
 
-    private _cachingAssets: boolean;
+    private _sequenceEdgesChanged$: Subject<IEdge[]>;
+    private _sequenceEdges$: Observable<IEdge[]>;
 
-    private _changed$: Subject<NewNode>;
-
-    constructor(core: ICoreNode, h: string) {
+    constructor(core: ICoreNode) {
         this._core = core;
-        this._h = h;
 
-        this._cachingAssets = false;
+        this._sequenceEdgesCached = false;
 
-        this._changed$ = new Subject<NewNode>();
-    }
+        this._sequenceEdgesChanged$ = new Subject<IEdge[]>();
+        this._sequenceEdges$ = this._sequenceEdgesChanged$
+            .publishReplay(1)
+            .refCount();
 
-    public get changed$(): Observable<NewNode> {
-        return this._changed$;
+        this._sequenceEdges$.subscribe();
     }
 
     public get ca(): number {
@@ -52,10 +51,6 @@ export class NewNode {
         return this._fill;
     }
 
-    public get h(): string {
-        return this._h;
-    }
-
     public get key(): string {
         return this._core.key;
     }
@@ -64,12 +59,25 @@ export class NewNode {
         return this._core.cl != null ? this._core.cl : this._core.l;
     }
 
-    public get cachingAssets(): boolean {
-        return this._cachingAssets;
+    public get sKey(): string {
+        return this._core.sequence.key;
+    }
+
+    public get sequenceEdgesCached(): boolean {
+        return this._sequenceEdgesCached;
+    }
+
+    public get sequenceEdges$(): Observable<IEdge[]> {
+        return this._sequenceEdges$;
     }
 
     public makeFull(fill: IFillNode): void {
         this._fill = fill;
+    }
+
+    public cacheSequenceEdges(edges: IEdge[]): void {
+        this._sequenceEdgesChanged$.next(edges);
+        this._sequenceEdgesCached = true;
     }
 }
 

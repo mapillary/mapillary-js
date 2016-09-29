@@ -9,7 +9,7 @@ import * as rbush from "rbush";
 import * as THREE from "three";
 import * as geohash from "latlon-geohash";
 
-import {APIv3, IAPINavIm, IAPINavImIm, IFillNode, IFullNode} from "../API";
+import {APIv3, IAPINavIm, IAPINavImIm, IFillNode, IFullNode, ISequence} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
 import {Spatial, GeoCoords, ILatLon} from "../Geo";
 import {NewNode, Node, Sequence} from "../Graph";
@@ -22,21 +22,25 @@ interface INewSpatialItem {
 
 export class NewGraph {
     private _apiV3: APIv3;
+    private _sequences: { [skey: string]: Sequence };
     private _nodeIndex: rbush.RBush<ISpatialItem>;
     private _graph: graphlib.Graph<NewNode, IEdgeData>;
 
     private _fetching: { [key: string]: boolean };
     private _filling: { [key: string]: boolean };
+    private _cachingSequenceEdges: { [key: string]: boolean };
 
     private _changed$: Subject<NewGraph>;
 
     constructor(apiV3: APIv3, nodeIndex?: rbush.RBush<ISpatialItem>, graph?: graphlib.Graph<NewNode, IEdgeData>) {
         this._apiV3 = apiV3;
+        this._sequences = {};
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
 
         this._fetching = {};
         this._filling = {};
+        this._cachingSequenceEdges = {};
 
         this._changed$ = new Subject<NewGraph>();
     }
@@ -75,7 +79,7 @@ export class NewGraph {
             .then(
                 (res: any): void => {
                     let fn: IFullNode = <IFullNode>res.json.imageByKey[key];
-                    let node: NewNode = new NewNode(fn, "");
+                    let node: NewNode = new NewNode(fn);
                     node.makeFull(fn);
 
                     this._graph.setNode(node.key, node);
@@ -109,13 +113,47 @@ export class NewGraph {
                 (res: any): void => {
                     delete this._filling[key];
 
-                    if (node.fill != null) {
-                        return;
+                    if (node.fill == null) {
+                        node.makeFull(<IFillNode>res.json.imageByKey[key]);
                     }
 
-                    node.makeFull(<IFillNode>res.json.imageByKey[key]);
                     this._changed$.next(this);
                 });
+    }
+
+    public cachingSequenceEdges(key: string): boolean {
+        return key in this._cachingSequenceEdges;
+    }
+
+    public cacheSequenceEdges(key: string): void {
+        if (key in this._cachingSequenceEdges) {
+            throw new Error(`Already caching sequence edges (${key}).`);
+        }
+
+        if (!this._graph.hasNode(key)) {
+            throw new Error(`Cannot cache sequence edges of node that does not exist in graph (${key}).`);
+        }
+
+        let node: NewNode = this._graph.node(key);
+        if (node.sKey in this._sequences) {
+            node.cacheSequenceEdges([]);
+
+            delete this._cachingSequenceEdges[key];
+            this._changed$.next(this);
+        } else {
+            this._apiV3.sequenceByKey([node.sKey])
+                .then(
+                    (res: any): void => {
+                        if (!(node.sKey in this._sequences)) {
+                            this._sequences[node.sKey] = new Sequence(<ISequence>res.json.sequenceByKey[node.sKey]);
+                        }
+
+                        node.cacheSequenceEdges([]);
+
+                        delete this._cachingSequenceEdges[key];
+                        this._changed$.next(this);
+                    });
+        }
     }
 }
 

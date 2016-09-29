@@ -34,6 +34,16 @@ export class APIv3 {
         "sequence",
     ];
 
+    private _sequenceProperties: string[] = [
+        "key",
+        "keys",
+    ];
+
+    private _userProperties: string[] = [
+        "key",
+        "username",
+    ];
+
     constructor (clientId: string) {
         this._clientId = clientId;
 
@@ -54,12 +64,16 @@ export class APIv3 {
             });
     };
 
-    public imageByKeyFill(im: string[]): any {
-        return this._modelMagic.get(["imageByKey", im, this._spatialProperties, ["key", "username"]]);
+    public imageByKeyFill(keys: string[]): any {
+        return this._modelMagic.get(["imageByKey", keys, this._spatialProperties, this._userProperties]);
     }
 
-    public imageByKeyFull(im: string[]): any {
-        return this._modelMagic.get(["imageByKey", im, this._spatialProperties.concat(this._coreProperties), ["key", "username"]]);
+    public imageByKeyFull(keys: string[]): any {
+        return this._modelMagic.get(["imageByKey", keys, this._spatialProperties.concat(this._coreProperties), this._userProperties]);
+    }
+
+    public sequenceByKey(sKeys: string[]): any {
+        return this._modelMagic.get(["sequenceByKey", sKeys, this._sequenceProperties]);
     }
 
     public get model(): falcor.Model {

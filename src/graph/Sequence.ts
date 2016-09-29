@@ -2,7 +2,7 @@
 
 import * as _ from "underscore";
 
-import {IAPINavImS} from "../API";
+import {ISequence} from "../API";
 
 /**
  * @class Sequence
@@ -18,9 +18,9 @@ export class Sequence {
      *
      * @param {IAPINavImS} apiNavImS - Raw sequence data.
      */
-    constructor (apiNavImS: IAPINavImS) {
-        this._key = apiNavImS.key;
-        this._keys = apiNavImS.keys;
+    constructor(sequence: ISequence) {
+        this._key = sequence.key;
+        this._keys = sequence.keys;
     }
 
     /**

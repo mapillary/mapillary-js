@@ -41,7 +41,7 @@ export class NewGraphService {
         return this._graph$;
     }
 
-    public node$(key: string): Observable<NewNode> {
+    public cacheNode$(key: string): Observable<NewNode> {
         let graph$: Observable<NewGraph> = this._graph$
             .skipWhile(
                 (graph: NewGraph): boolean => {
@@ -63,11 +63,31 @@ export class NewGraphService {
 
                     return false;
                 })
-            .first()
             .publishReplay(1)
             .refCount();
 
+        graph$
+            .skipWhile(
+                (graph: NewGraph): boolean => {
+                    if (!graph.hasNode(key)) {
+                        return false;
+                    }
+
+                    if (!graph.getNode(key).sequenceEdgesCached) {
+                        if (!graph.cachingSequenceEdges(key)) {
+                            graph.cacheSequenceEdges(key);
+                        }
+
+                        return true;
+                    }
+
+                    return false;
+                })
+            .first()
+            .subscribe();
+
         return graph$
+            .first()
             .map<NewNode>(
                 (graph: NewGraph): NewNode => {
                     return graph.getNode(key);

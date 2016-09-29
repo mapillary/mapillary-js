@@ -1,20 +1,12 @@
+import {ISequence} from "../../API";
+
 /**
  * Interface that describes the raw sequence response
  * from the API.
  *
  * @interface IAPINavImS
  */
-export interface IAPINavImS {
-    /**
-     * The unique sequence key.
-     */
-    key: string;
-
-    /**
-     * The ordered node keys of the sequence.
-     */
-    keys: string[];
-
+export interface IAPINavImS extends ISequence {
     /**
      * The path.
      */
