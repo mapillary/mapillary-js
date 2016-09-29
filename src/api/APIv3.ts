@@ -5,9 +5,10 @@ import * as HttpDataSource from "falcor-http-datasource";
 
 import {Observable} from "rxjs/Observable";
 
-import "rxjs/add/observable/of";
+import "rxjs/add/observable/defer";
+import "rxjs/add/observable/fromPromise";
 
-import "rxjs/add/operator/retry";
+import "rxjs/add/operator/map";
 
 import {IFillNode, IFullNode, ISequence} from "../API";
 import {Urls} from "../Utils";
@@ -72,17 +73,11 @@ export class APIv3 {
     };
 
     public imageByKeyFill(keys: string[]): Observable<{ [key: string]: IFillNode }> {
-        return Observable
-            .of<string[]>(keys)
-            .mergeMap(
-                (value: string[]): Observable<any> => {
-                    return Observable.fromPromise(
-                        this._modelMagic.get([
-                            "imageByKey",
-                            value,
-                            this._spatialProperties,
-                            this._userProperties]));
-                })
+        return this._wrapPromise(this._modelMagic.get([
+                "imageByKey",
+                keys,
+                this._spatialProperties,
+                this._userProperties]))
             .map<{ [key: string]: IFillNode }>(
                 (value: any): { [key: string]: IFillNode } => {
                     return value.json.imageByKey;
@@ -90,17 +85,11 @@ export class APIv3 {
     }
 
     public imageByKeyFull(keys: string[]): Observable<{ [key: string]: IFullNode }> {
-        return Observable
-            .of<string[]>(keys)
-            .mergeMap(
-                (value: string[]): Observable<any> => {
-                    return Observable.fromPromise(
-                        this._modelMagic.get([
-                            "imageByKey",
-                            value,
-                            this._spatialProperties.concat(this._coreProperties),
-                            this._userProperties]));
-                })
+        return this._wrapPromise(this._modelMagic.get([
+                "imageByKey",
+                keys,
+                this._spatialProperties.concat(this._coreProperties),
+                this._userProperties]))
             .map<{ [key: string]: IFullNode }>(
                 (value: any): { [key: string]: IFullNode } => {
                     return value.json.imageByKey;
@@ -108,16 +97,10 @@ export class APIv3 {
     }
 
     public sequenceByKey(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
-        return Observable
-            .of<string[]>(sKeys)
-            .mergeMap(
-                (value: string[]): Observable<any> => {
-                    return Observable.fromPromise(
-                        this._modelMagic.get([
-                            "sequenceByKey",
-                            value,
-                            this._sequenceProperties]));
-                })
+        return this._wrapPromise(this._modelMagic.get([
+                "sequenceByKey",
+                sKeys,
+                this._sequenceProperties]))
             .map<{ [key: string]: ISequence }>(
                 (value: any): { [key: string]: ISequence } => {
                     return value.json.sequenceByKey;
@@ -134,6 +117,10 @@ export class APIv3 {
 
     public get clientId(): string {
         return this._clientId;
+    }
+
+    private _wrapPromise<T>(promise: Promise<T>): Observable<T> {
+        return Observable.defer(() => Observable.fromPromise(promise));
     }
 }
 
