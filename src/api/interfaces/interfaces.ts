@@ -4,3 +4,8 @@ export {IAPINavImS} from "./IAPINavImS";
 export {IAPISGet} from "./IAPISGet";
 export {IAPISearchImClose2} from "./IAPISearchImClose2";
 export {IGPano} from "./IGPano";
+export {ICoreNode} from "./ICoreNode";
+export {IFillNode} from "./IFillNode";
+export {IFullNode} from "./IFullNode";
+export {IUser} from "./IUser";
+export {IKey} from "./IKey";

@@ -9,7 +9,7 @@ import * as rbush from "rbush";
 import * as THREE from "three";
 import * as geohash from "latlon-geohash";
 
-import {IAPINavIm, IAPINavImIm} from "../API";
+import {APIv3, IAPINavIm, IAPINavImIm, IFillNode, IFullNode} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
 import {Spatial, GeoCoords, ILatLon} from "../Geo";
 import {NewNode, Node, Sequence} from "../Graph";
@@ -21,26 +21,28 @@ interface INewSpatialItem {
 }
 
 export class NewGraph {
+    private _apiV3: APIv3;
     private _nodeIndex: rbush.RBush<ISpatialItem>;
     private _graph: graphlib.Graph<NewNode, IEdgeData>;
 
     private _fetching: { [key: string]: boolean };
     private _filling: { [key: string]: boolean };
 
-    private _change$: Subject<NewGraph>;
+    private _changed$: Subject<NewGraph>;
 
-    constructor(nodeIndex?: rbush.RBush<ISpatialItem>, graph?: graphlib.Graph<NewNode, IEdgeData>) {
+    constructor(apiV3: APIv3, nodeIndex?: rbush.RBush<ISpatialItem>, graph?: graphlib.Graph<NewNode, IEdgeData>) {
+        this._apiV3 = apiV3;
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
 
         this._fetching = {};
         this._filling = {};
 
-        this._change$ = new Subject<NewGraph>();
+        this._changed$ = new Subject<NewGraph>();
     }
 
     public get changed$(): Observable<NewGraph> {
-        return this._change$;
+        return this._changed$;
     }
 
     public hasNode(key: string): boolean {
@@ -51,30 +53,69 @@ export class NewGraph {
         return this._graph.node(key);
     }
 
-    public isFetching(key: string): boolean {
+    public fetching(key: string): boolean {
         return key in this._fetching;
     }
 
-    public isFilling(key: string): boolean {
+    public filling(key: string): boolean {
         return key in this._filling;
     }
 
     public fetch(key: string): void {
         if (key in this._fetching) {
-            throw new Error(`Already fetching key ${key}.`);
+            throw new Error(`Already fetching (${key}).`);
         }
 
-        delete this._fetching[key];
-        this._change$.next(this);
+        if (this._graph.hasNode(key)) {
+            throw new Error(`Cannot fetch node that already exist in graph (${key}).`);
+        }
+
+        this._fetching[key] = true;
+        this._apiV3.imageByKeyFull([key])
+            .then(
+                (res: any): void => {
+                    let fn: IFullNode = <IFullNode>res.json.imageByKey[key];
+                    let node: NewNode = new NewNode(fn, "");
+                    node.makeFull(fn);
+
+                    this._graph.setNode(node.key, node);
+
+                    delete this._fetching[key];
+                    this._changed$.next(this);
+                });
     }
 
     public fill(key: string): void {
-        if (key in this._filling) {
-            throw new Error(`Already filling key ${key}.`);
+        if (key in this._fetching) {
+            throw new Error(`Cannot fill node while fetching (${key}).`);
         }
 
-        delete this._filling[key];
-        this._change$.next(this);
+        if (key in this._filling) {
+            throw new Error(`Already filling (${key}).`);
+        }
+
+        if (!this._graph.hasNode(key)) {
+            throw new Error(`Cannot fill node that does not exist in graph (${key}).`);
+        }
+
+        let node: NewNode = this._graph.node(key);
+        if (node.fill != null) {
+            throw new Error(`Cannot fill node that is already filled (${key}).`);
+        }
+
+        this._filling[key] = true;
+        this._apiV3.imageByKeyFill([key])
+            .then(
+                (res: any): void => {
+                    delete this._filling[key];
+
+                    if (node.fill != null) {
+                        return;
+                    }
+
+                    node.makeFull(<IFillNode>res.json.imageByKey[key]);
+                    this._changed$.next(this);
+                });
     }
 }
 

@@ -4,7 +4,7 @@ import {Subscriber} from "rxjs/Subscriber";
 
 import "rxjs/add/observable/combineLatest";
 
-import {IAPINavImIm} from "../API";
+import {IAPINavImIm, ICoreNode, IFillNode} from "../API";
 import {IEdge} from "../Edge";
 import {ILatLon} from "../Geo";
 import {
@@ -22,61 +22,34 @@ import {
 import {ImageSize} from "../Viewer";
 
 export class NewNode {
-    private _key: string;
-    private _sKey: string;
-
-    private _uKey: string;
-
-    private _cca: number;
-    private _oca: number;
-
-    private _cLatLon: ILatLon;
-    private _oLatLon: ILatLon;
+    private _core: ICoreNode;
+    private _fill: IFillNode;
 
     private _h: string;
 
     private _cachingAssets: boolean;
 
-    private _change$: Subject<NewNode>;
+    private _changed$: Subject<NewNode>;
 
-    constructor(
-        key: string,
-        sKey: string,
-        uKey: string,
-        cLatLon: ILatLon,
-        oLatLon: ILatLon,
-        cca: number,
-        oca: number,
-        h: string) {
-
-        this._key = key;
-        this._sKey = sKey;
-
-        this._uKey = uKey;
-
-        this._cca = cca;
-        this._oca = oca;
-
-        this._cLatLon = cLatLon;
-        this._oLatLon = oLatLon;
-
+    constructor(core: ICoreNode, h: string) {
+        this._core = core;
         this._h = h;
 
         this._cachingAssets = false;
 
-        this._change$ = new Subject<NewNode>();
+        this._changed$ = new Subject<NewNode>();
     }
 
     public get changed$(): Observable<NewNode> {
-        return this._change$;
+        return this._changed$;
     }
 
     public get ca(): number {
-        return this._cca != null ? this._cca : this._oca;
+        return this._core.cca != null ? this._core.cca : this._core.ca;
     }
 
-    public get complete(): boolean {
-        return false;
+    public get fill(): IFillNode {
+        return this._fill;
     }
 
     public get h(): string {
@@ -84,19 +57,19 @@ export class NewNode {
     }
 
     public get key(): string {
-        return this._key;
+        return this._core.key;
     }
 
     public get latLon(): ILatLon {
-        return this._cLatLon != null ? this._cLatLon : this._oLatLon;
-    }
-
-    public get uKey(): string {
-        return this._uKey;
+        return this._core.cl != null ? this._core.cl : this._core.l;
     }
 
     public get cachingAssets(): boolean {
         return this._cachingAssets;
+    }
+
+    public makeFull(fill: IFillNode): void {
+        this._fill = fill;
     }
 }
 

@@ -10,6 +10,30 @@ export class APIv3 {
     private _model: falcor.Model;
     private _modelMagic: falcor.Model;
 
+     private _spatialProperties: string[] = [
+        "atomic_scale",
+        "calt",
+        "captured_at",
+        "cfocal",
+        "gpano",
+        "height",
+        "merge_cc",
+        "merge_version",
+        "c_rotation",
+        "orientation",
+        "user",
+        "width",
+    ];
+
+    private _coreProperties: string[] = [
+        "ca",
+        "cca",
+        "cl",
+        "l",
+        "key",
+        "sequence",
+    ];
+
     constructor (clientId: string) {
         this._clientId = clientId;
 
@@ -27,9 +51,16 @@ export class APIv3 {
                     crossDomain: true,
                     withCredentials: false,
                 }),
-            })
-            .batch(10);
+            });
     };
+
+    public imageByKeyFill(im: string[]): any {
+        return this._modelMagic.get(["imageByKey", im, this._spatialProperties, ["key", "username"]]);
+    }
+
+    public imageByKeyFull(im: string[]): any {
+        return this._modelMagic.get(["imageByKey", im, this._spatialProperties.concat(this._coreProperties), ["key", "username"]]);
+    }
 
     public get model(): falcor.Model {
         return this._model;

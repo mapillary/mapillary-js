@@ -27,7 +27,7 @@ interface INewGraphOperation extends Function {
 export class NewGraphService {
     private _graph$: Observable<NewGraph>;
 
-    constructor(graph: NewGraph = new NewGraph()) {
+    constructor(graph: NewGraph) {
         this._graph$ = Observable
             .of(graph)
             .concat(graph.changed$)
@@ -42,27 +42,32 @@ export class NewGraphService {
     }
 
     public node$(key: string): Observable<NewNode> {
-        return this._graph$
+        let graph$: Observable<NewGraph> = this._graph$
             .skipWhile(
                 (graph: NewGraph): boolean => {
                     if (!graph.hasNode(key)) {
-                        if (!graph.isFetching(key)) {
+                        if (!graph.fetching(key)) {
                             graph.fetch(key);
                         }
 
-                        return false;
+                        return true;
                     }
 
-                    if (!graph.getNode(key).complete) {
-                        if (!graph.isFilling(key)) {
+                    if (graph.getNode(key).fill == null) {
+                        if (!graph.filling(key)) {
                             graph.fill(key);
                         }
 
-                        return false;
+                        return true;
                     }
 
-                    return true;
+                    return false;
                 })
+            .first()
+            .publishReplay(1)
+            .refCount();
+
+        return graph$
             .map<NewNode>(
                 (graph: NewGraph): NewNode => {
                     return graph.getNode(key);
