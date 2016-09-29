@@ -1,5 +1,8 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+
 import * as _ from "underscore";
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
@@ -21,9 +24,23 @@ export class NewGraph {
     private _nodeIndex: rbush.RBush<ISpatialItem>;
     private _graph: graphlib.Graph<NewNode, IEdgeData>;
 
+    private _fetching: { [key: string]: boolean };
+    private _filling: { [key: string]: boolean };
+
+    private _change$: Subject<NewGraph>;
+
     constructor(nodeIndex?: rbush.RBush<ISpatialItem>, graph?: graphlib.Graph<NewNode, IEdgeData>) {
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
+
+        this._fetching = {};
+        this._filling = {};
+
+        this._change$ = new Subject<NewGraph>();
+    }
+
+    public get changed$(): Observable<NewGraph> {
+        return this._change$;
     }
 
     public hasNode(key: string): boolean {
@@ -32,6 +49,32 @@ export class NewGraph {
 
     public getNode(key: string): NewNode {
         return this._graph.node(key);
+    }
+
+    public isFetching(key: string): boolean {
+        return key in this._fetching;
+    }
+
+    public isFilling(key: string): boolean {
+        return key in this._filling;
+    }
+
+    public fetch(key: string): void {
+        if (key in this._fetching) {
+            throw new Error(`Already fetching key ${key}.`);
+        }
+
+        delete this._fetching[key];
+        this._change$.next(this);
+    }
+
+    public fill(key: string): void {
+        if (key in this._filling) {
+            throw new Error(`Already filling key ${key}.`);
+        }
+
+        delete this._filling[key];
+        this._change$.next(this);
     }
 }
 

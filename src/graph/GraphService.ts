@@ -18,7 +18,57 @@ import "rxjs/add/operator/take";
 
 import {IAPINavIm, APIv2, APIv3} from "../API";
 import {EdgeDirection} from "../Edge";
-import {VectorTilesService, Graph, ImageLoadingService, Node, TilesService} from "../Graph";
+import {VectorTilesService, Graph, NewGraph, ImageLoadingService, Node, NewNode, TilesService} from "../Graph";
+
+interface INewGraphOperation extends Function {
+    (graph: NewGraph): NewGraph;
+}
+
+export class NewGraphService {
+    private _graph$: Observable<NewGraph>;
+
+    constructor(graph: NewGraph = new NewGraph()) {
+        this._graph$ = Observable
+            .of(graph)
+            .concat(graph.changed$)
+            .publishReplay(1)
+            .refCount();
+
+        this._graph$.subscribe();
+    }
+
+    public graph$(): Observable<NewGraph> {
+        return this._graph$;
+    }
+
+    public node$(key: string): Observable<NewNode> {
+        return this._graph$
+            .skipWhile(
+                (graph: NewGraph): boolean => {
+                    if (!graph.hasNode(key)) {
+                        if (!graph.isFetching(key)) {
+                            graph.fetch(key);
+                        }
+
+                        return false;
+                    }
+
+                    if (!graph.getNode(key).complete) {
+                        if (!graph.isFilling(key)) {
+                            graph.fill(key);
+                        }
+
+                        return false;
+                    }
+
+                    return true;
+                })
+            .map<NewNode>(
+                (graph: NewGraph): NewNode => {
+                    return graph.getNode(key);
+                });
+    }
+}
 
 interface IGraphOperation extends Function {
     (graph: Graph): Graph;

@@ -1,4 +1,4 @@
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {Subscriber} from "rxjs/Subscriber";
 
@@ -35,7 +35,9 @@ export class NewNode {
 
     private _h: string;
 
-    private _changed$: BehaviorSubject<NewNode>;
+    private _cachingAssets: boolean;
+
+    private _change$: Subject<NewNode>;
 
     constructor(
         key: string,
@@ -60,12 +62,21 @@ export class NewNode {
 
         this._h = h;
 
-        this._changed$ = new BehaviorSubject(this);
-        this._changed$.subscribe();
+        this._cachingAssets = false;
+
+        this._change$ = new Subject<NewNode>();
     }
 
-    public get ca(): number  {
+    public get changed$(): Observable<NewNode> {
+        return this._change$;
+    }
+
+    public get ca(): number {
         return this._cca != null ? this._cca : this._oca;
+    }
+
+    public get complete(): boolean {
+        return false;
     }
 
     public get h(): string {
@@ -84,8 +95,8 @@ export class NewNode {
         return this._uKey;
     }
 
-    public get changed$(): Observable<NewNode> {
-        return this._changed$;
+    public get cachingAssets(): boolean {
+        return this._cachingAssets;
     }
 }
 
