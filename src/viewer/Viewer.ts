@@ -158,6 +158,29 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Move to image that actually is looking at the
+     * given latitude and longitude.
+     *
+     * @param {Number} lat - Latitude, in degrees.
+     * @param {Number} lon - Longitude, in degrees.
+     * @returns {Promise<Node>} Promise to the node that was navigatged to.
+     */
+
+    public lookAt(lat: number, lon: number): when.Promise<Node> {
+        this.activateComponent("loading");
+        return when.promise<Node>((resolve: any, reject: any): void => {
+            this._navigator.lookAt(lat, lon).subscribe(
+                (node: Node): void => {
+                    resolve(node);
+                },
+                (error: Error): void => {
+                    reject(error);
+                }
+            );
+        });
+    }
+
+    /**
      * Detect the viewer's new width and height and resize it.
      *
      * @description The components will also detect the viewer's
