@@ -12,7 +12,7 @@ import * as geohash from "latlon-geohash";
 import {APIv3, IAPINavIm, IAPINavImIm, IFillNode, IFullNode, ISequence} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
 import {Spatial, GeoCoords, ILatLon} from "../Geo";
-import {NewNode, Node, Sequence} from "../Graph";
+import {NewNode, NewNodeCache, Node, Sequence} from "../Graph";
 
 interface INewSpatialItem {
     lat: number;
@@ -23,6 +23,7 @@ interface INewSpatialItem {
 export class NewGraph {
     private _apiV3: APIv3;
     private _sequences: { [skey: string]: Sequence };
+    private _nodeCache: { [key: string]: NewNode };
     private _nodeIndex: rbush.RBush<ISpatialItem>;
     private _graph: graphlib.Graph<NewNode, IEdgeData>;
 
@@ -35,6 +36,7 @@ export class NewGraph {
     constructor(apiV3: APIv3, nodeIndex?: rbush.RBush<ISpatialItem>, graph?: graphlib.Graph<NewNode, IEdgeData>) {
         this._apiV3 = apiV3;
         this._sequences = {};
+        this._nodeCache = {};
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
 
@@ -154,6 +156,20 @@ export class NewGraph {
                         this._changed$.next(this);
                     });
         }
+    }
+
+    public nodeCacheInitialized(key: string): boolean {
+        return key in this._nodeCache;
+    }
+
+    public initializeNodeCache(key: string): void {
+        if (key in this._nodeCache) {
+            throw new Error(`Node already in cache (${key}).`);
+        }
+
+        let node: NewNode = this._graph.node(key);
+        node.initializeCache(new NewNodeCache());
+        this._nodeCache[key] = node;
     }
 }
 

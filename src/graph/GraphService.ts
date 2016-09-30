@@ -20,10 +20,6 @@ import {IAPINavIm, APIv2, APIv3} from "../API";
 import {EdgeDirection} from "../Edge";
 import {VectorTilesService, Graph, NewGraph, ImageLoadingService, Node, NewNode, TilesService} from "../Graph";
 
-interface INewGraphOperation extends Function {
-    (graph: NewGraph): NewGraph;
-}
-
 export class NewGraphService {
     private _graph$: Observable<NewGraph>;
 
@@ -42,7 +38,7 @@ export class NewGraphService {
     }
 
     public cacheNode$(key: string): Observable<NewNode> {
-        let graph$: Observable<NewGraph> = this._graph$
+        let firstGraph$: Observable<NewGraph> = this._graph$
             .skipWhile(
                 (graph: NewGraph): boolean => {
                     if (!graph.hasNode(key)) {
@@ -63,6 +59,23 @@ export class NewGraphService {
 
                     return false;
                 })
+            .first()
+            .do(
+                (graph: NewGraph): void => {
+                    if (!graph.nodeCacheInitialized(key)) {
+                        graph.initializeNodeCache(key);
+                    }
+                })
+            .publishReplay(1)
+            .refCount();
+
+        let graph$: Observable<NewGraph> = firstGraph$
+            .concat(
+                firstGraph$
+                    .mergeMap(
+                        (graph: NewGraph): Observable<NewGraph> => {
+                            return graph.changed$;
+                        }))
             .publishReplay(1)
             .refCount();
 
@@ -86,15 +99,16 @@ export class NewGraphService {
             .first()
             .subscribe();
 
-        return graph$
-            .first()
+        return firstGraph$
             .map<NewNode>(
                 (graph: NewGraph): NewNode => {
                     return graph.getNode(key);
                 })
             .mergeMap<NewNode>(
                 (node: NewNode): Observable<NewNode> => {
-                    return node.cacheAssets$();
+                    return node.assetsCached ?
+                        Observable.of(node) :
+                        node.cacheAssets$();
                 })
             .first(
                 (node: NewNode): boolean => {
