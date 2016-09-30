@@ -91,6 +91,14 @@ export class NewGraphService {
             .map<NewNode>(
                 (graph: NewGraph): NewNode => {
                     return graph.getNode(key);
+                })
+            .mergeMap<NewNode>(
+                (node: NewNode): Observable<NewNode> => {
+                    return node.cacheAssets$();
+                })
+            .first(
+                (node: NewNode): boolean => {
+                    return node.assetsCached;
                 });
     }
 }

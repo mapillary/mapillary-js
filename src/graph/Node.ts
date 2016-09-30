@@ -24,16 +24,30 @@ import {ImageSize} from "../Viewer";
 export class NewNode {
     private _core: ICoreNode;
     private _fill: IFillNode;
-
+    private _image: HTMLImageElement;
+    private _loadStatus: ILoadStatus;
+    private _mesh: IMesh;
     private _sequenceEdgesCached: boolean;
 
+    private _imageChanged$: Subject<HTMLImageElement>;
+    private _image$: Observable<HTMLImageElement>;
     private _sequenceEdgesChanged$: Subject<IEdge[]>;
     private _sequenceEdges$: Observable<IEdge[]>;
 
     constructor(core: ICoreNode) {
         this._core = core;
-
+        this._fill = null;
+        this._image = null;
+        this._loadStatus = { loaded: 0, total: 0 };
+        this._mesh = null;
         this._sequenceEdgesCached = false;
+
+        this._imageChanged$ = new Subject<HTMLImageElement>();
+        this._image$ = this._imageChanged$
+            .publishReplay(1)
+            .refCount();
+
+        this._image$.subscribe();
 
         this._sequenceEdgesChanged$ = new Subject<IEdge[]>();
         this._sequenceEdges$ = this._sequenceEdgesChanged$
@@ -41,6 +55,10 @@ export class NewNode {
             .refCount();
 
         this._sequenceEdges$.subscribe();
+    }
+
+    public get assetsCached(): boolean {
+        return this._image != null && this._mesh != null;
     }
 
     public get ca(): number {
@@ -51,12 +69,54 @@ export class NewNode {
         return this._fill;
     }
 
+    public get image(): HTMLImageElement {
+        return this._image;
+    }
+
     public get key(): string {
         return this._core.key;
     }
 
     public get latLon(): ILatLon {
         return this._core.cl != null ? this._core.cl : this._core.l;
+    }
+
+    /**
+     * Get loadStatus.
+     *
+     * @returns {ILoadStatus} Value indicating the load status
+     * of the mesh and image.
+     */
+    public get loadStatus(): ILoadStatus {
+        return this._loadStatus;
+    }
+
+    /**
+     * Get merged.
+     *
+     * @returns {boolean} Value indicating whether SfM has been
+     * run on the node and the node has been merged into a
+     * connected component.
+     */
+    public get merged(): boolean {
+        return this._fill != null &&
+            this._fill.merge_version != null &&
+            this._fill.merge_version > 0;
+    }
+
+    public get mesh(): IMesh {
+        return this._mesh;
+    }
+
+    /**
+     * Get pano.
+     *
+     * @returns {boolean} Value indicating whether the node is a panorama.
+     * It could be a cropped or full panorama.
+     */
+    public get pano(): boolean {
+        return this._fill.gpano != null &&
+            this._fill.gpano.FullPanoWidthPixels != null;
     }
 
     public get sKey(): string {
@@ -78,6 +138,91 @@ export class NewNode {
     public cacheSequenceEdges(edges: IEdge[]): void {
         this._sequenceEdgesChanged$.next(edges);
         this._sequenceEdgesCached = true;
+    }
+
+    /**
+     * Cache the image and mesh assets.
+     *
+     * @returns {Observable<Node>} Observable emitting this node whenever the
+     * load status has changed and when the mesh or image has been fully loaded.
+     */
+    public cacheAssets$(): Observable<NewNode> {
+        return Observable
+            .combineLatest(
+                this._cacheImage(),
+                this._cacheMesh(),
+                (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NewNode => {
+                    this._loadStatus.loaded = 0;
+                    this._loadStatus.total = 0;
+
+                    if (meshStatus) {
+                        this._mesh = meshStatus.object;
+                        this._loadStatus.loaded += meshStatus.loaded.loaded;
+                        this._loadStatus.total += meshStatus.loaded.total;
+                    }
+
+                    if (imageStatus) {
+                        this._image = imageStatus.object;
+                        this._loadStatus.loaded += imageStatus.loaded.loaded;
+                        this._loadStatus.total += imageStatus.loaded.total;
+                    }
+
+                    return this;
+                });
+    }
+
+        /**
+     * Cache the mesh.
+     *
+     * @returns {Observable<ILoadStatusObject<IMesh>>} Observable emitting
+     * a load status object every time the load status changes and completes
+     * when the mesh is fully loaded.
+     */
+    private _cacheMesh(): Observable<ILoadStatusObject<IMesh>> {
+        return Observable.create(
+            (subscriber: Subscriber<ILoadStatusObject<IMesh>>): void => {
+                if (!this.merged) {
+                    subscriber.next({
+                        loaded: { loaded: 0, total: 0 },
+                        object: { faces: [], vertices: [] },
+                    });
+                    subscriber.complete();
+                    return;
+                }
+
+                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+                xmlHTTP.open("GET", Urls.proto_mesh(this.key), true);
+                xmlHTTP.responseType = "arraybuffer";
+                xmlHTTP.onload = (pe: ProgressEvent) => {
+                    let mesh: IMesh = xmlHTTP.status === 200 ?
+                        MeshReader.read(new Buffer(xmlHTTP.response)) :
+                        { faces: [], vertices: [] };
+
+                    subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: mesh });
+                    subscriber.complete();
+                };
+
+                xmlHTTP.onprogress = (pe: ProgressEvent) => {
+                    subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: null });
+                };
+
+                xmlHTTP.send(null);
+            });
+    }
+
+    /**
+     * Cache the image.
+     *
+     * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable emitting
+     * a load status object every time the load status changes and completes
+     * when the image is fully loaded.
+     */
+    private _cacheImage(): Observable<ILoadStatusObject<HTMLImageElement>> {
+        let imageSize: ImageSize = this.pano ?
+            Settings.basePanoramaSize :
+            Settings.baseImageSize;
+
+        return ImageLoader.loadThumbnail(this.key, imageSize);
     }
 }
 

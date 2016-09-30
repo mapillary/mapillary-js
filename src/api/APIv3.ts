@@ -18,7 +18,15 @@ export class APIv3 {
     private _model: falcor.Model;
     private _modelMagic: falcor.Model;
 
-     private _spatialProperties: string[] = [
+    private _coreProperties: string[] = [
+        "ca",
+        "cca",
+        "cl",
+        "l",
+        "sequence",
+    ];
+
+    private _fillProperties: string[] = [
         "atomic_scale",
         "calt",
         "captured_at",
@@ -33,22 +41,15 @@ export class APIv3 {
         "width",
     ];
 
-    private _coreProperties: string[] = [
-        "ca",
-        "cca",
-        "cl",
-        "l",
+    private _keyProperties: string[] = [
         "key",
-        "sequence",
     ];
 
     private _sequenceProperties: string[] = [
-        "key",
         "keys",
     ];
 
     private _userProperties: string[] = [
-        "key",
         "username",
     ];
 
@@ -76,8 +77,8 @@ export class APIv3 {
         return this._wrapPromise(this._modelMagic.get([
                 "imageByKey",
                 keys,
-                this._spatialProperties,
-                this._userProperties]))
+                this._keyProperties.concat(this._fillProperties),
+                this._keyProperties.concat(this._userProperties)]))
             .map<{ [key: string]: IFillNode }>(
                 (value: any): { [key: string]: IFillNode } => {
                     return value.json.imageByKey;
@@ -88,8 +89,8 @@ export class APIv3 {
         return this._wrapPromise(this._modelMagic.get([
                 "imageByKey",
                 keys,
-                this._spatialProperties.concat(this._coreProperties),
-                this._userProperties]))
+                this._keyProperties.concat(this._coreProperties).concat(this._fillProperties),
+                this._keyProperties.concat(this._userProperties)]))
             .map<{ [key: string]: IFullNode }>(
                 (value: any): { [key: string]: IFullNode } => {
                     return value.json.imageByKey;
@@ -100,7 +101,7 @@ export class APIv3 {
         return this._wrapPromise(this._modelMagic.get([
                 "sequenceByKey",
                 sKeys,
-                this._sequenceProperties]))
+                this._keyProperties.concat(this._sequenceProperties)]))
             .map<{ [key: string]: ISequence }>(
                 (value: any): { [key: string]: ISequence } => {
                     return value.json.sequenceByKey;
