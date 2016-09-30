@@ -13,6 +13,18 @@ import "rxjs/add/operator/map";
 import {IFillNode, IFullNode, ISequence} from "../API";
 import {Urls} from "../Utils";
 
+interface IFalcorResult<T> {
+    json: T;
+}
+
+interface IImageByKey<T> {
+    imageByKey: { [key: string]: T };
+}
+
+interface ISequenceByKey<T> {
+    sequenceByKey: { [key: string]: T };
+}
+
 export class APIv3 {
     private _clientId: string;
     private _model: falcor.Model;
@@ -74,36 +86,36 @@ export class APIv3 {
     };
 
     public imageByKeyFill(keys: string[]): Observable<{ [key: string]: IFillNode }> {
-        return this._wrapPromise(this._modelMagic.get([
+        return this._wrapPromise<IFalcorResult<IImageByKey<IFillNode>>>(this._modelMagic.get([
                 "imageByKey",
                 keys,
                 this._keyProperties.concat(this._fillProperties),
                 this._keyProperties.concat(this._userProperties)]))
             .map<{ [key: string]: IFillNode }>(
-                (value: any): { [key: string]: IFillNode } => {
+                (value: IFalcorResult<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
                     return value.json.imageByKey;
                 });
     }
 
     public imageByKeyFull(keys: string[]): Observable<{ [key: string]: IFullNode }> {
-        return this._wrapPromise(this._modelMagic.get([
+        return this._wrapPromise<IFalcorResult<IImageByKey<IFullNode>>>(this._modelMagic.get([
                 "imageByKey",
                 keys,
                 this._keyProperties.concat(this._coreProperties).concat(this._fillProperties),
                 this._keyProperties.concat(this._userProperties)]))
             .map<{ [key: string]: IFullNode }>(
-                (value: any): { [key: string]: IFullNode } => {
+                (value: IFalcorResult<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
                     return value.json.imageByKey;
                 });
     }
 
     public sequenceByKey(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
-        return this._wrapPromise(this._modelMagic.get([
+        return this._wrapPromise<IFalcorResult<ISequenceByKey<ISequence>>>(this._modelMagic.get([
                 "sequenceByKey",
                 sKeys,
                 this._keyProperties.concat(this._sequenceProperties)]))
             .map<{ [key: string]: ISequence }>(
-                (value: any): { [key: string]: ISequence } => {
+                (value: IFalcorResult<ISequenceByKey<ISequence>>): { [key: string]: ISequence } => {
                     return value.json.sequenceByKey;
                 });
     }
