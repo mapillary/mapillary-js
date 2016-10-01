@@ -167,7 +167,6 @@ export class Viewer extends EventEmitter {
      */
 
     public lookAt(lat: number, lon: number): when.Promise<Node> {
-        this.activateComponent("loading");
         return when.promise<Node>((resolve: any, reject: any): void => {
             this._navigator.lookAt(lat, lon).subscribe(
                 (node: Node): void => {
