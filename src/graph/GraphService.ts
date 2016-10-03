@@ -99,6 +99,26 @@ export class NewGraphService {
             .first()
             .subscribe();
 
+        graph$
+            .skipWhile(
+                (graph: NewGraph): boolean => {
+                    if (!graph.hasNode(key)) {
+                        return false;
+                    }
+
+                    if (!graph.tilesCached(key)) {
+                        if (!graph.cachingTiles(key)) {
+                            graph.cacheTiles(key);
+                        }
+
+                        return true;
+                    }
+
+                    return false;
+                })
+            .first()
+            .subscribe();
+
         return firstGraph$
             .map<NewNode>(
                 (graph: NewGraph): NewNode => {

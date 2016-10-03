@@ -1,4 +1,5 @@
 export {Graph, NewGraph} from "./graph/Graph";
+export {GraphCalculator} from "./graph/GraphCalculator";
 export {GraphService, NewGraphService} from "./graph/GraphService";
 export {ImageLoader} from "./graph/ImageLoader";
 export {ImageLoadingService} from "./graph/ImageLoadingService";

@@ -9,10 +9,10 @@ import * as rbush from "rbush";
 import * as THREE from "three";
 import * as geohash from "latlon-geohash";
 
-import {APIv3, IAPINavIm, IAPINavImIm, IFillNode, IFullNode, ISequence} from "../API";
+import {APIv3, IAPINavIm, IAPINavImIm, ICoreNode, IFillNode, IFullNode, ISequence} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
 import {Spatial, GeoCoords, ILatLon} from "../Geo";
-import {NewNode, NewNodeCache, Node, Sequence} from "../Graph";
+import {NewNode, NewNodeCache, Node, Sequence, GraphCalculator} from "../Graph";
 
 interface INewSpatialItem {
     lat: number;
@@ -24,25 +24,42 @@ export class NewGraph {
     private _apiV3: APIv3;
     private _sequences: { [skey: string]: Sequence };
     private _nodeCache: { [key: string]: NewNode };
-    private _nodeIndex: rbush.RBush<ISpatialItem>;
+    private _preTileStore: { [key: string]:  { [key: string]: NewNode }; };
+    private _tileCache: { [key: string]: NewNode[] };
+    private _tilePrecision: number;
+    private _tileThreshold: number;
+    private _nodeIndex: rbush.RBush<INewSpatialItem>;
     private _graph: graphlib.Graph<NewNode, IEdgeData>;
+    private _graphCalculator: GraphCalculator;
 
     private _fetching: { [key: string]: boolean };
     private _filling: { [key: string]: boolean };
     private _cachingSequenceEdges: { [key: string]: boolean };
+    private _cachingTiles: { [key: string]: boolean };
 
     private _changed$: Subject<NewGraph>;
 
-    constructor(apiV3: APIv3, nodeIndex?: rbush.RBush<ISpatialItem>, graph?: graphlib.Graph<NewNode, IEdgeData>) {
+    constructor(
+        apiV3: APIv3,
+        nodeIndex?: rbush.RBush<INewSpatialItem>,
+        graph?: graphlib.Graph<NewNode, IEdgeData>,
+        graphCalculator?: GraphCalculator) {
+
         this._apiV3 = apiV3;
         this._sequences = {};
         this._nodeCache = {};
-        this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
+        this._preTileStore = {};
+        this._tileCache = {};
+        this._tilePrecision = 7;
+        this._tileThreshold = 20;
+        this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<INewSpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
+        this._graphCalculator = graphCalculator != null ? graphCalculator : new GraphCalculator();
 
         this._fetching = {};
         this._filling = {};
         this._cachingSequenceEdges = {};
+        this._cachingTiles = {};
 
         this._changed$ = new Subject<NewGraph>();
     }
@@ -84,6 +101,8 @@ export class NewGraph {
                     let node: NewNode = new NewNode(fn);
                     node.makeFull(fn);
 
+                    let h: string = this._graphCalculator.encodeH(node.latLon, this._tilePrecision);
+                    this._preStore(h, node);
                     this._graph.setNode(node.key, node);
 
                     delete this._fetching[key];
@@ -158,6 +177,90 @@ export class NewGraph {
         }
     }
 
+    public tilesCached(key: string): boolean {
+        if (!this._graph.hasNode(key)) {
+            throw new Error(`Node does not exist in graph (${key}).`);
+        }
+
+        let node: NewNode = this._graph.node(key);
+        let hs: string[] = this._graphCalculator.encodeHs(node.latLon, this._tilePrecision, this._tileThreshold);
+
+        for (let h of hs) {
+            if (!(h in this._tileCache)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public cachingTiles(key: string): boolean {
+        return key in this._cachingTiles;
+    }
+
+    public cacheTiles(key: string): void {
+        if (key in this._cachingTiles) {
+            throw new Error(`Already caching tiles (${key}).`);
+        }
+
+        if (!this._graph.hasNode(key)) {
+            throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
+        }
+
+        this._cachingTiles[key] = true;
+
+        let hs: string[] = this._graphCalculator.encodeHs(this._graph.node(key).latLon, this._tilePrecision, this._tileThreshold);
+        let uncachedHs: string[] = [];
+        for (let h of hs) {
+            if (!(h in this._tileCache)) {
+                uncachedHs.push(h);
+            }
+        }
+
+        if (uncachedHs.length > 0) {
+            Observable
+                .from(uncachedHs)
+                .mergeMap<[string, { [key: string]: ICoreNode[] }]>(
+                    (h: string): Observable<[string, { [key: string]: ICoreNode[] }]> => {
+                        return Observable.zip(Observable.of<string>(h), this._apiV3.imagesByH([h]));
+                    })
+                .subscribe(
+                    (hi: [string, { [key: string]: ICoreNode[] }]): void => {
+                        let h: string = hi[0];
+                        let coreNodes: ICoreNode[] = hi[1][h];
+
+                        if (h in this._tileCache) {
+                            return;
+                        }
+
+                        this._tileCache[h] = [];
+                        let hCache: NewNode[] = this._tileCache[h];
+                        let preStored: { [key: string]: NewNode } = this._removeFromPreStore(h);
+
+                        for (let coreNode of coreNodes) {
+                            if (preStored != null && coreNode.key in preStored) {
+                                let node: NewNode = preStored[coreNode.key];
+
+                                hCache.push(node);
+                                this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
+
+                                continue;
+                            }
+
+                            let node: NewNode = new NewNode(coreNode);
+
+                            hCache.push(node);
+                            this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
+                            this._graph.setNode(node.key, node);
+                        }
+
+                        delete this._cachingTiles;
+                        this._changed$.next(this);
+                    });
+        }
+
+    }
+
     public nodeCacheInitialized(key: string): boolean {
         return key in this._nodeCache;
     }
@@ -170,6 +273,25 @@ export class NewGraph {
         let node: NewNode = this._graph.node(key);
         node.initializeCache(new NewNodeCache());
         this._nodeCache[key] = node;
+    }
+
+    private _preStore(h: string, node: NewNode): void {
+        if (!(h in this._preTileStore)) {
+            this._preTileStore[h] = {};
+        }
+
+        this._preTileStore[h][node.key] = node;
+    }
+
+    private _removeFromPreStore(h: string): { [key: string]: NewNode } {
+        let preStored: { [key: string]: NewNode } = null;
+
+        if (h in this._preTileStore) {
+            preStored = this._preTileStore[h];
+            delete this._preTileStore[h];
+        }
+
+        return preStored;
     }
 }
 
