@@ -26,6 +26,7 @@ export class NewGraph {
     private _nodeCache: { [key: string]: NewNode };
     private _preTileStore: { [key: string]:  { [key: string]: NewNode }; };
     private _tileCache: { [key: string]: NewNode[] };
+    private _spatialNodeCache: { [key: string]: boolean };
     private _tilePrecision: number;
     private _tileThreshold: number;
     private _nodeIndex: rbush.RBush<INewSpatialItem>;
@@ -36,6 +37,8 @@ export class NewGraph {
     private _filling: { [key: string]: boolean };
     private _cachingSequenceEdges: { [key: string]: boolean };
     private _cachingTiles: { [key: string]: boolean };
+    private _spatialNodes: { [key: string]: [INewSpatialItem[], INewSpatialItem[]] };
+    private _fillingSpatialNodes: { [key: string]: boolean };
 
     private _changed$: Subject<NewGraph>;
 
@@ -50,6 +53,7 @@ export class NewGraph {
         this._nodeCache = {};
         this._preTileStore = {};
         this._tileCache = {};
+        this._spatialNodeCache = {};
         this._tilePrecision = 7;
         this._tileThreshold = 20;
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<INewSpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
@@ -60,6 +64,8 @@ export class NewGraph {
         this._filling = {};
         this._cachingSequenceEdges = {};
         this._cachingTiles = {};
+        this._spatialNodes = {};
+        this._fillingSpatialNodes = {};
 
         this._changed$ = new Subject<NewGraph>();
     }
@@ -285,6 +291,100 @@ export class NewGraph {
         let node: NewNode = this._graph.node(key);
         node.initializeCache(new NewNodeCache());
         this._nodeCache[key] = node;
+    }
+
+    public fillingSpatialNodes(key: string): boolean {
+        return key in this._fillingSpatialNodes;
+    }
+
+    public spatialNodesFull(key: string): boolean {
+        if (!this._graph.hasNode(key)) {
+            throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
+        }
+
+        if (key in this._spatialNodeCache) {
+            return true;
+        }
+
+        if (key in this._spatialNodes) {
+            return false;
+        }
+
+        let node: NewNode = this._graph.node(key);
+        let bbox: [ILatLon, ILatLon] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
+
+        let spatialItems: INewSpatialItem[] = this._nodeIndex.search({
+            maxX: bbox[1].lon,
+            maxY: bbox[1].lat,
+            minX: bbox[0].lon,
+            minY: bbox[0].lat,
+        });
+
+        let fillingSpatialNodes: INewSpatialItem[] = [];
+        for (let spatialItem of spatialItems) {
+            if (spatialItem.node.fill == null) {
+                fillingSpatialNodes.push(spatialItem);
+            }
+        }
+
+        if (fillingSpatialNodes.length === 0) {
+            this._spatialNodeCache[key] = true;
+
+            return true;
+        }
+
+        this._spatialNodes[key] = [spatialItems, fillingSpatialNodes];
+
+        return false;
+    }
+
+    public fillSpatialNodes(key: string): void {
+        if (!this._graph.hasNode(key)) {
+            throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
+        }
+
+        if (key in this._spatialNodeCache) {
+            throw new Error(`Spatial nodes already cached (${key}).`);
+        }
+
+        if (!(key in this._spatialNodes)) {
+            throw new Error(`Spatial nodes not determined (${key}).`);
+        }
+
+        let node: NewNode = this._graph.node(key);
+
+        if (this._spatialNodes[key][1].length === 0) {
+            let edges: IEdge[] = [];
+            node.cacheSpatialEdges(edges);
+            this._spatialNodeCache[key] = true;
+            delete this._spatialNodes[key];
+            this._changed$.next(this);
+        } else {
+            let keys: string[] = [];
+            let spatialNodes: NewNode[] = [];
+            for (let spatialItem of this._spatialNodes[key][1]) {
+                keys.push(spatialItem.node.key);
+                spatialNodes.push(spatialItem.node);
+            }
+
+            this._apiV3.imageByKeyFill(keys)
+                .subscribe(
+                    (imageByKey: { [key: string]: IFillNode }): void => {
+                        for (let spatialNode of spatialNodes) {
+                            if (spatialNode.fill == null) {
+                                continue;
+                            }
+
+                            spatialNode.makeFull(imageByKey[spatialNode.key]);
+                        }
+
+                        let edges: IEdge[] = [];
+                        node.cacheSpatialEdges(edges);
+                        this._spatialNodeCache[key] = true;
+                        delete this._spatialNodes[key];
+                        this._changed$.next(this);
+                    });
+        }
     }
 
     private _preStore(h: string, node: NewNode): void {

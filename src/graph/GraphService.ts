@@ -114,6 +114,14 @@ export class NewGraphService {
                         return true;
                     }
 
+                    if (!graph.spatialNodesFull(key)) {
+                        if (!graph.fillingSpatialNodes(key)) {
+                            graph.fillSpatialNodes(key);
+                        }
+
+                        return true;
+                    }
+
                     return false;
                 })
             .first()

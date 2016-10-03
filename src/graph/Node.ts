@@ -27,20 +27,25 @@ export class NewNodeCache {
     private _loadStatus: ILoadStatus;
     private _mesh: IMesh;
     private _sequenceEdgesCached: boolean;
+    private _spatialEdgesCached: boolean;
 
     private _imageChanged$: Subject<HTMLImageElement>;
     private _image$: Observable<HTMLImageElement>;
     private _sequenceEdgesChanged$: Subject<IEdge[]>;
     private _sequenceEdges$: Observable<IEdge[]>;
+    private _spatialEdgesChanged$: Subject<IEdge[]>;
+    private _spatialEdges$: Observable<IEdge[]>;
 
     private _imageSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
+    private _spatialEdgesSubscription: Subscription;
 
     constructor() {
         this._image = null;
         this._loadStatus = { loaded: 0, total: 0 };
         this._mesh = null;
         this._sequenceEdgesCached = false;
+        this._spatialEdgesCached = false;
 
         this._imageChanged$ = new Subject<HTMLImageElement>();
         this._image$ = this._imageChanged$
@@ -55,6 +60,13 @@ export class NewNodeCache {
             .refCount();
 
         this._sequenceEdgesSubscription = this._sequenceEdges$.subscribe();
+
+        this._spatialEdgesChanged$ = new Subject<IEdge[]>();
+        this._spatialEdges$ = this._spatialEdgesChanged$
+            .publishReplay(1)
+            .refCount();
+
+        this._spatialEdgesSubscription = this._spatialEdges$.subscribe();
     }
 
     public get image(): HTMLImageElement {
@@ -79,6 +91,14 @@ export class NewNodeCache {
 
     public get sequenceEdges$(): Observable<IEdge[]> {
         return this._sequenceEdges$;
+    }
+
+    public get spatialEdgesCached(): boolean {
+        return this._spatialEdgesCached;
+    }
+
+    public get spatialEdges$(): Observable<IEdge[]> {
+        return this._spatialEdges$;
     }
 
     public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NewNodeCache> {
@@ -165,28 +185,37 @@ export class NewNodeCache {
         this._sequenceEdgesChanged$.next(edges);
     }
 
+    public cacheSpatialEdges(edges: IEdge[]): void {
+        this._spatialEdgesCached = true;
+        this._spatialEdgesChanged$.next(edges);
+    }
+
     public dispose(): void {
         this._image = null;
         this._mesh = null;
         this._loadStatus = { loaded: 0, total: 0 };
         this._sequenceEdgesCached = false;
+        this._spatialEdgesCached = false;
 
         this._imageChanged$.next(null);
         this._sequenceEdgesChanged$.next([]);
 
         this._imageSubscription.unsubscribe();
         this._sequenceEdgesSubscription.unsubscribe();
+        this._spatialEdgesSubscription.unsubscribe();
     }
 }
 
 export class NewNode {
     private _cache: NewNodeCache;
     private _core: ICoreNode;
+    private _defaultAlt: number;
     private _fill: IFillNode;
 
     constructor(core: ICoreNode) {
         this._cache = null;
         this._core = core;
+        this._defaultAlt = 2;
         this._fill = null;
     }
 
@@ -267,8 +296,12 @@ export class NewNode {
         return this._cache.sequenceEdgesCached;
     }
 
-    public cacheSequenceEdges(edges: IEdge[]): void {
-        this._cache.cacheSequenceEdges(edges);
+    public get spatialEdges$(): Observable<IEdge[]> {
+        return this._cache.spatialEdges$;
+    }
+
+    public get spatialEdgesCached(): boolean {
+        return this._cache.spatialEdgesCached;
     }
 
     /**
@@ -285,11 +318,23 @@ export class NewNode {
                 });
     }
 
+    public cacheSequenceEdges(edges: IEdge[]): void {
+        this._cache.cacheSequenceEdges(edges);
+    }
+
+    public cacheSpatialEdges(edges: IEdge[]): void {
+        this._cache.cacheSpatialEdges(edges);
+    }
+
     public initializeCache(cache: NewNodeCache): void {
         this._cache = cache;
     }
 
     public makeFull(fill: IFillNode): void {
+        if (fill.calt == null) {
+            fill.calt = this._defaultAlt;
+        }
+
         this._fill = fill;
     }
 

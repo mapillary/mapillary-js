@@ -98,6 +98,31 @@ export class GraphCalculator {
 
         return hs;
     }
+
+    public boundingBoxCorners(latLon: ILatLon, threshold: number): [ILatLon, ILatLon] {
+        let bl: number[] =
+            this._geoCoords.enuToGeodetic(
+                -threshold,
+                -threshold,
+                0,
+                latLon.lat,
+                latLon.lon,
+                0);
+
+        let tr: number[] =
+            this._geoCoords.enuToGeodetic(
+                threshold,
+                threshold,
+                0,
+                latLon.lat,
+                latLon.lon,
+                0);
+
+        return [
+            { lat: bl[0], lon: bl[1] },
+            { lat: tr[0], lon: tr[1] },
+        ];
+    }
 }
 
 export default GraphCalculator;
