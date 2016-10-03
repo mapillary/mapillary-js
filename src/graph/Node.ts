@@ -5,7 +5,7 @@ import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/combineLatest";
 
-import {IAPINavImIm, ICoreNode, IFillNode} from "../API";
+import {IAPINavImIm, ICoreNode, IFillNode, IGPano} from "../API";
 import {IEdge} from "../Edge";
 import {ILatLon} from "../Geo";
 import {
@@ -226,12 +226,46 @@ export class NewNode {
             this._cache.mesh != null;
     }
 
+    public get alt(): number {
+        return this._fill.calt;
+    }
+
     public get ca(): number {
         return this._core.cca != null ? this._core.cca : this._core.ca;
     }
 
-    public get fill(): IFillNode {
-        return this._fill;
+    public get capturedAt(): number {
+        return this._fill.captured_at;
+    }
+
+    public get focal(): number {
+        return this._fill.cfocal;
+    }
+
+    public get full(): boolean {
+        return this._fill != null;
+    }
+
+    /**
+     * Get fullPano.
+     *
+     * @returns {boolean} Value indicating whether the node is a complete
+     * 360 panorama.
+     */
+    public get fullPano(): boolean {
+        return this._fill.gpano != null &&
+            this._fill.gpano.CroppedAreaLeftPixels === 0 &&
+            this._fill.gpano.CroppedAreaTopPixels === 0 &&
+            this._fill.gpano.CroppedAreaImageWidthPixels === this._fill.gpano.FullPanoWidthPixels &&
+            this._fill.gpano.CroppedAreaImageHeightPixels === this._fill.gpano.FullPanoHeightPixels;
+    }
+
+    public get gpano(): IGPano {
+        return this._fill.gpano;
+    }
+
+    public get height(): number {
+        return this._fill.height;
     }
 
     public get image(): HTMLImageElement {
@@ -269,8 +303,20 @@ export class NewNode {
             this._fill.merge_version > 0;
     }
 
+    public get mergeCc(): number {
+        return this._fill.merge_cc;
+    }
+
+    public get mergeVersion(): number {
+        return this._fill.merge_version;
+    }
+
     public get mesh(): IMesh {
         return this._cache.mesh;
+    }
+
+    public get orientation(): number {
+        return this._fill.orientation;
     }
 
     /**
@@ -284,7 +330,15 @@ export class NewNode {
             this._fill.gpano.FullPanoWidthPixels != null;
     }
 
-    public get sKey(): string {
+    public get rotation(): number[] {
+        return this._fill.c_rotation;
+    }
+
+    public get scale(): number {
+        return this._fill.atomic_scale;
+    }
+
+    public get sequenceKey(): string {
         return this._core.sequence.key;
     }
 
@@ -302,6 +356,18 @@ export class NewNode {
 
     public get spatialEdgesCached(): boolean {
         return this._cache.spatialEdgesCached;
+    }
+
+    public get userKey(): string {
+        return this._fill.user.key;
+    }
+
+    public get username(): string {
+        return this._fill.user.username;
+    }
+
+    public get width(): number {
+        return this.width;
     }
 
     /**
@@ -326,7 +392,16 @@ export class NewNode {
         this._cache.cacheSpatialEdges(edges);
     }
 
+    public dispose(): void {
+        this._cache.dispose();
+        this._cache = null;
+    }
+
     public initializeCache(cache: NewNodeCache): void {
+        if (this._cache != null) {
+            throw new Error(`Node cache already initialized (${this.key}).`);
+        }
+
         this._cache = cache;
     }
 
@@ -336,11 +411,6 @@ export class NewNode {
         }
 
         this._fill = fill;
-    }
-
-    public dispose(): void {
-        this._cache.dispose();
-        this._cache = null;
     }
 }
 

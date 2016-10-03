@@ -130,15 +130,15 @@ export class NewGraph {
         }
 
         let node: NewNode = this._graph.node(key);
-        if (node.fill != null) {
-            throw new Error(`Cannot fill node that is already filled (${key}).`);
+        if (node.full) {
+            throw new Error(`Cannot fill node that is already full (${key}).`);
         }
 
         this._filling[key] = true;
         this._apiV3.imageByKeyFill([key])
             .subscribe(
                 (imageByKeyFill: { [key: string]: IFillNode }): void => {
-                    if (node.fill == null) {
+                    if (!node.full) {
                         node.makeFull(imageByKeyFill[key]);
                     }
 
@@ -161,17 +161,17 @@ export class NewGraph {
         }
 
         let node: NewNode = this._graph.node(key);
-        if (node.sKey in this._sequences) {
+        if (node.sequenceKey in this._sequences) {
             node.cacheSequenceEdges([]);
 
             delete this._cachingSequenceEdges[key];
             this._changed$.next(this);
         } else {
-            this._apiV3.sequenceByKey([node.sKey])
+            this._apiV3.sequenceByKey([node.sequenceKey])
                 .subscribe(
                     (sequenceByKey: { [key: string]: ISequence }): void => {
-                        if (!(node.sKey in this._sequences)) {
-                            this._sequences[node.sKey] = new Sequence(sequenceByKey[node.sKey]);
+                        if (!(node.sequenceKey in this._sequences)) {
+                            this._sequences[node.sequenceKey] = new Sequence(sequenceByKey[node.sequenceKey]);
                         }
 
                         node.cacheSequenceEdges([]);
@@ -255,6 +255,7 @@ export class NewGraph {
 
                             if (preStored != null && coreNode.key in preStored) {
                                 let node: NewNode = preStored[coreNode.key];
+                                delete preStored[coreNode.key];
 
                                 hCache.push(node);
                                 this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
@@ -322,7 +323,7 @@ export class NewGraph {
 
         let fillingSpatialNodes: INewSpatialItem[] = [];
         for (let spatialItem of spatialItems) {
-            if (spatialItem.node.fill == null) {
+            if (!spatialItem.node.full) {
                 fillingSpatialNodes.push(spatialItem);
             }
         }
@@ -371,7 +372,7 @@ export class NewGraph {
                 .subscribe(
                     (imageByKey: { [key: string]: IFillNode }): void => {
                         for (let spatialNode of spatialNodes) {
-                            if (spatialNode.fill == null) {
+                            if (!spatialNode.full) {
                                 continue;
                             }
 

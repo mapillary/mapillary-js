@@ -49,7 +49,7 @@ export class NewGraphService {
                         return true;
                     }
 
-                    if (graph.getNode(key).fill == null) {
+                    if (!graph.getNode(key).full) {
                         if (!graph.filling(key)) {
                             graph.fill(key);
                         }
