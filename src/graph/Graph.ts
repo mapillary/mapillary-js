@@ -132,12 +132,11 @@ export class NewGraph {
         this._apiV3.imageByKeyFill([key])
             .subscribe(
                 (imageByKeyFill: { [key: string]: IFillNode }): void => {
-                    delete this._filling[key];
-
                     if (node.fill == null) {
                         node.makeFull(imageByKeyFill[key]);
                     }
 
+                    delete this._filling[key];
                     this._changed$.next(this);
                 });
     }
@@ -220,14 +219,14 @@ export class NewGraph {
         if (uncachedHs.length > 0) {
             Observable
                 .from(uncachedHs)
-                .mergeMap<[string, { [key: string]: ICoreNode[] }]>(
-                    (h: string): Observable<[string, { [key: string]: ICoreNode[] }]> => {
+                .mergeMap<[string, { [key: string]: { [index: string]: ICoreNode } }]>(
+                    (h: string): Observable<[string, { [key: string]: { [index: string]: ICoreNode } }]> => {
                         return Observable.zip(Observable.of<string>(h), this._apiV3.imagesByH([h]));
                     })
                 .subscribe(
-                    (hi: [string, { [key: string]: ICoreNode[] }]): void => {
+                    (hi: [string, { [key: string]: { [index: string]: ICoreNode } }]): void => {
                         let h: string = hi[0];
-                        let coreNodes: ICoreNode[] = hi[1][h];
+                        let coreNodes: { [index: string]: ICoreNode } = hi[1][h];
 
                         if (h in this._tileCache) {
                             return;
@@ -237,7 +236,17 @@ export class NewGraph {
                         let hCache: NewNode[] = this._tileCache[h];
                         let preStored: { [key: string]: NewNode } = this._removeFromPreStore(h);
 
-                        for (let coreNode of coreNodes) {
+                        for (let index in coreNodes) {
+                            if (!coreNodes.hasOwnProperty(index)) {
+                                continue;
+                            }
+
+                            let coreNode: ICoreNode = coreNodes[index];
+
+                            if (coreNode == null) {
+                                break;
+                            }
+
                             if (preStored != null && coreNode.key in preStored) {
                                 let node: NewNode = preStored[coreNode.key];
 
@@ -254,11 +263,14 @@ export class NewGraph {
                             this._graph.setNode(node.key, node);
                         }
 
-                        delete this._cachingTiles;
+                        this._changed$.next(this);
+                    },
+                    (error: Error): void => { return; },
+                    (): void => {
+                        delete this._cachingTiles[key];
                         this._changed$.next(this);
                     });
         }
-
     }
 
     public nodeCacheInitialized(key: string): boolean {

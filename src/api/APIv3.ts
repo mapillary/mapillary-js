@@ -26,7 +26,7 @@ interface ISequenceByKey<T> {
 }
 
 interface IImagesByH<T> {
-    imagesByH: { [key: string]: T[] };
+    imagesByH: { [key: string]: { [index: string]: T } };
 }
 
 export class APIv3 {
@@ -89,14 +89,15 @@ export class APIv3 {
             });
     };
 
-    public imagesByH(hs: string[]): Observable<{ [key: string]: ICoreNode[] }> {
+    public imagesByH(hs: string[]): Observable<{ [key: string]: { [index: string]: ICoreNode } }> {
         return this._wrapPromise<IFalcorResult<IImagesByH<ICoreNode>>>(this._modelMagic.get([
                 "imagesByH",
                 hs,
                 { from: 0, to: 1000 },
-                this._keyProperties.concat(this._coreProperties)]))
-            .map<{ [key: string]: ICoreNode[] }>(
-                (value: IFalcorResult<IImagesByH<ICoreNode>>): { [key: string]: ICoreNode[] } => {
+                this._keyProperties.concat(this._coreProperties),
+                this._keyProperties]))
+            .map<{ [key: string]: { [index: string]: ICoreNode } }>(
+                (value: IFalcorResult<IImagesByH<ICoreNode>>): { [key: string]: { [index: string]: ICoreNode } } => {
                     return value.json.imagesByH;
                 });
     }
