@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {ConnectableObservable} from "rxjs/observable/ConnectableObservable";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
@@ -69,6 +67,26 @@ export class NewGraphService {
             .publishReplay(1)
             .refCount();
 
+        let node$: Observable<NewNode> = firstGraph$
+            .map<NewNode>(
+                (graph: NewGraph): NewNode => {
+                    return graph.getNode(key);
+                })
+            .mergeMap<NewNode>(
+                (node: NewNode): Observable<NewNode> => {
+                    return node.assetsCached ?
+                        Observable.of(node) :
+                        node.cacheAssets$();
+                })
+            .first(
+                (node: NewNode): boolean => {
+                    return node.assetsCached;
+                })
+            .publishReplay(1)
+            .refCount();
+
+        node$.subscribe();
+
         let graph$: Observable<NewGraph> = firstGraph$
             .concat(
                 firstGraph$
@@ -127,21 +145,7 @@ export class NewGraphService {
             .first()
             .subscribe();
 
-        return firstGraph$
-            .map<NewNode>(
-                (graph: NewGraph): NewNode => {
-                    return graph.getNode(key);
-                })
-            .mergeMap<NewNode>(
-                (node: NewNode): Observable<NewNode> => {
-                    return node.assetsCached ?
-                        Observable.of(node) :
-                        node.cacheAssets$();
-                })
-            .first(
-                (node: NewNode): boolean => {
-                    return node.assetsCached;
-                });
+        return node$;
     }
 }
 
