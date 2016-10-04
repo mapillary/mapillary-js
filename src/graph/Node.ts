@@ -9,6 +9,7 @@ import {IAPINavImIm, ICoreNode, IFillNode, IGPano} from "../API";
 import {IEdge} from "../Edge";
 import {ILatLon} from "../Geo";
 import {
+    IEdgeStatus,
     IMesh,
     ILoadStatus,
     ILoadStatusObject,
@@ -159,7 +160,7 @@ export class NewNode {
         return this._core.sequence.key;
     }
 
-    public get sequenceEdges$(): Observable<IEdge[]> {
+    public get sequenceEdges$(): Observable<IEdgeStatus> {
         return this._cache.sequenceEdges$;
     }
 
@@ -167,7 +168,7 @@ export class NewNode {
         return this._cache.sequenceEdgesCached;
     }
 
-    public get spatialEdges$(): Observable<IEdge[]> {
+    public get spatialEdges$(): Observable<IEdgeStatus> {
         return this._cache.spatialEdges$;
     }
 
@@ -184,13 +185,13 @@ export class NewNode {
     }
 
     public get width(): number {
-        return this.width;
+        return this._fill.width;
     }
 
     /**
      * Cache the image and mesh assets.
      *
-     * @returns {Observable<Node>} Observable emitting this node whenever the
+     * @returns {Observable<NewNode>} Observable emitting this node whenever the
      * load status has changed and when the mesh or image has been fully loaded.
      */
     public cacheAssets$(): Observable<NewNode> {

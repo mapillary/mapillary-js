@@ -7,6 +7,7 @@ import "rxjs/add/observable/combineLatest";
 
 import {IEdge} from "../Edge";
 import {
+    IEdgeStatus,
     IMesh,
     ILoadStatus,
     ILoadStatusObject,
@@ -28,10 +29,10 @@ export class NewNodeCache {
 
     private _imageChanged$: Subject<HTMLImageElement>;
     private _image$: Observable<HTMLImageElement>;
-    private _sequenceEdgesChanged$: Subject<IEdge[]>;
-    private _sequenceEdges$: Observable<IEdge[]>;
-    private _spatialEdgesChanged$: Subject<IEdge[]>;
-    private _spatialEdges$: Observable<IEdge[]>;
+    private _sequenceEdgesChanged$: Subject<IEdgeStatus>;
+    private _sequenceEdges$: Observable<IEdgeStatus>;
+    private _spatialEdgesChanged$: Subject<IEdgeStatus>;
+    private _spatialEdges$: Observable<IEdgeStatus>;
 
     private _imageSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
@@ -46,20 +47,23 @@ export class NewNodeCache {
 
         this._imageChanged$ = new Subject<HTMLImageElement>();
         this._image$ = this._imageChanged$
+            .startWith(null)
             .publishReplay(1)
             .refCount();
 
         this._imageSubscription = this._image$.subscribe();
 
-        this._sequenceEdgesChanged$ = new Subject<IEdge[]>();
+        this._sequenceEdgesChanged$ = new Subject<IEdgeStatus>();
         this._sequenceEdges$ = this._sequenceEdgesChanged$
+            .startWith({ cached: this._sequenceEdgesCached, edges: [] })
             .publishReplay(1)
             .refCount();
 
         this._sequenceEdgesSubscription = this._sequenceEdges$.subscribe();
 
-        this._spatialEdgesChanged$ = new Subject<IEdge[]>();
+        this._spatialEdgesChanged$ = new Subject<IEdgeStatus>();
         this._spatialEdges$ = this._spatialEdgesChanged$
+            .startWith({ cached: this._spatialEdgesCached, edges: [] })
             .publishReplay(1)
             .refCount();
 
@@ -86,7 +90,7 @@ export class NewNodeCache {
         return this._sequenceEdgesCached;
     }
 
-    public get sequenceEdges$(): Observable<IEdge[]> {
+    public get sequenceEdges$(): Observable<IEdgeStatus> {
         return this._sequenceEdges$;
     }
 
@@ -94,15 +98,15 @@ export class NewNodeCache {
         return this._spatialEdgesCached;
     }
 
-    public get spatialEdges$(): Observable<IEdge[]> {
+    public get spatialEdges$(): Observable<IEdgeStatus> {
         return this._spatialEdges$;
     }
 
     public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NewNodeCache> {
         return Observable
             .combineLatest(
-                this.cacheImage(key, pano),
-                this.cacheMesh(key, merged),
+                this._cacheImage(key, pano),
+                this._cacheMesh(key, merged),
                 (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NewNodeCache => {
                     this._loadStatus.loaded = 0;
                     this._loadStatus.total = 0;
@@ -123,6 +127,47 @@ export class NewNodeCache {
                 });
     }
 
+    public cacheSequenceEdges(edges: IEdge[]): void {
+        this._sequenceEdgesCached = true;
+        this._sequenceEdgesChanged$.next({ cached: this._sequenceEdgesCached, edges: edges });
+    }
+
+    public cacheSpatialEdges(edges: IEdge[]): void {
+        this._spatialEdgesCached = true;
+        this._spatialEdgesChanged$.next({ cached: this._spatialEdgesCached, edges: edges });
+    }
+
+    public dispose(): void {
+        this._imageSubscription.unsubscribe();
+        this._sequenceEdgesSubscription.unsubscribe();
+        this._spatialEdgesSubscription.unsubscribe();
+
+        this._image = null;
+        this._mesh = null;
+        this._loadStatus = { loaded: 0, total: 0 };
+        this._sequenceEdgesCached = false;
+        this._spatialEdgesCached = false;
+
+        this._imageChanged$.next(null);
+        this._sequenceEdgesChanged$.next({ cached: this._sequenceEdgesCached, edges: [] });
+        this._spatialEdgesChanged$.next({ cached: this._spatialEdgesCached, edges: [] });
+    }
+
+    /**
+     * Cache the image.
+     *
+     * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable emitting
+     * a load status object every time the load status changes and completes
+     * when the image is fully loaded.
+     */
+    private _cacheImage(key: string, pano: boolean): Observable<ILoadStatusObject<HTMLImageElement>> {
+        let imageSize: ImageSize = pano ?
+            Settings.basePanoramaSize :
+            Settings.baseImageSize;
+
+        return ImageLoader.loadThumbnail(key, imageSize);
+    }
+
     /**
      * Cache the mesh.
      *
@@ -130,7 +175,7 @@ export class NewNodeCache {
      * a load status object every time the load status changes and completes
      * when the mesh is fully loaded.
      */
-    public cacheMesh(key: string, merged: boolean): Observable<ILoadStatusObject<IMesh>> {
+    private _cacheMesh(key: string, merged: boolean): Observable<ILoadStatusObject<IMesh>> {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<IMesh>>): void => {
                 if (!merged) {
@@ -160,46 +205,6 @@ export class NewNodeCache {
 
                 xmlHTTP.send(null);
             });
-    }
-
-    /**
-     * Cache the image.
-     *
-     * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable emitting
-     * a load status object every time the load status changes and completes
-     * when the image is fully loaded.
-     */
-    public cacheImage(key: string, pano: boolean): Observable<ILoadStatusObject<HTMLImageElement>> {
-        let imageSize: ImageSize = pano ?
-            Settings.basePanoramaSize :
-            Settings.baseImageSize;
-
-        return ImageLoader.loadThumbnail(key, imageSize);
-    }
-
-    public cacheSequenceEdges(edges: IEdge[]): void {
-        this._sequenceEdgesCached = true;
-        this._sequenceEdgesChanged$.next(edges);
-    }
-
-    public cacheSpatialEdges(edges: IEdge[]): void {
-        this._spatialEdgesCached = true;
-        this._spatialEdgesChanged$.next(edges);
-    }
-
-    public dispose(): void {
-        this._image = null;
-        this._mesh = null;
-        this._loadStatus = { loaded: 0, total: 0 };
-        this._sequenceEdgesCached = false;
-        this._spatialEdgesCached = false;
-
-        this._imageChanged$.next(null);
-        this._sequenceEdgesChanged$.next([]);
-
-        this._imageSubscription.unsubscribe();
-        this._sequenceEdgesSubscription.unsubscribe();
-        this._spatialEdgesSubscription.unsubscribe();
     }
 }
 
