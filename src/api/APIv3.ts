@@ -43,18 +43,8 @@ export class APIv3 {
     ];
 
     private _fillProperties: string[] = [
-        "atomic_scale",
-        "calt",
         "captured_at",
-        "cfocal",
-        "gpano",
-        "height",
-        "merge_cc",
-        "merge_version",
-        "c_rotation",
-        "orientation",
         "user",
-        "width",
     ];
 
     private _keyProperties: string[] = [
@@ -63,6 +53,19 @@ export class APIv3 {
 
     private _sequenceProperties: string[] = [
         "keys",
+    ];
+
+    private _spatialProperties: string[] = [
+        "atomic_scale",
+        "calt",
+        "cfocal",
+        "gpano",
+        "height",
+        "merge_cc",
+        "merge_version",
+        "c_rotation",
+        "orientation",
+        "width",
     ];
 
     private _userProperties: string[] = [
@@ -106,7 +109,7 @@ export class APIv3 {
         return this._wrapPromise<IFalcorResult<IImageByKey<IFillNode>>>(this._modelMagic.get([
                 "imageByKey",
                 keys,
-                this._keyProperties.concat(this._fillProperties),
+                this._keyProperties.concat(this._fillProperties).concat(this._spatialProperties),
                 this._keyProperties.concat(this._userProperties)]))
             .map<{ [key: string]: IFillNode }>(
                 (value: IFalcorResult<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
@@ -118,7 +121,7 @@ export class APIv3 {
         return this._wrapPromise<IFalcorResult<IImageByKey<IFullNode>>>(this._modelMagic.get([
                 "imageByKey",
                 keys,
-                this._keyProperties.concat(this._coreProperties).concat(this._fillProperties),
+                this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
                 this._keyProperties.concat(this._userProperties)]))
             .map<{ [key: string]: IFullNode }>(
                 (value: IFalcorResult<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
