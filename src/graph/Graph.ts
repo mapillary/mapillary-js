@@ -35,10 +35,10 @@ export class NewGraph {
 
     private _fetching: { [key: string]: boolean };
     private _filling: { [key: string]: boolean };
-    private _cachingSequenceEdges: { [key: string]: boolean };
+    private _cachingSequence: { [key: string]: boolean };
     private _cachingTiles: { [key: string]: boolean };
     private _spatialNodes: { [key: string]: [INewSpatialItem[], INewSpatialItem[]] };
-    private _fillingSpatialNodes: { [key: string]: boolean };
+    private _cachingSpatialNodes: { [key: string]: boolean };
 
     private _changed$: Subject<NewGraph>;
 
@@ -62,10 +62,10 @@ export class NewGraph {
 
         this._fetching = {};
         this._filling = {};
-        this._cachingSequenceEdges = {};
+        this._cachingSequence = {};
         this._cachingTiles = {};
         this._spatialNodes = {};
-        this._fillingSpatialNodes = {};
+        this._cachingSpatialNodes = {};
 
         this._changed$ = new Subject<NewGraph>();
     }
@@ -147,12 +147,18 @@ export class NewGraph {
                 });
     }
 
-    public cachingSequenceEdges(key: string): boolean {
-        return key in this._cachingSequenceEdges;
+    public sequenceCached(key: string): boolean {
+        let node: NewNode = this._graph.node(key);
+
+        return node.sequenceKey in this._sequences;
     }
 
-    public cacheSequenceEdges(key: string): void {
-        if (key in this._cachingSequenceEdges) {
+    public cachingSequence(key: string): boolean {
+        return key in this._cachingSequence;
+    }
+
+    public cacheSequence(key: string): void {
+        if (key in this._cachingSequence) {
             throw new Error(`Already caching sequence edges (${key}).`);
         }
 
@@ -165,7 +171,7 @@ export class NewGraph {
             node.cacheSequenceEdges([]);
             this._changed$.next(this);
         } else {
-            this._cachingSequenceEdges[key] = true;
+            this._cachingSequence[key] = true;
             this._apiV3.sequenceByKey([node.sequenceKey])
                 .subscribe(
                     (sequenceByKey: { [key: string]: ISequence }): void => {
@@ -175,7 +181,7 @@ export class NewGraph {
 
                         node.cacheSequenceEdges([]);
 
-                        delete this._cachingSequenceEdges[key];
+                        delete this._cachingSequence[key];
                         this._changed$.next(this);
                     });
         }
@@ -293,11 +299,11 @@ export class NewGraph {
         this._nodeCache[key] = node;
     }
 
-    public fillingSpatialNodes(key: string): boolean {
-        return key in this._fillingSpatialNodes;
+    public cachingSpatialNodes(key: string): boolean {
+        return key in this._cachingSpatialNodes;
     }
 
-    public spatialNodesFull(key: string): boolean {
+    public spatialNodesCached(key: string): boolean {
         if (!this._graph.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
@@ -338,12 +344,12 @@ export class NewGraph {
         return false;
     }
 
-    public fillSpatialNodes(key: string): void {
+    public cacheSpatialNodes(key: string): void {
         if (!this._graph.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
-        if (key in this._fillingSpatialNodes) {
+        if (key in this._cachingSpatialNodes) {
             throw new Error(`Already filling spatial nodes (${key}).`);
         }
 
@@ -371,7 +377,7 @@ export class NewGraph {
                 spatialNodes.push(spatialItem.node);
             }
 
-            this._fillingSpatialNodes[key] = true;
+            this._cachingSpatialNodes[key] = true;
             this._apiV3.imageByKeyFill(keys)
                 .subscribe(
                     (imageByKey: { [key: string]: IFillNode }): void => {
@@ -387,7 +393,7 @@ export class NewGraph {
                         node.cacheSpatialEdges(edges);
                         this._spatialNodeCache[key] = true;
                         delete this._spatialNodes[key];
-                        delete this._fillingSpatialNodes[key];
+                        delete this._cachingSpatialNodes[key];
                         this._changed$.next(this);
                     });
         }

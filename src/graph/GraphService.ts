@@ -31,10 +31,6 @@ export class NewGraphService {
         this._graph$.subscribe();
     }
 
-    public graph$(): Observable<NewGraph> {
-        return this._graph$;
-    }
-
     public cacheNode$(key: string): Observable<NewNode> {
         let firstGraph$: Observable<NewGraph> = this._graph$
             .skipWhile(
@@ -104,9 +100,9 @@ export class NewGraphService {
                         return false;
                     }
 
-                    if (!graph.getNode(key).sequenceEdgesCached) {
-                        if (!graph.cachingSequenceEdges(key)) {
-                            graph.cacheSequenceEdges(key);
+                    if (!graph.sequenceCached(key)) {
+                        if (!graph.cachingSequence(key)) {
+                            graph.cacheSequence(key);
                         }
 
                         return true;
@@ -132,9 +128,9 @@ export class NewGraphService {
                         return true;
                     }
 
-                    if (!graph.spatialNodesFull(key)) {
-                        if (!graph.fillingSpatialNodes(key)) {
-                            graph.fillSpatialNodes(key);
+                    if (!graph.spatialNodesCached(key)) {
+                        if (!graph.cachingSpatialNodes(key)) {
+                            graph.cacheSpatialNodes(key);
                         }
 
                         return true;
