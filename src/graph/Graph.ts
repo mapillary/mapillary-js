@@ -24,6 +24,7 @@ export class NewGraph {
     private _apiV3: APIv3;
     private _sequences: { [skey: string]: Sequence };
     private _nodeCache: { [key: string]: NewNode };
+    private _spatialNodeCache: { [key: string]: NewNode };
     private _preTileStore: { [key: string]:  { [key: string]: NewNode }; };
     private _tileCache: { [key: string]: NewNode[] };
     private _tilePrecision: number;
@@ -50,6 +51,7 @@ export class NewGraph {
         this._apiV3 = apiV3;
         this._sequences = {};
         this._nodeCache = {};
+        this._spatialNodeCache = {};
         this._preTileStore = {};
         this._tileCache = {};
         this._tilePrecision = 7;
@@ -312,6 +314,10 @@ export class NewGraph {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
+        if (key in this._spatialNodeCache) {
+            return true;
+        }
+
         if (key in this._spatialNodes) {
             return this._spatialNodes[key][1].length === 0;
         }
@@ -348,6 +354,10 @@ export class NewGraph {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
+        if (key in this._spatialNodeCache) {
+            throw new Error(`Node alread spatially cached (${key}).`);
+        }
+
         if (key in this._cachingSpatialNodes) {
             throw new Error(`Already filling spatial nodes (${key}).`);
         }
@@ -382,9 +392,14 @@ export class NewGraph {
     }
 
     public cacheSpatialEdges(key: string): void {
+        if (key in this._spatialNodeCache) {
+             throw new Error(`Node already spatially cached (${key}).`);
+        }
+
         let node: NewNode = this._graph.node(key);
         node.cacheSpatialEdges([]);
 
+        this._spatialNodeCache[key] = node;
         delete this._spatialNodes[key];
     }
 
