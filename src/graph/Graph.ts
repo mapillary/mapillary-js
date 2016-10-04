@@ -163,10 +163,9 @@ export class NewGraph {
         let node: NewNode = this._graph.node(key);
         if (node.sequenceKey in this._sequences) {
             node.cacheSequenceEdges([]);
-
-            delete this._cachingSequenceEdges[key];
             this._changed$.next(this);
         } else {
+            this._cachingSequenceEdges[key] = true;
             this._apiV3.sequenceByKey([node.sequenceKey])
                 .subscribe(
                     (sequenceByKey: { [key: string]: ISequence }): void => {
@@ -344,6 +343,10 @@ export class NewGraph {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
+        if (key in this._fillingSpatialNodes) {
+            throw new Error(`Already filling spatial nodes (${key}).`);
+        }
+
         if (key in this._spatialNodeCache) {
             throw new Error(`Spatial nodes already cached (${key}).`);
         }
@@ -368,6 +371,7 @@ export class NewGraph {
                 spatialNodes.push(spatialItem.node);
             }
 
+            this._fillingSpatialNodes[key] = true;
             this._apiV3.imageByKeyFill(keys)
                 .subscribe(
                     (imageByKey: { [key: string]: IFillNode }): void => {
@@ -383,6 +387,7 @@ export class NewGraph {
                         node.cacheSpatialEdges(edges);
                         this._spatialNodeCache[key] = true;
                         delete this._spatialNodes[key];
+                        delete this._fillingSpatialNodes[key];
                         this._changed$.next(this);
                     });
         }
