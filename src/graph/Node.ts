@@ -38,7 +38,8 @@ export class NewNode {
     }
 
     public get assetsCached(): boolean {
-        return this._fill != null &&
+        return this._core != null &&
+            this._fill != null &&
             this._cache != null &&
             this._cache.image != null &&
             this._cache.mesh != null;
@@ -213,6 +214,8 @@ export class NewNode {
     public dispose(): void {
         this._cache.dispose();
         this._cache = null;
+        this._core = null;
+        this._fill = null;
     }
 
     public initializeCache(cache: NewNodeCache): void {
