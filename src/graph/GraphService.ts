@@ -108,6 +108,10 @@ export class NewGraphService {
                         return true;
                     }
 
+                    if (!graph.getNode(key).sequenceEdgesCached) {
+                        graph.cacheSequenceEdges(key);
+                    }
+
                     return false;
                 })
             .first()

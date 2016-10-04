@@ -168,7 +168,6 @@ export class NewGraph {
 
         let node: NewNode = this._graph.node(key);
         if (node.sequenceKey in this._sequences) {
-            node.cacheSequenceEdges([]);
             this._changed$.next(this);
         } else {
             this._cachingSequence[key] = true;
@@ -179,12 +178,15 @@ export class NewGraph {
                             this._sequences[node.sequenceKey] = new Sequence(sequenceByKey[node.sequenceKey]);
                         }
 
-                        node.cacheSequenceEdges([]);
-
                         delete this._cachingSequence[key];
                         this._changed$.next(this);
                     });
         }
+    }
+
+    public cacheSequenceEdges(key: string): void {
+        let node: NewNode = this._graph.node(key);
+        node.cacheSequenceEdges([]);
     }
 
     public tilesCached(key: string): boolean {
