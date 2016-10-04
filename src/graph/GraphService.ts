@@ -140,6 +140,10 @@ export class NewGraphService {
                         return true;
                     }
 
+                    if (!graph.getNode(key).spatialEdgesCached) {
+                        graph.cacheSpatialEdges(key);
+                    }
+
                     return false;
                 })
             .first()

@@ -227,6 +227,10 @@ export class NewNode {
     }
 
     public makeFull(fill: IFillNode): void {
+        if (fill == null) {
+            throw new Error("Fill can not be null.");
+        }
+
         if (fill.calt == null) {
             fill.calt = this._defaultAlt;
         }
