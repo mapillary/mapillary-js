@@ -11,7 +11,7 @@ export class EdgeCalculatorHelper {
             fullPano: false,
             motionChange: 0,
             rotation: 0,
-            sameMergeCc: false,
+            sameMergeCC: false,
             sameSequence: false,
             sameUser: false,
             sequenceKey: "skey",

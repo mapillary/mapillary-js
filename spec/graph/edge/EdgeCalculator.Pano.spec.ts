@@ -193,8 +193,8 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     it("should have a pano edge with same sequence", () => {
-        potentialEdge1.sameMergeCc = false;
-        potentialEdge2.sameMergeCc = true;
+        potentialEdge1.sameMergeCC = false;
+        potentialEdge2.sameMergeCC = true;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1, potentialEdge2]);
 
@@ -686,8 +686,8 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     it("should prefer a step forward edge with same merge connected component", () => {
-        potentialEdge1.sameMergeCc = false;
-        potentialEdge2.sameMergeCc = true;
+        potentialEdge1.sameMergeCC = false;
+        potentialEdge2.sameMergeCC = true;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1, potentialEdge2]);
 
@@ -916,8 +916,8 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
     });
 
     it("should return the pano edge preferring same connected component", () => {
-        potentialEdge1.sameMergeCc = false;
-        potentialEdge2.sameMergeCc = true;
+        potentialEdge1.sameMergeCC = false;
+        potentialEdge2.sameMergeCC = true;
 
         let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1, potentialEdge2]);
 

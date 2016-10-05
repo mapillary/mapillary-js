@@ -27,13 +27,13 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         latLonAlt: ILatLonAlt,
         sequence: Sequence,
         r: number[],
-        mergeCc?: number,
+        mergeCC?: number,
         apiNavImIm?: IAPINavImIm) => Node = (
         key: string,
         latLonAlt: ILatLonAlt,
         sequence: Sequence,
         r: number[],
-        mergeCc: number = 2,
+        mergeCC: number = 2,
         apiNavImIm: IAPINavImIm = null): Node => {
 
         apiNavImIm = apiNavImIm == null ?
@@ -42,7 +42,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
                 clat: latLonAlt.lat,
                 clon: latLonAlt.lon,
                 key: key,
-                merge_cc: mergeCc,
+                merge_cc: mergeCC,
                 merge_version: 1,
                 rotation: r,
             } :
@@ -110,7 +110,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.directionChange).toBeCloseTo(0, precision);
         expect(potentialEdge.verticalDirectionChange).toBeCloseTo(0, precision);
         expect(potentialEdge.sameSequence).toBe(true);
-        expect(potentialEdge.sameMergeCc).toBe(true);
+        expect(potentialEdge.sameMergeCC).toBe(true);
     });
 
     it("should handle potential edge without sequence", () => {
@@ -661,15 +661,15 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let sequence: Sequence = createSequence("skey1", [key, edgeKey]);
 
-        let mergeCc: number = 45;
+        let mergeCC: number = 45;
 
         let lla: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
-        let node: Node = createNode(key, lla, sequence, createRotationVector(0), mergeCc);
+        let node: Node = createNode(key, lla, sequence, createRotationVector(0), mergeCC);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
         let edgeLla: ILatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
-        let edgeNode: Node = createNode(edgeKey, edgeLla, sequence, createRotationVector(0), mergeCc);
+        let edgeNode: Node = createNode(edgeKey, edgeLla, sequence, createRotationVector(0), mergeCC);
 
         let potentialEdges: IPotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, [edgeNode], []);
@@ -679,7 +679,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.sameMergeCc).toBe(true);
+        expect(potentialEdge.sameMergeCC).toBe(true);
     });
 
     it("should not be same merge cc", () => {
@@ -688,16 +688,16 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let sequence: Sequence = createSequence("skey1", [key, edgeKey]);
 
-        let mergeCc1: number = 45;
-        let mergeCc2: number = 22;
+        let mergeCC1: number = 45;
+        let mergeCC2: number = 22;
 
         let lla: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
-        let node: Node = createNode(key, lla, sequence, createRotationVector(0), mergeCc1);
+        let node: Node = createNode(key, lla, sequence, createRotationVector(0), mergeCC1);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
         let edgeLla: ILatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
-        let edgeNode: Node = createNode(edgeKey, edgeLla, sequence, createRotationVector(0), mergeCc2);
+        let edgeNode: Node = createNode(edgeKey, edgeLla, sequence, createRotationVector(0), mergeCC2);
 
         let potentialEdges: IPotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, [edgeNode], []);
@@ -707,7 +707,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.sameMergeCc).toBe(false);
+        expect(potentialEdge.sameMergeCC).toBe(false);
     });
 
     it("should be same merge cc when nonexistent", () => {
@@ -732,7 +732,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.sameMergeCc).toBe(true);
+        expect(potentialEdge.sameMergeCC).toBe(true);
     });
 
     it("should not be same merge cc when one is nonexistent", () => {
@@ -757,7 +757,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.apiNavImIm.key).toBe(edgeKey);
-        expect(potentialEdge.sameMergeCc).toBe(false);
+        expect(potentialEdge.sameMergeCC).toBe(false);
     });
 
     it("should be full pano when gpano existing and correct", () => {

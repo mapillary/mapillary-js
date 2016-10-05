@@ -61,9 +61,9 @@ export interface IPotentialEdge {
     /**
      * Determines if the origin and destination node are considered
      * to be in the same merge connected component.
-     * @property {boolean} sameMergeCc
+     * @property {boolean} sameMergeCC
      */
-    sameMergeCc: boolean;
+    sameMergeCC: boolean;
 
     /**
      * Determines if the origin and destination node have been captured

@@ -331,8 +331,8 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     it("should have a step forward edge with the same merge cc", () => {
-        potentialEdge1.sameMergeCc = false;
-        potentialEdge2.sameMergeCc = true;
+        potentialEdge1.sameMergeCC = false;
+        potentialEdge2.sameMergeCC = true;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 

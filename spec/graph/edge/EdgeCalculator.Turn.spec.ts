@@ -151,10 +151,10 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
     it("should have a turn left with the same merge cc", () => {
         potentialEdge1.directionChange = Math.PI / 2;
-        potentialEdge1.sameMergeCc = false;
+        potentialEdge1.sameMergeCC = false;
 
         potentialEdge2.directionChange = Math.PI / 2;
-        potentialEdge2.sameMergeCc = true;
+        potentialEdge2.sameMergeCC = true;
 
         let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge1, potentialEdge2]);
 

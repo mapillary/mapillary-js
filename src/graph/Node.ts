@@ -120,7 +120,7 @@ export class NewNode {
             this._fill.merge_version > 0;
     }
 
-    public get mergeCc(): number {
+    public get mergeCC(): number {
         return this._fill.merge_cc;
     }
 
