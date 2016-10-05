@@ -27,13 +27,11 @@ import {ImageSize} from "../Viewer";
 export class NewNode {
     private _cache: NewNodeCache;
     private _core: ICoreNode;
-    private _defaultAlt: number;
     private _fill: IFillNode;
 
     constructor(core: ICoreNode) {
         this._cache = null;
         this._core = core;
-        this._defaultAlt = 2;
         this._fill = null;
     }
 
@@ -229,10 +227,6 @@ export class NewNode {
     public makeFull(fill: IFillNode): void {
         if (fill == null) {
             throw new Error("Fill can not be null.");
-        }
-
-        if (fill.calt == null) {
-            fill.calt = this._defaultAlt;
         }
 
         this._fill = fill;

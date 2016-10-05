@@ -1,6 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import * as geohash from "latlon-geohash";
+import * as THREE from "three";
 
 import {GeoCoords, ILatLon} from "../Geo";
 
@@ -122,6 +123,40 @@ export class GraphCalculator {
             { lat: bl[0], lon: bl[1] },
             { lat: tr[0], lon: tr[1] },
         ];
+    }
+
+    public rotationFromCompass(compassAngle: number, orientation: number): number[] {
+        let x: number = 0;
+        let y: number = 0;
+        let z: number = 0;
+
+        switch (orientation) {
+            case 1:
+                x = Math.PI / 2;
+                break;
+            case 3:
+                x = -Math.PI / 2;
+                z = Math.PI;
+                break;
+            case 6:
+                y = -Math.PI / 2;
+                z = -Math.PI / 2;
+                break;
+            case 8:
+                y = Math.PI / 2;
+                z = Math.PI / 2;
+                break;
+            default:
+                break;
+        }
+
+        let rz: THREE.Matrix4 = new THREE.Matrix4().makeRotationZ(z);
+        let euler: THREE.Euler = new THREE.Euler(x, y, compassAngle * Math.PI / 180, "XYZ");
+        let re: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(euler);
+
+        let rotation: THREE.Vector4 = new THREE.Vector4().setAxisAngleFromRotationMatrix(re.multiply(rz));
+
+        return rotation.multiplyScalar(rotation.w).toArray().slice(0, 3);
     }
 }
 

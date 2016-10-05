@@ -33,6 +33,7 @@ export class NewGraph {
     private _nodeIndex: rbush.RBush<INewSpatialItem>;
     private _graph: graphlib.Graph<NewNode, IEdgeData>;
     private _graphCalculator: GraphCalculator;
+    private _defaultAlt: number;
 
     private _fetching: { [key: string]: boolean };
     private _filling: { [key: string]: boolean };
@@ -62,6 +63,7 @@ export class NewGraph {
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<INewSpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
         this._graphCalculator = graphCalculator != null ? graphCalculator : new GraphCalculator();
+        this._defaultAlt = 2;
 
         this._fetching = {};
         this._filling = {};
@@ -109,7 +111,7 @@ export class NewGraph {
                 (imageByKeyFull: { [key: string]: IFullNode }): void => {
                     let fn: IFullNode = imageByKeyFull[key];
                     let node: NewNode = new NewNode(fn);
-                    node.makeFull(fn);
+                    this._makeFull(node, fn);
 
                     let h: string = this._graphCalculator.encodeH(node.latLon, this._tilePrecision);
                     this._preStore(h, node);
@@ -144,7 +146,7 @@ export class NewGraph {
             .subscribe(
                 (imageByKeyFill: { [key: string]: IFillNode }): void => {
                     if (!node.full) {
-                        node.makeFull(imageByKeyFill[key]);
+                        this._makeFull(node, imageByKeyFill[key]);
                     }
 
                     delete this._filling[key];
@@ -401,7 +403,7 @@ export class NewGraph {
                             continue;
                         }
 
-                        spatialNode.makeFull(imageByKey[spatialNode.key]);
+                        this._makeFull(spatialNode, imageByKey[spatialNode.key]);
                     }
 
                     this._spatialNodes[key][1] = [];
@@ -422,6 +424,20 @@ export class NewGraph {
 
         this._spatialNodeCache[key] = node;
         delete this._spatialNodes[key];
+    }
+
+    private _makeFull(node: NewNode, fillNode: IFillNode): void {
+        fillNode.c_rotation = null;
+
+        if (fillNode.calt == null) {
+            fillNode.calt = this._defaultAlt;
+        }
+
+        if (fillNode.c_rotation == null) {
+            fillNode.c_rotation = this._graphCalculator.rotationFromCompass(node.ca, fillNode.orientation);
+        }
+
+        node.makeFull(fillNode);
     }
 
     private _preStore(h: string, node: NewNode): void {
