@@ -24,6 +24,7 @@ export class NewGraph {
     private _apiV3: APIv3;
     private _sequences: { [skey: string]: Sequence };
     private _nodeCache: { [key: string]: NewNode };
+    private _tileNodeCache: { [key: string]: boolean };
     private _spatialNodeCache: { [key: string]: NewNode };
     private _preTileStore: { [key: string]:  { [key: string]: NewNode }; };
     private _tileCache: { [key: string]: NewNode[] };
@@ -36,6 +37,7 @@ export class NewGraph {
     private _fetching: { [key: string]: boolean };
     private _filling: { [key: string]: boolean };
     private _cachingSequence: { [key: string]: boolean };
+    private _nodeTiles: { [key: string]: string[] };
     private _cachingTiles: { [key: string]: boolean };
     private _spatialNodes: { [key: string]: [NewNode[], string[], NewNode[]] };
     private _cachingSpatialNodes: { [key: string]: boolean };
@@ -51,6 +53,7 @@ export class NewGraph {
         this._apiV3 = apiV3;
         this._sequences = {};
         this._nodeCache = {};
+        this._tileNodeCache = {};
         this._spatialNodeCache = {};
         this._preTileStore = {};
         this._tileCache = {};
@@ -63,6 +66,7 @@ export class NewGraph {
         this._fetching = {};
         this._filling = {};
         this._cachingSequence = {};
+        this._nodeTiles = {};
         this._cachingTiles = {};
         this._spatialNodes = {};
         this._cachingSpatialNodes = {};
@@ -193,14 +197,22 @@ export class NewGraph {
     }
 
     public tilesCached(key: string): boolean {
+        if (key in this._tileNodeCache) {
+            return true;
+        }
+
         if (!this._graph.hasNode(key)) {
             throw new Error(`Node does not exist in graph (${key}).`);
         }
 
         let node: NewNode = this._graph.node(key);
-        let hs: string[] = this._graphCalculator.encodeHs(node.latLon, this._tilePrecision, this._tileThreshold);
 
-        for (let h of hs) {
+        if (!(key in this._nodeTiles)) {
+            this._nodeTiles[key] =
+                this._graphCalculator.encodeHs(node.latLon, this._tilePrecision, this._tileThreshold);
+        }
+
+        for (let h of this._nodeTiles[key]) {
             if (!(h in this._tileCache)) {
                 return false;
             }
@@ -214,25 +226,31 @@ export class NewGraph {
     }
 
     public cacheTiles(key: string): void {
+        if (key in this._tileNodeCache) {
+            throw new Error(`Tiles already cached (${key}).`);
+        }
+
         if (key in this._cachingTiles) {
             throw new Error(`Already caching tiles (${key}).`);
+        }
+
+        if (!(key in this._nodeTiles)) {
+            throw new Error(`Tiles have not been determined (${key}).`);
         }
 
         if (!this._graph.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
-        this._cachingTiles[key] = true;
-
-        let hs: string[] = this._graphCalculator.encodeHs(this._graph.node(key).latLon, this._tilePrecision, this._tileThreshold);
         let uncachedHs: string[] = [];
-        for (let h of hs) {
+        for (let h of this._nodeTiles[key]) {
             if (!(h in this._tileCache)) {
                 uncachedHs.push(h);
             }
         }
 
         if (uncachedHs.length > 0) {
+            this._cachingTiles[key] = true;
             Observable
                 .from(uncachedHs)
                 .mergeMap<[string, { [key: string]: { [index: string]: ICoreNode } }]>(
@@ -285,6 +303,9 @@ export class NewGraph {
                     (error: Error): void => { return; },
                     (): void => {
                         delete this._cachingTiles[key];
+                        delete this._nodeTiles[key];
+
+                        this._tileNodeCache[key] = true;
 
                         this._changed$.next(this);
                     });

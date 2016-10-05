@@ -5,7 +5,7 @@ import * as rbush from "rbush";
 
 import {Subject} from "rxjs/Subject";
 
-import {APIv3, IFullNode} from "../../src/API";
+import {APIv3, ICoreNode, IFullNode} from "../../src/API";
 import {GraphCalculator, NewGraph} from "../../src/Graph";
 
 let createFullNode: () => IFullNode = (): IFullNode => {
@@ -135,5 +135,135 @@ describe("Graph.fetch", () => {
 
         expect(graph.fetching(fullNode.key)).toBe(false);
         expect(() => { graph.fetch(fullNode.key); }).toThrowError(Error);
+    });
+});
+
+describe("Graph.cacheTiles", () => {
+    it("should be caching tiles", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        spyOn(graphLib, "hasNode").and.returnValue(true);
+
+        let fullNode: IFullNode = createFullNode();
+
+        spyOn(graphLib, "node").and.returnValue(fullNode);
+        spyOn(calculator, "encodeHs").and.returnValue("h");
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH").and.returnValue(imagesByH);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+
+        expect(graph.tilesCached(fullNode.key)).toBe(false);
+        expect(graph.cachingTiles(fullNode.key)).toBe(false);
+
+        graph.cacheTiles(fullNode.key);
+
+        expect(graph.tilesCached(fullNode.key)).toBe(false);
+        expect(graph.cachingTiles(fullNode.key)).toBe(true);
+    });
+
+    it("should cache tiles", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        spyOn(graphLib, "hasNode").and.returnValue(true);
+
+        let fullNode: IFullNode = createFullNode();
+
+        spyOn(graphLib, "node").and.returnValue(fullNode);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeHs").and.returnValue(h);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH").and.returnValue(imagesByH);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+
+        expect(graph.tilesCached(fullNode.key)).toBe(false);
+        expect(graph.cachingTiles(fullNode.key)).toBe(false);
+
+        graph.cacheTiles(fullNode.key);
+
+        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        result[h] = {};
+        result[h][fullNode.key] = fullNode;
+        imagesByH.next(result);
+
+        expect(graph.tilesCached(fullNode.key)).toBe(true);
+        expect(graph.cachingTiles(fullNode.key)).toBe(false);
+    });
+
+    it("should encode hs only once when checking tiles cache", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        spyOn(graphLib, "hasNode").and.returnValue(true);
+
+        let fullNode: IFullNode = createFullNode();
+
+        spyOn(graphLib, "node").and.returnValue(fullNode);
+
+        let h: string = "h";
+        let encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
+        encodeHsSpy.and.returnValue(h);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH").and.returnValue(imagesByH);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+
+        expect(graph.tilesCached(fullNode.key)).toBe(false);
+        expect(graph.tilesCached(fullNode.key)).toBe(false);
+
+        expect(encodeHsSpy.calls.count()).toBe(1);
+    });
+
+
+    it("should encode hs only once when caching tiles", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        spyOn(graphLib, "hasNode").and.returnValue(true);
+
+        let fullNode: IFullNode = createFullNode();
+
+        spyOn(graphLib, "node").and.returnValue(fullNode);
+
+        let h: string = "h";
+        let encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
+        encodeHsSpy.and.returnValue(h);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH").and.returnValue(imagesByH);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+
+        expect(graph.tilesCached(fullNode.key)).toBe(false);
+
+        graph.cacheTiles(fullNode.key);
+
+        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        result[h] = {};
+        result[h][fullNode.key] = fullNode;
+        imagesByH.next(result);
+
+        expect(graph.tilesCached(fullNode.key)).toBe(true);
+
+        expect(encodeHsSpy.calls.count()).toBe(1);
     });
 });
