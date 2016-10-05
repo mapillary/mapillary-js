@@ -9,6 +9,7 @@ module.exports = function(config) {
       transform: ['brfs'],
     },
     browsers: ['Firefox'],
+    concurrency: 1,
     files: [
       'spec/**/*.spec.ts'
     ],
