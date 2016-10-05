@@ -2,7 +2,10 @@
 
 import * as THREE from "three";
 
-import {Node} from "../../Graph";
+import {
+    NewNode,
+    Sequence,
+} from "../../Graph";
 import
 {
     EdgeDirection,
@@ -51,19 +54,19 @@ export class EdgeCalculator {
      * Returns the potential edges to destination nodes for a set
      * of nodes with respect to a source node.
      *
-     * @param {Node} node The source node
-     * @param {Array<Node>} nodes Potential destination nodes
+     * @param {NewNode} node The source node
+     * @param {Array<NewNode>} nodes Potential destination nodes
      * @param {Array<string>} fallbackKeys Keys for destination nodes that should
      *                                     be returned even if they do not meet
      *                                     the criteria for a potential edge.
      */
-    public getPotentialEdges(node: Node, nodes: Node[], fallbackKeys: string[]): IPotentialEdge[] {
-        if (!node.worthy || !node.merged) {
+    public getPotentialEdges(node: NewNode, nodes: NewNode[], fallbackKeys: string[]): IPotentialEdge[] {
+        if (!node.full || !node.merged) {
             return [];
         }
 
         let currentDirection: THREE.Vector3 =
-            this._spatial.viewingDirection(node.apiNavImIm.rotation);
+            this._spatial.viewingDirection(node.rotation);
         let currentVerticalDirection: number =
             this._spatial.angleToPlane(currentDirection.toArray(), [0, 0, 1]);
 
@@ -78,10 +81,10 @@ export class EdgeCalculator {
             let enu: number[] = this._geoCoords.geodeticToEnu(
                 potential.latLon.lat,
                 potential.latLon.lon,
-                potential.apiNavImIm.calt,
+                potential.alt,
                 node.latLon.lat,
                 node.latLon.lon,
-                node.apiNavImIm.calt);
+                node.alt);
 
             let motion: THREE.Vector3 = new THREE.Vector3(enu[0], enu[1], enu[2]);
             let distance: number = motion.length();
@@ -100,7 +103,7 @@ export class EdgeCalculator {
             let verticalMotion: number = this._spatial.angleToPlane(motion.toArray(), [0, 0, 1]);
 
             let direction: THREE.Vector3 =
-                this._spatial.viewingDirection(potential.apiNavImIm.rotation);
+                this._spatial.viewingDirection(potential.rotation);
 
             let directionChange: number = this._spatial.angleBetweenVector2(
                 currentDirection.x,
@@ -112,34 +115,35 @@ export class EdgeCalculator {
             let verticalDirectionChange: number = verticalDirection - currentVerticalDirection;
 
             let rotation: number = this._spatial.relativeRotationAngle(
-                node.apiNavImIm.rotation,
-                potential.apiNavImIm.rotation);
+                node.rotation,
+                potential.rotation);
 
             let worldMotionAzimuth: number =
                 this._spatial.angleBetweenVector2(1, 0, motion.x, motion.y);
 
-            let sameSequence: boolean = potential.sequence != null &&
-                node.sequence != null &&
-                potential.sequence.key === node.sequence.key;
+            let sameSequence: boolean = potential.sequenceKey != null &&
+                node.sequenceKey != null &&
+                potential.sequenceKey === node.sequenceKey;
 
             let sameMergeCC: boolean =
-                 (potential.apiNavImIm.merge_cc == null && node.apiNavImIm.merge_cc == null) ||
-                 potential.apiNavImIm.merge_cc === node.apiNavImIm.merge_cc;
+                 (potential.mergeCC == null && node.mergeCC == null) ||
+                 potential.mergeCC === node.mergeCC;
 
             let sameUser: boolean =
-                potential.apiNavImIm.user === node.apiNavImIm.user;
+                potential.userKey === node.userKey;
 
             let potentialEdge: IPotentialEdge = {
-                apiNavImIm: potential.apiNavImIm,
+                capturedAt: potential.capturedAt,
                 directionChange: directionChange,
                 distance: distance,
                 fullPano: potential.fullPano,
+                key: potential.key,
                 motionChange: motionChange,
                 rotation: rotation,
                 sameMergeCC: sameMergeCC,
                 sameSequence: sameSequence,
                 sameUser: sameUser,
-                sequenceKey: potential.sequence != null ? potential.sequence.key : null,
+                sequenceKey: potential.sequenceKey,
                 verticalDirectionChange: verticalDirectionChange,
                 verticalMotion: verticalMotion,
                 worldMotionAzimuth: worldMotionAzimuth,
@@ -154,35 +158,35 @@ export class EdgeCalculator {
     /**
      * Computes the sequence edges for a node.
      *
-     * @param {Node} node Source node
+     * @param {NewNode} node Source node
      */
-    public computeSequenceEdges(node: Node): IEdge[] {
-        if (!node.worthy) {
+    public computeSequenceEdges(node: NewNode, sequence: Sequence): IEdge[] {
+        if (!node.full) {
             return [];
         }
 
         let edges: IEdge[] = [];
 
-        let nextKey: string = node.findNextKeyInSequence();
+        let nextKey: string = sequence.findNextKey(node.key);
         if (nextKey != null) {
             edges.push({
                 data: {
                     direction: EdgeDirection.Next,
                     worldMotionAzimuth: Number.NaN,
                 },
-                from: node.apiNavImIm.key,
+                from: node.key,
                 to: nextKey,
             });
         }
 
-        let prevKey: string = node.findPrevKeyInSequence();
+        let prevKey: string = sequence.findPrevKey(node.key);
         if (prevKey != null) {
             edges.push({
                 data: {
                     direction: EdgeDirection.Prev,
                     worldMotionAzimuth: Number.NaN,
                 },
-                from: node.apiNavImIm.key,
+                from: node.key,
                 to: prevKey,
             });
         }
@@ -197,11 +201,11 @@ export class EdgeCalculator {
      * look roughly in the same direction and are positioned closed to the node.
      * Similar edges for full panoramas only target other full panoramas.
      *
-     * @param {Node} node Source node
+     * @param {NewNode} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computeSimilarEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
-        if (!node.worthy) {
+    public computeSimilarEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+        if (!node.full) {
             return [];
         }
 
@@ -234,7 +238,7 @@ export class EdgeCalculator {
             }
 
             if (potentialEdge.sameUser &&
-                Math.abs(potentialEdge.apiNavImIm.captured_at - node.apiNavImIm.captured_at) <
+                Math.abs(potentialEdge.capturedAt - node.capturedAt) <
                     this._settings.similarMinTimeDifference) {
                 continue;
             }
@@ -293,7 +297,7 @@ export class EdgeCalculator {
                             worldMotionAzimuth: potentialEdge.worldMotionAzimuth,
                         },
                         from: node.key,
-                        to: potentialEdge.apiNavImIm.key,
+                        to: potentialEdge.key,
                     };
                 });
     }
@@ -301,13 +305,13 @@ export class EdgeCalculator {
     /**
      * Computes the step edges for a perspective node.
      *
-     * @param {Node} node Source node
+     * @param {NewNode} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      * @param {string} prevKey Key of previous node in sequence
      * @param {string} prevKey Key of next node in sequence
      */
     public computeStepEdges(
-        node: Node,
+        node: NewNode,
         potentialEdges: IPotentialEdge[],
         prevKey: string,
         nextKey: string): IEdge[] {
@@ -349,7 +353,7 @@ export class EdgeCalculator {
                     continue;
                 }
 
-                let potentialKey: string = potential.apiNavImIm.key;
+                let potentialKey: string = potential.key;
                 if (step.useFallback && (potentialKey === prevKey || potentialKey === nextKey)) {
                     fallback = potential;
                 }
@@ -385,7 +389,7 @@ export class EdgeCalculator {
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     from: node.key,
-                    to: edge.apiNavImIm.key,
+                    to: edge.key,
                 });
             }
         }
@@ -396,10 +400,10 @@ export class EdgeCalculator {
     /**
      * Computes the turn edges for a perspective node.
      *
-     * @param {Node} node Source node
+     * @param {NewNode} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computeTurnEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeTurnEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
         let edges: IEdge[] = [];
 
         if (node.fullPano) {
@@ -473,7 +477,7 @@ export class EdgeCalculator {
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     from: node.key,
-                    to: edge.apiNavImIm.key,
+                    to: edge.key,
                 });
             }
         }
@@ -484,10 +488,10 @@ export class EdgeCalculator {
     /**
      * Computes the pano edges for a perspective node.
      *
-     * @param {Node} node Source node
+     * @param {NewNode} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computePerspectiveToPanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computePerspectiveToPanoEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (node.fullPano) {
             return [];
         }
@@ -524,7 +528,7 @@ export class EdgeCalculator {
                     worldMotionAzimuth: edge.worldMotionAzimuth,
                 },
                 from: node.key,
-                to: edge.apiNavImIm.key,
+                to: edge.key,
             },
         ];
     }
@@ -533,10 +537,10 @@ export class EdgeCalculator {
      * Computes rotation edges for perspective nodes. Rotation edges
      * are for rotating at approximately the same position.
      *
-     * @param {Node} node Source node
+     * @param {NewNode} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computeRotationEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeRotationEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
         let edges: IEdge[] = [];
 
         if (node.fullPano) {
@@ -580,7 +584,7 @@ export class EdgeCalculator {
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     from: node.key,
-                    to: edge.apiNavImIm.key,
+                    to: edge.key,
                 });
             }
         }
@@ -591,10 +595,10 @@ export class EdgeCalculator {
     /**
      * Computes the pano and step edges for a pano node.
      *
-     * @param {Node} node Source node
+     * @param {NewNode} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computePanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computePanoEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.fullPano) {
             return [];
         }
@@ -691,7 +695,7 @@ export class EdgeCalculator {
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     from: node.key,
-                    to: edge.apiNavImIm.key,
+                    to: edge.key,
                 });
             } else {
                 stepAngles.push(rotation);
@@ -768,7 +772,7 @@ export class EdgeCalculator {
                             worldMotionAzimuth: edge[1].worldMotionAzimuth,
                         },
                         from: node.key,
-                        to: edge[1].apiNavImIm.key,
+                        to: edge[1].key,
                     });
                 }
             }

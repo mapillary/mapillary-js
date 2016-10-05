@@ -1,5 +1,3 @@
-import {IAPINavImIm} from "../../../API";
-
 /**
  * Interface that describes the properties for a node that is the destination of a
  * potential edge from an origin node.
@@ -7,11 +5,36 @@ import {IAPINavImIm} from "../../../API";
  * @interface IPotentialEdge
  */
 export interface IPotentialEdge {
+
+    /**
+     * Timestamp when the image was captured.
+     * @property {number} capturedAt
+     */
+    capturedAt: number;
+
+    /**
+     * Change in viewing direction with respect to the origin node.
+     * @property {number} directionChange
+     */
+    directionChange: number;
+
     /**
      * Distance to the origin node.
      * @property {number} distance
      */
     distance: number;
+
+    /**
+     * Determines if the destination node is a full panorama.
+     * @property {boolean} fullPano
+     */
+    fullPano: boolean;
+
+    /**
+     * Unique image key.
+     * @property {string} key
+     */
+    key: string;
 
     /**
      * Change in motion with respect to the viewing direction
@@ -21,42 +44,10 @@ export interface IPotentialEdge {
     motionChange: number;
 
     /**
-     * The angle between motion vector and the XY-plane
-     * @property {number} verticalMotion
-     */
-    verticalMotion: number;
-
-    /**
-     * Change in viewing direction with respect to the origin node.
-     * @property {number} directionChange
-     */
-    directionChange: number;
-
-    /**
-     * Change in viewing direction with respect to the XY-plane.
-     * @property {number} verticalDirectionChange
-     */
-    verticalDirectionChange: number;
-
-    /**
      * General camera rotation with respect to the origin node.
      * @property {number} rotation
      */
     rotation: number;
-
-    /**
-     * The counter clockwise horizontal rotation angle from
-     * the X-axis in a spherical coordiante system.
-     * @propery {number} worldMotionAzimuth
-     */
-    worldMotionAzimuth: number;
-
-    /**
-     * Determines if the origin and destination node are in the
-     * same sequence.
-     * @property {boolean} sameSequence
-     */
-    sameSequence: boolean;
 
     /**
      * Determines if the origin and destination node are considered
@@ -64,6 +55,13 @@ export interface IPotentialEdge {
      * @property {boolean} sameMergeCC
      */
     sameMergeCC: boolean;
+
+    /**
+     * Determines if the origin and destination node are in the
+     * same sequence.
+     * @property {boolean} sameSequence
+     */
+    sameSequence: boolean;
 
     /**
      * Determines if the origin and destination node have been captured
@@ -80,16 +78,23 @@ export interface IPotentialEdge {
     sequenceKey: string;
 
     /**
-     * Determines if the destination node is a full panorama.
-     * @property {boolean} fullPano
+     * Change in viewing direction with respect to the XY-plane.
+     * @property {number} verticalDirectionChange
      */
-    fullPano: boolean;
+    verticalDirectionChange: number;
 
     /**
-     * APINavImIm properties of destination node.
-     * @property {IAPINavImIm} apiNavImIm
+     * The angle between motion vector and the XY-plane
+     * @property {number} verticalMotion
      */
-    apiNavImIm: IAPINavImIm;
+    verticalMotion: number;
+
+    /**
+     * The counter clockwise horizontal rotation angle from
+     * the X-axis in a spherical coordiante system.
+     * @propery {number} worldMotionAzimuth
+     */
+    worldMotionAzimuth: number;
 }
 
 export default IPotentialEdge;

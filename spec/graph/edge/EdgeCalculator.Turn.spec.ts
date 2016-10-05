@@ -8,7 +8,7 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
-import {Node} from "../../../src/Graph";
+import {NewNode} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
@@ -21,7 +21,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
@@ -35,7 +35,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode();
+        node = helper.createDefaultNode();
 
         potentialEdge = helper.createPotentialEdge();
         potentialEdge.distance = settings.turnMaxDistance / 2;
@@ -58,7 +58,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnLeft);
     });
 
@@ -71,7 +71,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnRight);
     });
 
@@ -84,12 +84,12 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnU);
     });
 
     it("should not have a u-turn edge when node is full pano", () => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         potentialEdge.directionChange = Math.PI;
 
@@ -108,7 +108,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
 
@@ -123,7 +123,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode();
+        node = helper.createDefaultNode();
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.turnMaxRigDistance * 2;
@@ -145,7 +145,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge2.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnLeft);
     });
 
@@ -162,7 +162,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge2.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnLeft);
     });
 
@@ -179,7 +179,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge2.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnLeft);
     });
 
@@ -199,7 +199,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge2.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnLeft);
     });
 
@@ -216,7 +216,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge2.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnLeft);
     });
 
@@ -233,7 +233,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: IEdge = turnEdges[0];
 
-        expect(turnEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(turnEdge.to).toBe(potentialEdge2.key);
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnRight);
     });
 

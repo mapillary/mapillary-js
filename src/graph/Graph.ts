@@ -33,6 +33,7 @@ export class NewGraph {
     private _nodeIndex: rbush.RBush<INewSpatialItem>;
     private _graph: graphlib.Graph<NewNode, IEdgeData>;
     private _graphCalculator: GraphCalculator;
+    private _edgeCalculator: EdgeCalculator;
     private _defaultAlt: number;
 
     private _fetching: { [key: string]: boolean };
@@ -49,7 +50,8 @@ export class NewGraph {
         apiV3: APIv3,
         nodeIndex?: rbush.RBush<INewSpatialItem>,
         graph?: graphlib.Graph<NewNode, IEdgeData>,
-        graphCalculator?: GraphCalculator) {
+        graphCalculator?: GraphCalculator,
+        edgeCalculator?: EdgeCalculator) {
 
         this._apiV3 = apiV3;
         this._sequences = {};
@@ -63,6 +65,7 @@ export class NewGraph {
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<INewSpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
         this._graphCalculator = graphCalculator != null ? graphCalculator : new GraphCalculator();
+        this._edgeCalculator = edgeCalculator != null ? edgeCalculator : new EdgeCalculator();
         this._defaultAlt = 2;
 
         this._fetching = {};
@@ -195,7 +198,10 @@ export class NewGraph {
 
     public cacheSequenceEdges(key: string): void {
         let node: NewNode = this._graph.node(key);
-        node.cacheSequenceEdges([]);
+        let sequence: Sequence = this._sequences[node.sequenceKey];
+
+        let edges: IEdge[] = this._edgeCalculator.computeSequenceEdges(node, sequence);
+        node.cacheSequenceEdges(edges);
     }
 
     public tilesCached(key: string): boolean {
@@ -420,7 +426,28 @@ export class NewGraph {
         }
 
         let node: NewNode = this._graph.node(key);
-        node.cacheSpatialEdges([]);
+        let sequence: Sequence = this._sequences[node.sequenceKey];
+
+        let fallbackKeys: string[] = [];
+        let nextKey: string = sequence.findNextKey(node.key);
+        let prevKey: string = sequence.findPrevKey(node.key);
+
+
+        let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, this._spatialNodes[key][0], fallbackKeys);
+
+        let edges: IEdge[] =
+            this._edgeCalculator.computeStepEdges(
+                node,
+                potentialEdges,
+                prevKey,
+                nextKey);
+
+        edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computePanoEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computePerspectiveToPanoEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computeSimilarEdges(node, potentialEdges));
+
+        node.cacheSpatialEdges(edges);
 
         this._spatialNodeCache[key] = node;
         delete this._spatialNodes[key];
@@ -480,8 +507,6 @@ interface ISpatialItem {
 type SequenceHash = {[key: string]: Sequence};
 
 export class Graph {
-    private _edgeCalculator: EdgeCalculator;
-
     private _sequences: SequenceHash;
     private _sequenceHashes: {[skey: string]: SequenceHash};
 
@@ -490,7 +515,6 @@ export class Graph {
 
     private _unWorthyNodes: {[key: string]: boolean};
 
-    private _boxWidth: number = 0.001;
     private _defaultAlt: number = 2;
 
     private _spatial: Spatial;
@@ -506,7 +530,6 @@ export class Graph {
         this._nodeIndex = rbush<ISpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
         this._graph = new graphlib.Graph<Node, IEdgeData>({ multigraph: true });
         this._unWorthyNodes = {};
-        this._edgeCalculator = new EdgeCalculator();
         this._spatial = new Spatial();
         this._geoCoords = new GeoCoords();
     }
@@ -684,35 +707,7 @@ export class Graph {
             return false;
         }
 
-        let edges: IEdge[] = this._edgeCalculator.computeSequenceEdges(node);
-        let fallbackKeys: string[] = _.map(edges, (edge: IEdge) => { return edge.to; });
-
-        let minLon: number = node.latLon.lon - this._boxWidth / 2;
-        let minLat: number = node.latLon.lat - this._boxWidth / 2;
-
-        let maxLon: number = node.latLon.lon + this._boxWidth / 2;
-        let maxLat: number = node.latLon.lat + this._boxWidth / 2;
-
-        let nodes: Node[] = _.map(
-            this._nodeIndex.search({ maxX: maxLon, maxY: maxLat, minX: minLon, minY: minLat }),
-            (item: ISpatialItem) => {
-                return item.node;
-            });
-
-        let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, nodes, fallbackKeys);
-
-        edges = edges.concat(
-            this._edgeCalculator.computeStepEdges(
-                node,
-                potentialEdges,
-                node.findPrevKeyInSequence(),
-                node.findNextKeyInSequence()));
-
-        edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computePanoEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computePerspectiveToPanoEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computeSimilarEdges(node, potentialEdges));
-
+        let edges: IEdge[] = [];
         this._addEdgesToNode(node, edges);
 
         return true;

@@ -8,7 +8,7 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
-import {Node} from "../../../src/Graph";
+import {NewNode} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
@@ -21,7 +21,7 @@ describe("EdgeCalculator.computeRotationEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
@@ -36,7 +36,7 @@ describe("EdgeCalculator.computeRotationEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode();
+        node = helper.createDefaultNode();
 
         potentialEdge = helper.createPotentialEdge();
         potentialEdge.distance = settings.rotationMaxDistance / 2;
@@ -51,7 +51,7 @@ describe("EdgeCalculator.computeRotationEdges", () => {
 
         let rotationEdge: IEdge = rotationEdges[0];
 
-        expect(rotationEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(rotationEdge.to).toBe(potentialEdge.key);
         expect(rotationEdge.data.direction).toBe(EdgeDirection.RotateLeft);
     });
 
@@ -64,7 +64,7 @@ describe("EdgeCalculator.computeRotationEdges", () => {
 
         let rotationEdge: IEdge = rotationEdges[0];
 
-        expect(rotationEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(rotationEdge.to).toBe(potentialEdge.key);
         expect(rotationEdge.data.direction).toBe(EdgeDirection.RotateRight);
     });
 });

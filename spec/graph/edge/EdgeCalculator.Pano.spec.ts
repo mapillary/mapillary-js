@@ -8,7 +8,7 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
-import {Node} from "../../../src/Graph";
+import {NewNode} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
@@ -21,7 +21,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge1: IPotentialEdge;
 
     beforeEach(() => {
@@ -42,7 +42,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
@@ -56,7 +56,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -69,7 +69,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -100,7 +100,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     it("should not have a pano edge when node is not full pano", () => {
-        node = helper.createNode(false);
+        node = helper.createDefaultNode(false);
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
 
@@ -117,7 +117,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
 
@@ -139,7 +139,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
@@ -160,7 +160,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -174,7 +174,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -188,7 +188,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -202,7 +202,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -216,7 +216,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 });
@@ -230,7 +230,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
 
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
@@ -255,7 +255,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
@@ -288,7 +288,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge4.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge4.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -305,10 +305,10 @@ describe("EdgeCalculator.computePanoEdges", () => {
         expect(panoEdges.length).toBe(4);
 
         let keys: string[] = [
-            potentialEdge1.apiNavImIm.key,
-            potentialEdge2.apiNavImIm.key,
-            potentialEdge3.apiNavImIm.key,
-            potentialEdge4.apiNavImIm.key,
+            potentialEdge1.key,
+            potentialEdge2.key,
+            potentialEdge3.key,
+            potentialEdge4.key,
         ];
 
         for (let key of keys) {
@@ -336,8 +336,8 @@ describe("EdgeCalculator.computePanoEdges", () => {
         expect(panoEdges.length).toBe(2);
 
         let keys: string[] = [
-            potentialEdge1.apiNavImIm.key,
-            potentialEdge3.apiNavImIm.key,
+            potentialEdge1.key,
+            potentialEdge3.key,
         ];
 
         for (let key of keys) {
@@ -364,7 +364,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 });
@@ -378,7 +378,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge1: IPotentialEdge;
 
     beforeEach(() => {
@@ -401,7 +401,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
@@ -418,7 +418,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -432,7 +432,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepLeft);
     });
 
@@ -446,7 +446,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepLeft);
     });
 
@@ -460,7 +460,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepRight);
     });
 
@@ -474,7 +474,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepRight);
     });
 
@@ -488,7 +488,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepBackward);
     });
 
@@ -502,7 +502,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepBackward);
     });
 
@@ -516,7 +516,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -530,7 +530,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -544,7 +544,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -594,7 +594,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
 
@@ -618,7 +618,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
@@ -639,7 +639,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -653,7 +653,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -667,7 +667,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -681,7 +681,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -695,7 +695,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 });
@@ -709,7 +709,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
 
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
@@ -734,7 +734,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
@@ -766,13 +766,13 @@ describe("EdgeCalculator.computePanoEdges", () => {
         expect(panoEdges.length).toBe(4);
 
         for (let panoEdge of panoEdges) {
-            if (panoEdge.to === potentialEdge1.apiNavImIm.key) {
+            if (panoEdge.to === potentialEdge1.key) {
                 expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
-            } else if (panoEdge.to === potentialEdge2.apiNavImIm.key) {
+            } else if (panoEdge.to === potentialEdge2.key) {
                 expect(panoEdge.data.direction).toBe(EdgeDirection.StepLeft);
-            } else if (panoEdge.to === potentialEdge3.apiNavImIm.key) {
+            } else if (panoEdge.to === potentialEdge3.key) {
                 expect(panoEdge.data.direction).toBe(EdgeDirection.StepBackward);
-            } else if (panoEdge.to === potentialEdge4.apiNavImIm.key) {
+            } else if (panoEdge.to === potentialEdge4.key) {
                 expect(panoEdge.data.direction).toBe(EdgeDirection.StepRight);
             }
         }
@@ -793,7 +793,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -815,7 +815,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 });
@@ -829,7 +829,7 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
 
@@ -851,7 +851,7 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode();
+        node = helper.createDefaultNode();
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
@@ -869,12 +869,12 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge1.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
     it("should not return a pano edge when node is pano", () => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1]);
 
@@ -897,7 +897,7 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -911,7 +911,7 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
@@ -925,7 +925,7 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
         let panoEdge: IEdge = panoEdges[0];
 
-        expect(panoEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(panoEdge.to).toBe(potentialEdge2.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 });

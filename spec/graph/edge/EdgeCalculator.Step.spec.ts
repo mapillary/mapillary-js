@@ -8,7 +8,7 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
-import {Node} from "../../../src/Graph";
+import {NewNode} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
@@ -21,7 +21,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
@@ -39,7 +39,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode();
+        node = helper.createDefaultNode();
 
         potentialEdge = helper.createPotentialEdge();
         potentialEdge.distance = settings.stepMaxDistance / 2;
@@ -54,7 +54,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -67,7 +67,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepLeft);
     });
 
@@ -80,7 +80,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepRight);
     });
 
@@ -93,7 +93,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepBackward);
     });
 
@@ -152,14 +152,14 @@ describe("EdgeCalculator.computeStepEdges", () => {
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
             node,
             [potentialEdge],
-            potentialEdge.apiNavImIm.key,
+            potentialEdge.key,
             null);
 
         expect(stepEdges.length).toBe(1);
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -171,13 +171,13 @@ describe("EdgeCalculator.computeStepEdges", () => {
             node,
             [potentialEdge],
             null,
-            potentialEdge.apiNavImIm.key);
+            potentialEdge.key);
 
         expect(stepEdges.length).toBe(0);
     });
 
     it("should not have any edges if node is pano", () => {
-        node = helper.createNode(true);
+        node = helper.createDefaultNode(true);
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
@@ -194,7 +194,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
 
@@ -209,7 +209,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createNode();
+        node = helper.createDefaultNode();
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge2 = helper.createPotentialEdge("pkey2");
@@ -225,7 +225,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -239,7 +239,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -253,7 +253,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -267,7 +267,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -281,7 +281,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -295,7 +295,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -312,7 +312,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -326,7 +326,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -340,7 +340,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 
@@ -354,7 +354,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         let stepEdge: IEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(stepEdge.to).toBe(potentialEdge2.key);
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
     });
 });

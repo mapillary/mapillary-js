@@ -8,8 +8,9 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
-import {Node} from "../../../src/Graph";
+import {NewNode} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
+
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computeSimilarEdges", () => {
@@ -21,7 +22,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
     let spatial: Spatial;
 
-    let node: Node;
+    let node: NewNode;
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
@@ -35,14 +36,21 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         spatial = new Spatial();
     });
 
-    beforeEach(() => {
-        node = helper.createNode();
+    let createNode: (capturedAt: number) => NewNode =
+        (capturedAt: number): NewNode => {
+            return  helper.createFullNode("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, null, capturedAt);
+        };
 
+    beforeEach(() => {
         potentialEdge = helper.createPotentialEdge();
     });
 
+    beforeEach(() => {
+        node = helper.createDefaultNode();
+    });
+
     it("should have a similar edge", () => {
-        potentialEdge.apiNavImIm.captured_at = 24234;
+        potentialEdge.capturedAt = 24234;
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceKey = "other";
 
@@ -52,12 +60,12 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
         let similarEdge: IEdge = similarEdges[0];
 
-        expect(similarEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(similarEdge.to).toBe(potentialEdge.key);
         expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
     });
 
     it("should not have a similar edge if sequence is missing on potential edge", () => {
-        potentialEdge.apiNavImIm.captured_at = 24234;
+        potentialEdge.capturedAt = 24234;
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceKey = null;
 
@@ -67,8 +75,6 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
     });
 
     it("should not have a similar edge if node is full pano and potential node is not full pano", () => {
-        node = helper.createNode(true);
-
         potentialEdge.sameMergeCC = true;
         potentialEdge.sameSequence = true;
         potentialEdge.sequenceKey = "other";
@@ -135,19 +141,19 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
         let similarEdge: IEdge = similarEdges[0];
 
-        expect(similarEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(similarEdge.to).toBe(potentialEdge.key);
         expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
     });
 
     it("should not have a similar edge for the same user within min time diff", () => {
-        settings.similarMinTimeDifference = 100;
+        node = createNode(1000);
 
-        node.apiNavImIm.captured_at = 1000;
+        settings.similarMinTimeDifference = 100;
 
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceKey = "other";
         potentialEdge.sameUser = true;
-        potentialEdge.apiNavImIm.captured_at = 1050;
+        potentialEdge.capturedAt = 1050;
 
         let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
 
@@ -155,14 +161,14 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
     });
 
     it("should have a similar edge for the same user if above min time diff", () => {
-        settings.similarMinTimeDifference = 100;
+        node = createNode(1000);
 
-        node.apiNavImIm.captured_at = 1000;
+        settings.similarMinTimeDifference = 100;
 
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceKey = "other";
         potentialEdge.sameUser = true;
-        potentialEdge.apiNavImIm.captured_at = 1200;
+        potentialEdge.capturedAt = 1200;
 
         let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
 
@@ -170,7 +176,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
         let similarEdge: IEdge = similarEdges[0];
 
-        expect(similarEdge.to).toBe(potentialEdge.apiNavImIm.key);
+        expect(similarEdge.to).toBe(potentialEdge.key);
         expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
     });
 
@@ -178,11 +184,11 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         let potentialEdge1: IPotentialEdge = helper.createPotentialEdge();
         let potentialEdge2: IPotentialEdge = helper.createPotentialEdge();
 
-        potentialEdge1.apiNavImIm.key = "k1";
+        potentialEdge1.key = "k1";
         potentialEdge1.sameMergeCC = true;
         potentialEdge1.sequenceKey = "s1";
 
-        potentialEdge2.apiNavImIm.key = "k2";
+        potentialEdge2.key = "k2";
         potentialEdge2.sameMergeCC = true;
         potentialEdge2.sequenceKey = "s2";
 
@@ -195,7 +201,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
             expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
         }
 
-        for (let key of [potentialEdge1.apiNavImIm.key, potentialEdge2.apiNavImIm.key]) {
+        for (let key of [potentialEdge1.key, potentialEdge2.key]) {
             let count: number = 0;
 
             for (let similarEdge of similarEdges) {
@@ -212,12 +218,12 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         let potentialEdge1: IPotentialEdge = helper.createPotentialEdge();
         let potentialEdge2: IPotentialEdge = helper.createPotentialEdge();
 
-        potentialEdge1.apiNavImIm.key = "k1";
+        potentialEdge1.key = "k1";
         potentialEdge1.distance = 2;
         potentialEdge1.sameMergeCC = true;
         potentialEdge1.sequenceKey = "s1";
 
-        potentialEdge2.apiNavImIm.key = "k2";
+        potentialEdge2.key = "k2";
         potentialEdge2.distance = 1;
         potentialEdge2.sameMergeCC = true;
         potentialEdge2.sequenceKey = "s1";
@@ -229,7 +235,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
         let similarEdge: IEdge = similarEdges[0];
 
-        expect(similarEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(similarEdge.to).toBe(potentialEdge2.key);
         expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
     });
 
@@ -237,12 +243,12 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         let potentialEdge1: IPotentialEdge = helper.createPotentialEdge();
         let potentialEdge2: IPotentialEdge = helper.createPotentialEdge();
 
-        potentialEdge1.apiNavImIm.key = "k1";
+        potentialEdge1.key = "k1";
         potentialEdge1.rotation = 2;
         potentialEdge1.sameMergeCC = true;
         potentialEdge1.sequenceKey = "s1";
 
-        potentialEdge2.apiNavImIm.key = "k2";
+        potentialEdge2.key = "k2";
         potentialEdge2.rotation = 1;
         potentialEdge2.sameMergeCC = true;
         potentialEdge2.sequenceKey = "s1";
@@ -254,7 +260,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
         let similarEdge: IEdge = similarEdges[0];
 
-        expect(similarEdge.to).toBe(potentialEdge2.apiNavImIm.key);
+        expect(similarEdge.to).toBe(potentialEdge2.key);
         expect(similarEdge.data.direction).toBe(EdgeDirection.Similar);
     });
 });
