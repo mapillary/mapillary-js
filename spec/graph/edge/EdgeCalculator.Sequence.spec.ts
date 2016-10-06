@@ -28,8 +28,22 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
     });
 
     it("should throw when node is not full", () => {
-        let node: NewNode = helper.createNonFullNewNode("", { alt: 0, lat: 0, lon: 0 }, "");
-        let sequence: Sequence = new Sequence({ key: "skey", keys: ["key"] });
+        let key: string = "key";
+        let sequenceKey: string = "skey";
+
+        let node: NewNode = helper.createNonFullNewNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey);
+        let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [key] });
+
+        expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(ArgumentMapillaryError);
+    });
+
+    it("should throw when node sequence key differ from key of sequence", () => {
+        let key: string = "key";
+        let sequenceKey1: string = "skey1";
+        let sequenceKey2: string = "skey2";
+
+        let node: NewNode = helper.createNonFullNewNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey1);
+        let sequence: Sequence = new Sequence({ key: sequenceKey2, keys: [key] });
 
         expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(ArgumentMapillaryError);
     });

@@ -432,7 +432,6 @@ export class NewGraph {
         let nextKey: string = sequence.findNextKey(node.key);
         let prevKey: string = sequence.findPrevKey(node.key);
 
-
         let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, this._spatialNodes[key][0], fallbackKeys);
 
         let edges: IEdge[] =

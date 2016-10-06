@@ -170,6 +170,10 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
+        if (node.sequenceKey !== sequence.key) {
+            throw new ArgumentMapillaryError("Node and sequence does not correspond.");
+        }
+
         let edges: IEdge[] = [];
 
         let nextKey: string = sequence.findNextKey(node.key);
