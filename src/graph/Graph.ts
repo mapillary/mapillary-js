@@ -31,7 +31,7 @@ export class NewGraph {
     private _tilePrecision: number;
     private _tileThreshold: number;
     private _nodeIndex: rbush.RBush<INewSpatialItem>;
-    private _graph: graphlib.Graph<NewNode, IEdgeData>;
+    private _nodes: { [key: string]: NewNode };
     private _graphCalculator: GraphCalculator;
     private _edgeCalculator: EdgeCalculator;
     private _defaultAlt: number;
@@ -49,7 +49,6 @@ export class NewGraph {
     constructor(
         apiV3: APIv3,
         nodeIndex?: rbush.RBush<INewSpatialItem>,
-        graph?: graphlib.Graph<NewNode, IEdgeData>,
         graphCalculator?: GraphCalculator,
         edgeCalculator?: EdgeCalculator) {
 
@@ -63,7 +62,7 @@ export class NewGraph {
         this._tilePrecision = 7;
         this._tileThreshold = 20;
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<INewSpatialItem>(16, [".lon", ".lat", ".lon", ".lat"]);
-        this._graph = graph != null ? graph : new graphlib.Graph<NewNode, IEdgeData>({ multigraph: true });
+        this._nodes = {};
         this._graphCalculator = graphCalculator != null ? graphCalculator : new GraphCalculator();
         this._edgeCalculator = edgeCalculator != null ? edgeCalculator : new EdgeCalculator();
         this._defaultAlt = 2;
@@ -84,11 +83,11 @@ export class NewGraph {
     }
 
     public hasNode(key: string): boolean {
-        return this._graph.hasNode(key);
+        return key in this._nodes;
     }
 
     public getNode(key: string): NewNode {
-        return this._graph.node(key);
+        return this._nodes[key];
     }
 
     public fetching(key: string): boolean {
@@ -104,7 +103,7 @@ export class NewGraph {
             throw new Error(`Already fetching (${key}).`);
         }
 
-        if (this._graph.hasNode(key)) {
+        if (this.hasNode(key)) {
             throw new Error(`Cannot fetch node that already exist in graph (${key}).`);
         }
 
@@ -118,7 +117,7 @@ export class NewGraph {
 
                     let h: string = this._graphCalculator.encodeH(node.latLon, this._tilePrecision);
                     this._preStore(h, node);
-                    this._graph.setNode(node.key, node);
+                    this._setNode(node);
 
                     delete this._fetching[key];
 
@@ -135,11 +134,11 @@ export class NewGraph {
             throw new Error(`Already filling (${key}).`);
         }
 
-        if (!this._graph.hasNode(key)) {
+        if (!this.hasNode(key)) {
             throw new Error(`Cannot fill node that does not exist in graph (${key}).`);
         }
 
-        let node: NewNode = this._graph.node(key);
+        let node: NewNode = this.getNode(key);
         if (node.full) {
             throw new Error(`Cannot fill node that is already full (${key}).`);
         }
@@ -159,7 +158,7 @@ export class NewGraph {
     }
 
     public sequenceCached(key: string): boolean {
-        let node: NewNode = this._graph.node(key);
+        let node: NewNode = this.getNode(key);
 
         return node.sequenceKey in this._sequences;
     }
@@ -173,11 +172,11 @@ export class NewGraph {
             throw new Error(`Already caching sequence edges (${key}).`);
         }
 
-        if (!this._graph.hasNode(key)) {
+        if (!this.hasNode(key)) {
             throw new Error(`Cannot cache sequence edges of node that does not exist in graph (${key}).`);
         }
 
-        let node: NewNode = this._graph.node(key);
+        let node: NewNode = this.getNode(key);
         if (node.sequenceKey in this._sequences) {
             this._changed$.next(this);
         } else {
@@ -197,7 +196,7 @@ export class NewGraph {
     }
 
     public cacheSequenceEdges(key: string): void {
-        let node: NewNode = this._graph.node(key);
+        let node: NewNode = this.getNode(key);
         let sequence: Sequence = this._sequences[node.sequenceKey];
 
         let edges: IEdge[] = this._edgeCalculator.computeSequenceEdges(node, sequence);
@@ -209,11 +208,11 @@ export class NewGraph {
             return true;
         }
 
-        if (!this._graph.hasNode(key)) {
+        if (!this.hasNode(key)) {
             throw new Error(`Node does not exist in graph (${key}).`);
         }
 
-        let node: NewNode = this._graph.node(key);
+        let node: NewNode = this.getNode(key);
 
         if (!(key in this._nodeTiles)) {
             this._nodeTiles[key] =
@@ -246,7 +245,7 @@ export class NewGraph {
             throw new Error(`Tiles have not been determined (${key}).`);
         }
 
-        if (!this._graph.hasNode(key)) {
+        if (!this.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
@@ -303,7 +302,7 @@ export class NewGraph {
 
                             hCache.push(node);
                             this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
-                            this._graph.setNode(node.key, node);
+                            this._setNode(node);
                         }
 
                         this._changed$.next(this);
@@ -329,7 +328,7 @@ export class NewGraph {
             throw new Error(`Node already in cache (${key}).`);
         }
 
-        let node: NewNode = this._graph.node(key);
+        let node: NewNode = this.getNode(key);
         node.initializeCache(new NewNodeCache());
         this._nodeCache[key] = node;
     }
@@ -339,7 +338,7 @@ export class NewGraph {
     }
 
     public spatialNodesCached(key: string): boolean {
-        if (!this._graph.hasNode(key)) {
+        if (!this.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
@@ -351,7 +350,7 @@ export class NewGraph {
             return this._spatialNodes[key][1].length === 0;
         }
 
-        let node: NewNode = this._graph.node(key);
+        let node: NewNode = this.getNode(key);
         let bbox: [ILatLon, ILatLon] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
 
         let spatialItems: INewSpatialItem[] = this._nodeIndex.search({
@@ -379,7 +378,7 @@ export class NewGraph {
     }
 
     public cacheSpatialNodes(key: string): void {
-        if (!this._graph.hasNode(key)) {
+        if (!this.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
@@ -425,7 +424,7 @@ export class NewGraph {
              throw new Error(`Node already spatially cached (${key}).`);
         }
 
-        let node: NewNode = this._graph.node(key);
+        let node: NewNode = this.getNode(key);
         let sequence: Sequence = this._sequences[node.sequenceKey];
 
         let fallbackKeys: string[] = [];
@@ -483,6 +482,16 @@ export class NewGraph {
         }
 
         return preStored;
+    }
+
+    private _setNode(node: NewNode): void {
+        let key: string = node.key;
+
+        if (this.hasNode(key)) {
+            throw new Error(`Graph already has node (${key}).`);
+        }
+
+        this._nodes[key] = node;
     }
 }
 

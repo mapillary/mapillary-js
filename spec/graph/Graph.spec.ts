@@ -1,8 +1,8 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as graphlib from "graphlib";
 import * as rbush from "rbush";
 
+import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {APIv3, ICoreNode, IFullNode} from "../../src/API";
@@ -43,10 +43,9 @@ describe("Graph.ctor", () => {
     it("should create a graph with all ctor params", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         expect(graph).toBeDefined();
     });
@@ -56,7 +55,6 @@ describe("Graph.fetch", () => {
     it("should be fetching", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let fullNode: IFullNode = createFullNode();
@@ -64,7 +62,7 @@ describe("Graph.fetch", () => {
 
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
         graph.fetch(fullNode.key);
 
         expect(graph.fetching(fullNode.key)).toBe(true);
@@ -75,13 +73,12 @@ describe("Graph.fetch", () => {
     it("should fetch", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         let result: { [key: string]: IFullNode } = {};
@@ -100,7 +97,6 @@ describe("Graph.fetch", () => {
     it("should throw when fetching same node twice", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let fullNode: IFullNode = createFullNode();
@@ -108,7 +104,7 @@ describe("Graph.fetch", () => {
 
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         graph.fetch(fullNode.key);
         expect(() => { graph.fetch(fullNode.key); }).toThrowError(Error);
@@ -117,13 +113,12 @@ describe("Graph.fetch", () => {
     it("should throw when fetching node already in graph", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         let result: { [key: string]: IFullNode } = {};
@@ -142,21 +137,20 @@ describe("Graph.cacheTiles", () => {
     it("should be caching tiles", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
-
-        spyOn(graphLib, "hasNode").and.returnValue(true);
 
         let fullNode: IFullNode = createFullNode();
 
-        spyOn(graphLib, "node").and.returnValue(fullNode);
-        spyOn(calculator, "encodeHs").and.returnValue("h");
+        spyOn(calculator, "encodeHs").and.returnValue(["h"]);
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        spyOn(graph, "hasNode").and.returnValue(true);
+        spyOn(graph, "getNode").and.returnValue(fullNode);
 
         expect(graph.tilesCached(fullNode.key)).toBe(false);
         expect(graph.cachingTiles(fullNode.key)).toBe(false);
@@ -170,23 +164,25 @@ describe("Graph.cacheTiles", () => {
     it("should cache tiles", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
-
-        spyOn(graphLib, "hasNode").and.returnValue(true);
 
         let fullNode: IFullNode = createFullNode();
 
-        spyOn(graphLib, "node").and.returnValue(fullNode);
-
         let h: string = "h";
-        spyOn(calculator, "encodeHs").and.returnValue(h);
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imageByKeyResult: { [key: string]: IFullNode } = {};
+        imageByKeyResult[fullNode.key] = fullNode;
+        let imageByKeyFull: Observable<{ [key: string]: IFullNode }> = Observable.of<{ [key: string]: IFullNode }>(imageByKeyResult);
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        graph.fetch(fullNode.key);
 
         expect(graph.tilesCached(fullNode.key)).toBe(false);
         expect(graph.cachingTiles(fullNode.key)).toBe(false);
@@ -205,24 +201,22 @@ describe("Graph.cacheTiles", () => {
     it("should encode hs only once when checking tiles cache", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
-
-        spyOn(graphLib, "hasNode").and.returnValue(true);
 
         let fullNode: IFullNode = createFullNode();
 
-        spyOn(graphLib, "node").and.returnValue(fullNode);
-
         let h: string = "h";
         let encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
-        encodeHsSpy.and.returnValue(h);
+        encodeHsSpy.and.returnValue([h]);
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        spyOn(graph, "hasNode").and.returnValue(true);
+        spyOn(graph, "getNode").and.returnValue(fullNode);
 
         expect(graph.tilesCached(fullNode.key)).toBe(false);
         expect(graph.tilesCached(fullNode.key)).toBe(false);
@@ -234,24 +228,26 @@ describe("Graph.cacheTiles", () => {
     it("should encode hs only once when caching tiles", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let graphLib: graphlib.Graph<any, any> = new graphlib.Graph<any, any>({});
         let calculator: GraphCalculator = new GraphCalculator(null);
-
-        spyOn(graphLib, "hasNode").and.returnValue(true);
 
         let fullNode: IFullNode = createFullNode();
 
-        spyOn(graphLib, "node").and.returnValue(fullNode);
-
         let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
         let encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
-        encodeHsSpy.and.returnValue(h);
+        encodeHsSpy.and.returnValue([h]);
+
+        let imageByKeyResult: { [key: string]: IFullNode } = {};
+        imageByKeyResult[fullNode.key] = fullNode;
+        let imageByKeyFull: Observable<{ [key: string]: IFullNode }> = Observable.of<{ [key: string]: IFullNode }>(imageByKeyResult);
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        graph.fetch(fullNode.key);
 
         expect(graph.tilesCached(fullNode.key)).toBe(false);
 
