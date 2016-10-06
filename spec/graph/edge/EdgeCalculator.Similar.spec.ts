@@ -8,6 +8,7 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
+import {ArgumentMapillaryError} from "../../../src/Error";
 import {NewNode} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 
@@ -47,6 +48,12 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
     beforeEach(() => {
         node = helper.createDefaultNode();
+    });
+
+    it("should throw when node is not full", () => {
+        node = helper.createNonFullNewNode("", { alt: 0, lat: 0, lon: 0 }, "");
+
+        expect(() => { edgeCalculator.computeSimilarEdges(node, []); }).toThrowError(ArgumentMapillaryError);
     });
 
     it("should have a similar edge", () => {

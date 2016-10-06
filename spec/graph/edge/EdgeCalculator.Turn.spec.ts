@@ -8,6 +8,7 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
+import {ArgumentMapillaryError} from "../../../src/Error";
 import {NewNode} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
@@ -41,10 +42,16 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         potentialEdge.distance = settings.turnMaxDistance / 2;
     });
 
+    it("should throw when node is not full", () => {
+        node = helper.createNonFullNewNode("", { alt: 0, lat: 0, lon: 0 }, "");
+
+        expect(() => { edgeCalculator.computeTurnEdges(node, []); }).toThrowError(ArgumentMapillaryError);
+    });
+
     it("should not have any edges because potential is pano", () => {
         potentialEdge.fullPano = true;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge]);
 
         expect(stepEdges.length).toBe(0);
     });

@@ -19,6 +19,7 @@ import
     EdgeCalculatorDirections,
     EdgeCalculatorCoefficients,
 } from "../../Edge";
+import {ArgumentMapillaryError} from "../../Error";
 import {GeoCoords, Spatial} from "../../Geo";
 
 export class EdgeCalculator {
@@ -61,7 +62,11 @@ export class EdgeCalculator {
      *                                     the criteria for a potential edge.
      */
     public getPotentialEdges(node: NewNode, nodes: NewNode[], fallbackKeys: string[]): IPotentialEdge[] {
-        if (!node.full || !node.merged) {
+        if (!node.full) {
+            throw new ArgumentMapillaryError("Node has to be full.");
+        }
+
+        if (!node.merged) {
             return [];
         }
 
@@ -162,7 +167,7 @@ export class EdgeCalculator {
      */
     public computeSequenceEdges(node: NewNode, sequence: Sequence): IEdge[] {
         if (!node.full) {
-            return [];
+            throw new ArgumentMapillaryError("Node has to be full.");
         }
 
         let edges: IEdge[] = [];
@@ -206,7 +211,7 @@ export class EdgeCalculator {
      */
     public computeSimilarEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
-            return [];
+            throw new ArgumentMapillaryError("Node has to be full.");
         }
 
         let nodeFullPano: boolean = node.fullPano;
@@ -316,6 +321,10 @@ export class EdgeCalculator {
         prevKey: string,
         nextKey: string): IEdge[] {
 
+        if (!node.full) {
+            throw new ArgumentMapillaryError("Node has to be full.");
+        }
+
         let edges: IEdge[] = [];
 
         if (node.fullPano) {
@@ -404,6 +413,10 @@ export class EdgeCalculator {
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
     public computeTurnEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+        if (!node.full) {
+            throw new ArgumentMapillaryError("Node has to be full.");
+        }
+
         let edges: IEdge[] = [];
 
         if (node.fullPano) {
@@ -492,6 +505,10 @@ export class EdgeCalculator {
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
     public computePerspectiveToPanoEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+        if (!node.full) {
+            throw new ArgumentMapillaryError("Node has to be full.");
+        }
+
         if (node.fullPano) {
             return [];
         }
@@ -541,6 +558,10 @@ export class EdgeCalculator {
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
     public computeRotationEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+        if (!node.full) {
+            throw new ArgumentMapillaryError("Node has to be full.");
+        }
+
         let edges: IEdge[] = [];
 
         if (node.fullPano) {
@@ -599,6 +620,10 @@ export class EdgeCalculator {
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
     public computePanoEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+        if (!node.full) {
+            throw new ArgumentMapillaryError("Node has to be full.");
+        }
+
         if (!node.fullPano) {
             return [];
         }

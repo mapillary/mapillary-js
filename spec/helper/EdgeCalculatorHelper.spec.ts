@@ -65,13 +65,14 @@ export class EdgeCalculatorHelper {
     }
 
     public createFullNode(
-            key: string,
-            latLonAlt: ILatLonAlt,
-            sequenceKey: string,
-            r: number[],
+            key: string = "key",
+            latLonAlt: ILatLonAlt = { alt: 0, lat: 0, lon: 0 },
+            sequenceKey: string = "skey",
+            r: number[] = [0, 0, 0],
             mergeCC: number = 2,
             gpano: IGPano = null,
-            capturedAt: number = 0): NewNode {
+            capturedAt: number = 0,
+            mergeVersion: number = 1): NewNode {
 
         let node: NewNode = this.createNonFullNewNode(key, latLonAlt, sequenceKey);
 
@@ -84,7 +85,7 @@ export class EdgeCalculatorHelper {
             gpano: gpano,
             height: 0,
             merge_cc: mergeCC,
-            merge_version: 1,
+            merge_version: mergeVersion,
             orientation: 0,
             user: { key: "ukey", username: "uname" },
             width: 0,

@@ -8,6 +8,7 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
+import {ArgumentMapillaryError} from "../../../src/Error";
 import {NewNode} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
@@ -43,6 +44,12 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         potentialEdge = helper.createPotentialEdge();
         potentialEdge.distance = settings.stepMaxDistance / 2;
+    });
+
+    it("should throw when node is not full", () => {
+        node = helper.createNonFullNewNode("", { alt: 0, lat: 0, lon: 0 }, "");
+
+        expect(() => { edgeCalculator.computeStepEdges(node, [], null, null); }).toThrowError(ArgumentMapillaryError);
     });
 
     it("should have a step forward edge", () => {

@@ -7,8 +7,8 @@ import {
     EdgeDirection,
     IEdge,
 } from "../../../src/Edge";
+import {ArgumentMapillaryError} from "../../../src/Error";
 import {NewNode, Sequence} from "../../../src/Graph";
-
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computeSequenceEdges", () => {
@@ -25,6 +25,13 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
+    });
+
+    it("should throw when node is not full", () => {
+        let node: NewNode = helper.createNonFullNewNode("", { alt: 0, lat: 0, lon: 0 }, "");
+        let sequence: Sequence = new Sequence({ key: "skey", keys: ["key"] });
+
+        expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(ArgumentMapillaryError);
     });
 
     it("should return a next edge", () => {

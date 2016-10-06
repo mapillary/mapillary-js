@@ -1,10 +1,10 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import {NewNode} from "../../../src/Graph";
-import {EdgeCalculator, IPotentialEdge} from "../../../src/Edge";
 import {IGPano} from "../../../src/API";
+import {EdgeCalculator, IPotentialEdge} from "../../../src/Edge";
+import {ArgumentMapillaryError} from "../../../src/Error";
 import {GeoCoords, ILatLonAlt, Spatial} from "../../../src/Geo";
-
+import {NewNode} from "../../../src/Graph";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.getPotentialEdges", () => {
@@ -34,13 +34,29 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         helper = new EdgeCalculatorHelper();
     });
 
-    it("should return empty array when node is not full", () => {
+    it("should throw when node is not full", () => {
         let node: NewNode = helper.createNonFullNewNode("", { alt: 0, lat: 0, lon: 0 }, "");
 
-        let result: IPotentialEdge[] =
-            edgeCalculator.getPotentialEdges(node, null, []);
+        expect(() => { edgeCalculator.getPotentialEdges(node, null, []); }).toThrowError(ArgumentMapillaryError);
+    });
 
-        expect(result.length).toBe(0);
+    it("should return empty when node is not merged", () => {
+        let key: string = "key";
+        let edgeKey: string = "edgeKey";
+        let sequenceKey: string = "skey";
+
+        let lla: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let node: NewNode = helper.createFullNode(key, lla, sequenceKey, [0, -Math.PI / 2, 0], 2, null, 0, 0);
+
+        let enu: number[] = [10, 0, 0];
+        let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
+        let edgeLla: ILatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeNode: NewNode = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
+
+        let potentialEdges: IPotentialEdge[] =
+            edgeCalculator.getPotentialEdges(node, [edgeNode], []);
+
+        expect(potentialEdges.length).toBe(0);
     });
 
     it("should return a potential edge", () => {
