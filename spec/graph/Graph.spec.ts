@@ -62,7 +62,7 @@ describe("Graph.fetch", () => {
         let fullNode: IFullNode = createFullNode();
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
 
-        spyOn(apiV3, "imageByKeyFull").and.returnValue(imageByKeyFull);
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
         graph.fetch(fullNode.key);
@@ -79,7 +79,7 @@ describe("Graph.fetch", () => {
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull").and.returnValue(imageByKeyFull);
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
 
@@ -106,7 +106,7 @@ describe("Graph.fetch", () => {
         let fullNode: IFullNode = createFullNode();
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
 
-        spyOn(apiV3, "imageByKeyFull").and.returnValue(imageByKeyFull);
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
 
@@ -121,7 +121,7 @@ describe("Graph.fetch", () => {
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull").and.returnValue(imageByKeyFull);
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
 
@@ -154,7 +154,7 @@ describe("Graph.cacheTiles", () => {
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH").and.returnValue(imagesByH);
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
 
@@ -184,7 +184,7 @@ describe("Graph.cacheTiles", () => {
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH").and.returnValue(imagesByH);
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
 
@@ -220,7 +220,7 @@ describe("Graph.cacheTiles", () => {
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH").and.returnValue(imagesByH);
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
 
@@ -249,7 +249,7 @@ describe("Graph.cacheTiles", () => {
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH").and.returnValue(imagesByH);
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphLib, calculator);
 

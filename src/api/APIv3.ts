@@ -96,7 +96,7 @@ export class APIv3 {
             });
     };
 
-    public imageByKeyFill(keys: string[]): Observable<{ [key: string]: IFillNode }> {
+    public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
         return this._wrapPromise<IFalcorResult<IImageByKey<IFillNode>>>(this._modelMagic.get([
                 "imageByKey",
                 keys,
@@ -108,7 +108,7 @@ export class APIv3 {
                 });
     }
 
-    public imageByKeyFull(keys: string[]): Observable<{ [key: string]: IFullNode }> {
+    public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: IFullNode }> {
         return this._wrapPromise<IFalcorResult<IImageByKey<IFullNode>>>(this._modelMagic.get([
                 "imageByKey",
                 keys,
@@ -120,7 +120,7 @@ export class APIv3 {
                 });
     }
 
-    public imageCloseTo(lat: number, lon: number): Observable<IFullNode> {
+    public imageCloseTo$(lat: number, lon: number): Observable<IFullNode> {
         let latLon: string = `${lon}:${lat}`;
         return this._wrapPromise<IFalcorResult<IImageCloseTo<IFullNode>>>(this._modelMagic.get([
                 "imageCloseTo",
@@ -133,7 +133,7 @@ export class APIv3 {
                 });
     }
 
-    public imagesByH(hs: string[]): Observable<{ [key: string]: { [index: string]: ICoreNode } }> {
+    public imagesByH$(hs: string[]): Observable<{ [key: string]: { [index: string]: ICoreNode } }> {
         return this._wrapPromise<IFalcorResult<IImagesByH<ICoreNode>>>(this._modelMagic.get([
                 "imagesByH",
                 hs,
@@ -146,7 +146,7 @@ export class APIv3 {
                 });
     }
 
-    public sequenceByKey(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
+    public sequenceByKey$(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
         return this._wrapPromise<IFalcorResult<ISequenceByKey<ISequence>>>(this._modelMagic.get([
                 "sequenceByKey",
                 sKeys,

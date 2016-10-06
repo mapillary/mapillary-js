@@ -109,7 +109,7 @@ export class NewGraph {
         }
 
         this._fetching[key] = true;
-        this._apiV3.imageByKeyFull([key])
+        this._apiV3.imageByKeyFull$([key])
             .subscribe(
                 (imageByKeyFull: { [key: string]: IFullNode }): void => {
                     let fn: IFullNode = imageByKeyFull[key];
@@ -145,7 +145,7 @@ export class NewGraph {
         }
 
         this._filling[key] = true;
-        this._apiV3.imageByKeyFill([key])
+        this._apiV3.imageByKeyFill$([key])
             .subscribe(
                 (imageByKeyFill: { [key: string]: IFillNode }): void => {
                     if (!node.full) {
@@ -182,7 +182,7 @@ export class NewGraph {
             this._changed$.next(this);
         } else {
             this._cachingSequence[key] = true;
-            this._apiV3.sequenceByKey([node.sequenceKey])
+            this._apiV3.sequenceByKey$([node.sequenceKey])
                 .subscribe(
                     (sequenceByKey: { [key: string]: ISequence }): void => {
                         if (!(node.sequenceKey in this._sequences)) {
@@ -263,7 +263,7 @@ export class NewGraph {
                 .from(uncachedHs)
                 .mergeMap<[string, { [key: string]: { [index: string]: ICoreNode } }]>(
                     (h: string): Observable<[string, { [key: string]: { [index: string]: ICoreNode } }]> => {
-                        return Observable.zip(Observable.of<string>(h), this._apiV3.imagesByH([h]));
+                        return Observable.zip(Observable.of<string>(h), this._apiV3.imagesByH$([h]));
                     })
                 .subscribe(
                     (hi: [string, { [key: string]: { [index: string]: ICoreNode } }]): void => {
@@ -401,7 +401,7 @@ export class NewGraph {
 
         let spatialNodes: [NewNode[], string[], NewNode[]] = this._spatialNodes[key];
         this._cachingSpatialNodes[key] = true;
-        this._apiV3.imageByKeyFill(spatialNodes[1])
+        this._apiV3.imageByKeyFill$(spatialNodes[1])
             .subscribe(
                 (imageByKey: { [key: string]: IFillNode }): void => {
                     for (let spatialNode of spatialNodes[2]) {
