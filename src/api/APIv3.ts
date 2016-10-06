@@ -21,12 +21,16 @@ interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
 }
 
-interface ISequenceByKey<T> {
-    sequenceByKey: { [key: string]: T };
+interface IImageCloseTo<T> {
+    imageCloseTo: { [key: string]: T };
 }
 
 interface IImagesByH<T> {
     imagesByH: { [key: string]: { [index: string]: T } };
+}
+
+interface ISequenceByKey<T> {
+    sequenceByKey: { [key: string]: T };
 }
 
 export class APIv3 {
@@ -92,19 +96,6 @@ export class APIv3 {
             });
     };
 
-    public imagesByH(hs: string[]): Observable<{ [key: string]: { [index: string]: ICoreNode } }> {
-        return this._wrapPromise<IFalcorResult<IImagesByH<ICoreNode>>>(this._modelMagic.get([
-                "imagesByH",
-                hs,
-                { from: 0, to: 1000 },
-                this._keyProperties.concat(this._coreProperties),
-                this._keyProperties]))
-            .map<{ [key: string]: { [index: string]: ICoreNode } }>(
-                (value: IFalcorResult<IImagesByH<ICoreNode>>): { [key: string]: { [index: string]: ICoreNode } } => {
-                    return value.json.imagesByH;
-                });
-    }
-
     public imageByKeyFill(keys: string[]): Observable<{ [key: string]: IFillNode }> {
         return this._wrapPromise<IFalcorResult<IImageByKey<IFillNode>>>(this._modelMagic.get([
                 "imageByKey",
@@ -126,6 +117,32 @@ export class APIv3 {
             .map<{ [key: string]: IFullNode }>(
                 (value: IFalcorResult<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
                     return value.json.imageByKey;
+                });
+    }
+
+    public imageCloseTo(lat: number, lon: number): Observable<IFullNode> {
+        let latLon: string = `${lon}:${lat}`;
+        return this._wrapPromise<IFalcorResult<IImageCloseTo<IFullNode>>>(this._modelMagic.get([
+                "imageCloseTo",
+                latLon,
+                this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
+                this._keyProperties.concat(this._userProperties)]))
+            .map<IFullNode>(
+                (value: IFalcorResult<IImageCloseTo<IFullNode>>): IFullNode => {
+                    return value != null ? value.json.imageCloseTo[latLon] : null;
+                });
+    }
+
+    public imagesByH(hs: string[]): Observable<{ [key: string]: { [index: string]: ICoreNode } }> {
+        return this._wrapPromise<IFalcorResult<IImagesByH<ICoreNode>>>(this._modelMagic.get([
+                "imagesByH",
+                hs,
+                { from: 0, to: 1000 },
+                this._keyProperties.concat(this._coreProperties),
+                this._keyProperties]))
+            .map<{ [key: string]: { [index: string]: ICoreNode } }>(
+                (value: IFalcorResult<IImagesByH<ICoreNode>>): { [key: string]: { [index: string]: ICoreNode } } => {
+                    return value.json.imagesByH;
                 });
     }
 
