@@ -44,7 +44,7 @@ describe("EdgeCalculator.computeRotationEdges", () => {
     });
 
     it("should throw when node is not full", () => {
-        node = helper.createNonFullNewNode("", { alt: 0, lat: 0, lon: 0 }, "");
+        node = helper.createCoreNode("", { alt: 0, lat: 0, lon: 0 }, "");
 
         expect(() => { edgeCalculator.computeRotationEdges(node, []); }).toThrowError(ArgumentMapillaryError);
     });

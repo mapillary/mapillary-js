@@ -35,7 +35,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
     });
 
     it("should throw when node is not full", () => {
-        let node: NewNode = helper.createNonFullNewNode("", { alt: 0, lat: 0, lon: 0 }, "");
+        let node: NewNode = helper.createCoreNode("", { alt: 0, lat: 0, lon: 0 }, "");
 
         expect(() => { edgeCalculator.getPotentialEdges(node, null, []); }).toThrowError(ArgumentMapillaryError);
     });
