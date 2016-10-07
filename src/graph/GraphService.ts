@@ -21,6 +21,8 @@ import {VectorTilesService, Graph, NewGraph, ImageLoadingService, Node, NewNode,
 export class NewGraphService {
     private _graph$: Observable<NewGraph>;
 
+    private _imageLoadingService: ImageLoadingService;
+
     constructor(graph: NewGraph) {
         this._graph$ = Observable
             .of(graph)
@@ -29,6 +31,12 @@ export class NewGraphService {
             .refCount();
 
         this._graph$.subscribe();
+
+        this._imageLoadingService = new ImageLoadingService();
+    }
+
+    public get imageLoadingService(): ImageLoadingService {
+        return this._imageLoadingService;
     }
 
     public cacheNode$(key: string): Observable<NewNode> {
@@ -74,14 +82,13 @@ export class NewGraphService {
                         Observable.of(node) :
                         node.cacheAssets$();
                 })
-            .first(
-                (node: NewNode): boolean => {
-                    return node.assetsCached;
-                })
             .publishReplay(1)
             .refCount();
 
-        node$.subscribe();
+        node$.subscribe(
+            (node: NewNode): void => {
+                this._imageLoadingService.loadnode$.next(node);
+            });
 
         let graph$: Observable<NewGraph> = firstGraph$
             .concat(
@@ -153,7 +160,11 @@ export class NewGraphService {
             .first()
             .subscribe();
 
-        return node$;
+        return node$
+            .first(
+                (node: NewNode): boolean => {
+                    return node.assetsCached;
+                });
     }
 }
 
@@ -172,12 +183,10 @@ export class GraphService {
 
     private _tilesService: TilesService;
     private _vectorTilesService: VectorTilesService;
-    private _imageLoadingService: ImageLoadingService;
 
     constructor (apiV2: APIv2, apiV3: APIv3) {
         this._tilesService = new TilesService(apiV2);
         this._vectorTilesService = new VectorTilesService(apiV3);
-        this._imageLoadingService = new ImageLoadingService();
 
         this._graph$ = this._updates$
             .scan<Graph>(
@@ -208,7 +217,6 @@ export class GraphService {
             .publish();
 
         this._loadingNode$.connect();
-        this._loadingNode$.subscribe(this._imageLoadingService.loadnode$);
 
         this._cachedNode$ = this._loadingNode$
             .filter(
@@ -252,10 +260,6 @@ export class GraphService {
 
     public get graph$(): Observable<Graph> {
         return this._graph$;
-    }
-
-    public get imageLoadingService(): ImageLoadingService {
-        return this._imageLoadingService;
     }
 
     public get vectorTilesService(): VectorTilesService {

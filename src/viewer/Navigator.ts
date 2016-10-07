@@ -14,7 +14,7 @@ import "rxjs/add/operator/mergeMap";
 
 import {IAPISearchImClose2, APIv2, APIv3} from "../API";
 import {ILatLon} from "../Geo";
-import {GraphService, Node} from "../Graph";
+import {GraphService, NewGraph, NewGraphService, Node} from "../Graph";
 import {EdgeDirection} from "../Edge";
 import {StateService} from "../State";
 import {LoadingService} from "../Viewer";
@@ -27,6 +27,8 @@ export class Navigator {
     public apiV2: APIv2;
     public apiV3: APIv3;
 
+    private _newGraphService: NewGraphService;
+
     private _keyRequested$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
     private _movedToKey$: Subject<string> = new Subject<string>();
     private _dirRequested$: BehaviorSubject<EdgeDirection> = new BehaviorSubject<EdgeDirection>(null);
@@ -37,8 +39,13 @@ export class Navigator {
         this.apiV3 = new APIv3(clientId);
 
         this.graphService = new GraphService(this.apiV2, this.apiV3);
+        this._newGraphService = new NewGraphService(new NewGraph(this.apiV3));
         this.stateService = new StateService();
         this.loadingService = new LoadingService();
+    }
+
+    public get newGraphService(): NewGraphService {
+        return this._newGraphService;
     }
 
     public get keyRequested$(): Observable<string> {
