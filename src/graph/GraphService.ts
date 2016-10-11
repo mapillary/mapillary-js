@@ -52,7 +52,7 @@ export class NewGraphService {
                     }
 
                     if (!graph.getNode(key).full) {
-                        if (!graph.filling(key)) {
+                        if (!(graph.filling(key) || graph.fetching(key))) {
                             graph.fill(key);
                         }
 
