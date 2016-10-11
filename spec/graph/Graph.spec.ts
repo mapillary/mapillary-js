@@ -5,8 +5,19 @@ import * as rbush from "rbush";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import {APIv3, ICoreNode, IFullNode} from "../../src/API";
+import {APIv3, ICoreNode, IFillNode, IFullNode} from "../../src/API";
 import {GraphCalculator, NewGraph} from "../../src/Graph";
+
+let createCoreNode: () => ICoreNode = (): ICoreNode => {
+    return {
+        ca: 0,
+        cca: 0,
+        cl: { lat: 0, lon: 0 },
+        key: "key",
+        l: { lat: 0, lon: 0},
+        sequence: { key: "skey" },
+    };
+};
 
 let createFullNode: () => IFullNode = (): IFullNode => {
     return {
@@ -121,15 +132,292 @@ describe("Graph.fetch", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        let result: { [key: string]: IFullNode } = {};
-        result[fullNode.key] = fullNode;
+
         graph.fetch(fullNode.key);
 
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
         expect(graph.fetching(fullNode.key)).toBe(false);
         expect(() => { graph.fetch(fullNode.key); }).toThrowError(Error);
+    });
+
+    it("should make full when fetched node has been retrieved in tile in parallell", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let key: string = "key";
+        let otherKey: string = "otherKey";
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        let imageByKeyFullOther: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.callFake(
+            (keys: string[]): Observable<{ [key: string]: IFullNode }> => {
+                if (keys[0] === key) {
+                    return imageByKeyFull;
+                } else if (keys[0] === otherKey) {
+                    return imageByKeyFullOther;
+                }
+
+                throw new Error("Wrong key.");
+            });
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let otherNode: IFullNode = createFullNode();
+        otherNode.key = otherKey;
+        graph.fetch(otherNode.key);
+
+        let otherFullResult: { [key: string]: IFullNode } = {};
+        otherFullResult[otherNode.key] = otherNode;
+        imageByKeyFullOther.next(otherFullResult);
+        imageByKeyFullOther.complete();
+
+        graph.tilesCached(otherNode.key);
+        graph.cacheTiles(otherNode.key);
+
+        let fullNode: IFullNode = createFullNode();
+        fullNode.key = key;
+        graph.fetch(fullNode.key);
+
+        expect(graph.hasNode(fullNode.key)).toBe(false);
+        expect(graph.fetching(fullNode.key)).toBe(true);
+
+        let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        tileResult[h] = {};
+        tileResult[h][otherNode.key] = otherNode;
+        tileResult[h][fullNode.key] = fullNode;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.getNode(fullNode.key).full).toBe(false);
+
+        let fullResult: { [key: string]: IFullNode } = {};
+        fullResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fullResult);
+        imageByKeyFull.complete();
+
+        expect(graph.getNode(fullNode.key).full).toBe(true);
+    });
+});
+
+describe("Graph.fill", () => {
+    it("should be filling", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        graph.fetch(fullNode.key);
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        graph.tilesCached(fullNode.key);
+        graph.cacheTiles(fullNode.key);
+
+        let tileNode: ICoreNode = createCoreNode();
+        tileNode.key = "tileNodeKey";
+        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        result[h] = {};
+        result[h][tileNode.key] = tileNode;
+        imagesByH.next(result);
+
+        expect(graph.getNode(tileNode.key).full).toBe(false);
+        expect(graph.filling(tileNode.key)).toBe(false);
+
+        graph.fill(tileNode.key);
+
+        expect(graph.getNode(tileNode.key).full).toBe(false);
+        expect(graph.filling(tileNode.key)).toBe(true);
+    });
+
+    it("should fill", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        graph.fetch(fullNode.key);
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        graph.tilesCached(fullNode.key);
+        graph.cacheTiles(fullNode.key);
+
+        let tileNode: ICoreNode = createCoreNode();
+        tileNode.key = "tileNodeKey";
+        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        result[h] = {};
+        result[h][tileNode.key] = tileNode;
+        imagesByH.next(result);
+
+        expect(graph.getNode(tileNode.key).full).toBe(false);
+        expect(graph.filling(tileNode.key)).toBe(false);
+
+        graph.fill(tileNode.key);
+
+        let fillTileNode: IFillNode = createFullNode();
+        let fillResult: { [key: string]: IFillNode } = {};
+        fillResult[tileNode.key] = fillTileNode;
+        imageByKeyFill.next(fillResult);
+
+        expect(graph.getNode(tileNode.key).full).toBe(true);
+        expect(graph.filling(tileNode.key)).toBe(false);
+    });
+
+    it("should throw if already filling", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        graph.fetch(fullNode.key);
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        graph.tilesCached(fullNode.key);
+        graph.cacheTiles(fullNode.key);
+
+        let tileNode: ICoreNode = createCoreNode();
+        tileNode.key = "tileNodeKey";
+        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        result[h] = {};
+        result[h][tileNode.key] = tileNode;
+        imagesByH.next(result);
+
+        expect(graph.getNode(tileNode.key).full).toBe(false);
+        expect(graph.filling(tileNode.key)).toBe(false);
+
+        graph.fill(tileNode.key);
+
+        expect(() => { graph.fill(tileNode.key); }).toThrowError(Error);
+    });
+
+    it("should throw if already fetching", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        graph.fetch(fullNode.key);
+
+        expect(graph.fetching(fullNode.key)).toBe(true);
+
+        expect(() => { graph.fill(fullNode.key); }).toThrowError(Error);
+    });
+
+    it("should throw if node does not exist", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        expect(() => { graph.fill("key"); }).toThrowError(Error);
+    });
+
+    it("should throw if already full", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        graph.fetch(fullNode.key);
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        expect(() => { graph.fill(fullNode.key); }).toThrowError(Error);
     });
 });
 

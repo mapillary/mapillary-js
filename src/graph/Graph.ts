@@ -112,12 +112,21 @@ export class NewGraph {
             .subscribe(
                 (imageByKeyFull: { [key: string]: IFullNode }): void => {
                     let fn: IFullNode = imageByKeyFull[key];
-                    let node: NewNode = new NewNode(fn);
-                    this._makeFull(node, fn);
 
-                    let h: string = this._graphCalculator.encodeH(node.latLon, this._tilePrecision);
-                    this._preStore(h, node);
-                    this._setNode(node);
+                    if (this.hasNode(key)) {
+                        let node: NewNode = this.getNode(key);
+
+                        if (!node.full) {
+                            this._makeFull(node, fn);
+                        }
+                    } else {
+                        let node: NewNode = new NewNode(fn);
+                        this._makeFull(node, fn);
+
+                        let h: string = this._graphCalculator.encodeH(node.latLon, this._tilePrecision);
+                        this._preStore(h, node);
+                        this._setNode(node);
+                    }
 
                     delete this._fetching[key];
 
@@ -452,8 +461,6 @@ export class NewGraph {
     }
 
     private _makeFull(node: NewNode, fillNode: IFillNode): void {
-        fillNode.c_rotation = null;
-
         if (fillNode.calt == null) {
             fillNode.calt = this._defaultAlt;
         }
