@@ -9,12 +9,14 @@ import {EdgeDirection, IEdge} from "../Edge";
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Container, Navigator} from "../Viewer";
 import {IFrame, IRotation} from "../State";
-import {Node} from "../Graph";
+import {IEdgeStatus, NewNode} from "../Graph";
 import {Spatial, Camera} from "../Geo";
 
 interface IKeyboardFrame {
     event: KeyboardEvent;
     frame: IFrame;
+    sequenceEdges: IEdgeStatus;
+    spatialEdges: IEdgeStatus;
 }
 
 export class KeyboardComponent extends Component<IComponentConfiguration> {
@@ -42,18 +44,32 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
+        let sequenceEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
+            .switchMap<IEdgeStatus>(
+                (node: NewNode): Observable<IEdgeStatus> => {
+                    return node.sequenceEdges$;
+                });
+
+        let spatialEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
+            .switchMap<IEdgeStatus>(
+                (node: NewNode): Observable<IEdgeStatus> => {
+                    return node.spatialEdges$;
+                });
+
         this._disposable = Observable
             .fromEvent(document, "keydown")
             .withLatestFrom(
                 this._navigator.stateService.currentState$,
-                (event: KeyboardEvent, frame: IFrame): IKeyboardFrame => {
-                    return { event: event, frame: frame };
+                sequenceEdges$,
+                spatialEdges$,
+                (event: KeyboardEvent, frame: IFrame, sequenceEdges: IEdgeStatus, spatialEdges: IEdgeStatus): IKeyboardFrame => {
+                    return { event: event, frame: frame, sequenceEdges: sequenceEdges, spatialEdges: spatialEdges };
                 })
             .subscribe((kf: IKeyboardFrame): void => {
                 if (!kf.frame.state.currentNode.pano) {
-                    this._navigatePerspective(kf.event, kf.frame.state.currentNode);
+                    this._navigatePerspective(kf.event, kf.sequenceEdges, kf.spatialEdges);
                 } else {
-                    this._navigatePanorama(kf.event, kf.frame.state.currentNode, kf.frame.state.camera);
+                    this._navigatePanorama(kf.event, kf.sequenceEdges, kf.spatialEdges, kf.frame.state.camera);
                 }
             });
     }
@@ -66,7 +82,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
         return {};
     }
 
-    private _navigatePanorama(event: KeyboardEvent, node: Node, camera: Camera): void {
+    private _navigatePanorama(event: KeyboardEvent, sequenceEdges: IEdgeStatus, spatialEdges: IEdgeStatus, camera: Camera): void {
         let navigationAngle: number = 0;
         let stepDirection: EdgeDirection = null;
         let sequenceDirection: EdgeDirection = null;
@@ -123,11 +139,11 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
         event.preventDefault();
 
         if (sequenceDirection != null) {
-            this._moveDir(sequenceDirection, node);
+            this._moveInDir(sequenceDirection, sequenceEdges);
             return;
         }
 
-        if (stepDirection == null) {
+        if (stepDirection == null || !spatialEdges.cached) {
             return;
         }
 
@@ -135,7 +151,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
 
         let threshold: number = Math.PI / 4;
 
-        let edges: IEdge[] = node.edges.filter(
+        let edges: IEdge[] = spatialEdges.edges.filter(
             (e: IEdge): boolean => {
                 return e.data.direction === EdgeDirection.Pano ||
                     e.data.direction === stepDirection;
@@ -159,7 +175,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
 
         this._navigator.moveToKey(toKey)
             .subscribe(
-                (n: Node): void => { return; },
+                (n: NewNode): void => { return; },
                 (e: Error): void => { console.error(e); });
     }
 
@@ -175,8 +191,9 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
         return { phi: phi, theta: theta };
     }
 
-    private _navigatePerspective(event: KeyboardEvent, node: Node): void {
+    private _navigatePerspective(event: KeyboardEvent, sequenceEdges: IEdgeStatus, spatialEdges: IEdgeStatus): void {
         let direction: EdgeDirection = null;
+        let sequenceDirection: EdgeDirection = null;
 
         switch (event.keyCode) {
             case 37: // left
@@ -188,7 +205,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
                 break;
             case 38: // up
                 if (event.altKey) {
-                    direction = EdgeDirection.Next;
+                    sequenceDirection = EdgeDirection.Next;
                     break;
                 }
 
@@ -203,7 +220,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
                 break;
             case 40: // down
                 if (event.altKey) {
-                    direction = EdgeDirection.Prev;
+                    sequenceDirection = EdgeDirection.Prev;
                     break;
                 }
 
@@ -215,28 +232,29 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
 
         event.preventDefault();
 
-        this._moveDir(direction, node);
+        if (sequenceDirection != null) {
+            this._moveInDir(sequenceDirection, sequenceEdges);
+            return;
+        }
+
+        this._moveInDir(direction, spatialEdges);
     }
 
-    private _moveDir(direction: EdgeDirection, node: Node): void {
-        if (direction == null) {
+    private _moveInDir(direction: EdgeDirection, edgeStatus: IEdgeStatus): void {
+        if (!edgeStatus.cached) {
             return;
         }
 
-        let directionExist: boolean =
-            node.edges.some(
-                (edge: IEdge): boolean => {
-                    return edge.data.direction === direction;
-                });
+        for (let edge of edgeStatus.edges) {
+            if (edge.data.direction === direction) {
+                this._navigator.moveToKey(edge.to)
+                    .subscribe(
+                        (n: NewNode): void => { return; },
+                        (e: Error): void => { console.error(e); });
 
-        if (!directionExist) {
-            return;
+                return;
+            }
         }
-
-        this._navigator.moveDir(direction)
-            .subscribe(
-                (n: Node): void => { return; },
-                (e: Error): void => { console.error(e); });
     }
 }
 

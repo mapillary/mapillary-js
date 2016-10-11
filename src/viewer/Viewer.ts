@@ -3,7 +3,7 @@
 import * as when from "when";
 
 import {EdgeDirection} from "../Edge";
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher} from "../Viewer";
 import {Component, IComponentConfiguration} from "../Component";
 import {EventEmitter, Settings} from "../Utils";
@@ -21,7 +21,7 @@ export class Viewer extends EventEmitter {
     /**
      * Fired every time the viewer navigates to a new node.
      * @event
-     * @type {Node} node - Current node.
+     * @type {NewNode} node - Current node.
      */
     public static nodechanged: string = "nodechanged";
 
@@ -100,12 +100,12 @@ export class Viewer extends EventEmitter {
      *
      * @param {string} key - A valid Mapillary photo key.
      * @throws {ParamaterMapillaryError} If no key is provided.
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @returns {Promise<NewNode>} Promise to the node that was navigated to.
      */
-    public moveToKey(key: string): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
+    public moveToKey(key: string): when.Promise<NewNode> {
+        return when.promise<NewNode>((resolve: any, reject: any): void => {
             this._navigator.moveToKey(key).subscribe(
-                (node: Node): void => {
+                (node: NewNode): void => {
                     resolve(node);
                 },
                 (error: Error): void => {
@@ -122,12 +122,12 @@ export class Viewer extends EventEmitter {
      *
      * @param {EdgeDirection} dir - Direction in which which to move.
      * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @returns {Promise<NewNode>} Promise to the node that was navigated to.
      */
-    public moveDir(dir: EdgeDirection): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
+    public moveDir(dir: EdgeDirection): when.Promise<NewNode> {
+        return when.promise<NewNode>((resolve: any, reject: any): void => {
             this._navigator.moveDir(dir).subscribe(
-                (node: Node): void => {
+                (node: NewNode): void => {
                     resolve(node);
                 },
                 (error: Error): void => {
@@ -142,12 +142,12 @@ export class Viewer extends EventEmitter {
      *
      * @param {Number} lat - Latitude, in degrees.
      * @param {Number} lon - Longitude, in degrees.
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @returns {Promise<NewNode>} Promise to the node that was navigated to.
      */
-    public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
+    public moveCloseTo(lat: number, lon: number): when.Promise<NewNode> {
+        return when.promise<NewNode>((resolve: any, reject: any): void => {
             this._navigator.moveCloseTo(lat, lon).subscribe(
-                (node: Node): void => {
+                (node: NewNode): void => {
                     resolve(node);
                 },
                 (error: Error): void => {

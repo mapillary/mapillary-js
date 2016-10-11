@@ -5,7 +5,7 @@ import * as vd from "virtual-dom";
 import {Subscription} from "rxjs/Subscription";
 
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 import {IVNodeHash} from "../Render";
 import {Container, Navigator} from "../Viewer";
 
@@ -21,7 +21,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         this._renderSubscription = this._navigator.stateService.currentNode$
             .map<boolean>(
-                (node: Node): boolean => {
+                (node: NewNode): boolean => {
                     return node.fullPano;
                 })
             .map<IVNodeHash>(

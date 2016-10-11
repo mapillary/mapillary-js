@@ -20,7 +20,7 @@ import "rxjs/add/operator/scan";
 
 import {IAPISGet} from "../API";
 import {Container, Navigator} from "../Viewer";
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 
 import {IRouteConfiguration, IRoutePath, ComponentService, Component} from "../Component";
 import {IVNodeHash} from "../Render";
@@ -36,7 +36,7 @@ interface IRtAndFrame {
 
 interface IConfAndNode {
     conf: IRouteConfiguration;
-    node: Node;
+    node: NewNode;
 }
 
 interface INodeInstruction {
@@ -56,8 +56,8 @@ class DescriptionState {
 
 class RouteState {
     public routeTrack: RouteTrack;
-    public currentNode: Node;
-    public lastNode: Node;
+    public currentNode: NewNode;
+    public lastNode: NewNode;
     public playing: boolean;
 }
 
@@ -170,7 +170,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                 return false;
             }).distinctUntilChanged(undefined, (routeState: RouteState): string => {
                 return routeState.lastNode.key;
-            }).mergeMap<Node>((routeState: RouteState): Observable<Node> => {
+            }).mergeMap<NewNode>((routeState: RouteState): Observable<NewNode> => {
                 let i: number = 0;
                 for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
                     if (nodeInstruction.key === routeState.lastNode.key) {
@@ -181,19 +181,19 @@ export class RouteComponent extends Component<IRouteConfiguration> {
 
                 let nextInstruction: INodeInstruction = routeState.routeTrack.nodeInstructions[i + 1];
                 if (!nextInstruction) {
-                    return Observable.of<Node>(null);
+                    return Observable.of<NewNode>(null);
                 }
 
-                return this._navigator.graphService.node$(nextInstruction.key);
-            }).combineLatest(this.configuration$, (node: Node, conf: IRouteConfiguration): IConfAndNode => {
+                return this._navigator.newGraphService.cacheNode$(nextInstruction.key);
+            }).combineLatest(this.configuration$, (node: NewNode, conf: IRouteConfiguration): IConfAndNode => {
                 return {conf: conf, node: node};
             }).filter((cAN: IConfAndNode) => {
                 return cAN.node !== null && cAN.conf.playing;
-            }).pluck<Node>("node").subscribe(this._navigator.stateService.appendNode$);
+            }).pluck<NewNode>("node").subscribe(this._navigator.stateService.appendNode$);
 
         this._disposableDescription = this._navigator.stateService.currentNode$
             .combineLatest(_routeTrack$, this.configuration$,
-                           (node: Node, routeTrack: RouteTrack, conf: IRouteConfiguration): string => {
+                           (node: NewNode, routeTrack: RouteTrack, conf: IRouteConfiguration): string => {
                                if (conf.playing !== undefined && !conf.playing) {
                                    return "quit";
                                }

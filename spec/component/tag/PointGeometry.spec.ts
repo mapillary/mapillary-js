@@ -1,8 +1,9 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import {IAPINavImIm, IGPano} from "../../../src/API";
+import {IGPano} from "../../../src/API";
 import {PointGeometry, GeometryTagError} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
+import {NewNode} from "../../../src/Graph";
 
 describe("PointGeometry.ctor", () => {
     it("should be defined", () => {
@@ -30,6 +31,34 @@ describe("PointGeometry.ctor", () => {
 });
 
 describe("PointGeometry.setVertex2d", () => {
+    let createNode: (gpano: IGPano) => NewNode = (gpano: IGPano): NewNode => {
+        let node: NewNode = new NewNode({
+            ca: 0,
+            cca: 0,
+            cl: { lat: 0, lon: 0},
+            key: "key",
+            l: { lat: 0, lon: 0 },
+            sequence: { key: "skey" },
+        });
+
+        node.makeFull({
+            atomic_scale: 0,
+            c_rotation: [0, 0, 0],
+            calt: 0,
+            captured_at: 0,
+            cfocal: 0,
+            gpano: gpano,
+            height: 0,
+            merge_cc: 0,
+            merge_version: 0,
+            orientation: 0,
+            user: { key: "key", username: "username"},
+            width: 0,
+        });
+
+        return node;
+    };
+
     let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
         let gpano: IGPano = pano ?
             {
@@ -42,9 +71,9 @@ describe("PointGeometry.setVertex2d", () => {
             } :
             null;
 
-        let apiNavImIm: IAPINavImIm = { gpano: gpano, key: "", rotation: [0, 0, 0] };
+        let node: NewNode = createNode(gpano);
 
-        return new Transform(apiNavImIm, null, [0, 0, 0]);
+        return new Transform(node, null, [0, 0, 0]);
     };
 
     it("should set point to value", () => {

@@ -14,7 +14,7 @@ import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 import {
     Camera,
     ILatLon,
@@ -54,8 +54,8 @@ export class StateService {
 
     private _currentState$: Observable<IFrame>;
     private _lastState$: Observable<IFrame>;
-    private _currentNode$: Observable<Node>;
-    private _currentNodeExternal$: Observable<Node>;
+    private _currentNode$: Observable<NewNode>;
+    private _currentNodeExternal$: Observable<NewNode>;
     private _currentCamera$: Observable<Camera>;
     private _currentTransform$: Observable<Transform>;
     private _reference$: Observable<ILatLonAlt>;
@@ -63,7 +63,7 @@ export class StateService {
     private _movingOperation$: Subject<boolean>;
     private _moving$: Observable<boolean>;
 
-    private _appendNode$: Subject<Node> = new Subject<Node>();
+    private _appendNode$: Subject<NewNode> = new Subject<NewNode>();
 
     private _frameGenerator: FrameGenerator;
     private _frameId: number;
@@ -158,8 +158,8 @@ export class StateService {
         nodeChanged$.subscribe(nodeChangedSubject$);
 
         this._currentNode$ = nodeChangedSubject$
-            .map<Node>(
-                (f: IFrame): Node => {
+            .map<NewNode>(
+                (f: IFrame): NewNode => {
                     return f.state.currentNode;
                 })
             .publishReplay(1)
@@ -197,8 +197,8 @@ export class StateService {
             .refCount();
 
         this._currentNodeExternal$ = nodeChanged$
-            .map<Node>(
-                (f: IFrame): Node => {
+            .map<NewNode>(
+                (f: IFrame): NewNode => {
                     return f.state.currentNode;
                 })
             .publishReplay(1)
@@ -206,7 +206,7 @@ export class StateService {
 
         this._appendNode$
             .map<IContextOperation>(
-                (node: Node) => {
+                (node: NewNode) => {
                     return (context: IStateContext): IStateContext => {
                         context.append([node]);
 
@@ -279,11 +279,11 @@ export class StateService {
         return this._currentState$;
     }
 
-    public get currentNode$(): Observable<Node> {
+    public get currentNode$(): Observable<NewNode> {
         return this._currentNode$;
     }
 
-    public get currentNodeExternal$(): Observable<Node> {
+    public get currentNodeExternal$(): Observable<NewNode> {
         return this._currentNodeExternal$;
     }
 
@@ -307,7 +307,7 @@ export class StateService {
         return this._moving$;
     }
 
-    public get appendNode$(): Subject<Node> {
+    public get appendNode$(): Subject<NewNode> {
         return this._appendNode$;
     }
 
@@ -320,11 +320,11 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.wait(); });
     }
 
-    public appendNodes(nodes: Node[]): void {
+    public appendNodes(nodes: NewNode[]): void {
         this._invokeContextOperation((context: IStateContext) => { context.append(nodes); });
     }
 
-    public prependNodes(nodes: Node[]): void {
+    public prependNodes(nodes: NewNode[]): void {
         this._invokeContextOperation((context: IStateContext) => { context.prepend(nodes); });
     }
 
@@ -336,7 +336,7 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.cut(); });
     }
 
-    public setNodes(nodes: Node[]): void {
+    public setNodes(nodes: NewNode[]): void {
         this._invokeContextOperation((context: IStateContext) => { context.set(nodes); });
     }
 

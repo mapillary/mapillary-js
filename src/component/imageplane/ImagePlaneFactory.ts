@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 import {IGPano} from "../../API";
 import {Transform} from "../../Geo";
-import {Node} from "../../Graph";
+import {NewNode} from "../../Graph";
 import {ImagePlaneShaders} from "../../Component";
 
 export class ImagePlaneFactory {
@@ -16,7 +16,7 @@ export class ImagePlaneFactory {
         this._imageSphereRadius = imageSphereRadius != null ? imageSphereRadius : 200;
     }
 
-    public createMesh(node: Node, transform: Transform): THREE.Mesh {
+    public createMesh(node: NewNode, transform: Transform): THREE.Mesh {
         let mesh: THREE.Mesh = node.pano ?
             this._createImageSphere(node, transform) :
             this._createImagePlane(node, transform);
@@ -24,7 +24,7 @@ export class ImagePlaneFactory {
         return mesh;
     }
 
-    private _createImageSphere(node: Node, transform: Transform): THREE.Mesh {
+    private _createImageSphere(node: NewNode, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createSphereMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
@@ -36,7 +36,7 @@ export class ImagePlaneFactory {
         return mesh;
     }
 
-    private _createImagePlane(node: Node, transform: Transform): THREE.Mesh {
+    private _createImagePlane(node: NewNode, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
@@ -138,13 +138,13 @@ export class ImagePlaneFactory {
         return texture;
     }
 
-    private _useMesh(transform: Transform, node: Node): boolean {
+    private _useMesh(transform: Transform, node: NewNode): boolean {
         return node.mesh.vertices.length &&
             transform.scale > 1e-2 &&
             transform.scale < 50;
     }
 
-    private _getImageSphereGeo(transform: Transform, node: Node): THREE.BufferGeometry {
+    private _getImageSphereGeo(transform: Transform, node: NewNode): THREE.BufferGeometry {
         let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
 
         // push everything at least 5 meters in front of the camera
@@ -186,7 +186,7 @@ export class ImagePlaneFactory {
         return geometry;
     }
 
-    private _getImagePlaneGeo(transform: Transform, node: Node): THREE.BufferGeometry {
+    private _getImagePlaneGeo(transform: Transform, node: NewNode): THREE.BufferGeometry {
         let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
 
         // push everything at least 5 meters in front of the camera

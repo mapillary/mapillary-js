@@ -7,12 +7,12 @@ import {Subscription} from "rxjs/Subscription";
 import "rxjs/add/operator/combineLatest";
 
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
 interface ICanvasNode {
     canvas: HTMLCanvasElement;
-    node: Node;
+    node: NewNode;
 }
 
 export class ImageComponent extends Component<IComponentConfiguration> {
@@ -30,14 +30,14 @@ export class ImageComponent extends Component<IComponentConfiguration> {
         this.drawSubscription = this._container.domRenderer.element$
             .combineLatest(
                 this._navigator.stateService.currentNode$,
-                (element: Element, node: Node): ICanvasNode => {
+                (element: Element, node: NewNode): ICanvasNode => {
                     let canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById(this._canvasId);
                     return {canvas: canvas, node: node};
                 })
             .subscribe(
                 (canvasNode: ICanvasNode): void => {
                     let canvas: HTMLCanvasElement = canvasNode.canvas;
-                    let node: Node = canvasNode.node;
+                    let node: NewNode = canvasNode.node;
 
                     if (!node || !canvas) {
                         return null;

@@ -6,7 +6,7 @@ import * as vd from "virtual-dom";
 import {DirectionDOMCalculator, IDirectionConfiguration} from "../../Component";
 import {EdgeDirection, IEdge} from "../../Edge";
 import {Camera, Spatial} from "../../Geo";
-import {Node} from "../../Graph";
+import {IEdgeStatus, NewNode} from "../../Graph";
 import {RenderCamera} from "../../Render";
 import {IRotation} from "../../State";
 import {Navigator} from "../../Viewer";
@@ -19,7 +19,7 @@ export class DirectionDOMRenderer {
     private _spatial: Spatial;
     private _calculator: DirectionDOMCalculator;
 
-    private _node: Node;
+    private _node: NewNode;
 
     private _rotation: IRotation;
     private _epsilon: number;
@@ -112,17 +112,23 @@ export class DirectionDOMRenderer {
             turns = turns.concat(this._createTurnArrows(navigator));
         }
 
-        return this._getContainer(steps, turns, rotation, this._node.pano);
+        return this._getContainer(steps, turns, rotation);
+    }
+
+    public setEdges(edgeStatus: IEdgeStatus): void {
+        this._setEdges(edgeStatus);
+
+        this._setNeedsRender();
     }
 
     /**
      * Set node for which to show edges.
      *
-     * @param {Node} node
+     * @param {NewNode} node
      */
-    public setNode(node: Node): void {
+    public setNode(node: NewNode): void {
         this._node = node;
-        this._setEdges(node);
+        this._clearEdges();
 
         this._setNeedsRender();
     }
@@ -191,13 +197,20 @@ export class DirectionDOMRenderer {
         }
     }
 
-    private _setEdges(node: Node): void {
+    private _clearEdges(): void {
+        this._stepEdges = [];
+        this._turnEdges = [];
+        this._panoEdges = [];
+        this._sequenceEdgeKeys = [];
+    }
+
+    private _setEdges(edgeStatus: IEdgeStatus): void {
         this._stepEdges = [];
         this._turnEdges = [];
         this._panoEdges = [];
         this._sequenceEdgeKeys = [];
 
-        for (let edge of node.edges) {
+        for (let edge of edgeStatus.edges) {
             let direction: EdgeDirection = edge.data.direction;
 
             if (this._stepDirections.indexOf(direction) > -1) {
@@ -223,7 +236,7 @@ export class DirectionDOMRenderer {
             for (let edge of edges) {
                 let edgeKey: string = edge.to;
 
-                for (let sequenceKey of this._node.sequence.keys) {
+                for (let sequenceKey of <string[]>[]) {
                     if (sequenceKey === edgeKey) {
                         this._sequenceEdgeKeys.push(edgeKey);
                         break;
@@ -536,8 +549,7 @@ export class DirectionDOMRenderer {
     private _getContainer(
         steps: vd.VNode[],
         turns: vd.VNode[],
-        rotation: IRotation,
-        pano: boolean): vd.VNode {
+        rotation: IRotation): vd.VNode {
 
         // edge does not handle hover on perspective transforms.
         let transform: string = this._isEdge ?

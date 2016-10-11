@@ -12,9 +12,9 @@ import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 
-import {IAPISearchImClose2, APIv2, APIv3} from "../API";
+import {APIv2, APIv3, IFullNode} from "../API";
 import {ILatLon} from "../Geo";
-import {GraphService, NewGraph, NewGraphService, Node} from "../Graph";
+import {GraphService, IEdgeStatus, NewGraph, NewGraphService, NewNode} from "../Graph";
 import {EdgeDirection} from "../Edge";
 import {StateService} from "../State";
 import {LoadingService} from "../Viewer";
@@ -60,12 +60,13 @@ export class Navigator {
         this.apiV2.auth(token, projectKey);
     }
 
-    public moveToKey(key: string): Observable<Node> {
+    public moveToKey(key: string): Observable<NewNode> {
         this.loadingService.startLoading("navigator");
         this._keyRequested$.next(key);
-        return this.graphService.node$(key)
-            .map<Node>(
-                (node: Node) => {
+
+        return this._newGraphService.cacheNode$(key)
+            .map<NewNode>(
+                (node: NewNode) => {
                     this.loadingService.stopLoading("navigator");
                     this.stateService.setNodes([node]);
                     this._movedToKey$.next(node.key);
@@ -74,34 +75,51 @@ export class Navigator {
             .first();
     }
 
-    public moveDir(dir: EdgeDirection): Observable<Node> {
+    public moveDir(dir: EdgeDirection): Observable<NewNode> {
         this.loadingService.startLoading("navigator");
         this._dirRequested$.next(dir);
+
         return this.stateService.currentNode$
             .first()
-            .mergeMap<Node>((currentNode: Node) => {
-                return this.graphService.nextNode$(currentNode, dir)
-                    .mergeMap<Node>((node: Node) => {
-                        return node == null ?
-                            Observable.of<Node>(null) :
-                            this.moveToKey(node.key);
-                    });
-            })
-            .first();
+            .mergeMap<string>(
+                (node: NewNode): Observable<string> => {
+                    return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(dir) > -1 ?
+                        node.sequenceEdges$ :
+                        node.spatialEdges$)
+                            .first(
+                                (status: IEdgeStatus): boolean => {
+                                    return status.cached;
+                                })
+                            .map<string>(
+                                (status: IEdgeStatus): string => {
+                                    for (let edge of status.edges) {
+                                        if (edge.data.direction === dir) {
+                                            return edge.to;
+                                        }
+                                    }
+
+                                    return null;
+                                });
+                })
+            .mergeMap<NewNode>(
+                (directionKey: string) => {
+                    return directionKey == null ?
+                        Observable.of<NewNode>(null) :
+                        this.moveToKey(directionKey);
+                });
     }
 
-    public moveCloseTo(lat: number, lon: number): Observable<Node> {
+    public moveCloseTo(lat: number, lon: number): Observable<NewNode> {
         this.loadingService.startLoading("navigator");
         this._latLonRequested$.next({lat: lat, lon: lon});
-        return Observable
-            .fromPromise(this.apiV2.search.im.close2(lat, lon))
-            .mergeMap<Node>(
-                (data: IAPISearchImClose2): Observable<Node> => {
-                    return data.key == null ?
-                        Observable.throw<Node>(new Error("no Image found")) :
-                        this.moveToKey(data.key);
-                })
-            .first();
+
+        return this.apiV3.imageCloseTo$(lat, lon)
+            .mergeMap<NewNode>(
+                (fullNode: IFullNode): Observable<NewNode> => {
+                    return fullNode.key == null ?
+                        Observable.of<NewNode>(null) :
+                        this.moveToKey(fullNode.key);
+                });
     }
 }
 

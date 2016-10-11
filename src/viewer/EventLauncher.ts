@@ -6,7 +6,7 @@ import "rxjs/add/observable/combineLatest";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/map";
 
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 import {EventEmitter} from "../Utils";
 import {Container, Navigator} from "../Viewer";
 
@@ -29,7 +29,7 @@ export class EventLauncher {
             });
 
         this._stateSubscription = this._navigator.stateService.currentNodeExternal$
-            .subscribe((node: Node): void => {
+            .subscribe((node: NewNode): void => {
                 this._eventEmitter.fire("nodechanged", node);
             });
 

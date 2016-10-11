@@ -2,13 +2,14 @@
 
 import * as vd from "virtual-dom";
 
+import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/first";
 
-import {EdgeDirection} from "../Edge";
-import {Node} from "../Graph";
+import {EdgeDirection, IEdge} from "../Edge";
+import {IEdgeStatus, NewNode} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 
@@ -36,20 +37,29 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._renderSubscription = this._navigator.stateService.currentNode$
+            .switchMap<IEdge[]>(
+                (node: NewNode): Observable<IEdge[]> => {
+                    return node.pano ?
+                        Observable.of<IEdge[]>([]) :
+                        Observable.combineLatest<IEdge[]>(
+                            node.sequenceEdges$,
+                            node.spatialEdges$,
+                            (seq: IEdgeStatus, spa: IEdgeStatus): IEdge[] => {
+                                return seq.edges.concat(spa.edges);
+                            });
+                })
             .map(
-                (node: Node): IVNodeHash => {
+                (edges: IEdge[]): IVNodeHash => {
                     let btns: vd.VNode[] = [];
 
-                    if (!node.pano) {
-                        for (let edge of node.edges) {
-                            let direction: EdgeDirection = edge.data.direction;
-                            let name: string = this._dirNames[direction];
-                            if (name == null) {
-                                continue;
-                            }
-
-                            btns.push(this._createVNode(direction, name));
+                    for (let edge of edges) {
+                        let direction: EdgeDirection = edge.data.direction;
+                        let name: string = this._dirNames[direction];
+                        if (name == null) {
+                            continue;
                         }
+
+                        btns.push(this._createVNode(direction, name));
                     }
 
                     return {name: this._name, vnode: vd.h(`div.NavigationComponent`, btns)};

@@ -13,12 +13,14 @@ import "rxjs/add/operator/mergeAll";
 import "rxjs/add/operator/skip";
 import "rxjs/add/operator/switchMap";
 
-import {EdgeDirection} from "../Edge";
-import {Node} from "../Graph";
+import {EdgeDirection, IEdge} from "../Edge";
+import {IEdgeStatus, NewNode} from "../Graph";
 import {ComponentService, Component, ICacheConfiguration, ICacheDepth} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-type NodeDepth = [Node, number];
+type NodeDepth = [NewNode, number];
+
+type EdgesDepth = [IEdge[], number]
 
 export class CacheComponent extends Component<ICacheConfiguration> {
     public static componentName: string = "cache";
@@ -43,12 +45,12 @@ export class CacheComponent extends Component<ICacheConfiguration> {
 
     protected _activate(): void {
         this._cacheSubscription = Observable
-            .combineLatest<Node, ICacheConfiguration>(
+            .combineLatest<NewNode, ICacheConfiguration>(
                 this._navigator.stateService.currentNode$,
                 this._configuration$)
-            .switchMap<Node>(
-                (nc: [Node, ICacheConfiguration]): Observable<Node> => {
-                    let node: Node = nc[0];
+            .switchMap<EdgesDepth>(
+                (nc: [NewNode, ICacheConfiguration]): Observable<EdgesDepth> => {
+                    let node: NewNode = nc[0];
                     let configuration: ICacheConfiguration = nc[1];
 
                     let depth: ICacheDepth = configuration.depth;
@@ -58,22 +60,22 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                     let stepDepth: number = node.pano ? 0 : Math.max(0, Math.min(3, depth.step));
                     let turnDepth: number = node.pano ? 0 : Math.max(0, Math.min(1, depth.turn));
 
-                    let next$: Observable<Node> = this._cache$(node, EdgeDirection.Next, sequenceDepth);
-                    let prev$: Observable<Node> = this._cache$(node, EdgeDirection.Prev, sequenceDepth);
+                    let next$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.Next, sequenceDepth);
+                    let prev$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.Prev, sequenceDepth);
 
-                    let pano$: Observable<Node> = this._cache$(node, EdgeDirection.Pano, panoDepth);
+                    let pano$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.Pano, panoDepth);
 
-                    let forward$: Observable<Node> = this._cache$(node, EdgeDirection.StepForward, stepDepth);
-                    let backward$: Observable<Node> = this._cache$(node, EdgeDirection.StepBackward, stepDepth);
-                    let left$: Observable<Node> = this._cache$(node, EdgeDirection.StepLeft, stepDepth);
-                    let right$: Observable<Node> = this._cache$(node, EdgeDirection.StepRight, stepDepth);
+                    let forward$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.StepForward, stepDepth);
+                    let backward$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.StepBackward, stepDepth);
+                    let left$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.StepLeft, stepDepth);
+                    let right$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.StepRight, stepDepth);
 
-                    let turnLeft$: Observable<Node> = this._cache$(node, EdgeDirection.TurnLeft, turnDepth);
-                    let turnRight$: Observable<Node> = this._cache$(node, EdgeDirection.TurnRight, turnDepth);
-                    let turnU$: Observable<Node> = this._cache$(node, EdgeDirection.TurnU, turnDepth);
+                    let turnLeft$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.TurnLeft, turnDepth);
+                    let turnRight$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.TurnRight, turnDepth);
+                    let turnU$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.TurnU, turnDepth);
 
                     return Observable
-                        .merge<Node>(
+                        .merge<EdgesDepth>(
                             next$,
                             prev$,
                             forward$,
@@ -83,14 +85,10 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                             pano$,
                             turnLeft$,
                             turnRight$,
-                            turnU$)
-                        .distinct(
-                            (n1: Node, n2: Node): boolean => {
-                                return n1.key === n2.key;
-                            });
+                            turnU$);
                 })
             .subscribe(
-                (n: Node): void => { return; },
+                (n: EdgesDepth): void => { return; },
                 (e: Error): void => { console.error(e); });
     }
 
@@ -102,23 +100,29 @@ export class CacheComponent extends Component<ICacheConfiguration> {
         return { depth: { pano: 1, sequence: 2, step: 1, turn: 0 } };
     }
 
-    private _cache$(node: Node, direction: EdgeDirection, depth: number): Observable<Node> {
+    private _cache$(node: NewNode, direction: EdgeDirection, depth: number): Observable<EdgesDepth> {
         return Observable
-            .of<NodeDepth>([node, depth])
+            .zip<EdgesDepth>(
+                this._nodeToEdges$(node, direction),
+                Observable.of<number>(depth))
             .expand(
-                (nd: NodeDepth): Observable<NodeDepth> => {
-                    let n: Node = nd[0];
-                    let d: number = nd[1];
+                (ed: EdgesDepth): Observable<EdgesDepth> => {
+                    let es: IEdge[] = ed[0];
+                    let d: number = ed[1];
 
-                    let nodes$: Observable<NodeDepth>[] = [];
+                    let edgesDepths$: Observable<EdgesDepth>[] = [];
 
                     if (d > 0) {
-                        for (let edge of n.edges) {
+                        for (let edge of es) {
                             if (edge.data.direction === direction) {
-                                nodes$.push(
+                                edgesDepths$.push(
                                     Observable
-                                        .zip<Node, number>(
-                                            this._navigator.graphService.node$(edge.to),
+                                        .zip<EdgesDepth>(
+                                            this._navigator.newGraphService.cacheNode$(edge.to)
+                                                .mergeMap(
+                                                    (n: NewNode): Observable<IEdge[]> => {
+                                                        return this._nodeToEdges$(n, direction);
+                                                    }),
                                             Observable.of<number>(d - 1)
                                 ));
                             }
@@ -126,11 +130,24 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                     }
 
                     return Observable
-                        .from<Observable<NodeDepth>>(nodes$)
+                        .from<Observable<EdgesDepth>>(edgesDepths$)
                         .mergeAll();
                 })
-            .skip(1)
-            .map<Node>((nd: NodeDepth): Node => { return nd[0]; });
+            .skip(1);
+    }
+
+    private _nodeToEdges$(node: NewNode, direction: EdgeDirection): Observable<IEdge[]> {
+       return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+            node.sequenceEdges$ :
+            node.spatialEdges$)
+                .first(
+                    (status: IEdgeStatus): boolean => {
+                        return status.cached;
+                    })
+                .map<IEdge[]>(
+                    (status: IEdgeStatus): IEdge[] => {
+                        return status.edges;
+                    });
     }
 }
 

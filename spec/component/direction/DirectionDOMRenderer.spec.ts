@@ -1,12 +1,41 @@
 /// <reference path="../../../typings/index.d.ts" />
 
+import {ICoreNode, IFillNode} from "../../../src/API";
 import {
     DirectionDOMRenderer,
     IDirectionConfiguration,
 } from "../../../src/Component";
-import {Node} from "../../../src/Graph";
+import {NewNode} from "../../../src/Graph";
 import {RenderCamera, RenderMode} from "../../../src/Render";
 import {Navigator} from "../../../src/Viewer";
+
+let createCoreNode: () => ICoreNode = (): ICoreNode => {
+    return {
+        ca: 0,
+        cca: 0,
+        cl: { lat: 0, lon: 0},
+        key: "key",
+        l: { lat: 0, lon: 0 },
+        sequence: { key: "skey" },
+    };
+};
+
+let createFillNode: () => IFillNode = (): IFillNode => {
+    return {
+        atomic_scale: 0,
+        c_rotation: [0, 0, 0],
+        calt: 0,
+        captured_at: 0,
+        cfocal: 0,
+        gpano: null,
+        height: 0,
+        merge_cc: 0,
+        merge_version: 0,
+        orientation: 0,
+        user: { key: "key", username: "username"},
+        width: 0,
+    };
+};
 
 describe("DirectionDOMRenderer.ctor", () => {
     it("should be defined", () => {
@@ -47,8 +76,9 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.cacheEdges([]);
+        let node: NewNode = new NewNode(createCoreNode());
+        node.makeFull(createFillNode());
+
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);
@@ -64,8 +94,9 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.cacheEdges([]);
+        let node: NewNode = new NewNode(createCoreNode());
+        node.makeFull(createFillNode());
+
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);
@@ -139,8 +170,9 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.cacheEdges([]);
+        let node: NewNode = new NewNode(createCoreNode());
+        node.makeFull(createFillNode());
+
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);
@@ -169,8 +201,9 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.cacheEdges([]);
+        let node: NewNode = new NewNode(createCoreNode());
+        node.makeFull(createFillNode());
+
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);
@@ -197,8 +230,9 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: Node = new Node(0, { lat: 0, lon: 0 }, true, null, { key: "" }, []);
-        node.cacheEdges([]);
+        let node: NewNode = new NewNode(createCoreNode());
+        node.makeFull(createFillNode());
+
         renderer.setNode(node);
 
         expect(renderer.needsRender).toBe(true);

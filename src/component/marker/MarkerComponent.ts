@@ -29,7 +29,7 @@ import {
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {MapillaryObject, Node} from "../../Graph";
+import {MapillaryObject, NewNode} from "../../Graph";
 import {GeoCoords, ILatLonAlt} from "../../Geo";
 
 export type MarkerIndex = rbush.RBush<ISpatialMarker>;
@@ -256,7 +256,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         let needRender: boolean = false;
         let oldObjects: { [id: string]: THREE.Object3D } = this._markerObjects;
-        let node: Node = args.frame.state.currentNode;
+        let node: NewNode = args.frame.state.currentNode;
         this._markerObjects = {};
 
         let boxWidth: number = 0.001;

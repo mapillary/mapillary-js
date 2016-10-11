@@ -6,7 +6,7 @@ import {
     WaitingState,
     IRotation,
 } from "../State";
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 import {Camera, ILatLonAlt, Transform} from "../Geo";
 
 export class StateContext implements IStateContext {
@@ -57,11 +57,11 @@ export class StateContext implements IStateContext {
         return this._state.zoom;
     }
 
-    public get currentNode(): Node {
+    public get currentNode(): NewNode {
         return this._state.currentNode;
     }
 
-    public get previousNode(): Node {
+    public get previousNode(): NewNode {
         return this._state.previousNode;
     }
 
@@ -77,7 +77,7 @@ export class StateContext implements IStateContext {
         return this._state.previousTransform;
     }
 
-    public get trajectory(): Node[] {
+    public get trajectory(): NewNode[] {
         return this._state.trajectory;
     }
 
@@ -85,7 +85,7 @@ export class StateContext implements IStateContext {
         return this._state.currentIndex;
     }
 
-    public get lastNode(): Node {
+    public get lastNode(): NewNode {
         return this._state.trajectory[this._state.trajectory.length - 1];
     }
 
@@ -113,11 +113,11 @@ export class StateContext implements IStateContext {
         this._state.update(fps);
     }
 
-    public append(nodes: Node[]): void {
+    public append(nodes: NewNode[]): void {
         this._state.append(nodes);
     }
 
-    public prepend(nodes: Node[]): void {
+    public prepend(nodes: NewNode[]): void {
         this._state.prepend(nodes);
     }
 
@@ -129,7 +129,7 @@ export class StateContext implements IStateContext {
         this._state.cut();
     }
 
-    public set(nodes: Node[]): void {
+    public set(nodes: NewNode[]): void {
         this._state.set(nodes);
     }
 

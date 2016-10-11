@@ -17,7 +17,7 @@ import {Transform} from "../../Geo";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {ILoadStatusObject, ImageLoader, Node} from "../../Graph";
+import {ILoadStatusObject, ImageLoader, NewNode} from "../../Graph";
 import {Settings} from "../../Utils";
 
 interface IImagePlaneGLRendererOperation {
@@ -122,9 +122,9 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .withLatestFrom(
                 this._navigator.stateService.currentTransform$,
                 this._configuration$)
-            .map<[Node, number]>(
-                (params: [Node, Transform, IImagePlaneConfiguration]): [Node, number] => {
-                    let node: Node = params[0];
+            .map<[NewNode, number]>(
+                (params: [NewNode, Transform, IImagePlaneConfiguration]): [NewNode, number] => {
+                    let node: NewNode = params[0];
                     let transform: Transform = params[1];
                     let configuration: IImagePlaneConfiguration = params[2];
 
@@ -141,17 +141,17 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     return [node, imageSize];
                 })
             .filter(
-                (params: [Node, number]): boolean => {
-                    let node: Node = params[0];
+                (params: [NewNode, number]): boolean => {
+                    let node: NewNode = params[0];
                     let imageSize: number = params[1];
 
                     return node.pano ?
                         imageSize > Settings.basePanoramaSize :
                         imageSize > Settings.baseImageSize;
                 })
-            .switchMap<[HTMLImageElement, Node]>(
-                (params: [Node, number]): Observable<[HTMLImageElement, Node]> => {
-                    let node: Node = params[0];
+            .switchMap<[HTMLImageElement, NewNode]>(
+                (params: [NewNode, number]): Observable<[HTMLImageElement, NewNode]> => {
+                    let node: NewNode = params[0];
                     let imageSize: number = params[1];
 
                     let image$: Observable<ILoadStatusObject<HTMLImageElement>> =
@@ -170,13 +170,13 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                                 return statusObject.object;
                             })
                         .zip(
-                            Observable.of<Node>(node),
-                            (i: HTMLImageElement, n: Node): [HTMLImageElement, Node] => {
+                            Observable.of<NewNode>(node),
+                            (i: HTMLImageElement, n: NewNode): [HTMLImageElement, NewNode] => {
                                 return [i, n];
                             });
                 })
             .map<IImagePlaneGLRendererOperation>(
-                (imn: [HTMLImageElement, Node]): IImagePlaneGLRendererOperation => {
+                (imn: [HTMLImageElement, NewNode]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateTexture(imn[0], imn[1]);
 

@@ -2,9 +2,9 @@
 
 import * as THREE from "three";
 
-import {IAPINavImIm} from "../../src/API";
+import {IFillNode} from "../../src/API";
 import {Camera} from "../../src/Geo";
-import {Node} from "../../src/Graph";
+import {NewNode} from "../../src/Graph";
 import {IState, TraversingState} from "../../src/State";
 
 describe("TraversingState.ctor", () => {
@@ -24,6 +24,23 @@ describe("TraversingState.ctor", () => {
     });
 });
 
+let createFillNode: () => IFillNode = (): IFillNode => {
+    return {
+        atomic_scale: 0,
+        c_rotation: [0, 0, 0],
+        calt: 0,
+        captured_at: 0,
+        cfocal: 0,
+        gpano: null,
+        height: 0,
+        merge_cc: 0,
+        merge_version: 0,
+        orientation: 0,
+        user: { key: "key", username: "username"},
+        width: 0,
+    };
+};
+
 class TestTraversingState extends TraversingState {
     public get currentCamera(): Camera {
         return this._currentCamera;
@@ -34,9 +51,24 @@ class TestTraversingState extends TraversingState {
     }
 }
 
-class TestNode extends Node {
-    public get loaded(): boolean {
+class TestNode extends NewNode {
+    constructor() {
+        super({
+            ca: 0,
+            cca: 0,
+            cl: { lat: 0, lon: 0 },
+            key: "key",
+            l: { lat: 0, lon: 0 },
+            sequence: { key: "skey" },
+        });
+    }
+
+    public get assetsCached(): boolean {
         return true;
+    }
+
+    public get image(): HTMLImageElement {
+        return null;
     }
 }
 
@@ -59,8 +91,9 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let apiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
-        let node: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, apiNavImIm, null);
+        let node: TestNode = new TestNode();
+        let fillNode: IFillNode = createFillNode();
+        node.makeFull(fillNode);
 
         traversingState.set([node]);
 
@@ -89,11 +122,14 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
-        let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
+        let previousNode: TestNode = new TestNode();
+        let previousFillNode: IFillNode = createFillNode();
+        previousFillNode.c_rotation = [Math.PI, 0, 0];
+        previousNode.makeFull(previousFillNode);
 
-        let currentApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
-        let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
+        let currentNode: TestNode = new TestNode();
+        let currentFillNode: IFillNode = createFillNode();
+        currentNode.makeFull(currentFillNode);
 
         traversingState.set([previousNode]);
         traversingState.set([currentNode]);
@@ -123,24 +159,23 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
-        let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
+        let previousNode: TestNode = new TestNode();
+        let preivousFillNode: IFillNode = createFillNode();
+        preivousFillNode.c_rotation = [Math.PI, 0, 0];
+        previousNode.makeFull(preivousFillNode);
 
-        let currentApiNavImIm: IAPINavImIm = {
-            calt: 0,
-            gpano: {
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            },
-            key: "",
-            rotation: [0, 0, 0],
+        let currentNode: TestNode = new TestNode();
+        let currentFillNode: IFillNode = createFillNode();
+        currentFillNode.gpano = {
+            CroppedAreaImageHeightPixels: 1,
+            CroppedAreaImageWidthPixels: 1,
+            CroppedAreaLeftPixels: 0,
+            CroppedAreaTopPixels: 0,
+            FullPanoHeightPixels: 1,
+            FullPanoWidthPixels: 1,
         };
 
-        let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
+        currentNode.makeFull(currentFillNode);
 
         traversingState.set([previousNode]);
         traversingState.set([currentNode]);
@@ -176,8 +211,9 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let apiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
-        let node: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, apiNavImIm, null);
+        let node: TestNode = new TestNode();
+        let fillNode: IFillNode = createFillNode();
+        node.makeFull(fillNode);
 
         traversingState.set([node]);
 
@@ -206,12 +242,14 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [Math.PI, 0, 0] };
-        let previousNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, previousApiNavImIm, null);
+        let previousNode: TestNode = new TestNode();
+        let previousFillNode: IFillNode = createFillNode();
+        previousFillNode.c_rotation = [Math.PI, 0, 0];
+        previousNode.makeFull(previousFillNode);
 
-        let currentApiNavImIm: IAPINavImIm = { calt: 0, key: "", rotation: [0, 0, 0] };
-
-        let currentNode: TestNode = new TestNode(0, {lat: 0, lon: 0}, true, null, currentApiNavImIm, null);
+        let currentNode: TestNode = new TestNode();
+        let currentFillNode: IFillNode = createFillNode();
+        currentNode.makeFull(currentFillNode);
 
         traversingState.set([previousNode]);
         traversingState.set([currentNode]);

@@ -23,7 +23,7 @@ import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 import "rxjs/add/operator/zip";
 
-import {ILoadStatusObject, ImageLoader, Node} from "../../Graph";
+import {ILoadStatusObject, ImageLoader, NewNode} from "../../Graph";
 import {ICurrentState, IFrame, State} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage, IVNodeHash} from "../../Render";
@@ -38,8 +38,8 @@ import {
 } from "../../Component";
 
 interface ISliderNodes {
-    background: Node;
-    foreground: Node;
+    background: NewNode;
+    foreground: NewNode;
 }
 
 interface ISliderCombination {
@@ -128,7 +128,7 @@ class SliderState {
         this._domNeedsRender = needsRender || this._domNeedsRender;
     }
 
-    public updateTexture(image: HTMLImageElement, node: Node): void {
+    public updateTexture(image: HTMLImageElement, node: NewNode): void {
         let imagePlanes: THREE.Mesh[] = node.key === this._currentKey ?
             this._imagePlaneScene.imagePlanes :
             node.key === this._previousKey ?
@@ -465,7 +465,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                 this._navigator.graphService.node$(configuration.keys.background),
                                 this._navigator.graphService.node$(configuration.keys.foreground),
                             ],
-                            (background: Node, foreground: Node): ISliderNodes => {
+                            (background: NewNode, foreground: NewNode): ISliderNodes => {
                                 return { background: background, foreground: foreground };
                             })
                         .withLatestFrom<ISliderCombination>(
@@ -501,18 +501,18 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     console.log(e);
                 });
 
-        let previousNode$: Observable<Node> = this._navigator.stateService.currentState$
-            .map<Node>(
-                (frame: IFrame): Node => {
+        let previousNode$: Observable<NewNode> = this._navigator.stateService.currentState$
+            .map<NewNode>(
+                (frame: IFrame): NewNode => {
                     return frame.state.previousNode;
                 })
             .filter(
-                (node: Node): boolean => {
+                (node: NewNode): boolean => {
                     return node != null;
                 })
             .distinctUntilChanged(
                 undefined,
-                (node: Node): string => {
+                (node: NewNode): string => {
                     return node.key;
                 });
 
@@ -521,13 +521,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 previousNode$,
                 this._navigator.stateService.currentNode$)
             .filter(
-                (node: Node): boolean => {
+                (node: NewNode): boolean => {
                     return node.pano ?
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
             .mergeMap(
-                (node: Node): Observable<[HTMLImageElement, Node]> => {
+                (node: NewNode): Observable<[HTMLImageElement, NewNode]> => {
                     return ImageLoader.loadThumbnail(node.key, Settings.maxImageSize)
                         .filter(
                             (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
@@ -539,13 +539,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                 return statusObject.object;
                             })
                         .zip(
-                            Observable.of<Node>(node),
-                            (t: HTMLImageElement, n: Node): [HTMLImageElement, Node] => {
+                            Observable.of<NewNode>(node),
+                            (t: HTMLImageElement, n: NewNode): [HTMLImageElement, NewNode] => {
                                 return [t, n];
                             });
                 })
             .map<ISliderStateOperation>(
-                (imn: [HTMLImageElement, Node]): ISliderStateOperation => {
+                (imn: [HTMLImageElement, NewNode]): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
                         sliderState.updateTexture(imn[0], imn[1]);
 

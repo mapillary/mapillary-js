@@ -2,7 +2,8 @@
 
 import * as THREE from "three";
 
-import {IAPINavImIm, IGPano} from "../API";
+import {IGPano} from "../API";
+import {NewNode} from "../Graph";
 
 /**
  * @class Transform
@@ -25,29 +26,29 @@ export class Transform {
 
     /**
      * Create a new transform instance.
-     * @param {IAPINavImIm} apiNavImIm - Node properties.
+     * @param {NewNode} apiNavImIm - Node properties.
      * @param {HTMLImageElement} image - Node image.
      * @param {Array<number>} translation - Node translation vector in three dimensions.
      */
-    constructor(apiNavImIm: IAPINavImIm, image: HTMLImageElement, translation: number[]) {
-        this._orientation = this._getValue(apiNavImIm.orientation, 1);
+    constructor(node: NewNode, image: HTMLImageElement, translation: number[]) {
+        this._orientation = this._getValue(node.orientation, 1);
 
         let imageWidth: number = image != null ? image.width : 4;
         let imageHeight: number = image != null ? image.height : 3;
         let keepOrientation: boolean = this._orientation < 5;
 
-        this._width = this._getValue(apiNavImIm.width, keepOrientation ? imageWidth : imageHeight);
-        this._height = this._getValue(apiNavImIm.height, keepOrientation ? imageHeight : imageWidth);
+        this._width = this._getValue(node.width, keepOrientation ? imageWidth : imageHeight);
+        this._height = this._getValue(node.height, keepOrientation ? imageHeight : imageWidth);
         this._basicAspect = keepOrientation ?
             this._width / this._height :
             this._height / this._width;
 
-        this._focal = this._getValue(apiNavImIm.cfocal, 1);
-        this._scale = this._getValue(apiNavImIm.atomic_scale, 0);
+        this._focal = this._getValue(node.focal, 1);
+        this._scale = this._getValue(node.scale, 0);
 
-        this._gpano = apiNavImIm.gpano ? apiNavImIm.gpano : null;
+        this._gpano = node.gpano != null ? node.gpano : null;
 
-        this._rt = this._getRt(apiNavImIm.rotation, translation);
+        this._rt = this._getRt(node.rotation, translation);
         this._srt = this._getSrt(this._rt, this._scale);
     }
 

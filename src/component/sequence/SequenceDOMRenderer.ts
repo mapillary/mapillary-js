@@ -8,7 +8,7 @@ import {
     SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
-import {Node} from "../../Graph";
+import {IEdgeStatus} from "../../Graph";
 import {Navigator} from "../../Viewer";
 
 export class SequenceDOMRenderer {
@@ -25,7 +25,7 @@ export class SequenceDOMRenderer {
     }
 
     public render(
-        node: Node,
+        edgeStatus: IEdgeStatus,
         configuration: ISequenceConfiguration,
         containerWidth: number,
         component: SequenceComponent,
@@ -39,7 +39,7 @@ export class SequenceDOMRenderer {
         let nextKey: string = null;
         let prevKey: string = null;
 
-        for (let edge of node.edges) {
+        for (let edge of edgeStatus.edges) {
             if (edge.data.direction === EdgeDirection.Next) {
                 nextKey = edge.to;
             }
@@ -50,7 +50,7 @@ export class SequenceDOMRenderer {
         }
 
         let playingButton: vd.VNode = this._createPlayingButton(nextKey, prevKey, configuration, component);
-        let arrows: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, node, configuration, interaction, navigator);
+        let arrows: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, configuration, interaction, navigator);
 
         let containerProperties: vd.createProperties = {
             style: { height: (0.27 * containerWidth) + "px", width: containerWidth + "px" },
@@ -113,7 +113,6 @@ export class SequenceDOMRenderer {
     private _createSequenceArrows(
         nextKey: string,
         prevKey: string,
-        node: Node,
         configuration: ISequenceConfiguration,
         interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode[] {

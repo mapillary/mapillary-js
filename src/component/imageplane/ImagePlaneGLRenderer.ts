@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 import {ImagePlaneScene, ImagePlaneFactory} from "../../Component";
 import {Camera} from "../../Geo";
-import {Node} from "../../Graph";
+import {NewNode} from "../../Graph";
 import {ICurrentState, IFrame} from "../../State";
 
 
@@ -56,7 +56,7 @@ export class ImagePlaneGLRenderer {
         this._needsRender = this._updateImagePlanes(frame.state) || this._needsRender;
     }
 
-    public updateTexture(image: HTMLImageElement, node: Node): void {
+    public updateTexture(image: HTMLImageElement, node: NewNode): void {
         if (this._currentKey !== node.key) {
             return;
         }

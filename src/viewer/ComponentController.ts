@@ -1,4 +1,4 @@
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {CoverComponent, ComponentService, ICoverConfiguration, Component, IComponentConfiguration} from "../Component";
 import {IViewerOptions} from "../Viewer";
@@ -100,7 +100,7 @@ export class ComponentController {
     private _subscribeCoverComponent(): void {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
-                this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
+                this._navigator.moveToKey(conf.key).subscribe((node: NewNode) => {
                     this._navigator.stateService.start();
                     this._coverComponent.configure({ loading: false, visible: false });
                     this._componentService.deactivateCover();

@@ -5,7 +5,7 @@ import * as vd from "virtual-dom";
 import {Subscription} from "rxjs/Subscription";
 
 import {Container, Navigator} from "../Viewer";
-import {Node} from "../Graph";
+import {NewNode} from "../Graph";
 
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {IVNodeHash} from "../Render";
@@ -21,8 +21,8 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         this._disposable = this._navigator.stateService.currentNode$
             .map(
-                (node: Node): IVNodeHash => {
-                    return {name: this._name, vnode: this._getAttributionNode(node.apiNavImIm.user, node.key)};
+                (node: NewNode): IVNodeHash => {
+                    return {name: this._name, vnode: this._getAttributionNode(node.username, node.key)};
                 })
             .subscribe(this._container.domRenderer.render$);
     }

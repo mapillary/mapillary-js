@@ -15,6 +15,7 @@ import "rxjs/add/operator/filter";
 import "rxjs/add/operator/finally";
 import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
+import "rxjs/add/operator/publishReplay";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/share";
 import "rxjs/add/operator/switchMap";
@@ -29,7 +30,7 @@ import {
     SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
-import {Node} from "../../Graph";
+import {IEdgeStatus, NewNode} from "../../Graph";
 import {IVNodeHash} from "../../Render";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
@@ -63,6 +64,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _hoveredKeySubject$: Subject<string>;
     private _hoveredKey$: Observable<string>;
     private _containerWidth$: Subject<number>;
+    private _edgeStatus$: Observable<IEdgeStatus>;
 
     private _configurationSubscription: Subscription;
     private _renderSubscription: Subscription;
@@ -82,6 +84,14 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._hoveredKeySubject$ = new Subject<string>();
 
         this._hoveredKey$ = this._hoveredKeySubject$.share();
+
+        this._edgeStatus$ = this._navigator.stateService.currentNode$
+            .switchMap<IEdgeStatus>(
+                (node: NewNode): Observable<IEdgeStatus> => {
+                    return node.sequenceEdges$;
+                })
+            .publishReplay(1)
+            .refCount();
     }
 
     /**
@@ -195,19 +205,19 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
     protected _activate(): void {
         this._renderSubscription = Observable
-            .combineLatest<Node, ISequenceConfiguration, number>(
-                this._navigator.stateService.currentNode$,
+            .combineLatest<IEdgeStatus, ISequenceConfiguration, number>(
+                this._edgeStatus$,
                 this._configuration$,
                 this._containerWidth$)
             .map<IVNodeHash>(
-                (nc: [Node, ISequenceConfiguration, number]): IVNodeHash => {
-                    let node: Node = nc[0];
-                    let configuration: ISequenceConfiguration = nc[1];
-                    let containerWidth: number = nc[2];
+                (ec: [IEdgeStatus, ISequenceConfiguration, number]): IVNodeHash => {
+                    let edgeStatus: IEdgeStatus = ec[0];
+                    let configuration: ISequenceConfiguration = ec[1];
+                    let containerWidth: number = ec[2];
 
                     let vNode: vd.VNode = this._sequenceDOMRenderer
                         .render(
-                            node,
+                            edgeStatus,
                             configuration,
                             containerWidth,
                             this,
@@ -273,23 +283,27 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
         this._stopSubscription = this._configuration$
             .switchMap(
-                (configuration: ISequenceConfiguration): Observable<[Node, EdgeDirection]> => {
-                    let node$: Observable<Node> = configuration.playing ?
-                        this._navigator.stateService.currentNode$ :
-                        Observable.empty<Node>();
+                (configuration: ISequenceConfiguration): Observable<[IEdgeStatus, EdgeDirection]> => {
+                    let edgeStatus$: Observable<IEdgeStatus> = configuration.playing ?
+                        this._edgeStatus$ :
+                        Observable.empty<IEdgeStatus>();
 
                     let edgeDirection$: Observable<EdgeDirection> = Observable
                         .of(configuration.direction);
 
                     return Observable
-                        .combineLatest<Node, EdgeDirection>(node$, edgeDirection$);
+                        .combineLatest<IEdgeStatus, EdgeDirection>(edgeStatus$, edgeDirection$);
                 })
             .map<boolean>(
-                (ne: [Node, EdgeDirection]): boolean => {
-                    let node: Node = ne[0];
+                (ne: [IEdgeStatus, EdgeDirection]): boolean => {
+                    let edgeStatus: IEdgeStatus = ne[0];
                     let direction: EdgeDirection = ne[1];
 
-                    for (let edge of node.edges) {
+                    if (!edgeStatus.cached) {
+                        return true;
+                    }
+
+                    for (let edge of edgeStatus.edges) {
                         if (edge.data.direction === direction) {
                             return true;
                         }
@@ -310,10 +324,10 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._hoveredKeySubscription = this._sequenceDOMInteraction.mouseEnterDirection$
             .switchMap<string>(
                 (direction: EdgeDirection): Observable<string> => {
-                    return this._navigator.stateService.currentNode$
+                    return this._edgeStatus$
                         .map<string>(
-                            (node: Node): string => {
-                                for (let edge of node.edges) {
+                            (edgeStatus: IEdgeStatus): string => {
+                                for (let edge of edgeStatus.edges) {
                                     if (edge.data.direction === direction) {
                                         return edge.to;
                                     }
@@ -354,25 +368,40 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (frame: IFrame): boolean => {
                     return frame.state.nodesAhead < this._nodesAhead;
                 })
-            .map<Node>(
-                (frame: IFrame): Node => {
+            .map<NewNode>(
+                (frame: IFrame): NewNode => {
                     return frame.state.lastNode;
                 })
             .distinctUntilChanged(
                 undefined,
-                (lastNode: Node): string => {
+                (lastNode: NewNode): string => {
                     return lastNode.key;
                 })
             .withLatestFrom(
                 this._configuration$,
-                (lastNode: Node, configuration: ISequenceConfiguration): [Node, EdgeDirection] => {
+                (lastNode: NewNode, configuration: ISequenceConfiguration): [NewNode, EdgeDirection] => {
                     return [lastNode, configuration.direction];
                 })
+            .switchMap<[IEdgeStatus, EdgeDirection]>(
+                (nd: [NewNode, EdgeDirection]): Observable<[IEdgeStatus, EdgeDirection]> => {
+                    return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(nd[1]) > -1 ?
+                            nd[0].sequenceEdges$ :
+                            nd[0].spatialEdges$)
+                        .filter(
+                            (status: IEdgeStatus): boolean => {
+                                return status.cached;
+                            })
+                        .zip<EdgeDirection, [IEdgeStatus, EdgeDirection]>(
+                            Observable.of<EdgeDirection>(nd[1]),
+                            (status: IEdgeStatus, direction: EdgeDirection): [IEdgeStatus, EdgeDirection] => {
+                                return [status, direction];
+                            });
+                })
             .map<string>(
-                (nd: [Node, EdgeDirection]): string => {
-                    let direction: EdgeDirection = nd[1];
+                (ed: [IEdgeStatus, EdgeDirection]): string => {
+                    let direction: EdgeDirection = ed[1];
 
-                    for (let edge of nd[0].edges) {
+                    for (let edge of ed[0].edges) {
                         if (edge.data.direction === direction) {
                             return edge.to;
                         }
@@ -384,12 +413,12 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (key: string): boolean => {
                     return key != null;
                 })
-            .switchMap<Node>(
-                (key: string): Observable<Node> => {
-                    return this._navigator.graphService.node$(key);
+            .switchMap<NewNode>(
+                (key: string): Observable<NewNode> => {
+                    return this._navigator.newGraphService.cacheNode$(key);
                 })
             .subscribe(
-                (node: Node): void => {
+                (node: NewNode): void => {
                     this._navigator.stateService.appendNodes([node]);
                 },
                 (error: Error): void => {

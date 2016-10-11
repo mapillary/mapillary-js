@@ -2,7 +2,7 @@
 
 import {ParameterMapillaryError} from "../../Error";
 import {IState} from "../../State";
-import {Node} from "../../Graph";
+import {NewNode} from "../../Graph";
 import {Camera, GeoCoords, ILatLonAlt, Transform, Spatial} from "../../Geo";
 import {IRotation} from "../../State";
 
@@ -18,9 +18,9 @@ export abstract class StateBase implements IState {
 
     protected _currentIndex: number;
 
-    protected _trajectory: Node[];
-    protected _currentNode: Node;
-    protected _previousNode: Node;
+    protected _trajectory: NewNode[];
+    protected _currentNode: NewNode;
+    protected _previousNode: NewNode;
 
     protected _trajectoryTransforms: Transform[];
 
@@ -52,7 +52,7 @@ export abstract class StateBase implements IState {
 
         for (let node of this._trajectory) {
             let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node.apiNavImIm, node.image, translation);
+            let transform: Transform = new Transform(node, node.image, translation);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -91,7 +91,7 @@ export abstract class StateBase implements IState {
         return this._zoom;
     }
 
-    public get trajectory(): Node[] {
+    public get trajectory(): NewNode[] {
         return this._trajectory;
     }
 
@@ -99,11 +99,11 @@ export abstract class StateBase implements IState {
         return this._currentIndex;
     }
 
-    public get currentNode(): Node {
+    public get currentNode(): NewNode {
         return this._currentNode;
     }
 
-    public get previousNode(): Node {
+    public get previousNode(): NewNode {
         return this._previousNode;
     }
 
@@ -143,7 +143,7 @@ export abstract class StateBase implements IState {
 
     public abstract update(fps: number): void;
 
-    public append(nodes: Node[]): void {
+    public append(nodes: NewNode[]): void {
         if (nodes.length < 1) {
             throw Error("Trajectory can not be empty");
         }
@@ -156,7 +156,7 @@ export abstract class StateBase implements IState {
         }
     }
 
-    public prepend(nodes: Node[]): void {
+    public prepend(nodes: NewNode[]): void {
         if (nodes.length < 1) {
             throw Error("Trajectory can not be empty");
         }
@@ -202,7 +202,7 @@ export abstract class StateBase implements IState {
         }
     }
 
-    public set(nodes: Node[]): void {
+    public set(nodes: NewNode[]): void {
         this._setTrajectory(nodes);
         this._setCurrentNode();
         this._setReference(this._currentNode);
@@ -246,12 +246,12 @@ export abstract class StateBase implements IState {
         return nodesSet && !(
             this._currentNode.merged &&
             this._previousNode.merged &&
-            this._withinOriginalDistance() &&
+            this._withinDistance() &&
             this._sameConnectedComponent()
         );
     }
 
-    private _setReference(node: Node): boolean {
+    private _setReference(node: NewNode): boolean {
         // do not reset reference if node is within threshold distance
         if (Math.abs(node.latLon.lat - this.reference.lat) < this._referenceThreshold &&
             Math.abs(node.latLon.lon - this.reference.lon) < this._referenceThreshold) {
@@ -265,7 +265,7 @@ export abstract class StateBase implements IState {
 
         this._reference.lat = node.latLon.lat;
         this._reference.lon = node.latLon.lon;
-        this._reference.alt = node.apiNavImIm.calt;
+        this._reference.alt = node.alt;
 
         return true;
     }
@@ -280,7 +280,7 @@ export abstract class StateBase implements IState {
             null;
     }
 
-    private _setTrajectory(nodes: Node[]): void {
+    private _setTrajectory(nodes: NewNode[]): void {
         if (nodes.length < 1) {
             throw new ParameterMapillaryError("Trajectory can not be empty");
         }
@@ -301,65 +301,65 @@ export abstract class StateBase implements IState {
         this._appendToTrajectories(this._trajectory);
     }
 
-    private _appendToTrajectories(nodes: Node[]): void {
+    private _appendToTrajectories(nodes: NewNode[]): void {
         for (let node of nodes) {
-            if (!node.loaded) {
-                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
+            if (!node.assetsCached) {
+                throw new ParameterMapillaryError("Assets must be cached when node is added to trajectory");
             }
 
             let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node.apiNavImIm, node.image, translation);
+            let transform: Transform = new Transform(node, node.image, translation);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
         }
     }
 
-    private _prependToTrajectories(nodes: Node[]): void {
+    private _prependToTrajectories(nodes: NewNode[]): void {
         for (let node of nodes.reverse()) {
-            if (!node.loaded) {
-                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
+            if (!node.assetsCached) {
+                throw new ParameterMapillaryError("NewNode must be loaded when added to trajectory");
             }
 
             let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node.apiNavImIm, node.image, translation);
+            let transform: Transform = new Transform(node, node.image, translation);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));
         }
     }
 
-    private _nodeToTranslation(node: Node): number[] {
+    private _nodeToTranslation(node: NewNode): number[] {
         let C: number[] = this._geoCoords.geodeticToEnu(
             node.latLon.lat,
             node.latLon.lon,
-            node.apiNavImIm.calt,
+            node.alt,
             this._reference.lat,
             this._reference.lon,
             this._reference.alt);
 
-        let RC: THREE.Vector3 = this._spatial.rotate(C, node.apiNavImIm.rotation);
+        let RC: THREE.Vector3 = this._spatial.rotate(C, node.rotation);
 
         return [-RC.x, -RC.y, -RC.z];
     }
 
     private _sameConnectedComponent(): boolean {
-        let current: Node = this._currentNode;
-        let previous: Node = this._previousNode;
+        let current: NewNode = this._currentNode;
+        let previous: NewNode = this._previousNode;
 
         if (!current ||
-            !current.apiNavImIm.merge_cc ||
+            !current.mergeCC ||
             !previous ||
-            !previous.apiNavImIm.merge_cc) {
+            !previous.mergeCC) {
             return true;
         }
 
-        return current.apiNavImIm.merge_cc === previous.apiNavImIm.merge_cc;
+        return current.mergeCC === previous.mergeCC;
     }
 
-    private _withinOriginalDistance(): boolean {
-        let current: Node = this._currentNode;
-        let previous: Node = this._previousNode;
+    private _withinDistance(): boolean {
+        let current: NewNode = this._currentNode;
+        let previous: NewNode = this._previousNode;
 
         if (!current || !previous) {
             return true;
@@ -367,10 +367,10 @@ export abstract class StateBase implements IState {
 
         // 50 km/h moves 28m in 2s
         let distance: number = this._spatial.distanceFromLatLon(
-            current.apiNavImIm.lat,
-            current.apiNavImIm.lon,
-            previous.apiNavImIm.lat,
-            previous.apiNavImIm.lon);
+            current.latLon.lat,
+            current.latLon.lon,
+            previous.latLon.lat,
+            previous.latLon.lon);
 
         return distance < 25;
     }
