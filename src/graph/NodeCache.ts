@@ -5,6 +5,8 @@ import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/combineLatest";
 
+import "rxjs/add/operator/publishReplay";
+
 import {IEdge} from "../Edge";
 import {
     IEdgeStatus,
@@ -33,6 +35,8 @@ export class NewNodeCache {
     private _sequenceEdges$: Observable<IEdgeStatus>;
     private _spatialEdgesChanged$: Subject<IEdgeStatus>;
     private _spatialEdges$: Observable<IEdgeStatus>;
+
+    private _cachingAssets$: Observable<NewNodeCache>;
 
     private _imageSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
@@ -68,6 +72,8 @@ export class NewNodeCache {
             .refCount();
 
         this._spatialEdgesSubscription = this._spatialEdges$.subscribe();
+
+        this._cachingAssets$ = null;
     }
 
     public get image(): HTMLImageElement {
@@ -103,28 +109,42 @@ export class NewNodeCache {
     }
 
     public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NewNodeCache> {
-        return Observable
-            .combineLatest(
-                this._cacheImage(key, pano),
-                this._cacheMesh(key, merged),
-                (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NewNodeCache => {
-                    this._loadStatus.loaded = 0;
-                    this._loadStatus.total = 0;
+        if (this._cachingAssets$ == null) {
+            let cachingAssets$: Observable<NewNodeCache> = Observable
+                .combineLatest(
+                    this._cacheImage(key, pano),
+                    this._cacheMesh(key, merged),
+                    (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NewNodeCache => {
+                        this._loadStatus.loaded = 0;
+                        this._loadStatus.total = 0;
 
-                    if (meshStatus) {
-                        this._mesh = meshStatus.object;
-                        this._loadStatus.loaded += meshStatus.loaded.loaded;
-                        this._loadStatus.total += meshStatus.loaded.total;
-                    }
+                        if (meshStatus) {
+                            this._mesh = meshStatus.object;
+                            this._loadStatus.loaded += meshStatus.loaded.loaded;
+                            this._loadStatus.total += meshStatus.loaded.total;
+                        }
 
-                    if (imageStatus) {
-                        this._image = imageStatus.object;
-                        this._loadStatus.loaded += imageStatus.loaded.loaded;
-                        this._loadStatus.total += imageStatus.loaded.total;
-                    }
+                        if (imageStatus) {
+                            this._image = imageStatus.object;
+                            this._loadStatus.loaded += imageStatus.loaded.loaded;
+                            this._loadStatus.total += imageStatus.loaded.total;
+                        }
 
-                    return this;
-                });
+                        return this;
+                    })
+                .publishReplay(1)
+                .refCount();
+
+            cachingAssets$
+                .subscribe(
+                    (cache: NewNodeCache): void => { return; },
+                    (error: Error): void => { return; },
+                    (): void => { this._cachingAssets$ = null; });
+
+            this._cachingAssets$ = cachingAssets$;
+        }
+
+        return this._cachingAssets$;
     }
 
     public cacheSequenceEdges(edges: IEdge[]): void {
