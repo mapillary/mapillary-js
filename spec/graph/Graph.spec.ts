@@ -6,7 +6,8 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {APIv3, ICoreNode, IFillNode, IFullNode} from "../../src/API";
-import {GraphCalculator, NewGraph} from "../../src/Graph";
+import {EdgeCalculator} from "../../src/Edge";
+import {GraphCalculator, NewGraph, NewNode} from "../../src/Graph";
 
 let createCoreNode: () => ICoreNode = (): ICoreNode => {
     return {
@@ -195,8 +196,8 @@ describe("Graph.fetch", () => {
 
         let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         tileResult[h] = {};
-        tileResult[h][otherNode.key] = otherNode;
-        tileResult[h][fullNode.key] = fullNode;
+        tileResult[h]["0"] = otherNode;
+        tileResult[h]["1"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
@@ -248,7 +249,7 @@ describe("Graph.fill", () => {
         tileNode.key = "tileNodeKey";
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
-        result[h][tileNode.key] = tileNode;
+        result[h]["0"] = tileNode;
         imagesByH.next(result);
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
@@ -295,7 +296,7 @@ describe("Graph.fill", () => {
         tileNode.key = "tileNodeKey";
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
-        result[h][tileNode.key] = tileNode;
+        result[h]["0"] = tileNode;
         imagesByH.next(result);
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
@@ -347,7 +348,7 @@ describe("Graph.fill", () => {
         tileNode.key = "tileNodeKey";
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
-        result[h][tileNode.key] = tileNode;
+        result[h]["0"] = tileNode;
         imagesByH.next(result);
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
@@ -479,7 +480,7 @@ describe("Graph.cacheTiles", () => {
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
-        result[h][fullNode.key] = fullNode;
+        result[h]["0"] = fullNode;
         imagesByH.next(result);
 
         expect(graph.tilesCached(fullNode.key)).toBe(true);
@@ -543,11 +544,89 @@ describe("Graph.cacheTiles", () => {
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
-        result[h][fullNode.key] = fullNode;
+        result[h]["0"] = fullNode;
         imagesByH.next(result);
 
         expect(graph.tilesCached(fullNode.key)).toBe(true);
 
         expect(encodeHsSpy.calls.count()).toBe(1);
+    });
+});
+
+describe("Graph.cacheSpatialNodes", () => {
+    it("should be cached", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphCalculator: GraphCalculator = new GraphCalculator(null);
+        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        let fullNode: IFullNode = createFullNode();
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, graphCalculator, edgeCalculator);
+        graph.fetch(fullNode.key);
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        let node: NewNode = graph.getNode(fullNode.key);
+
+        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+
+        spyOn(index, "search").and.returnValue([{ node: node }]);
+
+        expect(graph.spatialNodesCached(fullNode.key)).toBe(true);
+    });
+
+    it("should not be cached", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphCalculator: GraphCalculator = new GraphCalculator(null);
+        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        let fullNode: IFullNode = createFullNode();
+
+        let h: string = "h";
+        spyOn(graphCalculator, "encodeH").and.returnValue(h);
+        spyOn(graphCalculator, "encodeHs").and.returnValue([h]);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, graphCalculator, edgeCalculator);
+        graph.fetch(fullNode.key);
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        let node: NewNode = graph.getNode(fullNode.key);
+
+        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+
+        let coreNode: ICoreNode = createCoreNode();
+        coreNode.key = "otherKey";
+
+        graph.tilesCached(fullNode.key);
+        graph.cacheTiles(fullNode.key);
+
+        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        result[h] = {};
+        result[h]["0"] = fullNode;
+        result[h]["1"] = coreNode;
+        imagesByH.next(result);
+
+        let otherNode: NewNode = graph.getNode(coreNode.key);
+
+        spyOn(index, "search").and.returnValue([{ node: node }, {node: otherNode }]);
+
+        expect(graph.spatialNodesCached(fullNode.key)).toBe(false);
     });
 });
