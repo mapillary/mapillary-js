@@ -2,6 +2,7 @@
 
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
+import {Subscription} from "rxjs/Subscription";
 
 import * as _ from "underscore";
 import * as graphlib from "graphlib";
@@ -42,7 +43,7 @@ export class NewGraph {
     private _nodeTiles: { [key: string]: string[] };
     private _cachingTiles: { [key: string]: boolean };
     private _spatialNodes: { [key: string]: [NewNode[], string[], NewNode[]] };
-    private _cachingSpatialNodes: { [key: string]: boolean };
+    private _cachingSpatialNodes: { [key: string]: Subscription };
 
     private _changed$: Subject<NewGraph>;
 
@@ -408,8 +409,7 @@ export class NewGraph {
         }
 
         let spatialNodes: [NewNode[], string[], NewNode[]] = this._spatialNodes[key];
-        this._cachingSpatialNodes[key] = true;
-        this._apiV3.imageByKeyFill$(spatialNodes[1])
+        this._cachingSpatialNodes[key] = this._apiV3.imageByKeyFill$(spatialNodes[1])
             .subscribe(
                 (imageByKey: { [key: string]: IFillNode }): void => {
                     for (let spatialNode of spatialNodes[2]) {
@@ -458,6 +458,35 @@ export class NewGraph {
 
         this._spatialNodeCache[key] = node;
         delete this._spatialNodes[key];
+    }
+
+    public reset(): void {
+        let spatialNodeKeys: string[] = Object.keys(this._spatialNodes);
+
+        for (let spatialNodeKey of spatialNodeKeys) {
+            delete this._spatialNodes[spatialNodeKey];
+        }
+
+        let cachingKeys: string[] = Object.keys(this._cachingSpatialNodes);
+
+        for (let cachingKey of cachingKeys) {
+            let subscription: Subscription = this._cachingSpatialNodes[cachingKey];
+
+            if (!subscription.closed) {
+                subscription.unsubscribe();
+            }
+
+            delete this._cachingSpatialNodes[cachingKey];
+        }
+
+        let cachedKeys: string[] = Object.keys(this._spatialNodeCache);
+
+        for (let cachedKey of cachedKeys) {
+            let node: NewNode = this._spatialNodeCache[cachedKey];
+            node.resetSpatialEdges();
+
+            delete this._spatialNodeCache[cachedKey];
+        }
     }
 
     private _makeFull(node: NewNode, fillNode: IFillNode): void {

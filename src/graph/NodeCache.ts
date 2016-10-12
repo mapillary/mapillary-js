@@ -173,6 +173,11 @@ export class NewNodeCache {
         this._spatialEdgesChanged$.next({ cached: this._spatialEdgesCached, edges: [] });
     }
 
+    public resetSpatialEdges(): void {
+        this._spatialEdgesCached = false;
+        this._spatialEdgesChanged$.next({ cached: this._spatialEdgesCached, edges: [] });
+    }
+
     /**
      * Cache the image.
      *

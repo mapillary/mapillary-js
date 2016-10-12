@@ -231,6 +231,10 @@ export class NewNode {
 
         this._fill = fill;
     }
+
+    public resetSpatialEdges(): void {
+        this._cache.resetSpatialEdges();
+    }
 }
 
 /**
