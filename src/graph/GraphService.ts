@@ -1,6 +1,7 @@
 import {ConnectableObservable} from "rxjs/observable/ConnectableObservable";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
+import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/throw";
 
@@ -23,6 +24,8 @@ export class NewGraphService {
 
     private _imageLoadingService: ImageLoadingService;
 
+    private _spatialSubscriptions: Subscription[];
+
     constructor(graph: NewGraph) {
         this._graph$ = Observable
             .of(graph)
@@ -33,6 +36,8 @@ export class NewGraphService {
         this._graph$.subscribe();
 
         this._imageLoadingService = new ImageLoadingService();
+
+        this._spatialSubscriptions = [];
     }
 
     public get imageLoadingService(): ImageLoadingService {
@@ -59,15 +64,13 @@ export class NewGraphService {
                         return true;
                     }
 
-                    return false;
-                })
-            .first()
-            .do(
-                (graph: NewGraph): void => {
                     if (!graph.nodeCacheInitialized(key)) {
                         graph.initializeNodeCache(key);
                     }
+
+                    return false;
                 })
+            .first()
             .publishReplay(1)
             .refCount();
 
@@ -124,7 +127,7 @@ export class NewGraphService {
             .first()
             .subscribe();
 
-        graph$
+        let spatialSubscription: Subscription = graph$
             .skipWhile(
                 (graph: NewGraph): boolean => {
                     if (!graph.hasNode(key)) {
@@ -158,13 +161,52 @@ export class NewGraphService {
                     return false;
                 })
             .first()
-            .subscribe();
+            .subscribe(
+                (graph: NewGraph): void => { return; },
+                (error: Error): void => { this._removeSpatialSubscription(spatialSubscription); },
+                (): void => { this._removeSpatialSubscription(spatialSubscription); });
+
+        if (!spatialSubscription.closed) {
+            this._spatialSubscriptions.push(spatialSubscription);
+        }
 
         return node$
             .first(
                 (node: NewNode): boolean => {
                     return node.assetsCached;
                 });
+    }
+
+    public reset$(key: string): Observable<NewNode> {
+        this._resetSpatialSubscriptions();
+
+        return this._graph$
+            .first()
+            .do(
+                (graph: NewGraph): void => {
+                    graph.reset();
+                })
+            .mergeMap(
+                (graph: NewGraph): Observable<NewNode> => {
+                    return this.cacheNode$(key);
+                });
+    }
+
+    private _removeSpatialSubscription(subscription: Subscription): void {
+        let index: number = this._spatialSubscriptions.indexOf(subscription);
+        if (index > -1) {
+            this._spatialSubscriptions.splice(index, 1);
+        }
+    }
+
+    private _resetSpatialSubscriptions(): void {
+        for (let subscription of this._spatialSubscriptions) {
+            if (!subscription.closed) {
+                subscription.unsubscribe();
+            }
+        }
+
+        this._spatialSubscriptions = [];
     }
 }
 
