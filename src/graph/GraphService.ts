@@ -87,6 +87,23 @@ export class NewGraphService {
                 this._imageLoadingService.loadnode$.next(node);
             });
 
+        firstGraph$
+            .mergeMap<NewGraph>(
+                (graph: NewGraph): Observable<NewGraph> => {
+                    if (graph.cachingSequence(key) || !graph.sequenceCached(key)) {
+                        return graph.cacheSequence$(key);
+                    }
+
+                    return Observable.of<NewGraph>(graph);
+                })
+            .do(
+                (graph: NewGraph): void => {
+                    if (!graph.getNode(key).sequenceEdgesCached) {
+                        graph.cacheSequenceEdges(key);
+                    }
+                })
+            .subscribe();
+
         let graph$: Observable<NewGraph> = firstGraph$
             .concat(
                 firstGraph$
@@ -96,30 +113,6 @@ export class NewGraphService {
                         }))
             .publishReplay(1)
             .refCount();
-
-        graph$
-            .skipWhile(
-                (graph: NewGraph): boolean => {
-                    if (!graph.hasNode(key)) {
-                        return false;
-                    }
-
-                    if (!graph.sequenceCached(key)) {
-                        if (!graph.cachingSequence(key)) {
-                            graph.cacheSequence(key);
-                        }
-
-                        return true;
-                    }
-
-                    if (!graph.getNode(key).sequenceEdgesCached) {
-                        graph.cacheSequenceEdges(key);
-                    }
-
-                    return false;
-                })
-            .first()
-            .subscribe();
 
         let spatialSubscription: Subscription = graph$
             .skipWhile(

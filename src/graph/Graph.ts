@@ -39,7 +39,7 @@ export class NewGraph {
 
     private _fetching: { [key: string]: Observable<NewGraph> };
     private _filling: { [key: string]: Observable<NewGraph> };
-    private _cachingSequence: { [key: string]: boolean };
+    private _cachingSequence: { [key: string]: Observable<NewGraph> };
     private _nodeTiles: { [key: string]: string[] };
     private _cachingTiles: { [key: string]: boolean };
     private _spatialNodes: { [key: string]: [NewNode[], string[], NewNode[]] };
@@ -203,32 +203,45 @@ export class NewGraph {
         return key in this._cachingSequence;
     }
 
-    public cacheSequence(key: string): void {
-        if (key in this._cachingSequence) {
-            throw new Error(`Already caching sequence edges (${key}).`);
-        }
-
+    public cacheSequence$(key: string): Observable<NewGraph> {
         if (!this.hasNode(key)) {
             throw new Error(`Cannot cache sequence edges of node that does not exist in graph (${key}).`);
         }
 
         let node: NewNode = this.getNode(key);
         if (node.sequenceKey in this._sequences) {
-            this._changed$.next(this);
-        } else {
-            this._cachingSequence[key] = true;
-            this._apiV3.sequenceByKey$([node.sequenceKey])
-                .subscribe(
-                    (sequenceByKey: { [key: string]: ISequence }): void => {
-                        if (!(node.sequenceKey in this._sequences)) {
-                            this._sequences[node.sequenceKey] = new Sequence(sequenceByKey[node.sequenceKey]);
-                        }
-
-                        delete this._cachingSequence[key];
-
-                        this._changed$.next(this);
-                    });
+            throw new Error(`Sequence already cached (${key}), (${node.sequenceKey}).`);
         }
+
+        if (key in this._cachingSequence) {
+            return this._cachingSequence[key];
+        }
+
+        this._cachingSequence[key] = this._apiV3.sequenceByKey$([node.sequenceKey])
+            .do(
+                (sequenceByKey: { [key: string]: ISequence }): void => {
+                    if (!(node.sequenceKey in this._sequences)) {
+                        this._sequences[node.sequenceKey] = new Sequence(sequenceByKey[node.sequenceKey]);
+                    }
+
+                    delete this._cachingSequence[key];
+                })
+            .map<NewGraph>(
+                (sequenceByKey: { [key: string]: ISequence }): NewGraph => {
+                    return this;
+                })
+            .finally(
+                (): void => {
+                    if (key in this._cachingSequence) {
+                        delete this._cachingSequence[key];
+                    }
+
+                    this._changed$.next(this);
+                })
+            .publishReplay(1)
+            .refCount();
+
+        return this._cachingSequence[key];
     }
 
     public cacheSequenceEdges(key: string): void {
