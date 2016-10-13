@@ -65,14 +65,12 @@ export class Navigator {
         this._keyRequested$.next(key);
 
         return this._newGraphService.cacheNode$(key)
-            .map<NewNode>(
+            .do(
                 (node: NewNode) => {
                     this.loadingService.stopLoading("navigator");
                     this.stateService.setNodes([node]);
                     this._movedToKey$.next(node.key);
-                    return node;
-                })
-            .first();
+                });
     }
 
     public moveDir(dir: EdgeDirection): Observable<NewNode> {
@@ -86,10 +84,7 @@ export class Navigator {
                     return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(dir) > -1 ?
                         node.sequenceEdges$ :
                         node.spatialEdges$)
-                            .first(
-                                (status: IEdgeStatus): boolean => {
-                                    return status.cached;
-                                })
+                            .first()
                             .map<string>(
                                 (status: IEdgeStatus): string => {
                                     for (let edge of status.edges) {
@@ -104,7 +99,8 @@ export class Navigator {
             .mergeMap<NewNode>(
                 (directionKey: string) => {
                     return directionKey == null ?
-                        Observable.of<NewNode>(null) :
+                        Observable.throw<NewNode>(
+                            new Error(`Direction (${dir}) does not exist (or is not cached yet) for current node.`)) :
                         this.moveToKey(directionKey);
                 });
     }
@@ -117,7 +113,7 @@ export class Navigator {
             .mergeMap<NewNode>(
                 (fullNode: IFullNode): Observable<NewNode> => {
                     return fullNode.key == null ?
-                        Observable.of<NewNode>(null) :
+                        Observable.throw<NewNode>(new Error(`No image found close to lat ${lat}, lon ${lon}.`)) :
                         this.moveToKey(fullNode.key);
                 });
     }
