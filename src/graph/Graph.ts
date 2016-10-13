@@ -120,6 +120,10 @@ export class NewGraph {
                             this._makeFull(node, fn);
                         }
                     } else {
+                        if (fn.sequence == null || fn.sequence.key == null) {
+                            throw new Error(`Node has no sequence (${key}).`);
+                        }
+
                         let node: NewNode = new NewNode(fn);
                         this._makeFull(node, fn);
 

@@ -157,6 +157,32 @@ describe("Graph.fetch", () => {
         expect(() => { graph.fetch$(fullNode.key); }).toThrowError(Error);
     });
 
+    it("should throw if sequence key is missing", (done) => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        fullNode.sequence.key = undefined;
+
+        graph.fetch$(fullNode.key)
+            .subscribe(
+                (graph: NewGraph): void => { return; },
+                (error: Error): void => {
+                    done();
+                });
+
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+    });
+
     it("should make full when fetched node has been retrieved in tile in parallell", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
