@@ -37,8 +37,8 @@ export class NewGraph {
     private _edgeCalculator: EdgeCalculator;
     private _defaultAlt: number;
 
-    private _fetching: { [key: string]: boolean };
-    private _filling: { [key: string]: boolean };
+    private _fetching: { [key: string]: Observable<NewGraph> };
+    private _filling: { [key: string]: Observable<NewGraph> };
     private _cachingSequence: { [key: string]: boolean };
     private _nodeTiles: { [key: string]: string[] };
     private _cachingTiles: { [key: string]: boolean };
@@ -99,18 +99,17 @@ export class NewGraph {
         return key in this._filling;
     }
 
-    public fetch(key: string): void {
-        if (key in this._fetching) {
-            throw new Error(`Already fetching (${key}).`);
-        }
-
+    public fetch$(key: string): Observable<NewGraph> {
         if (this.hasNode(key)) {
             throw new Error(`Cannot fetch node that already exist in graph (${key}).`);
         }
 
-        this._fetching[key] = true;
-        this._apiV3.imageByKeyFull$([key])
-            .subscribe(
+        if (key in this._fetching) {
+            return this._fetching[key];
+        }
+
+        this._fetching[key] = this._apiV3.imageByKeyFull$([key])
+            .do(
                 (imageByKeyFull: { [key: string]: IFullNode }): void => {
                     let fn: IFullNode = imageByKeyFull[key];
 
@@ -127,21 +126,31 @@ export class NewGraph {
                         let h: string = this._graphCalculator.encodeH(node.latLon, this._tilePrecision);
                         this._preStore(h, node);
                         this._setNode(node);
+
+                        delete this._fetching[key];
+                    }
+                })
+            .map<NewGraph>(
+                (imageByKeyFull: { [key: string]: IFullNode }): NewGraph => {
+                    return this;
+                })
+            .finally(
+                (): void => {
+                    if (key in this._fetching) {
+                        delete this._fetching[key];
                     }
 
-                    delete this._fetching[key];
-
                     this._changed$.next(this);
-                });
+                })
+            .publishReplay(1)
+            .refCount();
+
+        return this._fetching[key];
     }
 
-    public fill(key: string): void {
+    public fill$(key: string): Observable<NewGraph> {
         if (key in this._fetching) {
             throw new Error(`Cannot fill node while fetching (${key}).`);
-        }
-
-        if (key in this._filling) {
-            throw new Error(`Already filling (${key}).`);
         }
 
         if (!this.hasNode(key)) {
@@ -153,18 +162,35 @@ export class NewGraph {
             throw new Error(`Cannot fill node that is already full (${key}).`);
         }
 
-        this._filling[key] = true;
-        this._apiV3.imageByKeyFill$([key])
-            .subscribe(
+        if (key in this._filling) {
+            return this._filling[key];
+        }
+
+        this._filling[key] = this._apiV3.imageByKeyFill$([key])
+            .do(
                 (imageByKeyFill: { [key: string]: IFillNode }): void => {
                     if (!node.full) {
                         this._makeFull(node, imageByKeyFill[key]);
                     }
 
                     delete this._filling[key];
+                })
+            .map<NewGraph>(
+                (imageByKeyFill: { [key: string]: IFillNode }): NewGraph => {
+                    return this;
+                })
+            .finally(
+                (): void => {
+                    if (key in this._filling) {
+                        delete this._filling[key];
+                    }
 
                     this._changed$.next(this);
-                });
+                })
+            .publishReplay(1)
+            .refCount();
+
+        return this._filling[key];
     }
 
     public sequenceCached(key: string): boolean {

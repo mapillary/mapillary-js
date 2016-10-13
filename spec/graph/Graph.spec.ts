@@ -75,14 +75,14 @@ describe("Graph.fetch", () => {
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key);
 
         expect(graph.fetching(fullNode.key)).toBe(true);
         expect(graph.hasNode(fullNode.key)).toBe(false);
         expect(graph.getNode(fullNode.key)).toBeUndefined();
     });
 
-    it("should fetch", () => {
+    it("should fetch", (done) => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -95,7 +95,16 @@ describe("Graph.fetch", () => {
         let fullNode: IFullNode = createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key)
+            .subscribe(
+                (g: NewGraph): void => {
+                    expect(g.fetching(fullNode.key)).toBe(false);
+                    expect(g.hasNode(fullNode.key)).toBe(true);
+                    expect(g.getNode(fullNode.key)).toBeDefined();
+                    expect(g.getNode(fullNode.key).key).toBe(fullNode.key);
+
+                    done();
+                });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -106,7 +115,7 @@ describe("Graph.fetch", () => {
         expect(graph.getNode(fullNode.key).key).toBe(fullNode.key);
     });
 
-    it("should throw when fetching same node twice", () => {
+    it("should not make additional calls when fetching same node twice", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -114,12 +123,15 @@ describe("Graph.fetch", () => {
         let fullNode: IFullNode = createFullNode();
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
 
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        let imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
-        graph.fetch(fullNode.key);
-        expect(() => { graph.fetch(fullNode.key); }).toThrowError(Error);
+        graph.fetch$(fullNode.key).subscribe();
+        graph.fetch$(fullNode.key).subscribe();
+
+        expect(imageByKeyFullSpy.calls.count()).toBe(1);
     });
 
     it("should throw when fetching node already in graph", () => {
@@ -134,7 +146,7 @@ describe("Graph.fetch", () => {
 
         let fullNode: IFullNode = createFullNode();
 
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
@@ -142,7 +154,7 @@ describe("Graph.fetch", () => {
         imageByKeyFull.complete();
 
         expect(graph.fetching(fullNode.key)).toBe(false);
-        expect(() => { graph.fetch(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.fetch$(fullNode.key); }).toThrowError(Error);
     });
 
     it("should make full when fetched node has been retrieved in tile in parallell", () => {
@@ -177,7 +189,7 @@ describe("Graph.fetch", () => {
 
         let otherNode: IFullNode = createFullNode();
         otherNode.key = otherKey;
-        graph.fetch(otherNode.key);
+        graph.fetch$(otherNode.key).subscribe();
 
         let otherFullResult: { [key: string]: IFullNode } = {};
         otherFullResult[otherNode.key] = otherNode;
@@ -189,7 +201,7 @@ describe("Graph.fetch", () => {
 
         let fullNode: IFullNode = createFullNode();
         fullNode.key = key;
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         expect(graph.hasNode(fullNode.key)).toBe(false);
         expect(graph.fetching(fullNode.key)).toBe(true);
@@ -236,7 +248,7 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -255,7 +267,7 @@ describe("Graph.fill", () => {
         expect(graph.getNode(tileNode.key).full).toBe(false);
         expect(graph.filling(tileNode.key)).toBe(false);
 
-        graph.fill(tileNode.key);
+        graph.fill$(tileNode.key).subscribe();
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
         expect(graph.filling(tileNode.key)).toBe(true);
@@ -283,7 +295,7 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -302,7 +314,7 @@ describe("Graph.fill", () => {
         expect(graph.getNode(tileNode.key).full).toBe(false);
         expect(graph.filling(tileNode.key)).toBe(false);
 
-        graph.fill(tileNode.key);
+        graph.fill$(tileNode.key).subscribe();
 
         let fillTileNode: IFillNode = createFullNode();
         let fillResult: { [key: string]: IFillNode } = {};
@@ -313,7 +325,7 @@ describe("Graph.fill", () => {
         expect(graph.filling(tileNode.key)).toBe(false);
     });
 
-    it("should throw if already filling", () => {
+    it("should not make additional calls when filling same node twice", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -330,12 +342,13 @@ describe("Graph.fill", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+        let imageByKeyFillSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFill$");
+        imageByKeyFillSpy.and.returnValue(imageByKeyFill);
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -354,9 +367,10 @@ describe("Graph.fill", () => {
         expect(graph.getNode(tileNode.key).full).toBe(false);
         expect(graph.filling(tileNode.key)).toBe(false);
 
-        graph.fill(tileNode.key);
+        graph.fill$(tileNode.key).subscribe();
+        graph.fill$(tileNode.key).subscribe();
 
-        expect(() => { graph.fill(tileNode.key); }).toThrowError(Error);
+        expect(imageByKeyFillSpy.calls.count()).toBe(1);
     });
 
     it("should throw if already fetching", () => {
@@ -378,11 +392,11 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key);
 
         expect(graph.fetching(fullNode.key)).toBe(true);
 
-        expect(() => { graph.fill(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.fill$(fullNode.key); }).toThrowError(Error);
     });
 
     it("should throw if node does not exist", () => {
@@ -395,7 +409,7 @@ describe("Graph.fill", () => {
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
-        expect(() => { graph.fill("key"); }).toThrowError(Error);
+        expect(() => { graph.fill$("key"); }).toThrowError(Error);
     });
 
     it("should throw if already full", () => {
@@ -412,13 +426,13 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key);
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        expect(() => { graph.fill(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.fill$(fullNode.key); }).toThrowError(Error);
     });
 });
 
@@ -471,7 +485,7 @@ describe("Graph.cacheTiles", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         expect(graph.tilesCached(fullNode.key)).toBe(false);
         expect(graph.cachingTiles(fullNode.key)).toBe(false);
@@ -536,7 +550,7 @@ describe("Graph.cacheTiles", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         expect(graph.tilesCached(fullNode.key)).toBe(false);
 
@@ -566,7 +580,7 @@ describe("Graph.cacheSpatialNodes", () => {
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -601,7 +615,7 @@ describe("Graph.cacheSpatialNodes", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.fetch(fullNode.key);
+        graph.fetch$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;

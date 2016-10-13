@@ -46,31 +46,25 @@ export class NewGraphService {
 
     public cacheNode$(key: string): Observable<NewNode> {
         let firstGraph$: Observable<NewGraph> = this._graph$
-            .skipWhile(
-                (graph: NewGraph): boolean => {
-                    if (!graph.hasNode(key)) {
-                        if (!graph.fetching(key)) {
-                            graph.fetch(key);
-                        }
-
-                        return true;
+            .first()
+            .mergeMap<NewGraph>(
+                (graph: NewGraph): Observable<NewGraph> => {
+                    if (graph.fetching(key) || !graph.hasNode(key)) {
+                        return graph.fetch$(key);
                     }
 
-                    if (!graph.getNode(key).full) {
-                        if (!(graph.filling(key) || graph.fetching(key))) {
-                            graph.fill(key);
-                        }
-
-                        return true;
+                    if (graph.filling(key) || !graph.getNode(key).full) {
+                        return graph.fill$(key);
                     }
 
+                    return Observable.of<NewGraph>(graph);
+                })
+            .do(
+                (graph: NewGraph): void => {
                     if (!graph.nodeCacheInitialized(key)) {
                         graph.initializeNodeCache(key);
                     }
-
-                    return false;
                 })
-            .first()
             .publishReplay(1)
             .refCount();
 
@@ -161,10 +155,14 @@ export class NewGraphService {
                     return false;
                 })
             .first()
-            .subscribe(
-                (graph: NewGraph): void => { return; },
-                (error: Error): void => { this._removeSpatialSubscription(spatialSubscription); },
-                (): void => { this._removeSpatialSubscription(spatialSubscription); });
+            .finally((): void => {
+                    if (spatialSubscription == null) {
+                        return;
+                    }
+
+                    this._removeSpatialSubscription(spatialSubscription);
+                })
+            .subscribe();
 
         if (!spatialSubscription.closed) {
             this._spatialSubscriptions.push(spatialSubscription);
@@ -192,8 +190,8 @@ export class NewGraphService {
                 });
     }
 
-    private _removeSpatialSubscription(subscription: Subscription): void {
-        let index: number = this._spatialSubscriptions.indexOf(subscription);
+    private _removeSpatialSubscription(spatialSubscription: Subscription): void {
+        let index: number = this._spatialSubscriptions.indexOf(spatialSubscription);
         if (index > -1) {
             this._spatialSubscriptions.splice(index, 1);
         }
