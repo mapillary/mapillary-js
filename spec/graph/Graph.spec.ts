@@ -5,7 +5,7 @@ import * as rbush from "rbush";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import {APIv3, ICoreNode, IFillNode, IFullNode} from "../../src/API";
+import {APIv3, ICoreNode, IFillNode, IFullNode, ISequence} from "../../src/API";
 import {EdgeCalculator} from "../../src/Edge";
 import {GraphCalculator, NewGraph, NewNode} from "../../src/Graph";
 
@@ -642,5 +642,213 @@ describe("Graph.cacheSpatialNodes", () => {
         spyOn(index, "search").and.returnValue([{ node: node }, {node: otherNode }]);
 
         expect(graph.spatialNodesCached(fullNode.key)).toBe(false);
+    });
+});
+
+describe("Graph.cacheSequence", () => {
+    it("should not be cached", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+
+        graph.fetch$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        expect(graph.sequenceCached(fullNode.key)).toBe(false);
+    });
+
+    it("should be caching", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+
+        graph.fetch$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+        imageByKeyFull.complete();
+
+        graph.cacheSequence$(fullNode.key);
+
+        expect(graph.sequenceCached(fullNode.key)).toBe(false);
+        expect(graph.cachingSequence(fullNode.key)).toBe(true);
+    });
+
+    it("should be cached", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        fullNode.sequence.key = "sequenceKey";
+
+        graph.fetch$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        graph.cacheSequence$(fullNode.key)
+            .subscribe(
+                (g: NewGraph): void => {
+                    expect(g.sequenceCached(fullNode.key)).toBe(true);
+                    expect(g.cachingSequence(fullNode.key)).toBe(false);
+                });
+
+        let result: { [key: string]: ISequence } = {};
+        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        expect(graph.sequenceCached(fullNode.key)).toBe(true);
+        expect(graph.cachingSequence(fullNode.key)).toBe(false);
+    });
+
+    it("should throw if node not in graph", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        fullNode.sequence.key = "sequenceKey";
+
+        expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(Error);
+    });
+
+    it("should throw if already cached", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        fullNode.sequence.key = "sequenceKey";
+
+        graph.fetch$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        graph.cacheSequence$(fullNode.key).subscribe();
+
+        let result: { [key: string]: ISequence } = {};
+        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        expect(graph.sequenceCached(fullNode.key)).toBe(true);
+
+        expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(Error);
+    });
+
+    it("should call api only once when caching the same sequence twice in succession", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
+        sequenceByKeySpy.and.returnValue(sequenceByKey);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        fullNode.sequence.key = "sequenceKey";
+
+        graph.fetch$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        graph.cacheSequence$(fullNode.key).subscribe();
+        graph.cacheSequence$(fullNode.key).subscribe();
+
+        expect(sequenceByKeySpy.calls.count()).toBe(1);
+    });
+
+    it("should emit to changed stream", (done) => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = createFullNode();
+        fullNode.sequence.key = "sequenceKey";
+
+        graph.fetch$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+
+        graph.cacheSequence$(fullNode.key).subscribe();
+
+        graph.changed$
+            .first()
+            .subscribe(
+                (g: NewGraph): void => {
+                    expect(g.sequenceCached(fullNode.key)).toBe(true);
+                    expect(g.cachingSequence(fullNode.key)).toBe(false);
+
+                    done();
+                });
+
+        let result: { [key: string]: ISequence } = {};
+        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
     });
 });
