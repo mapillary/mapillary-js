@@ -109,40 +109,38 @@ export class NewNodeCache {
     }
 
     public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NewNodeCache> {
-        if (this._cachingAssets$ == null) {
-            let cachingAssets$: Observable<NewNodeCache> = Observable
-                .combineLatest(
-                    this._cacheImage(key, pano),
-                    this._cacheMesh(key, merged),
-                    (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NewNodeCache => {
-                        this._loadStatus.loaded = 0;
-                        this._loadStatus.total = 0;
-
-                        if (meshStatus) {
-                            this._mesh = meshStatus.object;
-                            this._loadStatus.loaded += meshStatus.loaded.loaded;
-                            this._loadStatus.total += meshStatus.loaded.total;
-                        }
-
-                        if (imageStatus) {
-                            this._image = imageStatus.object;
-                            this._loadStatus.loaded += imageStatus.loaded.loaded;
-                            this._loadStatus.total += imageStatus.loaded.total;
-                        }
-
-                        return this;
-                    })
-                .publishReplay(1)
-                .refCount();
-
-            cachingAssets$
-                .subscribe(
-                    (cache: NewNodeCache): void => { return; },
-                    (error: Error): void => { return; },
-                    (): void => { this._cachingAssets$ = null; });
-
-            this._cachingAssets$ = cachingAssets$;
+        if (this._cachingAssets$ != null) {
+            return this._cachingAssets$;
         }
+
+        this._cachingAssets$ = Observable
+            .combineLatest(
+                this._cacheImage(key, pano),
+                this._cacheMesh(key, merged),
+                (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NewNodeCache => {
+                    this._loadStatus.loaded = 0;
+                    this._loadStatus.total = 0;
+
+                    if (meshStatus) {
+                        this._mesh = meshStatus.object;
+                        this._loadStatus.loaded += meshStatus.loaded.loaded;
+                        this._loadStatus.total += meshStatus.loaded.total;
+                    }
+
+                    if (imageStatus) {
+                        this._image = imageStatus.object;
+                        this._loadStatus.loaded += imageStatus.loaded.loaded;
+                        this._loadStatus.total += imageStatus.loaded.total;
+                    }
+
+                    return this;
+                })
+            .finally(
+                (): void => {
+                    this._cachingAssets$ = null;
+                })
+            .publishReplay(1)
+            .refCount();
 
         return this._cachingAssets$;
     }
