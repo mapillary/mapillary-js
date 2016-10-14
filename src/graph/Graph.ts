@@ -4,6 +4,14 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
+import "rxjs/add/observable/from";
+
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/finally";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/mergeMap";
+import "rxjs/add/operator/publishReplay";
+
 import * as _ from "underscore";
 import * as graphlib from "graphlib";
 import * as rbush from "rbush";
@@ -250,9 +258,14 @@ export class NewGraph {
 
     public cacheSequenceEdges(key: string): void {
         let node: NewNode = this.getNode(key);
-        let sequence: Sequence = this._sequences[node.sequenceKey];
 
+        if (!(node.sequenceKey in this._sequences)) {
+            throw new Error(`Sequence is not cached (${key}), (${node.sequenceKey})`);
+        }
+
+        let sequence: Sequence = this._sequences[node.sequenceKey];
         let edges: IEdge[] = this._edgeCalculator.computeSequenceEdges(node, sequence);
+
         node.cacheSequenceEdges(edges);
     }
 

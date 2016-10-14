@@ -5,8 +5,12 @@ import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/throw";
 
+import "rxjs/add/operator/concat";
 import "rxjs/add/operator/distinct";
+import "rxjs/add/operator/do";
 import "rxjs/add/operator/filter";
+import "rxjs/add/operator/finally";
+import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/publish";
@@ -85,6 +89,9 @@ export class NewGraphService {
         node$.subscribe(
             (node: NewNode): void => {
                 this._imageLoadingService.loadnode$.next(node);
+            },
+            (error: Error): void => {
+                console.error(`Failed to cache node (${key})`, error);
             });
 
         firstGraph$
@@ -102,7 +109,11 @@ export class NewGraphService {
                         graph.cacheSequenceEdges(key);
                     }
                 })
-            .subscribe();
+            .subscribe(
+                (graph: NewGraph): void => { return; },
+                (error: Error): void => {
+                    console.error(`Failed to cache sequence (${key}).`, error);
+                });
 
         let graph$: Observable<NewGraph> = firstGraph$
             .concat(
@@ -155,7 +166,11 @@ export class NewGraphService {
 
                     this._removeSpatialSubscription(spatialSubscription);
                 })
-            .subscribe();
+            .subscribe(
+                (graph: NewGraph): void => { return; },
+                (error: Error): void => {
+                    console.error(`Failed to cache spatial data (${key}).`, error);
+                });
 
         if (!spatialSubscription.closed) {
             this._spatialSubscriptions.push(spatialSubscription);
