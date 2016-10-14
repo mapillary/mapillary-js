@@ -1,0 +1,379 @@
+/// <reference path="../../typings/index.d.ts" />
+
+import * as falcor from "falcor";
+
+import "rxjs/add/operator/retry";
+
+import {APIv3, ICoreNode, IFillNode, IFullNode, ISequence} from "../../src/API";
+
+describe("APIv3.ctor", () => {
+    it("should create an API v3", () => {
+        let apiV3: APIv3 = new APIv3("clientId", null);
+
+        expect(apiV3).toBeDefined();
+    });
+});
+
+describe("APIv3.imageByKeyFill$", () => {
+    it("should call model correctly", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve({ json: { imageByKey: {} } });
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let key: string = "key";
+
+        apiV3.imageByKeyFill$([key])
+            .subscribe(
+                (result: { [key: string]: IFillNode}): void => {
+                    expect(result).toBeDefined();
+
+                    expect(spy.calls.count()).toBe(1);
+                    expect(spy.calls.first().args.length).toBe(1);
+                    expect(spy.calls.first().args[0][0]).toBe("imageByKey");
+                    expect(spy.calls.first().args[0][1].length).toBe(1);
+                    expect(spy.calls.first().args[0][1][0]).toBe(key);
+
+                    done();
+                });
+    });
+
+    it("should invalidate model correctly when error is thrown", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                reject(new Error());
+            },
+        };
+
+        let invalidateSpy: jasmine.Spy = spyOn(model, "invalidate");
+        invalidateSpy.and.stub();
+
+        spyOn(model, "get").and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let key: string = "key";
+
+        apiV3.imageByKeyFill$([key])
+            .subscribe(
+                (result: { [key: string]: IFillNode}): void => { return; },
+                (error: Error): void => {
+                    expect(invalidateSpy.calls.count()).toBe(1);
+                    expect(invalidateSpy.calls.first().args.length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][0]).toBe("imageByKey");
+                    expect(invalidateSpy.calls.first().args[0][1].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][1][0]).toBe(key);
+
+                    done();
+                }
+            );
+    });
+
+    it("should invalidate model for every error on retry", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                reject(new Error());
+            },
+        };
+
+        let invalidateSpy: jasmine.Spy = spyOn(model, "invalidate");
+        invalidateSpy.and.stub();
+
+        spyOn(model, "get").and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let key: string = "key";
+
+        apiV3.imageByKeyFill$([key])
+            .retry(5)
+            .subscribe(
+                (result: { [key: string]: IFillNode}): void => { return; },
+                (error: Error): void => {
+                    expect(invalidateSpy.calls.count()).toBe(6);
+                    expect(invalidateSpy.calls.first().args.length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][0]).toBe("imageByKey");
+                    expect(invalidateSpy.calls.first().args[0][1].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][1][0]).toBe(key);
+
+                    done();
+                }
+            );
+    });
+});
+
+describe("APIv3.imageByKeyFull$", () => {
+    it("should call model correctly", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve({ json: { imageByKey: {} } });
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let key: string = "key";
+
+        apiV3.imageByKeyFull$([key])
+            .subscribe(
+                (result: { [key: string]: IFillNode}): void => {
+                    expect(result).toBeDefined();
+
+                    expect(spy.calls.count()).toBe(1);
+                    expect(spy.calls.first().args.length).toBe(1);
+                    expect(spy.calls.first().args[0][0]).toBe("imageByKey");
+                    expect(spy.calls.first().args[0][1].length).toBe(1);
+                    expect(spy.calls.first().args[0][1][0]).toBe(key);
+
+                    done();
+                });
+    });
+
+    it("should invalidate model correctly when error is thrown", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                reject(new Error());
+            },
+        };
+
+        let invalidateSpy: jasmine.Spy = spyOn(model, "invalidate");
+        invalidateSpy.and.stub();
+
+        spyOn(model, "get").and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let key: string = "key";
+
+        apiV3.imageByKeyFull$([key])
+            .subscribe(
+                (result: { [key: string]: IFillNode}): void => { return; },
+                (error: Error): void => {
+                    expect(invalidateSpy.calls.count()).toBe(1);
+                    expect(invalidateSpy.calls.first().args.length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][0]).toBe("imageByKey");
+                    expect(invalidateSpy.calls.first().args[0][1].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][1][0]).toBe(key);
+
+                    done();
+                }
+            );
+    });
+});
+
+describe("APIv3.imageCloseTo$", () => {
+    it("should call model correctly", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve({ json: { imageCloseTo: { "0:0": null } } });
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let lat: number = 0;
+        let lon: number = 0;
+
+        apiV3.imageCloseTo$(lat, lon)
+            .subscribe(
+                (result: IFullNode): void => {
+                    expect(result).toBeDefined();
+
+                    expect(spy.calls.count()).toBe(1);
+                    expect(spy.calls.first().args.length).toBe(1);
+                    expect(spy.calls.first().args[0][0]).toBe("imageCloseTo");
+                    expect(spy.calls.first().args[0][1]).toBe("0:0");
+
+                    done();
+                });
+    });
+
+    it("should invalidate model correctly when error is thrown", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                reject(new Error());
+            },
+        };
+
+        let invalidateSpy: jasmine.Spy = spyOn(model, "invalidate");
+        invalidateSpy.and.stub();
+
+        spyOn(model, "get").and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let lat: number = 0;
+        let lon: number = 0;
+
+        apiV3.imageCloseTo$(lat, lon)
+            .subscribe(
+                (result: IFullNode): void => { return; },
+                (error: Error): void => {
+                    expect(invalidateSpy.calls.count()).toBe(1);
+                    expect(invalidateSpy.calls.first().args.length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][0]).toBe("imageCloseTo");
+                    expect(invalidateSpy.calls.first().args[0][1]).toBe("0:0");
+
+                    done();
+                }
+            );
+    });
+});
+
+describe("APIv3.imagesByH$", () => {
+    it("should call model correctly", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve({ json: { imagesByH: {} } });
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let h: string = "h";
+
+        apiV3.imagesByH$([h])
+            .subscribe(
+                (result: { [key: string]: { [index: string]: ICoreNode } }): void => {
+                    expect(result).toBeDefined();
+
+                    expect(spy.calls.count()).toBe(1);
+                    expect(spy.calls.first().args.length).toBe(1);
+                    expect(spy.calls.first().args[0][0]).toBe("imagesByH");
+                    expect(spy.calls.first().args[0][1].length).toBe(1);
+                    expect(spy.calls.first().args[0][1][0]).toBe(h);
+
+                    done();
+                });
+    });
+
+    it("should invalidate model correctly when error is thrown", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                reject(new Error());
+            },
+        };
+
+        let invalidateSpy: jasmine.Spy = spyOn(model, "invalidate");
+        invalidateSpy.and.stub();
+
+        spyOn(model, "get").and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let h: string = "h";
+
+        apiV3.imagesByH$([h])
+            .subscribe(
+                (result: { [key: string]: { [index: string]: ICoreNode } }): void => { return; },
+                (error: Error): void => {
+                    expect(invalidateSpy.calls.count()).toBe(1);
+                    expect(invalidateSpy.calls.first().args.length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][0]).toBe("imagesByH");
+                    expect(invalidateSpy.calls.first().args[0][1].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][1][0]).toBe(h);
+
+                    done();
+                }
+            );
+    });
+});
+
+describe("APIv3.sequenceByKey$", () => {
+    it("should call model correctly", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve({ json: { sequenceByKey: {} } });
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let skey: string = "skey";
+
+        apiV3.sequenceByKey$([skey])
+            .subscribe(
+                (result: { [key: string]: ISequence }): void => {
+                    expect(result).toBeDefined();
+
+                    expect(spy.calls.count()).toBe(1);
+                    expect(spy.calls.first().args.length).toBe(1);
+                    expect(spy.calls.first().args[0][0]).toBe("sequenceByKey");
+                    expect(spy.calls.first().args[0][1].length).toBe(1);
+                    expect(spy.calls.first().args[0][1][0]).toBe(skey);
+
+                    done();
+                });
+    });
+
+    it("should invalidate model correctly when error is thrown", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                reject(new Error());
+            },
+        };
+
+        let invalidateSpy: jasmine.Spy = spyOn(model, "invalidate");
+        invalidateSpy.and.stub();
+
+        spyOn(model, "get").and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let skey: string = "skey";
+
+        apiV3.sequenceByKey$([skey])
+            .subscribe(
+                (result: { [key: string]: ISequence }): void => { return; },
+                (error: Error): void => {
+                    expect(invalidateSpy.calls.count()).toBe(1);
+                    expect(invalidateSpy.calls.first().args.length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][0]).toBe("sequenceByKey");
+                    expect(invalidateSpy.calls.first().args[0][1].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][1][0]).toBe(skey);
+
+                    done();
+                }
+            );
+    });
+});

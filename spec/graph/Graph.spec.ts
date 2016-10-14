@@ -172,8 +172,8 @@ describe("Graph.fetch", () => {
 
         graph.fetch$(fullNode.key)
             .subscribe(
-                (graph: NewGraph): void => { return; },
-                (error: Error): void => {
+                (g: NewGraph): void => { return; },
+                (e: Error): void => {
                     done();
                 });
 
