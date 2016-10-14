@@ -36,8 +36,8 @@ interface ISequenceByKey<T> {
 
 export class APIv3 {
     private _clientId: string;
+    private _legacyModel: falcor.Model;
     private _model: falcor.Model;
-    private _modelMagic: falcor.Model;
 
     private _imageByKeyPath: string = "imageByKey";
     private _imageCloseToPath: string = "imageCloseTo";
@@ -82,10 +82,10 @@ export class APIv3 {
         "username",
     ];
 
-    constructor (clientId: string) {
+    constructor (clientId: string, model?: falcor.Model) {
         this._clientId = clientId;
 
-        this._model =
+        this._legacyModel =
             new falcor.Model({
                 source: new HttpDataSource(Urls.falcorModel(clientId), {
                     crossDomain: true,
@@ -93,7 +93,8 @@ export class APIv3 {
                 }),
             });
 
-        this._modelMagic =
+        this._model = model != null ?
+            model :
             new falcor.Model({
                 source: new HttpDataSource(Urls.falcorModelMagic(clientId), {
                     crossDomain: true,
@@ -104,7 +105,7 @@ export class APIv3 {
 
     public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
         return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<IImageByKey<IFillNode>>>(this._modelMagic.get([
+            this._wrapPromise<IFalcorResult<IImageByKey<IFillNode>>>(this._model.get([
                 this._imageByKeyPath,
                 keys,
                 this._keyProperties.concat(this._fillProperties).concat(this._spatialProperties),
@@ -119,7 +120,7 @@ export class APIv3 {
 
     public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: IFullNode }> {
         return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<IImageByKey<IFullNode>>>(this._modelMagic.get([
+            this._wrapPromise<IFalcorResult<IImageByKey<IFullNode>>>(this._model.get([
                 this._imageByKeyPath,
                 keys,
                 this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
@@ -135,7 +136,7 @@ export class APIv3 {
     public imageCloseTo$(lat: number, lon: number): Observable<IFullNode> {
         let latLon: string = `${lon}:${lat}`;
         return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<IImageCloseTo<IFullNode>>>(this._modelMagic.get([
+            this._wrapPromise<IFalcorResult<IImageCloseTo<IFullNode>>>(this._model.get([
                 this._imageCloseToPath,
                 latLon,
                 this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
@@ -150,7 +151,7 @@ export class APIv3 {
 
     public imagesByH$(hs: string[]): Observable<{ [key: string]: { [index: string]: ICoreNode } }> {
         return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<IImagesByH<ICoreNode>>>(this._modelMagic.get([
+            this._wrapPromise<IFalcorResult<IImagesByH<ICoreNode>>>(this._model.get([
                 this._imagesByHPath,
                 hs,
                 { from: 0, to: 999 },
@@ -166,7 +167,7 @@ export class APIv3 {
 
     public sequenceByKey$(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
         return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<ISequenceByKey<ISequence>>>(this._modelMagic.get([
+            this._wrapPromise<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
                 this._sequenceByKeyPath,
                 sKeys,
                 this._keyProperties.concat(this._sequenceProperties)]))
@@ -178,12 +179,12 @@ export class APIv3 {
             sKeys);
     }
 
-    public get model(): falcor.Model {
-        return this._model;
+    public get legacyModel(): falcor.Model {
+        return this._legacyModel;
     }
 
-    public get modelMagic(): falcor.Model {
-        return this._modelMagic;
+    public get model(): falcor.Model {
+        return this._model;
     }
 
     public get clientId(): string {
@@ -198,7 +199,7 @@ export class APIv3 {
         return observable
             .catch(
                 (error: Error): Observable<TResult> => {
-                    this._modelMagic.invalidate(path, paths);
+                    this._model.invalidate([path, paths]);
 
                     throw error;
                 });

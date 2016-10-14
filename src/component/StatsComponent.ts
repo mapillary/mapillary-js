@@ -48,7 +48,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                 })
             .subscribe(
                 (keys: IKeys): void => {
-                    this._navigator.apiV3.modelMagic
+                    this._navigator.apiV3.model
                         .call(["sequenceViewAdd"], [keys.report])
                         .subscribe();
                 });
@@ -79,7 +79,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                 })
             .subscribe(
                 (keys: IKeys): void => {
-                    this._navigator.apiV3.modelMagic
+                    this._navigator.apiV3.model
                         .call(["imageViewAdd"], [keys.report])
                         .subscribe();
                 });

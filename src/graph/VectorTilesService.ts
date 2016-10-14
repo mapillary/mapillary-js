@@ -37,7 +37,7 @@ export class VectorTilesService {
                 })
             .mergeMap(
                 (tile: ITile): any => {
-                    return this._apiV3.model.get([
+                    return this._apiV3.legacyModel.get([
                         "tile",
                         "all",
                         tile.z,
