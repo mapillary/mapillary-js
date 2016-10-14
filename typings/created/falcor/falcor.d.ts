@@ -12,6 +12,7 @@ declare module "falcor" {
         treatErrorsAsValues(): any;
         call(callPath: any, args?: any, pathSuffix?: any, paths?: any): any;
         batch(milliseconds: number): Model;
+        invalidate(...path: any[]): void;
     }
 
     export default Model;
