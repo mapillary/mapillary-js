@@ -12,7 +12,7 @@ import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 
-import {IAPISearchImClose2, APIv2, APIv3} from "../API";
+import {IAPISearchImClose2, IAPISearchIms, APIv2, APIv3} from "../API";
 import {ILatLon} from "../Geo";
 import {GraphService, Node} from "../Graph";
 import {EdgeDirection} from "../Edge";
@@ -93,6 +93,21 @@ export class Navigator {
                     return data.key == null ?
                         Observable.throw<Node>(new Error("no Image found")) :
                         this.moveToKey(data.key);
+                })
+            .first();
+    }
+
+    public lookAt(lat: number, lon: number): Observable<Node> {
+        let searchString: string = `?max_lat=${lat}&max_lon=${lon}&min_lat=${lat}&min_lon=${lon}`;
+        this.loadingService.startLoading("navigator");
+        this._latLonRequested$.next({lat: lat, lon: lon});
+        return Observable
+            .fromPromise(this.apiV2.search.im.callSearchIm(searchString))
+            .mergeMap<Node>(
+                ({ims}: IAPISearchIms): Observable<Node> => {
+                    return ims.length && typeof ims[0] !== "undefined"
+                        ? this.moveToKey(ims[0].key)
+                        : Observable.throw<Node>(new Error("no Image found"));
                 })
             .first();
     }
