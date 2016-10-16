@@ -6,6 +6,7 @@ import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/from";
 
+import "rxjs/add/operator/catch";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/finally";
 import "rxjs/add/operator/map";
@@ -23,10 +24,15 @@ import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from ".
 import {Spatial, GeoCoords, ILatLon} from "../Geo";
 import {NewNode, NewNodeCache, Node, Sequence, GraphCalculator} from "../Graph";
 
-interface INewSpatialItem {
+type INewSpatialItem = {
     lat: number;
     lon: number;
     node: NewNode;
+}
+
+type NodeTiles = {
+    cache: string[];
+    caching: string[];
 }
 
 export class NewGraph {
@@ -48,8 +54,8 @@ export class NewGraph {
     private _fetching: { [key: string]: Observable<NewGraph> };
     private _filling: { [key: string]: Observable<NewGraph> };
     private _cachingSequence: { [key: string]: Observable<NewGraph> };
-    private _nodeTiles: { [key: string]: string[] };
-    private _cachingTiles: { [key: string]: boolean };
+    private _nodeTiles: { [key: string]: NodeTiles };
+    private _cachingTile: { [h: string]: Observable<NewGraph> };
     private _spatialNodes: { [key: string]: [NewNode[], string[], NewNode[]] };
     private _cachingSpatialNodes: { [key: string]: Subscription };
 
@@ -80,7 +86,7 @@ export class NewGraph {
         this._filling = {};
         this._cachingSequence = {};
         this._nodeTiles = {};
-        this._cachingTiles = {};
+        this._cachingTile = {};
         this._spatialNodes = {};
         this._cachingSpatialNodes = {};
 
@@ -278,33 +284,37 @@ export class NewGraph {
             throw new Error(`Node does not exist in graph (${key}).`);
         }
 
-        let node: NewNode = this.getNode(key);
-
         if (!(key in this._nodeTiles)) {
-            this._nodeTiles[key] =
-                this._graphCalculator.encodeHs(node.latLon, this._tilePrecision, this._tileThreshold);
+            let node: NewNode = this.getNode(key);
+            let cache: string[] = this._graphCalculator
+                .encodeHs(
+                    node.latLon,
+                    this._tilePrecision,
+                    this._tileThreshold)
+                .filter(
+                    (h: string): boolean => {
+                        return !(h in this._tileCache);
+                    });
+
+            this._nodeTiles[key] = {
+                cache: cache,
+                caching: [],
+            };
         }
 
-        for (let h of this._nodeTiles[key]) {
-            if (!(h in this._tileCache)) {
-                return false;
-            }
-        }
-
-        return true;
+        return this._nodeTiles[key].cache.length === 0 &&
+            this._nodeTiles[key].caching.length === 0;
     }
 
     public cachingTiles(key: string): boolean {
-        return key in this._cachingTiles;
+        return key in this._nodeTiles &&
+            this._nodeTiles[key].cache.length === 0 &&
+            this._nodeTiles[key].caching.length > 0;
     }
 
-    public cacheTiles(key: string): void {
+    public cacheTiles$(key: string): Observable<NewGraph>[] {
         if (key in this._tileNodeCache) {
             throw new Error(`Tiles already cached (${key}).`);
-        }
-
-        if (key in this._cachingTiles) {
-            throw new Error(`Already caching tiles (${key}).`);
         }
 
         if (!(key in this._nodeTiles)) {
@@ -315,79 +325,120 @@ export class NewGraph {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
-        let uncachedHs: string[] = [];
-        for (let h of this._nodeTiles[key]) {
-            if (!(h in this._tileCache)) {
-                uncachedHs.push(h);
-            }
-        }
+        let hs: string[] = this._nodeTiles[key].cache.slice();
+        this._nodeTiles[key].caching = this._nodeTiles[key].caching.concat(hs);
+        this._nodeTiles[key].cache = [];
 
-        if (uncachedHs.length > 0) {
-            this._cachingTiles[key] = true;
-            Observable
-                .from(uncachedHs)
-                .mergeMap<[string, { [key: string]: { [index: string]: ICoreNode } }]>(
-                    (h: string): Observable<[string, { [key: string]: { [index: string]: ICoreNode } }]> => {
-                        return Observable.zip(Observable.of<string>(h), this._apiV3.imagesByH$([h]));
-                    })
-                .subscribe(
-                    (hi: [string, { [key: string]: { [index: string]: ICoreNode } }]): void => {
-                        let h: string = hi[0];
-                        let coreNodes: { [index: string]: ICoreNode } = hi[1][h];
+        let cacheTiles$: Observable<NewGraph>[] = [];
 
-                        if (h in this._tileCache) {
-                            return;
-                        }
+        for (let h of hs) {
+            let cacheTile$: Observable<NewGraph> = null;
+            if (h in this._cachingTile) {
+                cacheTile$ = this._cachingTile[h];
+            } else {
+                cacheTile$ = this._apiV3.imagesByH$([h])
+                    .do(
+                        (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): void => {
+                            let coreNodes: { [index: string]: ICoreNode } = imagesByH[h];
 
-                        this._tileCache[h] = [];
-                        let hCache: NewNode[] = this._tileCache[h];
-                        let preStored: { [key: string]: NewNode } = this._removeFromPreStore(h);
-
-                        for (let index in coreNodes) {
-                            if (!coreNodes.hasOwnProperty(index)) {
-                                continue;
+                            if (h in this._tileCache) {
+                                return;
                             }
 
-                            let coreNode: ICoreNode = coreNodes[index];
+                            this._tileCache[h] = [];
+                            let hCache: NewNode[] = this._tileCache[h];
+                            let preStored: { [key: string]: NewNode } = this._removeFromPreStore(h);
 
-                            if (coreNode == null) {
-                                break;
-                            }
+                            for (let index in coreNodes) {
+                                if (!coreNodes.hasOwnProperty(index)) {
+                                    continue;
+                                }
 
-                            if (coreNode.sequence == null ||
-                                coreNode.sequence.key == null) {
-                                continue;
-                            }
+                                let coreNode: ICoreNode = coreNodes[index];
 
-                            if (preStored != null && coreNode.key in preStored) {
-                                let node: NewNode = preStored[coreNode.key];
-                                delete preStored[coreNode.key];
+                                if (coreNode == null) {
+                                    break;
+                                }
+
+                                if (coreNode.sequence == null ||
+                                    coreNode.sequence.key == null) {
+                                    console.warn(`Sequence missing, discarding (${coreNode.key})`);
+
+                                    continue;
+                                }
+
+                                if (preStored != null && coreNode.key in preStored) {
+                                    let node: NewNode = preStored[coreNode.key];
+                                    delete preStored[coreNode.key];
+
+                                    hCache.push(node);
+                                    this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
+
+                                    continue;
+                                }
+
+                                let node: NewNode = new NewNode(coreNode);
 
                                 hCache.push(node);
                                 this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
-
-                                continue;
+                                this._setNode(node);
                             }
 
-                            let node: NewNode = new NewNode(coreNode);
+                            delete this._cachingTile[h];
+                        })
+                    .map<NewGraph>(
+                        (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): NewGraph => {
+                            return this;
+                        })
+                    .catch(
+                        (error: Error): Observable<NewGraph> => {
+                            delete this._cachingTile[h];
 
-                            hCache.push(node);
-                            this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
-                            this._setNode(node);
-                        }
+                            throw error;
+                        })
+                    .publishReplay(1)
+                    .refCount();
 
-                        this._changed$.next(this);
-                    },
-                    (error: Error): void => { return; },
-                    (): void => {
-                        delete this._cachingTiles[key];
-                        delete this._nodeTiles[key];
+                this._cachingTile[h] = cacheTile$;
+            }
 
-                        this._tileNodeCache[key] = true;
+            cacheTiles$.push(
+                cacheTile$
+                    .do(
+                        (graph: NewGraph): void => {
+                            let nodeTiles: NodeTiles = this._nodeTiles[key];
+                            let index: number = nodeTiles.caching.indexOf(h);
+                            nodeTiles.caching.splice(index, 1);
 
-                        this._changed$.next(this);
-                    });
+                            if (nodeTiles.caching.length === 0 &&
+                                nodeTiles.cache.length === 0) {
+                                delete this._nodeTiles[key];
+
+                                this._tileNodeCache[key] = true;
+                            }
+                        })
+                    .catch(
+                        (error: Error): Observable<NewGraph> => {
+                            let nodeTiles: NodeTiles = this._nodeTiles[key];
+                            let index: number = nodeTiles.caching.indexOf(h);
+                            nodeTiles.caching.splice(index, 1);
+
+                            if (nodeTiles.caching.length === 0 &&
+                                nodeTiles.cache.length === 0) {
+                                delete this._nodeTiles[key];
+
+                                this._tileNodeCache[key] = true;
+                            }
+
+                            throw error;
+                        })
+                    .finally(
+                        (): void => {
+                            this._changed$.next(this);
+                        }));
         }
+
+        return cacheTiles$;
     }
 
     public nodeCacheInitialized(key: string): boolean {

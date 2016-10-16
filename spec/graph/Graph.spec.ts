@@ -5,6 +5,8 @@ import * as rbush from "rbush";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
+import "rxjs/add/operator/mergeAll";
+
 import {APIv3, ICoreNode, IFillNode, IFullNode, ISequence} from "../../src/API";
 import {EdgeCalculator} from "../../src/Edge";
 import {GraphCalculator, NewGraph, NewNode} from "../../src/Graph";
@@ -223,7 +225,10 @@ describe("Graph.fetch", () => {
         imageByKeyFullOther.complete();
 
         graph.tilesCached(otherNode.key);
-        graph.cacheTiles(otherNode.key);
+        Observable
+            .from<Observable<NewGraph>>(graph.cacheTiles$(otherNode.key))
+            .mergeAll()
+            .subscribe();
 
         let fullNode: IFullNode = createFullNode();
         fullNode.key = key;
@@ -281,7 +286,10 @@ describe("Graph.fill", () => {
         imageByKeyFull.next(fetchResult);
 
         graph.tilesCached(fullNode.key);
-        graph.cacheTiles(fullNode.key);
+        Observable
+            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe();
 
         let tileNode: ICoreNode = createCoreNode();
         tileNode.key = "tileNodeKey";
@@ -328,7 +336,10 @@ describe("Graph.fill", () => {
         imageByKeyFull.next(fetchResult);
 
         graph.tilesCached(fullNode.key);
-        graph.cacheTiles(fullNode.key);
+        Observable
+            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe();
 
         let tileNode: ICoreNode = createCoreNode();
         tileNode.key = "tileNodeKey";
@@ -381,7 +392,10 @@ describe("Graph.fill", () => {
         imageByKeyFull.next(fetchResult);
 
         graph.tilesCached(fullNode.key);
-        graph.cacheTiles(fullNode.key);
+        Observable
+            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe();
 
         let tileNode: ICoreNode = createCoreNode();
         tileNode.key = "tileNodeKey";
@@ -484,7 +498,7 @@ describe("Graph.cacheTiles", () => {
         expect(graph.tilesCached(fullNode.key)).toBe(false);
         expect(graph.cachingTiles(fullNode.key)).toBe(false);
 
-        graph.cacheTiles(fullNode.key);
+        graph.cacheTiles$(fullNode.key);
 
         expect(graph.tilesCached(fullNode.key)).toBe(false);
         expect(graph.cachingTiles(fullNode.key)).toBe(true);
@@ -516,7 +530,10 @@ describe("Graph.cacheTiles", () => {
         expect(graph.tilesCached(fullNode.key)).toBe(false);
         expect(graph.cachingTiles(fullNode.key)).toBe(false);
 
-        graph.cacheTiles(fullNode.key);
+        Observable
+            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe();
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
@@ -580,7 +597,10 @@ describe("Graph.cacheTiles", () => {
 
         expect(graph.tilesCached(fullNode.key)).toBe(false);
 
-        graph.cacheTiles(fullNode.key);
+        Observable
+            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe();
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
@@ -655,7 +675,10 @@ describe("Graph.cacheSpatialNodes", () => {
         coreNode.key = "otherKey";
 
         graph.tilesCached(fullNode.key);
-        graph.cacheTiles(fullNode.key);
+        Observable
+            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe();
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
