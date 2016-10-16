@@ -354,6 +354,11 @@ export class NewGraph {
                                 break;
                             }
 
+                            if (coreNode.sequence == null ||
+                                coreNode.sequence.key == null) {
+                                continue;
+                            }
+
                             if (preStored != null && coreNode.key in preStored) {
                                 let node: NewNode = preStored[coreNode.key];
                                 delete preStored[coreNode.key];
