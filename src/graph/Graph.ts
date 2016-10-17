@@ -515,7 +515,7 @@ export class NewGraph {
         }
 
         if (key in this._spatialNodeCache) {
-            throw new Error(`Node alread spatially cached (${key}).`);
+            throw new Error(`Node already spatially cached (${key}).`);
         }
 
         if (!(key in this._spatialNodes)) {
@@ -553,6 +553,16 @@ export class NewGraph {
                 .map<NewGraph>(
                     (imageByKeyFill: { [key: string]: IFillNode }): NewGraph => {
                         return this;
+                    })
+                .catch(
+                    (error: Error): Observable<NewGraph> => {
+                        for (let batchKey of batch) {
+                            if (batchKey in spatialNodes.cacheNodes) {
+                                delete spatialNodes.cacheNodes[batchKey];
+                            }
+                        }
+
+                        throw error;
                     })
                 .finally(
                     (): void => {
