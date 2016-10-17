@@ -11,7 +11,7 @@ import "rxjs/add/operator/do";
 import "rxjs/add/operator/finally";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
-import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/publish";
 
 import * as _ from "underscore";
 import * as graphlib from "graphlib";
@@ -160,7 +160,7 @@ export class NewGraph {
 
                     this._changed$.next(this);
                 })
-            .publishReplay(1)
+            .publish()
             .refCount();
 
         return this._fetching[key];
@@ -205,7 +205,7 @@ export class NewGraph {
 
                     this._changed$.next(this);
                 })
-            .publishReplay(1)
+            .publish()
             .refCount();
 
         return this._filling[key];
@@ -256,7 +256,7 @@ export class NewGraph {
 
                     this._changed$.next(this);
                 })
-            .publishReplay(1)
+            .publish()
             .refCount();
 
         return this._cachingSequence[key];
@@ -396,7 +396,7 @@ export class NewGraph {
 
                             throw error;
                         })
-                    .publishReplay(1)
+                    .publish()
                     .refCount();
 
                 this._cachingTile[h] = cacheTile$;
