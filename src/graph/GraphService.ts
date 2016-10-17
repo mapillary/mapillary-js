@@ -145,16 +145,22 @@ export class NewGraphService {
             .last()
             .mergeMap<NewGraph>(
                 (graph: NewGraph): Observable<NewGraph> => {
-                    return graph.spatialNodesCached(key) ?
-                        Observable.of<NewGraph>(graph) :
-                        Observable
-                            .throw<NewGraph>(new Error("Not implemented"))
-                            .catch(
-                                (error: Error, caught$: Observable<NewGraph>): Observable<NewGraph> => {
-                                    console.error(`Failed to cache spatial nodes (${key}).`, error);
+                    if (graph.spatialNodesCached(key)) {
+                        return Observable.of<NewGraph>(graph);
+                    }
 
-                                    return Observable.empty<NewGraph>();
-                                });
+                    return Observable
+                        .from<Observable<NewGraph>>(graph.cacheSpatialNodes$(key))
+                        .mergeMap(
+                            (graph$: Observable<NewGraph>): Observable<NewGraph> => {
+                                return graph$
+                                    .catch(
+                                        (error: Error, caught$: Observable<NewGraph>): Observable<NewGraph> => {
+                                            console.error(`Failed to cache spatial nodes (${key}).`, error);
+
+                                            return Observable.empty<NewGraph>();
+                                        });
+                            });
                 })
             .last()
             .mergeMap<NewGraph>(
