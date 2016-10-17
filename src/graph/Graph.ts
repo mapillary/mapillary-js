@@ -321,13 +321,18 @@ export class NewGraph {
             throw new Error(`Tiles have not been determined (${key}).`);
         }
 
+        let nodeTiles: NodeTiles = this._nodeTiles[key];
+        if (nodeTiles.cache.length === 0) {
+            throw new Error(`Tiles already cached or caching (${key}).`);
+        }
+
         if (!this.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
-        let hs: string[] = this._nodeTiles[key].cache.slice();
-        this._nodeTiles[key].caching = this._nodeTiles[key].caching.concat(hs);
-        this._nodeTiles[key].cache = [];
+        let hs: string[] = nodeTiles.cache.slice();
+        nodeTiles.caching = this._nodeTiles[key].caching.concat(hs);
+        nodeTiles.cache = [];
 
         let cacheTiles$: Observable<NewGraph>[] = [];
 
@@ -406,7 +411,6 @@ export class NewGraph {
                 cacheTile$
                     .do(
                         (graph: NewGraph): void => {
-                            let nodeTiles: NodeTiles = this._nodeTiles[key];
                             let index: number = nodeTiles.caching.indexOf(h);
                             nodeTiles.caching.splice(index, 1);
 
@@ -419,7 +423,6 @@ export class NewGraph {
                         })
                     .catch(
                         (error: Error): Observable<NewGraph> => {
-                            let nodeTiles: NodeTiles = this._nodeTiles[key];
                             let index: number = nodeTiles.caching.indexOf(h);
                             nodeTiles.caching.splice(index, 1);
 
