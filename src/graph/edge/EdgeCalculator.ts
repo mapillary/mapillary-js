@@ -61,7 +61,7 @@ export class EdgeCalculator {
      *                                     be returned even if they do not meet
      *                                     the criteria for a potential edge.
      */
-    public getPotentialEdges(node: NewNode, nodes: NewNode[], fallbackKeys: string[]): IPotentialEdge[] {
+    public getPotentialEdges(node: NewNode, potentialNodes: NewNode[], fallbackKeys: string[]): IPotentialEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -77,7 +77,7 @@ export class EdgeCalculator {
 
         let potentialEdges: IPotentialEdge[] = [];
 
-        for (let potential of nodes) {
+        for (let potential of potentialNodes) {
             if (!potential.merged ||
                 potential.key === node.key) {
                 continue;

@@ -35,7 +35,7 @@ type NodeTiles = {
 }
 
 type SpatialNodes = {
-    all: NewNode[];
+    all: { [key: string]: NewNode };
     cacheKeys: string[];
     cacheNodes: { [key: string]: NewNode };
 }
@@ -490,13 +490,13 @@ export class NewGraph {
         });
 
         let spatialNodes: SpatialNodes = {
-            all: [],
+            all: {},
             cacheKeys: [],
             cacheNodes: {},
         };
 
         for (let spatialItem of spatialItems) {
-            spatialNodes.all.push(spatialItem.node);
+            spatialNodes.all[spatialItem.node.key] = spatialItem.node;
 
             if (!spatialItem.node.full) {
                 spatialNodes.cacheKeys.push(spatialItem.node.key);
@@ -557,6 +557,10 @@ export class NewGraph {
                 .catch(
                     (error: Error): Observable<NewGraph> => {
                         for (let batchKey of batch) {
+                            if (batchKey in spatialNodes.all) {
+                                delete spatialNodes.all[batchKey];
+                            }
+
                             if (batchKey in spatialNodes.cacheNodes) {
                                 delete spatialNodes.cacheNodes[batchKey];
                             }
@@ -589,7 +593,17 @@ export class NewGraph {
         let nextKey: string = sequence.findNextKey(node.key);
         let prevKey: string = sequence.findPrevKey(node.key);
 
-        let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, this._spatialNodes[key].all, fallbackKeys);
+        let allSpatialNodes: { [key: string]: NewNode } = this._spatialNodes[key].all;
+        let potentialNodes: NewNode[] = [];
+        for (let spatialNodeKey in allSpatialNodes) {
+            if (!allSpatialNodes.hasOwnProperty(spatialNodeKey)) {
+                continue;
+            }
+
+            potentialNodes.push(allSpatialNodes[spatialNodeKey]);
+        }
+
+        let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
 
         let edges: IEdge[] =
             this._edgeCalculator.computeStepEdges(
