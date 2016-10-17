@@ -2,7 +2,6 @@
 
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
-import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/from";
 
@@ -35,6 +34,12 @@ type NodeTiles = {
     caching: string[];
 }
 
+type SpatialNodes = {
+    all: NewNode[];
+    cacheKeys: string[];
+    cacheNodes: { [key: string]: NewNode };
+}
+
 export class NewGraph {
     private _apiV3: APIv3;
     private _sequences: { [skey: string]: Sequence };
@@ -56,8 +61,7 @@ export class NewGraph {
     private _cachingSequence: { [key: string]: Observable<NewGraph> };
     private _nodeTiles: { [key: string]: NodeTiles };
     private _cachingTile: { [h: string]: Observable<NewGraph> };
-    private _spatialNodes: { [key: string]: [NewNode[], string[], NewNode[]] };
-    private _cachingSpatialNodes: { [key: string]: Subscription };
+    private _spatialNodes: { [key: string]: SpatialNodes };
 
     private _changed$: Subject<NewGraph>;
 
@@ -88,7 +92,6 @@ export class NewGraph {
         this._nodeTiles = {};
         this._cachingTile = {};
         this._spatialNodes = {};
-        this._cachingSpatialNodes = {};
 
         this._changed$ = new Subject<NewGraph>();
     }
@@ -459,7 +462,8 @@ export class NewGraph {
     }
 
     public cachingSpatialNodes(key: string): boolean {
-        return key in this._cachingSpatialNodes;
+        return key in this._spatialNodes &&
+            Object.keys(this._spatialNodes[key].cacheNodes).length > 0;
     }
 
     public spatialNodesCached(key: string): boolean {
@@ -472,7 +476,7 @@ export class NewGraph {
         }
 
         if (key in this._spatialNodes) {
-            return this._spatialNodes[key][1].length === 0;
+            return this._spatialNodes[key].cacheKeys.length === 0;
         }
 
         let node: NewNode = this.getNode(key);
@@ -485,24 +489,27 @@ export class NewGraph {
             minY: bbox[0].lat,
         });
 
-        let allSpatialNodes: NewNode[] = [];
-        let nonFilledSpatialKeys: string[] = [];
-        let nonFilledSpatialNodes: NewNode[] = [];
+        let spatialNodes: SpatialNodes = {
+            all: [],
+            cacheKeys: [],
+            cacheNodes: {},
+        };
+
         for (let spatialItem of spatialItems) {
-            allSpatialNodes.push(spatialItem.node);
+            spatialNodes.all.push(spatialItem.node);
 
             if (!spatialItem.node.full) {
-                nonFilledSpatialKeys.push(spatialItem.node.key);
-                nonFilledSpatialNodes.push(spatialItem.node);
+                spatialNodes.cacheKeys.push(spatialItem.node.key);
+                spatialNodes.cacheNodes[spatialItem.node.key] = spatialItem.node;
             }
         }
 
-        this._spatialNodes[key] = [allSpatialNodes, nonFilledSpatialKeys, nonFilledSpatialNodes];
+        this._spatialNodes[key] = spatialNodes;
 
-        return nonFilledSpatialKeys.length === 0;
+        return spatialNodes.cacheKeys.length === 0;
     }
 
-    public cacheSpatialNodes(key: string): void {
+    public cacheSpatialNodes$(key: string): Observable<NewGraph>[] {
         if (!this.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
@@ -511,36 +518,53 @@ export class NewGraph {
             throw new Error(`Node alread spatially cached (${key}).`);
         }
 
-        if (key in this._cachingSpatialNodes) {
-            throw new Error(`Already filling spatial nodes (${key}).`);
-        }
-
-        if (this._spatialNodes[key][1].length === 0) {
-            throw new Error(`Spatial nodes already cached (${key}).`);
-        }
-
         if (!(key in this._spatialNodes)) {
             throw new Error(`Spatial nodes not determined (${key}).`);
         }
 
-        let spatialNodes: [NewNode[], string[], NewNode[]] = this._spatialNodes[key];
-        this._cachingSpatialNodes[key] = this._apiV3.imageByKeyFill$(spatialNodes[1])
-            .subscribe(
-                (imageByKey: { [key: string]: IFillNode }): void => {
-                    for (let spatialNode of spatialNodes[2]) {
-                        if (spatialNode.full) {
-                            continue;
+        let spatialNodes: SpatialNodes = this._spatialNodes[key];
+        if (spatialNodes.cacheKeys.length === 0) {
+            throw new Error(`Spatial nodes already cached or caching (${key}).`);
+        }
+
+        let spatialNodes$: Observable<NewGraph>[] = [];
+
+        while (spatialNodes.cacheKeys.length > 0) {
+            let batch: string[] = spatialNodes.cacheKeys.splice(0, 200);
+            let spatialNodeBatch$: Observable<NewGraph> = this._apiV3.imageByKeyFill$(batch)
+                .do(
+                    (imageByKeyFill: { [key: string]: IFillNode }): void => {
+                        for (let fillKey in imageByKeyFill) {
+                            if (!imageByKeyFill.hasOwnProperty(fillKey)) {
+                                continue;
+                            }
+
+                            let spatialNode: NewNode = spatialNodes.cacheNodes[fillKey];
+                            if (spatialNode.full) {
+                                continue;
+                            }
+
+                            let fillNode: IFillNode = imageByKeyFill[fillKey];
+                            spatialNode.makeFull(fillNode);
+
+                            delete spatialNodes.cacheNodes[fillKey];
                         }
+                    })
+                .map<NewGraph>(
+                    (imageByKeyFill: { [key: string]: IFillNode }): NewGraph => {
+                        return this;
+                    })
+                .finally(
+                    (): void => {
+                        if (Object.keys(spatialNodes.cacheNodes).length === 0) {
+                            this._changed$.next(this);
+                        }
+                    });
 
-                        this._makeFull(spatialNode, imageByKey[spatialNode.key]);
-                    }
+            spatialNodes$.push(spatialNodeBatch$);
+        }
 
-                    this._spatialNodes[key][1] = [];
-                    this._spatialNodes[key][2] = [];
-                    delete this._cachingSpatialNodes[key];
-
-                    this._changed$.next(this);
-                });
+        return spatialNodes$;
     }
 
     public cacheSpatialEdges(key: string): void {
@@ -555,7 +579,7 @@ export class NewGraph {
         let nextKey: string = sequence.findNextKey(node.key);
         let prevKey: string = sequence.findPrevKey(node.key);
 
-        let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, this._spatialNodes[key][0], fallbackKeys);
+        let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, this._spatialNodes[key].all, fallbackKeys);
 
         let edges: IEdge[] =
             this._edgeCalculator.computeStepEdges(
@@ -580,18 +604,6 @@ export class NewGraph {
 
         for (let spatialNodeKey of spatialNodeKeys) {
             delete this._spatialNodes[spatialNodeKey];
-        }
-
-        let cachingKeys: string[] = Object.keys(this._cachingSpatialNodes);
-
-        for (let cachingKey of cachingKeys) {
-            let subscription: Subscription = this._cachingSpatialNodes[cachingKey];
-
-            if (!subscription.closed) {
-                subscription.unsubscribe();
-            }
-
-            delete this._cachingSpatialNodes[cachingKey];
         }
 
         let cachedKeys: string[] = Object.keys(this._spatialNodeCache);
