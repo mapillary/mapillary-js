@@ -125,16 +125,20 @@ export class NewGraphService {
                         return Observable.empty<NewGraph>();
                     }
 
-                    if (graph.cachingTiles(key)) {
-                        return Observable.empty<NewGraph>();
-                    }
-
                     return Observable
                         .from<Observable<NewGraph>>(graph.cacheTiles$(key))
                         .mergeMap(
                             (graph$: Observable<NewGraph>): Observable<NewGraph> => {
                                 return graph$
-                                   .catch(
+                                    .mergeMap<NewGraph>(
+                                        (g: NewGraph): Observable<NewGraph> => {
+                                            if (g.cachingTiles(key)) {
+                                                return Observable.empty<NewGraph>();
+                                            }
+
+                                            return Observable.of<NewGraph>(g);
+                                        })
+                                    .catch(
                                         (error: Error, caught$: Observable<NewGraph>): Observable<NewGraph> => {
                                             console.error(`Failed to cache tile data (${key}).`, error);
 

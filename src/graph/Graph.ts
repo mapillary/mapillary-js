@@ -327,8 +327,9 @@ export class NewGraph {
         }
 
         let nodeTiles: NodeTiles = this._nodeTiles[key];
-        if (nodeTiles.cache.length === 0) {
-            throw new Error(`Tiles already cached or caching (${key}).`);
+        if (nodeTiles.cache.length === 0 &&
+            nodeTiles.caching.length === 0) {
+            throw new Error(`Tiles already cached (${key}).`);
         }
 
         if (!this.hasNode(key)) {
@@ -341,7 +342,7 @@ export class NewGraph {
 
         let cacheTiles$: Observable<NewGraph>[] = [];
 
-        for (let h of hs) {
+        for (let h of nodeTiles.caching) {
             let cacheTile$: Observable<NewGraph> = null;
             if (h in this._cachingTile) {
                 cacheTile$ = this._cachingTile[h];
@@ -417,7 +418,9 @@ export class NewGraph {
                     .do(
                         (graph: NewGraph): void => {
                             let index: number = nodeTiles.caching.indexOf(h);
-                            nodeTiles.caching.splice(index, 1);
+                            if (index > -1) {
+                                nodeTiles.caching.splice(index, 1);
+                            }
 
                             if (nodeTiles.caching.length === 0 &&
                                 nodeTiles.cache.length === 0) {
@@ -429,7 +432,9 @@ export class NewGraph {
                     .catch(
                         (error: Error): Observable<NewGraph> => {
                             let index: number = nodeTiles.caching.indexOf(h);
-                            nodeTiles.caching.splice(index, 1);
+                            if (index > -1) {
+                                nodeTiles.caching.splice(index, 1);
+                            }
 
                             if (nodeTiles.caching.length === 0 &&
                                 nodeTiles.cache.length === 0) {
@@ -443,7 +448,9 @@ export class NewGraph {
                     .finally(
                         (): void => {
                             this._changed$.next(this);
-                        }));
+                        })
+                    .publish()
+                    .refCount());
         }
 
         return cacheTiles$;
