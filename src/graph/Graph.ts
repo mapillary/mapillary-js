@@ -62,6 +62,7 @@ export class NewGraph {
     private _nodeTiles: { [key: string]: NodeTiles };
     private _cachingTile: { [h: string]: Observable<NewGraph> };
     private _spatialNodes: { [key: string]: SpatialNodes };
+    private _cachingSpatialNodes: { [key: string]: Observable<NewGraph>[] };
 
     private _changed$: Subject<NewGraph>;
 
@@ -92,6 +93,7 @@ export class NewGraph {
         this._nodeTiles = {};
         this._cachingTile = {};
         this._spatialNodes = {};
+        this._cachingSpatialNodes = {};
 
         this._changed$ = new Subject<NewGraph>();
     }
@@ -461,11 +463,6 @@ export class NewGraph {
         this._nodeCache[key] = node;
     }
 
-    public cachingSpatialNodes(key: string): boolean {
-        return key in this._spatialNodes &&
-            Object.keys(this._spatialNodes[key].cacheNodes).length > 0;
-    }
-
     public spatialNodesCached(key: string): boolean {
         if (!this.hasNode(key)) {
             throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
@@ -476,7 +473,7 @@ export class NewGraph {
         }
 
         if (key in this._spatialNodes) {
-            return this._spatialNodes[key].cacheKeys.length === 0;
+            return Object.keys(this._spatialNodes[key].cacheNodes).length === 0;
         }
 
         let node: NewNode = this.getNode(key);
@@ -523,14 +520,23 @@ export class NewGraph {
         }
 
         let spatialNodes: SpatialNodes = this._spatialNodes[key];
-        if (spatialNodes.cacheKeys.length === 0) {
-            throw new Error(`Spatial nodes already cached or caching (${key}).`);
+        if (Object.keys(spatialNodes.cacheNodes).length === 0) {
+            throw new Error(`Spatial nodes already cached (${key}).`);
         }
 
+        if (key in this._cachingSpatialNodes) {
+            return this._cachingSpatialNodes[key];
+        }
+
+        let batches: string[][] = [];
+        while (spatialNodes.cacheKeys.length > 0) {
+            batches.push(spatialNodes.cacheKeys.splice(0, 200));
+        }
+
+        let batchesToCache: number = batches.length;
         let spatialNodes$: Observable<NewGraph>[] = [];
 
-        while (spatialNodes.cacheKeys.length > 0) {
-            let batch: string[] = spatialNodes.cacheKeys.splice(0, 200);
+        for (let batch of batches) {
             let spatialNodeBatch$: Observable<NewGraph> = this._apiV3.imageByKeyFill$(batch)
                 .do(
                     (imageByKeyFill: { [key: string]: IFillNode }): void => {
@@ -541,6 +547,7 @@ export class NewGraph {
 
                             let spatialNode: NewNode = spatialNodes.cacheNodes[fillKey];
                             if (spatialNode.full) {
+                                delete spatialNodes.cacheNodes[fillKey];
                                 continue;
                             }
 
@@ -548,6 +555,10 @@ export class NewGraph {
                             spatialNode.makeFull(fillNode);
 
                             delete spatialNodes.cacheNodes[fillKey];
+                        }
+
+                        if (--batchesToCache === 0) {
+                            delete this._cachingSpatialNodes[key];
                         }
                     })
                 .map<NewGraph>(
@@ -566,6 +577,10 @@ export class NewGraph {
                             }
                         }
 
+                        if (--batchesToCache === 0) {
+                            delete this._cachingSpatialNodes[key];
+                        }
+
                         throw error;
                     })
                 .finally(
@@ -573,10 +588,14 @@ export class NewGraph {
                         if (Object.keys(spatialNodes.cacheNodes).length === 0) {
                             this._changed$.next(this);
                         }
-                    });
+                    })
+                .publish()
+                .refCount();
 
             spatialNodes$.push(spatialNodeBatch$);
         }
+
+        this._cachingSpatialNodes[key] = spatialNodes$;
 
         return spatialNodes$;
     }
