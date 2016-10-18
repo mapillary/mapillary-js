@@ -45,8 +45,6 @@ export class APIv3 {
     private _sequenceByKeyPath: string = "sequenceByKey";
 
     private _coreProperties: string[] = [
-        "ca",
-        "cca",
         "cl",
         "l",
         "sequence",
@@ -67,7 +65,9 @@ export class APIv3 {
 
     private _spatialProperties: string[] = [
         "atomic_scale",
+        "ca",
         "calt",
+        "cca",
         "cfocal",
         "gpano",
         "height",

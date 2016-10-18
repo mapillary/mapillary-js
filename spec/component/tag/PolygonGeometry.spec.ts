@@ -232,8 +232,6 @@ describe("PolygonGeometry.removeVertex2d", () => {
 describe("RectGeometry.setVertex2d", () => {
     let createNode: (gpano: IGPano) => NewNode = (gpano: IGPano): NewNode => {
         let node: NewNode = new NewNode({
-            ca: 0,
-            cca: 0,
             cl: { lat: 0, lon: 0},
             key: "key",
             l: { lat: 0, lon: 0 },
@@ -243,8 +241,10 @@ describe("RectGeometry.setVertex2d", () => {
         node.makeFull({
             atomic_scale: 0,
             c_rotation: [0, 0, 0],
+            ca: 0,
             calt: 0,
             captured_at: 0,
+            cca: 0,
             cfocal: 0,
             gpano: gpano,
             height: 0,
@@ -351,8 +351,6 @@ describe("RectGeometry.setCentroid2d", () => {
 
     let createNode: (gpano: IGPano) => NewNode = (gpano: IGPano): NewNode => {
         let node: NewNode = new NewNode({
-            ca: 0,
-            cca: 0,
             cl: { lat: 0, lon: 0},
             key: "key",
             l: { lat: 0, lon: 0 },
@@ -362,8 +360,10 @@ describe("RectGeometry.setCentroid2d", () => {
         node.makeFull({
             atomic_scale: 0,
             c_rotation: [0, 0, 0],
+            ca: 0,
             calt: 0,
             captured_at: 0,
+            cca: 0,
             cfocal: 0,
             gpano: gpano,
             height: 0,

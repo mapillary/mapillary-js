@@ -48,7 +48,7 @@ export class NewNode {
     }
 
     public get ca(): number {
-        return this._core.cca != null ? this._core.cca : this._core.ca;
+        return this._fill.cca != null ? this._fill.cca : this._fill.ca;
     }
 
     public get capturedAt(): number {

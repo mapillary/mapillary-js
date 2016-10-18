@@ -672,7 +672,7 @@ export class NewGraph {
         }
 
         if (fillNode.c_rotation == null) {
-            fillNode.c_rotation = this._graphCalculator.rotationFromCompass(node.ca, fillNode.orientation);
+            fillNode.c_rotation = this._graphCalculator.rotationFromCompass(fillNode.ca, fillNode.orientation);
         }
 
         node.makeFull(fillNode);

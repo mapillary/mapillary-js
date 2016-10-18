@@ -17,6 +17,11 @@ export interface IFillNode {
     c_rotation?: number[];
 
     /**
+     * Original EXIF compass angle.
+     */
+    ca: number;
+
+    /**
      * SfM computed altitude, in meters.
      *
      * @description If SfM has not been run the computed altitude is
@@ -28,6 +33,11 @@ export interface IFillNode {
      * Timestamp when the image was captured.
      */
     captured_at: number;
+
+    /**
+     * SfM computed EXIF compass angle.
+     */
+    cca?: number;
 
     /**
      * SfM computed focal lenght.

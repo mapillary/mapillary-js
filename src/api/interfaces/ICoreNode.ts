@@ -8,16 +8,6 @@ import {ILatLon} from "../../Geo";
  */
 export interface ICoreNode extends IKey {
     /**
-     * Original EXIF compass angle.
-     */
-    ca: number;
-
-    /**
-     * Original EXIF compass angle.
-     */
-    cca?: number;
-
-    /**
      * Original EXIF latitude longitude in WGS84 datum, measured in degrees.
      */
     l: ILatLon;

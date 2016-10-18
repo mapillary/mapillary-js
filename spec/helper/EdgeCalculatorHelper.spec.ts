@@ -29,8 +29,6 @@ export class EdgeCalculatorHelper {
         sequenceKey: string): NewNode {
 
         let coreNode: ICoreNode = {
-            ca: 0,
-            cca: 0,
             cl: { lat: latLonAlt.lat, lon: latLonAlt.lon },
             key: key,
             l: { lat: latLonAlt.lat, lon: latLonAlt.lon },
@@ -55,8 +53,10 @@ export class EdgeCalculatorHelper {
         let fillNode: IFillNode = {
             atomic_scale: 0,
             c_rotation: r,
+            ca: 0,
             calt: latLonAlt.alt,
             captured_at: capturedAt,
+            cca: 0,
             cfocal: 0,
             gpano: gpano,
             height: 0,

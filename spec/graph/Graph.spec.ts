@@ -13,8 +13,6 @@ import {GraphCalculator, NewGraph, NewNode} from "../../src/Graph";
 
 let createCoreNode: () => ICoreNode = (): ICoreNode => {
     return {
-        ca: 0,
-        cca: 0,
         cl: { lat: 0, lon: 0 },
         key: "key",
         l: { lat: 0, lon: 0},
