@@ -30,9 +30,8 @@ export class ImageLoader {
                 xmlHTTP.responseType = "arraybuffer";
                 xmlHTTP.onload = (pe: ProgressEvent) => {
                     if (xmlHTTP.status !== 200) {
-                        console.warn("Image could not be loaded for key " + key, xmlHTTP.status, xmlHTTP.statusText);
-                        subscriber.next({loaded: { loaded: 0, total: 0 }, object: null });
-                        subscriber.complete();
+                        subscriber.error(
+                            new Error(`Failed to fetch image (${key}). Status: ${xmlHTTP.status}, ${xmlHTTP.statusText}`));
                         return;
                     }
 
@@ -42,8 +41,7 @@ export class ImageLoader {
                     };
 
                     image.onerror = (error: ErrorEvent) => {
-                        console.warn("Image could not be loaded for key " + key, error.error);
-                        subscriber.complete();
+                        subscriber.error(new Error(`Failed to load image (${key})`));
                     };
 
                     let blob: Blob = new Blob([xmlHTTP.response]);
@@ -54,7 +52,11 @@ export class ImageLoader {
                     subscriber.next({loaded: { loaded: pe.loaded, total: pe.total }, object: null });
                 };
 
-                xmlHTTP.send();
+                xmlHTTP.onerror = (error: Event) => {
+                    subscriber.error(new Error(`Failed to fetch image (${key})`));
+                };
+
+                xmlHTTP.send(null);
             });
     }
 }

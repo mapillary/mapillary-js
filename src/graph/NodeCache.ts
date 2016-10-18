@@ -202,10 +202,7 @@ export class NewNodeCache {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<IMesh>>): void => {
                 if (!merged) {
-                    subscriber.next({
-                        loaded: { loaded: 0, total: 0 },
-                        object: { faces: [], vertices: [] },
-                    });
+                    subscriber.next(this._createEmptyLoadStatus());
                     subscriber.complete();
                     return;
                 }
@@ -226,8 +223,22 @@ export class NewNodeCache {
                     subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: null });
                 };
 
+                xmlHTTP.onerror = (e: Event) => {
+                    console.error(`Failed to cache mesh (${key})`);
+
+                    subscriber.next(this._createEmptyLoadStatus());
+                    subscriber.complete();
+                };
+
                 xmlHTTP.send(null);
             });
+    }
+
+    private _createEmptyLoadStatus(): ILoadStatusObject<IMesh> {
+        return {
+            loaded: { loaded: 0, total: 0 },
+            object: { faces: [], vertices: [] },
+        };
     }
 }
 
