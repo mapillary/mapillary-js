@@ -55,6 +55,14 @@ export class NewNode {
         return this._fill.captured_at;
     }
 
+    public get computedCA(): number {
+        return this._fill.cca;
+    }
+
+    public get computedLatLon(): ILatLon {
+        return this._core.cl;
+    }
+
     public get focal(): number {
         return this._fill.cfocal;
     }
@@ -134,6 +142,14 @@ export class NewNode {
 
     public get orientation(): number {
         return this._fill.orientation;
+    }
+
+    public get originalCA(): number {
+        return this._fill.ca;
+    }
+
+    public get originalLatLon(): ILatLon {
+        return this._core.l;
     }
 
     /**

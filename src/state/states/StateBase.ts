@@ -246,7 +246,7 @@ export abstract class StateBase implements IState {
         return nodesSet && !(
             this._currentNode.merged &&
             this._previousNode.merged &&
-            this._withinDistance() &&
+            this._withinOriginalDistance() &&
             this._sameConnectedComponent()
         );
     }
@@ -357,7 +357,7 @@ export abstract class StateBase implements IState {
         return current.mergeCC === previous.mergeCC;
     }
 
-    private _withinDistance(): boolean {
+    private _withinOriginalDistance(): boolean {
         let current: NewNode = this._currentNode;
         let previous: NewNode = this._previousNode;
 
@@ -367,10 +367,10 @@ export abstract class StateBase implements IState {
 
         // 50 km/h moves 28m in 2s
         let distance: number = this._spatial.distanceFromLatLon(
-            current.latLon.lat,
-            current.latLon.lon,
-            previous.latLon.lat,
-            previous.latLon.lon);
+            current.originalLatLon.lat,
+            current.originalLatLon.lon,
+            previous.originalLatLon.lat,
+            previous.originalLatLon.lon);
 
         return distance < 25;
     }
