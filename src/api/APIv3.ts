@@ -42,6 +42,7 @@ export class APIv3 {
     private _imageByKeyPath: string = "imageByKey";
     private _imageCloseToPath: string = "imageCloseTo";
     private _imagesByHPath: string = "imagesByH";
+    private _pageCount: number = 999;
     private _sequenceByKeyPath: string = "sequenceByKey";
 
     private _coreProperties: string[] = [
@@ -104,8 +105,8 @@ export class APIv3 {
     };
 
     public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
-        return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<IImageByKey<IFillNode>>>(this._model.get([
+        return this._catchInvalidate$(
+            this._wrapPromise$<IFalcorResult<IImageByKey<IFillNode>>>(this._model.get([
                 this._imageByKeyPath,
                 keys,
                 this._keyProperties.concat(this._fillProperties).concat(this._spatialProperties),
@@ -119,8 +120,8 @@ export class APIv3 {
     }
 
     public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: IFullNode }> {
-        return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<IImageByKey<IFullNode>>>(this._model.get([
+        return this._catchInvalidate$(
+            this._wrapPromise$<IFalcorResult<IImageByKey<IFullNode>>>(this._model.get([
                 this._imageByKeyPath,
                 keys,
                 this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
@@ -135,8 +136,8 @@ export class APIv3 {
 
     public imageCloseTo$(lat: number, lon: number): Observable<IFullNode> {
         let latLon: string = `${lon}:${lat}`;
-        return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<IImageCloseTo<IFullNode>>>(this._model.get([
+        return this._catchInvalidate$(
+            this._wrapPromise$<IFalcorResult<IImageCloseTo<IFullNode>>>(this._model.get([
                 this._imageCloseToPath,
                 latLon,
                 this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
@@ -149,16 +150,26 @@ export class APIv3 {
             latLon);
     }
 
-    public imagesByH$(hs: string[]): Observable<{ [key: string]: { [index: string]: ICoreNode } }> {
-        return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<IImagesByH<ICoreNode>>>(this._model.get([
+    public imagesByH$(hs: string[]): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
+        return this._catchInvalidate$(
+            this._wrapPromise$<IFalcorResult<IImagesByH<ICoreNode>>>(this._model.get([
                 this._imagesByHPath,
                 hs,
-                { from: 0, to: 999 },
+                { from: 0, to: this._pageCount },
                 this._keyProperties.concat(this._coreProperties),
                 this._keyProperties]))
-            .map<{ [key: string]: { [index: string]: ICoreNode } }>(
-                (value: IFalcorResult<IImagesByH<ICoreNode>>): { [key: string]: { [index: string]: ICoreNode } } => {
+            .map<{ [h: string]: { [index: string]: ICoreNode } }>(
+                (value: IFalcorResult<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
+                    if (value == null) {
+                        value = { json: { imagesByH: {} } };
+                        for (let h of hs) {
+                            value.json.imagesByH[h] = {};
+                            for (let i: number = 0; i <= this._pageCount; i++) {
+                                value.json.imagesByH[h][i] = null;
+                            }
+                        }
+                    }
+
                     return value.json.imagesByH;
                 }),
             this._imagesByHPath,
@@ -166,8 +177,8 @@ export class APIv3 {
     }
 
     public sequenceByKey$(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
-        return this._catchInvalidate(
-            this._wrapPromise<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
+        return this._catchInvalidate$(
+            this._wrapPromise$<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
                 this._sequenceByKeyPath,
                 sKeys,
                 this._keyProperties.concat(this._sequenceProperties)]))
@@ -191,11 +202,11 @@ export class APIv3 {
         return this._clientId;
     }
 
-    private _wrapPromise<T>(promise: Promise<T>): Observable<T> {
+    private _wrapPromise$<T>(promise: Promise<T>): Observable<T> {
         return Observable.defer(() => Observable.fromPromise(promise));
     }
 
-    private _catchInvalidate<TResult, TPath>(observable: Observable<TResult>, path: string, paths: TPath): Observable<TResult> {
+    private _catchInvalidate$<TResult, TPath>(observable: Observable<TResult>, path: string, paths: TPath): Observable<TResult> {
         return observable
             .catch(
                 (error: Error): Observable<TResult> => {

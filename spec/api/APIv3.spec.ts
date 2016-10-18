@@ -310,6 +310,32 @@ describe("APIv3.imagesByH$", () => {
                 }
             );
     });
+
+    it("should handle undefined response", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let h: string = "h";
+
+        apiV3.imagesByH$([h])
+            .subscribe(
+                (result: { [key: string]: { [index: string]: ICoreNode } }): void => {
+                    expect(result).toBeDefined();
+                    expect(result[h]).toBeDefined();
+
+                    done();
+                });
+    });
 });
 
 describe("APIv3.sequenceByKey$", () => {
