@@ -146,7 +146,7 @@ export class NewGraph {
                         let node: NewNode = new NewNode(fn);
                         this._makeFull(node, fn);
 
-                        let h: string = this._graphCalculator.encodeH(node.latLon, this._tilePrecision);
+                        let h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
                         this._preStore(h, node);
                         this._setNode(node);
 
