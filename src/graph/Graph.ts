@@ -559,7 +559,7 @@ export class NewGraph {
                             }
 
                             let fillNode: IFillNode = imageByKeyFill[fillKey];
-                            spatialNode.makeFull(fillNode);
+                            this._makeFull(spatialNode, fillNode);
 
                             delete spatialNodes.cacheNodes[fillKey];
                         }
