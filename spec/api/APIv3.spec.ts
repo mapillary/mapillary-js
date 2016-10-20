@@ -206,7 +206,8 @@ describe("APIv3.imageCloseTo$", () => {
                     expect(spy.calls.count()).toBe(1);
                     expect(spy.calls.first().args.length).toBe(1);
                     expect(spy.calls.first().args[0][0]).toBe("imageCloseTo");
-                    expect(spy.calls.first().args[0][1]).toBe("0:0");
+                    expect(spy.calls.first().args[0][1].length).toBe(1);
+                    expect(spy.calls.first().args[0][1][0]).toBe("0:0");
 
                     done();
                 });
@@ -238,7 +239,8 @@ describe("APIv3.imageCloseTo$", () => {
                     expect(invalidateSpy.calls.count()).toBe(1);
                     expect(invalidateSpy.calls.first().args.length).toBe(1);
                     expect(invalidateSpy.calls.first().args[0][0]).toBe("imageCloseTo");
-                    expect(invalidateSpy.calls.first().args[0][1]).toBe("0:0");
+                    expect(invalidateSpy.calls.first().args[0][1].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][1][0]).toBe("0:0");
 
                     done();
                 }
@@ -401,5 +403,65 @@ describe("APIv3.sequenceByKey$", () => {
                     done();
                 }
             );
+    });
+});
+
+describe("APIv3.invalidateImageByKey", () => {
+    it("should call model correctly", () => {
+        let model: falcor.Model = new falcor.Model();
+
+        let spy: jasmine.Spy = spyOn(model, "invalidate");
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let key: string = "key";
+
+        apiV3.invalidateImageByKey([key]);
+
+        expect(spy.calls.count()).toBe(1);
+        expect(spy.calls.first().args[0].length).toBe(2);
+        expect(spy.calls.first().args[0][0]).toBe("imageByKey");
+        expect(spy.calls.first().args[0][1].length).toBe(1);
+        expect(spy.calls.first().args[0][1][0]).toBe(key);
+    });
+});
+
+describe("APIv3.invalidateImagesByH", () => {
+    it("should call model correctly", () => {
+        let model: falcor.Model = new falcor.Model();
+
+        let spy: jasmine.Spy = spyOn(model, "invalidate");
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let h: string = "h";
+
+        apiV3.invalidateImagesByH([h]);
+
+        expect(spy.calls.count()).toBe(1);
+        expect(spy.calls.first().args[0].length).toBe(2);
+        expect(spy.calls.first().args[0][0]).toBe("imagesByH");
+        expect(spy.calls.first().args[0][1].length).toBe(1);
+        expect(spy.calls.first().args[0][1][0]).toBe(h);
+    });
+});
+
+describe("APIv3.invalidateSequenceByKey", () => {
+    it("should call model correctly", () => {
+        let model: falcor.Model = new falcor.Model();
+
+        let spy: jasmine.Spy = spyOn(model, "invalidate");
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let sKey: string = "sKey";
+
+        apiV3.invalidateSequenceByKey([sKey]);
+
+        expect(spy.calls.count()).toBe(1);
+        expect(spy.calls.first().args[0].length).toBe(2);
+        expect(spy.calls.first().args[0][0]).toBe("sequenceByKey");
+        expect(spy.calls.first().args[0][1].length).toBe(1);
+        expect(spy.calls.first().args[0][1][0]).toBe(sKey);
     });
 });

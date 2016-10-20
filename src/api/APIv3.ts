@@ -34,16 +34,22 @@ interface ISequenceByKey<T> {
     sequenceByKey: { [key: string]: T };
 }
 
+type APIPath =
+    "imageByKey" |
+    "imageCloseTo" |
+    "imagesByH" |
+    "sequenceByKey";
+
 export class APIv3 {
     private _clientId: string;
     private _legacyModel: falcor.Model;
     private _model: falcor.Model;
 
-    private _imageByKeyPath: string = "imageByKey";
-    private _imageCloseToPath: string = "imageCloseTo";
-    private _imagesByHPath: string = "imagesByH";
+    private _imageByKeyPath: APIPath = "imageByKey";
+    private _imageCloseToPath: APIPath = "imageCloseTo";
+    private _imagesByHPath: APIPath = "imagesByH";
     private _pageCount: number = 999;
-    private _sequenceByKeyPath: string = "sequenceByKey";
+    private _sequenceByKeyPath: APIPath = "sequenceByKey";
 
     private _coreProperties: string[] = [
         "cl",
@@ -139,7 +145,7 @@ export class APIv3 {
         return this._catchInvalidate$(
             this._wrapPromise$<IFalcorResult<IImageCloseTo<IFullNode>>>(this._model.get([
                 this._imageCloseToPath,
-                latLon,
+                [latLon],
                 this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
                 this._keyProperties.concat(this._userProperties)]))
             .map<IFullNode>(
@@ -147,7 +153,7 @@ export class APIv3 {
                     return value != null ? value.json.imageCloseTo[latLon] : null;
                 }),
             this._imageCloseToPath,
-            latLon);
+            [latLon]);
     }
 
     public imagesByH$(hs: string[]): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
@@ -176,6 +182,18 @@ export class APIv3 {
             hs);
     }
 
+    public invalidateImageByKey(keys: string[]): void {
+        this._invalidate(this._imageByKeyPath, keys);
+    }
+
+    public invalidateImagesByH(hs: string[]): void {
+        this._invalidate(this._imagesByHPath, hs);
+    }
+
+    public invalidateSequenceByKey(sKeys: string[]): void {
+        this._invalidate(this._sequenceByKeyPath, sKeys);
+    }
+
     public sequenceByKey$(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
         return this._catchInvalidate$(
             this._wrapPromise$<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
@@ -202,18 +220,22 @@ export class APIv3 {
         return this._clientId;
     }
 
-    private _wrapPromise$<T>(promise: Promise<T>): Observable<T> {
-        return Observable.defer(() => Observable.fromPromise(promise));
-    }
-
-    private _catchInvalidate$<TResult, TPath>(observable: Observable<TResult>, path: string, paths: TPath): Observable<TResult> {
+    private _catchInvalidate$<TResult>(observable: Observable<TResult>, path: APIPath, paths: string[]): Observable<TResult> {
         return observable
             .catch(
                 (error: Error): Observable<TResult> => {
-                    this._model.invalidate([path, paths]);
+                    this._invalidate(path, paths);
 
                     throw error;
                 });
+    }
+
+    private _invalidate(path: APIPath, paths: string[]): void {
+        this._model.invalidate([path, paths]);
+    }
+
+    private _wrapPromise$<T>(promise: Promise<T>): Observable<T> {
+        return Observable.defer(() => Observable.fromPromise(promise));
     }
 }
 
