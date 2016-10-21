@@ -11,28 +11,6 @@ describe("NodeCache.ctor", () => {
     });
 });
 
-describe("NodeCache.image", () => {
-    it("should be null initially", () => {
-        let nodeCache: NewNodeCache = new NewNodeCache();
-        expect(nodeCache.image).toBeNull();
-    });
-});
-
-describe("NodeCache.image$", () => {
-    it("should emit null initially", (done) => {
-        let nodeCache: NewNodeCache = new NewNodeCache();
-
-        nodeCache.image$
-            .first()
-            .subscribe(
-                (image: HTMLImageElement): void => {
-                    expect(image).toBeNull();
-
-                    done();
-                });
-    });
-});
-
 describe("NodeCache.mesh", () => {
     it("should be null initially", () => {
         let nodeCache: NewNodeCache = new NewNodeCache();

@@ -19,13 +19,6 @@ import {RenderMode} from "../Render";
  */
 export class Viewer extends EventEmitter {
     /**
-     * Fired every time the viewer navigates to a new node.
-     * @event
-     * @type {NewNode} node - Current node.
-     */
-    public static nodechanged: string = "nodechanged";
-
-    /**
      * Fired when the viewer is loading more data.
      * @event
      * @type {boolean} loading - Value indicating whether the viewer is loading.
@@ -44,6 +37,27 @@ export class Viewer extends EventEmitter {
      * position with a fixed point of view.
      */
     public static moveend: string = "moveend";
+
+    /**
+     * Fired every time the viewer navigates to a new node.
+     * @event
+     * @type {NewNode} node - Current node.
+     */
+    public static nodechanged: string = "nodechanged";
+
+    /**
+     * Fired every time the sequence edges of the current node changes.
+     * @event
+     * @type {IEdgeStatus} status - The edge status object.
+     */
+    public static sequenceedgeschanged: string = "sequenceedgeschanged";
+
+    /**
+     * Fired every time the spatial edges of the current node changes.
+     * @event
+     * @type {IEdgeStatus} status - The edge status object.
+     */
+    public static spatialedgeschanged: string = "spatialedgeschanged";
 
     /**
      * Private Container object which maintains the DOM Element,

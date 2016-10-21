@@ -108,7 +108,7 @@ export class NewGraphService {
                 })
             .do(
                 (graph: NewGraph): void => {
-                    if (!graph.getNode(key).sequenceEdgesCached) {
+                    if (!graph.getNode(key).sequenceEdges.cached) {
                         graph.cacheSequenceEdges(key);
                     }
                 })
@@ -175,7 +175,7 @@ export class NewGraphService {
                 })
             .do(
                 (graph: NewGraph): void => {
-                    if (!graph.getNode(key).spatialEdgesCached) {
+                    if (!graph.getNode(key).spatialEdges.cached) {
                         graph.cacheSpatialEdges(key);
                     }
                 })

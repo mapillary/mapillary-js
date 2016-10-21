@@ -26,11 +26,9 @@ export class NewNodeCache {
     private _image: HTMLImageElement;
     private _loadStatus: ILoadStatus;
     private _mesh: IMesh;
-    private _sequenceEdgesCached: boolean;
-    private _spatialEdgesCached: boolean;
+    private _sequenceEdges: IEdgeStatus;
+    private _spatialEdges: IEdgeStatus;
 
-    private _imageChanged$: Subject<HTMLImageElement>;
-    private _image$: Observable<HTMLImageElement>;
     private _sequenceEdgesChanged$: Subject<IEdgeStatus>;
     private _sequenceEdges$: Observable<IEdgeStatus>;
     private _spatialEdgesChanged$: Subject<IEdgeStatus>;
@@ -38,7 +36,6 @@ export class NewNodeCache {
 
     private _cachingAssets$: Observable<NewNodeCache>;
 
-    private _imageSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
 
@@ -46,20 +43,12 @@ export class NewNodeCache {
         this._image = null;
         this._loadStatus = { loaded: 0, total: 0 };
         this._mesh = null;
-        this._sequenceEdgesCached = false;
-        this._spatialEdgesCached = false;
-
-        this._imageChanged$ = new Subject<HTMLImageElement>();
-        this._image$ = this._imageChanged$
-            .startWith(null)
-            .publishReplay(1)
-            .refCount();
-
-        this._imageSubscription = this._image$.subscribe();
+        this._sequenceEdges = { cached: false, edges: [] };
+        this._spatialEdges = { cached: false, edges: [] };
 
         this._sequenceEdgesChanged$ = new Subject<IEdgeStatus>();
         this._sequenceEdges$ = this._sequenceEdgesChanged$
-            .startWith({ cached: this._sequenceEdgesCached, edges: [] })
+            .startWith(this._sequenceEdges)
             .publishReplay(1)
             .refCount();
 
@@ -67,7 +56,7 @@ export class NewNodeCache {
 
         this._spatialEdgesChanged$ = new Subject<IEdgeStatus>();
         this._spatialEdges$ = this._spatialEdgesChanged$
-            .startWith({ cached: this._spatialEdgesCached, edges: [] })
+            .startWith(this._spatialEdges)
             .publishReplay(1)
             .refCount();
 
@@ -80,10 +69,6 @@ export class NewNodeCache {
         return this._image;
     }
 
-    public get image$(): Observable<HTMLImageElement> {
-        return this._image$;
-    }
-
     public get loadStatus(): ILoadStatus {
         return this._loadStatus;
     }
@@ -92,16 +77,16 @@ export class NewNodeCache {
         return this._mesh;
     }
 
-    public get sequenceEdgesCached(): boolean {
-        return this._sequenceEdgesCached;
+    public get sequenceEdges(): IEdgeStatus {
+        return this._sequenceEdges;
     }
 
     public get sequenceEdges$(): Observable<IEdgeStatus> {
         return this._sequenceEdges$;
     }
 
-    public get spatialEdgesCached(): boolean {
-        return this._spatialEdgesCached;
+    public get spatialEdges(): IEdgeStatus {
+        return this._spatialEdges;
     }
 
     public get spatialEdges$(): Observable<IEdgeStatus> {
@@ -146,34 +131,32 @@ export class NewNodeCache {
     }
 
     public cacheSequenceEdges(edges: IEdge[]): void {
-        this._sequenceEdgesCached = true;
-        this._sequenceEdgesChanged$.next({ cached: this._sequenceEdgesCached, edges: edges });
+        this._sequenceEdges = { cached: true, edges: edges };
+        this._sequenceEdgesChanged$.next(this._sequenceEdges);
     }
 
     public cacheSpatialEdges(edges: IEdge[]): void {
-        this._spatialEdgesCached = true;
-        this._spatialEdgesChanged$.next({ cached: this._spatialEdgesCached, edges: edges });
+        this._spatialEdges = { cached: true, edges: edges };
+        this._spatialEdgesChanged$.next(this._spatialEdges);
     }
 
     public dispose(): void {
-        this._imageSubscription.unsubscribe();
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
 
         this._image = null;
         this._mesh = null;
         this._loadStatus = { loaded: 0, total: 0 };
-        this._sequenceEdgesCached = false;
-        this._spatialEdgesCached = false;
+        this._sequenceEdges = { cached: false, edges: [] };
+        this._spatialEdges = { cached: false, edges: [] };
 
-        this._imageChanged$.next(null);
-        this._sequenceEdgesChanged$.next({ cached: this._sequenceEdgesCached, edges: [] });
-        this._spatialEdgesChanged$.next({ cached: this._spatialEdgesCached, edges: [] });
+        this._sequenceEdgesChanged$.next(this._sequenceEdges);
+        this._spatialEdgesChanged$.next(this._spatialEdges);
     }
 
     public resetSpatialEdges(): void {
-        this._spatialEdgesCached = false;
-        this._spatialEdgesChanged$.next({ cached: this._spatialEdgesCached, edges: [] });
+        this._spatialEdges = { cached: false, edges: [] };
+        this._spatialEdgesChanged$.next(this._spatialEdges);
     }
 
     /**

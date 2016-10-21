@@ -6,13 +6,15 @@ import "rxjs/add/observable/combineLatest";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/map";
 
-import {NewNode} from "../Graph";
+import {IEdgeStatus, NewNode} from "../Graph";
 import {EventEmitter} from "../Utils";
-import {Container, Navigator} from "../Viewer";
+import {Container, Navigator, Viewer} from "../Viewer";
 
 export class EventLauncher {
-    private _stateSubscription: Subscription;
+    private _currentNodeSubscription: Subscription;
     private _loadingSubscription: Subscription;
+    private _sequenceEdgesSubscription: Subscription;
+    private _spatialEdgesSubscription: Subscription;
 
     private _container: Container;
     private _eventEmitter: EventEmitter;
@@ -25,13 +27,35 @@ export class EventLauncher {
 
         this._loadingSubscription = this._navigator.loadingService.loading$
             .subscribe((loading: boolean): void => {
-                this._eventEmitter.fire("loadingchanged", loading);
+                this._eventEmitter.fire(Viewer.loadingchanged, loading);
             });
 
-        this._stateSubscription = this._navigator.stateService.currentNodeExternal$
+        this._currentNodeSubscription = this._navigator.stateService.currentNodeExternal$
             .subscribe((node: NewNode): void => {
-                this._eventEmitter.fire("nodechanged", node);
+                this._eventEmitter.fire(Viewer.nodechanged, node);
             });
+
+        this._sequenceEdgesSubscription = this._navigator.stateService.currentNodeExternal$
+            .switchMap<IEdgeStatus>(
+                (node: NewNode): Observable<IEdgeStatus> => {
+                    return node.sequenceEdges$
+                        .skip(1);
+                })
+            .subscribe(
+                (status: IEdgeStatus): void => {
+                    this._eventEmitter.fire(Viewer.sequenceedgeschanged, status);
+                });
+
+        this._spatialEdgesSubscription = this._navigator.stateService.currentNodeExternal$
+            .switchMap<IEdgeStatus>(
+                (node: NewNode): Observable<IEdgeStatus> => {
+                    return node.spatialEdges$
+                        .skip(1);
+                })
+            .subscribe(
+                (status: IEdgeStatus): void => {
+                    this._eventEmitter.fire(Viewer.spatialedgeschanged, status);
+                });
 
         Observable
             .combineLatest<boolean>(
@@ -43,18 +67,18 @@ export class EventLauncher {
                 })
             .distinctUntilChanged()
             .subscribe(
-                (moving: boolean) => {
-                    if (moving) {
-                        this._eventEmitter.fire("movestart", null);
+                (started: boolean) => {
+                    if (started) {
+                        this._eventEmitter.fire(Viewer.movestart, null);
                     } else {
-                        this._eventEmitter.fire("moveend", null);
+                        this._eventEmitter.fire(Viewer.moveend, null);
                     }
                 });
     }
 
     public dispose(): void {
         this._loadingSubscription.unsubscribe();
-        this._stateSubscription.unsubscribe();
+        this._currentNodeSubscription.unsubscribe();
     }
 }
 

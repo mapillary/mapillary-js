@@ -175,20 +175,20 @@ export class NewNode {
         return this._core.sequence.key;
     }
 
-    public get sequenceEdges$(): Observable<IEdgeStatus> {
-        return this._cache.sequenceEdges$;
+    public get sequenceEdges(): IEdgeStatus {
+        return this._cache.sequenceEdges;
     }
 
-    public get sequenceEdgesCached(): boolean {
-        return this._cache.sequenceEdgesCached;
+    public get sequenceEdges$(): Observable<IEdgeStatus> {
+        return this._cache.sequenceEdges$;
     }
 
     public get spatialEdges$(): Observable<IEdgeStatus> {
         return this._cache.spatialEdges$;
     }
 
-    public get spatialEdgesCached(): boolean {
-        return this._cache.spatialEdgesCached;
+    public get spatialEdges(): IEdgeStatus {
+        return this._cache.spatialEdges;
     }
 
     public get userKey(): string {
