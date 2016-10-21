@@ -712,7 +712,7 @@ describe("Graph.cacheSequence", () => {
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        expect(graph.hasSequence(fullNode.key)).toBe(false);
+        expect(graph.hasNodeSequence(fullNode.key)).toBe(false);
     });
 
     it("should be caching", () => {
@@ -734,10 +734,10 @@ describe("Graph.cacheSequence", () => {
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheSequence$(fullNode.key);
+        graph.cacheNodeSequence$(fullNode.key);
 
-        expect(graph.hasSequence(fullNode.key)).toBe(false);
-        expect(graph.isCachingSequence(fullNode.key)).toBe(true);
+        expect(graph.hasNodeSequence(fullNode.key)).toBe(false);
+        expect(graph.isCachingNodeSequence(fullNode.key)).toBe(true);
     });
 
     it("should be cached", () => {
@@ -762,11 +762,11 @@ describe("Graph.cacheSequence", () => {
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheSequence$(fullNode.key)
+        graph.cacheNodeSequence$(fullNode.key)
             .subscribe(
                 (g: NewGraph): void => {
-                    expect(g.hasSequence(fullNode.key)).toBe(true);
-                    expect(g.isCachingSequence(fullNode.key)).toBe(false);
+                    expect(g.hasNodeSequence(fullNode.key)).toBe(true);
+                    expect(g.isCachingNodeSequence(fullNode.key)).toBe(false);
                 });
 
         let result: { [key: string]: ISequence } = {};
@@ -774,8 +774,8 @@ describe("Graph.cacheSequence", () => {
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        expect(graph.hasSequence(fullNode.key)).toBe(true);
-        expect(graph.isCachingSequence(fullNode.key)).toBe(false);
+        expect(graph.hasNodeSequence(fullNode.key)).toBe(true);
+        expect(graph.isCachingNodeSequence(fullNode.key)).toBe(false);
     });
 
     it("should throw if node not in graph", () => {
@@ -794,7 +794,7 @@ describe("Graph.cacheSequence", () => {
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
+        expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
     });
 
     it("should throw if already cached", () => {
@@ -819,16 +819,16 @@ describe("Graph.cacheSequence", () => {
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
 
         let result: { [key: string]: ISequence } = {};
         result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        expect(graph.hasSequence(fullNode.key)).toBe(true);
+        expect(graph.hasNodeSequence(fullNode.key)).toBe(true);
 
-        expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
+        expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
@@ -854,8 +854,8 @@ describe("Graph.cacheSequence", () => {
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheSequence$(fullNode.key).subscribe();
-        graph.cacheSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
 
         expect(sequenceByKeySpy.calls.count()).toBe(1);
     });
@@ -882,14 +882,14 @@ describe("Graph.cacheSequence", () => {
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
 
         graph.changed$
             .first()
             .subscribe(
                 (g: NewGraph): void => {
-                    expect(g.hasSequence(fullNode.key)).toBe(true);
-                    expect(g.isCachingSequence(fullNode.key)).toBe(false);
+                    expect(g.hasNodeSequence(fullNode.key)).toBe(true);
+                    expect(g.isCachingNodeSequence(fullNode.key)).toBe(false);
 
                     done();
                 });

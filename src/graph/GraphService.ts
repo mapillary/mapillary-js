@@ -100,8 +100,8 @@ export class NewGraphService {
         firstGraph$
             .mergeMap<NewGraph>(
                 (graph: NewGraph): Observable<NewGraph> => {
-                    if (graph.isCachingSequence(key) || !graph.hasSequence(key)) {
-                        return graph.cacheSequence$(key);
+                    if (graph.isCachingNodeSequence(key) || !graph.hasNodeSequence(key)) {
+                        return graph.cacheNodeSequence$(key);
                     }
 
                     return Observable.of<NewGraph>(graph);
@@ -169,9 +169,9 @@ export class NewGraphService {
             .last()
             .mergeMap<NewGraph>(
                 (graph: NewGraph): Observable<NewGraph> => {
-                    return graph.hasSequence(key) ?
+                    return graph.hasNodeSequence(key) ?
                         Observable.of<NewGraph>(graph) :
-                        graph.cacheSequence$(key);
+                        graph.cacheNodeSequence$(key);
                 })
             .do(
                 (graph: NewGraph): void => {
