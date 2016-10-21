@@ -119,12 +119,12 @@ export class NewGraph {
     }
 
     public fetch$(key: string): Observable<NewGraph> {
-        if (this.hasNode(key)) {
-            throw new Error(`Cannot fetch node that already exist in graph (${key}).`);
-        }
-
         if (key in this._fetching) {
             return this._fetching[key];
+        }
+
+        if (this.hasNode(key)) {
+            throw new Error(`Cannot fetch node that already exist in graph (${key}).`);
         }
 
         this._fetching[key] = this._apiV3.imageByKeyFull$([key])
@@ -180,13 +180,13 @@ export class NewGraph {
             throw new Error(`Cannot fill node that does not exist in graph (${key}).`);
         }
 
+        if (key in this._filling) {
+            return this._filling[key];
+        }
+
         let node: NewNode = this.getNode(key);
         if (node.full) {
             throw new Error(`Cannot fill node that is already full (${key}).`);
-        }
-
-        if (key in this._filling) {
-            return this._filling[key];
         }
 
         this._filling[key] = this._apiV3.imageByKeyFill$([key])

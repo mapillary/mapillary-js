@@ -226,8 +226,11 @@ export class NewNode {
     }
 
     public dispose(): void {
-        this._cache.dispose();
-        this._cache = null;
+        if (this._cache != null) {
+            this._cache.dispose();
+            this._cache = null;
+        }
+
         this._core = null;
         this._fill = null;
     }
