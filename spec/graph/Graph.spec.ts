@@ -9,6 +9,7 @@ import "rxjs/add/operator/mergeAll";
 
 import {APIv3, ICoreNode, IFillNode, IFullNode, ISequence} from "../../src/API";
 import {EdgeCalculator} from "../../src/Edge";
+import {GraphMapillaryError} from "../../src/Error";
 import {GraphCalculator, NewGraph, NewNode} from "../../src/Graph";
 
 let createCoreNode: () => ICoreNode = (): ICoreNode => {
@@ -154,7 +155,7 @@ describe("Graph.fetch", () => {
         imageByKeyFull.complete();
 
         expect(graph.isCachingFull(fullNode.key)).toBe(false);
-        expect(() => { graph.cacheFull$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheFull$(fullNode.key); }).toThrowError(GraphMapillaryError);
     });
 
     it("should throw if sequence key is missing", (done) => {
@@ -173,7 +174,7 @@ describe("Graph.fetch", () => {
         graph.cacheFull$(fullNode.key)
             .subscribe(
                 (g: NewGraph): void => { return; },
-                (e: Error): void => {
+                (e: GraphMapillaryError): void => {
                     done();
                 });
 
@@ -200,7 +201,7 @@ describe("Graph.fetch", () => {
                     return imageByKeyFullOther;
                 }
 
-                throw new Error("Wrong key.");
+                throw new GraphMapillaryError("Wrong key.");
             });
 
         let h: string = "h";
@@ -434,7 +435,7 @@ describe("Graph.fill", () => {
 
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
 
-        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(GraphMapillaryError);
     });
 
     it("should throw if node does not exist", () => {
@@ -447,7 +448,7 @@ describe("Graph.fill", () => {
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
-        expect(() => { graph.cacheFill$("key"); }).toThrowError(Error);
+        expect(() => { graph.cacheFill$("key"); }).toThrowError(GraphMapillaryError);
     });
 
     it("should throw if already full", () => {
@@ -470,7 +471,7 @@ describe("Graph.fill", () => {
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(GraphMapillaryError);
     });
 });
 
@@ -793,7 +794,7 @@ describe("Graph.cacheSequence", () => {
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
     });
 
     it("should throw if already cached", () => {
@@ -827,7 +828,7 @@ describe("Graph.cacheSequence", () => {
 
         expect(graph.hasSequence(fullNode.key)).toBe(true);
 
-        expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {

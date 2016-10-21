@@ -19,6 +19,7 @@ import * as geohash from "latlon-geohash";
 
 import {APIv3, IAPINavIm, IAPINavImIm, ICoreNode, IFillNode, IFullNode, ISequence} from "../API";
 import {IEdge, IPotentialEdge, IEdgeData, EdgeCalculator, EdgeDirection} from "../Edge";
+import {GraphMapillaryError} from "../Error";
 import {Spatial, GeoCoords, ILatLon} from "../Geo";
 import {NewNode, NewNodeCache, Node, Sequence, GraphCalculator} from "../Graph";
 
@@ -117,11 +118,11 @@ export class NewGraph {
 
     public cacheFill$(key: string): Observable<NewGraph> {
         if (key in this._cachingFull$) {
-            throw new Error(`Cannot fill node while caching full (${key}).`);
+            throw new GraphMapillaryError(`Cannot fill node while caching full (${key}).`);
         }
 
         if (!this.hasNode(key)) {
-            throw new Error(`Cannot fill node that does not exist in graph (${key}).`);
+            throw new GraphMapillaryError(`Cannot fill node that does not exist in graph (${key}).`);
         }
 
         if (key in this._cachingFill$) {
@@ -130,7 +131,7 @@ export class NewGraph {
 
         let node: NewNode = this.getNode(key);
         if (node.full) {
-            throw new Error(`Cannot fill node that is already full (${key}).`);
+            throw new GraphMapillaryError(`Cannot fill node that is already full (${key}).`);
         }
 
         this._cachingFill$[key] = this._apiV3.imageByKeyFill$([key])
@@ -166,7 +167,7 @@ export class NewGraph {
         }
 
         if (this.hasNode(key)) {
-            throw new Error(`Cannot cache full node that already exist in graph (${key}).`);
+            throw new GraphMapillaryError(`Cannot cache full node that already exist in graph (${key}).`);
         }
 
         this._cachingFull$[key] = this._apiV3.imageByKeyFull$([key])
@@ -182,7 +183,7 @@ export class NewGraph {
                         }
                     } else {
                         if (fn.sequence == null || fn.sequence.key == null) {
-                            throw new Error(`Node has no sequence (${key}).`);
+                            throw new GraphMapillaryError(`Node has no sequence (${key}).`);
                         }
 
                         let node: NewNode = new NewNode(fn);
@@ -215,12 +216,12 @@ export class NewGraph {
 
     public cacheSequence$(key: string): Observable<NewGraph> {
         if (!this.hasNode(key)) {
-            throw new Error(`Cannot cache sequence edges of node that does not exist in graph (${key}).`);
+            throw new GraphMapillaryError(`Cannot cache sequence edges of node that does not exist in graph (${key}).`);
         }
 
         let node: NewNode = this.getNode(key);
         if (node.sequenceKey in this._sequences) {
-            throw new Error(`Sequence already cached (${key}), (${node.sequenceKey}).`);
+            throw new GraphMapillaryError(`Sequence already cached (${key}), (${node.sequenceKey}).`);
         }
 
         if (key in this._cachingSequences$) {
@@ -258,7 +259,7 @@ export class NewGraph {
         let node: NewNode = this.getNode(key);
 
         if (!(node.sequenceKey in this._sequences)) {
-            throw new Error(`Sequence is not cached (${key}), (${node.sequenceKey})`);
+            throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceKey})`);
         }
 
         let sequence: Sequence = this._sequences[node.sequenceKey];
@@ -269,20 +270,20 @@ export class NewGraph {
 
     public cacheSpatialArea$(key: string): Observable<NewGraph>[] {
         if (!this.hasNode(key)) {
-            throw new Error(`Cannot cache spatial area of node that does not exist in graph (${key}).`);
+            throw new GraphMapillaryError(`Cannot cache spatial area of node that does not exist in graph (${key}).`);
         }
 
         if (key in this._cachedSpatialEdges) {
-            throw new Error(`Node already spatially cached (${key}).`);
+            throw new GraphMapillaryError(`Node already spatially cached (${key}).`);
         }
 
         if (!(key in this._requiredSpatialArea)) {
-            throw new Error(`Spatial area not determined (${key}).`);
+            throw new GraphMapillaryError(`Spatial area not determined (${key}).`);
         }
 
         let spatialArea: SpatialArea = this._requiredSpatialArea[key];
         if (Object.keys(spatialArea.cacheNodes).length === 0) {
-            throw new Error(`Spatial nodes already cached (${key}).`);
+            throw new GraphMapillaryError(`Spatial nodes already cached (${key}).`);
         }
 
         if (key in this._cachingSpatialArea$) {
@@ -363,7 +364,7 @@ export class NewGraph {
 
     public cacheSpatialEdges(key: string): void {
         if (key in this._cachedSpatialEdges) {
-             throw new Error(`Spatial edges already cached (${key}).`);
+             throw new GraphMapillaryError(`Spatial edges already cached (${key}).`);
         }
 
         let node: NewNode = this.getNode(key);
@@ -405,21 +406,21 @@ export class NewGraph {
 
     public cacheTiles$(key: string): Observable<NewGraph>[] {
         if (key in this._cachedNodeTiles) {
-            throw new Error(`Tiles already cached (${key}).`);
+            throw new GraphMapillaryError(`Tiles already cached (${key}).`);
         }
 
         if (!(key in this._requiredNodeTiles)) {
-            throw new Error(`Tiles have not been determined (${key}).`);
+            throw new GraphMapillaryError(`Tiles have not been determined (${key}).`);
         }
 
         let nodeTiles: NodeTiles = this._requiredNodeTiles[key];
         if (nodeTiles.cache.length === 0 &&
             nodeTiles.caching.length === 0) {
-            throw new Error(`Tiles already cached (${key}).`);
+            throw new GraphMapillaryError(`Tiles already cached (${key}).`);
         }
 
         if (!this.hasNode(key)) {
-            throw new Error(`Cannot cache tiles of node that does not exist in graph (${key}).`);
+            throw new GraphMapillaryError(`Cannot cache tiles of node that does not exist in graph (${key}).`);
         }
 
         let hs: string[] = nodeTiles.cache.slice();
@@ -544,7 +545,7 @@ export class NewGraph {
 
     public initializeCache(key: string): void {
         if (key in this._cachedNodes) {
-            throw new Error(`Node already in cache (${key}).`);
+            throw new GraphMapillaryError(`Node already in cache (${key}).`);
         }
 
         let node: NewNode = this.getNode(key);
@@ -576,7 +577,7 @@ export class NewGraph {
 
     public isSpatialAreaCached(key: string): boolean {
         if (!this.hasNode(key)) {
-            throw new Error(`Spatial area nodes cannot be determined if node not in graph (${key}).`);
+            throw new GraphMapillaryError(`Spatial area nodes cannot be determined if node not in graph (${key}).`);
         }
 
         if (key in this._cachedSpatialEdges) {
@@ -633,7 +634,7 @@ export class NewGraph {
         }
 
         if (!this.hasNode(key)) {
-            throw new Error(`Node does not exist in graph (${key}).`);
+            throw new GraphMapillaryError(`Node does not exist in graph (${key}).`);
         }
 
         if (!(key in this._requiredNodeTiles)) {
@@ -714,7 +715,7 @@ export class NewGraph {
         let key: string = node.key;
 
         if (this.hasNode(key)) {
-            throw new Error(`Node already exist (${key}).`);
+            throw new GraphMapillaryError(`Node already exist (${key}).`);
         }
 
         this._nodes[key] = node;
