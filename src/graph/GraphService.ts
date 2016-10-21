@@ -56,20 +56,20 @@ export class NewGraphService {
             .first()
             .mergeMap<NewGraph>(
                 (graph: NewGraph): Observable<NewGraph> => {
-                    if (graph.fetching(key) || !graph.hasNode(key)) {
-                        return graph.fetch$(key);
+                    if (graph.isCachingFull(key) || !graph.hasNode(key)) {
+                        return graph.cacheFull$(key);
                     }
 
-                    if (graph.filling(key) || !graph.getNode(key).full) {
-                        return graph.fill$(key);
+                    if (graph.isCachingFill(key) || !graph.getNode(key).full) {
+                        return graph.cacheFill$(key);
                     }
 
                     return Observable.of<NewGraph>(graph);
                 })
             .do(
                 (graph: NewGraph): void => {
-                    if (!graph.nodeCacheInitialized(key)) {
-                        graph.initializeNodeCache(key);
+                    if (!graph.isCacheInitialized(key)) {
+                        graph.initializeCache(key);
                     }
                 })
             .publishReplay(1)
@@ -100,7 +100,7 @@ export class NewGraphService {
         firstGraph$
             .mergeMap<NewGraph>(
                 (graph: NewGraph): Observable<NewGraph> => {
-                    if (graph.cachingSequence(key) || !graph.sequenceCached(key)) {
+                    if (graph.isCachingSequence(key) || !graph.hasSequence(key)) {
                         return graph.cacheSequence$(key);
                     }
 
@@ -121,7 +121,7 @@ export class NewGraphService {
         let spatialSubscription: Subscription = firstGraph$
             .expand(
                 (graph: NewGraph): Observable<NewGraph> => {
-                    if (graph.tilesCached(key)) {
+                    if (graph.hasTiles(key)) {
                         return Observable.empty<NewGraph>();
                     }
 
@@ -132,7 +132,7 @@ export class NewGraphService {
                                 return graph$
                                     .mergeMap<NewGraph>(
                                         (g: NewGraph): Observable<NewGraph> => {
-                                            if (g.cachingTiles(key)) {
+                                            if (g.isCachingTiles(key)) {
                                                 return Observable.empty<NewGraph>();
                                             }
 
@@ -149,12 +149,12 @@ export class NewGraphService {
             .last()
             .mergeMap<NewGraph>(
                 (graph: NewGraph): Observable<NewGraph> => {
-                    if (graph.spatialNodesCached(key)) {
+                    if (graph.isSpatialAreaCached(key)) {
                         return Observable.of<NewGraph>(graph);
                     }
 
                     return Observable
-                        .from<Observable<NewGraph>>(graph.cacheSpatialNodes$(key))
+                        .from<Observable<NewGraph>>(graph.cacheSpatialArea$(key))
                         .mergeMap(
                             (graph$: Observable<NewGraph>): Observable<NewGraph> => {
                                 return graph$
@@ -169,7 +169,7 @@ export class NewGraphService {
             .last()
             .mergeMap<NewGraph>(
                 (graph: NewGraph): Observable<NewGraph> => {
-                    return graph.sequenceCached(key) ?
+                    return graph.hasSequence(key) ?
                         Observable.of<NewGraph>(graph) :
                         graph.cacheSequence$(key);
                 })

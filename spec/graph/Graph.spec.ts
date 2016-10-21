@@ -75,9 +75,9 @@ describe("Graph.fetch", () => {
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
-        graph.fetch$(fullNode.key);
+        graph.cacheFull$(fullNode.key);
 
-        expect(graph.fetching(fullNode.key)).toBe(true);
+        expect(graph.isCachingFull(fullNode.key)).toBe(true);
         expect(graph.hasNode(fullNode.key)).toBe(false);
         expect(graph.getNode(fullNode.key)).toBeUndefined();
     });
@@ -95,10 +95,10 @@ describe("Graph.fetch", () => {
         let fullNode: IFullNode = createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.fetch$(fullNode.key)
+        graph.cacheFull$(fullNode.key)
             .subscribe(
                 (g: NewGraph): void => {
-                    expect(g.fetching(fullNode.key)).toBe(false);
+                    expect(g.isCachingFull(fullNode.key)).toBe(false);
                     expect(g.hasNode(fullNode.key)).toBe(true);
                     expect(g.getNode(fullNode.key)).toBeDefined();
                     expect(g.getNode(fullNode.key).key).toBe(fullNode.key);
@@ -109,7 +109,7 @@ describe("Graph.fetch", () => {
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.fetching(fullNode.key)).toBe(false);
+        expect(graph.isCachingFull(fullNode.key)).toBe(false);
         expect(graph.hasNode(fullNode.key)).toBe(true);
         expect(graph.getNode(fullNode.key)).toBeDefined();
         expect(graph.getNode(fullNode.key).key).toBe(fullNode.key);
@@ -128,8 +128,8 @@ describe("Graph.fetch", () => {
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
-        graph.fetch$(fullNode.key).subscribe();
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         expect(imageByKeyFullSpy.calls.count()).toBe(1);
     });
@@ -146,15 +146,15 @@ describe("Graph.fetch", () => {
 
         let fullNode: IFullNode = createFullNode();
 
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.fetching(fullNode.key)).toBe(false);
-        expect(() => { graph.fetch$(fullNode.key); }).toThrowError(Error);
+        expect(graph.isCachingFull(fullNode.key)).toBe(false);
+        expect(() => { graph.cacheFull$(fullNode.key); }).toThrowError(Error);
     });
 
     it("should throw if sequence key is missing", (done) => {
@@ -170,7 +170,7 @@ describe("Graph.fetch", () => {
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = undefined;
 
-        graph.fetch$(fullNode.key)
+        graph.cacheFull$(fullNode.key)
             .subscribe(
                 (g: NewGraph): void => { return; },
                 (e: Error): void => {
@@ -215,14 +215,14 @@ describe("Graph.fetch", () => {
 
         let otherNode: IFullNode = createFullNode();
         otherNode.key = otherKey;
-        graph.fetch$(otherNode.key).subscribe();
+        graph.cacheFull$(otherNode.key).subscribe();
 
         let otherFullResult: { [key: string]: IFullNode } = {};
         otherFullResult[otherNode.key] = otherNode;
         imageByKeyFullOther.next(otherFullResult);
         imageByKeyFullOther.complete();
 
-        graph.tilesCached(otherNode.key);
+        graph.hasTiles(otherNode.key);
         Observable
             .from<Observable<NewGraph>>(graph.cacheTiles$(otherNode.key))
             .mergeAll()
@@ -230,10 +230,10 @@ describe("Graph.fetch", () => {
 
         let fullNode: IFullNode = createFullNode();
         fullNode.key = key;
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         expect(graph.hasNode(fullNode.key)).toBe(false);
-        expect(graph.fetching(fullNode.key)).toBe(true);
+        expect(graph.isCachingFull(fullNode.key)).toBe(true);
 
         let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         tileResult[h] = {};
@@ -277,13 +277,13 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.tilesCached(fullNode.key);
+        graph.hasTiles(fullNode.key);
         Observable
             .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
@@ -297,12 +297,12 @@ describe("Graph.fill", () => {
         imagesByH.next(result);
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
-        expect(graph.filling(tileNode.key)).toBe(false);
+        expect(graph.isCachingFill(tileNode.key)).toBe(false);
 
-        graph.fill$(tileNode.key).subscribe();
+        graph.cacheFill$(tileNode.key).subscribe();
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
-        expect(graph.filling(tileNode.key)).toBe(true);
+        expect(graph.isCachingFill(tileNode.key)).toBe(true);
     });
 
     it("should fill", () => {
@@ -327,13 +327,13 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.tilesCached(fullNode.key);
+        graph.hasTiles(fullNode.key);
         Observable
             .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
@@ -347,9 +347,9 @@ describe("Graph.fill", () => {
         imagesByH.next(result);
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
-        expect(graph.filling(tileNode.key)).toBe(false);
+        expect(graph.isCachingFill(tileNode.key)).toBe(false);
 
-        graph.fill$(tileNode.key).subscribe();
+        graph.cacheFill$(tileNode.key).subscribe();
 
         let fillTileNode: IFillNode = createFullNode();
         let fillResult: { [key: string]: IFillNode } = {};
@@ -357,7 +357,7 @@ describe("Graph.fill", () => {
         imageByKeyFill.next(fillResult);
 
         expect(graph.getNode(tileNode.key).full).toBe(true);
-        expect(graph.filling(tileNode.key)).toBe(false);
+        expect(graph.isCachingFill(tileNode.key)).toBe(false);
     });
 
     it("should not make additional calls when filling same node twice", () => {
@@ -383,13 +383,13 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.tilesCached(fullNode.key);
+        graph.hasTiles(fullNode.key);
         Observable
             .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
@@ -403,10 +403,10 @@ describe("Graph.fill", () => {
         imagesByH.next(result);
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
-        expect(graph.filling(tileNode.key)).toBe(false);
+        expect(graph.isCachingFill(tileNode.key)).toBe(false);
 
-        graph.fill$(tileNode.key).subscribe();
-        graph.fill$(tileNode.key).subscribe();
+        graph.cacheFill$(tileNode.key).subscribe();
+        graph.cacheFill$(tileNode.key).subscribe();
 
         expect(imageByKeyFillSpy.calls.count()).toBe(1);
     });
@@ -430,11 +430,11 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch$(fullNode.key);
+        graph.cacheFull$(fullNode.key);
 
-        expect(graph.fetching(fullNode.key)).toBe(true);
+        expect(graph.isCachingFull(fullNode.key)).toBe(true);
 
-        expect(() => { graph.fill$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(Error);
     });
 
     it("should throw if node does not exist", () => {
@@ -447,7 +447,7 @@ describe("Graph.fill", () => {
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
-        expect(() => { graph.fill$("key"); }).toThrowError(Error);
+        expect(() => { graph.cacheFill$("key"); }).toThrowError(Error);
     });
 
     it("should throw if already full", () => {
@@ -464,13 +464,13 @@ describe("Graph.fill", () => {
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
-        graph.fetch$(fullNode.key);
+        graph.cacheFull$(fullNode.key);
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        expect(() => { graph.fill$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(Error);
     });
 });
 
@@ -493,13 +493,13 @@ describe("Graph.cacheTiles", () => {
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(fullNode);
 
-        expect(graph.tilesCached(fullNode.key)).toBe(false);
-        expect(graph.cachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.key)).toBe(false);
+        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
         graph.cacheTiles$(fullNode.key);
 
-        expect(graph.tilesCached(fullNode.key)).toBe(false);
-        expect(graph.cachingTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.key)).toBe(false);
+        expect(graph.isCachingTiles(fullNode.key)).toBe(true);
     });
 
     it("should cache tiles", () => {
@@ -523,10 +523,10 @@ describe("Graph.cacheTiles", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
-        expect(graph.tilesCached(fullNode.key)).toBe(false);
-        expect(graph.cachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.key)).toBe(false);
+        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
         Observable
             .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
@@ -538,8 +538,8 @@ describe("Graph.cacheTiles", () => {
         result[h]["0"] = fullNode;
         imagesByH.next(result);
 
-        expect(graph.tilesCached(fullNode.key)).toBe(true);
-        expect(graph.cachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
     });
 
     it("should encode hs only once when checking tiles cache", () => {
@@ -562,8 +562,8 @@ describe("Graph.cacheTiles", () => {
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(fullNode);
 
-        expect(graph.tilesCached(fullNode.key)).toBe(false);
-        expect(graph.tilesCached(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.key)).toBe(false);
 
         expect(encodeHsSpy.calls.count()).toBe(1);
     });
@@ -591,9 +591,9 @@ describe("Graph.cacheTiles", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, calculator);
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
-        expect(graph.tilesCached(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.key)).toBe(false);
 
         Observable
             .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
@@ -605,7 +605,7 @@ describe("Graph.cacheTiles", () => {
         result[h]["0"] = fullNode;
         imagesByH.next(result);
 
-        expect(graph.tilesCached(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.key)).toBe(true);
 
         expect(encodeHsSpy.calls.count()).toBe(1);
     });
@@ -624,7 +624,7 @@ describe("Graph.cacheSpatialNodes", () => {
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -636,7 +636,7 @@ describe("Graph.cacheSpatialNodes", () => {
 
         spyOn(index, "search").and.returnValue([{ node: node }]);
 
-        expect(graph.spatialNodesCached(fullNode.key)).toBe(true);
+        expect(graph.isSpatialAreaCached(fullNode.key)).toBe(true);
     });
 
     it("should not be cached", () => {
@@ -659,7 +659,7 @@ describe("Graph.cacheSpatialNodes", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: NewGraph = new NewGraph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -672,7 +672,7 @@ describe("Graph.cacheSpatialNodes", () => {
         let coreNode: ICoreNode = createCoreNode();
         coreNode.key = "otherKey";
 
-        graph.tilesCached(fullNode.key);
+        graph.hasTiles(fullNode.key);
         Observable
             .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
@@ -688,7 +688,7 @@ describe("Graph.cacheSpatialNodes", () => {
 
         spyOn(index, "search").and.returnValue([{ node: node }, {node: otherNode }]);
 
-        expect(graph.spatialNodesCached(fullNode.key)).toBe(false);
+        expect(graph.isSpatialAreaCached(fullNode.key)).toBe(false);
     });
 });
 
@@ -705,13 +705,13 @@ describe("Graph.cacheSequence", () => {
 
         let fullNode: IFullNode = createFullNode();
 
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        expect(graph.sequenceCached(fullNode.key)).toBe(false);
+        expect(graph.hasSequence(fullNode.key)).toBe(false);
     });
 
     it("should be caching", () => {
@@ -726,7 +726,7 @@ describe("Graph.cacheSequence", () => {
 
         let fullNode: IFullNode = createFullNode();
 
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -735,8 +735,8 @@ describe("Graph.cacheSequence", () => {
 
         graph.cacheSequence$(fullNode.key);
 
-        expect(graph.sequenceCached(fullNode.key)).toBe(false);
-        expect(graph.cachingSequence(fullNode.key)).toBe(true);
+        expect(graph.hasSequence(fullNode.key)).toBe(false);
+        expect(graph.isCachingSequence(fullNode.key)).toBe(true);
     });
 
     it("should be cached", () => {
@@ -755,7 +755,7 @@ describe("Graph.cacheSequence", () => {
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -764,8 +764,8 @@ describe("Graph.cacheSequence", () => {
         graph.cacheSequence$(fullNode.key)
             .subscribe(
                 (g: NewGraph): void => {
-                    expect(g.sequenceCached(fullNode.key)).toBe(true);
-                    expect(g.cachingSequence(fullNode.key)).toBe(false);
+                    expect(g.hasSequence(fullNode.key)).toBe(true);
+                    expect(g.isCachingSequence(fullNode.key)).toBe(false);
                 });
 
         let result: { [key: string]: ISequence } = {};
@@ -773,8 +773,8 @@ describe("Graph.cacheSequence", () => {
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        expect(graph.sequenceCached(fullNode.key)).toBe(true);
-        expect(graph.cachingSequence(fullNode.key)).toBe(false);
+        expect(graph.hasSequence(fullNode.key)).toBe(true);
+        expect(graph.isCachingSequence(fullNode.key)).toBe(false);
     });
 
     it("should throw if node not in graph", () => {
@@ -812,7 +812,7 @@ describe("Graph.cacheSequence", () => {
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -825,7 +825,7 @@ describe("Graph.cacheSequence", () => {
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        expect(graph.sequenceCached(fullNode.key)).toBe(true);
+        expect(graph.hasSequence(fullNode.key)).toBe(true);
 
         expect(() => { graph.cacheSequence$(fullNode.key); }).toThrowError(Error);
     });
@@ -847,7 +847,7 @@ describe("Graph.cacheSequence", () => {
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -875,7 +875,7 @@ describe("Graph.cacheSequence", () => {
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        graph.fetch$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -887,8 +887,8 @@ describe("Graph.cacheSequence", () => {
             .first()
             .subscribe(
                 (g: NewGraph): void => {
-                    expect(g.sequenceCached(fullNode.key)).toBe(true);
-                    expect(g.cachingSequence(fullNode.key)).toBe(false);
+                    expect(g.hasSequence(fullNode.key)).toBe(true);
+                    expect(g.isCachingSequence(fullNode.key)).toBe(false);
 
                     done();
                 });
