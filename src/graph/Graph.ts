@@ -224,35 +224,15 @@ export class NewGraph {
             throw new GraphMapillaryError(`Sequence already cached (${key}), (${node.sequenceKey}).`);
         }
 
-        if (node.sequenceKey in this._cachingSequences$) {
-            return this._cachingSequences$[node.sequenceKey];
+        return this._cacheSequence$(node.sequenceKey);
+    }
+
+    public cacheSequence$(sequenceKey: string): Observable<NewGraph> {
+        if (sequenceKey in this._sequences) {
+            throw new GraphMapillaryError(`Sequence already cached (${sequenceKey})`);
         }
 
-        this._cachingSequences$[node.sequenceKey] = this._apiV3.sequenceByKey$([node.sequenceKey])
-            .do(
-                (sequenceByKey: { [key: string]: ISequence }): void => {
-                    if (!(node.sequenceKey in this._sequences)) {
-                        this._sequences[node.sequenceKey] = new Sequence(sequenceByKey[node.sequenceKey]);
-                    }
-
-                    delete this._cachingSequences$[node.sequenceKey];
-                })
-            .map<NewGraph>(
-                (sequenceByKey: { [key: string]: ISequence }): NewGraph => {
-                    return this;
-                })
-            .finally(
-                (): void => {
-                    if (key in this._cachingSequences$) {
-                        delete this._cachingSequences$[node.sequenceKey];
-                    }
-
-                    this._changed$.next(this);
-                })
-            .publish()
-            .refCount();
-
-        return this._cachingSequences$[node.sequenceKey];
+        return this._cacheSequence$(sequenceKey);
     }
 
     public cacheSequenceEdges(key: string): void {
@@ -553,10 +533,6 @@ export class NewGraph {
         this._cachedNodes[key] = node;
     }
 
-    public isCacheInitialized(key: string): boolean {
-        return key in this._cachedNodes;
-    }
-
     public isCachingFill(key: string): boolean {
         return key in this._cachingFill$;
     }
@@ -569,6 +545,10 @@ export class NewGraph {
         let node: NewNode = this.getNode(key);
 
         return node.sequenceKey in this._cachingSequences$;
+    }
+
+    public isCachingSequence(sequenceKey: string): boolean {
+        return sequenceKey in this._cachingSequences$;
     }
 
     public isCachingTiles(key: string): boolean {
@@ -620,6 +600,10 @@ export class NewGraph {
         return spatialNodes.cacheKeys.length === 0;
     }
 
+    public hasInitializedCache(key: string): boolean {
+        return key in this._cachedNodes;
+    }
+
     public hasNode(key: string): boolean {
         return key in this._nodes;
     }
@@ -628,6 +612,10 @@ export class NewGraph {
         let node: NewNode = this.getNode(key);
 
         return node.sequenceKey in this._sequences;
+    }
+
+    public hasSequence(sequenceKey: string): boolean {
+        return sequenceKey in this._sequences;
     }
 
     public hasTiles(key: string): boolean {
@@ -665,6 +653,10 @@ export class NewGraph {
         return this._nodes[key];
     }
 
+    public getSequence(sequenceKey: string): Sequence {
+        return this._sequences[sequenceKey];
+    }
+
     public reset(): void {
         let spatialNodeKeys: string[] = Object.keys(this._requiredSpatialArea);
 
@@ -680,6 +672,38 @@ export class NewGraph {
 
             delete this._cachedSpatialEdges[cachedKey];
         }
+    }
+
+    private _cacheSequence$(sequenceKey: string): Observable<NewGraph> {
+        if (sequenceKey in this._cachingSequences$) {
+            return this._cachingSequences$[sequenceKey];
+        }
+
+        this._cachingSequences$[sequenceKey] = this._apiV3.sequenceByKey$([sequenceKey])
+            .do(
+                (sequenceByKey: { [sequenceKey: string]: ISequence }): void => {
+                    if (!(sequenceKey in this._sequences)) {
+                        this._sequences[sequenceKey] = new Sequence(sequenceByKey[sequenceKey]);
+                    }
+
+                    delete this._cachingSequences$[sequenceKey];
+                })
+            .map<NewGraph>(
+                (sequenceByKey: { [sequenceKey: string]: ISequence }): NewGraph => {
+                    return this;
+                })
+            .finally(
+                (): void => {
+                    if (sequenceKey in this._cachingSequences$) {
+                        delete this._cachingSequences$[sequenceKey];
+                    }
+
+                    this._changed$.next(this);
+                })
+            .publish()
+            .refCount();
+
+        return this._cachingSequences$[sequenceKey];
     }
 
     private _makeFull(node: NewNode, fillNode: IFillNode): void {

@@ -693,7 +693,7 @@ describe("Graph.cacheSpatialNodes", () => {
     });
 });
 
-describe("Graph.cacheSequence", () => {
+describe("Graph.cacheNodeSequence", () => {
     it("should not be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
@@ -898,5 +898,100 @@ describe("Graph.cacheSequence", () => {
         result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
+    });
+});
+
+describe("Graph.cacheSequence", () => {
+    it("should not be cached", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let sequenceKey: string = "sequenceKey";
+
+        expect(graph.hasSequence(sequenceKey)).toBe(false);
+    });
+
+    it("should not be caching", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let sequenceKey: string = "sequenceKey";
+
+        expect(graph.isCachingSequence(sequenceKey)).toBe(false);
+    });
+
+    it("should be caching", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let sequenceKey: string = "sequenceKey";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        expect(graph.hasSequence(sequenceKey)).toBe(false);
+        expect(graph.isCachingSequence(sequenceKey)).toBe(true);
+    });
+
+    it("should cache", (done) => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let sequenceKey: string = "sequenceKey";
+        let key: string = "key";
+
+        graph.cacheSequence$(sequenceKey)
+            .subscribe(
+                (g: NewGraph): void => {
+                        expect(g.hasSequence(sequenceKey)).toBe(true);
+                        expect(g.isCachingSequence(sequenceKey)).toBe(false);
+                        expect(g.getSequence(sequenceKey)).toBeDefined();
+                        expect(g.getSequence(sequenceKey).key).toBe(sequenceKey);
+                        expect(g.getSequence(sequenceKey).keys.length).toBe(1);
+                        expect(g.getSequence(sequenceKey).keys[0]).toBe(key);
+
+                        done();
+                    });
+
+        let result: { [sequenceKey: string]: ISequence } = {};
+        result[sequenceKey] = { key: sequenceKey, keys: [key] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+    });
+
+    it("should call api only once when caching the same sequence twice in succession", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
+        sequenceByKeySpy.and.returnValue(sequenceByKey);
+
+        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+
+        let sequenceKey: string = "sequenceKey";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        expect(sequenceByKeySpy.calls.count()).toBe(1);
     });
 });

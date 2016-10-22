@@ -24,7 +24,7 @@ import "rxjs/add/operator/take";
 
 import {IAPINavIm, APIv2, APIv3} from "../API";
 import {EdgeDirection} from "../Edge";
-import {VectorTilesService, Graph, NewGraph, ImageLoadingService, Node, NewNode, TilesService} from "../Graph";
+import {VectorTilesService, Graph, NewGraph, ImageLoadingService, Node, NewNode, Sequence, TilesService} from "../Graph";
 
 export class NewGraphService {
     private _graph$: Observable<NewGraph>;
@@ -68,7 +68,7 @@ export class NewGraphService {
                 })
             .do(
                 (graph: NewGraph): void => {
-                    if (!graph.isCacheInitialized(key)) {
+                    if (!graph.hasInitializedCache(key)) {
                         graph.initializeCache(key);
                     }
                 })
@@ -200,6 +200,23 @@ export class NewGraphService {
             .first(
                 (node: NewNode): boolean => {
                     return node.assetsCached;
+                });
+    }
+
+    public cacheSequence$(sequenceKey: string): Observable<Sequence> {
+        return this._graph$
+            .first()
+            .mergeMap<NewGraph>(
+                (graph: NewGraph): Observable<NewGraph> => {
+                    if (graph.isCachingSequence(sequenceKey) || !graph.hasSequence(sequenceKey)) {
+                        return graph.cacheSequence$(sequenceKey);
+                    }
+
+                    return Observable.of<NewGraph>(graph);
+                })
+            .map<Sequence>(
+                (graph: NewGraph): Sequence => {
+                    return graph.getSequence(sequenceKey);
                 });
     }
 
