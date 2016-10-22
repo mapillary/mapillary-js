@@ -20,7 +20,7 @@ import {
     DirectionDOMRenderer,
     IDirectionConfiguration,
 } from "../../Component";
-import {IEdgeStatus, NewNode} from "../../Graph";
+import {IEdgeStatus, NewNode, Sequence} from "../../Graph";
 import {IVNodeHash, RenderCamera} from "../../Render";
 import {Container, Navigator} from "../../Viewer";
 
@@ -128,13 +128,21 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                     this._container.domRenderer.render$.next({name: this._name, vnode: vd.h("div", {}, [])});
                     this._renderer.setNode(node);
                 })
-            .switchMap<IEdgeStatus>(
-                (node: NewNode): Observable<IEdgeStatus> => {
-                    return node.spatialEdges$;
+            .withLatestFrom(this._configuration$)
+            .switchMap<[IEdgeStatus, Sequence]>(
+                (nc: [NewNode, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
+                    let node: NewNode = nc[0];
+                    let configuration: IDirectionConfiguration = nc[1];
+
+                    return node.spatialEdges$
+                        .withLatestFrom(
+                            configuration.distinguishSequence ?
+                                this._navigator.newGraphService.cacheSequence$(node.sequenceKey) :
+                                Observable.of<Sequence>(null));
                 })
             .subscribe(
-                (status: IEdgeStatus): void => {
-                    this._renderer.setEdges(status);
+                (es: [IEdgeStatus, Sequence]): void => {
+                    this._renderer.setEdges(es[0], es[1]);
                 });
 
         this._renderCameraSubscription = this._container.renderService.renderCameraFrame$

@@ -6,7 +6,7 @@ import * as vd from "virtual-dom";
 import {DirectionDOMCalculator, IDirectionConfiguration} from "../../Component";
 import {EdgeDirection, IEdge} from "../../Edge";
 import {Camera, Spatial} from "../../Geo";
-import {IEdgeStatus, NewNode} from "../../Graph";
+import {IEdgeStatus, NewNode, Sequence} from "../../Graph";
 import {RenderCamera} from "../../Render";
 import {IRotation} from "../../State";
 import {Navigator} from "../../Viewer";
@@ -115,8 +115,8 @@ export class DirectionDOMRenderer {
         return this._getContainer(steps, turns, rotation);
     }
 
-    public setEdges(edgeStatus: IEdgeStatus): void {
-        this._setEdges(edgeStatus);
+    public setEdges(edgeStatus: IEdgeStatus, sequence: Sequence): void {
+        this._setEdges(edgeStatus, sequence);
 
         this._setNeedsRender();
     }
@@ -204,7 +204,7 @@ export class DirectionDOMRenderer {
         this._sequenceEdgeKeys = [];
     }
 
-    private _setEdges(edgeStatus: IEdgeStatus): void {
+    private _setEdges(edgeStatus: IEdgeStatus, sequence: Sequence): void {
         this._stepEdges = [];
         this._turnEdges = [];
         this._panoEdges = [];
@@ -228,7 +228,7 @@ export class DirectionDOMRenderer {
             }
         }
 
-        if (this._distinguishSequence) {
+        if (this._distinguishSequence && sequence != null) {
             let edges: IEdge[] = this._panoEdges
                 .concat(this._stepEdges)
                 .concat(this._turnEdges);
@@ -236,7 +236,7 @@ export class DirectionDOMRenderer {
             for (let edge of edges) {
                 let edgeKey: string = edge.to;
 
-                for (let sequenceKey of <string[]>[]) {
+                for (let sequenceKey of sequence.keys) {
                     if (sequenceKey === edgeKey) {
                         this._sequenceEdgeKeys.push(edgeKey);
                         break;
