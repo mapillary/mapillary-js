@@ -16,7 +16,7 @@ export class Sequence {
     /**
      * Create a new sequene instance.
      *
-     * @param {IAPINavImS} apiNavImS - Raw sequence data.
+     * @param {ISequence} sequence - Raw sequence data.
      */
     constructor(sequence: ISequence) {
         this._key = sequence.key;

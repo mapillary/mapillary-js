@@ -42,7 +42,6 @@ type APIPath =
 
 export class APIv3 {
     private _clientId: string;
-    private _legacyModel: falcor.Model;
     private _model: falcor.Model;
 
     private _imageByKeyPath: APIPath = "imageByKey";
@@ -92,18 +91,10 @@ export class APIv3 {
     constructor (clientId: string, model?: falcor.Model) {
         this._clientId = clientId;
 
-        this._legacyModel =
-            new falcor.Model({
-                source: new HttpDataSource(Urls.falcorModel(clientId), {
-                    crossDomain: true,
-                    withCredentials: false,
-                }),
-            });
-
         this._model = model != null ?
             model :
             new falcor.Model({
-                source: new HttpDataSource(Urls.falcorModelMagic(clientId), {
+                source: new HttpDataSource(Urls.falcorModel(clientId), {
                     crossDomain: true,
                     withCredentials: false,
                 }),
@@ -206,10 +197,6 @@ export class APIv3 {
                 }),
             this._sequenceByKeyPath,
             sKeys);
-    }
-
-    public get legacyModel(): falcor.Model {
-        return this._legacyModel;
     }
 
     public get model(): falcor.Model {

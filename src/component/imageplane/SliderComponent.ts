@@ -23,10 +23,25 @@ import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 import "rxjs/add/operator/zip";
 
-import {ILoadStatusObject, ImageLoader, NewNode} from "../../Graph";
-import {ICurrentState, IFrame, State} from "../../State";
-import {Container, Navigator} from "../../Viewer";
-import {IGLRenderHash, GLRenderStage, IVNodeHash} from "../../Render";
+import {
+    ILoadStatusObject,
+    ImageLoader,
+    NewNode,
+} from "../../Graph";
+import {
+    ICurrentState,
+    IFrame,
+    State,
+} from "../../State";
+import {
+    Container,
+    Navigator,
+} from "../../Viewer";
+import {
+    IGLRenderHash,
+    GLRenderStage,
+    IVNodeHash,
+} from "../../Render";
 import {Settings} from "../../Utils";
 import {
     Component,
@@ -462,8 +477,8 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     return Observable
                         .zip<ISliderNodes>(
                             [
-                                this._navigator.graphService.node$(configuration.keys.background),
-                                this._navigator.graphService.node$(configuration.keys.foreground),
+                                this._navigator.newGraphService.cacheNode$(configuration.keys.background),
+                                this._navigator.newGraphService.cacheNode$(configuration.keys.foreground),
                             ],
                             (background: NewNode, foreground: NewNode): ISliderNodes => {
                                 return { background: background, foreground: foreground };

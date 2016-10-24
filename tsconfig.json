@@ -5,8 +5,6 @@
         "module": "commonjs"
     },
     "files": [
-      "./src/api/interfaces/IAPINavImIm.ts",
-      "./src/api/interfaces/IAPINavImS.ts",
       "./src/api/interfaces/IGPano.ts",
       "./src/geo/interfaces/ILatLon.ts",
       "./src/graph/edge/interfaces/IEdge.ts",

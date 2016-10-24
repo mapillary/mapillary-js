@@ -18,15 +18,12 @@ import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/pluck";
 import "rxjs/add/operator/scan";
 
-import {IAPISGet} from "../API";
-import {Container, Navigator} from "../Viewer";
-import {NewNode} from "../Graph";
-
+import {ISequence} from "../API";
 import {IRouteConfiguration, IRoutePath, ComponentService, Component} from "../Component";
+import {NewNode} from "../Graph";
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
-
-// return {name: this._name, vnode: this.getRouteAnnotationNode("test")};
+import {Container, Navigator} from "../Viewer";
 
 interface IRtAndFrame {
     routeTrack: RouteTrack;
@@ -93,17 +90,21 @@ export class RouteComponent extends Component<IRouteConfiguration> {
             return Observable.from<IRoutePath>(conf.paths);
         }).distinct((p1: IRoutePath, p2: IRoutePath): boolean => {
             return p1.sequenceKey === p2.sequenceKey;
-        }).mergeMap<IAPISGet>((path: IRoutePath): Observable<IAPISGet> => {
-            return Observable.fromPromise<IAPISGet>(this._navigator.apiV2.s.get(path.sequenceKey));
-        }).combineLatest(this.configuration$, (apiSGet: IAPISGet, conf: IRouteConfiguration): IInstructionPlace[] => {
+        }).mergeMap<ISequence>((path: IRoutePath): Observable<ISequence> => {
+            return this._navigator.apiV3.sequenceByKey$([path.sequenceKey])
+                .map<ISequence>(
+                    (sequenceByKey: { [sequenceKey: string]: ISequence }): ISequence => {
+                        return sequenceByKey[path.sequenceKey];
+                    });
+        }).combineLatest(this.configuration$, (sequence: ISequence, conf: IRouteConfiguration): IInstructionPlace[] => {
             let i: number = 0;
             let instructionPlaces: IInstructionPlace[] = [];
 
             for (let path of conf.paths) {
-                if (path.sequenceKey === apiSGet.key) {
+                if (path.sequenceKey === sequence.key) {
                     let nodeInstructions: INodeInstruction[] = [];
                     let saveKey: boolean = false;
-                    for (let key of apiSGet.keys) {
+                    for (let key of sequence.keys) {
                         if (path.startKey === key) {
                             saveKey = true;
                         }

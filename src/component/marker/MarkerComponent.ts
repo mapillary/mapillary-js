@@ -29,7 +29,7 @@ import {
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {MapillaryObject, NewNode} from "../../Graph";
+import {NewNode} from "../../Graph";
 import {GeoCoords, ILatLonAlt} from "../../Geo";
 
 export type MarkerIndex = rbush.RBush<ISpatialMarker>;
@@ -123,7 +123,6 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
 
     private _disposable: Subscription;
-    private _disposableConfiguration: Subscription;
     private _markerSet: MarkerSet;
 
     private _scene: THREE.Scene;
@@ -157,52 +156,12 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     return this._renderHash(args);
                 })
             .subscribe(this._container.glRenderer.render$);
-
-        this._disposableConfiguration = this.configuration$
-            .filter(
-                (conf: IMarkerConfiguration) => {
-                    return conf.mapillaryObjects;
-                })
-            .switchMap<Marker>(
-                (conf: IMarkerConfiguration) => {
-                    return this._navigator.graphService.vectorTilesService.mapillaryObjects$
-                        .map<Marker>((mapillaryObject: MapillaryObject): Marker => {
-                            let views: string[] = _.map(mapillaryObject.rects, (rect: any): string => {
-                                return rect.image_key;
-                            });
-
-                            let latLonAlt: ILatLonAlt = {
-                                alt: mapillaryObject.alt,
-                                lat: mapillaryObject.latLon.lat,
-                                lon: mapillaryObject.latLon.lon,
-                            };
-
-                            let options: IMarkerOptions = {
-                                id: `mapillary-object-${mapillaryObject.key}`,
-                                style: {
-                                    ballColor: "#00FF00",
-                                    ballOpacity: 1,
-                                    color: "#FF0000",
-                                    opacity: 0.2,
-                                },
-                                type: "marker",
-                            };
-
-                            let marker: Marker = this.createMarker(latLonAlt, options);
-                            marker.visibleInKeys = views;
-                            return marker;
-                        });
-                })
-            .subscribe((marker: Marker): void => {
-                this.addMarker(marker);
-            });
     }
 
     protected _deactivate(): void {
         // release memory
         this._disposeScene();
         this._disposable.unsubscribe();
-        this._disposableConfiguration.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IMarkerConfiguration {

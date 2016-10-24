@@ -191,7 +191,7 @@ export class NewNodeCache {
                 }
 
                 let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-                xmlHTTP.open("GET", Urls.proto_mesh(key), true);
+                xmlHTTP.open("GET", Urls.protoMesh(key), true);
                 xmlHTTP.responseType = "arraybuffer";
                 xmlHTTP.onload = (pe: ProgressEvent) => {
                     let mesh: IMesh = xmlHTTP.status === 200 ?

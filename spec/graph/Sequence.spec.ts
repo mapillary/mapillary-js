@@ -1,16 +1,15 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import {IAPINavImS} from "../../src/API";
+import {ISequence} from "../../src/API";
 import {Sequence} from "../../src/Graph";
 
 describe("Sequence", () => {
     let sequence: Sequence;
 
     beforeEach(() => {
-        let response: IAPINavImS = {
+        let response: ISequence = {
             key: "A",
             keys: ["B", "C", "D", "E"],
-            path: { },
         };
 
         sequence = new Sequence(response);

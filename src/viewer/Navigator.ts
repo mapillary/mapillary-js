@@ -12,19 +12,17 @@ import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 
-import {APIv2, APIv3, IFullNode} from "../API";
+import {APIv3, IFullNode} from "../API";
 import {ILatLon} from "../Geo";
-import {GraphService, IEdgeStatus, NewGraph, NewGraphService, NewNode} from "../Graph";
+import {IEdgeStatus, NewGraph, NewGraphService, NewNode} from "../Graph";
 import {EdgeDirection} from "../Edge";
 import {StateService} from "../State";
 import {LoadingService} from "../Viewer";
 
 export class Navigator {
-    public graphService: GraphService;
     public stateService: StateService;
     public loadingService: LoadingService;
 
-    public apiV2: APIv2;
     public apiV3: APIv3;
 
     private _newGraphService: NewGraphService;
@@ -35,11 +33,10 @@ export class Navigator {
     private _latLonRequested$: BehaviorSubject<ILatLon> = new BehaviorSubject<ILatLon>(null);
 
     constructor (clientId: string) {
-        this.apiV2 = new APIv2(clientId);
         this.apiV3 = new APIv3(clientId);
 
-        this.graphService = new GraphService(this.apiV2, this.apiV3);
         this._newGraphService = new NewGraphService(new NewGraph(this.apiV3));
+
         this.stateService = new StateService();
         this.loadingService = new LoadingService();
     }
@@ -54,10 +51,6 @@ export class Navigator {
 
     public get movedToKey$(): Observable<string> {
         return this._movedToKey$;
-    }
-
-    public auth(token: string, projectKey?: string): void {
-        this.apiV2.auth(token, projectKey);
     }
 
     public moveToKey(key: string): Observable<NewNode> {
