@@ -30,8 +30,8 @@ import {
     ILatLon,
 } from "../Geo";
 import {
-    NewNode,
-    NewNodeCache,
+    Node,
+    NodeCache,
     Sequence,
     GraphCalculator,
 } from "../Graph";
@@ -39,7 +39,7 @@ import {
 type NodeIndexItem = {
     lat: number;
     lon: number;
-    node: NewNode;
+    node: Node;
 }
 
 type NodeTiles = {
@@ -48,35 +48,35 @@ type NodeTiles = {
 }
 
 type SpatialArea = {
-    all: { [key: string]: NewNode };
+    all: { [key: string]: Node };
     cacheKeys: string[];
-    cacheNodes: { [key: string]: NewNode };
+    cacheNodes: { [key: string]: Node };
 }
 
-export class NewGraph {
+export class Graph {
     private _apiV3: APIv3;
 
-    private _cachedNodes: { [key: string]: NewNode };
+    private _cachedNodes: { [key: string]: Node };
     private _cachedNodeTiles: { [key: string]: boolean };
-    private _cachedSpatialEdges: { [key: string]: NewNode };
-    private _cachedTiles: { [h: string]: NewNode[] };
+    private _cachedSpatialEdges: { [key: string]: Node };
+    private _cachedTiles: { [h: string]: Node[] };
 
-    private _cachingFill$: { [key: string]: Observable<NewGraph> };
-    private _cachingFull$: { [key: string]: Observable<NewGraph> };
-    private _cachingSequences$: { [sequenceKey: string]: Observable<NewGraph> };
-    private _cachingSpatialArea$: { [key: string]: Observable<NewGraph>[] };
-    private _cachingTiles$: { [h: string]: Observable<NewGraph> };
+    private _cachingFill$: { [key: string]: Observable<Graph> };
+    private _cachingFull$: { [key: string]: Observable<Graph> };
+    private _cachingSequences$: { [sequenceKey: string]: Observable<Graph> };
+    private _cachingSpatialArea$: { [key: string]: Observable<Graph>[] };
+    private _cachingTiles$: { [h: string]: Observable<Graph> };
 
-    private _changed$: Subject<NewGraph>;
+    private _changed$: Subject<Graph>;
 
     private _defaultAlt: number;
     private _edgeCalculator: EdgeCalculator;
     private _graphCalculator: GraphCalculator;
 
-    private _nodes: { [key: string]: NewNode };
+    private _nodes: { [key: string]: Node };
     private _nodeIndex: rbush.RBush<NodeIndexItem>;
 
-    private _preStored: { [h: string]:  { [key: string]: NewNode }; };
+    private _preStored: { [h: string]:  { [key: string]: Node }; };
 
     private _requiredNodeTiles: { [key: string]: NodeTiles };
     private _requiredSpatialArea: { [key: string]: SpatialArea };
@@ -105,7 +105,7 @@ export class NewGraph {
         this._cachingSpatialArea$ = {};
         this._cachingTiles$ = {};
 
-        this._changed$ = new Subject<NewGraph>();
+        this._changed$ = new Subject<Graph>();
 
         this._defaultAlt = 2;
         this._edgeCalculator = edgeCalculator != null ? edgeCalculator : new EdgeCalculator();
@@ -125,11 +125,11 @@ export class NewGraph {
         this._tileThreshold = 20;
     }
 
-    public get changed$(): Observable<NewGraph> {
+    public get changed$(): Observable<Graph> {
         return this._changed$;
     }
 
-    public cacheFill$(key: string): Observable<NewGraph> {
+    public cacheFill$(key: string): Observable<Graph> {
         if (key in this._cachingFull$) {
             throw new GraphMapillaryError(`Cannot fill node while caching full (${key}).`);
         }
@@ -142,7 +142,7 @@ export class NewGraph {
             return this._cachingFill$[key];
         }
 
-        let node: NewNode = this.getNode(key);
+        let node: Node = this.getNode(key);
         if (node.full) {
             throw new GraphMapillaryError(`Cannot fill node that is already full (${key}).`);
         }
@@ -156,8 +156,8 @@ export class NewGraph {
 
                     delete this._cachingFill$[key];
                 })
-            .map<NewGraph>(
-                (imageByKeyFill: { [key: string]: IFillNode }): NewGraph => {
+            .map<Graph>(
+                (imageByKeyFill: { [key: string]: IFillNode }): Graph => {
                     return this;
                 })
             .finally(
@@ -174,7 +174,7 @@ export class NewGraph {
         return this._cachingFill$[key];
     }
 
-    public cacheFull$(key: string): Observable<NewGraph> {
+    public cacheFull$(key: string): Observable<Graph> {
         if (key in this._cachingFull$) {
             return this._cachingFull$[key];
         }
@@ -189,7 +189,7 @@ export class NewGraph {
                     let fn: IFullNode = imageByKeyFull[key];
 
                     if (this.hasNode(key)) {
-                        let node: NewNode = this.getNode(key);
+                        let node: Node = this.getNode(key);
 
                         if (!node.full) {
                             this._makeFull(node, fn);
@@ -199,7 +199,7 @@ export class NewGraph {
                             throw new GraphMapillaryError(`Node has no sequence (${key}).`);
                         }
 
-                        let node: NewNode = new NewNode(fn);
+                        let node: Node = new Node(fn);
                         this._makeFull(node, fn);
 
                         let h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
@@ -209,8 +209,8 @@ export class NewGraph {
                         delete this._cachingFull$[key];
                     }
                 })
-            .map<NewGraph>(
-                (imageByKeyFull: { [key: string]: IFullNode }): NewGraph => {
+            .map<Graph>(
+                (imageByKeyFull: { [key: string]: IFullNode }): Graph => {
                     return this;
                 })
             .finally(
@@ -227,12 +227,12 @@ export class NewGraph {
         return this._cachingFull$[key];
     }
 
-    public cacheNodeSequence$(key: string): Observable<NewGraph> {
+    public cacheNodeSequence$(key: string): Observable<Graph> {
         if (!this.hasNode(key)) {
             throw new GraphMapillaryError(`Cannot cache sequence edges of node that does not exist in graph (${key}).`);
         }
 
-        let node: NewNode = this.getNode(key);
+        let node: Node = this.getNode(key);
         if (node.sequenceKey in this._sequences) {
             throw new GraphMapillaryError(`Sequence already cached (${key}), (${node.sequenceKey}).`);
         }
@@ -240,7 +240,7 @@ export class NewGraph {
         return this._cacheSequence$(node.sequenceKey);
     }
 
-    public cacheSequence$(sequenceKey: string): Observable<NewGraph> {
+    public cacheSequence$(sequenceKey: string): Observable<Graph> {
         if (sequenceKey in this._sequences) {
             throw new GraphMapillaryError(`Sequence already cached (${sequenceKey})`);
         }
@@ -249,7 +249,7 @@ export class NewGraph {
     }
 
     public cacheSequenceEdges(key: string): void {
-        let node: NewNode = this.getNode(key);
+        let node: Node = this.getNode(key);
 
         if (!(node.sequenceKey in this._sequences)) {
             throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceKey})`);
@@ -261,7 +261,7 @@ export class NewGraph {
         node.cacheSequenceEdges(edges);
     }
 
-    public cacheSpatialArea$(key: string): Observable<NewGraph>[] {
+    public cacheSpatialArea$(key: string): Observable<Graph>[] {
         if (!this.hasNode(key)) {
             throw new GraphMapillaryError(`Cannot cache spatial area of node that does not exist in graph (${key}).`);
         }
@@ -289,10 +289,10 @@ export class NewGraph {
         }
 
         let batchesToCache: number = batches.length;
-        let spatialNodes$: Observable<NewGraph>[] = [];
+        let spatialNodes$: Observable<Graph>[] = [];
 
         for (let batch of batches) {
-            let spatialNodeBatch$: Observable<NewGraph> = this._apiV3.imageByKeyFill$(batch)
+            let spatialNodeBatch$: Observable<Graph> = this._apiV3.imageByKeyFill$(batch)
                 .do(
                     (imageByKeyFill: { [key: string]: IFillNode }): void => {
                         for (let fillKey in imageByKeyFill) {
@@ -300,7 +300,7 @@ export class NewGraph {
                                 continue;
                             }
 
-                            let spatialNode: NewNode = spatialArea.cacheNodes[fillKey];
+                            let spatialNode: Node = spatialArea.cacheNodes[fillKey];
                             if (spatialNode.full) {
                                 delete spatialArea.cacheNodes[fillKey];
                                 continue;
@@ -316,12 +316,12 @@ export class NewGraph {
                             delete this._cachingSpatialArea$[key];
                         }
                     })
-                .map<NewGraph>(
-                    (imageByKeyFill: { [key: string]: IFillNode }): NewGraph => {
+                .map<Graph>(
+                    (imageByKeyFill: { [key: string]: IFillNode }): Graph => {
                         return this;
                     })
                 .catch(
-                    (error: Error): Observable<NewGraph> => {
+                    (error: Error): Observable<Graph> => {
                         for (let batchKey of batch) {
                             if (batchKey in spatialArea.all) {
                                 delete spatialArea.all[batchKey];
@@ -360,15 +360,15 @@ export class NewGraph {
              throw new GraphMapillaryError(`Spatial edges already cached (${key}).`);
         }
 
-        let node: NewNode = this.getNode(key);
+        let node: Node = this.getNode(key);
         let sequence: Sequence = this._sequences[node.sequenceKey];
 
         let fallbackKeys: string[] = [];
         let nextKey: string = sequence.findNextKey(node.key);
         let prevKey: string = sequence.findPrevKey(node.key);
 
-        let allSpatialNodes: { [key: string]: NewNode } = this._requiredSpatialArea[key].all;
-        let potentialNodes: NewNode[] = [];
+        let allSpatialNodes: { [key: string]: Node } = this._requiredSpatialArea[key].all;
+        let potentialNodes: Node[] = [];
         for (let spatialNodeKey in allSpatialNodes) {
             if (!allSpatialNodes.hasOwnProperty(spatialNodeKey)) {
                 continue;
@@ -397,7 +397,7 @@ export class NewGraph {
         delete this._requiredSpatialArea[key];
     }
 
-    public cacheTiles$(key: string): Observable<NewGraph>[] {
+    public cacheTiles$(key: string): Observable<Graph>[] {
         if (key in this._cachedNodeTiles) {
             throw new GraphMapillaryError(`Tiles already cached (${key}).`);
         }
@@ -420,10 +420,10 @@ export class NewGraph {
         nodeTiles.caching = this._requiredNodeTiles[key].caching.concat(hs);
         nodeTiles.cache = [];
 
-        let cacheTiles$: Observable<NewGraph>[] = [];
+        let cacheTiles$: Observable<Graph>[] = [];
 
         for (let h of nodeTiles.caching) {
-            let cacheTile$: Observable<NewGraph> = null;
+            let cacheTile$: Observable<Graph> = null;
             if (h in this._cachingTiles$) {
                 cacheTile$ = this._cachingTiles$[h];
             } else {
@@ -437,8 +437,8 @@ export class NewGraph {
                             }
 
                             this._cachedTiles[h] = [];
-                            let hCache: NewNode[] = this._cachedTiles[h];
-                            let preStored: { [key: string]: NewNode } = this._removeFromPreStore(h);
+                            let hCache: Node[] = this._cachedTiles[h];
+                            let preStored: { [key: string]: Node } = this._removeFromPreStore(h);
 
                             for (let index in coreNodes) {
                                 if (!coreNodes.hasOwnProperty(index)) {
@@ -459,7 +459,7 @@ export class NewGraph {
                                 }
 
                                 if (preStored != null && coreNode.key in preStored) {
-                                    let node: NewNode = preStored[coreNode.key];
+                                    let node: Node = preStored[coreNode.key];
                                     delete preStored[coreNode.key];
 
                                     hCache.push(node);
@@ -468,7 +468,7 @@ export class NewGraph {
                                     continue;
                                 }
 
-                                let node: NewNode = new NewNode(coreNode);
+                                let node: Node = new Node(coreNode);
 
                                 hCache.push(node);
                                 this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
@@ -477,12 +477,12 @@ export class NewGraph {
 
                             delete this._cachingTiles$[h];
                         })
-                    .map<NewGraph>(
-                        (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): NewGraph => {
+                    .map<Graph>(
+                        (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): Graph => {
                             return this;
                         })
                     .catch(
-                        (error: Error): Observable<NewGraph> => {
+                        (error: Error): Observable<Graph> => {
                             delete this._cachingTiles$[h];
 
                             throw error;
@@ -496,7 +496,7 @@ export class NewGraph {
             cacheTiles$.push(
                 cacheTile$
                     .do(
-                        (graph: NewGraph): void => {
+                        (graph: Graph): void => {
                             let index: number = nodeTiles.caching.indexOf(h);
                             if (index > -1) {
                                 nodeTiles.caching.splice(index, 1);
@@ -510,7 +510,7 @@ export class NewGraph {
                             }
                         })
                     .catch(
-                        (error: Error): Observable<NewGraph> => {
+                        (error: Error): Observable<Graph> => {
                             let index: number = nodeTiles.caching.indexOf(h);
                             if (index > -1) {
                                 nodeTiles.caching.splice(index, 1);
@@ -541,8 +541,8 @@ export class NewGraph {
             throw new GraphMapillaryError(`Node already in cache (${key}).`);
         }
 
-        let node: NewNode = this.getNode(key);
-        node.initializeCache(new NewNodeCache());
+        let node: Node = this.getNode(key);
+        node.initializeCache(new NodeCache());
         this._cachedNodes[key] = node;
     }
 
@@ -555,7 +555,7 @@ export class NewGraph {
     }
 
     public isCachingNodeSequence(key: string): boolean {
-        let node: NewNode = this.getNode(key);
+        let node: Node = this.getNode(key);
 
         return node.sequenceKey in this._cachingSequences$;
     }
@@ -583,7 +583,7 @@ export class NewGraph {
             return Object.keys(this._requiredSpatialArea[key].cacheNodes).length === 0;
         }
 
-        let node: NewNode = this.getNode(key);
+        let node: Node = this.getNode(key);
         let bbox: [ILatLon, ILatLon] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
 
         let spatialItems: NodeIndexItem[] = this._nodeIndex.search({
@@ -622,7 +622,7 @@ export class NewGraph {
     }
 
     public hasNodeSequence(key: string): boolean {
-        let node: NewNode = this.getNode(key);
+        let node: Node = this.getNode(key);
 
         return node.sequenceKey in this._sequences;
     }
@@ -641,7 +641,7 @@ export class NewGraph {
         }
 
         if (!(key in this._requiredNodeTiles)) {
-            let node: NewNode = this.getNode(key);
+            let node: Node = this.getNode(key);
             let cache: string[] = this._graphCalculator
                 .encodeHs(
                     node.latLon,
@@ -662,7 +662,7 @@ export class NewGraph {
             this._requiredNodeTiles[key].caching.length === 0;
     }
 
-    public getNode(key: string): NewNode {
+    public getNode(key: string): Node {
         return this._nodes[key];
     }
 
@@ -680,14 +680,14 @@ export class NewGraph {
         let cachedKeys: string[] = Object.keys(this._cachedSpatialEdges);
 
         for (let cachedKey of cachedKeys) {
-            let node: NewNode = this._cachedSpatialEdges[cachedKey];
+            let node: Node = this._cachedSpatialEdges[cachedKey];
             node.resetSpatialEdges();
 
             delete this._cachedSpatialEdges[cachedKey];
         }
     }
 
-    private _cacheSequence$(sequenceKey: string): Observable<NewGraph> {
+    private _cacheSequence$(sequenceKey: string): Observable<Graph> {
         if (sequenceKey in this._cachingSequences$) {
             return this._cachingSequences$[sequenceKey];
         }
@@ -701,8 +701,8 @@ export class NewGraph {
 
                     delete this._cachingSequences$[sequenceKey];
                 })
-            .map<NewGraph>(
-                (sequenceByKey: { [sequenceKey: string]: ISequence }): NewGraph => {
+            .map<Graph>(
+                (sequenceByKey: { [sequenceKey: string]: ISequence }): Graph => {
                     return this;
                 })
             .finally(
@@ -719,7 +719,7 @@ export class NewGraph {
         return this._cachingSequences$[sequenceKey];
     }
 
-    private _makeFull(node: NewNode, fillNode: IFillNode): void {
+    private _makeFull(node: Node, fillNode: IFillNode): void {
         if (fillNode.calt == null) {
             fillNode.calt = this._defaultAlt;
         }
@@ -731,7 +731,7 @@ export class NewGraph {
         node.makeFull(fillNode);
     }
 
-    private _preStore(h: string, node: NewNode): void {
+    private _preStore(h: string, node: Node): void {
         if (!(h in this._preStored)) {
             this._preStored[h] = {};
         }
@@ -739,8 +739,8 @@ export class NewGraph {
         this._preStored[h][node.key] = node;
     }
 
-    private _removeFromPreStore(h: string): { [key: string]: NewNode } {
-        let preStored: { [key: string]: NewNode } = null;
+    private _removeFromPreStore(h: string): { [key: string]: Node } {
+        let preStored: { [key: string]: Node } = null;
 
         if (h in this._preStored) {
             preStored = this._preStored[h];
@@ -750,7 +750,7 @@ export class NewGraph {
         return preStored;
     }
 
-    private _setNode(node: NewNode): void {
+    private _setNode(node: Node): void {
         let key: string = node.key;
 
         if (this.hasNode(key)) {
@@ -761,4 +761,4 @@ export class NewGraph {
     }
 }
 
-export default NewGraph;
+export default Graph;

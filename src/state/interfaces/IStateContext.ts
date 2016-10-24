@@ -1,5 +1,5 @@
 import {ICurrentState, IRotation, State} from "../../State";
-import {NewNode} from "../../Graph";
+import {Node} from "../../Graph";
 
 export interface IStateContext extends ICurrentState {
     state: State;
@@ -8,11 +8,11 @@ export interface IStateContext extends ICurrentState {
     wait(): void;
 
     update(fps: number): void;
-    append(nodes: NewNode[]): void;
-    prepend(nodes: NewNode[]): void;
+    append(nodes: Node[]): void;
+    prepend(nodes: Node[]): void;
     remove(n: number): void;
     cut(): void;
-    set(nodes: NewNode[]): void;
+    set(nodes: Node[]): void;
 
     rotate(delta: IRotation): void;
     rotateBasic(basicRotation: number[]): void;

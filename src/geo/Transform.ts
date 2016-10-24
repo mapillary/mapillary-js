@@ -3,7 +3,7 @@
 import * as THREE from "three";
 
 import {IGPano} from "../API";
-import {NewNode} from "../Graph";
+import {Node} from "../Graph";
 
 /**
  * @class Transform
@@ -26,11 +26,11 @@ export class Transform {
 
     /**
      * Create a new transform instance.
-     * @param {NewNode} apiNavImIm - Node properties.
+     * @param {Node} apiNavImIm - Node properties.
      * @param {HTMLImageElement} image - Node image.
      * @param {Array<number>} translation - Node translation vector in three dimensions.
      */
-    constructor(node: NewNode, image: HTMLImageElement, translation: number[]) {
+    constructor(node: Node, image: HTMLImageElement, translation: number[]) {
         this._orientation = this._getValue(node.orientation, 1);
 
         let imageWidth: number = image != null ? image.width : 4;

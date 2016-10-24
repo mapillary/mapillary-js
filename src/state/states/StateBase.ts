@@ -2,7 +2,7 @@
 
 import {ParameterMapillaryError} from "../../Error";
 import {IState} from "../../State";
-import {NewNode} from "../../Graph";
+import {Node} from "../../Graph";
 import {Camera, GeoCoords, ILatLonAlt, Transform, Spatial} from "../../Geo";
 import {IRotation} from "../../State";
 
@@ -18,9 +18,9 @@ export abstract class StateBase implements IState {
 
     protected _currentIndex: number;
 
-    protected _trajectory: NewNode[];
-    protected _currentNode: NewNode;
-    protected _previousNode: NewNode;
+    protected _trajectory: Node[];
+    protected _currentNode: Node;
+    protected _previousNode: Node;
 
     protected _trajectoryTransforms: Transform[];
 
@@ -91,7 +91,7 @@ export abstract class StateBase implements IState {
         return this._zoom;
     }
 
-    public get trajectory(): NewNode[] {
+    public get trajectory(): Node[] {
         return this._trajectory;
     }
 
@@ -99,11 +99,11 @@ export abstract class StateBase implements IState {
         return this._currentIndex;
     }
 
-    public get currentNode(): NewNode {
+    public get currentNode(): Node {
         return this._currentNode;
     }
 
-    public get previousNode(): NewNode {
+    public get previousNode(): Node {
         return this._previousNode;
     }
 
@@ -143,7 +143,7 @@ export abstract class StateBase implements IState {
 
     public abstract update(fps: number): void;
 
-    public append(nodes: NewNode[]): void {
+    public append(nodes: Node[]): void {
         if (nodes.length < 1) {
             throw Error("Trajectory can not be empty");
         }
@@ -156,7 +156,7 @@ export abstract class StateBase implements IState {
         }
     }
 
-    public prepend(nodes: NewNode[]): void {
+    public prepend(nodes: Node[]): void {
         if (nodes.length < 1) {
             throw Error("Trajectory can not be empty");
         }
@@ -202,7 +202,7 @@ export abstract class StateBase implements IState {
         }
     }
 
-    public set(nodes: NewNode[]): void {
+    public set(nodes: Node[]): void {
         this._setTrajectory(nodes);
         this._setCurrentNode();
         this._setReference(this._currentNode);
@@ -251,7 +251,7 @@ export abstract class StateBase implements IState {
         );
     }
 
-    private _setReference(node: NewNode): boolean {
+    private _setReference(node: Node): boolean {
         // do not reset reference if node is within threshold distance
         if (Math.abs(node.latLon.lat - this.reference.lat) < this._referenceThreshold &&
             Math.abs(node.latLon.lon - this.reference.lon) < this._referenceThreshold) {
@@ -280,7 +280,7 @@ export abstract class StateBase implements IState {
             null;
     }
 
-    private _setTrajectory(nodes: NewNode[]): void {
+    private _setTrajectory(nodes: Node[]): void {
         if (nodes.length < 1) {
             throw new ParameterMapillaryError("Trajectory can not be empty");
         }
@@ -301,7 +301,7 @@ export abstract class StateBase implements IState {
         this._appendToTrajectories(this._trajectory);
     }
 
-    private _appendToTrajectories(nodes: NewNode[]): void {
+    private _appendToTrajectories(nodes: Node[]): void {
         for (let node of nodes) {
             if (!node.assetsCached) {
                 throw new ParameterMapillaryError("Assets must be cached when node is added to trajectory");
@@ -315,10 +315,10 @@ export abstract class StateBase implements IState {
         }
     }
 
-    private _prependToTrajectories(nodes: NewNode[]): void {
+    private _prependToTrajectories(nodes: Node[]): void {
         for (let node of nodes.reverse()) {
             if (!node.assetsCached) {
-                throw new ParameterMapillaryError("NewNode must be loaded when added to trajectory");
+                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
             }
 
             let translation: number[] = this._nodeToTranslation(node);
@@ -329,7 +329,7 @@ export abstract class StateBase implements IState {
         }
     }
 
-    private _nodeToTranslation(node: NewNode): number[] {
+    private _nodeToTranslation(node: Node): number[] {
         let C: number[] = this._geoCoords.geodeticToEnu(
             node.latLon.lat,
             node.latLon.lon,
@@ -344,8 +344,8 @@ export abstract class StateBase implements IState {
     }
 
     private _sameConnectedComponent(): boolean {
-        let current: NewNode = this._currentNode;
-        let previous: NewNode = this._previousNode;
+        let current: Node = this._currentNode;
+        let previous: Node = this._previousNode;
 
         if (!current ||
             !current.mergeCC ||
@@ -358,8 +358,8 @@ export abstract class StateBase implements IState {
     }
 
     private _withinOriginalDistance(): boolean {
-        let current: NewNode = this._currentNode;
-        let previous: NewNode = this._previousNode;
+        let current: Node = this._currentNode;
+        let previous: Node = this._previousNode;
 
         if (!current || !previous) {
             return true;

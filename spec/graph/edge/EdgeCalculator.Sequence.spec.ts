@@ -8,7 +8,7 @@ import {
     IEdge,
 } from "../../../src/Edge";
 import {ArgumentMapillaryError} from "../../../src/Error";
-import {NewNode, Sequence} from "../../../src/Graph";
+import {Node, Sequence} from "../../../src/Graph";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computeSequenceEdges", () => {
@@ -31,7 +31,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let key: string = "key";
         let sequenceKey: string = "skey";
 
-        let node: NewNode = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey);
+        let node: Node = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey);
         let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [key] });
 
         expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(ArgumentMapillaryError);
@@ -42,7 +42,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let sequenceKey1: string = "skey1";
         let sequenceKey2: string = "skey2";
 
-        let node: NewNode = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey1);
+        let node: Node = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey1);
         let sequence: Sequence = new Sequence({ key: sequenceKey2, keys: [key] });
 
         expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(ArgumentMapillaryError);
@@ -53,7 +53,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let nextKey: string = "nextKey";
         let sequenceKey: string = "skey";
 
-        let node: NewNode = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
+        let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [key, nextKey] });
 
         let sequenceEdges: IEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
@@ -71,7 +71,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let prevKey: string = "prevKey";
         let sequenceKey: string = "skey";
 
-        let node: NewNode = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
+        let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevKey, key] });
 
         let sequenceEdges: IEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
@@ -91,7 +91,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
 
         let sequenceKey: string = "skey";
 
-        let node: NewNode = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
+        let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevKey, key, nextKey] });
 
         let sequenceEdges: IEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);

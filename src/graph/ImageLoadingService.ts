@@ -3,16 +3,16 @@
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
-import {ILoadStatus, NewNode} from "../Graph";
+import {ILoadStatus, Node} from "../Graph";
 
 export class ImageLoadingService {
-    private _loadnode$: Subject<NewNode> = new Subject<NewNode>();
+    private _loadnode$: Subject<Node> = new Subject<Node>();
     private _loadstatus$: Observable<{[key: string]: ILoadStatus}>;
 
     constructor () {
         this._loadstatus$ = this._loadnode$
             .scan<{[key: string]: ILoadStatus}>(
-                (nodes: {[key: string]: ILoadStatus}, node: NewNode): {[key: string]: ILoadStatus} => {
+                (nodes: {[key: string]: ILoadStatus}, node: Node): {[key: string]: ILoadStatus} => {
                     nodes[node.key] = node.loadStatus;
                     return nodes;
                 },
@@ -23,7 +23,7 @@ export class ImageLoadingService {
         this._loadstatus$.subscribe();
     }
 
-    public get loadnode$(): Subject<NewNode> {
+    public get loadnode$(): Subject<Node> {
         return this._loadnode$;
     }
 

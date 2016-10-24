@@ -20,7 +20,7 @@ import {
     DirectionDOMRenderer,
     IDirectionConfiguration,
 } from "../../Component";
-import {IEdgeStatus, NewNode, Sequence} from "../../Graph";
+import {IEdgeStatus, Node, Sequence} from "../../Graph";
 import {IVNodeHash, RenderCamera} from "../../Render";
 import {Container, Navigator} from "../../Viewer";
 
@@ -124,14 +124,14 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
 
         this._nodeSubscription = this._navigator.stateService.currentNode$
             .do(
-                (node: NewNode): void => {
+                (node: Node): void => {
                     this._container.domRenderer.render$.next({name: this._name, vnode: vd.h("div", {}, [])});
                     this._renderer.setNode(node);
                 })
             .withLatestFrom(this._configuration$)
             .switchMap<[IEdgeStatus, Sequence]>(
-                (nc: [NewNode, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
-                    let node: NewNode = nc[0];
+                (nc: [Node, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
+                    let node: Node = nc[0];
                     let configuration: IDirectionConfiguration = nc[1];
 
                     return node.spatialEdges$

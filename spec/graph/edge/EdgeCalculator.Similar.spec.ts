@@ -9,7 +9,7 @@ import {
     IPotentialEdge,
 } from "../../../src/Edge";
 import {ArgumentMapillaryError} from "../../../src/Error";
-import {NewNode} from "../../../src/Graph";
+import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
@@ -23,7 +23,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
     let spatial: Spatial;
 
-    let node: NewNode;
+    let node: Node;
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
@@ -37,8 +37,8 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         spatial = new Spatial();
     });
 
-    let createNode: (capturedAt: number) => NewNode =
-        (capturedAt: number): NewNode => {
+    let createNode: (capturedAt: number) => Node =
+        (capturedAt: number): Node => {
             return  helper.createFullNode("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, null, capturedAt);
         };
 

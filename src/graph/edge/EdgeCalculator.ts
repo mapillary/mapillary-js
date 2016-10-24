@@ -3,7 +3,7 @@
 import * as THREE from "three";
 
 import {
-    NewNode,
+    Node,
     Sequence,
 } from "../../Graph";
 import
@@ -55,13 +55,13 @@ export class EdgeCalculator {
      * Returns the potential edges to destination nodes for a set
      * of nodes with respect to a source node.
      *
-     * @param {NewNode} node The source node
-     * @param {Array<NewNode>} nodes Potential destination nodes
+     * @param {Node} node The source node
+     * @param {Array<Node>} nodes Potential destination nodes
      * @param {Array<string>} fallbackKeys Keys for destination nodes that should
      *                                     be returned even if they do not meet
      *                                     the criteria for a potential edge.
      */
-    public getPotentialEdges(node: NewNode, potentialNodes: NewNode[], fallbackKeys: string[]): IPotentialEdge[] {
+    public getPotentialEdges(node: Node, potentialNodes: Node[], fallbackKeys: string[]): IPotentialEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -163,9 +163,9 @@ export class EdgeCalculator {
     /**
      * Computes the sequence edges for a node.
      *
-     * @param {NewNode} node Source node
+     * @param {Node} node Source node
      */
-    public computeSequenceEdges(node: NewNode, sequence: Sequence): IEdge[] {
+    public computeSequenceEdges(node: Node, sequence: Sequence): IEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -210,10 +210,10 @@ export class EdgeCalculator {
      * look roughly in the same direction and are positioned closed to the node.
      * Similar edges for full panoramas only target other full panoramas.
      *
-     * @param {NewNode} node Source node
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computeSimilarEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeSimilarEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -314,13 +314,13 @@ export class EdgeCalculator {
     /**
      * Computes the step edges for a perspective node.
      *
-     * @param {NewNode} node Source node
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      * @param {string} prevKey Key of previous node in sequence
      * @param {string} prevKey Key of next node in sequence
      */
     public computeStepEdges(
-        node: NewNode,
+        node: Node,
         potentialEdges: IPotentialEdge[],
         prevKey: string,
         nextKey: string): IEdge[] {
@@ -413,10 +413,10 @@ export class EdgeCalculator {
     /**
      * Computes the turn edges for a perspective node.
      *
-     * @param {NewNode} node Source node
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computeTurnEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeTurnEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -505,10 +505,10 @@ export class EdgeCalculator {
     /**
      * Computes the pano edges for a perspective node.
      *
-     * @param {NewNode} node Source node
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computePerspectiveToPanoEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computePerspectiveToPanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -558,10 +558,10 @@ export class EdgeCalculator {
      * Computes rotation edges for perspective nodes. Rotation edges
      * are for rotating at approximately the same position.
      *
-     * @param {NewNode} node Source node
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computeRotationEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeRotationEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -620,10 +620,10 @@ export class EdgeCalculator {
     /**
      * Computes the pano and step edges for a pano node.
      *
-     * @param {NewNode} node Source node
+     * @param {Node} node Source node
      * @param {Array<IPotentialEdge>} potentialEdges Potential edges
      */
-    public computePanoEdges(node: NewNode, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computePanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }

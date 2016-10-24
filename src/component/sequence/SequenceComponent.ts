@@ -30,7 +30,7 @@ import {
     SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
-import {IEdgeStatus, NewNode} from "../../Graph";
+import {IEdgeStatus, Node} from "../../Graph";
 import {IVNodeHash} from "../../Render";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
@@ -87,7 +87,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
         this._edgeStatus$ = this._navigator.stateService.currentNode$
             .switchMap<IEdgeStatus>(
-                (node: NewNode): Observable<IEdgeStatus> => {
+                (node: Node): Observable<IEdgeStatus> => {
                     return node.sequenceEdges$;
                 })
             .publishReplay(1)
@@ -368,22 +368,22 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (frame: IFrame): boolean => {
                     return frame.state.nodesAhead < this._nodesAhead;
                 })
-            .map<NewNode>(
-                (frame: IFrame): NewNode => {
+            .map<Node>(
+                (frame: IFrame): Node => {
                     return frame.state.lastNode;
                 })
             .distinctUntilChanged(
                 undefined,
-                (lastNode: NewNode): string => {
+                (lastNode: Node): string => {
                     return lastNode.key;
                 })
             .withLatestFrom(
                 this._configuration$,
-                (lastNode: NewNode, configuration: ISequenceConfiguration): [NewNode, EdgeDirection] => {
+                (lastNode: Node, configuration: ISequenceConfiguration): [Node, EdgeDirection] => {
                     return [lastNode, configuration.direction];
                 })
             .switchMap<[IEdgeStatus, EdgeDirection]>(
-                (nd: [NewNode, EdgeDirection]): Observable<[IEdgeStatus, EdgeDirection]> => {
+                (nd: [Node, EdgeDirection]): Observable<[IEdgeStatus, EdgeDirection]> => {
                     return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(nd[1]) > -1 ?
                             nd[0].sequenceEdges$ :
                             nd[0].spatialEdges$)
@@ -413,12 +413,12 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (key: string): boolean => {
                     return key != null;
                 })
-            .switchMap<NewNode>(
-                (key: string): Observable<NewNode> => {
+            .switchMap<Node>(
+                (key: string): Observable<Node> => {
                     return this._navigator.newGraphService.cacheNode$(key);
                 })
             .subscribe(
-                (node: NewNode): void => {
+                (node: Node): void => {
                     this._navigator.stateService.appendNodes([node]);
                 },
                 (error: Error): void => {

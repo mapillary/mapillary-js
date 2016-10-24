@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 import {IFillNode} from "../../src/API";
 import {Camera} from "../../src/Geo";
-import {NewNode} from "../../src/Graph";
+import {Node} from "../../src/Graph";
 import {IState, WaitingState} from "../../src/State";
 
 describe("WaitingState.ctor", () => {
@@ -53,7 +53,7 @@ class TestWaitingState extends WaitingState {
     }
 }
 
-class TestNode extends NewNode {
+class TestNode extends Node {
     constructor() {
         super({
             cl: { lat: 0, lon: 0 },

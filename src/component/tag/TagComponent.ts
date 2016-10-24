@@ -56,7 +56,7 @@ import {
     VertexGeometry,
 } from "../../Component";
 import {Transform} from "../../Geo";
-import {NewNode} from "../../Graph";
+import {Node} from "../../Graph";
 import {
     GLRenderStage,
     IGLRenderHash,
@@ -459,7 +459,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                         this._navigator.stateService.currentNode$
                             .skip(1)
                             .take(1)
-                            .map<void>((n: NewNode): void => { return null; }) :
+                            .map<void>((n: Node): void => { return null; }) :
                         Observable.empty<void>();
                 });
 

@@ -6,7 +6,7 @@ import * as vd from "virtual-dom";
 import {DirectionDOMCalculator, IDirectionConfiguration} from "../../Component";
 import {EdgeDirection, IEdge} from "../../Edge";
 import {Camera, Spatial} from "../../Geo";
-import {IEdgeStatus, NewNode, Sequence} from "../../Graph";
+import {IEdgeStatus, Node, Sequence} from "../../Graph";
 import {RenderCamera} from "../../Render";
 import {IRotation} from "../../State";
 import {Navigator} from "../../Viewer";
@@ -19,7 +19,7 @@ export class DirectionDOMRenderer {
     private _spatial: Spatial;
     private _calculator: DirectionDOMCalculator;
 
-    private _node: NewNode;
+    private _node: Node;
 
     private _rotation: IRotation;
     private _epsilon: number;
@@ -124,9 +124,9 @@ export class DirectionDOMRenderer {
     /**
      * Set node for which to show edges.
      *
-     * @param {NewNode} node
+     * @param {Node} node
      */
-    public setNode(node: NewNode): void {
+    public setNode(node: Node): void {
         this._node = node;
         this._clearEdges();
 

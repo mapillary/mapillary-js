@@ -3,7 +3,7 @@
 import {IGPano} from "../../../src/API";
 import {PolygonGeometry, GeometryTagError} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
-import {NewNode} from "../../../src/Graph";
+import {Node} from "../../../src/Graph";
 
 describe("PolygonGeometry.ctor", () => {
     it("should be defined", () => {
@@ -230,8 +230,8 @@ describe("PolygonGeometry.removeVertex2d", () => {
 });
 
 describe("RectGeometry.setVertex2d", () => {
-    let createNode: (gpano: IGPano) => NewNode = (gpano: IGPano): NewNode => {
-        let node: NewNode = new NewNode({
+    let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
+        let node: Node = new Node({
             cl: { lat: 0, lon: 0},
             key: "key",
             l: { lat: 0, lon: 0 },
@@ -270,7 +270,7 @@ describe("RectGeometry.setVertex2d", () => {
             } :
             null;
 
-        let node: NewNode = createNode(gpano);
+        let node: Node = createNode(gpano);
 
         return new Transform(node, null, [0, 0, 0]);
     };
@@ -349,8 +349,8 @@ describe("RectGeometry.setVertex2d", () => {
 describe("RectGeometry.setCentroid2d", () => {
     let precision: number = 1e-8;
 
-    let createNode: (gpano: IGPano) => NewNode = (gpano: IGPano): NewNode => {
-        let node: NewNode = new NewNode({
+    let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
+        let node: Node = new Node({
             cl: { lat: 0, lon: 0},
             key: "key",
             l: { lat: 0, lon: 0 },
@@ -389,7 +389,7 @@ describe("RectGeometry.setCentroid2d", () => {
             } :
             null;
 
-        let node: NewNode = createNode(gpano);
+        let node: Node = createNode(gpano);
 
         return new Transform(node, null, [0, 0, 0]);
     };

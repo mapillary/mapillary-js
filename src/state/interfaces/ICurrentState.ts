@@ -1,4 +1,4 @@
-import {NewNode} from "../../Graph";
+import {Node} from "../../Graph";
 import {Camera, ILatLonAlt, Transform} from "../../Geo";
 
 export interface ICurrentState {
@@ -6,12 +6,12 @@ export interface ICurrentState {
     alpha: number;
     camera: Camera;
     zoom: number;
-    currentNode: NewNode;
+    currentNode: Node;
     currentCamera: Camera;
-    previousNode: NewNode;
-    trajectory: NewNode[];
+    previousNode: Node;
+    trajectory: Node[];
     currentIndex: number;
-    lastNode: NewNode;
+    lastNode: Node;
     nodesAhead: number;
     currentTransform: Transform;
     previousTransform: Transform;

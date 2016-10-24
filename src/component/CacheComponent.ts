@@ -14,11 +14,11 @@ import "rxjs/add/operator/skip";
 import "rxjs/add/operator/switchMap";
 
 import {EdgeDirection, IEdge} from "../Edge";
-import {IEdgeStatus, NewNode} from "../Graph";
+import {IEdgeStatus, Node} from "../Graph";
 import {ComponentService, Component, ICacheConfiguration, ICacheDepth} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-type NodeDepth = [NewNode, number];
+type NodeDepth = [Node, number];
 
 type EdgesDepth = [IEdge[], number]
 
@@ -45,12 +45,12 @@ export class CacheComponent extends Component<ICacheConfiguration> {
 
     protected _activate(): void {
         this._cacheSubscription = Observable
-            .combineLatest<NewNode, ICacheConfiguration>(
+            .combineLatest<Node, ICacheConfiguration>(
                 this._navigator.stateService.currentNode$,
                 this._configuration$)
             .switchMap<EdgesDepth>(
-                (nc: [NewNode, ICacheConfiguration]): Observable<EdgesDepth> => {
-                    let node: NewNode = nc[0];
+                (nc: [Node, ICacheConfiguration]): Observable<EdgesDepth> => {
+                    let node: Node = nc[0];
                     let configuration: ICacheConfiguration = nc[1];
 
                     let depth: ICacheDepth = configuration.depth;
@@ -100,7 +100,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
         return { depth: { pano: 1, sequence: 2, step: 1, turn: 0 } };
     }
 
-    private _cache$(node: NewNode, direction: EdgeDirection, depth: number): Observable<EdgesDepth> {
+    private _cache$(node: Node, direction: EdgeDirection, depth: number): Observable<EdgesDepth> {
         return Observable
             .zip<EdgesDepth>(
                 this._nodeToEdges$(node, direction),
@@ -120,7 +120,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                                         .zip<EdgesDepth>(
                                             this._navigator.newGraphService.cacheNode$(edge.to)
                                                 .mergeMap(
-                                                    (n: NewNode): Observable<IEdge[]> => {
+                                                    (n: Node): Observable<IEdge[]> => {
                                                         return this._nodeToEdges$(n, direction);
                                                     }),
                                             Observable.of<number>(d - 1)
@@ -136,7 +136,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
             .skip(1);
     }
 
-    private _nodeToEdges$(node: NewNode, direction: EdgeDirection): Observable<IEdge[]> {
+    private _nodeToEdges$(node: Node, direction: EdgeDirection): Observable<IEdge[]> {
        return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
             node.sequenceEdges$ :
             node.spatialEdges$)

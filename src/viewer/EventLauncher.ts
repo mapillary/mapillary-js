@@ -6,7 +6,7 @@ import "rxjs/add/observable/combineLatest";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/map";
 
-import {IEdgeStatus, NewNode} from "../Graph";
+import {IEdgeStatus, Node} from "../Graph";
 import {EventEmitter} from "../Utils";
 import {Container, Navigator, Viewer} from "../Viewer";
 
@@ -31,13 +31,13 @@ export class EventLauncher {
             });
 
         this._currentNodeSubscription = this._navigator.stateService.currentNodeExternal$
-            .subscribe((node: NewNode): void => {
+            .subscribe((node: Node): void => {
                 this._eventEmitter.fire(Viewer.nodechanged, node);
             });
 
         this._sequenceEdgesSubscription = this._navigator.stateService.currentNodeExternal$
             .switchMap<IEdgeStatus>(
-                (node: NewNode): Observable<IEdgeStatus> => {
+                (node: Node): Observable<IEdgeStatus> => {
                     return node.sequenceEdges$;
                 })
             .subscribe(
@@ -47,7 +47,7 @@ export class EventLauncher {
 
         this._spatialEdgesSubscription = this._navigator.stateService.currentNodeExternal$
             .switchMap<IEdgeStatus>(
-                (node: NewNode): Observable<IEdgeStatus> => {
+                (node: Node): Observable<IEdgeStatus> => {
                     return node.spatialEdges$;
                 })
             .subscribe(

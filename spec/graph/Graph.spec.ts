@@ -10,7 +10,7 @@ import "rxjs/add/operator/mergeAll";
 import {APIv3, ICoreNode, IFillNode, IFullNode, ISequence} from "../../src/API";
 import {EdgeCalculator} from "../../src/Edge";
 import {GraphMapillaryError} from "../../src/Error";
-import {GraphCalculator, NewGraph, NewNode} from "../../src/Graph";
+import {GraphCalculator, Graph, Node} from "../../src/Graph";
 
 let createCoreNode: () => ICoreNode = (): ICoreNode => {
     return {
@@ -48,7 +48,7 @@ describe("Graph.ctor", () => {
     it("should create a graph", () => {
         let apiV3: APIv3 = new APIv3("clientId");
 
-        let graph: NewGraph = new NewGraph(apiV3);
+        let graph: Graph = new Graph(apiV3);
 
         expect(graph).toBeDefined();
     });
@@ -58,7 +58,7 @@ describe("Graph.ctor", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         expect(graph).toBeDefined();
     });
@@ -75,7 +75,7 @@ describe("Graph.fetch", () => {
 
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
         graph.cacheFull$(fullNode.key);
 
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
@@ -91,14 +91,14 @@ describe("Graph.fetch", () => {
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key)
             .subscribe(
-                (g: NewGraph): void => {
+                (g: Graph): void => {
                     expect(g.isCachingFull(fullNode.key)).toBe(false);
                     expect(g.hasNode(fullNode.key)).toBe(true);
                     expect(g.getNode(fullNode.key)).toBeDefined();
@@ -127,7 +127,7 @@ describe("Graph.fetch", () => {
         let imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         graph.cacheFull$(fullNode.key).subscribe();
         graph.cacheFull$(fullNode.key).subscribe();
@@ -143,7 +143,7 @@ describe("Graph.fetch", () => {
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
 
@@ -166,14 +166,14 @@ describe("Graph.fetch", () => {
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = undefined;
 
         graph.cacheFull$(fullNode.key)
             .subscribe(
-                (g: NewGraph): void => { return; },
+                (g: Graph): void => { return; },
                 (e: GraphMapillaryError): void => {
                     done();
                 });
@@ -212,7 +212,7 @@ describe("Graph.fetch", () => {
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let otherNode: IFullNode = createFullNode();
         otherNode.key = otherKey;
@@ -225,7 +225,7 @@ describe("Graph.fetch", () => {
 
         graph.hasTiles(otherNode.key);
         Observable
-            .from<Observable<NewGraph>>(graph.cacheTiles$(otherNode.key))
+            .from<Observable<Graph>>(graph.cacheTiles$(otherNode.key))
             .mergeAll()
             .subscribe();
 
@@ -275,7 +275,7 @@ describe("Graph.fill", () => {
         let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
         spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         graph.cacheFull$(fullNode.key).subscribe();
@@ -286,7 +286,7 @@ describe("Graph.fill", () => {
 
         graph.hasTiles(fullNode.key);
         Observable
-            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
             .subscribe();
 
@@ -325,7 +325,7 @@ describe("Graph.fill", () => {
         let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
         spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         graph.cacheFull$(fullNode.key).subscribe();
@@ -336,7 +336,7 @@ describe("Graph.fill", () => {
 
         graph.hasTiles(fullNode.key);
         Observable
-            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
             .subscribe();
 
@@ -381,7 +381,7 @@ describe("Graph.fill", () => {
         let imageByKeyFillSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFill$");
         imageByKeyFillSpy.and.returnValue(imageByKeyFill);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         graph.cacheFull$(fullNode.key).subscribe();
@@ -392,7 +392,7 @@ describe("Graph.fill", () => {
 
         graph.hasTiles(fullNode.key);
         Observable
-            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
             .subscribe();
 
@@ -428,7 +428,7 @@ describe("Graph.fill", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         graph.cacheFull$(fullNode.key);
@@ -446,7 +446,7 @@ describe("Graph.fill", () => {
         let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
         spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         expect(() => { graph.cacheFill$("key"); }).toThrowError(GraphMapillaryError);
     });
@@ -462,7 +462,7 @@ describe("Graph.fill", () => {
         let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
         spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         graph.cacheFull$(fullNode.key);
@@ -489,7 +489,7 @@ describe("Graph.cacheTiles", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(fullNode);
@@ -523,14 +523,14 @@ describe("Graph.cacheTiles", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
         graph.cacheFull$(fullNode.key).subscribe();
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
         expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
         Observable
-            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
             .subscribe();
 
@@ -558,7 +558,7 @@ describe("Graph.cacheTiles", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(fullNode);
@@ -591,13 +591,13 @@ describe("Graph.cacheTiles", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
         graph.cacheFull$(fullNode.key).subscribe();
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
 
         Observable
-            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
             .subscribe();
 
@@ -624,14 +624,14 @@ describe("Graph.cacheSpatialNodes", () => {
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphCalculator, edgeCalculator);
+        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        let node: NewNode = graph.getNode(fullNode.key);
+        let node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
@@ -659,14 +659,14 @@ describe("Graph.cacheSpatialNodes", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, graphCalculator, edgeCalculator);
+        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        let node: NewNode = graph.getNode(fullNode.key);
+        let node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
@@ -675,7 +675,7 @@ describe("Graph.cacheSpatialNodes", () => {
 
         graph.hasTiles(fullNode.key);
         Observable
-            .from<Observable<NewGraph>>(graph.cacheTiles$(fullNode.key))
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
             .subscribe();
 
@@ -685,7 +685,7 @@ describe("Graph.cacheSpatialNodes", () => {
         result[h]["1"] = coreNode;
         imagesByH.next(result);
 
-        let otherNode: NewNode = graph.getNode(coreNode.key);
+        let otherNode: Node = graph.getNode(coreNode.key);
 
         spyOn(index, "search").and.returnValue([{ node: node }, {node: otherNode }]);
 
@@ -702,7 +702,7 @@ describe("Graph.cacheNodeSequence", () => {
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
 
@@ -723,7 +723,7 @@ describe("Graph.cacheNodeSequence", () => {
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
 
@@ -751,7 +751,7 @@ describe("Graph.cacheNodeSequence", () => {
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
@@ -764,7 +764,7 @@ describe("Graph.cacheNodeSequence", () => {
 
         graph.cacheNodeSequence$(fullNode.key)
             .subscribe(
-                (g: NewGraph): void => {
+                (g: Graph): void => {
                     expect(g.hasNodeSequence(fullNode.key)).toBe(true);
                     expect(g.isCachingNodeSequence(fullNode.key)).toBe(false);
                 });
@@ -789,7 +789,7 @@ describe("Graph.cacheNodeSequence", () => {
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
@@ -808,7 +808,7 @@ describe("Graph.cacheNodeSequence", () => {
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
@@ -843,7 +843,7 @@ describe("Graph.cacheNodeSequence", () => {
         let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
         sequenceByKeySpy.and.returnValue(sequenceByKey);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
@@ -871,7 +871,7 @@ describe("Graph.cacheNodeSequence", () => {
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = createFullNode();
         fullNode.sequence.key = "sequenceKey";
@@ -887,7 +887,7 @@ describe("Graph.cacheNodeSequence", () => {
         graph.changed$
             .first()
             .subscribe(
-                (g: NewGraph): void => {
+                (g: Graph): void => {
                     expect(g.hasNodeSequence(fullNode.key)).toBe(true);
                     expect(g.isCachingNodeSequence(fullNode.key)).toBe(false);
 
@@ -907,7 +907,7 @@ describe("Graph.cacheSequence", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let sequenceKey: string = "sequenceKey";
 
@@ -919,7 +919,7 @@ describe("Graph.cacheSequence", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let sequenceKey: string = "sequenceKey";
 
@@ -934,7 +934,7 @@ describe("Graph.cacheSequence", () => {
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let sequenceKey: string = "sequenceKey";
 
@@ -952,14 +952,14 @@ describe("Graph.cacheSequence", () => {
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let sequenceKey: string = "sequenceKey";
         let key: string = "key";
 
         graph.cacheSequence$(sequenceKey)
             .subscribe(
-                (g: NewGraph): void => {
+                (g: Graph): void => {
                         expect(g.hasSequence(sequenceKey)).toBe(true);
                         expect(g.isCachingSequence(sequenceKey)).toBe(false);
                         expect(g.getSequence(sequenceKey)).toBeDefined();
@@ -985,7 +985,7 @@ describe("Graph.cacheSequence", () => {
         let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
         sequenceByKeySpy.and.returnValue(sequenceByKey);
 
-        let graph: NewGraph = new NewGraph(apiV3, index, calculator);
+        let graph: Graph = new Graph(apiV3, index, calculator);
 
         let sequenceKey: string = "sequenceKey";
 

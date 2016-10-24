@@ -5,7 +5,7 @@ import {
     DirectionDOMRenderer,
     IDirectionConfiguration,
 } from "../../../src/Component";
-import {NewNode} from "../../../src/Graph";
+import {Node} from "../../../src/Graph";
 import {RenderCamera, RenderMode} from "../../../src/Render";
 import {Navigator} from "../../../src/Viewer";
 
@@ -76,7 +76,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: NewNode = new NewNode(createCoreNode());
+        let node: Node = new Node(createCoreNode());
         node.makeFull(createFillNode());
 
         renderer.setNode(node);
@@ -94,7 +94,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: NewNode = new NewNode(createCoreNode());
+        let node: Node = new Node(createCoreNode());
         node.makeFull(createFillNode());
 
         renderer.setNode(node);
@@ -170,7 +170,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: NewNode = new NewNode(createCoreNode());
+        let node: Node = new Node(createCoreNode());
         node.makeFull(createFillNode());
 
         renderer.setNode(node);
@@ -201,7 +201,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: NewNode = new NewNode(createCoreNode());
+        let node: Node = new Node(createCoreNode());
         node.makeFull(createFillNode());
 
         renderer.setNode(node);
@@ -230,7 +230,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         let element: HTMLElement = document.createElement("div");
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let node: NewNode = new NewNode(createCoreNode());
+        let node: Node = new Node(createCoreNode());
         node.makeFull(createFillNode());
 
         renderer.setNode(node);

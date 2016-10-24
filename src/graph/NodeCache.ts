@@ -22,7 +22,7 @@ import {
 } from "../Utils";
 import {ImageSize} from "../Viewer";
 
-export class NewNodeCache {
+export class NodeCache {
     private _image: HTMLImageElement;
     private _loadStatus: ILoadStatus;
     private _mesh: IMesh;
@@ -34,7 +34,7 @@ export class NewNodeCache {
     private _spatialEdgesChanged$: Subject<IEdgeStatus>;
     private _spatialEdges$: Observable<IEdgeStatus>;
 
-    private _cachingAssets$: Observable<NewNodeCache>;
+    private _cachingAssets$: Observable<NodeCache>;
 
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
@@ -93,7 +93,7 @@ export class NewNodeCache {
         return this._spatialEdges$;
     }
 
-    public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NewNodeCache> {
+    public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
             return this._cachingAssets$;
         }
@@ -102,7 +102,7 @@ export class NewNodeCache {
             .combineLatest(
                 this._cacheImage(key, pano),
                 this._cacheMesh(key, merged),
-                (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NewNodeCache => {
+                (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NodeCache => {
                     this._loadStatus.loaded = 0;
                     this._loadStatus.total = 0;
 
@@ -225,4 +225,4 @@ export class NewNodeCache {
     }
 }
 
-export default NewNodeCache;
+export default NodeCache;

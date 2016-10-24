@@ -1,4 +1,4 @@
-import {NewNode} from "../../Graph";
+import {Node} from "../../Graph";
 import {IState, StateBase, IRotation, TraversingState} from "../../State";
 
 export class WaitingState extends StateBase {
@@ -16,13 +16,13 @@ export class WaitingState extends StateBase {
         throw new Error("Not implemented");
     }
 
-    public prepend(nodes: NewNode[]): void {
+    public prepend(nodes: Node[]): void {
         super.prepend(nodes);
 
         this._motionless = this._motionlessTransition();
     }
 
-    public set(nodes: NewNode[]): void {
+    public set(nodes: Node[]): void {
         super.set(nodes);
 
         this._motionless = this._motionlessTransition();

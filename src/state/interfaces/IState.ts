@@ -1,4 +1,4 @@
-import {NewNode} from "../../Graph";
+import {Node} from "../../Graph";
 import {Camera, ILatLonAlt} from "../../Geo";
 
 export interface IState {
@@ -6,6 +6,6 @@ export interface IState {
     alpha: number;
     camera: Camera;
     zoom: number;
-    trajectory: NewNode[];
+    trajectory: Node[];
     currentIndex: number;
 }

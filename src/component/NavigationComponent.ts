@@ -9,7 +9,7 @@ import "rxjs/add/operator/map";
 import "rxjs/add/operator/first";
 
 import {EdgeDirection, IEdge} from "../Edge";
-import {IEdgeStatus, NewNode} from "../Graph";
+import {IEdgeStatus, Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 
@@ -38,7 +38,7 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         this._renderSubscription = this._navigator.stateService.currentNode$
             .switchMap<IEdge[]>(
-                (node: NewNode): Observable<IEdge[]> => {
+                (node: Node): Observable<IEdge[]> => {
                     return node.pano ?
                         Observable.of<IEdge[]>([]) :
                         Observable.combineLatest<IEdge[]>(

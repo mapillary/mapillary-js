@@ -16,7 +16,7 @@ import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/withLatestFrom";
 
 import {Camera, Transform} from "../Geo";
-import {NewNode} from "../Graph";
+import {Node} from "../Graph";
 import {RenderCamera, RenderMode, ISize} from "../Render";
 import {IFrame} from "../State";
 
@@ -99,7 +99,7 @@ export class RenderService {
                                 frame.state.previousTransform :
                                 frame.state.currentTransform;
 
-                        let previousNode: NewNode =
+                        let previousNode: Node =
                             frame.state.previousNode != null ?
                                 frame.state.previousNode :
                                 frame.state.currentNode;

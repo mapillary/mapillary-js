@@ -1,6 +1,6 @@
 import {ICoreNode, IFillNode, IGPano} from "../../src/API";
 import {IPotentialEdge} from "../../src/Edge";
-import {NewNode} from "../../src/Graph";
+import {Node} from "../../src/Graph";
 import {ILatLonAlt} from "../../src/Geo";
 
 export class EdgeCalculatorHelper {
@@ -26,7 +26,7 @@ export class EdgeCalculatorHelper {
     public createCoreNode(
         key: string,
         latLonAlt: ILatLonAlt,
-        sequenceKey: string): NewNode {
+        sequenceKey: string): Node {
 
         let coreNode: ICoreNode = {
             cl: { lat: latLonAlt.lat, lon: latLonAlt.lon },
@@ -35,7 +35,7 @@ export class EdgeCalculatorHelper {
             sequence: { key: sequenceKey },
         };
 
-        return new NewNode(coreNode);
+        return new Node(coreNode);
     }
 
     public createFullNode(
@@ -46,9 +46,9 @@ export class EdgeCalculatorHelper {
             mergeCC: number = 2,
             gpano: IGPano = null,
             capturedAt: number = 0,
-            mergeVersion: number = 1): NewNode {
+            mergeVersion: number = 1): Node {
 
-        let node: NewNode = this.createCoreNode(key, latLonAlt, sequenceKey);
+        let node: Node = this.createCoreNode(key, latLonAlt, sequenceKey);
 
         let fillNode: IFillNode = {
             atomic_scale: 0,
@@ -72,7 +72,7 @@ export class EdgeCalculatorHelper {
         return node;
     }
 
-    public createDefaultNode(fullPano: boolean = false): NewNode {
+    public createDefaultNode(fullPano: boolean = false): Node {
         let key: string = "key";
         let sequenceKey: string = "skey";
         let latLonAlt: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };

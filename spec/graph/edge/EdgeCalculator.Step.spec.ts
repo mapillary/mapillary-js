@@ -9,7 +9,7 @@ import {
     IPotentialEdge,
 } from "../../../src/Edge";
 import {ArgumentMapillaryError} from "../../../src/Error";
-import {NewNode} from "../../../src/Graph";
+import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
@@ -22,7 +22,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
     let spatial: Spatial;
 
-    let node: NewNode;
+    let node: Node;
     let potentialEdge: IPotentialEdge;
 
     beforeEach(() => {
@@ -201,7 +201,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
     let spatial: Spatial;
 
-    let node: NewNode;
+    let node: Node;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
 

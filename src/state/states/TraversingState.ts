@@ -5,7 +5,7 @@ import * as UnitBezier from "unitbezier";
 
 import {IGPano} from "../../API";
 import {IState, StateBase, IRotation, WaitingState} from "../../State";
-import {NewNode} from "../../Graph";
+import {Node} from "../../Graph";
 import {Camera, Transform} from "../../Geo";
 
 class RotationDelta implements IRotation {
@@ -130,7 +130,7 @@ export class TraversingState extends StateBase {
         return new WaitingState(this);
     }
 
-    public append(nodes: NewNode[]): void {
+    public append(nodes: Node[]): void {
         let emptyTrajectory: boolean = this._trajectory.length === 0;
 
         if (emptyTrajectory) {
@@ -145,7 +145,7 @@ export class TraversingState extends StateBase {
         }
     }
 
-    public prepend(nodes: NewNode[]): void {
+    public prepend(nodes: Node[]): void {
         let emptyTrajectory: boolean = this._trajectory.length === 0;
 
         if (emptyTrajectory) {
@@ -160,7 +160,7 @@ export class TraversingState extends StateBase {
         }
     }
 
-    public set(nodes: NewNode[]): void {
+    public set(nodes: Node[]): void {
         super.set(nodes);
 
         this._desiredLookat = null;
@@ -416,8 +416,8 @@ export class TraversingState extends StateBase {
     }
 
     private _applyRotationBasic(): void {
-        let currentNode: NewNode = this._currentNode;
-        let previousNode: NewNode = this._previousNode != null ?
+        let currentNode: Node = this._currentNode;
+        let previousNode: Node = this._previousNode != null ?
             this.previousNode :
             this.currentNode;
 

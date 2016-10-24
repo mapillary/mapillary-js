@@ -1,26 +1,26 @@
 import {EdgeDirection, IEdge} from "../../src/Edge";
 import {
     IEdgeStatus,
-    NewNodeCache,
+    NodeCache,
 } from "../../src/Graph";
 
 describe("NodeCache.ctor", () => {
     it("should create a node cache", () => {
-        let nodeCache: NewNodeCache = new NewNodeCache();
+        let nodeCache: NodeCache = new NodeCache();
         expect(nodeCache).toBeDefined();
     });
 });
 
 describe("NodeCache.mesh", () => {
     it("should be null initially", () => {
-        let nodeCache: NewNodeCache = new NewNodeCache();
+        let nodeCache: NodeCache = new NodeCache();
         expect(nodeCache.mesh).toBeNull();
     });
 });
 
 describe("NodeCache.sequenceEdges$", () => {
     it("should emit uncached empty edge status initially", (done) => {
-        let nodeCache: NewNodeCache = new NewNodeCache();
+        let nodeCache: NodeCache = new NodeCache();
 
         nodeCache.sequenceEdges$
             .first()
@@ -34,7 +34,7 @@ describe("NodeCache.sequenceEdges$", () => {
     });
 
     it("should emit cached non empty edge status when sequence edges cached", (done) => {
-        let nodeCache: NewNodeCache = new NewNodeCache();
+        let nodeCache: NodeCache = new NodeCache();
 
         let sequenceEdge: IEdge = {
             data: {
@@ -66,7 +66,7 @@ describe("NodeCache.sequenceEdges$", () => {
 
 describe("NodeCache.spatialEdges$", () => {
     it("should emit uncached empty edge status initially", (done) => {
-        let nodeCache: NewNodeCache = new NewNodeCache();
+        let nodeCache: NodeCache = new NodeCache();
 
         nodeCache.spatialEdges$
             .first()
@@ -80,7 +80,7 @@ describe("NodeCache.spatialEdges$", () => {
     });
 
     it("should emit cached non empty edge status when spatial edges cached", (done) => {
-        let nodeCache: NewNodeCache = new NewNodeCache();
+        let nodeCache: NodeCache = new NodeCache();
 
         let spatialEdge: IEdge = {
             data: {
@@ -111,7 +111,7 @@ describe("NodeCache.spatialEdges$", () => {
 
     describe("NodeCache.resetSpatialEdges", () => {
         it("should reset the spatial edges", () => {
-            let nodeCache: NewNodeCache = new NewNodeCache();
+            let nodeCache: NodeCache = new NodeCache();
 
             let spatialEdge: IEdge = {
                 data: {
@@ -137,7 +137,7 @@ describe("NodeCache.spatialEdges$", () => {
 
     describe("NodeCache.dispose", () => {
         it("should clear all properties", () => {
-            let nodeCache: NewNodeCache = new NewNodeCache();
+            let nodeCache: NodeCache = new NodeCache();
 
             let sequencEdge: IEdge = {
                 data: {

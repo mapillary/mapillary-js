@@ -8,7 +8,7 @@ import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/withLatestFrom";
 
-import {NewNode} from "../Graph";
+import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {ICoverConfiguration, ComponentService, Component} from "../Component";
 
@@ -28,16 +28,16 @@ export class CoverComponent extends Component<ICoverConfiguration> {
         this._keyDisposable = this._navigator.stateService.currentNode$
             .withLatestFrom(
                 this._configuration$,
-                (node: NewNode, configuration: ICoverConfiguration): [NewNode, ICoverConfiguration] => {
+                (node: Node, configuration: ICoverConfiguration): [Node, ICoverConfiguration] => {
                     return [node, configuration];
                 })
             .filter(
-                (nc: [NewNode, ICoverConfiguration]): boolean => {
+                (nc: [Node, ICoverConfiguration]): boolean => {
                     return nc[0].key !== nc[1].key;
                 })
-            .map<NewNode>((nc: [NewNode, ICoverConfiguration]): NewNode => { return nc[0]; })
+            .map<Node>((nc: [Node, ICoverConfiguration]): Node => { return nc[0]; })
             .map<ICoverConfiguration>(
-                (node: NewNode): ICoverConfiguration => {
+                (node: Node): ICoverConfiguration => {
                     return { key: node.key, src: node.image.src };
                 })
             .subscribe(this._configurationSubject$);

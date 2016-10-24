@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 import {IFillNode} from "../../src/API";
 import {Camera} from "../../src/Geo";
-import {NewNode} from "../../src/Graph";
+import {Node} from "../../src/Graph";
 import {IState, TraversingState} from "../../src/State";
 
 describe("TraversingState.ctor", () => {
@@ -53,7 +53,7 @@ class TestTraversingState extends TraversingState {
     }
 }
 
-class TestNode extends NewNode {
+class TestNode extends Node {
     constructor() {
         super({
             cl: { lat: 0, lon: 0 },

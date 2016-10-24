@@ -9,7 +9,7 @@ import {EdgeDirection, IEdge} from "../Edge";
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Container, Navigator} from "../Viewer";
 import {IFrame, IRotation} from "../State";
-import {IEdgeStatus, NewNode} from "../Graph";
+import {IEdgeStatus, Node} from "../Graph";
 import {Spatial, Camera} from "../Geo";
 
 interface IKeyboardFrame {
@@ -46,13 +46,13 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         let sequenceEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
             .switchMap<IEdgeStatus>(
-                (node: NewNode): Observable<IEdgeStatus> => {
+                (node: Node): Observable<IEdgeStatus> => {
                     return node.sequenceEdges$;
                 });
 
         let spatialEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
             .switchMap<IEdgeStatus>(
-                (node: NewNode): Observable<IEdgeStatus> => {
+                (node: Node): Observable<IEdgeStatus> => {
                     return node.spatialEdges$;
                 });
 
@@ -175,7 +175,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
 
         this._navigator.moveToKey(toKey)
             .subscribe(
-                (n: NewNode): void => { return; },
+                (n: Node): void => { return; },
                 (e: Error): void => { console.error(e); });
     }
 
@@ -249,7 +249,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
             if (edge.data.direction === direction) {
                 this._navigator.moveToKey(edge.to)
                     .subscribe(
-                        (n: NewNode): void => { return; },
+                        (n: Node): void => { return; },
                         (e: Error): void => { console.error(e); });
 
                 return;

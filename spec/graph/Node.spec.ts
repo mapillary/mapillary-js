@@ -1,7 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import {ICoreNode, IFillNode} from "../../src/API";
-import {IMesh, NewNode, NewNodeCache} from "../../src/Graph";
+import {IMesh, Node, NodeCache} from "../../src/Graph";
 
 let createCoreNode: () => ICoreNode = (): ICoreNode => {
     return {
@@ -31,19 +31,19 @@ let createFillNode: () => IFillNode = (): IFillNode => {
     };
 };
 
-describe("NewNode", () => {
+describe("Node", () => {
     it("should create a node", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
 
         expect(node).toBeDefined();
     });
 });
 
-describe("NewNode.full", () => {
+describe("Node.full", () => {
     it("should make node full", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
 
         expect(node.full).toBe(false);
 
@@ -56,16 +56,16 @@ describe("NewNode.full", () => {
 
     it("should throw when fill is null", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
 
         expect(() => { node.makeFull(null); }).toThrowError(Error);
     });
 });
 
-describe("NewNode.dispose", () => {
+describe("Node.dispose", () => {
     it("should clear core and fill properties", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
         node.makeFull(fillNode);
 
@@ -78,8 +78,8 @@ describe("NewNode.dispose", () => {
 
     it("should dipose cache", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
-        let nodeCache: NewNodeCache = new NewNodeCache();
+        let node: Node = new Node(coreNode);
+        let nodeCache: NodeCache = new NodeCache();
 
         let disposeSpy: jasmine.Spy = spyOn(nodeCache, "dispose");
         disposeSpy.and.stub();
@@ -92,10 +92,10 @@ describe("NewNode.dispose", () => {
     });
 });
 
-describe("NewNode.fullPano", () => {
+describe("Node.fullPano", () => {
     it("should not be a full pano when gpano does not exist", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.gpano = null;
@@ -107,7 +107,7 @@ describe("NewNode.fullPano", () => {
 
     it("should not be full pano when cropped left", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.gpano = {
@@ -126,7 +126,7 @@ describe("NewNode.fullPano", () => {
 
     it("should not be full pano when cropped top", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.gpano = {
@@ -145,7 +145,7 @@ describe("NewNode.fullPano", () => {
 
     it("should not be full pano when cropped right", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.gpano = {
@@ -164,7 +164,7 @@ describe("NewNode.fullPano", () => {
 
     it("should not be full pano when cropped bottom", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.gpano = {
@@ -183,7 +183,7 @@ describe("NewNode.fullPano", () => {
 
     it("should be full pano", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.gpano = {
@@ -201,10 +201,10 @@ describe("NewNode.fullPano", () => {
     });
 });
 
-describe("NewNode.pano", () => {
+describe("Node.pano", () => {
     it("should not be a pano when gpano does not exist", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.gpano = null;
@@ -216,7 +216,7 @@ describe("NewNode.pano", () => {
 
     it("should be a pano", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.gpano = {
@@ -234,17 +234,17 @@ describe("NewNode.pano", () => {
     });
 });
 
-describe("NewNode.merged", () => {
+describe("Node.merged", () => {
     it("should not be merged when not full", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
 
         expect(node.merged).toBe(false);
     });
 
     it("should not be merged because merge version is zero", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.merge_version = 0;
@@ -256,7 +256,7 @@ describe("NewNode.merged", () => {
 
     it("should be merged because merge version present and larger than zero", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
 
         fillNode.merge_version = 7;
@@ -267,15 +267,15 @@ describe("NewNode.merged", () => {
     });
 });
 
-describe("NewNode.assetsCached", () => {
+describe("Node.assetsCached", () => {
     it("should not be cached when core", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
 
         expect(node.assetsCached).toBe(false);
     });
 
-    class NewNodeCacheMock extends NewNodeCache {
+    class NodeCacheMock extends NodeCache {
         protected _overridingImage: HTMLImageElement;
         protected _overridingMesh: IMesh;
 
@@ -298,11 +298,11 @@ describe("NewNode.assetsCached", () => {
 
     it("should be cached when assets set", () => {
         let coreNode: ICoreNode = createCoreNode();
-        let node: NewNode = new NewNode(coreNode);
+        let node: Node = new Node(coreNode);
         let fillNode: IFillNode = createFillNode();
         node.makeFull(fillNode);
 
-        let nodeCache: NewNodeCacheMock = new NewNodeCacheMock();
+        let nodeCache: NodeCacheMock = new NodeCacheMock();
         nodeCache.image = new Image();
         nodeCache.mesh = { faces: [], vertices: [] };
 

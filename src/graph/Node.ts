@@ -15,11 +15,11 @@ import {
     IEdgeStatus,
     IMesh,
     ILoadStatus,
-    NewNodeCache,
+    NodeCache,
 } from "../Graph";
 
-export class NewNode {
-    private _cache: NewNodeCache;
+export class Node {
+    private _cache: NodeCache;
     private _core: ICoreNode;
     private _fill: IFillNode;
 
@@ -200,13 +200,13 @@ export class NewNode {
     /**
      * Cache the image and mesh assets.
      *
-     * @returns {Observable<NewNode>} Observable emitting this node whenever the
+     * @returns {Observable<Node>} Observable emitting this node whenever the
      * load status has changed and when the mesh or image has been fully loaded.
      */
-    public cacheAssets$(): Observable<NewNode> {
+    public cacheAssets$(): Observable<Node> {
         return this._cache.cacheAssets$(this.key, this.pano, this.merged)
-            .map<NewNode>(
-                (cache: NewNodeCache): NewNode => {
+            .map<Node>(
+                (cache: NodeCache): Node => {
                     return this;
                 });
     }
@@ -229,7 +229,7 @@ export class NewNode {
         this._fill = null;
     }
 
-    public initializeCache(cache: NewNodeCache): void {
+    public initializeCache(cache: NodeCache): void {
         if (this._cache != null) {
             throw new Error(`Node cache already initialized (${this.key}).`);
         }
@@ -250,4 +250,4 @@ export class NewNode {
     }
 }
 
-export default NewNode;
+export default Node;

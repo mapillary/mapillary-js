@@ -7,7 +7,7 @@ import "rxjs/add/operator/map";
 import "rxjs/add/operator/scan";
 
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
-import {NewNode} from "../Graph";
+import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 
 type Keys = { [key: string]: boolean };
@@ -30,7 +30,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         this._sequenceSubscription = this._navigator.stateService.currentNode$
             .scan<IKeys>(
-                (keys: IKeys, node: NewNode): IKeys => {
+                (keys: IKeys, node: Node): IKeys => {
                     let sKey: string = node.sequenceKey;
                     keys.report = [];
 
@@ -55,7 +55,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
 
         this._imageSubscription = this._navigator.stateService.currentNode$
             .map<string>(
-                (node: NewNode): string => {
+                (node: Node): string => {
                     return node.key;
                 })
             .buffer(this._navigator.stateService.currentNode$.debounceTime(5000))
