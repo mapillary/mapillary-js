@@ -38,8 +38,7 @@ export class EventLauncher {
         this._sequenceEdgesSubscription = this._navigator.stateService.currentNodeExternal$
             .switchMap<IEdgeStatus>(
                 (node: NewNode): Observable<IEdgeStatus> => {
-                    return node.sequenceEdges$
-                        .skip(1);
+                    return node.sequenceEdges$;
                 })
             .subscribe(
                 (status: IEdgeStatus): void => {
@@ -49,8 +48,7 @@ export class EventLauncher {
         this._spatialEdgesSubscription = this._navigator.stateService.currentNodeExternal$
             .switchMap<IEdgeStatus>(
                 (node: NewNode): Observable<IEdgeStatus> => {
-                    return node.spatialEdges$
-                        .skip(1);
+                    return node.spatialEdges$;
                 })
             .subscribe(
                 (status: IEdgeStatus): void => {
