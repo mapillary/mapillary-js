@@ -481,8 +481,8 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 (configuration: ISliderConfiguration): Observable<ISliderCombination> => {
                     return Observable
                         .zip<Node, Node>(
-                            this._navigator.graphService.cacheNode$(configuration.keys.background),
-                            this._navigator.graphService.cacheNode$(configuration.keys.foreground))
+                            this._catchCacheNode$(configuration.keys.background),
+                            this._catchCacheNode$(configuration.keys.foreground))
                         .map<ISliderNodes>(
                             (nodes: [Node, Node]): ISliderNodes => {
                                 return { background: nodes[0], foreground: nodes[1] };
@@ -561,6 +561,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                             Observable.of<Node>(node),
                             (t: HTMLImageElement, n: Node): [HTMLImageElement, Node] => {
                                 return [t, n];
+                            })
+                        .catch(
+                            (error: Error, caught: Observable<[HTMLImageElement, Node]>):
+                                Observable<[HTMLImageElement, Node]> => {
+                                console.error(`Failed to fetch high res slider image (${node.key})`, error);
+
+                                return Observable.empty<[HTMLImageElement, Node]>();
                             });
                 })
             .map<ISliderStateOperation>(
@@ -602,6 +609,16 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
     protected _getDefaultConfiguration(): ISliderConfiguration {
         return {};
+    }
+
+    private _catchCacheNode$(key: string): Observable<Node> {
+        return this._navigator.graphService.cacheNode$(key)
+            .catch(
+                (error: Error, caught: Observable<Node>): Observable<Node> => {
+                    console.log(`Failed to cache slider node (${key})`, error);
+
+                    return Observable.empty<Node>();
+                });
     }
 }
 
