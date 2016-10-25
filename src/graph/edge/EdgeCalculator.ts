@@ -12,7 +12,6 @@ import
     IStep,
     ITurn,
     IPano,
-    IRotation,
     IEdge,
     IPotentialEdge,
     EdgeCalculatorSettings,
@@ -552,69 +551,6 @@ export class EdgeCalculator {
                 to: edge.key,
             },
         ];
-    }
-
-    /**
-     * Computes rotation edges for perspective nodes. Rotation edges
-     * are for rotating at approximately the same position.
-     *
-     * @param {Node} node Source node
-     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
-     */
-    public computeRotationEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
-        if (!node.full) {
-            throw new ArgumentMapillaryError("Node has to be full.");
-        }
-
-        let edges: IEdge[] = [];
-
-        if (node.fullPano) {
-            return edges;
-        }
-
-        for (let k in this._directions.rotations) {
-            if (!this._directions.rotations.hasOwnProperty(k)) {
-                continue;
-            }
-
-            let rotation: IRotation = this._directions.rotations[k];
-
-            let lowestScore: number = Number.MAX_VALUE;
-            let edge: IPotentialEdge = null;
-
-            for (let potential of potentialEdges) {
-                if (potential.fullPano) {
-                    continue;
-                }
-
-                if (potential.distance > this._settings.rotationMaxDistance ||
-                    potential.directionChange * rotation.directionChangeSign < 0 ||
-                    Math.abs(potential.directionChange) > this._settings.rotationMaxDirectionChange ||
-                    Math.abs(potential.verticalDirectionChange) > this._settings.rotationMaxVerticalDirectionChange) {
-                    continue;
-                }
-
-                let score: number = Math.abs(potential.directionChange);
-
-                if (score < lowestScore) {
-                    lowestScore = score;
-                    edge = potential;
-                }
-            }
-
-            if (edge != null) {
-                edges.push({
-                    data: {
-                        direction: rotation.direction,
-                        worldMotionAzimuth: edge.worldMotionAzimuth,
-                    },
-                    from: node.key,
-                    to: edge.key,
-                });
-            }
-        }
-
-        return edges;
     }
 
     /**

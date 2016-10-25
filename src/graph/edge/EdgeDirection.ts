@@ -53,16 +53,6 @@ export enum EdgeDirection {
     TurnU,
 
     /**
-     * Rotate with small counter clockwise angle change.
-     */
-    RotateLeft,
-
-    /**
-     * Rotate with small clockwise angle change.
-     */
-    RotateRight,
-
-    /**
      * Panorama in general direction.
      */
     Pano,
@@ -70,5 +60,5 @@ export enum EdgeDirection {
     /**
      * Looking in roughly the same direction at rougly the same position.
      */
-    Similar
+    Similar,
 };
