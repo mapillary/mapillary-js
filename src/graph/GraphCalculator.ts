@@ -3,7 +3,8 @@
 import * as geohash from "latlon-geohash";
 import * as THREE from "three";
 
-import {GeoCoords, ILatLon} from "../Geo";
+import {ILatLon} from "../API";
+import {GeoCoords} from "../Geo";
 
 class GeoHashDirections {
     public static n: string = "n";

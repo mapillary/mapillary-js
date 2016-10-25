@@ -1,5 +1,7 @@
-import {IKey} from "../../API";
-import {ILatLon} from "../../Geo";
+import {
+    IKey,
+    ILatLon,
+} from "../../API";
 
 /**
  * Interface that describes the raw core image properties.

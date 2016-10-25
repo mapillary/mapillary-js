@@ -8,9 +8,9 @@ import {
     ICoreNode,
     IFillNode,
     IGPano,
+    ILatLon,
 } from "../API";
 import {IEdge} from "../Edge";
-import {ILatLon} from "../Geo";
 import {
     IEdgeStatus,
     IMesh,

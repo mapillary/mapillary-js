@@ -18,6 +18,7 @@ import {
     ICoreNode,
     IFillNode,
     IFullNode,
+    ILatLon,
     ISequence,
 } from "../API";
 import {
@@ -26,9 +27,6 @@ import {
     EdgeCalculator,
 } from "../Edge";
 import {GraphMapillaryError} from "../Error";
-import {
-    ILatLon,
-} from "../Geo";
 import {
     Node,
     NodeCache,

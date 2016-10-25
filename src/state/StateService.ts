@@ -14,10 +14,10 @@ import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 
+import {ILatLon} from "../API";
 import {Node} from "../Graph";
 import {
     Camera,
-    ILatLon,
     ILatLonAlt,
     Transform,
 } from "../Geo";

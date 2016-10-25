@@ -12,9 +12,17 @@ import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 
-import {APIv3, IFullNode} from "../API";
-import {ILatLon} from "../Geo";
-import {IEdgeStatus, Graph, GraphService, Node} from "../Graph";
+import {
+    APIv3,
+    IFullNode,
+    ILatLon,
+} from "../API";
+import {
+    IEdgeStatus,
+    Graph,
+    GraphService,
+    Node,
+} from "../Graph";
 import {EdgeDirection} from "../Edge";
 import {StateService} from "../State";
 import {LoadingService} from "../Viewer";

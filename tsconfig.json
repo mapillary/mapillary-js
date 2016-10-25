@@ -6,7 +6,7 @@
     },
     "files": [
       "./src/api/interfaces/IGPano.ts",
-      "./src/geo/interfaces/ILatLon.ts",
+      "./src/api/interfaces/ILatLon.ts",
       "./src/graph/edge/interfaces/IEdge.ts",
       "./src/graph/edge/interfaces/IEdgeData.ts",
       "./src/graph/edge/EdgeDirection.ts",
