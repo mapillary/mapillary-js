@@ -26,7 +26,7 @@ interface IImagePlaneGLRendererOperation {
 }
 
 export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
-    public static componentName: string = "imageplane";
+    public static componentName: string = "imagePlane";
 
     private _rendererOperation$: Subject<IImagePlaneGLRendererOperation>;
     private _renderer$: Observable<ImagePlaneGLRenderer>;

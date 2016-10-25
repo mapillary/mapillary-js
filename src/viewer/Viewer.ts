@@ -97,16 +97,14 @@ export class Viewer extends EventEmitter {
     constructor (id: string, clientId: string, key?: string, options?: IViewerOptions) {
         super();
 
-        if (options === undefined) {
-            options = {};
-        }
+        options = options != null ? options : {};
 
         Settings.setOptions(options);
 
         this._navigator = new Navigator(clientId);
         this._container = new Container(id, this._navigator.stateService, options);
         this._eventLauncher = new EventLauncher(this, this._navigator, this._container);
-        this._componentController = new ComponentController(this._container, this._navigator, key, options);
+        this._componentController = new ComponentController(this._container, this._navigator, key, options.component);
     }
 
     /**

@@ -1,4 +1,4 @@
-import {ImageSize} from "../../Viewer";
+import {IComponentOptions, ImageSize} from "../../Viewer";
 import {RenderMode} from "../../Render";
 
 /**
@@ -7,120 +7,6 @@ import {RenderMode} from "../../Render";
  * @interface
  */
 export interface IViewerOptions {
-    /**
-     * Show attribution
-     * @default true
-     */
-    attribution?: boolean;
-
-    /**
-     * Display a background if no key is set.
-     * @default false
-     */
-    background?: boolean;
-
-    /**
-     * Show indicator for panoramas.
-     * @default true
-     */
-    bearing?: boolean;
-
-    /**
-     * Cache images ahead.
-     * @default true
-     */
-    cache?: boolean;
-
-    /**
-     * Use a cover and avoid loading initial data from Mapillary.
-     * @default true
-     */
-    cover?: boolean;
-
-    /**
-     * Show debug interface.
-     * @default false
-     */
-    debug?: boolean;
-
-    /**
-     * Show direction arrows for navigation.
-     * @default true
-     */
-    direction?: boolean;
-
-    /**
-     * Draw geometries on top of images.
-     * @default false
-     */
-    tag?: boolean;
-
-    /**
-     * Contribute viewing stats to Mapillary
-     * @default false
-     */
-    stats?: boolean;
-
-    /**
-     * Show static navigation arrows in the corners.
-     * @default false
-     */
-    navigation?: boolean;
-
-    /**
-     * Show sequence related navigation.
-     * @default true
-     */
-    sequence?: boolean;
-
-    /**
-     * Show static images without transitions.
-     * @default false
-     */
-    image?: boolean;
-
-    /**
-     * Show image planes in 3D using WebGL.
-     * @default true
-     */
-    imageplane?: boolean;
-
-    /**
-     * Show a slider for transitioning between image planes.
-     * @default false
-     */
-    slider?: boolean;
-
-    /**
-     * Enable use of keyboard commands.
-     * @default true
-     */
-    keyboard?: boolean;
-
-    /**
-     * Show indication of loading.
-     * @default true
-     */
-    loading?: boolean;
-
-    /**
-     * Enable an interface for showing markers in the viewer
-     * @default false
-     */
-    marker?: boolean;
-
-    /**
-     * Enable mouse interface (needed for panorama navigation)
-     * @default true
-     */
-    mouse?: boolean;
-
-    /**
-     * Create a route with a story inside mapillary js
-     * @default false
-     */
-    route?: boolean;
-
     /**
      * Default size of the thumbnail used in the viewer
      * @default {ImageSize.Size640}
@@ -132,6 +18,11 @@ export interface IViewerOptions {
      * @default {ImageSize.Size2048}
      */
     basePanoramaSize?: ImageSize;
+
+    /**
+     * The component options.
+     */
+    component?: IComponentOptions;
 
     /**
      * The max size of an image shown in the viewer

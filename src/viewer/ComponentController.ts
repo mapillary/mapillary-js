@@ -1,20 +1,20 @@
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {CoverComponent, ComponentService, ICoverConfiguration, Component, IComponentConfiguration} from "../Component";
-import {IViewerOptions} from "../Viewer";
+import {IComponentOptions} from "../Viewer";
 
 export class ComponentController {
     private _container: Container;
     private _coverComponent: CoverComponent;
     private _navigator: Navigator;
     private _componentService: ComponentService;
-    private _options: IViewerOptions;
+    private _options: IComponentOptions;
     private _key: string;
 
-    constructor(container: Container, navigator: Navigator, key: string, options: IViewerOptions) {
+    constructor(container: Container, navigator: Navigator, key: string, options: IComponentOptions) {
         this._container = container;
         this._navigator = navigator;
-        this._options = options;
+        this._options = options != null ? options : {};
         this._key = key;
         this._componentService = new ComponentService(this._container, this._navigator);
         this._coverComponent = this._componentService.getCover();
@@ -63,7 +63,7 @@ export class ComponentController {
     }
 
     private _initializeComponents(): void {
-        let options: IViewerOptions = this._options;
+        let options: IComponentOptions = this._options;
 
         this._uFalse(options.background, "background");
         this._uFalse(options.debug, "debug");
@@ -79,7 +79,7 @@ export class ComponentController {
         this._uTrue(options.bearing, "bearing");
         this._uTrue(options.cache, "cache");
         this._uTrue(options.direction, "direction");
-        this._uTrue(options.imageplane, "imageplane");
+        this._uTrue(options.imagePlane, "imagePlane");
         this._uTrue(options.keyboard, "keyboard");
         this._uTrue(options.loading, "loading");
         this._uTrue(options.mouse, "mouse");
@@ -87,7 +87,7 @@ export class ComponentController {
     }
 
     private _initilizeCoverComponent(): void {
-        let options: IViewerOptions = this._options;
+        let options: IComponentOptions = this._options;
 
         this._coverComponent.configure({ key: this._key });
         if (options.cover === undefined || options.cover) {

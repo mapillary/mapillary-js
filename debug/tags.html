@@ -26,7 +26,12 @@
             "viewer",
             "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4",
             "zarcRdNFZwg3FkXNcsFeGw",
-            { cover: false, tag: true }
+            {
+                component: {
+                    cover: false,
+                    tag: true,
+                },
+            }
         );
 
         window.addEventListener("resize", function() { viewer.resize(); });
