@@ -218,6 +218,8 @@ class SliderState {
             this._imagePlaneScene.setImagePlanes([
                 this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform),
             ]);
+
+            this._updateBbox();
         }
 
         return needsRender;
@@ -230,15 +232,18 @@ class SliderState {
         }
 
         this._curtain = alpha;
+        this._updateBbox();
 
+        return true;
+    }
+
+    private _updateBbox(): void {
         for (let plane of this._imagePlaneScene.imagePlanes) {
             let shaderMaterial: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
             let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
 
             bbox.z = this._curtain;
         }
-
-        return true;
     }
 }
 
@@ -475,18 +480,17 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .switchMap<ISliderCombination>(
                 (configuration: ISliderConfiguration): Observable<ISliderCombination> => {
                     return Observable
-                        .zip<ISliderNodes>(
-                            [
-                                this._navigator.graphService.cacheNode$(configuration.keys.background),
-                                this._navigator.graphService.cacheNode$(configuration.keys.foreground),
-                            ],
-                            (background: Node, foreground: Node): ISliderNodes => {
-                                return { background: background, foreground: foreground };
+                        .zip<Node, Node>(
+                            this._navigator.graphService.cacheNode$(configuration.keys.background),
+                            this._navigator.graphService.cacheNode$(configuration.keys.foreground))
+                        .map<ISliderNodes>(
+                            (nodes: [Node, Node]): ISliderNodes => {
+                                return { background: nodes[0], foreground: nodes[1] };
                             })
-                        .withLatestFrom<ISliderCombination>(
-                            this._navigator.stateService.currentState$,
-                            (nodes: ISliderNodes, frame: IFrame): ISliderCombination => {
-                                return { nodes: nodes, state: frame.state };
+                        .zip(this._navigator.stateService.currentState$.first())
+                        .map<ISliderCombination>(
+                            (nf: [ISliderNodes, IFrame]): ISliderCombination => {
+                                return { nodes: nf[0], state: nf[1].state };
                             });
                 })
             .subscribe(

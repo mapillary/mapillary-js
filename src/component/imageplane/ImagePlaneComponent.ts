@@ -118,7 +118,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 })
             .subscribe(this._rendererOperation$);
 
-        this._catchRecursively(this._highResRendererOperation(this._navigator.stateService.currentNode$))
+        this._nodeSubscription = this._catchRecursively(this._highResRendererOperation(this._navigator.stateService.currentNode$))
             .subscribe(this._rendererOperation$);
     }
 
