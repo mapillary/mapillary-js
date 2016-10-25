@@ -42,7 +42,7 @@ export class RenderService {
         this._element = element;
         this._currentFrame$ = currentFrame$;
 
-        renderMode = renderMode != null ? renderMode : RenderMode.Letterbox;
+        renderMode = renderMode != null ? renderMode : RenderMode.Fill;
 
         this._resize$ = new Subject<void>();
         this._renderCameraOperation$ = new Subject<IRenderCameraOperation>();

@@ -33,7 +33,7 @@ export interface IViewerOptions {
 
     /**
      * The render mode in the viewer.
-     * @default {RenderMode.Letterbox}
+     * @default {RenderMode.Fill}
      */
     renderMode?: RenderMode;
 

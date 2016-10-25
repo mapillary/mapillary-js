@@ -32,7 +32,7 @@ describe("RenderService.renderMode", () => {
             .first()
             .subscribe(
                 (renderMode: RenderMode): void => {
-                    expect(renderMode).toBe(RenderMode.Letterbox);
+                    expect(renderMode).toBe(RenderMode.Fill);
 
                     done();
                 });

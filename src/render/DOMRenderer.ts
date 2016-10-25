@@ -72,7 +72,7 @@ export class DOMRenderer {
                     elementHeight: element.offsetHeight,
                     elementWidth: element.offsetWidth,
                     imageAspect: 0,
-                    renderMode: RenderMode.Letterbox,
+                    renderMode: RenderMode.Fill,
                 })
             .filter(
                 (adaptive: IAdaptive): boolean => {
