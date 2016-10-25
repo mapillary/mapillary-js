@@ -2,6 +2,7 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 
+import "rxjs/add/observable/combineLatest";
 import "rxjs/add/observable/of";
 
 import "rxjs/add/operator/debounceTime";
@@ -130,7 +131,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IImagePlaneConfiguration {
-        return { maxPanoramaResolution: "none" };
+        return { maxPanoramaResolution: "auto" };
     }
 
     private _catchRecursively(source$: Observable<IImagePlaneGLRendererOperation>):
@@ -148,16 +149,21 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     }
 
     private _highResRendererOperation(node$: Observable<Node>): Observable<IImagePlaneGLRendererOperation> {
-        return node$
+        return Observable
+            .combineLatest(
+                node$,
+                this._configuration$)
             .debounceTime(1000)
             .withLatestFrom(
                 this._navigator.stateService.currentTransform$,
-                this._configuration$)
+                (nc: [Node, IImagePlaneConfiguration], t: Transform): [Node, IImagePlaneConfiguration, Transform] => {
+                    return [nc[0], nc[1], t];
+                })
             .map<[Node, number]>(
-                (params: [Node, Transform, IImagePlaneConfiguration]): [Node, number] => {
+                (params: [Node, IImagePlaneConfiguration, Transform]): [Node, number] => {
                     let node: Node = params[0];
-                    let transform: Transform = params[1];
-                    let configuration: IImagePlaneConfiguration = params[2];
+                    let configuration: IImagePlaneConfiguration = params[1];
+                    let transform: Transform = params[2];
 
                     let imageSize: number = Settings.maxImageSize;
 
