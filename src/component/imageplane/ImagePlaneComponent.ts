@@ -117,7 +117,38 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 })
             .subscribe(this._rendererOperation$);
 
-        this._nodeSubscription = this._navigator.stateService.currentNode$
+        this._catchRecursively(this._highResRendererOperation(this._navigator.stateService.currentNode$))
+            .subscribe(this._rendererOperation$);
+    }
+
+    protected _deactivate(): void {
+        this._rendererDisposer$.next(null);
+
+        this._rendererSubscription.unsubscribe();
+        this._stateSubscription.unsubscribe();
+        this._nodeSubscription.unsubscribe();
+    }
+
+    protected _getDefaultConfiguration(): IImagePlaneConfiguration {
+        return { maxPanoramaResolution: "none" };
+    }
+
+    private _catchRecursively(source$: Observable<IImagePlaneGLRendererOperation>):
+        Observable<IImagePlaneGLRendererOperation> {
+        return source$
+            .catch(
+                (error: Error, caught: Observable<IImagePlaneGLRendererOperation>):
+                    Observable<IImagePlaneGLRendererOperation> => {
+                        console.error("Failed to fetch high res image", error);
+
+                        return this._catchRecursively(
+                            this._highResRendererOperation(
+                                this._navigator.stateService.currentNode$.skip(1)));
+                    });
+    }
+
+    private _highResRendererOperation(node$: Observable<Node>): Observable<IImagePlaneGLRendererOperation> {
+        return node$
             .debounceTime(1000)
             .withLatestFrom(
                 this._navigator.stateService.currentTransform$,
@@ -182,20 +213,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
                         return renderer;
                     };
-                })
-            .subscribe(this._rendererOperation$);
-    }
-
-    protected _deactivate(): void {
-        this._rendererDisposer$.next(null);
-
-        this._rendererSubscription.unsubscribe();
-        this._stateSubscription.unsubscribe();
-        this._nodeSubscription.unsubscribe();
-    }
-
-    protected _getDefaultConfiguration(): IImagePlaneConfiguration {
-        return { maxPanoramaResolution: "none" };
+                });
     }
 }
 

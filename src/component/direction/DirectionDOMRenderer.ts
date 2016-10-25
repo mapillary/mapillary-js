@@ -388,7 +388,12 @@ export class DirectionDOMRenderer {
         shiftVertically?: boolean): vd.VNode {
 
         let onClick: (e: Event) => void =
-            (e: Event): void => { navigator.moveToKey(key).subscribe(); };
+            (e: Event): void => {
+                navigator.moveToKey(key)
+                    .subscribe(
+                        (node: Node): void => { return; },
+                        (error: Error): void => { console.error(error); });
+            };
 
         return this._createVNode(
             key,
@@ -409,7 +414,12 @@ export class DirectionDOMRenderer {
         direction: EdgeDirection): vd.VNode {
 
         let onClick: (e: Event) => void =
-            (e: Event): void => { navigator.moveDir(direction).subscribe(); };
+            (e: Event): void => {
+                navigator.moveDir(direction)
+                    .subscribe(
+                        (node: Node): void => { return; },
+                        (error: Error): void => { console.error(error); });
+            };
 
         return this._createVNode(
             key,
@@ -428,7 +438,12 @@ export class DirectionDOMRenderer {
         direction: EdgeDirection): vd.VNode {
 
         let onClick: (e: Event) => void =
-            (e: Event): void => { navigator.moveDir(direction).subscribe(); };
+            (e: Event): void => {
+                navigator.moveDir(direction)
+                    .subscribe(
+                        (node: Node): void => { return; },
+                        (error: Error): void => { console.error(error); });
+            };
 
         let style: any = {
             height: this._calculator.turnCircleSizeCss,

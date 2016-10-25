@@ -216,6 +216,10 @@ export class SpriteService {
             image.src = window.URL.createObjectURL(blob);
         };
 
+        imageXmlHTTP.onerror = (error: Event) => {
+            console.error(new Error(`Failed to fetch sprite sheet (${sprite}${format}.png)`));
+        };
+
         imageXmlHTTP.send();
 
         let jsonXmlHTTP: XMLHttpRequest = new XMLHttpRequest();
@@ -230,6 +234,10 @@ export class SpriteService {
 
                         return atlas;
                     });
+        };
+
+        jsonXmlHTTP.onerror = (error: Event) => {
+            console.error(new Error(`Failed to fetch sheet (${sprite}${format}.json)`));
         };
 
         jsonXmlHTTP.send();

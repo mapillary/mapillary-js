@@ -8,7 +8,7 @@ import {
     SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
-import {IEdgeStatus} from "../../Graph";
+import {IEdgeStatus, Node} from "../../Graph";
 import {Navigator} from "../../Viewer";
 
 export class SequenceDOMRenderer {
@@ -119,7 +119,12 @@ export class SequenceDOMRenderer {
 
         let nextProperties: vd.createProperties = {
             onclick: nextKey != null ?
-                (e: Event): void => { navigator.moveDir(EdgeDirection.Next).subscribe(); } :
+                (e: Event): void => {
+                    navigator.moveDir(EdgeDirection.Next)
+                        .subscribe(
+                            (node: Node): void => { return; },
+                            (error: Error): void => { console.error(error); });
+                } :
                 null,
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Next); },
             onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.next(EdgeDirection.Next); },
@@ -130,7 +135,12 @@ export class SequenceDOMRenderer {
 
         let prevProperties: vd.createProperties = {
             onclick: prevKey != null ?
-                (e: Event): void => { navigator.moveDir(EdgeDirection.Prev).subscribe(); } :
+                (e: Event): void => {
+                    navigator.moveDir(EdgeDirection.Prev)
+                        .subscribe(
+                            (node: Node): void => { return; },
+                            (error: Error): void => { console.error(error); });
+                } :
                 null,
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Prev); },
             onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.next(EdgeDirection.Prev); },

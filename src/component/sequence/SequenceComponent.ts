@@ -422,6 +422,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     this._navigator.stateService.appendNodes([node]);
                 },
                 (error: Error): void => {
+                    console.error(error);
                     this.stop();
                 }
             );
