@@ -100,7 +100,7 @@ export class ComponentController {
     private _subscribeCoverComponent(): void {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
-                this._navigator.moveToKey(conf.key).subscribe((node: Node) => {
+                this._navigator.moveToKey$(conf.key).subscribe((node: Node) => {
                     this._navigator.stateService.start();
                     this._coverComponent.configure({ loading: false, visible: false });
                     this._componentService.deactivateCover();

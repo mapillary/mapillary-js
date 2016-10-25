@@ -389,7 +389,7 @@ export class DirectionDOMRenderer {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveToKey(key)
+                navigator.moveToKey$(key)
                     .subscribe(
                         (node: Node): void => { return; },
                         (error: Error): void => { console.error(error); });
@@ -415,7 +415,7 @@ export class DirectionDOMRenderer {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveDir(direction)
+                navigator.moveDir$(direction)
                     .subscribe(
                         (node: Node): void => { return; },
                         (error: Error): void => { console.error(error); });
@@ -439,7 +439,7 @@ export class DirectionDOMRenderer {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveDir(direction)
+                navigator.moveDir$(direction)
                     .subscribe(
                         (node: Node): void => { return; },
                         (error: Error): void => { console.error(error); });

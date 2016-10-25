@@ -28,44 +28,59 @@ import {StateService} from "../State";
 import {LoadingService} from "../Viewer";
 
 export class Navigator {
-    public stateService: StateService;
-    public loadingService: LoadingService;
+    private _apiV3: APIv3;
 
-    public apiV3: APIv3;
-
-    private _newGraphService: GraphService;
+    private _graphService: GraphService;
+    private _loadingService: LoadingService;
+    private _stateService: StateService;
 
     private _keyRequested$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
     private _movedToKey$: Subject<string> = new Subject<string>();
     private _dirRequested$: BehaviorSubject<EdgeDirection> = new BehaviorSubject<EdgeDirection>(null);
     private _latLonRequested$: BehaviorSubject<ILatLon> = new BehaviorSubject<ILatLon>(null);
 
-    constructor (clientId: string) {
-        this.apiV3 = new APIv3(clientId);
+    constructor (
+        clientId: string,
+        graphService?: GraphService,
+        loadingService?: LoadingService,
+        stateService?: StateService) {
 
-        this._newGraphService = new GraphService(new Graph(this.apiV3));
+        this._apiV3 = new APIv3(clientId);
 
-        this.stateService = new StateService();
-        this.loadingService = new LoadingService();
+        this._graphService = graphService != null ? graphService : new GraphService(new Graph(this.apiV3));
+        this._loadingService = loadingService != null ? loadingService : new LoadingService();
+        this._stateService = stateService != null ? stateService : new StateService();
     }
 
-    public get newGraphService(): GraphService {
-        return this._newGraphService;
+    public get apiV3(): APIv3 {
+        return this._apiV3;
+    }
+
+    public get graphService(): GraphService {
+        return this._graphService;
     }
 
     public get keyRequested$(): Observable<string> {
         return this._keyRequested$;
     }
 
+    public get loadingService(): LoadingService {
+        return this._loadingService;
+    }
+
     public get movedToKey$(): Observable<string> {
         return this._movedToKey$;
     }
 
-    public moveToKey(key: string): Observable<Node> {
+    public get stateService(): StateService {
+        return this._stateService;
+    }
+
+    public moveToKey$(key: string): Observable<Node> {
         this.loadingService.startLoading("navigator");
         this._keyRequested$.next(key);
 
-        return this._newGraphService.cacheNode$(key)
+        return this._graphService.cacheNode$(key)
             .do(
                 (node: Node) => {
                     this.loadingService.stopLoading("navigator");
@@ -74,7 +89,7 @@ export class Navigator {
                 });
     }
 
-    public moveDir(dir: EdgeDirection): Observable<Node> {
+    public moveDir$(dir: EdgeDirection): Observable<Node> {
         this.loadingService.startLoading("navigator");
         this._dirRequested$.next(dir);
 
@@ -102,11 +117,11 @@ export class Navigator {
                     return directionKey == null ?
                         Observable.throw<Node>(
                             new Error(`Direction (${dir}) does not exist (or is not cached yet) for current node.`)) :
-                        this.moveToKey(directionKey);
+                        this.moveToKey$(directionKey);
                 });
     }
 
-    public moveCloseTo(lat: number, lon: number): Observable<Node> {
+    public moveCloseTo$(lat: number, lon: number): Observable<Node> {
         this.loadingService.startLoading("navigator");
         this._latLonRequested$.next({lat: lat, lon: lon});
 
@@ -115,7 +130,7 @@ export class Navigator {
                 (fullNode: IFullNode): Observable<Node> => {
                     return fullNode.key == null ?
                         Observable.throw<Node>(new Error(`No image found close to lat ${lat}, lon ${lon}.`)) :
-                        this.moveToKey(fullNode.key);
+                        this.moveToKey$(fullNode.key);
                 });
     }
 }

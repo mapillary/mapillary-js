@@ -173,7 +173,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
             return;
         }
 
-        this._navigator.moveToKey(toKey)
+        this._navigator.moveToKey$(toKey)
             .subscribe(
                 (n: Node): void => { return; },
                 (e: Error): void => { console.error(e); });
@@ -247,7 +247,7 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
 
         for (let edge of edgeStatus.edges) {
             if (edge.data.direction === direction) {
-                this._navigator.moveToKey(edge.to)
+                this._navigator.moveToKey$(edge.to)
                     .subscribe(
                         (n: Node): void => { return; },
                         (e: Error): void => { console.error(e); });

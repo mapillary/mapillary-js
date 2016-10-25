@@ -415,7 +415,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .switchMap<Node>(
                 (key: string): Observable<Node> => {
-                    return this._navigator.newGraphService.cacheNode$(key);
+                    return this._navigator.graphService.cacheNode$(key);
                 })
             .subscribe(
                 (node: Node): void => {

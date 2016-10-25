@@ -118,7 +118,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                                 edgesDepths$.push(
                                     Observable
                                         .zip<EdgesDepth>(
-                                            this._navigator.newGraphService.cacheNode$(edge.to)
+                                            this._navigator.graphService.cacheNode$(edge.to)
                                                 .mergeMap(
                                                     (n: Node): Observable<IEdge[]> => {
                                                         return this._nodeToEdges$(n, direction);

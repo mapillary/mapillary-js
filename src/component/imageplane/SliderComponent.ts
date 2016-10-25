@@ -477,8 +477,8 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     return Observable
                         .zip<ISliderNodes>(
                             [
-                                this._navigator.newGraphService.cacheNode$(configuration.keys.background),
-                                this._navigator.newGraphService.cacheNode$(configuration.keys.foreground),
+                                this._navigator.graphService.cacheNode$(configuration.keys.background),
+                                this._navigator.graphService.cacheNode$(configuration.keys.foreground),
                             ],
                             (background: Node, foreground: Node): ISliderNodes => {
                                 return { background: background, foreground: foreground };

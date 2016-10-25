@@ -137,7 +137,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                     return node.spatialEdges$
                         .withLatestFrom(
                             configuration.distinguishSequence ?
-                                this._navigator.newGraphService
+                                this._navigator.graphService
                                     .cacheSequence$(node.sequenceKey)
                                     .catch(
                                         (error: Error, caught: Observable<Sequence>): Observable<Sequence> => {

@@ -30,7 +30,7 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         this._disposable = this._navigator.stateService.currentState$
             .combineLatest(
                 this._open$,
-                this._navigator.newGraphService.imageLoadingService.loadstatus$,
+                this._navigator.graphService.imageLoadingService.loadstatus$,
                 (frame: IFrame, open: boolean, loadStatus: any): IVNodeHash => {
                     return {name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame, loadStatus))};
                 })

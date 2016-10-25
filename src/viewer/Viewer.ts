@@ -118,7 +118,7 @@ export class Viewer extends EventEmitter {
      */
     public moveToKey(key: string): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveToKey(key).subscribe(
+            this._navigator.moveToKey$(key).subscribe(
                 (node: Node): void => {
                     resolve(node);
                 },
@@ -140,7 +140,7 @@ export class Viewer extends EventEmitter {
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveDir(dir).subscribe(
+            this._navigator.moveDir$(dir).subscribe(
                 (node: Node): void => {
                     resolve(node);
                 },
@@ -160,7 +160,7 @@ export class Viewer extends EventEmitter {
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveCloseTo(lat, lon).subscribe(
+            this._navigator.moveCloseTo$(lat, lon).subscribe(
                 (node: Node): void => {
                     resolve(node);
                 },

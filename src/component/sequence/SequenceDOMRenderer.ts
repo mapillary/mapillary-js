@@ -120,7 +120,7 @@ export class SequenceDOMRenderer {
         let nextProperties: vd.createProperties = {
             onclick: nextKey != null ?
                 (e: Event): void => {
-                    navigator.moveDir(EdgeDirection.Next)
+                    navigator.moveDir$(EdgeDirection.Next)
                         .subscribe(
                             (node: Node): void => { return; },
                             (error: Error): void => { console.error(error); });
@@ -136,7 +136,7 @@ export class SequenceDOMRenderer {
         let prevProperties: vd.createProperties = {
             onclick: prevKey != null ?
                 (e: Event): void => {
-                    navigator.moveDir(EdgeDirection.Prev)
+                    navigator.moveDir$(EdgeDirection.Prev)
                         .subscribe(
                             (node: Node): void => { return; },
                             (error: Error): void => { console.error(error); });

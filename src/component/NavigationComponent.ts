@@ -80,7 +80,7 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
             `span.Direction.Direction${name}`,
             {
                 onclick: (ev: Event): void => {
-                    this._navigator.moveDir(direction)
+                    this._navigator.moveDir$(direction)
                         .subscribe(
                             (node: Node): void => { return; },
                             (error: Error): void => { console.error(error); });

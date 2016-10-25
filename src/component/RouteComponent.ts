@@ -185,7 +185,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                     return Observable.of<Node>(null);
                 }
 
-                return this._navigator.newGraphService.cacheNode$(nextInstruction.key);
+                return this._navigator.graphService.cacheNode$(nextInstruction.key);
             }).combineLatest(this.configuration$, (node: Node, conf: IRouteConfiguration): IConfAndNode => {
                 return {conf: conf, node: node};
             }).filter((cAN: IConfAndNode) => {
