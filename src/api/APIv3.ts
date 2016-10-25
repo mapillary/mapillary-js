@@ -11,7 +11,12 @@ import "rxjs/add/observable/fromPromise";
 import "rxjs/add/operator/catch";
 import "rxjs/add/operator/map";
 
-import {ICoreNode, IFillNode, IFullNode, ISequence} from "../API";
+import {
+    ICoreNode,
+    IFillNode,
+    IFullNode,
+    ISequence,
+} from "../API";
 import {Urls} from "../Utils";
 
 interface IFalcorResult<T> {
@@ -31,7 +36,7 @@ interface IImagesByH<T> {
 }
 
 interface ISequenceByKey<T> {
-    sequenceByKey: { [key: string]: T };
+    sequenceByKey: { [sequenceKey: string]: T };
 }
 
 type APIPath =
@@ -42,51 +47,22 @@ type APIPath =
 
 export class APIv3 {
     private _clientId: string;
+
     private _model: falcor.Model;
 
-    private _imageByKeyPath: APIPath = "imageByKey";
-    private _imageCloseToPath: APIPath = "imageCloseTo";
-    private _imagesByHPath: APIPath = "imagesByH";
-    private _pageCount: number = 999;
-    private _sequenceByKeyPath: APIPath = "sequenceByKey";
+    private _pageCount: number;
 
-    private _coreProperties: string[] = [
-        "cl",
-        "l",
-        "sequence",
-    ];
+    private _pathImageByKey: APIPath;
+    private _pathImageCloseTo: APIPath;
+    private _pathImagesByH: APIPath;
+    private _pathSequenceByKey: APIPath;
 
-    private _fillProperties: string[] = [
-        "captured_at",
-        "user",
-    ];
-
-    private _keyProperties: string[] = [
-        "key",
-    ];
-
-    private _sequenceProperties: string[] = [
-        "keys",
-    ];
-
-    private _spatialProperties: string[] = [
-        "atomic_scale",
-        "ca",
-        "calt",
-        "cca",
-        "cfocal",
-        "gpano",
-        "height",
-        "merge_cc",
-        "merge_version",
-        "c_rotation",
-        "orientation",
-        "width",
-    ];
-
-    private _userProperties: string[] = [
-        "username",
-    ];
+    private _propertiesCore: string[];
+    private _propertiesFill: string[];
+    private _propertiesKey: string[];
+    private _propertiesSequence: string[];
+    private _propertiesSpatial: string[];
+    private _propertiesUser: string[];
 
     constructor (clientId: string, model?: falcor.Model) {
         this._clientId = clientId;
@@ -99,62 +75,107 @@ export class APIv3 {
                     withCredentials: false,
                 }),
             });
+
+        this._pageCount = 999;
+
+        this._pathImageByKey = "imageByKey";
+        this._pathImageCloseTo = "imageCloseTo";
+        this._pathImagesByH = "imagesByH";
+        this._pathSequenceByKey = "sequenceByKey";
+
+        this._propertiesCore = [
+            "cl",
+            "l",
+            "sequence",
+        ];
+
+        this._propertiesFill = [
+            "captured_at",
+            "user",
+        ];
+
+        this._propertiesKey = [
+            "key",
+        ];
+
+        this._propertiesSequence = [
+            "keys",
+        ];
+
+        this._propertiesSpatial = [
+            "atomic_scale",
+            "ca",
+            "calt",
+            "cca",
+            "cfocal",
+            "gpano",
+            "height",
+            "merge_cc",
+            "merge_version",
+            "c_rotation",
+            "orientation",
+            "width",
+        ];
+
+        this._propertiesUser = [
+            "username",
+        ];
     };
 
     public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
         return this._catchInvalidate$(
             this._wrapPromise$<IFalcorResult<IImageByKey<IFillNode>>>(this._model.get([
-                this._imageByKeyPath,
+                this._pathImageByKey,
                 keys,
-                this._keyProperties.concat(this._fillProperties).concat(this._spatialProperties),
-                this._keyProperties.concat(this._userProperties)]))
+                this._propertiesKey.concat(this._propertiesFill).concat(this._propertiesSpatial),
+                this._propertiesKey.concat(this._propertiesUser)]))
             .map<{ [key: string]: IFillNode }>(
                 (value: IFalcorResult<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
                     return value.json.imageByKey;
                 }),
-            this._imageByKeyPath,
+            this._pathImageByKey,
             keys);
     }
 
     public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: IFullNode }> {
         return this._catchInvalidate$(
             this._wrapPromise$<IFalcorResult<IImageByKey<IFullNode>>>(this._model.get([
-                this._imageByKeyPath,
+                this._pathImageByKey,
                 keys,
-                this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
-                this._keyProperties.concat(this._userProperties)]))
+                this._propertiesKey.concat(this._propertiesCore).concat(this._propertiesFill).concat(this._propertiesSpatial),
+                this._propertiesKey.concat(this._propertiesUser)]))
             .map<{ [key: string]: IFullNode }>(
                 (value: IFalcorResult<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
                     return value.json.imageByKey;
                 }),
-            this._imageByKeyPath,
+            this._pathImageByKey,
             keys);
     }
 
     public imageCloseTo$(lat: number, lon: number): Observable<IFullNode> {
-        let latLon: string = `${lon}:${lat}`;
+        let lonLat: string = `${lon}:${lat}`;
         return this._catchInvalidate$(
             this._wrapPromise$<IFalcorResult<IImageCloseTo<IFullNode>>>(this._model.get([
-                this._imageCloseToPath,
-                [latLon],
-                this._keyProperties.concat(this._coreProperties).concat(this._fillProperties).concat(this._spatialProperties),
-                this._keyProperties.concat(this._userProperties)]))
+                this._pathImageCloseTo,
+                [lonLat],
+                this._propertiesKey.concat(this._propertiesCore).concat(this._propertiesFill).concat(this._propertiesSpatial),
+                this._propertiesKey.concat(this._propertiesUser)]))
             .map<IFullNode>(
                 (value: IFalcorResult<IImageCloseTo<IFullNode>>): IFullNode => {
-                    return value != null ? value.json.imageCloseTo[latLon] : null;
+                    return value != null ? value.json.imageCloseTo[lonLat] : null;
                 }),
-            this._imageCloseToPath,
-            [latLon]);
+            this._pathImageCloseTo,
+            [lonLat]);
     }
 
     public imagesByH$(hs: string[]): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
         return this._catchInvalidate$(
             this._wrapPromise$<IFalcorResult<IImagesByH<ICoreNode>>>(this._model.get([
-                this._imagesByHPath,
+                this._pathImagesByH,
                 hs,
                 { from: 0, to: this._pageCount },
-                this._keyProperties.concat(this._coreProperties),
-                this._keyProperties]))
+                this._propertiesKey.concat(this._propertiesCore),
+                this._propertiesKey]))
             .map<{ [h: string]: { [index: string]: ICoreNode } }>(
                 (value: IFalcorResult<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
                     if (value == null) {
@@ -169,34 +190,34 @@ export class APIv3 {
 
                     return value.json.imagesByH;
                 }),
-            this._imagesByHPath,
+            this._pathImagesByH,
             hs);
     }
 
     public invalidateImageByKey(keys: string[]): void {
-        this._invalidate(this._imageByKeyPath, keys);
+        this._invalidate(this._pathImageByKey, keys);
     }
 
     public invalidateImagesByH(hs: string[]): void {
-        this._invalidate(this._imagesByHPath, hs);
+        this._invalidate(this._pathImagesByH, hs);
     }
 
     public invalidateSequenceByKey(sKeys: string[]): void {
-        this._invalidate(this._sequenceByKeyPath, sKeys);
+        this._invalidate(this._pathSequenceByKey, sKeys);
     }
 
-    public sequenceByKey$(sKeys: string[]): Observable<{ [key: string]: ISequence }> {
+    public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: ISequence }> {
         return this._catchInvalidate$(
             this._wrapPromise$<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
-                this._sequenceByKeyPath,
-                sKeys,
-                this._keyProperties.concat(this._sequenceProperties)]))
-            .map<{ [key: string]: ISequence }>(
-                (value: IFalcorResult<ISequenceByKey<ISequence>>): { [key: string]: ISequence } => {
+                this._pathSequenceByKey,
+                sequenceKeys,
+                this._propertiesKey.concat(this._propertiesSequence)]))
+            .map<{ [sequenceKey: string]: ISequence }>(
+                (value: IFalcorResult<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
                     return value.json.sequenceByKey;
                 }),
-            this._sequenceByKeyPath,
-            sKeys);
+            this._pathSequenceByKey,
+            sequenceKeys);
     }
 
     public get model(): falcor.Model {
