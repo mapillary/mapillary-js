@@ -1,3 +1,4 @@
+import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/operator/buffer";
@@ -46,12 +47,17 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                 (keys: IKeys): boolean => {
                     return keys.report.length > 0;
                 })
-            .subscribe(
-                (keys: IKeys): void => {
-                    this._navigator.apiV3.model
-                        .call(["sequenceViewAdd"], [keys.report])
-                        .subscribe();
-                });
+            .mergeMap<void>(
+                (keys: IKeys): Observable<void> => {
+                    return this._navigator.apiV3.sequenceViewAdd$(keys.report)
+                        .catch(
+                            (error: Error, caught: Observable<void>): Observable<void> => {
+                                console.error(`Failed to report sequence stats (${keys.report})`, error);
+
+                                return Observable.empty<void>();
+                            });
+                })
+            .subscribe();
 
         this._imageSubscription = this._navigator.stateService.currentNode$
             .map<string>(
@@ -77,12 +83,17 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                 (keys: IKeys): boolean => {
                     return keys.report.length > 0;
                 })
-            .subscribe(
-                (keys: IKeys): void => {
-                    this._navigator.apiV3.model
-                        .call(["imageViewAdd"], [keys.report])
-                        .subscribe();
-                });
+            .mergeMap<void>(
+                (keys: IKeys): Observable<void> => {
+                    return this._navigator.apiV3.imageViewAdd$(keys.report)
+                        .catch(
+                            (error: Error, caught: Observable<void>): Observable<void> => {
+                                console.error(`Failed to report image stats (${keys.report})`, error);
+
+                                return Observable.empty<void>();
+                            });
+                })
+            .subscribe();
     }
 
     protected _deactivate(): void {

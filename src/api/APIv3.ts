@@ -43,7 +43,9 @@ type APIPath =
     "imageByKey" |
     "imageCloseTo" |
     "imagesByH" |
-    "sequenceByKey";
+    "imageViewAdd" |
+    "sequenceByKey" |
+    "sequenceViewAdd";
 
 export class APIv3 {
     private _clientId: string;
@@ -55,7 +57,9 @@ export class APIv3 {
     private _pathImageByKey: APIPath;
     private _pathImageCloseTo: APIPath;
     private _pathImagesByH: APIPath;
+    private _pathImageViewAdd: APIPath;
     private _pathSequenceByKey: APIPath;
+    private _pathSequenceViewAdd: APIPath;
 
     private _propertiesCore: string[];
     private _propertiesFill: string[];
@@ -81,7 +85,9 @@ export class APIv3 {
         this._pathImageByKey = "imageByKey";
         this._pathImageCloseTo = "imageCloseTo";
         this._pathImagesByH = "imagesByH";
+        this._pathImageViewAdd = "imageViewAdd";
         this._pathSequenceByKey = "sequenceByKey";
+        this._pathSequenceViewAdd = "sequenceViewAdd";
 
         this._propertiesCore = [
             "cl",
@@ -123,7 +129,7 @@ export class APIv3 {
     };
 
     public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
-        return this._catchInvalidate$(
+        return this._catchInvalidateGet$(
             this._wrapPromise$<IFalcorResult<IImageByKey<IFillNode>>>(this._model.get([
                 this._pathImageByKey,
                 keys,
@@ -138,7 +144,7 @@ export class APIv3 {
     }
 
     public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: IFullNode }> {
-        return this._catchInvalidate$(
+        return this._catchInvalidateGet$(
             this._wrapPromise$<IFalcorResult<IImageByKey<IFullNode>>>(this._model.get([
                 this._pathImageByKey,
                 keys,
@@ -154,7 +160,7 @@ export class APIv3 {
 
     public imageCloseTo$(lat: number, lon: number): Observable<IFullNode> {
         let lonLat: string = `${lon}:${lat}`;
-        return this._catchInvalidate$(
+        return this._catchInvalidateGet$(
             this._wrapPromise$<IFalcorResult<IImageCloseTo<IFullNode>>>(this._model.get([
                 this._pathImageCloseTo,
                 [lonLat],
@@ -169,7 +175,7 @@ export class APIv3 {
     }
 
     public imagesByH$(hs: string[]): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
-        return this._catchInvalidate$(
+        return this._catchInvalidateGet$(
             this._wrapPromise$<IFalcorResult<IImagesByH<ICoreNode>>>(this._model.get([
                 this._pathImagesByH,
                 hs,
@@ -194,20 +200,30 @@ export class APIv3 {
             hs);
     }
 
+    public imageViewAdd$(keys: string[]): Observable<void> {
+        return this._catchInvalidateCall$(
+            this._wrapPromise$<void>(
+                this._model.call(
+                    [this._pathImageViewAdd],
+                    [keys])),
+            this._pathImageViewAdd,
+            keys);
+    }
+
     public invalidateImageByKey(keys: string[]): void {
-        this._invalidate(this._pathImageByKey, keys);
+        this._invalidateGet(this._pathImageByKey, keys);
     }
 
     public invalidateImagesByH(hs: string[]): void {
-        this._invalidate(this._pathImagesByH, hs);
+        this._invalidateGet(this._pathImagesByH, hs);
     }
 
     public invalidateSequenceByKey(sKeys: string[]): void {
-        this._invalidate(this._pathSequenceByKey, sKeys);
+        this._invalidateGet(this._pathSequenceByKey, sKeys);
     }
 
     public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: ISequence }> {
-        return this._catchInvalidate$(
+        return this._catchInvalidateGet$(
             this._wrapPromise$<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
                 this._pathSequenceByKey,
                 sequenceKeys,
@@ -220,26 +236,46 @@ export class APIv3 {
             sequenceKeys);
     }
 
-    public get model(): falcor.Model {
-        return this._model;
+    public sequenceViewAdd$(sequenceKeys: string[]): Observable<void> {
+        return this._catchInvalidateCall$(
+            this._wrapPromise$<void>(
+                this._model.call(
+                    [this._pathSequenceViewAdd],
+                    [sequenceKeys])),
+            this._pathSequenceViewAdd,
+            sequenceKeys);
     }
 
     public get clientId(): string {
         return this._clientId;
     }
 
-    private _catchInvalidate$<TResult>(observable: Observable<TResult>, path: APIPath, paths: string[]): Observable<TResult> {
+    private _catchInvalidateGet$<TResult>(observable: Observable<TResult>, path: APIPath, paths: string[]): Observable<TResult> {
         return observable
             .catch(
                 (error: Error): Observable<TResult> => {
-                    this._invalidate(path, paths);
+                    this._invalidateGet(path, paths);
 
                     throw error;
                 });
     }
 
-    private _invalidate(path: APIPath, paths: string[]): void {
+    private _catchInvalidateCall$<TResult>(observable: Observable<TResult>, path: APIPath, paths: string[]): Observable<TResult> {
+        return observable
+            .catch(
+                (error: Error): Observable<TResult> => {
+                    this._invalidateCall(path, paths);
+
+                    throw error;
+                });
+    }
+
+    private _invalidateGet(path: APIPath, paths: string[]): void {
         this._model.invalidate([path, paths]);
+    }
+
+    private _invalidateCall(path: APIPath, paths: string[]): void {
+        this._model.invalidate([path], [paths]);
     }
 
     private _wrapPromise$<T>(promise: Promise<T>): Observable<T> {

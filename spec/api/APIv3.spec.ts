@@ -406,6 +406,139 @@ describe("APIv3.sequenceByKey$", () => {
     });
 });
 
+describe("APIv3.imageViewAdd$", () => {
+    it("should call model correctly", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "call");
+        spy.and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let key: string = "key";
+
+        apiV3.imageViewAdd$([key])
+            .subscribe(
+                (): void => {
+                    expect(spy.calls.count()).toBe(1);
+                    expect(spy.calls.first().args.length).toBe(2);
+                    expect(spy.calls.first().args[0].length).toBe(1);
+                    expect(spy.calls.first().args[0][0]).toBe("imageViewAdd");
+                    expect(spy.calls.first().args[1][0].length).toBe(1);
+                    expect(spy.calls.first().args[1][0][0]).toBe(key);
+
+                    done();
+                });
+    });
+
+    it("should invalidate model correctly when error is thrown", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                reject(new Error());
+            },
+        };
+
+        let invalidateSpy: jasmine.Spy = spyOn(model, "invalidate");
+        invalidateSpy.and.stub();
+
+        spyOn(model, "call").and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let key: string = "key";
+
+        apiV3.imageViewAdd$([key])
+            .subscribe(
+                (): void => { return; },
+                (error: Error): void => {
+                    expect(invalidateSpy.calls.count()).toBe(1);
+                    expect(invalidateSpy.calls.first().args.length).toBe(2);
+                    expect(invalidateSpy.calls.first().args[0].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][0]).toBe("imageViewAdd");
+                    expect(invalidateSpy.calls.first().args[1][0].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[1][0][0]).toBe(key);
+
+                    done();
+                }
+            );
+    });
+});
+
+describe("APIv3.sequenceViewAdd$", () => {
+    it("should call model correctly", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "call");
+        spy.and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let skey: string = "skey";
+
+        apiV3.sequenceViewAdd$([skey])
+            .subscribe(
+                (): void => {
+                    expect(spy.calls.count()).toBe(1);
+                    expect(spy.calls.first().args.length).toBe(2);
+                    expect(spy.calls.first().args[0].length).toBe(1);
+                    expect(spy.calls.first().args[0][0]).toBe("sequenceViewAdd");
+                    expect(spy.calls.first().args[1][0].length).toBe(1);
+                    expect(spy.calls.first().args[1][0][0]).toBe(skey);
+
+                    done();
+                });
+    });
+
+    it("should invalidate model correctly when error is thrown", (done) => {
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                reject(new Error());
+            },
+        };
+
+        let invalidateSpy: jasmine.Spy = spyOn(model, "invalidate");
+        invalidateSpy.and.stub();
+
+        spyOn(model, "call").and.returnValue(promise);
+
+        let apiV3: APIv3 = new APIv3("clientId", model);
+
+        let skey: string = "skey";
+
+        apiV3.sequenceViewAdd$([skey])
+            .subscribe(
+                (): void => { return; },
+                (error: Error): void => {
+                    expect(invalidateSpy.calls.count()).toBe(1);
+                    expect(invalidateSpy.calls.first().args.length).toBe(2);
+                    expect(invalidateSpy.calls.first().args[0].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[0][0]).toBe("sequenceViewAdd");
+                    expect(invalidateSpy.calls.first().args[1][0].length).toBe(1);
+                    expect(invalidateSpy.calls.first().args[1][0][0]).toBe(skey);
+
+                    done();
+                }
+            );
+    });
+});
+
+
 describe("APIv3.invalidateImageByKey", () => {
     it("should call model correctly", () => {
         let model: falcor.Model = new falcor.Model();
