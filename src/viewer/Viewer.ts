@@ -111,7 +111,6 @@ export class Viewer extends EventEmitter {
      * Navigate to a given photo key.
      *
      * @param {string} key - A valid Mapillary photo key.
-     * @throws {ParamaterMapillaryError} If no key is provided.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      */
     public moveToKey(key: string): when.Promise<Node> {
@@ -135,6 +134,8 @@ export class Viewer extends EventEmitter {
      * @param {EdgeDirection} dir - Direction in which which to move.
      * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
      * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @throws {Error} If the current node does not have the edge direction
+     * or the edges has not yet been cached.
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -155,6 +156,8 @@ export class Viewer extends EventEmitter {
      * @param {Number} lat - Latitude, in degrees.
      * @param {Number} lon - Longitude, in degrees.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @throws {Error} If no nodes exist close to provided latitude
+     * longitude.
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -182,6 +185,7 @@ export class Viewer extends EventEmitter {
 
     /**
      * Set the viewer's render mode.
+     *
      * @param {RenderMode} renderMode - Render mode.
      *
      * @example `viewer.setRenderMode(Mapillary.RenderMode.Letterbox);`
@@ -192,6 +196,7 @@ export class Viewer extends EventEmitter {
 
     /**
      * Activate a component.
+     *
      * @param {string} name - Name of the component which will become active.
      */
     public activateComponent(name: string): void {
@@ -200,6 +205,7 @@ export class Viewer extends EventEmitter {
 
     /**
      * Deactivate a component.
+     *
      * @param {string} name - Name of component which become inactive.
      */
     public deactivateComponent(name: string): void {
@@ -208,6 +214,7 @@ export class Viewer extends EventEmitter {
 
     /**
      * Get a component.
+     *
      * @param {string} name - Name of component.
      * @returns {Component} The requested component.
      */
