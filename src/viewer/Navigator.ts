@@ -83,9 +83,12 @@ export class Navigator {
         return this._graphService.cacheNode$(key)
             .do(
                 (node: Node) => {
-                    this.loadingService.stopLoading("navigator");
                     this.stateService.setNodes([node]);
                     this._movedToKey$.next(node.key);
+                })
+            .finally(
+                (): void => {
+                    this.loadingService.stopLoading("navigator");
                 });
     }
 
@@ -114,10 +117,15 @@ export class Navigator {
                 })
             .mergeMap<Node>(
                 (directionKey: string) => {
-                    return directionKey == null ?
-                        Observable.throw<Node>(
-                            new Error(`Direction (${dir}) does not exist (or is not cached yet) for current node.`)) :
-                        this.moveToKey$(directionKey);
+                    if (directionKey == null) {
+                        this.loadingService.stopLoading("navigator");
+
+                        return Observable
+                            .throw<Node>(
+                                new Error(`Direction (${dir}) does not exist (or is not cached yet) for current node.`));
+                    }
+
+                    return this.moveToKey$(directionKey);
                 });
     }
 
@@ -128,9 +136,15 @@ export class Navigator {
         return this.apiV3.imageCloseTo$(lat, lon)
             .mergeMap<Node>(
                 (fullNode: IFullNode): Observable<Node> => {
-                    return fullNode.key == null ?
-                        Observable.throw<Node>(new Error(`No image found close to lat ${lat}, lon ${lon}.`)) :
-                        this.moveToKey$(fullNode.key);
+                    if (fullNode == null) {
+                        this.loadingService.stopLoading("navigator");
+
+                        return Observable
+                            .throw<Node>(
+                                new Error(`No image found close to lat ${lat}, lon ${lon}.`));
+                    }
+
+                    return this.moveToKey$(fullNode.key);
                 });
     }
 }

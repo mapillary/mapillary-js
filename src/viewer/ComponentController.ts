@@ -100,11 +100,18 @@ export class ComponentController {
     private _subscribeCoverComponent(): void {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
-                this._navigator.moveToKey$(conf.key).subscribe((node: Node) => {
-                    this._navigator.stateService.start();
-                    this._coverComponent.configure({ loading: false, visible: false });
-                    this._componentService.deactivateCover();
-                });
+                this._navigator.moveToKey$(conf.key)
+                    .subscribe(
+                        (node: Node): void => {
+                            this._navigator.stateService.start();
+                            this._coverComponent.configure({ loading: false, visible: false });
+                            this._componentService.deactivateCover();
+                        },
+                        (error: Error): void => {
+                            console.error("Failed to deactivate cover.", error);
+
+                            this._coverComponent.configure({ loading: false, visible: true });
+                        });
             } else if (conf.visible) {
                 this._navigator.stateService.stop();
                 this._componentService.activateCover();
