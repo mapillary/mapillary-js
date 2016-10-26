@@ -151,6 +151,9 @@ export class NodeCache {
     /**
      * Cache the image and mesh assets.
      *
+     * @param {string} key - Key of the node to cache.
+     * @param {boolean} pano - Value indicating whether node is a panorama.
+     * @param {boolean} merged - Value indicating whether node is merged.
      * @returns {Observable<Node>} Observable emitting this node whenever the
      * load status has changed and when the mesh or image has been fully loaded.
      */
@@ -242,6 +245,8 @@ export class NodeCache {
     /**
      * Cache the image.
      *
+     * @param {string} key - Key of the node to cache.
+     * @param {boolean} pano - Value indicating whether node is a panorama.
      * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable
      * emitting a load status object every time the load status changes
      * and completes when the image is fully loaded.
@@ -257,6 +262,8 @@ export class NodeCache {
     /**
      * Cache the mesh.
      *
+     * @param {string} key - Key of the node to cache.
+     * @param {boolean} merged - Value indicating whether node is merged.
      * @returns {Observable<ILoadStatusObject<IMesh>>} Observable emitting
      * a load status object every time the load status changes and completes
      * when the mesh is fully loaded.

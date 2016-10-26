@@ -166,7 +166,7 @@ export class Node {
     /**
      * Get height.
      *
-     * @returns {IGPano} Height of original image, not adjusted
+     * @returns {number} Height of original image, not adjusted
      * for orientation.
      */
     public get height(): number {
@@ -286,7 +286,7 @@ export class Node {
     /**
      * Get originalLatLon.
      *
-     * @returns {ILatLon} SfM computed latitude longitude in
+     * @returns {ILatLon} Original EXIF latitude longitude in
      * WGS84 datum, measured in degrees.
      */
     public get originalLatLon(): ILatLon {
@@ -329,7 +329,7 @@ export class Node {
     /**
      * Get sequenceKey.
      *
-     * @returns {boolean} Unique key of the sequence to which
+     * @returns {string} Unique key of the sequence to which
      * the node belongs.
      */
     public get sequenceKey(): string {
@@ -362,8 +362,8 @@ export class Node {
      * @returns {IEdgeStatus} Value describing the status of the
      * spatial edges.
      */
-    public get spatialEdges$(): Observable<IEdgeStatus> {
-        return this._cache.spatialEdges$;
+    public get spatialEdges(): IEdgeStatus {
+        return this._cache.spatialEdges;
     }
 
     /**
@@ -372,8 +372,8 @@ export class Node {
      * @returns {Observable<IEdgeStatus>} Observable emitting
      * values describing the status of the spatial edges.
      */
-    public get spatialEdges(): IEdgeStatus {
-        return this._cache.spatialEdges;
+    public get spatialEdges$(): Observable<IEdgeStatus> {
+        return this._cache.spatialEdges$;
     }
 
     /**
@@ -467,6 +467,8 @@ export class Node {
      *
      * @description The node cache is initialized internally by
      * the library.
+     *
+     * @param {NodeCache} cache - The node cache to set as cache.
      */
     public initializeCache(cache: NodeCache): void {
         if (this._cache != null) {
@@ -481,6 +483,8 @@ export class Node {
      *
      * @description The node is filled internally by
      * the library.
+     *
+     * @param {IFillNode} fill - The fill node struct.
      */
     public makeFull(fill: IFillNode): void {
         if (fill == null) {

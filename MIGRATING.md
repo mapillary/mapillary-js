@@ -2,7 +2,7 @@
 
 MapillaryJS 2 has a completely rewritten graph structure and IO handling. The graph was rewritten to, among other things, load nodes faster when using the `viewer.move*` methods.
 
-The requirements on the new graph meant breaking changes to the MapillaryJS API. In addition to the graph related changes some other breaking changes have been introduces as well.
+The requirements on the new graph meant breaking changes to the MapillaryJS API. In addition to the graph related changes some other breaking changes have been introduced as well.
 
 ## Edge handling
 
@@ -13,11 +13,11 @@ In MapillaryJS 1 the `edges` were always cached for `nodes` retrieved from the `
 edges: IEdge[]
 edgesCached: boolean
 ```
-Here, the edges array was always guaranteed to be populated when retrieved from the `nodechanged` event. The edges array could be traversed immediately.
+Here, the edges array was always guaranteed to be populated when retrieved from the node of the `nodechanged` event. The edges array could be traversed immediately.
 
 ### MapillaryJS 2
 
-In MapillaryJS 2, the graph creation is changed in a way that does not guarantee that the edges have been determined for the current node retrieved from the `nodechanged` event. The edges have also been separated into two different entities, `sequence` and `spatial` edges. The different entities will be retrieved asyncronously and may be set at different times. Therefor, in MapillaryJS 2.0, the node properties related to edges are the following:
+In MapillaryJS 2, the graph creation is changed in a way that does not guarantee that the edges have been determined for the current node when it is retrieved from the `nodechanged` event. The edges have also been separated into two different entities, `sequence` and `spatial` edges. The different entities will be retrieved asyncronously and may be set at different times. Therefor, in MapillaryJS 2.0, the node properties related to edges are the following:
 
 ```
 sequenceEdges: IEdgeStatus
@@ -36,9 +36,9 @@ interface IEdgeStatus {
 }
 ```
 
-These properties should not be used directly when working with the edges. Instead, the `sequenceedgeschanged` and `spatialedgeschanged` events on the `Viewer` should be used.
+To simplify working with the edges the `sequenceedgeschanged` and `spatialedgeschanged` events on the `Viewer` should be used.
 
-The viewer will emit a `nodechanged` event every time when the current node changes. Immediately after the `nodechanged` event it will emit the the `sequenceedgeschanged` and `spatialedgeschanged` events containing the current edge statuses. At this point the edges may or may not be cached. If the sequence or spatial edges were not cached and are cached at a later point in time the the `sequenceedgeschanged` and `spatialedgeschanged` events will fire respectively.
+In the same way as before, the viewer will emit a `nodechanged` event every time the current node changes. Immediately after the `nodechanged` event it will emit the `sequenceedgeschanged` and `spatialedgeschanged` events containing the current edge statuses. At this point the edges may or may not be cached. If the sequence or spatial edges were not cached and are cached at a later point in time the `sequenceedgeschanged` and `spatialedgeschanged` events will fire respectively.
 
 The `sequenceedgeschanged` and `spatialedgeschanged` events always emit edge status objects related to the current node retrieved from the `nodechanged` event, never for any other nodes.
 
@@ -116,7 +116,9 @@ Apart from the edge handling described above the status of the new node class is
 
 ## Navigator failure cases
 
-When there is no valid result for a call to `Viewer.moveDir` or `Viewer.moveCloseTo`, both methods throw errors that need to be handled by the library user.
+When the `Viewer.moveDir` or `Viewer.moveCloseTo` are called there may not be a valid result. In that case, both methods throw errors that need to be handled by the caller.
+
+Whenever any of the `Viewer.moveToKey`, `Viewer.moveDir` or `Viewer.moveCloseTo` methods encounter a network related problem the error will propagate to the caller.
 
 ## Rotation edge direction
 
