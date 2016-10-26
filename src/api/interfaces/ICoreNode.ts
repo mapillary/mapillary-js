@@ -4,7 +4,7 @@ import {
 } from "../../API";
 
 /**
- * Interface that describes the raw core image properties.
+ * Interface that describes the raw core node properties.
  *
  * @interface ICoreNode
  */
@@ -15,7 +15,7 @@ export interface ICoreNode extends IKey {
     l: ILatLon;
 
     /**
-     * SfMComputed EXIF longitude in WGS84 datum, measured in degrees.
+     * SfM computed latitude longitude in WGS84 datum, measured in degrees.
      */
     cl?: ILatLon;
 

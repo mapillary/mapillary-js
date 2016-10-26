@@ -22,6 +22,11 @@ import {
 } from "../Utils";
 import {ImageSize} from "../Viewer";
 
+/**
+ * @class NodeCache
+ *
+ * @classdesc Represents the cached properties of a node.
+ */
 export class NodeCache {
     private _image: HTMLImageElement;
     private _loadStatus: ILoadStatus;
@@ -39,6 +44,9 @@ export class NodeCache {
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
 
+    /**
+     * Create a new node cache instance.
+     */
     constructor() {
         this._image = null;
         this._loadStatus = { loaded: 0, total: 0 };
@@ -65,34 +73,87 @@ export class NodeCache {
         this._cachingAssets$ = null;
     }
 
+    /**
+     * Get image.
+     *
+     * @description Will not be set when assets have not been cached
+     * or when the object has been disposed.
+     *
+     * @returns {HTMLImageElement} Cached image element of the node.
+     */
     public get image(): HTMLImageElement {
         return this._image;
     }
 
+    /**
+     * Get loadStatus.
+     *
+     * @returns {ILoadStatus} Value indicating the load status
+     * of the mesh and image.
+     */
     public get loadStatus(): ILoadStatus {
         return this._loadStatus;
     }
 
+    /**
+     * Get mesh.
+     *
+     * @description Will not be set when assets have not been cached
+     * or when the object has been disposed.
+     *
+     * @returns {IMesh} SfM triangulated mesh of reconstructed
+     * atomic 3D points.
+     */
     public get mesh(): IMesh {
         return this._mesh;
     }
 
+    /**
+     * Get sequenceEdges.
+     *
+     * @returns {IEdgeStatus} Value describing the status of the
+     * sequence edges.
+     */
     public get sequenceEdges(): IEdgeStatus {
         return this._sequenceEdges;
     }
 
+    /**
+     * Get sequenceEdges$.
+     *
+     * @returns {Observable<IEdgeStatus>} Observable emitting
+     * values describing the status of the sequence edges.
+     */
     public get sequenceEdges$(): Observable<IEdgeStatus> {
         return this._sequenceEdges$;
     }
 
+    /**
+     * Get spatialEdges.
+     *
+     * @returns {IEdgeStatus} Value describing the status of the
+     * spatial edges.
+     */
     public get spatialEdges(): IEdgeStatus {
         return this._spatialEdges;
     }
 
+    /**
+     * Get spatialEdges$.
+     *
+     * @returns {Observable<IEdgeStatus>} Observable emitting
+     * values describing the status of the spatial edges.
+     */
     public get spatialEdges$(): Observable<IEdgeStatus> {
         return this._spatialEdges$;
     }
 
+    /**
+     * Cache the image and mesh assets.
+     *
+     * @returns {Observable<Node>} Observable emitting this node whenever the
+     * load status has changed and when the mesh or image has been fully loaded.
+     */
     public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
             return this._cachingAssets$;
@@ -130,16 +191,32 @@ export class NodeCache {
         return this._cachingAssets$;
     }
 
+    /**
+     * Cache the sequence edges.
+     *
+     * @param {Array<IEdge>} edges - Sequence edges to cache.
+     */
     public cacheSequenceEdges(edges: IEdge[]): void {
         this._sequenceEdges = { cached: true, edges: edges };
         this._sequenceEdgesChanged$.next(this._sequenceEdges);
     }
 
+    /**
+     * Cache the spatial edges.
+     *
+     * @param {Array<IEdge>} edges - Spatial edges to cache.
+     */
     public cacheSpatialEdges(edges: IEdge[]): void {
         this._spatialEdges = { cached: true, edges: edges };
         this._spatialEdgesChanged$.next(this._spatialEdges);
     }
 
+    /**
+     * Dispose the node cache.
+     *
+     * @description Disposes all cached assets and unsubscribes to
+     * all streams.
+     */
     public dispose(): void {
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
@@ -154,6 +231,9 @@ export class NodeCache {
         this._spatialEdgesChanged$.next(this._spatialEdges);
     }
 
+    /**
+     * Reset the spatial edges.
+     */
     public resetSpatialEdges(): void {
         this._spatialEdges = { cached: false, edges: [] };
         this._spatialEdgesChanged$.next(this._spatialEdges);
@@ -162,9 +242,9 @@ export class NodeCache {
     /**
      * Cache the image.
      *
-     * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable emitting
-     * a load status object every time the load status changes and completes
-     * when the image is fully loaded.
+     * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable
+     * emitting a load status object every time the load status changes
+     * and completes when the image is fully loaded.
      */
     private _cacheImage(key: string, pano: boolean): Observable<ILoadStatusObject<HTMLImageElement>> {
         let imageSize: ImageSize = pano ?
@@ -185,7 +265,7 @@ export class NodeCache {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<IMesh>>): void => {
                 if (!merged) {
-                    subscriber.next(this._createEmptyLoadStatus());
+                    subscriber.next(this._createEmptyMeshLoadStatus());
                     subscriber.complete();
                     return;
                 }
@@ -209,7 +289,7 @@ export class NodeCache {
                 xmlHTTP.onerror = (e: Event) => {
                     console.error(`Failed to cache mesh (${key})`);
 
-                    subscriber.next(this._createEmptyLoadStatus());
+                    subscriber.next(this._createEmptyMeshLoadStatus());
                     subscriber.complete();
                 };
 
@@ -217,7 +297,13 @@ export class NodeCache {
             });
     }
 
-    private _createEmptyLoadStatus(): ILoadStatusObject<IMesh> {
+    /**
+     * Create a load status object with an empty mesh.
+     *
+     * @returns {ILoadStatusObject<IMesh>} Load status object
+     * with empty mesh.
+     */
+    private _createEmptyMeshLoadStatus(): ILoadStatusObject<IMesh> {
         return {
             loaded: { loaded: 0, total: 0 },
             object: { faces: [], vertices: [] },

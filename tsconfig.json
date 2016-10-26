@@ -5,16 +5,21 @@
         "module": "commonjs"
     },
     "files": [
+      "./src/api/interfaces/ICoreNode.ts",
+      "./src/api/interfaces/IFillNode.ts",
       "./src/api/interfaces/IGPano.ts",
       "./src/api/interfaces/ILatLon.ts",
+      "./src/api/interfaces/IKey.ts",
       "./src/graph/edge/interfaces/IEdge.ts",
       "./src/graph/edge/interfaces/IEdgeData.ts",
       "./src/graph/edge/EdgeDirection.ts",
+      "./src/graph/interfaces/IEdgeStatus.ts",
       "./src/graph/interfaces/ILoadStatus.ts",
       "./src/graph/interfaces/IMesh.ts",
       "./src/graph/Node.ts",
-      "./src/graph/Sequence.ts",
+      "./src/graph/NodeCache.ts",
       "./src/render/RenderMode.ts",
+      "./src/viewer/interfaces/IComponentOptions.ts",
       "./src/viewer/interfaces/IViewerOptions.ts",
       "./src/viewer/ImageSize.ts",
       "./src/viewer/Viewer.ts"

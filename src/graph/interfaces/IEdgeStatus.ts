@@ -15,7 +15,9 @@ export interface IEdgeStatus {
      * The edges.
      *
      * @description If the cached property is false the edges
-     * property will always be an empty array.
+     * property will always be an empty array. If the cached
+     * property is true, there will exist edges in the the
+     * array if the node has edges.
      */
     edges: IEdge[];
 }

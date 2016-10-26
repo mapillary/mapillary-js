@@ -1,7 +1,7 @@
 import {IGPano, IUser} from "../../API";
 
 /**
- * Interface that describes the raw filling image properties.
+ * Interface that describes the raw filling node properties.
  *
  * @interface ISpatialNode
  */
@@ -17,7 +17,7 @@ export interface IFillNode {
     c_rotation?: number[];
 
     /**
-     * Original EXIF compass angle.
+     * Original EXIF compass angle, measured in degrees.
      */
     ca: number;
 
@@ -35,12 +35,12 @@ export interface IFillNode {
     captured_at: number;
 
     /**
-     * SfM computed EXIF compass angle.
+     * SfM computed compass angle, measured in degrees.
      */
     cca?: number;
 
     /**
-     * SfM computed focal lenght.
+     * SfM computed focal length.
      */
     cfocal?: number;
 

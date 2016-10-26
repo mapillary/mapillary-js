@@ -1,5 +1,5 @@
 /**
- * Interface that describes the an object with a key.
+ * Interface that describes an object with a unique key.
  *
  * @interface IKey
  */
