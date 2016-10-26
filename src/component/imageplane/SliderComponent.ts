@@ -219,7 +219,9 @@ class SliderState {
                 this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform),
             ]);
 
-            this._updateBbox();
+            if (!this.disabled) {
+                this._updateBbox();
+            }
         }
 
         return needsRender;
