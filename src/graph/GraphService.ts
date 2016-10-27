@@ -19,6 +19,12 @@ import {
     Sequence,
 } from "../Graph";
 
+
+/**
+ * @class GraphService
+ *
+ * @classdesc Represents a service for graph operations.
+ */
 export class GraphService {
     private _graph$: Observable<Graph>;
 
@@ -26,6 +32,11 @@ export class GraphService {
 
     private _spatialSubscriptions: Subscription[];
 
+    /**
+     * Create a new graph service instance.
+     *
+     * @param {Graph} graph - Graph instance to be operated on.
+     */
     constructor(graph: Graph, imageLoadingService: ImageLoadingService) {
         this._graph$ = Observable
             .of(graph)
@@ -40,6 +51,24 @@ export class GraphService {
         this._spatialSubscriptions = [];
     }
 
+    /**
+     * Cache a node in the graph and retrieve it.
+     *
+     * @description When called, the full properties of
+     * the node are retrieved and the node cache is initialized.
+     * After that the node assets are cached and the node
+     * is emitted to the observable when.
+     * In parallel to caching the node assets, the sequence and
+     * spatial edges of the node are cached. For this, the sequence
+     * of the node and the required tiles and spatial nodes are
+     * retrieved. The sequence and spatial edges may be set before
+     * or after the node is returned.
+     *
+     * @param {string} key - Key of the node to cache.
+     * @return {Observable<Node>} Observable emitting a single item,
+     * the node, when it has been retrieved and its assets are cached.
+     * @throws {Error} Propagates any IO node caching errors to the caller.
+     */
     public cacheNode$(key: string): Observable<Node> {
         let firstGraph$: Observable<Graph> = this._graph$
             .first()
@@ -192,6 +221,14 @@ export class GraphService {
                 });
     }
 
+    /**
+     * Cache a sequence in the graph and retrieve it.
+     *
+     * @param {string} sequenceKey - Sequence key.
+     * @returns {Observable<Sequence>} Observable emitting a single item,
+     * the sequence, when it has been retrieved and its assets are cached.
+     * @throws {Error} Propagates any IO node caching errors to the caller.
+     */
     public cacheSequence$(sequenceKey: string): Observable<Sequence> {
         return this._graph$
             .first()
@@ -209,6 +246,16 @@ export class GraphService {
                 });
     }
 
+    /**
+     * Reset the spatial edges of all cached nodes and recaches the
+     * spatial edges of the provided node.
+     *
+     * @param {string} key - Key of the node to cache edges for after reset.
+     * @returns {Observable<Sequence>} Observable emitting a single item,
+     * the node, when it has been retrieved and its assets are cached after
+     * the spatial reset.
+     * @throws {Error} Propagates any IO node caching errors to the caller.
+     */
     public reset$(key: string): Observable<Node> {
         this._resetSpatialSubscriptions();
 

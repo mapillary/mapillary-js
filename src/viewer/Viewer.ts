@@ -35,6 +35,7 @@ export class Viewer extends EventEmitter {
     /**
      * Fired when the viewer finishes transitioning and is in a fixed
      * position with a fixed point of view.
+     * @event
      */
     public static moveend: string = "moveend";
 
@@ -112,6 +113,7 @@ export class Viewer extends EventEmitter {
      *
      * @param {string} key - A valid Mapillary photo key.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @throws {Error} Propagates any IO errors to the caller.
      */
     public moveToKey(key: string): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -132,10 +134,12 @@ export class Viewer extends EventEmitter {
      * @description This method has to be called through EdgeDirection enumeration as in the example.
      *
      * @param {EdgeDirection} dir - Direction in which which to move.
-     * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} If the current node does not have the edge direction
      * or the edges has not yet been cached.
+     * @throws {Error} Propagates any IO errors to the caller.
+     *
+     * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -158,6 +162,7 @@ export class Viewer extends EventEmitter {
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} If no nodes exist close to provided latitude
      * longitude.
+     * @throws {Error} Propagates any IO errors to the caller.
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {

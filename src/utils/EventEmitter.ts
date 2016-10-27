@@ -6,18 +6,21 @@ export class EventEmitter {
     }
 
     /**
-     * Subscribe to an event by its name
-     * @param event The name of the event to subscribe for
-     * @param The handler called when the event occurs
-     * @event
+     * Subscribe to an event by its name.
+     * @param {string }eventType - The name of the event to subscribe to.
+     * @param {any} fn - The handler called when the event occurs.
      */
-
     public on(eventType: string, fn: any): void {
         this._events[eventType] = this._events[eventType] || [];
         this._events[eventType].push(fn);
         return;
     }
 
+    /**
+     * Unsubscribe from an event by its name.
+     * @param {string} eventType - The name of the event to subscribe to.
+     * @param {any} fn - The handler to remove.
+     */
     public off(eventType: string, fn: any): void {
         if (!eventType) {
             this._events = {};
