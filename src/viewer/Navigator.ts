@@ -4,10 +4,10 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/observable/fromPromise";
-import "rxjs/add/observable/of";
 import "rxjs/add/observable/throw";
 
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/finally";
 import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
@@ -34,21 +34,23 @@ export class Navigator {
     private _graphService: GraphService;
     private _imageLoadingService: ImageLoadingService;
     private _loadingService: LoadingService;
+    private _loadingName: string;
     private _stateService: StateService;
 
-    private _keyRequested$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
-    private _movedToKey$: Subject<string> = new Subject<string>();
-    private _dirRequested$: BehaviorSubject<EdgeDirection> = new BehaviorSubject<EdgeDirection>(null);
-    private _latLonRequested$: BehaviorSubject<ILatLon> = new BehaviorSubject<ILatLon>(null);
+    private _keyRequested$: BehaviorSubject<string>;
+    private _movedToKey$: Subject<string>;
+    private _dirRequested$: BehaviorSubject<EdgeDirection>;
+    private _latLonRequested$: BehaviorSubject<ILatLon>;
 
     constructor (
         clientId: string,
+        apiV3?: APIv3,
         graphService?: GraphService,
         imageLoadingService?: ImageLoadingService,
         loadingService?: LoadingService,
         stateService?: StateService) {
 
-        this._apiV3 = new APIv3(clientId);
+        this._apiV3 = apiV3 != null ? apiV3 : new APIv3(clientId);
 
         this._imageLoadingService = imageLoadingService != null ? imageLoadingService : new ImageLoadingService();
 
@@ -57,7 +59,14 @@ export class Navigator {
             new GraphService(new Graph(this.apiV3), this._imageLoadingService);
 
         this._loadingService = loadingService != null ? loadingService : new LoadingService();
+        this._loadingName = "navigator";
+
         this._stateService = stateService != null ? stateService : new StateService();
+
+        this._keyRequested$ = new BehaviorSubject<string>(null);
+        this._movedToKey$ = new Subject<string>();
+        this._dirRequested$ = new BehaviorSubject<EdgeDirection>(null);
+        this._latLonRequested$ = new BehaviorSubject<ILatLon>(null);
     }
 
     public get apiV3(): APIv3 {
@@ -89,7 +98,7 @@ export class Navigator {
     }
 
     public moveToKey$(key: string): Observable<Node> {
-        this.loadingService.startLoading("navigator");
+        this.loadingService.startLoading(this._loadingName);
         this._keyRequested$.next(key);
 
         return this._graphService.cacheNode$(key)
@@ -100,26 +109,26 @@ export class Navigator {
                 })
             .finally(
                 (): void => {
-                    this.loadingService.stopLoading("navigator");
+                    this.loadingService.stopLoading(this._loadingName);
                 });
     }
 
-    public moveDir$(dir: EdgeDirection): Observable<Node> {
-        this.loadingService.startLoading("navigator");
-        this._dirRequested$.next(dir);
+    public moveDir$(direction: EdgeDirection): Observable<Node> {
+        this.loadingService.startLoading(this._loadingName);
+        this._dirRequested$.next(direction);
 
         return this.stateService.currentNode$
             .first()
             .mergeMap<string>(
                 (node: Node): Observable<string> => {
-                    return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(dir) > -1 ?
+                    return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
                         node.sequenceEdges$ :
                         node.spatialEdges$)
                             .first()
                             .map<string>(
                                 (status: IEdgeStatus): string => {
                                     for (let edge of status.edges) {
-                                        if (edge.data.direction === dir) {
+                                        if (edge.data.direction === direction) {
                                             return edge.to;
                                         }
                                     }
@@ -130,11 +139,11 @@ export class Navigator {
             .mergeMap<Node>(
                 (directionKey: string) => {
                     if (directionKey == null) {
-                        this.loadingService.stopLoading("navigator");
+                        this.loadingService.stopLoading(this._loadingName);
 
                         return Observable
                             .throw<Node>(
-                                new Error(`Direction (${dir}) does not exist (or is not cached yet) for current node.`));
+                                new Error(`Direction (${direction}) does not exist for current node.`));
                     }
 
                     return this.moveToKey$(directionKey);
@@ -142,14 +151,14 @@ export class Navigator {
     }
 
     public moveCloseTo$(lat: number, lon: number): Observable<Node> {
-        this.loadingService.startLoading("navigator");
+        this.loadingService.startLoading(this._loadingName);
         this._latLonRequested$.next({lat: lat, lon: lon});
 
         return this.apiV3.imageCloseTo$(lat, lon)
             .mergeMap<Node>(
                 (fullNode: IFullNode): Observable<Node> => {
                     if (fullNode == null) {
-                        this.loadingService.stopLoading("navigator");
+                        this.loadingService.stopLoading(this._loadingName);
 
                         return Observable
                             .throw<Node>(
