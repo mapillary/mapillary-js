@@ -167,7 +167,7 @@ export class GraphService {
             .last()
             .mergeMap<Graph>(
                 (graph: Graph): Observable<Graph> => {
-                    if (graph.isSpatialAreaCached(key)) {
+                    if (graph.hasSpatialArea(key)) {
                         return Observable.of<Graph>(graph);
                     }
 

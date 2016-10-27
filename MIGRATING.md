@@ -38,7 +38,7 @@ interface IEdgeStatus {
 
 To simplify working with the edges the `sequenceedgeschanged` and `spatialedgeschanged` events on the `Viewer` should be used.
 
-In the same way as before, the viewer will emit a `nodechanged` event every time the current node changes. Immediately after the `nodechanged` event it will emit the `sequenceedgeschanged` and `spatialedgeschanged` events containing the current edge statuses. At this point the edges may or may not be cached. If the sequence or spatial edges were not cached and are cached at a later point in time the `sequenceedgeschanged` and `spatialedgeschanged` events will fire respectively.
+In the same way as before, the viewer will emit a `nodechanged` event every time the current node changes. Immediately after the `nodechanged` event it will emit the `sequenceedgeschanged` and `spatialedgeschanged` events containing the current edge statuses. At this point the edges may or may not be cached. If the sequence or spatial edges for the current node are cached or changed at a later point in time the `sequenceedgeschanged` and `spatialedgeschanged` events will fire respectively.
 
 The `sequenceedgeschanged` and `spatialedgeschanged` events always emit edge status objects related to the current node retrieved from the `nodechanged` event, never for any other nodes.
 
@@ -116,9 +116,9 @@ Apart from the edge handling described above the status of the new node class is
 
 ## Navigator failure cases
 
-When the `Viewer.moveDir` or `Viewer.moveCloseTo` are called there may not be a valid result. In that case, both methods throw errors that need to be handled by the caller.
+When the `Viewer.moveDir` and `Viewer.moveCloseTo` methods are called there may not be a valid result. In that case, both methods throw errors that need to be handled by the caller.
 
-Whenever any of the `Viewer.moveToKey`, `Viewer.moveDir` or `Viewer.moveCloseTo` methods encounter a network related problem the error will propagate to the caller.
+Whenever any of the `Viewer.moveToKey`, `Viewer.moveDir` or `Viewer.moveCloseTo` methods encounter an IO related problem the error will propagate to the caller.
 
 ## Rotation edge direction
 

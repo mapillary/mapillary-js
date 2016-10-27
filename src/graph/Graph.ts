@@ -51,6 +51,11 @@ type SpatialArea = {
     cacheNodes: { [key: string]: Node };
 }
 
+/**
+ * @class Graph
+ *
+ * @classdesc Represents a graph of nodes with edges.
+ */
 export class Graph {
     private _apiV3: APIv3;
 
@@ -84,6 +89,14 @@ export class Graph {
     private _tilePrecision: number;
     private _tileThreshold: number;
 
+    /**
+     * Create a new graph instance.
+     *
+     * @param {APIv3} [apiV3] - API instance for retrieving data.
+     * @param {rbush.RBush<NodeIndexItem>} [nodeIndex] - Node index for fast spatial retreival.
+     * @param {GraphCalculator} [graphCalculator] - Instance for graph calculations.
+     * @param {EdgeCalculator} [edgeCalculator] - Instance for edge calculations.
+     */
     constructor(
         apiV3: APIv3,
         nodeIndex?: rbush.RBush<NodeIndexItem>,
@@ -123,10 +136,25 @@ export class Graph {
         this._tileThreshold = 20;
     }
 
+    /**
+     * Get changed$.
+     *
+     * @returns {Observable<Graph>} Observable emitting
+     * the graph every time it has changed.
+     */
     public get changed$(): Observable<Graph> {
         return this._changed$;
     }
 
+    /**
+     * Retrieve and cache node fill properties.
+     *
+     * @param {string} key - Key of node to fill.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when the node has been updated.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public cacheFill$(key: string): Observable<Graph> {
         if (key in this._cachingFull$) {
             throw new GraphMapillaryError(`Cannot fill node while caching full (${key}).`);
@@ -172,6 +200,15 @@ export class Graph {
         return this._cachingFill$[key];
     }
 
+    /**
+     * Retrieve and cache full node properties.
+     *
+     * @param {string} key - Key of node to fill.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when the node has been updated.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public cacheFull$(key: string): Observable<Graph> {
         if (key in this._cachingFull$) {
             return this._cachingFull$[key];
@@ -225,6 +262,15 @@ export class Graph {
         return this._cachingFull$[key];
     }
 
+    /**
+     * Retrieve and cache a node sequence.
+     *
+     * @param {string} key - Key of node for which to retrieve sequence.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when the sequence has been retrieved.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public cacheNodeSequence$(key: string): Observable<Graph> {
         if (!this.hasNode(key)) {
             throw new GraphMapillaryError(`Cannot cache sequence edges of node that does not exist in graph (${key}).`);
@@ -238,6 +284,15 @@ export class Graph {
         return this._cacheSequence$(node.sequenceKey);
     }
 
+    /**
+     * Retrieve and cache a sequence.
+     *
+     * @param {string} sequenceKey - Key of sequence to cache.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when the sequence has been retrieved.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public cacheSequence$(sequenceKey: string): Observable<Graph> {
         if (sequenceKey in this._sequences) {
             throw new GraphMapillaryError(`Sequence already cached (${sequenceKey})`);
@@ -246,6 +301,13 @@ export class Graph {
         return this._cacheSequence$(sequenceKey);
     }
 
+    /**
+     * Cache sequence edges for a node.
+     *
+     * @param {string} key - Key of node.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public cacheSequenceEdges(key: string): void {
         let node: Node = this.getNode(key);
 
@@ -259,6 +321,15 @@ export class Graph {
         node.cacheSequenceEdges(edges);
     }
 
+    /**
+     * Retrieve and cache full nodes for a node spatial area.
+     *
+     * @param {string} key - Key of node for which to retrieve sequence.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when the nodes in the spatial area has been made full.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public cacheSpatialArea$(key: string): Observable<Graph>[] {
         if (!this.hasNode(key)) {
             throw new GraphMapillaryError(`Cannot cache spatial area of node that does not exist in graph (${key}).`);
@@ -353,6 +424,13 @@ export class Graph {
         return spatialNodes$;
     }
 
+    /**
+     * Cache spatial edges for a node.
+     *
+     * @param {string} key - Key of node.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public cacheSpatialEdges(key: string): void {
         if (key in this._cachedSpatialEdges) {
              throw new GraphMapillaryError(`Spatial edges already cached (${key}).`);
@@ -395,6 +473,15 @@ export class Graph {
         delete this._requiredSpatialArea[key];
     }
 
+    /**
+     * Retrieve and cache geohash tiles for a node.
+     *
+     * @param {string} key - Key of node for which to retrieve tiles.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when the tiles required for the node has been cached.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public cacheTiles$(key: string): Observable<Graph>[] {
         if (key in this._cachedNodeTiles) {
             throw new GraphMapillaryError(`Tiles already cached (${key}).`);
@@ -534,6 +621,13 @@ export class Graph {
         return cacheTiles$;
     }
 
+    /**
+     * Initialize the cache for a node.
+     *
+     * @param {string} key - Key of node.
+     * @throws {GraphMapillaryError} When the operation is not valid on the
+     * current graph.
+     */
     public initializeCache(key: string): void {
         if (key in this._cachedNodes) {
             throw new GraphMapillaryError(`Node already in cache (${key}).`);
@@ -544,31 +638,119 @@ export class Graph {
         this._cachedNodes[key] = node;
     }
 
+    /**
+     * Get a value indicating if the graph is fill caching a node.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if the node is being fill cached.
+     */
     public isCachingFill(key: string): boolean {
         return key in this._cachingFill$;
     }
 
+    /**
+     * Get a value indicating if the graph is fully caching a node.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if the node is being fully cached.
+     */
     public isCachingFull(key: string): boolean {
         return key in this._cachingFull$;
     }
 
+    /**
+     * Get a value indicating if the graph is caching a sequence of a node.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if the sequence of a node is
+     * being cached.
+     */
     public isCachingNodeSequence(key: string): boolean {
         let node: Node = this.getNode(key);
 
         return node.sequenceKey in this._cachingSequences$;
     }
 
+    /**
+     * Get a value indicating if the graph is caching a sequence.
+     *
+     * @param {string} sequenceKey - Key of sequence.
+     * @returns {boolean} Value indicating if the sequence is
+     * being cached.
+     */
     public isCachingSequence(sequenceKey: string): boolean {
         return sequenceKey in this._cachingSequences$;
     }
 
+    /**
+     * Get a value indicating if the graph is caching the tiles
+     * required for calculating spatial edges of a node.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if the tiles of
+     * a node are being cached.
+     */
     public isCachingTiles(key: string): boolean {
         return key in this._requiredNodeTiles &&
             this._requiredNodeTiles[key].cache.length === 0 &&
             this._requiredNodeTiles[key].caching.length > 0;
     }
 
-    public isSpatialAreaCached(key: string): boolean {
+    /**
+     * Get a value indicating if the cache has been initialized
+     * for a node.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if the cache has been
+     * initialized for a node.
+     */
+    public hasInitializedCache(key: string): boolean {
+        return key in this._cachedNodes;
+    }
+
+    /**
+     * Get a value indicating if a node exist in the graph.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if a node exist in the graph.
+     */
+    public hasNode(key: string): boolean {
+        return key in this._nodes;
+    }
+
+    /**
+     * Get a value indicating if a node sequence exist in the graph.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if a node sequence exist
+     * in the graph.
+     */
+    public hasNodeSequence(key: string): boolean {
+        let node: Node = this.getNode(key);
+
+        return node.sequenceKey in this._sequences;
+    }
+
+    /**
+     * Get a value indicating if a sequence exist in the graph.
+     *
+     * @param {string} sequenceKey - Key of sequence.
+     * @returns {boolean} Value indicating if a sequence exist
+     * in the graph.
+     */
+    public hasSequence(sequenceKey: string): boolean {
+        return sequenceKey in this._sequences;
+    }
+
+    /**
+     * Get a value indicating if the graph has fully cached
+     * all nodes in the spatial area of a node.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if the spatial area
+     * of a node has been cached.
+     */
+    public hasSpatialArea(key: string): boolean {
         if (!this.hasNode(key)) {
             throw new GraphMapillaryError(`Spatial area nodes cannot be determined if node not in graph (${key}).`);
         }
@@ -611,24 +793,14 @@ export class Graph {
         return spatialNodes.cacheKeys.length === 0;
     }
 
-    public hasInitializedCache(key: string): boolean {
-        return key in this._cachedNodes;
-    }
-
-    public hasNode(key: string): boolean {
-        return key in this._nodes;
-    }
-
-    public hasNodeSequence(key: string): boolean {
-        let node: Node = this.getNode(key);
-
-        return node.sequenceKey in this._sequences;
-    }
-
-    public hasSequence(sequenceKey: string): boolean {
-        return sequenceKey in this._sequences;
-    }
-
+    /**
+     * Get a value indicating if the graph has a tiles required
+     * for a node.
+     *
+     * @param {string} key - Key of node.
+     * @returns {boolean} Value indicating if the the tiles required
+     * by a node has been cached.
+     */
     public hasTiles(key: string): boolean {
         if (key in this._cachedNodeTiles) {
             return true;
@@ -660,14 +832,29 @@ export class Graph {
             this._requiredNodeTiles[key].caching.length === 0;
     }
 
+    /**
+     * Get a node.
+     *
+     * @param {string} key - Key of node.
+     * @returns {Node} Retrieved node.
+     */
     public getNode(key: string): Node {
         return this._nodes[key];
     }
 
+    /**
+     * Get a sequence.
+     *
+     * @param {string} sequenceKey - Key of sequence.
+     * @returns {Node} Retrieved sequence.
+     */
     public getSequence(sequenceKey: string): Sequence {
         return this._sequences[sequenceKey];
     }
 
+    /**
+     * Reset all spatial edges of the graph nodes.
+     */
     public reset(): void {
         let spatialNodeKeys: string[] = Object.keys(this._requiredSpatialArea);
 

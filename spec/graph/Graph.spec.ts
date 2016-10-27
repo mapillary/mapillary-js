@@ -637,7 +637,7 @@ describe("Graph.cacheSpatialNodes", () => {
 
         spyOn(index, "search").and.returnValue([{ node: node }]);
 
-        expect(graph.isSpatialAreaCached(fullNode.key)).toBe(true);
+        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
     });
 
     it("should not be cached", () => {
@@ -689,7 +689,7 @@ describe("Graph.cacheSpatialNodes", () => {
 
         spyOn(index, "search").and.returnValue([{ node: node }, {node: otherNode }]);
 
-        expect(graph.isSpatialAreaCached(fullNode.key)).toBe(false);
+        expect(graph.hasSpatialArea(fullNode.key)).toBe(false);
     });
 });
 

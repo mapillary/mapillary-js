@@ -21,6 +21,11 @@ import
 import {ArgumentMapillaryError} from "../../Error";
 import {GeoCoords, Spatial} from "../../Geo";
 
+/**
+ * @class EdgeCalculator
+ *
+ * @classdesc Represents a class for calculating node edges.
+ */
 export class EdgeCalculator {
 
     private _spatial: Spatial;
@@ -31,12 +36,12 @@ export class EdgeCalculator {
     private _coefficients: EdgeCalculatorCoefficients;
 
     /**
-     * @class
-     * @param {EdgeCalculatorSettings} settings?
-     * @param {EdgeCalculatorDirections} directions?
-     * @param {EdgeCalculatorCoefficients} coefficients?
+     * Create a new edge calculator instance.
+     *
+     * @param {EdgeCalculatorSettings} settings - Settings struct.
+     * @param {EdgeCalculatorDirections} directions - Directions struct.
+     * @param {EdgeCalculatorCoefficients} coefficients - Coefficients struct.
      */
-
     constructor(
         settings?: EdgeCalculatorSettings,
         directions?: EdgeCalculatorDirections,
@@ -54,11 +59,11 @@ export class EdgeCalculator {
      * Returns the potential edges to destination nodes for a set
      * of nodes with respect to a source node.
      *
-     * @param {Node} node The source node
-     * @param {Array<Node>} nodes Potential destination nodes
-     * @param {Array<string>} fallbackKeys Keys for destination nodes that should
-     *                                     be returned even if they do not meet
-     *                                     the criteria for a potential edge.
+     * @param {Node} node - Source node.
+     * @param {Array<Node>} nodes - Potential destination nodes.
+     * @param {Array<string>} fallbackKeys - Keys for destination nodes that should
+     * be returned even if they do not meet the criteria for a potential edge.
+     * @throws {ArgumentMapillaryError} If node is not full.
      */
     public getPotentialEdges(node: Node, potentialNodes: Node[], fallbackKeys: string[]): IPotentialEdge[] {
         if (!node.full) {
@@ -162,7 +167,8 @@ export class EdgeCalculator {
     /**
      * Computes the sequence edges for a node.
      *
-     * @param {Node} node Source node
+     * @param {Node} node - Source node.
+     * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computeSequenceEdges(node: Node, sequence: Sequence): IEdge[] {
         if (!node.full) {
@@ -209,8 +215,9 @@ export class EdgeCalculator {
      * look roughly in the same direction and are positioned closed to the node.
      * Similar edges for full panoramas only target other full panoramas.
      *
-     * @param {Node} node Source node
-     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     * @param {Node} node - Source node.
+     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computeSimilarEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
@@ -313,10 +320,11 @@ export class EdgeCalculator {
     /**
      * Computes the step edges for a perspective node.
      *
-     * @param {Node} node Source node
-     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
-     * @param {string} prevKey Key of previous node in sequence
-     * @param {string} prevKey Key of next node in sequence
+     * @param {Node} node - Source node.
+     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @param {string} prevKey - Key of previous node in sequence.
+     * @param {string} prevKey - Key of next node in sequence.
+     * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computeStepEdges(
         node: Node,
@@ -412,8 +420,9 @@ export class EdgeCalculator {
     /**
      * Computes the turn edges for a perspective node.
      *
-     * @param {Node} node Source node
-     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     * @param {Node} node - Source node.
+     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computeTurnEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
@@ -504,8 +513,9 @@ export class EdgeCalculator {
     /**
      * Computes the pano edges for a perspective node.
      *
-     * @param {Node} node Source node
-     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     * @param {Node} node - Source node.
+     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computePerspectiveToPanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
@@ -556,8 +566,9 @@ export class EdgeCalculator {
     /**
      * Computes the pano and step edges for a pano node.
      *
-     * @param {Node} node Source node
-     * @param {Array<IPotentialEdge>} potentialEdges Potential edges
+     * @param {Node} node - Source node.
+     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computePanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
