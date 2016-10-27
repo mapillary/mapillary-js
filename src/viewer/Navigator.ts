@@ -18,9 +18,10 @@ import {
     ILatLon,
 } from "../API";
 import {
-    IEdgeStatus,
     Graph,
     GraphService,
+    IEdgeStatus,
+    ImageLoadingService,
     Node,
 } from "../Graph";
 import {EdgeDirection} from "../Edge";
@@ -31,6 +32,7 @@ export class Navigator {
     private _apiV3: APIv3;
 
     private _graphService: GraphService;
+    private _imageLoadingService: ImageLoadingService;
     private _loadingService: LoadingService;
     private _stateService: StateService;
 
@@ -42,12 +44,18 @@ export class Navigator {
     constructor (
         clientId: string,
         graphService?: GraphService,
+        imageLoadingService?: ImageLoadingService,
         loadingService?: LoadingService,
         stateService?: StateService) {
 
         this._apiV3 = new APIv3(clientId);
 
-        this._graphService = graphService != null ? graphService : new GraphService(new Graph(this.apiV3));
+        this._imageLoadingService = imageLoadingService != null ? imageLoadingService : new ImageLoadingService();
+
+        this._graphService = graphService != null ?
+            graphService :
+            new GraphService(new Graph(this.apiV3), this._imageLoadingService);
+
         this._loadingService = loadingService != null ? loadingService : new LoadingService();
         this._stateService = stateService != null ? stateService : new StateService();
     }
@@ -58,6 +66,10 @@ export class Navigator {
 
     public get graphService(): GraphService {
         return this._graphService;
+    }
+
+    public get imageLoadingService(): ImageLoadingService {
+        return this._imageLoadingService;
     }
 
     public get keyRequested$(): Observable<string> {

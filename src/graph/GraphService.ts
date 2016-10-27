@@ -26,7 +26,7 @@ export class GraphService {
 
     private _spatialSubscriptions: Subscription[];
 
-    constructor(graph: Graph) {
+    constructor(graph: Graph, imageLoadingService: ImageLoadingService) {
         this._graph$ = Observable
             .of(graph)
             .concat(graph.changed$)
@@ -35,13 +35,9 @@ export class GraphService {
 
         this._graph$.subscribe();
 
-        this._imageLoadingService = new ImageLoadingService();
+        this._imageLoadingService = imageLoadingService;
 
         this._spatialSubscriptions = [];
-    }
-
-    public get imageLoadingService(): ImageLoadingService {
-        return this._imageLoadingService;
     }
 
     public cacheNode$(key: string): Observable<Node> {

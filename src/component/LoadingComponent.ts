@@ -24,7 +24,7 @@ export class LoadingComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         this._loadingSubscription = this._navigator.loadingService.loading$
             .combineLatest(
-                this._navigator.graphService.imageLoadingService.loadstatus$,
+                this._navigator.imageLoadingService.loadstatus$,
                 (loading: boolean, loadStatus: any): IVNodeHash => {
                     if (!loading) {
                         return {name: "loading", vnode: this._getBarVNode(100)};
