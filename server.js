@@ -12,7 +12,7 @@ var tsify = require('tsify');
 
 var app = express();
 
-app.get('/dist/mapillary-js.js', browserify('./src/Mapillary.ts', {
+app.get('/dist/mapillary.js', browserify('./src/Mapillary.ts', {
     cache: 'dynamic',
     debug: true,
     plugins: [{
@@ -24,7 +24,7 @@ app.get('/dist/mapillary-js.js', browserify('./src/Mapillary.ts', {
     transform: ['brfs'],
 }));
 
-app.get('/dist/mapillary-js.min.css', postcss({
+app.get('/dist/mapillary.min.css', postcss({
 	src: function(req) { return path.join(__dirname, 'styles', '*.css'); },
 	plugins: [
         autoprefixer({ browsers: ['last 2 versions', 'safari 7', 'ie 11'] }),

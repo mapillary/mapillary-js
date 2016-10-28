@@ -9,7 +9,8 @@ The requirements on the new graph meant breaking changes to the MapillaryJS API.
 ### MapillaryJS 1
 
 In MapillaryJS 1 the `edges` were always cached for `nodes` retrieved from the `nodechanged` event. The properties related to `edge` handling for the `node` where the following:
-```
+
+```ts
 edges: IEdge[]
 edgesCached: boolean
 ```
@@ -19,7 +20,7 @@ Here, the edges array was always guaranteed to be populated when retrieved from 
 
 In MapillaryJS 2, the graph creation is changed in a way that does not guarantee that the edges have been determined for the current node when it is retrieved from the `nodechanged` event. The edges have also been separated into two different entities, `sequence` and `spatial` edges. The different entities will be retrieved asyncronously and may be set at different times. Therefor, in MapillaryJS 2.0, the node properties related to edges are the following:
 
-```
+```ts
 sequenceEdges: IEdgeStatus
 sequenceEdges$: Observable<IEdgeStatus>
 
@@ -44,7 +45,7 @@ The `sequenceedgeschanged` and `spatialedgeschanged` events always emit edge sta
 
 Subscribing to the `sequenceedgeschanged` and `spatialedgeschanged` events is done in the following way:
 
-```
+```js
 viewer.on(Mapillary.Viewer.sequenceedgeschanged, function(status) { <do something>; });
 viewer.on(Mapillary.Viewer.spatialedgeschanged, function(status) { <do something>; });
 ```
@@ -129,7 +130,7 @@ The `EdgeDirection.RotateLeft` and `EdgeDirection.RotateRight` enumeration value
 The component options have been broken out from the regular viewer options.
 
 MapillaryJS 1:
-```
+```js
 var mly = new Mapillary.Viewer(
     'mly',
     '<your client id>',
@@ -148,7 +149,7 @@ var mly = new Mapillary.Viewer(
 ```
 
 MapillaryJS 2:
-```
+```js
 var mly = new Mapillary.Viewer(
     'mly',
     '<your client id>',

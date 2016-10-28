@@ -2,7 +2,7 @@
   "name": "mapillary-js",
   "version": "1.7.2",
   "description": "WebGL JavaScript library for displaying street level imagery from mapillary.com",
-  "main": "dist/mapillary-js.min",
+  "main": "dist/mapillary.min",
   "license": "MIT",
   "homepage": "https://github.com/mapillary/mapillary-js#readme",
   "keywords": [
@@ -67,11 +67,11 @@
     }
   },
   "scripts": {
-    "build-css": "cat styles/*.css | postcss --use autoprefixer --autoprefixer.browsers 'last 2 versions, safari 7, ie 11' --use cssnano -o dist/mapillary-js.min.css",
-    "build-dev": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug | exorcist dist/mapillary-js.js.map > dist/mapillary-js.js",
-    "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary-js.js.map > dist/mapillary-js.js'",
+    "build-css": "cat styles/*.css | postcss --use autoprefixer --autoprefixer.browsers 'last 2 versions, safari 7, ie 11' --use cssnano -o dist/mapillary.min.css",
+    "build-dev": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug | exorcist dist/mapillary.js.map > dist/mapillary.js",
+    "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary.js.map > dist/mapillary.js'",
     "build-docs": "typedoc --mode file --target ES5 --module commonjs --theme default --excludeExternals --name MapillaryJS --out docs/",
-    "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs -c -m > dist/mapillary-js.min.js",
+    "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs -c -m > dist/mapillary.min.js",
     "clean": "npm run clean-dist && npm run clean-typings",
     "clean-dist": "rm -rf dist && mkdir dist",
     "clean-typings": "rm -rf typings/modules && rm -rf typings/globals && rm -f typings/index.d.ts",

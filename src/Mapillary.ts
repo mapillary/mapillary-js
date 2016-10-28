@@ -1,5 +1,5 @@
 /**
- * mapillary-js is a WebGL JavaScript library for exploring street level imagery
+ * MapillaryJS is a WebGL JavaScript library for exploring street level imagery
  * @name Mapillary
  */
 
