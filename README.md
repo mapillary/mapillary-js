@@ -14,8 +14,8 @@ To use MapillaryJS you must [create an account](https://www.mapillary.com/signup
 <!DOCTYPE html>
 <html>
 <head>
-    <script src='https://unpkg.com/mapillary-js@1.7.2/dist/mapillary-js.min.js'></script>
-    <link href='https://unpkg.com/mapillary-js@1.7.2/dist/mapillary-js.min.css' rel='stylesheet' />
+    <script src='https://unpkg.com/mapillary-js@2.0.0/dist/mapillary.min.js'></script>
+    <link href='https://unpkg.com/mapillary-js@2.0.0/dist/mapillary.min.css' rel='stylesheet' />
 </head>
 
 <body>
@@ -63,3 +63,7 @@ MIT License
 ## Contributing to MapillaryJS
 
 See [CONTRIBUTING.md](https://github.com/mapillary/mapillary-js/blob/master/CONTRIBUTING.md).
+
+## Migrating from MapillaryJS 1 to 2
+
+See [MIGRATING.md](https://github.com/mapillary/mapillary-js/blob/master/MIGRATING.md).
