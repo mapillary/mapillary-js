@@ -1,3 +1,10 @@
+export {
+    ComparisonFilter,
+    ComparisonOperator,
+    Filter,
+    FilterFunction,
+    FilterProperty,
+} from "./graph/Filter";
 export {Graph} from "./graph/Graph";
 export {GraphCalculator} from "./graph/GraphCalculator";
 export {GraphService} from "./graph/GraphService";
