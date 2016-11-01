@@ -2,6 +2,7 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
+import "rxjs/add/operator/bufferCount";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/filter";
@@ -102,12 +103,9 @@ export class StateService {
             .switchMap<number>(
                 (): Observable<number> => {
                     return this._frame$
-                        .filter(
-                            (frameId: number): boolean => {
-                                return frameId % this._fpsSampleRate === 0;
-                            })
+                        .bufferCount(1, 30)
                         .map<number>(
-                            (frameId: number): number => {
+                            (frameIds: number[]): number => {
                                 return new Date().getTime();
                             })
                         .pairwise()
