@@ -7,20 +7,23 @@ import {
     IFillNode,
 } from "../../src/API";
 import {
-    Filter,
+    FilterCreator,
     FilterFunction,
     Node,
 } from "../../src/Graph";
 
-describe("Filter.ctor", () => {
+/**
+ * Implementation based on https://github.com/mapbox/feature-filter.
+ */
+describe("FilterCreator.ctor", () => {
     it("should create a filter", () => {
-        let filter: Filter = new Filter();
+        let filter: FilterCreator = new FilterCreator();
 
         expect(filter).toBeDefined();
     });
 });
 
-describe("Filter.createComparisonFilter", () => {
+describe("FilterCreator.createFilter", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -28,10 +31,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare ==, string", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "skey";
-        let filter: FilterFunction = creator.createComparisonFilter(["==", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["==", "sequenceKey", sequenceKey]);
 
         let coreNode1: ICoreNode = helper.createCoreNode();
         let coreNode2: ICoreNode = helper.createCoreNode();
@@ -55,10 +58,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare ==, number", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let capturedAt: number = 1;
-        let filter: FilterFunction = creator.createComparisonFilter(["==", "capturedAt", capturedAt]);
+        let filter: FilterFunction = creator.createFilter(["==", "capturedAt", capturedAt]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -87,9 +90,9 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare ==, null", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
-        let filter: FilterFunction = creator.createComparisonFilter<string>(["==", "userKey", null]);
+        let filter: FilterFunction = creator.createFilter(["==", "userKey", null]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -118,7 +121,7 @@ describe("Filter.createComparisonFilter", () => {
     });
 });
 
-describe("Filter.createComparisonFilter", () => {
+describe("FilterCreator.createFilter", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -126,10 +129,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare !=, string", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "skey";
-        let filter: FilterFunction = creator.createComparisonFilter(["!=", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["!=", "sequenceKey", sequenceKey]);
 
         let coreNode1: ICoreNode = helper.createCoreNode();
         let coreNode2: ICoreNode = helper.createCoreNode();
@@ -153,10 +156,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare !=, number", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let capturedAt: number = 1;
-        let filter: FilterFunction = creator.createComparisonFilter(["!=", "capturedAt", capturedAt]);
+        let filter: FilterFunction = creator.createFilter(["!=", "capturedAt", capturedAt]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -185,9 +188,9 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare !=, null", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
-        let filter: FilterFunction = creator.createComparisonFilter<string>(["!=", "userKey", null]);
+        let filter: FilterFunction = creator.createFilter(["!=", "userKey", null]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -216,7 +219,7 @@ describe("Filter.createComparisonFilter", () => {
     });
 });
 
-describe("Filter.createComparisonFilter", () => {
+describe("FilterCreator.createFilter", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -224,10 +227,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare >, number", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let capturedAt: number = 1;
-        let filter: FilterFunction = creator.createComparisonFilter([">", "capturedAt", capturedAt]);
+        let filter: FilterFunction = creator.createFilter([">", "capturedAt", capturedAt]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -261,10 +264,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare >, string", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createComparisonFilter([">", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter([">", "sequenceKey", sequenceKey]);
 
         let coreNode1: ICoreNode = helper.createCoreNode();
         let coreNode2: ICoreNode = helper.createCoreNode();
@@ -292,7 +295,7 @@ describe("Filter.createComparisonFilter", () => {
     });
 });
 
-describe("Filter.createComparisonFilter", () => {
+describe("FilterCreator.createFilter", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -300,10 +303,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare >=, number", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let capturedAt: number = 1;
-        let filter: FilterFunction = creator.createComparisonFilter([">=", "capturedAt", capturedAt]);
+        let filter: FilterFunction = creator.createFilter([">=", "capturedAt", capturedAt]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -337,10 +340,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare >=, string", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createComparisonFilter([">=", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter([">=", "sequenceKey", sequenceKey]);
 
         let coreNode1: ICoreNode = helper.createCoreNode();
         let coreNode2: ICoreNode = helper.createCoreNode();
@@ -368,7 +371,7 @@ describe("Filter.createComparisonFilter", () => {
     });
 });
 
-describe("Filter.createComparisonFilter", () => {
+describe("FilterCreator.createFilter", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -376,10 +379,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare <, number", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let capturedAt: number = 1;
-        let filter: FilterFunction = creator.createComparisonFilter(["<", "capturedAt", capturedAt]);
+        let filter: FilterFunction = creator.createFilter(["<", "capturedAt", capturedAt]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -413,10 +416,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare <, string", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createComparisonFilter(["<", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["<", "sequenceKey", sequenceKey]);
 
         let coreNode1: ICoreNode = helper.createCoreNode();
         let coreNode2: ICoreNode = helper.createCoreNode();
@@ -444,7 +447,7 @@ describe("Filter.createComparisonFilter", () => {
     });
 });
 
-describe("Filter.createComparisonFilter", () => {
+describe("FilterCreator.createFilter", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -452,10 +455,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare <=, number", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let capturedAt: number = 1;
-        let filter: FilterFunction = creator.createComparisonFilter(["<=", "capturedAt", capturedAt]);
+        let filter: FilterFunction = creator.createFilter(["<=", "capturedAt", capturedAt]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -489,10 +492,10 @@ describe("Filter.createComparisonFilter", () => {
     });
 
     it("should compare <=, string", () => {
-        let creator: Filter = new Filter();
+        let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createComparisonFilter(["<=", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["<=", "sequenceKey", sequenceKey]);
 
         let coreNode1: ICoreNode = helper.createCoreNode();
         let coreNode2: ICoreNode = helper.createCoreNode();
@@ -517,5 +520,321 @@ describe("Filter.createComparisonFilter", () => {
         expect(filter(node3)).toBe(false);
         expect(filter(node4)).toBe(false);
         expect(filter(node5)).toBe(false);
+    });
+});
+
+describe("FilterCreator.createFilter", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should test in, number", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let capturedAt: number = 1;
+        let filter: FilterFunction = creator.createFilter(["in", "capturedAt", capturedAt]);
+
+        let node1: Node = new Node(helper.createCoreNode());
+        let node2: Node = new Node(helper.createCoreNode());
+        let node3: Node = new Node(helper.createCoreNode());
+        let node4: Node = new Node(helper.createCoreNode());
+        let node5: Node = new Node(helper.createCoreNode());
+
+        let fillNode1: IFillNode = helper.createFillNode();
+        let fillNode2: IFillNode = helper.createFillNode();
+        let fillNode3: IFillNode = helper.createFillNode();
+        let fillNode4: IFillNode = helper.createFillNode();
+        let fillNode5: IFillNode = helper.createFillNode();
+
+        fillNode1.captured_at = capturedAt - 1;
+        fillNode2.captured_at = capturedAt;
+        fillNode3.captured_at = capturedAt + 1;
+        fillNode4.captured_at = null;
+        fillNode5.captured_at = undefined;
+
+        node1.makeFull(fillNode1);
+        node2.makeFull(fillNode2);
+        node3.makeFull(fillNode3);
+        node4.makeFull(fillNode4);
+        node5.makeFull(fillNode5);
+
+        expect(filter(node1)).toBe(false);
+        expect(filter(node2)).toBe(true);
+        expect(filter(node3)).toBe(false);
+        expect(filter(node4)).toBe(false);
+        expect(filter(node5)).toBe(false);
+    });
+
+    it("should test in, string", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let sequenceKey: string = "0";
+        let filter: FilterFunction = creator.createFilter(["in", "sequenceKey", sequenceKey]);
+
+        let coreNode1: ICoreNode = helper.createCoreNode();
+        let coreNode2: ICoreNode = helper.createCoreNode();
+        let coreNode3: ICoreNode = helper.createCoreNode();
+        let coreNode4: ICoreNode = helper.createCoreNode();
+        let coreNode5: ICoreNode = helper.createCoreNode();
+
+        coreNode1.sequence.key = "-1";
+        coreNode2.sequence.key = sequenceKey;
+        coreNode3.sequence.key = "1";
+        coreNode4.sequence.key = null;
+        coreNode5.sequence.key = undefined;
+
+        let node1: Node = new Node(coreNode1);
+        let node2: Node = new Node(coreNode2);
+        let node3: Node = new Node(coreNode3);
+        let node4: Node = new Node(coreNode4);
+        let node5: Node = new Node(coreNode4);
+
+        expect(filter(node1)).toBe(false);
+        expect(filter(node2)).toBe(true);
+        expect(filter(node3)).toBe(false);
+        expect(filter(node4)).toBe(false);
+        expect(filter(node5)).toBe(false);
+    });
+
+    it("should test in, null", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let filter: FilterFunction = creator.createFilter(["in", "sequenceKey", null]);
+
+        let coreNode1: ICoreNode = helper.createCoreNode();
+        let coreNode2: ICoreNode = helper.createCoreNode();
+        let coreNode3: ICoreNode = helper.createCoreNode();
+
+        coreNode1.sequence.key = "1";
+        coreNode2.sequence.key = null;
+        coreNode3.sequence.key = undefined;
+
+        let node1: Node = new Node(coreNode1);
+        let node2: Node = new Node(coreNode2);
+        let node3: Node = new Node(coreNode3);
+
+        expect(filter(node1)).toBe(false);
+        expect(filter(node2)).toBe(true);
+        expect(filter(node3)).toBe(false);
+    });
+
+    it("should test in, multiple", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let filter: FilterFunction = creator.createFilter(["in", "capturedAt", 0, 1]);
+
+        let node1: Node = new Node(helper.createCoreNode());
+        let node2: Node = new Node(helper.createCoreNode());
+        let node3: Node = new Node(helper.createCoreNode());
+
+        let fillNode1: IFillNode = helper.createFillNode();
+        let fillNode2: IFillNode = helper.createFillNode();
+        let fillNode3: IFillNode = helper.createFillNode();
+
+        fillNode1.captured_at = 0;
+        fillNode2.captured_at = 1;
+        fillNode3.captured_at = 2;
+
+        node1.makeFull(fillNode1);
+        node2.makeFull(fillNode2);
+        node3.makeFull(fillNode3);
+
+        expect(filter(node1)).toBe(true);
+        expect(filter(node2)).toBe(true);
+        expect(filter(node3)).toBe(false);
+    });
+
+    it("should test in, large multiple", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let numbers: number[] = Array.apply(null, { length: 2000 }).map(Number.call, Number);
+        let filterDefinition: Array<string | number> = [].concat(["in", "capturedAt"]).concat(numbers);
+
+        let filter: FilterFunction = creator.createFilter(filterDefinition);
+
+        let node1: Node = new Node(helper.createCoreNode());
+        let node2: Node = new Node(helper.createCoreNode());
+        let node3: Node = new Node(helper.createCoreNode());
+        let node4: Node = new Node(helper.createCoreNode());
+
+        let fillNode1: IFillNode = helper.createFillNode();
+        let fillNode2: IFillNode = helper.createFillNode();
+        let fillNode3: IFillNode = helper.createFillNode();
+        let fillNode4: IFillNode = helper.createFillNode();
+
+        fillNode1.captured_at = 0;
+        fillNode2.captured_at = 1;
+        fillNode3.captured_at = 1999;
+        fillNode4.captured_at = 2000;
+
+        node1.makeFull(fillNode1);
+        node2.makeFull(fillNode2);
+        node3.makeFull(fillNode3);
+        node4.makeFull(fillNode4);
+
+        expect(filter(node1)).toBe(true);
+        expect(filter(node2)).toBe(true);
+        expect(filter(node3)).toBe(true);
+        expect(filter(node4)).toBe(false);
+    });
+});
+
+describe("FilterCreator.createFilter", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should test !in, number", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let capturedAt: number = 1;
+        let filter: FilterFunction = creator.createFilter(["!in", "capturedAt", capturedAt]);
+
+        let node1: Node = new Node(helper.createCoreNode());
+        let node2: Node = new Node(helper.createCoreNode());
+        let node3: Node = new Node(helper.createCoreNode());
+        let node4: Node = new Node(helper.createCoreNode());
+        let node5: Node = new Node(helper.createCoreNode());
+
+        let fillNode1: IFillNode = helper.createFillNode();
+        let fillNode2: IFillNode = helper.createFillNode();
+        let fillNode3: IFillNode = helper.createFillNode();
+        let fillNode4: IFillNode = helper.createFillNode();
+        let fillNode5: IFillNode = helper.createFillNode();
+
+        fillNode1.captured_at = capturedAt - 1;
+        fillNode2.captured_at = capturedAt;
+        fillNode3.captured_at = capturedAt + 1;
+        fillNode4.captured_at = null;
+        fillNode5.captured_at = undefined;
+
+        node1.makeFull(fillNode1);
+        node2.makeFull(fillNode2);
+        node3.makeFull(fillNode3);
+        node4.makeFull(fillNode4);
+        node5.makeFull(fillNode5);
+
+        expect(filter(node1)).toBe(true);
+        expect(filter(node2)).toBe(false);
+        expect(filter(node3)).toBe(true);
+        expect(filter(node4)).toBe(true);
+        expect(filter(node5)).toBe(true);
+    });
+
+    it("should test !in, string", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let sequenceKey: string = "0";
+        let filter: FilterFunction = creator.createFilter(["!in", "sequenceKey", sequenceKey]);
+
+        let coreNode1: ICoreNode = helper.createCoreNode();
+        let coreNode2: ICoreNode = helper.createCoreNode();
+        let coreNode3: ICoreNode = helper.createCoreNode();
+        let coreNode4: ICoreNode = helper.createCoreNode();
+        let coreNode5: ICoreNode = helper.createCoreNode();
+
+        coreNode1.sequence.key = "-1";
+        coreNode2.sequence.key = sequenceKey;
+        coreNode3.sequence.key = "1";
+        coreNode4.sequence.key = null;
+        coreNode5.sequence.key = undefined;
+
+        let node1: Node = new Node(coreNode1);
+        let node2: Node = new Node(coreNode2);
+        let node3: Node = new Node(coreNode3);
+        let node4: Node = new Node(coreNode4);
+        let node5: Node = new Node(coreNode4);
+
+        expect(filter(node1)).toBe(true);
+        expect(filter(node2)).toBe(false);
+        expect(filter(node3)).toBe(true);
+        expect(filter(node4)).toBe(true);
+        expect(filter(node5)).toBe(true);
+    });
+
+    it("should test !in, null", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let filter: FilterFunction = creator.createFilter(["!in", "sequenceKey", null]);
+
+        let coreNode1: ICoreNode = helper.createCoreNode();
+        let coreNode2: ICoreNode = helper.createCoreNode();
+        let coreNode3: ICoreNode = helper.createCoreNode();
+
+        coreNode1.sequence.key = "1";
+        coreNode2.sequence.key = null;
+        coreNode3.sequence.key = undefined;
+
+        let node1: Node = new Node(coreNode1);
+        let node2: Node = new Node(coreNode2);
+        let node3: Node = new Node(coreNode3);
+
+        expect(filter(node1)).toBe(true);
+        expect(filter(node2)).toBe(false);
+        expect(filter(node3)).toBe(true);
+    });
+
+    it("should test !in, multiple", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let filter: FilterFunction = creator.createFilter(["!in", "capturedAt", 0, 1]);
+
+        let node1: Node = new Node(helper.createCoreNode());
+        let node2: Node = new Node(helper.createCoreNode());
+        let node3: Node = new Node(helper.createCoreNode());
+
+        let fillNode1: IFillNode = helper.createFillNode();
+        let fillNode2: IFillNode = helper.createFillNode();
+        let fillNode3: IFillNode = helper.createFillNode();
+
+        fillNode1.captured_at = 0;
+        fillNode2.captured_at = 1;
+        fillNode3.captured_at = 2;
+
+        node1.makeFull(fillNode1);
+        node2.makeFull(fillNode2);
+        node3.makeFull(fillNode3);
+
+        expect(filter(node1)).toBe(false);
+        expect(filter(node2)).toBe(false);
+        expect(filter(node3)).toBe(true);
+    });
+
+    it("should test !in, large multiple", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let numbers: number[] = Array.apply(null, { length: 2000 }).map(Number.call, Number);
+        let filterDefinition: Array<string | number> = [].concat(["!in", "capturedAt"]).concat(numbers);
+
+        let filter: FilterFunction = creator.createFilter(filterDefinition);
+
+        let node1: Node = new Node(helper.createCoreNode());
+        let node2: Node = new Node(helper.createCoreNode());
+        let node3: Node = new Node(helper.createCoreNode());
+        let node4: Node = new Node(helper.createCoreNode());
+
+        let fillNode1: IFillNode = helper.createFillNode();
+        let fillNode2: IFillNode = helper.createFillNode();
+        let fillNode3: IFillNode = helper.createFillNode();
+        let fillNode4: IFillNode = helper.createFillNode();
+
+        fillNode1.captured_at = 0;
+        fillNode2.captured_at = 1;
+        fillNode3.captured_at = 1999;
+        fillNode4.captured_at = 2000;
+
+        node1.makeFull(fillNode1);
+        node2.makeFull(fillNode2);
+        node3.makeFull(fillNode3);
+        node4.makeFull(fillNode4);
+
+        expect(filter(node1)).toBe(false);
+        expect(filter(node2)).toBe(false);
+        expect(filter(node3)).toBe(false);
+        expect(filter(node4)).toBe(true);
     });
 });
