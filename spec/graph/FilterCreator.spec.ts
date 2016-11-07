@@ -838,3 +838,32 @@ describe("FilterCreator.createFilter", () => {
         expect(filter(node4)).toBe(true);
     });
 });
+
+describe("FilterCreator.createFilter", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should test all", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
+        fillNode.captured_at = 1;
+        node.makeFull(fillNode);
+
+        let filter1: FilterFunction = creator.createFilter(["all"]);
+        expect(filter1(node)).toBe(true);
+
+        let filter2: FilterFunction = creator.createFilter(["all", ["==", "capturedAt", 1]]);
+        expect(filter2(node)).toBe(true);
+
+        let filter3: FilterFunction = creator.createFilter(["all", ["==", "capturedAt", 0]]);
+        expect(filter3(node)).toBe(false);
+
+        let filter4: FilterFunction = creator.createFilter(["all", ["==", "capturedAt", 0], ["==", "capturedAt", 1]]);
+        expect(filter4(node)).toBe(false);
+    });
+});

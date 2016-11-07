@@ -1,8 +1,8 @@
 export {
-    FilterArrayValue,
     FilterCreator,
-    FilterDefinition,
+    FilterExpression,
     FilterFunction,
+    FilterOperation,
     FilterOperator,
     FilterValue,
 } from "./graph/FilterCreator";
