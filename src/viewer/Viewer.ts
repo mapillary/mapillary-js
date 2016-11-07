@@ -3,10 +3,25 @@
 import * as when from "when";
 
 import {EdgeDirection} from "../Edge";
-import {Node} from "../Graph";
-import {IViewerOptions, Container, Navigator, ComponentController, EventLauncher} from "../Viewer";
-import {Component, IComponentConfiguration} from "../Component";
-import {EventEmitter, Settings} from "../Utils";
+import {
+    FilterExpression,
+    Node,
+} from "../Graph";
+import {
+    ComponentController,
+    Container,
+    EventLauncher,
+    IViewerOptions,
+    Navigator,
+} from "../Viewer";
+import {
+    Component,
+    IComponentConfiguration,
+} from "../Component";
+import {
+    EventEmitter,
+    Settings,
+} from "../Utils";
 import {RenderMode} from "../Render";
 
 /**
@@ -303,6 +318,61 @@ export class Viewer extends EventEmitter {
      */
     public setCenter(center: number[]): void {
         this._navigator.stateService.setCenter(center);
+    }
+
+    /**
+     * Set the filter selecting nodes to use when calculating
+     * the spatial edges.
+     *
+     * @description The following filter types are supported:
+     *
+     * Comparison
+     *
+     * `["==", key, value]` equality: `node[key] = value`
+     *
+     * `["!=", key, value]` inequality: `node[key] ≠ value`
+     *
+     * `["<", key, value]` less than: `node[key] < value`
+     *
+     * `["<=", key, value]` less than or equal: `node[key] ≤ value`
+     *
+     * `[">", key, value]` greater than: `node[key] > value`
+     *
+     * `[">=", key, value]` greater than or equal: `node[key] ≥ value`
+     *
+     * Set membership
+     *
+     * `["in", key, v0, ..., vn]` set inclusion: `node[key] ∈ {v0, ..., vn}`
+     *
+     * `["!in", key, v0, ..., vn]` set exclusion: `node[key] ∉ {v0, ..., vn}`
+     *
+     * Combining
+     *
+     * `["all", f0, ..., fn]` logical `AND`: `f0 ∧ ... ∧ fn`
+     *
+     * A key must be a string that identifies a node property name. A value must be
+     * a string, number, or boolean. Strictly-typed comparisons are used. The values
+     * `f0, ..., fn` of the combining filter must be filter expressions.
+     *
+     * Clear the filter by setting it to null or empty array.
+     *
+     * @param {FilterExpression} The filter expression.
+     *
+     * @example `viewer.setFilter(["==", "sequenceKey", "<my sequence key>"]);`
+     */
+    public setFilter(filter: FilterExpression): when.Promise<Node> {
+        return when.promise<Node>(
+            (resolve: any, reject: any): void => {
+                this._navigator.setFilter$(filter)
+                    .subscribe(
+                        (node: Node): void => {
+                            resolve(node);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        }
+                    );
+            });
     }
 
     /**

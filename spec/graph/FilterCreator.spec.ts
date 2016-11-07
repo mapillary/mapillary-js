@@ -867,3 +867,26 @@ describe("FilterCreator.createFilter", () => {
         expect(filter4(node)).toBe(false);
     });
 });
+
+describe("FilterCreator.createFilter", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should default to true", () => {
+        let creator: FilterCreator = new FilterCreator();
+
+        let node: Node = new Node(helper.createCoreNode());
+
+        let filter1: FilterFunction = creator.createFilter(null);
+        expect(filter1(node)).toBe(true);
+
+        let filter2: FilterFunction = creator.createFilter(undefined);
+        expect(filter2(node)).toBe(true);
+
+        let filter3: FilterFunction = creator.createFilter(["test"]);
+        expect(filter3(node)).toBe(true);
+    });
+});

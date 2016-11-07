@@ -13,6 +13,7 @@ import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/publishReplay";
 
 import {
+    FilterExpression,
     Graph,
     ImageLoadingService,
     Node,
@@ -247,23 +248,26 @@ export class GraphService {
     }
 
     /**
-     * Reset the spatial edges of all cached nodes and recaches the
-     * spatial edges of the provided node.
+     * Set a spatial edge filter on the graph.
+     *
+     * @description Resets the spatial edges of all cached nodes and
+     * re-caches the spatial edges of the provided node.
      *
      * @param {string} key - Key of the node to cache edges for after reset.
-     * @returns {Observable<Sequence>} Observable emitting a single item,
-     * the node, when it has been retrieved and its assets are cached after
-     * the spatial reset.
+     * @param {FilterExpression} filter - Filter expression to be applied.
+     * @return {Observable<Node>} Observable emitting a single item,
+     * the node, when it has been retrieved and its assets are cached.
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
-    public reset$(key: string): Observable<Node> {
+    public setFilter$(key: string, filter: FilterExpression): Observable<Node> {
         this._resetSpatialSubscriptions();
 
         return this._graph$
             .first()
             .do(
                 (graph: Graph): void => {
-                    graph.reset();
+                    graph.resetSpatialEdges();
+                    graph.setFilter(filter);
                 })
             .mergeMap(
                 (graph: Graph): Observable<Node> => {

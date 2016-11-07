@@ -28,6 +28,9 @@ import {
 } from "../Edge";
 import {GraphMapillaryError} from "../Error";
 import {
+    FilterCreator,
+    FilterExpression,
+    FilterFunction,
     Node,
     NodeCache,
     Sequence,
@@ -74,6 +77,8 @@ export class Graph {
 
     private _defaultAlt: number;
     private _edgeCalculator: EdgeCalculator;
+    private _filter: FilterFunction;
+    private _filterCreator: FilterCreator;
     private _graphCalculator: GraphCalculator;
 
     private _nodes: { [key: string]: Node };
@@ -101,7 +106,8 @@ export class Graph {
         apiV3: APIv3,
         nodeIndex?: rbush.RBush<NodeIndexItem>,
         graphCalculator?: GraphCalculator,
-        edgeCalculator?: EdgeCalculator) {
+        edgeCalculator?: EdgeCalculator,
+        filterCreator?: FilterCreator) {
 
         this._apiV3 = apiV3;
 
@@ -120,6 +126,8 @@ export class Graph {
 
         this._defaultAlt = 2;
         this._edgeCalculator = edgeCalculator != null ? edgeCalculator : new EdgeCalculator();
+        this._filterCreator = filterCreator != null ? filterCreator : new FilterCreator();
+        this._filter = this._filterCreator.createFilter(undefined);
         this._graphCalculator = graphCalculator != null ? graphCalculator : new GraphCalculator();
 
         this._nodes = {};
@@ -445,12 +453,17 @@ export class Graph {
 
         let allSpatialNodes: { [key: string]: Node } = this._requiredSpatialArea[key].all;
         let potentialNodes: Node[] = [];
+        let filter: FilterFunction = this._filter;
         for (let spatialNodeKey in allSpatialNodes) {
             if (!allSpatialNodes.hasOwnProperty(spatialNodeKey)) {
                 continue;
             }
 
-            potentialNodes.push(allSpatialNodes[spatialNodeKey]);
+            let spatialNode: Node = allSpatialNodes[spatialNodeKey];
+
+            if (filter(spatialNode)) {
+                potentialNodes.push(allSpatialNodes[spatialNodeKey]);
+            }
         }
 
         let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
@@ -855,13 +868,7 @@ export class Graph {
     /**
      * Reset all spatial edges of the graph nodes.
      */
-    public reset(): void {
-        let spatialNodeKeys: string[] = Object.keys(this._requiredSpatialArea);
-
-        for (let spatialNodeKey of spatialNodeKeys) {
-            delete this._requiredSpatialArea[spatialNodeKey];
-        }
-
+    public resetSpatialEdges(): void {
         let cachedKeys: string[] = Object.keys(this._cachedSpatialEdges);
 
         for (let cachedKey of cachedKeys) {
@@ -870,6 +877,16 @@ export class Graph {
 
             delete this._cachedSpatialEdges[cachedKey];
         }
+    }
+
+    /**
+     * Set the spatial node filter.
+     *
+     * @param {FilterExpression} filter - Filter expression to be applied
+     * when calculating spatial edges.
+     */
+    public setFilter(filter: FilterExpression): void {
+        this._filter = this._filterCreator.createFilter(filter);
     }
 
     private _cacheSequence$(sequenceKey: string): Observable<Graph> {

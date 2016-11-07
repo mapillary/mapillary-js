@@ -18,6 +18,7 @@ import {
     ILatLon,
 } from "../API";
 import {
+    FilterExpression,
     Graph,
     GraphService,
     IEdgeStatus,
@@ -166,6 +167,15 @@ export class Navigator {
                     }
 
                     return this.moveToKey$(fullNode.key);
+                });
+    }
+
+    public setFilter$(filter: FilterExpression): Observable<Node> {
+        return this.stateService.currentNode$
+            .first()
+            .mergeMap<Node>(
+                (node: Node): Observable<Node> => {
+                    return this._graphService.setFilter$(node.key, filter);
                 });
     }
 }
