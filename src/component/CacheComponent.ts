@@ -25,7 +25,8 @@ type EdgesDepth = [IEdge[], number]
 export class CacheComponent extends Component<ICacheConfiguration> {
     public static componentName: string = "cache";
 
-    private _cacheSubscription: Subscription;
+    private _sequenceSubscription: Subscription;
+    private _spatialSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -44,40 +45,82 @@ export class CacheComponent extends Component<ICacheConfiguration> {
     }
 
     protected _activate(): void {
-        this._cacheSubscription = Observable
-            .combineLatest<Node, ICacheConfiguration>(
-                this._navigator.stateService.currentNode$,
+        this._sequenceSubscription = Observable
+            .combineLatest<IEdgeStatus, ICacheConfiguration>(
+                this._navigator.stateService.currentNode$
+                    .switchMap(
+                        (node: Node): Observable<IEdgeStatus> => {
+                            return node.sequenceEdges$;
+                        })
+                    .filter(
+                        (status: IEdgeStatus): boolean => {
+                            return status.cached;
+                        }),
                 this._configuration$)
             .switchMap<EdgesDepth>(
-                (nc: [Node, ICacheConfiguration]): Observable<EdgesDepth> => {
-                    let node: Node = nc[0];
+                (nc: [IEdgeStatus, ICacheConfiguration]): Observable<EdgesDepth> => {
+                    let status: IEdgeStatus = nc[0];
                     let configuration: ICacheConfiguration = nc[1];
 
-                    let depth: ICacheDepth = configuration.depth;
+                    let sequenceDepth: number = Math.max(0, Math.min(4, configuration.depth.sequence));
 
-                    let sequenceDepth: number = Math.max(0, Math.min(4, depth.sequence));
-                    let panoDepth: number = Math.max(0, Math.min(2, depth.pano));
-                    let stepDepth: number = node.pano ? 0 : Math.max(0, Math.min(3, depth.step));
-                    let turnDepth: number = node.pano ? 0 : Math.max(0, Math.min(1, depth.turn));
-
-                    let next$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.Next, sequenceDepth);
-                    let prev$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.Prev, sequenceDepth);
-
-                    let pano$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.Pano, panoDepth);
-
-                    let forward$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.StepForward, stepDepth);
-                    let backward$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.StepBackward, stepDepth);
-                    let left$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.StepLeft, stepDepth);
-                    let right$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.StepRight, stepDepth);
-
-                    let turnLeft$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.TurnLeft, turnDepth);
-                    let turnRight$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.TurnRight, turnDepth);
-                    let turnU$: Observable<EdgesDepth> = this._cache$(node, EdgeDirection.TurnU, turnDepth);
+                    let next$: Observable<EdgesDepth> = this._cache$(status.edges, EdgeDirection.Next, sequenceDepth);
+                    let prev$: Observable<EdgesDepth> = this._cache$(status.edges, EdgeDirection.Prev, sequenceDepth);
 
                     return Observable
                         .merge<EdgesDepth>(
                             next$,
-                            prev$,
+                            prev$)
+                        .catch(
+                            (error: Error, caught: Observable<EdgesDepth>): Observable<EdgesDepth> => {
+                                console.error("Failed to cache sequence edges.", error);
+
+                                return Observable.empty<EdgesDepth>();
+                            });
+                 })
+            .subscribe();
+
+        this._spatialSubscription = this._navigator.stateService.currentNode$
+                .switchMap<[Node, IEdgeStatus]>(
+                    (node: Node): Observable<[Node, IEdgeStatus]> => {
+                        return Observable
+                            .combineLatest(
+                                Observable.of<Node>(node),
+                                node.spatialEdges$
+                                    .filter(
+                                        (status: IEdgeStatus): boolean => {
+                                            return status.cached;
+                                        }));
+                    })
+                .combineLatest(
+                    this._configuration$,
+                    (ns: [Node, IEdgeStatus], configuration: ICacheConfiguration):
+                        [Node, IEdgeStatus, ICacheConfiguration] => {
+                            return [ns[0], ns[1], configuration];
+                        })
+            .switchMap<EdgesDepth>(
+                (args: [Node, IEdgeStatus, ICacheConfiguration]): Observable<EdgesDepth> => {
+                    let node: Node = args[0];
+                    let edges: IEdge[] = args[1].edges;
+                    let depth: ICacheDepth = args[2].depth;
+
+                    let panoDepth: number = Math.max(0, Math.min(2, depth.pano));
+                    let stepDepth: number = node.pano ? 0 : Math.max(0, Math.min(3, depth.step));
+                    let turnDepth: number = node.pano ? 0 : Math.max(0, Math.min(1, depth.turn));
+
+                    let pano$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.Pano, panoDepth);
+
+                    let forward$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.StepForward, stepDepth);
+                    let backward$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.StepBackward, stepDepth);
+                    let left$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.StepLeft, stepDepth);
+                    let right$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.StepRight, stepDepth);
+
+                    let turnLeft$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.TurnLeft, turnDepth);
+                    let turnRight$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.TurnRight, turnDepth);
+                    let turnU$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.TurnU, turnDepth);
+
+                    return Observable
+                        .merge<EdgesDepth>(
                             forward$,
                             backward$,
                             left$,
@@ -85,25 +128,30 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                             pano$,
                             turnLeft$,
                             turnRight$,
-                            turnU$);
+                            turnU$)
+                        .catch(
+                            (error: Error, caught: Observable<EdgesDepth>): Observable<EdgesDepth> => {
+                                console.error("Failed to cache spatial edges.", error);
+
+                                return Observable.empty<EdgesDepth>();
+                            });
                 })
-            .subscribe(
-                (n: EdgesDepth): void => { return; },
-                (e: Error): void => { console.error(e); });
+            .subscribe();
     }
 
     protected _deactivate(): void {
-        this._cacheSubscription.unsubscribe();
+        this._sequenceSubscription.unsubscribe();
+        this._spatialSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ICacheConfiguration {
         return { depth: { pano: 1, sequence: 2, step: 1, turn: 0 } };
     }
 
-    private _cache$(node: Node, direction: EdgeDirection, depth: number): Observable<EdgesDepth> {
+    private _cache$(edges: IEdge[], direction: EdgeDirection, depth: number): Observable<EdgesDepth> {
         return Observable
             .zip<EdgesDepth>(
-                this._nodeToEdges$(node, direction),
+                Observable.of<IEdge[]>(edges),
                 Observable.of<number>(depth))
             .expand(
                 (ed: EdgesDepth): Observable<EdgesDepth> => {
