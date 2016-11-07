@@ -20,6 +20,7 @@
     <button onclick="showSlider()">Show Slider</button><button onclick="hideSlider()">Hide Slider</button>
     <button onclick="playRoute()">Play Route</button><button onclick="stopRoute()">Stop Route</button>
     <button onclick="letterbox()">Letterbox</button><button onclick="fill()">Fill</button>
+    <button onclick="setFilter()">Filter</button>
     <script src='dist/mapillary.js'></script>
     <script>
         var viewer = new Mapillary.Viewer(
@@ -42,6 +43,28 @@
 
         function fill() {
             viewer.setRenderMode(Mapillary.RenderMode.Fill);
+        }
+
+        var filterIndex = 0;
+        var filters = [
+            [],
+            ["==", "fullPano", true],
+            ["!=", "pano", true],
+            ["==", "sequenceKey", "s5I5m7BvYykB677MpFnOIw"],
+            ["in", "sequenceKey", "s5I5m7BvYykB677MpFnOIw", "-aC4wx-8oOkCp6SFGXoyAg"],
+            [
+                "all",
+                [">=", "capturedAt", 1370509079741 - 24 * 60 * 60 * 1000],
+                ["<=", "capturedAt", 1370509079741 + 24 * 60 * 60 * 1000],
+            ],
+        ];
+
+        function setFilter() {
+            filterIndex = (filterIndex + 1) % filters.length;
+            viewer.setFilter(filters[filterIndex]).then(
+                function(n) {
+                    console.log(n.key, filters[filterIndex]);
+                });
         }
 
         var sequenceComponent = viewer.getComponent("sequence");

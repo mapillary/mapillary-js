@@ -1,27 +1,13 @@
-import {Node} from "../Graph";
+import {
+    FilterExpression,
+    FilterOperation,
+    FilterOperator,
+    FilterValue,
+    Node,
+} from "../Graph";
 import {Func} from "../Utils";
 
-export type FilterExpression = Array<FilterOperator | string | FilterValue | FilterOperation>;
-
 export type FilterFunction = Func<Node, boolean>;
-
-export type FilterOperation = [FilterOperator, string, FilterValue];
-
-export type FilterOperator =
-    "==" |
-    "!=" |
-    ">" |
-    ">=" |
-    "<" |
-    "<=" |
-    "in" |
-    "!in" |
-    "all";
-
-export type FilterValue =
-    boolean |
-    number |
-    string;
 
 /**
  * @class Filter

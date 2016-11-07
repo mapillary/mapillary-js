@@ -16,6 +16,7 @@
       "./src/graph/interfaces/IEdgeStatus.ts",
       "./src/graph/interfaces/ILoadStatus.ts",
       "./src/graph/interfaces/IMesh.ts",
+      "./src/graph/FilterExpression.ts",
       "./src/graph/Node.ts",
       "./src/graph/NodeCache.ts",
       "./src/render/RenderMode.ts",

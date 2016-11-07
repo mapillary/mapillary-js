@@ -1,11 +1,13 @@
 export {
     FilterCreator,
-    FilterExpression,
     FilterFunction,
+} from "./graph/FilterCreator";
+export {
+    FilterExpression,
     FilterOperation,
     FilterOperator,
     FilterValue,
-} from "./graph/FilterCreator";
+} from "./graph/FilterExpression";
 export {Graph} from "./graph/Graph";
 export {GraphCalculator} from "./graph/GraphCalculator";
 export {GraphService} from "./graph/GraphService";
