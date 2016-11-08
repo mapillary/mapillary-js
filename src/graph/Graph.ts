@@ -448,8 +448,15 @@ export class Graph {
         let sequence: Sequence = this._sequences[node.sequenceKey];
 
         let fallbackKeys: string[] = [];
-        let nextKey: string = sequence.findNextKey(node.key);
         let prevKey: string = sequence.findPrevKey(node.key);
+        if (prevKey != null) {
+            fallbackKeys.push(prevKey);
+        }
+
+        let nextKey: string = sequence.findNextKey(node.key);
+        if (nextKey != null) {
+            fallbackKeys.push(nextKey);
+        }
 
         let allSpatialNodes: { [key: string]: Node } = this._requiredSpatialArea[key].all;
         let potentialNodes: Node[] = [];
@@ -466,7 +473,8 @@ export class Graph {
             }
         }
 
-        let potentialEdges: IPotentialEdge[] = this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
+        let potentialEdges: IPotentialEdge[] =
+            this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
 
         let edges: IEdge[] =
             this._edgeCalculator.computeStepEdges(

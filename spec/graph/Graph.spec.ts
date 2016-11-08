@@ -697,6 +697,191 @@ describe("Graph.cacheSpatialNodes", () => {
     });
 });
 
+describe("Graph.cacheSpatialEdges", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should use fallback keys", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphCalculator: GraphCalculator = new GraphCalculator(null);
+        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        let fullNode: IFullNode = helper.createFullNode();
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        graph.cacheFull$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+        imageByKeyFull.complete();
+
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
+
+        let result: { [key: string]: ISequence } = {};
+        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        let node: Node = graph.getNode(fullNode.key);
+
+        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+
+        spyOn(index, "search").and.returnValue([{ node: node }]);
+
+        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+
+        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        getPotentialSpy.and.returnValue([]);
+
+        spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
+
+        graph.initializeCache(fullNode.key);
+        graph.cacheSpatialEdges(fullNode.key);
+
+        expect(getPotentialSpy.calls.first().args.length).toBe(3);
+        expect(getPotentialSpy.calls.first().args[2].length).toBe(2);
+        expect(getPotentialSpy.calls.first().args[2].indexOf("prev")).not.toBe(-1);
+        expect(getPotentialSpy.calls.first().args[2].indexOf("next")).not.toBe(-1);
+        expect(getPotentialSpy.calls.first().args[2].indexOf(fullNode.key)).toBe(-1);
+    });
+
+    it("should apply filter", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphCalculator: GraphCalculator = new GraphCalculator(null);
+        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        let fullNode: IFullNode = helper.createFullNode();
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        graph.cacheFull$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+        imageByKeyFull.complete();
+
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
+
+        let result: { [key: string]: ISequence } = {};
+        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        let node: Node = graph.getNode(fullNode.key);
+
+        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+
+        let otherFullNode: IFullNode = helper.createFullNode();
+        otherFullNode.sequence.key = "otherSequenceKey";
+        let otherNode: Node = new Node(otherFullNode);
+        otherNode.makeFull(otherFullNode);
+
+        spyOn(index, "search").and.returnValue([{ node: node }, { node: otherNode }]);
+
+        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+
+        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        getPotentialSpy.and.returnValue([]);
+
+        spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
+
+        graph.setFilter(["==", "sequenceKey", "otherSequenceKey"]);
+
+        graph.initializeCache(fullNode.key);
+        graph.cacheSpatialEdges(fullNode.key);
+
+        expect(getPotentialSpy.calls.first().args.length).toBe(3);
+        expect(getPotentialSpy.calls.first().args[1].length).toBe(1);
+        expect(getPotentialSpy.calls.first().args[1][0].sequenceKey).toBe("otherSequenceKey");
+    });
+
+    it("should apply remove by filtering", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphCalculator: GraphCalculator = new GraphCalculator(null);
+        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        let fullNode: IFullNode = helper.createFullNode();
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        graph.cacheFull$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+        imageByKeyFull.complete();
+
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
+
+        let result: { [key: string]: ISequence } = {};
+        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        let node: Node = graph.getNode(fullNode.key);
+
+        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+
+        let otherFullNode: IFullNode = helper.createFullNode();
+        otherFullNode.sequence.key = "otherSequenceKey";
+        let otherNode: Node = new Node(otherFullNode);
+        otherNode.makeFull(otherFullNode);
+
+        spyOn(index, "search").and.returnValue([{ node: node }, { node: otherNode }]);
+
+        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+
+        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        getPotentialSpy.and.returnValue([]);
+
+        spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
+
+        graph.setFilter(["==", "sequenceKey", "none"]);
+
+        graph.initializeCache(fullNode.key);
+        graph.cacheSpatialEdges(fullNode.key);
+
+        expect(getPotentialSpy.calls.first().args.length).toBe(3);
+        expect(getPotentialSpy.calls.first().args[1].length).toBe(0);
+    });
+});
+
 describe("Graph.cacheNodeSequence", () => {
     let helper: NodeHelper;
 
