@@ -2,6 +2,8 @@
 
 import * as THREE from "three";
 
+import {NodeHelper} from "../helper/NodeHelper.spec";
+
 import {IFillNode} from "../../src/API";
 import {Camera} from "../../src/Geo";
 import {Node} from "../../src/Graph";
@@ -23,25 +25,6 @@ describe("TraversingState.ctor", () => {
         expect(traversingState).toBeDefined();
     });
 });
-
-let createFillNode: () => IFillNode = (): IFillNode => {
-    return {
-        atomic_scale: 0,
-        c_rotation: [0, 0, 0],
-        ca: 0,
-        calt: 0,
-        captured_at: 0,
-        cca: 0,
-        cfocal: 0,
-        gpano: null,
-        height: 0,
-        merge_cc: 0,
-        merge_version: 0,
-        orientation: 0,
-        user: { key: "key", username: "username"},
-        width: 0,
-    };
-};
 
 class TestTraversingState extends TraversingState {
     public get currentCamera(): Camera {
@@ -75,6 +58,12 @@ class TestNode extends Node {
 describe("TraversingState.currentCamera.lookat", () => {
     let precision: number = 1e-8;
 
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should correspond to set node", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
@@ -92,7 +81,7 @@ describe("TraversingState.currentCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let node: TestNode = new TestNode();
-        let fillNode: IFillNode = createFillNode();
+        let fillNode: IFillNode = helper.createFillNode();
         node.makeFull(fillNode);
 
         traversingState.set([node]);
@@ -123,12 +112,12 @@ describe("TraversingState.currentCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = createFillNode();
+        let previousFillNode: IFillNode = helper.createFillNode();
         previousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = createFillNode();
+        let currentFillNode: IFillNode = helper.createFillNode();
         currentNode.makeFull(currentFillNode);
 
         traversingState.set([previousNode]);
@@ -160,12 +149,12 @@ describe("TraversingState.currentCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let preivousFillNode: IFillNode = createFillNode();
+        let preivousFillNode: IFillNode = helper.createFillNode();
         preivousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(preivousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = createFillNode();
+        let currentFillNode: IFillNode = helper.createFillNode();
         currentFillNode.gpano = {
             CroppedAreaImageHeightPixels: 1,
             CroppedAreaImageWidthPixels: 1,
@@ -195,6 +184,12 @@ describe("TraversingState.currentCamera.lookat", () => {
 describe("TraversingState.previousCamera.lookat", () => {
     let precision: number = 1e-8;
 
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should correspond to current node camera when previous node not set", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
@@ -212,7 +207,7 @@ describe("TraversingState.previousCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let node: TestNode = new TestNode();
-        let fillNode: IFillNode = createFillNode();
+        let fillNode: IFillNode = helper.createFillNode();
         node.makeFull(fillNode);
 
         traversingState.set([node]);
@@ -243,12 +238,12 @@ describe("TraversingState.previousCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = createFillNode();
+        let previousFillNode: IFillNode = helper.createFillNode();
         previousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = createFillNode();
+        let currentFillNode: IFillNode = helper.createFillNode();
         currentNode.makeFull(currentFillNode);
 
         traversingState.set([previousNode]);

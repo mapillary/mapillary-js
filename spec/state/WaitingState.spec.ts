@@ -2,10 +2,15 @@
 
 import * as THREE from "three";
 
+import {NodeHelper} from "../helper/NodeHelper.spec";
+
 import {IFillNode} from "../../src/API";
 import {Camera} from "../../src/Geo";
 import {Node} from "../../src/Graph";
-import {IState, WaitingState} from "../../src/State";
+import {
+    IState,
+    WaitingState,
+} from "../../src/State";
 
 describe("WaitingState.ctor", () => {
     it("should be defined", () => {
@@ -23,25 +28,6 @@ describe("WaitingState.ctor", () => {
         expect(waitingState).toBeDefined();
     });
 });
-
-let createFillNode: () => IFillNode = (): IFillNode => {
-    return {
-        atomic_scale: 0,
-        c_rotation: [0, 0, 0],
-        ca: 0,
-        calt: 0,
-        captured_at: 0,
-        cca: 0,
-        cfocal: 0,
-        gpano: null,
-        height: 0,
-        merge_cc: 0,
-        merge_version: 0,
-        orientation: 0,
-        user: { key: "key", username: "username"},
-        width: 0,
-    };
-};
 
 class TestWaitingState extends WaitingState {
     public get currentCamera(): Camera {
@@ -75,6 +61,12 @@ class TestNode extends Node {
 describe("WaitingState.currentCamera.lookat", () => {
     let precision: number = 1e-8;
 
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should correspond to set node", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
@@ -92,7 +84,7 @@ describe("WaitingState.currentCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let node: TestNode = new TestNode();
-        let fillNode: IFillNode = createFillNode();
+        let fillNode: IFillNode = helper.createFillNode();
         node.makeFull(fillNode);
 
         waitingState.set([node]);
@@ -123,12 +115,12 @@ describe("WaitingState.currentCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = createFillNode();
+        let previousFillNode: IFillNode = helper.createFillNode();
         previousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = createFillNode();
+        let currentFillNode: IFillNode = helper.createFillNode();
         currentNode.makeFull(currentFillNode);
 
         waitingState.set([previousNode]);
@@ -160,12 +152,12 @@ describe("WaitingState.currentCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = createFillNode();
+        let previousFillNode: IFillNode = helper.createFillNode();
         previousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = createFillNode();
+        let currentFillNode: IFillNode = helper.createFillNode();
         currentFillNode.gpano = {
             CroppedAreaImageHeightPixels: 1,
             CroppedAreaImageWidthPixels: 1,
@@ -195,6 +187,12 @@ describe("WaitingState.currentCamera.lookat", () => {
 describe("WaitingState.previousCamera.lookat", () => {
     let precision: number = 1e-8;
 
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should correspond to current node camera when previous node not set", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
@@ -212,7 +210,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let node: TestNode = new TestNode();
-        let fillNode: IFillNode = createFillNode();
+        let fillNode: IFillNode = helper.createFillNode();
         node.makeFull(fillNode);
 
         waitingState.set([node]);
@@ -243,11 +241,11 @@ describe("WaitingState.previousCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = createFillNode();
+        let previousFillNode: IFillNode = helper.createFillNode();
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = createFillNode();
+        let currentFillNode: IFillNode = helper.createFillNode();
         currentFillNode.c_rotation = [Math.PI, 0, 0];
         currentNode.makeFull(currentFillNode);
 
@@ -280,7 +278,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = createFillNode();
+        let previousFillNode: IFillNode = helper.createFillNode();
         previousFillNode.gpano = {
             CroppedAreaImageHeightPixels: 1,
             CroppedAreaImageWidthPixels: 1,
@@ -293,7 +291,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = createFillNode();
+        let currentFillNode: IFillNode = helper.createFillNode();
         currentFillNode.c_rotation = [Math.PI, 0, 0];
         currentNode.makeFull(currentFillNode);
 

@@ -7,42 +7,22 @@ import {Subject} from "rxjs/Subject";
 
 import "rxjs/add/operator/mergeAll";
 
-import {APIv3, ICoreNode, IFillNode, IFullNode, ISequence} from "../../src/API";
+import {NodeHelper} from "../helper/NodeHelper.spec";
+
+import {
+    APIv3,
+    ICoreNode,
+    IFillNode,
+    IFullNode,
+    ISequence,
+} from "../../src/API";
 import {EdgeCalculator} from "../../src/Edge";
 import {GraphMapillaryError} from "../../src/Error";
-import {GraphCalculator, Graph, Node} from "../../src/Graph";
-
-let createCoreNode: () => ICoreNode = (): ICoreNode => {
-    return {
-        cl: { lat: 0, lon: 0 },
-        key: "key",
-        l: { lat: 0, lon: 0},
-        sequence: { key: "skey" },
-    };
-};
-
-let createFullNode: () => IFullNode = (): IFullNode => {
-    return {
-        atomic_scale: 0,
-        c_rotation: [0, 0, 0],
-        ca: 0,
-        calt: 0,
-        captured_at: 0,
-        cca: 0,
-        cfocal: 0,
-        cl: { lat: 0, lon: 0 },
-        gpano: null,
-        height: 0,
-        key: "key",
-        l: { lat: 0, lon: 0},
-        merge_cc: 0,
-        merge_version: 0,
-        orientation: 0,
-        sequence: { key: "skey" },
-        user: { key: "ukey", username: "username" },
-        width: 0,
-    };
-};
+import {
+    GraphCalculator,
+    Graph,
+    Node,
+} from "../../src/Graph";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
@@ -65,12 +45,18 @@ describe("Graph.ctor", () => {
 });
 
 describe("Graph.fetch", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should be fetching", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
 
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -93,7 +79,7 @@ describe("Graph.fetch", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key)
@@ -121,7 +107,7 @@ describe("Graph.fetch", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
 
         let imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
@@ -145,7 +131,7 @@ describe("Graph.fetch", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe();
 
@@ -168,7 +154,7 @@ describe("Graph.fetch", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = undefined;
 
         graph.cacheFull$(fullNode.key)
@@ -214,7 +200,7 @@ describe("Graph.fetch", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let otherNode: IFullNode = createFullNode();
+        let otherNode: IFullNode = helper.createFullNode();
         otherNode.key = otherKey;
         graph.cacheFull$(otherNode.key).subscribe();
 
@@ -229,7 +215,7 @@ describe("Graph.fetch", () => {
             .mergeAll()
             .subscribe();
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
         graph.cacheFull$(fullNode.key).subscribe();
 
@@ -256,6 +242,12 @@ describe("Graph.fetch", () => {
 });
 
 describe("Graph.fill", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should be filling", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
@@ -277,7 +269,7 @@ describe("Graph.fill", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
@@ -290,7 +282,7 @@ describe("Graph.fill", () => {
             .mergeAll()
             .subscribe();
 
-        let tileNode: ICoreNode = createCoreNode();
+        let tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
@@ -327,7 +319,7 @@ describe("Graph.fill", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
@@ -340,7 +332,7 @@ describe("Graph.fill", () => {
             .mergeAll()
             .subscribe();
 
-        let tileNode: ICoreNode = createCoreNode();
+        let tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
@@ -352,7 +344,7 @@ describe("Graph.fill", () => {
 
         graph.cacheFill$(tileNode.key).subscribe();
 
-        let fillTileNode: IFillNode = createFullNode();
+        let fillTileNode: IFillNode = helper.createFullNode();
         let fillResult: { [key: string]: IFillNode } = {};
         fillResult[tileNode.key] = fillTileNode;
         imageByKeyFill.next(fillResult);
@@ -383,7 +375,7 @@ describe("Graph.fill", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe();
 
         let fetchResult: { [key: string]: IFullNode } = {};
@@ -396,7 +388,7 @@ describe("Graph.fill", () => {
             .mergeAll()
             .subscribe();
 
-        let tileNode: ICoreNode = createCoreNode();
+        let tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
@@ -430,7 +422,7 @@ describe("Graph.fill", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key);
 
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
@@ -464,7 +456,7 @@ describe("Graph.fill", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key);
 
         let fetchResult: { [key: string]: IFullNode } = {};
@@ -476,12 +468,18 @@ describe("Graph.fill", () => {
 });
 
 describe("Graph.cacheTiles", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should be caching tiles", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         spyOn(calculator, "encodeHs").and.returnValue(["h"]);
 
@@ -508,7 +506,7 @@ describe("Graph.cacheTiles", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         let h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
@@ -548,7 +546,7 @@ describe("Graph.cacheTiles", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         let h: string = "h";
         let encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
@@ -575,7 +573,7 @@ describe("Graph.cacheTiles", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         let h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
@@ -613,13 +611,19 @@ describe("Graph.cacheTiles", () => {
 });
 
 describe("Graph.cacheSpatialNodes", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -646,7 +650,7 @@ describe("Graph.cacheSpatialNodes", () => {
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         let h: string = "h";
         spyOn(graphCalculator, "encodeH").and.returnValue(h);
@@ -670,7 +674,7 @@ describe("Graph.cacheSpatialNodes", () => {
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        let coreNode: ICoreNode = createCoreNode();
+        let coreNode: ICoreNode = helper.createCoreNode();
         coreNode.key = "otherKey";
 
         graph.hasTiles(fullNode.key);
@@ -694,6 +698,12 @@ describe("Graph.cacheSpatialNodes", () => {
 });
 
 describe("Graph.cacheNodeSequence", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should not be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
@@ -704,7 +714,7 @@ describe("Graph.cacheNodeSequence", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe();
 
@@ -725,7 +735,7 @@ describe("Graph.cacheNodeSequence", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe();
 
@@ -753,7 +763,7 @@ describe("Graph.cacheNodeSequence", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe();
@@ -791,7 +801,7 @@ describe("Graph.cacheNodeSequence", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
         expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
@@ -810,7 +820,7 @@ describe("Graph.cacheNodeSequence", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe();
@@ -845,7 +855,7 @@ describe("Graph.cacheNodeSequence", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe();
@@ -873,7 +883,7 @@ describe("Graph.cacheNodeSequence", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        let fullNode: IFullNode = createFullNode();
+        let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe();

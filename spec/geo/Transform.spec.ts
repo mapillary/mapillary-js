@@ -2,48 +2,31 @@
 
 import * as THREE from "three";
 
+import {NodeHelper} from "../helper/NodeHelper.spec";
 import {GeoHelper} from "../helper/GeoHelper.spec";
-import {IGPano, ICoreNode, IFillNode} from "../../src/API";
+
+import {
+    IGPano,
+    IFillNode,
+} from "../../src/API";
 import {Transform} from "../../src/Geo";
 import {Node} from "../../src/Graph";
 
-let createCoreNode: () => ICoreNode = (): ICoreNode => {
-    return {
-        cl: { lat: 0, lon: 0},
-        key: "key",
-        l: { lat: 0, lon: 0 },
-        sequence: { key: "skey" },
-    };
-};
-
-let createFillNode: () => IFillNode = (): IFillNode => {
-    return {
-        atomic_scale: 0,
-        c_rotation: [0, 0, 0],
-        ca: 0,
-        calt: 0,
-        captured_at: 0,
-        cca: 0,
-        cfocal: 0,
-        gpano: null,
-        height: 0,
-        merge_cc: 0,
-        merge_version: 0,
-        orientation: 0,
-        user: { key: "key", username: "username"},
-        width: 0,
-    };
-};
-
 describe("Transform.rt", () => {
     let epsilon: number = 10e-9;
+
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
 
     it("should have a unit Rt matrix", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
@@ -75,8 +58,8 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, Math.PI];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
@@ -108,8 +91,8 @@ describe("Transform.rt", () => {
         let r: number[] = [Math.PI / 2, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
@@ -141,8 +124,8 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
@@ -174,12 +157,18 @@ describe("Transform.rt", () => {
 describe("Transform.srt", () => {
     let epsilon: number = 10e-8;
 
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should have a unit sRt matrix", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.atomic_scale = 1;
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
@@ -212,8 +201,8 @@ describe("Transform.srt", () => {
         let r: number[] = [0, Math.PI / 2, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.atomic_scale = 3;
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
@@ -246,8 +235,8 @@ describe("Transform.srt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [-10, 20, -30];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.atomic_scale = 0.5;
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
@@ -278,11 +267,17 @@ describe("Transform.srt", () => {
 });
 
 describe("Transform.width", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should have fallback width", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        node.makeFull(createFillNode());
+        let node: Node = new Node(helper.createCoreNode());
+        node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(node, null, t);
 
@@ -294,8 +289,8 @@ describe("Transform.width", () => {
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.width = width;
         node.makeFull(fillNode);
 
@@ -306,11 +301,17 @@ describe("Transform.width", () => {
 });
 
 describe("Transform.height", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should have fallback height", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.height = -1;
         fillNode.orientation = 1;
         node.makeFull(fillNode);
@@ -325,8 +326,8 @@ describe("Transform.height", () => {
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.height = height;
         fillNode.orientation = 1;
         node.makeFull(fillNode);
@@ -338,11 +339,17 @@ describe("Transform.height", () => {
 });
 
 describe("Transform.focal", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should have fallback focal", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(node, null, t);
@@ -355,8 +362,8 @@ describe("Transform.focal", () => {
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.cfocal = focal;
         node.makeFull(fillNode);
 
@@ -367,11 +374,17 @@ describe("Transform.focal", () => {
 });
 
 describe("Transform.orientation", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should have fallback orientation", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(node, null, t);
@@ -384,8 +397,8 @@ describe("Transform.orientation", () => {
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.orientation = 3;
         node.makeFull(fillNode);
 
@@ -396,11 +409,17 @@ describe("Transform.orientation", () => {
 });
 
 describe("Transform.scale", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should have fallback scale", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        node.makeFull(createFillNode());
+        let node: Node = new Node(helper.createCoreNode());
+        node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(node, null, t);
 
@@ -412,8 +431,8 @@ describe("Transform.scale", () => {
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.atomic_scale = 0.4;
         node.makeFull(fillNode);
 
@@ -424,11 +443,17 @@ describe("Transform.scale", () => {
 });
 
 describe("Transform.gpano", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should not have gpano set", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        node.makeFull(createFillNode());
+        let node: Node = new Node(helper.createCoreNode());
+        node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(node, null, t);
 
@@ -447,8 +472,8 @@ describe("Transform.gpano", () => {
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.gpano = gpano;
         node.makeFull(fillNode);
 
@@ -462,16 +487,18 @@ describe("Transform.unprojectSfM", () => {
     let precision: number = 8;
 
     let geoHelper: GeoHelper;
+    let helper: NodeHelper;
 
     beforeEach(() => {
         geoHelper = new GeoHelper();
+        helper = new NodeHelper();
     });
 
     it("should return vertex at origin", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        node.makeFull(createFillNode());
+        let node: Node = new Node(helper.createCoreNode());
+        node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(node, null, t);
 
@@ -485,8 +512,8 @@ describe("Transform.unprojectSfM", () => {
     it("should return vertex at inverted translation", () => {
         let t: number[] = [10, -20, 30];
 
-        let node: Node = new Node(createCoreNode());
-        node.makeFull(createFillNode());
+        let node: Node = new Node(helper.createCoreNode());
+        node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(node, null, t);
 
@@ -502,8 +529,8 @@ describe("Transform.unprojectSfM", () => {
         let C: number[] = [5, 8, 12];
         let t: number[] = geoHelper.getTranslation(r, C);
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
@@ -519,8 +546,8 @@ describe("Transform.unprojectSfM", () => {
     it("should return vertex 10 units front of origin in camera direction", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        node.makeFull(createFillNode());
+        let node: Node = new Node(helper.createCoreNode());
+        node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(node, null, t);
 
@@ -536,8 +563,8 @@ describe("Transform.unprojectSfM", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
@@ -555,11 +582,17 @@ describe("Transform.unprojectSfM", () => {
 describe("Transform.projectBasic", () => {
     let precision: number = 8;
 
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should project to the image center", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        node.makeFull(createFillNode());
+        let node: Node = new Node(helper.createCoreNode());
+        node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(node, null, t);
 
@@ -572,8 +605,8 @@ describe("Transform.projectBasic", () => {
     it("should project to the first quadrant", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(createCoreNode());
-        node.makeFull(createFillNode());
+        let node: Node = new Node(helper.createCoreNode());
+        node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(node, null, t);
 
@@ -587,11 +620,17 @@ describe("Transform.projectBasic", () => {
 describe("Transform.unprojectBasic", () => {
     let precision: number = 6;
 
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should back-project to the same pixel", () => {
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = [0.1, 0.2, 0.3];
         fillNode.orientation = 1;
         node.makeFull(fillNode);
@@ -611,8 +650,8 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for orientation 3", () => {
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = [0.1, 0.2, 0.3];
         fillNode.orientation = 3;
         node.makeFull(fillNode);
@@ -632,8 +671,8 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for orientation 6", () => {
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = [0.1, 0.2, 0.3];
         fillNode.orientation = 6;
         node.makeFull(fillNode);
@@ -653,8 +692,8 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for orientation 8", () => {
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = [0.1, 0.2, 0.3];
         fillNode.orientation = 8;
         node.makeFull(fillNode);
@@ -674,8 +713,8 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for full pano", () => {
         let t: number[] = [5, 15, 2];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = [0.5, -0.2, 0.3];
         fillNode.gpano = {
             CroppedAreaImageHeightPixels: 1,
@@ -703,8 +742,8 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for cropped pano", () => {
         let t: number[] = [5, 15, 2];
 
-        let node: Node = new Node(createCoreNode());
-        let fillNode: IFillNode = createFillNode();
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = [0.5, -0.2, 0.3];
         fillNode.gpano = {
             CroppedAreaImageHeightPixels: 600,
