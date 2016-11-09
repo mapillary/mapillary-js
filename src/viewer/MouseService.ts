@@ -132,11 +132,27 @@ export class MouseService {
                         }
 
                         if (e.movementX == null) {
-                            e.movementX = e.clientX - previous.clientX;
+                            Object.defineProperty(
+                                e,
+                                "movementX",
+                                {
+                                    configurable: false,
+                                    enumerable: false,
+                                    value: e.clientX - previous.clientX,
+                                    writable: false,
+                                });
                         }
 
                         if (e.movementY == null) {
-                            e.movementY = e.clientY - previous.clientY;
+                            Object.defineProperty(
+                                e,
+                                "movementY",
+                                {
+                                    configurable: false,
+                                    enumerable: false,
+                                    value: e.clientY - previous.clientY,
+                                    writable: false,
+                                });
                         }
 
                         return e;

@@ -7,7 +7,6 @@
     "es6-shim": "registry:dt/es6-shim#0.31.2+20160602141504",
     "falcor": "file:typings/created/falcor/falcor.d.ts",
     "falcor-http-datasource": "file:typings/created/falcor-http-datasource/falcor-http-datasource.d.ts",
-    "lib": "file:typings/created/lib/lib.d.ts",
     "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#aed176536a202b9a2475ce1989ea6d2d0226a185",
     "three": "github:DefinitelyTyped/DefinitelyTyped/threejs/three.d.ts#a44529fcb1e1cdc0355e71c42a6048de99b57c34",
     "underscore": "github:DefinitelyTyped/DefinitelyTyped/underscore/underscore.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e",

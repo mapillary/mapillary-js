@@ -1,6 +1,7 @@
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
+import {RequestAnimationFrameDefinition} from "rxjs/util/AnimationFrame";
 
 import "rxjs/add/operator/bufferCount";
 import "rxjs/add/operator/distinctUntilChanged";
@@ -23,7 +24,6 @@ import {
     Transform,
 } from "../Geo";
 import {
-    FrameGenerator,
     IStateContext,
     IFrame,
     IRotation,
@@ -66,7 +66,7 @@ export class StateService {
 
     private _appendNode$: Subject<Node> = new Subject<Node>();
 
-    private _frameGenerator: FrameGenerator;
+    private _frameGenerator: RequestAnimationFrameDefinition;
     private _frameId: number;
 
     private _fpsSampleRate: number;
@@ -270,7 +270,7 @@ export class StateService {
         this._lastState$.subscribe();
 
         this._frameId = null;
-        this._frameGenerator = new FrameGenerator();
+        this._frameGenerator = new RequestAnimationFrameDefinition(window);
     }
 
     public get currentState$(): Observable<IFrame> {
