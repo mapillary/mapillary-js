@@ -47,6 +47,12 @@ type APIPath =
     "sequenceByKey" |
     "sequenceViewAdd";
 
+type HttpDataSourceConfiguration = {
+    crossDomain: boolean;
+    withCredentials: boolean;
+    headers?: { [key: string]: string } ;
+}
+
 export class APIv3 {
     private _clientId: string;
 
@@ -68,17 +74,10 @@ export class APIv3 {
     private _propertiesSpatial: string[];
     private _propertiesUser: string[];
 
-    constructor (clientId: string, model?: falcor.Model) {
+    constructor(clientId: string, model?: falcor.Model, token?: string) {
         this._clientId = clientId;
 
-        this._model = model != null ?
-            model :
-            new falcor.Model({
-                source: new HttpDataSource(Urls.falcorModel(clientId), {
-                    crossDomain: true,
-                    withCredentials: false,
-                }),
-            });
+        this._model = model != null ? model : this._createModel(clientId, token);
 
         this._pageCount = 999;
 
@@ -222,6 +221,12 @@ export class APIv3 {
         this._invalidateGet(this._pathSequenceByKey, sKeys);
     }
 
+    public setToken(token?: string): void {
+        this._model.invalidate([]);
+        this._model = null;
+        this._model = this._createModel(this._clientId, token);
+    }
+
     public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: ISequence }> {
         return this._catchInvalidateGet$(
             this._wrapPromise$<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
@@ -268,6 +273,21 @@ export class APIv3 {
 
                     throw error;
                 });
+    }
+
+    private _createModel(clientId: string, token?: string): falcor.Model {
+        let configuration: HttpDataSourceConfiguration = {
+            crossDomain: true,
+            withCredentials: false,
+        };
+
+        if (token != null) {
+            configuration.headers = { "Authorization": `Bearer ${token}` };
+        }
+
+        return new falcor.Model({
+                source: new HttpDataSource(Urls.falcorModel(clientId), configuration),
+            });
     }
 
     private _invalidateGet(path: APIPath, paths: string[]): void {
