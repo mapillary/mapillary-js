@@ -1,7 +1,6 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import * as falcor from "falcor";
-import * as HttpDataSource from "falcor-http-datasource";
 
 import {Observable} from "rxjs/Observable";
 
@@ -16,8 +15,8 @@ import {
     IFillNode,
     IFullNode,
     ISequence,
+    ModelCreator,
 } from "../API";
-import {Urls} from "../Utils";
 
 interface IFalcorResult<T> {
     json: T;
@@ -47,16 +46,11 @@ type APIPath =
     "sequenceByKey" |
     "sequenceViewAdd";
 
-type HttpDataSourceConfiguration = {
-    crossDomain: boolean;
-    withCredentials: boolean;
-    headers?: { [key: string]: string } ;
-}
-
 export class APIv3 {
     private _clientId: string;
 
     private _model: falcor.Model;
+    private _modelCreator: ModelCreator;
 
     private _pageCount: number;
 
@@ -74,10 +68,11 @@ export class APIv3 {
     private _propertiesSpatial: string[];
     private _propertiesUser: string[];
 
-    constructor(clientId: string, model?: falcor.Model, token?: string) {
+    constructor(clientId: string, token?: string, creator?: ModelCreator) {
         this._clientId = clientId;
 
-        this._model = model != null ? model : this._createModel(clientId, token);
+        this._modelCreator = creator != null ? creator : new ModelCreator();
+        this._model = this._modelCreator.createModel(clientId, token);
 
         this._pageCount = 999;
 
@@ -224,7 +219,7 @@ export class APIv3 {
     public setToken(token?: string): void {
         this._model.invalidate([]);
         this._model = null;
-        this._model = this._createModel(this._clientId, token);
+        this._model = this._modelCreator.createModel(this._clientId, token);
     }
 
     public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: ISequence }> {
@@ -273,21 +268,6 @@ export class APIv3 {
 
                     throw error;
                 });
-    }
-
-    private _createModel(clientId: string, token?: string): falcor.Model {
-        let configuration: HttpDataSourceConfiguration = {
-            crossDomain: true,
-            withCredentials: false,
-        };
-
-        if (token != null) {
-            configuration.headers = { "Authorization": `Bearer ${token}` };
-        }
-
-        return new falcor.Model({
-                source: new HttpDataSource(Urls.falcorModel(clientId), configuration),
-            });
     }
 
     private _invalidateGet(path: APIPath, paths: string[]): void {

@@ -4,7 +4,14 @@ import * as falcor from "falcor";
 
 import "rxjs/add/operator/retry";
 
-import {APIv3, ICoreNode, IFillNode, IFullNode, ISequence} from "../../src/API";
+import {
+    APIv3,
+    ICoreNode,
+    IFillNode,
+    IFullNode,
+    ISequence,
+    ModelCreator,
+} from "../../src/API";
 
 describe("APIv3.ctor", () => {
     it("should create an API v3", () => {
@@ -16,18 +23,21 @@ describe("APIv3.ctor", () => {
 
 describe("APIv3.imageByKeyFill$", () => {
     it("should call model correctly", (done) => {
-        let model: falcor.Model = new falcor.Model();
-
         let promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 resolve({ json: { imageByKey: {} } });
             },
         };
 
-        let spy: jasmine.Spy = spyOn(model, "get");
-        spy.and.returnValue(promise);
+        let model: falcor.Model = new falcor.Model();
+        let modelSpy: jasmine.Spy = spyOn(model, "get");
+        modelSpy.and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let key: string = "key";
 
@@ -36,11 +46,11 @@ describe("APIv3.imageByKeyFill$", () => {
                 (result: { [key: string]: IFillNode}): void => {
                     expect(result).toBeDefined();
 
-                    expect(spy.calls.count()).toBe(1);
-                    expect(spy.calls.first().args.length).toBe(1);
-                    expect(spy.calls.first().args[0][0]).toBe("imageByKey");
-                    expect(spy.calls.first().args[0][1].length).toBe(1);
-                    expect(spy.calls.first().args[0][1][0]).toBe(key);
+                    expect(modelSpy.calls.count()).toBe(1);
+                    expect(modelSpy.calls.first().args.length).toBe(1);
+                    expect(modelSpy.calls.first().args[0][0]).toBe("imageByKey");
+                    expect(modelSpy.calls.first().args[0][1].length).toBe(1);
+                    expect(modelSpy.calls.first().args[0][1][0]).toBe(key);
 
                     done();
                 });
@@ -60,7 +70,11 @@ describe("APIv3.imageByKeyFill$", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let key: string = "key";
 
@@ -93,7 +107,11 @@ describe("APIv3.imageByKeyFill$", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let key: string = "key";
 
@@ -127,7 +145,11 @@ describe("APIv3.imageByKeyFull$", () => {
         let spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let key: string = "key";
 
@@ -160,7 +182,11 @@ describe("APIv3.imageByKeyFull$", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let key: string = "key";
 
@@ -193,7 +219,11 @@ describe("APIv3.imageCloseTo$", () => {
         let spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let lat: number = 0;
         let lon: number = 0;
@@ -227,7 +257,11 @@ describe("APIv3.imageCloseTo$", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let lat: number = 0;
         let lon: number = 0;
@@ -261,7 +295,11 @@ describe("APIv3.imagesByH$", () => {
         let spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let h: string = "h";
 
@@ -294,7 +332,11 @@ describe("APIv3.imagesByH$", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let h: string = "h";
 
@@ -325,7 +367,11 @@ describe("APIv3.imagesByH$", () => {
         let spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let h: string = "h";
 
@@ -353,7 +399,11 @@ describe("APIv3.sequenceByKey$", () => {
         let spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let skey: string = "skey";
 
@@ -386,7 +436,11 @@ describe("APIv3.sequenceByKey$", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let skey: string = "skey";
 
@@ -419,7 +473,11 @@ describe("APIv3.imageViewAdd$", () => {
         let spy: jasmine.Spy = spyOn(model, "call");
         spy.and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let key: string = "key";
 
@@ -451,7 +509,11 @@ describe("APIv3.imageViewAdd$", () => {
 
         spyOn(model, "call").and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let key: string = "key";
 
@@ -485,7 +547,11 @@ describe("APIv3.sequenceViewAdd$", () => {
         let spy: jasmine.Spy = spyOn(model, "call");
         spy.and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let skey: string = "skey";
 
@@ -517,7 +583,11 @@ describe("APIv3.sequenceViewAdd$", () => {
 
         spyOn(model, "call").and.returnValue(promise);
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let skey: string = "skey";
 
@@ -545,7 +615,11 @@ describe("APIv3.invalidateImageByKey", () => {
 
         let spy: jasmine.Spy = spyOn(model, "invalidate");
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let key: string = "key";
 
@@ -565,7 +639,11 @@ describe("APIv3.invalidateImagesByH", () => {
 
         let spy: jasmine.Spy = spyOn(model, "invalidate");
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let h: string = "h";
 
@@ -585,7 +663,11 @@ describe("APIv3.invalidateSequenceByKey", () => {
 
         let spy: jasmine.Spy = spyOn(model, "invalidate");
 
-        let apiV3: APIv3 = new APIv3("clientId", model);
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
 
         let sKey: string = "sKey";
 
@@ -598,3 +680,30 @@ describe("APIv3.invalidateSequenceByKey", () => {
         expect(spy.calls.first().args[0][1][0]).toBe(sKey);
     });
 });
+
+describe("APIv3.setToken", () => {
+    it("should invalidate old model and create a new with token", () => {
+        let model: falcor.Model = new falcor.Model();
+
+        let modelSpy: jasmine.Spy = spyOn(model, "invalidate");
+
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
+
+        apiV3.setToken("token");
+
+        expect(modelSpy.calls.count()).toBe(1);
+
+        expect(creatorSpy.calls.count()).toBe(2);
+        expect(creatorSpy.calls.first().args.length).toBe(2);
+        expect(creatorSpy.calls.first().args[0]).toBe("clientId");
+        expect(creatorSpy.calls.first().args[1]).toBeUndefined();
+        expect(creatorSpy.calls.mostRecent().args.length).toBe(2);
+        expect(creatorSpy.calls.mostRecent().args[0]).toBe("clientId");
+        expect(creatorSpy.calls.mostRecent().args[1]).toBe("token");
+    });
+});
+
