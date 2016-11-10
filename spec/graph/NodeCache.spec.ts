@@ -62,6 +62,33 @@ describe("NodeCache.sequenceEdges$", () => {
 
         nodeCache.cacheSequenceEdges([sequenceEdge]);
     });
+
+
+    describe("NodeCache.resetSequenc eEdges", () => {
+        it("should reset the sequence edges", () => {
+            let nodeCache: NodeCache = new NodeCache();
+
+            let sequenceEdge: IEdge = {
+                data: {
+                    direction: EdgeDirection.Next,
+                    worldMotionAzimuth: null,
+                },
+                from: "key1",
+                to: "key2",
+            };
+
+            nodeCache.cacheSequenceEdges([sequenceEdge]);
+
+            expect(nodeCache.sequenceEdges.cached).toBe(true);
+            expect(nodeCache.sequenceEdges.edges.length).toBe(1);
+            expect(nodeCache.sequenceEdges.edges[0].from).toBe(sequenceEdge.from);
+
+            nodeCache.resetSequenceEdges();
+
+            expect(nodeCache.sequenceEdges.cached).toBe(false);
+            expect(nodeCache.sequenceEdges.edges.length).toBe(0);
+        });
+    });
 });
 
 describe("NodeCache.spatialEdges$", () => {

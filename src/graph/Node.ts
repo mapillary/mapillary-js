@@ -495,6 +495,13 @@ export class Node {
     }
 
     /**
+     * Reset the sequence edges.
+     */
+    public resetSequenceEdges(): void {
+        this._cache.resetSequenceEdges();
+    }
+
+    /**
      * Reset the spatial edges.
      */
     public resetSpatialEdges(): void {

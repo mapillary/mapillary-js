@@ -224,14 +224,27 @@ export class NodeCache {
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
 
+        if (this._image != null) {
+            window.URL.revokeObjectURL(this._image.src);
+        }
+
         this._image = null;
         this._mesh = null;
-        this._loadStatus = { loaded: 0, total: 0 };
+        this._loadStatus.loaded = 0;
+        this._loadStatus.total = 0;
         this._sequenceEdges = { cached: false, edges: [] };
         this._spatialEdges = { cached: false, edges: [] };
 
         this._sequenceEdgesChanged$.next(this._sequenceEdges);
         this._spatialEdgesChanged$.next(this._spatialEdges);
+    }
+
+    /**
+     * Reset the sequence edges.
+     */
+    public resetSequenceEdges(): void {
+        this._sequenceEdges = { cached: false, edges: [] };
+        this._sequenceEdgesChanged$.next(this._sequenceEdges);
     }
 
     /**
