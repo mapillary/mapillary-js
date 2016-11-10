@@ -23,11 +23,7 @@ import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 import "rxjs/add/operator/zip";
 
-import {
-    ILoadStatusObject,
-    ImageLoader,
-    Node,
-} from "../../Graph";
+import {Node} from "../../Graph";
 import {
     ICurrentState,
     IFrame,
@@ -35,6 +31,7 @@ import {
 } from "../../State";
 import {
     Container,
+    ImageSize,
     Navigator,
 } from "../../Viewer";
 import {
@@ -549,28 +546,26 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .mergeMap(
                 (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    return ImageLoader.loadThumbnail(node.key, Settings.maxImageSize)
-                        .filter(
-                            (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
-                                return statusObject.object != null;
-                            })
-                        .first()
-                        .map<HTMLImageElement>(
-                            (statusObject: ILoadStatusObject<HTMLImageElement>): HTMLImageElement => {
-                                return statusObject.object;
-                            })
-                        .zip(
-                            Observable.of<Node>(node),
-                            (t: HTMLImageElement, n: Node): [HTMLImageElement, Node] => {
-                                return [t, n];
-                            })
-                        .catch(
-                            (error: Error, caught: Observable<[HTMLImageElement, Node]>):
-                                Observable<[HTMLImageElement, Node]> => {
-                                console.error(`Failed to fetch high res slider image (${node.key})`, error);
+                    let baseImageSize: ImageSize = node.pano ?
+                        Settings.basePanoramaSize :
+                        Settings.baseImageSize;
 
-                                return Observable.empty<[HTMLImageElement, Node]>();
-                            });
+                    if (Math.max(node.image.width, node.image.height) > baseImageSize) {
+                        return Observable.empty<[HTMLImageElement, Node]>();
+                    }
+
+                    return node.cacheImage$(Settings.maxImageSize)
+                            .map<[HTMLImageElement, Node]>(
+                                (n: Node): [HTMLImageElement, Node] => {
+                                    return [n.image, n];
+                                })
+                            .catch(
+                                (error: Error, caught: Observable<[HTMLImageElement, Node]>):
+                                    Observable<[HTMLImageElement, Node]> => {
+                                    console.error(`Failed to fetch high res slider image (${node.key})`, error);
+
+                                    return Observable.empty<[HTMLImageElement, Node]>();
+                                });
                 })
             .map<ISliderStateOperation>(
                 (imn: [HTMLImageElement, Node]): ISliderStateOperation => {

@@ -13,7 +13,6 @@ import {
     IMesh,
     ILoadStatus,
     ILoadStatusObject,
-    ImageLoader,
     MeshReader,
 } from "../Graph";
 import {
@@ -162,10 +161,14 @@ export class NodeCache {
             return this._cachingAssets$;
         }
 
+        let imageSize: ImageSize = pano ?
+            Settings.basePanoramaSize :
+            Settings.baseImageSize;
+
         this._cachingAssets$ = Observable
             .combineLatest(
-                this._cacheImage(key, pano),
-                this._cacheMesh(key, merged),
+                this._cacheImage$(key, imageSize),
+                this._cacheMesh$(key, merged),
                 (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NodeCache => {
                     this._loadStatus.loaded = 0;
                     this._loadStatus.total = 0;
@@ -192,6 +195,27 @@ export class NodeCache {
             .refCount();
 
         return this._cachingAssets$;
+    }
+
+    public cacheImage$(key: string, imageSize: ImageSize): Observable<NodeCache> {
+        if (this._image != null && imageSize <= Math.max(this._image.width, this._image.height)) {
+            return Observable.of<NodeCache>(this);
+        }
+
+        return this._cacheImage$(key, imageSize)
+            .first(
+                (status: ILoadStatusObject<HTMLImageElement>): boolean => {
+                    return status.object != null;
+                })
+            .do(
+                (status: ILoadStatusObject<HTMLImageElement>): void => {
+                    this._disposeImage();
+                    this._image = status.object;
+                })
+            .map<NodeCache>(
+                (imageStatus: ILoadStatusObject<HTMLImageElement>): NodeCache => {
+                    return this;
+                });
     }
 
     /**
@@ -224,11 +248,8 @@ export class NodeCache {
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
 
-        if (this._image != null) {
-            window.URL.revokeObjectURL(this._image.src);
-        }
+        this._disposeImage();
 
-        this._image = null;
         this._mesh = null;
         this._loadStatus.loaded = 0;
         this._loadStatus.total = 0;
@@ -264,12 +285,46 @@ export class NodeCache {
      * emitting a load status object every time the load status changes
      * and completes when the image is fully loaded.
      */
-    private _cacheImage(key: string, pano: boolean): Observable<ILoadStatusObject<HTMLImageElement>> {
-        let imageSize: ImageSize = pano ?
-            Settings.basePanoramaSize :
-            Settings.baseImageSize;
+    private _cacheImage$(key: string, imageSize: ImageSize): Observable<ILoadStatusObject<HTMLImageElement>> {
+        return Observable.create(
+            (subscriber: Subscriber<ILoadStatusObject<HTMLImageElement>>): void => {
+                let image: HTMLImageElement = new Image();
+                image.crossOrigin = "Anonymous";
 
-        return ImageLoader.loadThumbnail(key, imageSize);
+                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+
+                xmlHTTP.open("GET", Urls.thumbnail(key, imageSize), true);
+                xmlHTTP.responseType = "arraybuffer";
+                xmlHTTP.onload = (pe: ProgressEvent) => {
+                    if (xmlHTTP.status !== 200) {
+                        subscriber.error(
+                            new Error(`Failed to fetch image (${key}). Status: ${xmlHTTP.status}, ${xmlHTTP.statusText}`));
+                        return;
+                    }
+
+                    image.onload = (e: Event) => {
+                        subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: image });
+                        subscriber.complete();
+                    };
+
+                    image.onerror = (error: ErrorEvent) => {
+                        subscriber.error(new Error(`Failed to load image (${key})`));
+                    };
+
+                    let blob: Blob = new Blob([xmlHTTP.response]);
+                    image.src = window.URL.createObjectURL(blob);
+                };
+
+                xmlHTTP.onprogress = (pe: ProgressEvent) => {
+                    subscriber.next({loaded: { loaded: pe.loaded, total: pe.total }, object: null });
+                };
+
+                xmlHTTP.onerror = (error: Event) => {
+                    subscriber.error(new Error(`Failed to fetch image (${key})`));
+                };
+
+                xmlHTTP.send(null);
+            });
     }
 
     /**
@@ -281,7 +336,7 @@ export class NodeCache {
      * a load status object every time the load status changes and completes
      * when the mesh is fully loaded.
      */
-    private _cacheMesh(key: string, merged: boolean): Observable<ILoadStatusObject<IMesh>> {
+    private _cacheMesh$(key: string, merged: boolean): Observable<ILoadStatusObject<IMesh>> {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<IMesh>>): void => {
                 if (!merged) {
@@ -328,6 +383,14 @@ export class NodeCache {
             loaded: { loaded: 0, total: 0 },
             object: { faces: [], vertices: [] },
         };
+    }
+
+    private _disposeImage(): void {
+        if (this._image != null) {
+            window.URL.revokeObjectURL(this._image.src);
+        }
+
+        this._image = null;
     }
 }
 

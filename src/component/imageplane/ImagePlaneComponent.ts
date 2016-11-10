@@ -13,12 +13,28 @@ import "rxjs/add/operator/scan";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 
-import {ComponentService, Component, IImagePlaneConfiguration, ImagePlaneGLRenderer} from "../../Component";
+import {
+    ComponentService,
+    Component,
+    IImagePlaneConfiguration,
+    ImagePlaneGLRenderer,
+} from "../../Component";
 import {Transform} from "../../Geo";
 import {IFrame} from "../../State";
-import {Container, Navigator} from "../../Viewer";
-import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {ILoadStatusObject, ImageLoader, Node} from "../../Graph";
+import {
+    Container,
+    Navigator,
+    ImageSize,
+} from "../../Viewer";
+import {
+    IGLRenderHash,
+    GLRenderStage,
+} from "../../Render";
+import {
+    ILoadStatusObject,
+    ImageLoader,
+    Node,
+} from "../../Graph";
 import {Settings} from "../../Utils";
 
 interface IImagePlaneGLRendererOperation {
@@ -160,26 +176,36 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     let node: Node = params[0];
                     let imageSize: number = params[1];
 
-                    let image$: Observable<ILoadStatusObject<HTMLImageElement>> =
-                        node.pano && imageSize > Settings.maxImageSize ?
-                            ImageLoader.loadDynamic(node.key, imageSize) :
-                            ImageLoader.loadThumbnail(node.key, imageSize);
+                    let baseImageSize: ImageSize = node.pano ?
+                        Settings.basePanoramaSize :
+                        Settings.baseImageSize;
+
+                    if (Math.max(node.image.width, node.image.height) > baseImageSize) {
+                        return Observable.empty<[HTMLImageElement, Node]>();
+                    }
+
+                    let image$: Observable<[HTMLImageElement, Node]> = null;
+
+                    if (node.pano && imageSize > Settings.maxImageSize) {
+                        image$ = ImageLoader.loadDynamic(node.key, imageSize)
+                            .first(
+                                (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
+                                    return statusObject.object != null;
+                                })
+                            .zip(
+                                Observable.of<Node>(node),
+                                (status: ILoadStatusObject<HTMLImageElement>, n: Node): [HTMLImageElement, Node] => {
+                                    return [status.object, n];
+                                });
+                    } else {
+                        image$ = node.cacheImage$(imageSize)
+                            .map<[HTMLImageElement, Node]>(
+                                (n: Node): [HTMLImageElement, Node] => {
+                                    return [n.image, n];
+                                });
+                    }
 
                     return image$
-                        .filter(
-                            (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
-                                return statusObject.object != null;
-                            })
-                        .first()
-                        .map<HTMLImageElement>(
-                            (statusObject: ILoadStatusObject<HTMLImageElement>): HTMLImageElement => {
-                                return statusObject.object;
-                            })
-                        .zip(
-                            Observable.of<Node>(node),
-                            (i: HTMLImageElement, n: Node): [HTMLImageElement, Node] => {
-                                return [i, n];
-                            })
                         .catch(
                             (error: Error, caught: Observable<[HTMLImageElement, Node]>):
                                 Observable<[HTMLImageElement, Node]> => {

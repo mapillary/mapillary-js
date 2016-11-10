@@ -17,6 +17,7 @@ import {
     ILoadStatus,
     NodeCache,
 } from "../Graph";
+import {ImageSize} from "../Viewer";
 
 /**
  * @class Node
@@ -417,6 +418,14 @@ export class Node {
      */
     public cacheAssets$(): Observable<Node> {
         return this._cache.cacheAssets$(this.key, this.pano, this.merged)
+            .map<Node>(
+                (cache: NodeCache): Node => {
+                    return this;
+                });
+    }
+
+    public cacheImage$(imageSize: ImageSize): Observable<Node> {
+        return this._cache.cacheImage$(this.key, imageSize)
             .map<Node>(
                 (cache: NodeCache): Node => {
                     return this;
