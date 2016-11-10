@@ -2,10 +2,9 @@ import {MapillaryError} from "./MapillaryError";
 
 export class GraphMapillaryError extends MapillaryError {
     constructor (message: string) {
-        super();
+        super(message);
 
         this.name = "GraphMapillaryError";
-        this.message = message;
     }
 }
 

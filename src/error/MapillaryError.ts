@@ -1,12 +1,9 @@
 export class MapillaryError extends Error {
-    public name: string;
-    public message: string;
-    public stack: string;
+    constructor (message?: string) {
+        super(message);
 
-    constructor () {
-        super();
-        // fixme ERROR have not loaded correct props
-        // this.stack = (new Error()).stack;
+        this.name = "MapillaryError";
+        this.stack = new Error().stack;
     }
 }
 

@@ -2,7 +2,7 @@
 
 import * as _ from "underscore";
 
-import {ParameterMapillaryError} from "../Error";
+import {ArgumentMapillaryError} from "../Error";
 import {Container, Navigator} from "../Viewer";
 import {CoverComponent, Component, IComponentConfiguration} from "../Component";
 
@@ -112,7 +112,7 @@ export class ComponentService {
 
     private _checkName(name: string): void {
         if (!(name in this._components)) {
-            throw new ParameterMapillaryError(`Component does not exist: ${name}`);
+            throw new ArgumentMapillaryError(`Component does not exist: ${name}`);
         }
     }
 }

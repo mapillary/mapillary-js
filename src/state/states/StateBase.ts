@@ -1,6 +1,6 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import {ParameterMapillaryError} from "../../Error";
+import {ArgumentMapillaryError} from "../../Error";
 import {IState} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, GeoCoords, ILatLonAlt, Transform, Spatial} from "../../Geo";
@@ -282,7 +282,7 @@ export abstract class StateBase implements IState {
 
     private _setTrajectory(nodes: Node[]): void {
         if (nodes.length < 1) {
-            throw new ParameterMapillaryError("Trajectory can not be empty");
+            throw new ArgumentMapillaryError("Trajectory can not be empty");
         }
 
         if (this._currentNode != null) {
@@ -304,7 +304,7 @@ export abstract class StateBase implements IState {
     private _appendToTrajectories(nodes: Node[]): void {
         for (let node of nodes) {
             if (!node.assetsCached) {
-                throw new ParameterMapillaryError("Assets must be cached when node is added to trajectory");
+                throw new ArgumentMapillaryError("Assets must be cached when node is added to trajectory");
             }
 
             let translation: number[] = this._nodeToTranslation(node);
@@ -318,7 +318,7 @@ export abstract class StateBase implements IState {
     private _prependToTrajectories(nodes: Node[]): void {
         for (let node of nodes.reverse()) {
             if (!node.assetsCached) {
-                throw new ParameterMapillaryError("Node must be loaded when added to trajectory");
+                throw new ArgumentMapillaryError("Assets must be cached when added to trajectory");
             }
 
             let translation: number[] = this._nodeToTranslation(node);
