@@ -44,7 +44,7 @@ describe("Graph.ctor", () => {
     });
 });
 
-describe("Graph.fetch", () => {
+describe("Graph.cacheFull$", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -241,7 +241,7 @@ describe("Graph.fetch", () => {
     });
 });
 
-describe("Graph.fill", () => {
+describe("Graph.cacheFill$", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -467,7 +467,7 @@ describe("Graph.fill", () => {
     });
 });
 
-describe("Graph.cacheTiles", () => {
+describe("Graph.cacheTiles$", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -610,7 +610,7 @@ describe("Graph.cacheTiles", () => {
     });
 });
 
-describe("Graph.cacheSpatialNodes", () => {
+describe("Graph.cacheSpatialArea$", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -882,7 +882,7 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 });
 
-describe("Graph.cacheNodeSequence", () => {
+describe("Graph.cacheNodeSequence$", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -1096,7 +1096,7 @@ describe("Graph.cacheNodeSequence", () => {
     });
 });
 
-describe("Graph.cacheSequence", () => {
+describe("Graph.cacheSequence$", () => {
     it("should not be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
@@ -1188,5 +1188,189 @@ describe("Graph.cacheSequence", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         expect(sequenceByKeySpy.calls.count()).toBe(1);
+    });
+});
+
+describe("Graph.resetSpatialEdges", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should use fallback keys", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphCalculator: GraphCalculator = new GraphCalculator(null);
+        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        let fullNode: IFullNode = helper.createFullNode();
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        graph.cacheFull$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+        imageByKeyFull.complete();
+
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
+
+        let result: { [key: string]: ISequence } = {};
+        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        let node: Node = graph.getNode(fullNode.key);
+
+        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+
+        spyOn(index, "search").and.returnValue([{ node: node }]);
+
+        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+
+        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        getPotentialSpy.and.returnValue([]);
+
+        spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
+
+        graph.initializeCache(fullNode.key);
+        graph.cacheSpatialEdges(fullNode.key);
+
+        let nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
+        let nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
+
+        graph.resetSpatialEdges();
+
+        expect(nodeSequenceResetSpy.calls.count()).toBe(0);
+        expect(nodeSpatialResetSpy.calls.count()).toBe(1);
+    });
+});
+
+describe("Graph.reset", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should remove node", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let graph: Graph = new Graph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe();
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        let node: Node = graph.getNode(fullNode.key);
+
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        nodeDisposeSpy.and.stub();
+
+        graph.reset([]);
+
+        expect(nodeDisposeSpy.calls.count()).toBe(0);
+        expect(graph.hasNode(node.key)).toBe(false);
+    });
+
+    it("should dispose cache initialized node", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let graph: Graph = new Graph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe();
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        let node: Node = graph.getNode(fullNode.key);
+        graph.initializeCache(node.key);
+
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        nodeDisposeSpy.and.stub();
+
+        graph.reset([]);
+
+        expect(nodeDisposeSpy.calls.count()).toBe(1);
+        expect(graph.hasNode(node.key)).toBe(false);
+    });
+
+    it("should keep supplied node", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let graph: Graph = new Graph(apiV3, index, calculator);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe();
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        let node: Node = graph.getNode(fullNode.key);
+        graph.initializeCache(node.key);
+
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        nodeDisposeSpy.and.stub();
+        let nodeResetSequenceSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges");
+        nodeResetSequenceSpy.and.stub();
+        let nodeResetSpatialSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges");
+        nodeResetSpatialSpy.and.stub();
+
+        graph.reset([node.key]);
+
+        expect(nodeDisposeSpy.calls.count()).toBe(0);
+        expect(nodeResetSequenceSpy.calls.count()).toBe(1);
+        expect(nodeResetSpatialSpy.calls.count()).toBe(1);
+        expect(graph.hasNode(node.key)).toBe(true);
     });
 });

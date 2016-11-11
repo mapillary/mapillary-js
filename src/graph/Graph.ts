@@ -888,6 +888,64 @@ export class Graph {
     }
 
     /**
+     * Reset the complete graph but keep the nodes corresponding
+     * to the supplied keys. All other nodes will be disposed.
+     *
+     * @param {Array<string>} keepKeys - Keys for nodes to keep
+     * in graph after reset.
+     */
+    public reset(keepKeys: string[]): void {
+        const nodes: Node[] = [];
+        for (const key of keepKeys) {
+            if (!this.hasNode(key)) {
+                throw new Error(`Node does not exist ${key}`);
+            }
+
+            const node: Node = this.getNode(key);
+            node.resetSequenceEdges();
+            node.resetSpatialEdges();
+            nodes.push(node);
+        }
+
+        for (let cachedKey of Object.keys(this._cachedNodes)) {
+            if (keepKeys.indexOf(cachedKey) !== -1) {
+                continue;
+            }
+
+            this._cachedNodes[cachedKey].dispose();
+            delete this._cachedNodes[cachedKey];
+        }
+
+        this._cachedNodeTiles = {};
+        this._cachedSpatialEdges = {};
+        this._cachedTiles = {};
+
+        this._cachingFill$ = {};
+        this._cachingFull$ = {};
+        this._cachingSequences$ = {};
+        this._cachingSpatialArea$ = {};
+        this._cachingTiles$ = {};
+
+        this._nodes = {};
+
+        this._preStored = {};
+
+        for (const node of nodes) {
+            this._nodes[node.key] = node;
+
+            const h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
+            this._preStore(h, node);
+        }
+
+        this._requiredNodeTiles = {};
+        this._requiredSpatialArea = {};
+
+        this._sequences = {};
+
+        this._nodeIndex.clear();
+    }
+
+    /**
      * Set the spatial node filter.
      *
      * @param {FilterExpression} filter - Filter expression to be applied
