@@ -33,6 +33,9 @@ export class NodeCache {
     private _sequenceEdges: IEdgeStatus;
     private _spatialEdges: IEdgeStatus;
 
+    private _imageRequest: XMLHttpRequest;
+    private _meshRequest: XMLHttpRequest;
+
     private _sequenceEdgesChanged$: Subject<IEdgeStatus>;
     private _sequenceEdges$: Observable<IEdgeStatus>;
     private _spatialEdgesChanged$: Subject<IEdgeStatus>;
@@ -256,6 +259,14 @@ export class NodeCache {
         this._sequenceEdges = { cached: false, edges: [] };
         this._spatialEdges = { cached: false, edges: [] };
 
+        if (this._imageRequest != null) {
+            this._imageRequest.abort();
+        }
+
+        if (this._meshRequest != null) {
+            this._meshRequest.abort();
+        }
+
         this._sequenceEdgesChanged$.next(this._sequenceEdges);
         this._spatialEdgesChanged$.next(this._spatialEdges);
     }
@@ -292,22 +303,29 @@ export class NodeCache {
                 image.crossOrigin = "Anonymous";
 
                 let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-
                 xmlHTTP.open("GET", Urls.thumbnail(key, imageSize), true);
                 xmlHTTP.responseType = "arraybuffer";
+
                 xmlHTTP.onload = (pe: ProgressEvent) => {
                     if (xmlHTTP.status !== 200) {
+                        this._imageRequest = null;
+
                         subscriber.error(
                             new Error(`Failed to fetch image (${key}). Status: ${xmlHTTP.status}, ${xmlHTTP.statusText}`));
+
                         return;
                     }
 
                     image.onload = (e: Event) => {
+                        this._imageRequest = null;
+
                         subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: image });
                         subscriber.complete();
                     };
 
                     image.onerror = (error: ErrorEvent) => {
+                        this._imageRequest = null;
+
                         subscriber.error(new Error(`Failed to load image (${key})`));
                     };
 
@@ -320,8 +338,18 @@ export class NodeCache {
                 };
 
                 xmlHTTP.onerror = (error: Event) => {
+                    this._imageRequest = null;
+
                     subscriber.error(new Error(`Failed to fetch image (${key})`));
                 };
+
+                xmlHTTP.onabort = (event: Event) => {
+                    this._imageRequest = null;
+
+                    subscriber.error(new Error(`Image request was aborted (${key})`));
+                };
+
+                this._imageRequest = xmlHTTP;
 
                 xmlHTTP.send(null);
             });
@@ -348,7 +376,10 @@ export class NodeCache {
                 let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
                 xmlHTTP.open("GET", Urls.protoMesh(key), true);
                 xmlHTTP.responseType = "arraybuffer";
+
                 xmlHTTP.onload = (pe: ProgressEvent) => {
+                    this._meshRequest = null;
+
                     let mesh: IMesh = xmlHTTP.status === 200 ?
                         MeshReader.read(new Buffer(xmlHTTP.response)) :
                         { faces: [], vertices: [] };
@@ -362,11 +393,21 @@ export class NodeCache {
                 };
 
                 xmlHTTP.onerror = (e: Event) => {
+                    this._meshRequest = null;
+
                     console.error(`Failed to cache mesh (${key})`);
 
                     subscriber.next(this._createEmptyMeshLoadStatus());
                     subscriber.complete();
                 };
+
+                xmlHTTP.onabort = (event: Event) => {
+                    this._meshRequest = null;
+
+                    subscriber.error(new Error(`Mesh request was aborted (${key})`));
+                };
+
+                this._meshRequest = xmlHTTP;
 
                 xmlHTTP.send(null);
             });
