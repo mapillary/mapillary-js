@@ -1,4 +1,5 @@
 import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/operator/catch";
@@ -31,6 +32,9 @@ export class GraphService {
 
     private _imageLoadingService: ImageLoadingService;
 
+    private _firstGraphSubjects: Subject<Graph>[];
+
+    private _initializeCacheSubscriptions: Subscription[];
     private _sequenceSubscriptions: Subscription[];
     private _spatialSubscriptions: Subscription[];
 
@@ -50,6 +54,9 @@ export class GraphService {
 
         this._imageLoadingService = imageLoadingService;
 
+        this._firstGraphSubjects = [];
+
+        this._initializeCacheSubscriptions = [];
         this._sequenceSubscriptions = [];
         this._spatialSubscriptions = [];
     }
@@ -73,26 +80,11 @@ export class GraphService {
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
     public cacheNode$(key: string): Observable<Node> {
-        let firstGraph$: Observable<Graph> = this._graph$
-            .first()
-            .mergeMap<Graph>(
-                (graph: Graph): Observable<Graph> => {
-                    if (graph.isCachingFull(key) || !graph.hasNode(key)) {
-                        return graph.cacheFull$(key);
-                    }
+        let firstGraphSubject$: Subject<Graph> = new Subject<Graph>();
 
-                    if (graph.isCachingFill(key) || !graph.getNode(key).full) {
-                        return graph.cacheFill$(key);
-                    }
+        this._firstGraphSubjects.push(firstGraphSubject$);
 
-                    return Observable.of<Graph>(graph);
-                })
-            .do(
-                (graph: Graph): void => {
-                    if (!graph.hasInitializedCache(key)) {
-                        graph.initializeCache(key);
-                    }
-                })
+        let firstGraph$: Observable<Graph> = firstGraphSubject$
             .publishReplay(1)
             .refCount();
 
@@ -118,6 +110,48 @@ export class GraphService {
                 console.error(`Failed to cache node (${key})`, error);
             });
 
+        let initializeCacheSubscription: Subscription = this._graph$
+            .first()
+            .mergeMap<Graph>(
+                (graph: Graph): Observable<Graph> => {
+                    if (graph.isCachingFull(key) || !graph.hasNode(key)) {
+                        return graph.cacheFull$(key);
+                    }
+
+                    if (graph.isCachingFill(key) || !graph.getNode(key).full) {
+                        return graph.cacheFill$(key);
+                    }
+
+                    return Observable.of<Graph>(graph);
+                })
+            .do(
+                (graph: Graph): void => {
+                    if (!graph.hasInitializedCache(key)) {
+                        graph.initializeCache(key);
+                    }
+                })
+            .finally(
+                (): void => {
+                    if (initializeCacheSubscription == null) {
+                        return;
+                    }
+
+                    this._removeInitializeCacheSubscription(initializeCacheSubscription);
+                    this._removeFirstGraphSubject(firstGraphSubject$);
+                })
+            .subscribe(
+                (graph: Graph): void => {
+                    firstGraphSubject$.next(graph);
+                    firstGraphSubject$.complete();
+                },
+                (error: Error): void => {
+                    firstGraphSubject$.error(error);
+                });
+
+        if (!initializeCacheSubscription.closed) {
+            this._initializeCacheSubscriptions.push(initializeCacheSubscription);
+        }
+
         let sequenceSubscription: Subscription = firstGraph$
             .mergeMap<Graph>(
                 (graph: Graph): Observable<Graph> => {
@@ -133,7 +167,8 @@ export class GraphService {
                         graph.cacheSequenceEdges(key);
                     }
                 })
-            .finally((): void => {
+            .finally(
+                (): void => {
                     if (sequenceSubscription == null) {
                         return;
                     }
@@ -211,7 +246,8 @@ export class GraphService {
                         graph.cacheSpatialEdges(key);
                     }
                 })
-            .finally((): void => {
+            .finally(
+                (): void => {
                     if (spatialSubscription == null) {
                         return;
                     }
@@ -292,6 +328,8 @@ export class GraphService {
      * the graph, when it has been reset.
      */
     public reset$(keepKeys: string[]): Observable<Graph> {
+        this._abortFirstGraphSubjects();
+        this._resetInitializeCacheSubscriptions();
         this._resetSequenceSubscriptions();
         this._resetSpatialSubscriptions();
 
@@ -301,6 +339,42 @@ export class GraphService {
                 (graph: Graph): void => {
                     graph.reset(keepKeys);
                 });
+    }
+
+    private _removeFirstGraphSubject(subject: Subject<Graph>): void {
+        let index: number = this._firstGraphSubjects.indexOf(subject);
+        if (index !== -1) {
+            this._firstGraphSubjects.splice(index, 1);
+        }
+    }
+
+    private _abortFirstGraphSubjects(): void {
+        for (let subject of this._firstGraphSubjects.slice()) {
+            this._removeFirstGraphSubject(subject);
+
+            subject.error(new Error("Cache node request was aborted."));
+        }
+
+        this._firstGraphSubjects = [];
+    }
+
+    private _removeInitializeCacheSubscription(subscription: Subscription): void {
+        let index: number = this._initializeCacheSubscriptions.indexOf(subscription);
+        if (index !== -1) {
+            this._initializeCacheSubscriptions.splice(index, 1);
+        }
+    }
+
+    private _resetInitializeCacheSubscriptions(): void {
+        for (let subscription of this._initializeCacheSubscriptions.slice()) {
+            this._removeInitializeCacheSubscription(subscription);
+
+            if (!subscription.closed) {
+                subscription.unsubscribe();
+            }
+        }
+
+        this._initializeCacheSubscriptions = [];
     }
 
     private _removeSequenceSubscription(sequenceSubscription: Subscription): void {
