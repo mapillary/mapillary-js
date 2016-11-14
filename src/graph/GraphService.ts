@@ -263,16 +263,13 @@ export class GraphService {
     /**
      * Set a spatial edge filter on the graph.
      *
-     * @description Resets the spatial edges of all cached nodes and
-     * re-caches the spatial edges of the provided node.
+     * @description Resets the spatial edges of all cached nodes.
      *
-     * @param {string} key - Key of the node to cache edges for after reset.
      * @param {FilterExpression} filter - Filter expression to be applied.
-     * @return {Observable<Node>} Observable emitting a single item,
-     * the node, when it has been retrieved and its assets are cached.
-     * @throws {Error} Propagates any IO node caching errors to the caller.
+     * @return {Observable<Graph>} Observable emitting a single item,
+     * the graph, when the spatial edges have been reset.
      */
-    public setFilter$(key: string, filter: FilterExpression): Observable<Node> {
+    public setFilter$(filter: FilterExpression): Observable<Graph> {
         this._resetSpatialSubscriptions();
 
         return this._graph$
@@ -281,10 +278,6 @@ export class GraphService {
                 (graph: Graph): void => {
                     graph.resetSpatialEdges();
                     graph.setFilter(filter);
-                })
-            .mergeMap(
-                (graph: Graph): Observable<Node> => {
-                    return this.cacheNode$(key);
                 });
     }
 
@@ -292,16 +285,13 @@ export class GraphService {
      * Reset the graph.
      *
      * @description Resets the graph but keeps the nodes of the
-     * supplied keys. After reset the node of supplied key is
-     * cached again.
+     * supplied keys.
      *
-     * @param {string} cacheKey - Key of the node to cache edges for after reset.
      * @param {Array<string>} keepKeys - Keys of nodes to keep in graph.
      * @return {Observable<Node>} Observable emitting a single item,
-     * the node, when it has been retrieved and its assets are cached.
-     * @throws {Error} Propagates any IO node caching errors to the caller.
+     * the graph, when it has been reset.
      */
-    public reset$(cacheKey: string, keepKeys: string[]): Observable<Node> {
+    public reset$(keepKeys: string[]): Observable<Graph> {
         this._resetSequenceSubscriptions();
         this._resetSpatialSubscriptions();
 
@@ -310,10 +300,6 @@ export class GraphService {
             .do(
                 (graph: Graph): void => {
                     graph.reset(keepKeys);
-                })
-            .mergeMap(
-                (graph: Graph): Observable<Node> => {
-                    return this.cacheNode$(cacheKey);
                 });
     }
 

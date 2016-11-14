@@ -175,7 +175,11 @@ export class Navigator {
             .first()
             .mergeMap<Node>(
                 (node: Node): Observable<Node> => {
-                    return this._graphService.setFilter$(node.key, filter);
+                    return this._graphService.setFilter$(filter)
+                        .mergeMap<Node>(
+                            (graph: Graph): Observable<Node> => {
+                                return this._graphService.cacheNode$(node.key);
+                            });
                 });
     }
 }
