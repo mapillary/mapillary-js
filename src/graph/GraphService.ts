@@ -31,6 +31,7 @@ export class GraphService {
 
     private _imageLoadingService: ImageLoadingService;
 
+    private _sequenceSubscriptions: Subscription[];
     private _spatialSubscriptions: Subscription[];
 
     /**
@@ -49,6 +50,7 @@ export class GraphService {
 
         this._imageLoadingService = imageLoadingService;
 
+        this._sequenceSubscriptions = [];
         this._spatialSubscriptions = [];
     }
 
@@ -116,7 +118,7 @@ export class GraphService {
                 console.error(`Failed to cache node (${key})`, error);
             });
 
-        firstGraph$
+        let sequenceSubscription: Subscription = firstGraph$
             .mergeMap<Graph>(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.isCachingNodeSequence(key) || !graph.hasNodeSequence(key)) {
@@ -131,11 +133,22 @@ export class GraphService {
                         graph.cacheSequenceEdges(key);
                     }
                 })
+            .finally((): void => {
+                    if (sequenceSubscription == null) {
+                        return;
+                    }
+
+                    this._removeSequenceSubscription(sequenceSubscription);
+                })
             .subscribe(
                 (graph: Graph): void => { return; },
                 (error: Error): void => {
                     console.error(`Failed to cache sequence edges (${key}).`, error);
                 });
+
+        if (!sequenceSubscription.closed) {
+            this._sequenceSubscriptions.push(sequenceSubscription);
+        }
 
         let spatialSubscription: Subscription = firstGraph$
             .expand(
@@ -275,15 +288,65 @@ export class GraphService {
                 });
     }
 
+    /**
+     * Reset the graph.
+     *
+     * @description Resets the graph but keeps the nodes of the
+     * supplied keys. After reset the node of supplied key is
+     * cached again.
+     *
+     * @param {string} cacheKey - Key of the node to cache edges for after reset.
+     * @param {Array<string>} keepKeys - Keys of nodes to keep in graph.
+     * @return {Observable<Node>} Observable emitting a single item,
+     * the node, when it has been retrieved and its assets are cached.
+     * @throws {Error} Propagates any IO node caching errors to the caller.
+     */
+    public reset$(cacheKey: string, keepKeys: string[]): Observable<Node> {
+        this._resetSequenceSubscriptions();
+        this._resetSpatialSubscriptions();
+
+        return this._graph$
+            .first()
+            .do(
+                (graph: Graph): void => {
+                    graph.reset(keepKeys);
+                })
+            .mergeMap(
+                (graph: Graph): Observable<Node> => {
+                    return this.cacheNode$(cacheKey);
+                });
+    }
+
+    private _removeSequenceSubscription(sequenceSubscription: Subscription): void {
+        let index: number = this._sequenceSubscriptions.indexOf(sequenceSubscription);
+        if (index !== -1) {
+            this._sequenceSubscriptions.splice(index, 1);
+        }
+    }
+
+    private _resetSequenceSubscriptions(): void {
+        for (let subscription of this._sequenceSubscriptions.slice()) {
+            this._removeSequenceSubscription(subscription);
+
+            if (!subscription.closed) {
+                subscription.unsubscribe();
+            }
+        }
+
+        this._sequenceSubscriptions = [];
+    }
+
     private _removeSpatialSubscription(spatialSubscription: Subscription): void {
         let index: number = this._spatialSubscriptions.indexOf(spatialSubscription);
-        if (index > -1) {
+        if (index !== -1) {
             this._spatialSubscriptions.splice(index, 1);
         }
     }
 
     private _resetSpatialSubscriptions(): void {
-        for (let subscription of this._spatialSubscriptions) {
+        for (let subscription of this._spatialSubscriptions.slice()) {
+            this._removeSpatialSubscription(subscription);
+
             if (!subscription.closed) {
                 subscription.unsubscribe();
             }
