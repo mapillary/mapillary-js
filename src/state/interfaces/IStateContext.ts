@@ -11,6 +11,7 @@ export interface IStateContext extends ICurrentState {
     append(nodes: Node[]): void;
     prepend(nodes: Node[]): void;
     remove(n: number): void;
+    clear(): void;
     cut(): void;
     set(nodes: Node[]): void;
 

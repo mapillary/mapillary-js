@@ -125,6 +125,10 @@ export class StateContext implements IStateContext {
         this._state.remove(n);
     }
 
+    public clear(): void {
+        this._state.clear();
+    }
+
     public cut(): void {
         this._state.cut();
     }

@@ -103,7 +103,7 @@ export class StateService {
             .switchMap<number>(
                 (): Observable<number> => {
                     return this._frame$
-                        .bufferCount(1, 30)
+                        .bufferCount(1, this._fpsSampleRate)
                         .map<number>(
                             (frameIds: number[]): number => {
                                 return new Date().getTime();
@@ -328,6 +328,10 @@ export class StateService {
 
     public removeNodes(n: number): void {
         this._invokeContextOperation((context: IStateContext) => { context.remove(n); });
+    }
+
+    public clearNodes(): void {
+        this._invokeContextOperation((context: IStateContext) => { context.clear(); });
     }
 
     public cutNodes(): void {

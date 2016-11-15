@@ -181,16 +181,25 @@ export abstract class StateBase implements IState {
             throw Error("n must be a positive integer");
         }
 
-        let length: number = this._trajectory.length;
-
-        if (length - (this._currentIndex + 1) < n) {
-            throw Error("Current node can not be removed");
+        if (this._currentIndex - 1 < n) {
+            throw Error("Current and previous nodes can not be removed");
         }
 
         for (let i: number = 0; i < n; i++) {
-            this._trajectory.pop();
-            this._trajectoryTransforms.pop();
-            this._trajectoryCameras.pop();
+            this._trajectory.shift();
+            this._trajectoryTransforms.shift();
+            this._trajectoryCameras.shift();
+            this._currentIndex--;
+        }
+
+        this._setCurrentNode();
+    }
+
+    public clear(): void {
+        this.cut();
+
+        if (this._currentIndex > 0) {
+            this.remove(this._currentIndex - 1);
         }
     }
 
