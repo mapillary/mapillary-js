@@ -1,5 +1,6 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
@@ -416,9 +417,137 @@ describe("GraphService.reset$", () => {
         expect(initializeCacheSpy.calls.count()).toBe(0);
         expect(cacheAssetsSpy.calls.count()).toBe(0);
     });
+
+    it("should cancel sequence edge caching", () => {
+        spyOn(console, "error").and.stub();
+
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        spyOn(imageLoadingService.loadnode$, "next").and.stub();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingFull").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValue(false);
+
+        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        cacheFullSpy.and.returnValue(cacheFull$);
+
+        spyOn(graph, "hasInitializedCache").and.returnValue(false);
+        spyOn(graph, "initializeCache").and.stub();
+
+        spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
+        spyOn(graph, "hasNodeSequence").and.returnValue(false);
+
+        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
+
+        let cacheSequenceEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceEdges").and.stub();
+
+        spyOn(graph, "hasTiles").and.returnValue(false);
+
+        let cacheTiles$: Subject<Graph> = new Subject<Graph>();
+        spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        let node: TestNode = new TestNode(helper.createCoreNode());
+        node.spatialEdges.cached = false;
+
+        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        cacheAssetsSpy.and.returnValue(cacheAssets$);
+
+        spyOn(graph, "getNode").and.returnValue(node);
+
+        graphService.cacheNode$(node.key)
+            .subscribe(
+                (n: Node): void => {
+                    expect(n).toBeDefined();
+                });
+
+        cacheFull$.next(graph);
+
+        node.assetsCached = true;
+        cacheAssets$.next(node);
+
+        graphService.reset$([]);
+
+        cacheNodeSequence$.next(graph);
+
+        expect(cacheSequenceEdgesSpy.calls.count()).toBe(0);
+    });
+
+    it("should cancel spatial edge caching", () => {
+        spyOn(console, "error").and.stub();
+
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        spyOn(imageLoadingService.loadnode$, "next").and.stub();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingFull").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValue(false);
+
+        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        cacheFullSpy.and.returnValue(cacheFull$);
+
+        spyOn(graph, "hasInitializedCache").and.returnValue(false);
+        spyOn(graph, "initializeCache").and.stub();
+
+        spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
+        spyOn(graph, "hasNodeSequence").and.returnValue(false);
+
+        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
+
+        spyOn(graph, "hasTiles").and.returnValue(false);
+
+        let cacheTiles$: Subject<Observable<Graph>[]> = new Subject<Observable<Graph>[]>();
+        spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
+
+        let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        let node: TestNode = new TestNode(helper.createCoreNode());
+        node.spatialEdges.cached = false;
+
+        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        cacheAssetsSpy.and.returnValue(cacheAssets$);
+
+        spyOn(graph, "getNode").and.returnValue(node);
+
+        graphService.cacheNode$(node.key)
+            .subscribe(
+                (n: Node): void => {
+                    expect(n).toBeDefined();
+                });
+
+        cacheFull$.next(graph);
+
+        node.assetsCached = true;
+        cacheAssets$.next(node);
+
+        graphService.reset$([]);
+
+        cacheTiles$.next([Observable.of<Graph>(graph)]);
+
+        expect(hasSpatialAreaSpy.calls.count()).toBe(0);
+    });
 });
 
 describe("GraphService.setFilter$", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
     it("should reset spatial edges and set filter", () => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
@@ -440,5 +569,67 @@ describe("GraphService.setFilter$", () => {
         expect(setFilterSpy.calls.first().args[0][0]).toBe("==");
         expect(setFilterSpy.calls.first().args[0][1]).toBe("sequenceKey");
         expect(setFilterSpy.calls.first().args[0][2]).toBe("skey");
+    });
+
+    it("should cancel spatial subscriptions", () => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        spyOn(imageLoadingService.loadnode$, "next").and.stub();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingFull").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValue(false);
+
+        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        cacheFullSpy.and.returnValue(cacheFull$);
+
+        spyOn(graph, "hasInitializedCache").and.returnValue(false);
+        spyOn(graph, "initializeCache").and.stub();
+
+        spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
+        spyOn(graph, "hasNodeSequence").and.returnValue(false);
+
+        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
+
+        spyOn(graph, "hasTiles").and.returnValue(false);
+
+        let cacheTiles$: Subject<Observable<Graph>[]> = new Subject<Observable<Graph>[]>();
+        spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
+
+        let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
+
+        spyOn(graph, "resetSpatialEdges").and.stub();
+        spyOn(graph, "setFilter").and.stub();
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        let node: TestNode = new TestNode(helper.createCoreNode());
+        node.spatialEdges.cached = false;
+
+        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        cacheAssetsSpy.and.returnValue(cacheAssets$);
+
+        spyOn(graph, "getNode").and.returnValue(node);
+
+        graphService.cacheNode$(node.key)
+            .subscribe(
+                (n: Node): void => {
+                    expect(n).toBeDefined();
+                });
+
+        cacheFull$.next(graph);
+
+        node.assetsCached = true;
+        cacheAssets$.next(node);
+
+        graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe();
+
+        cacheTiles$.next([Observable.of<Graph>(graph)]);
+
+        expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });
 });

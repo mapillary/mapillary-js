@@ -32,7 +32,7 @@ export class GraphService {
 
     private _imageLoadingService: ImageLoadingService;
 
-    private _firstGraphSubjects: Subject<Graph>[];
+    private _firstGraphSubjects$: Subject<Graph>[];
 
     private _initializeCacheSubscriptions: Subscription[];
     private _sequenceSubscriptions: Subscription[];
@@ -54,7 +54,7 @@ export class GraphService {
 
         this._imageLoadingService = imageLoadingService;
 
-        this._firstGraphSubjects = [];
+        this._firstGraphSubjects$ = [];
 
         this._initializeCacheSubscriptions = [];
         this._sequenceSubscriptions = [];
@@ -82,7 +82,7 @@ export class GraphService {
     public cacheNode$(key: string): Observable<Node> {
         let firstGraphSubject$: Subject<Graph> = new Subject<Graph>();
 
-        this._firstGraphSubjects.push(firstGraphSubject$);
+        this._firstGraphSubjects$.push(firstGraphSubject$);
 
         let firstGraph$: Observable<Graph> = firstGraphSubject$
             .publishReplay(1)
@@ -136,8 +136,8 @@ export class GraphService {
                         return;
                     }
 
-                    this._removeInitializeCacheSubscription(initializeCacheSubscription);
-                    this._removeFirstGraphSubject(firstGraphSubject$);
+                    this._removeFromArray(initializeCacheSubscription, this._initializeCacheSubscriptions);
+                    this._removeFromArray(firstGraphSubject$, this._firstGraphSubjects$);
                 })
             .subscribe(
                 (graph: Graph): void => {
@@ -173,7 +173,7 @@ export class GraphService {
                         return;
                     }
 
-                    this._removeSequenceSubscription(sequenceSubscription);
+                    this._removeFromArray(sequenceSubscription, this._sequenceSubscriptions);
                 })
             .subscribe(
                 (graph: Graph): void => { return; },
@@ -252,7 +252,7 @@ export class GraphService {
                         return;
                     }
 
-                    this._removeSpatialSubscription(spatialSubscription);
+                    this._removeFromArray(spatialSubscription, this._spatialSubscriptions);
                 })
             .subscribe(
                 (graph: Graph): void => { return; },
@@ -306,7 +306,7 @@ export class GraphService {
      * the graph, when the spatial edges have been reset.
      */
     public setFilter$(filter: FilterExpression): Observable<Graph> {
-        this._resetSpatialSubscriptions();
+        this._resetSubscriptions(this._spatialSubscriptions);
 
         return this._graph$
             .first()
@@ -328,10 +328,10 @@ export class GraphService {
      * the graph, when it has been reset.
      */
     public reset$(keepKeys: string[]): Observable<Graph> {
-        this._abortFirstGraphSubjects();
-        this._resetInitializeCacheSubscriptions();
-        this._resetSequenceSubscriptions();
-        this._resetSpatialSubscriptions();
+        this._abortSubjects(this._firstGraphSubjects$);
+        this._resetSubscriptions(this._initializeCacheSubscriptions);
+        this._resetSubscriptions(this._sequenceSubscriptions);
+        this._resetSubscriptions(this._spatialSubscriptions);
 
         return this._graph$
             .first()
@@ -341,78 +341,29 @@ export class GraphService {
                 });
     }
 
-    private _removeFirstGraphSubject(subject: Subject<Graph>): void {
-        let index: number = this._firstGraphSubjects.indexOf(subject);
-        if (index !== -1) {
-            this._firstGraphSubjects.splice(index, 1);
-        }
-    }
-
-    private _abortFirstGraphSubjects(): void {
-        for (let subject of this._firstGraphSubjects.slice()) {
-            this._removeFirstGraphSubject(subject);
+    private _abortSubjects<T>(subjects: Subject<T>[]): void {
+        for (let subject of subjects.slice()) {
+            this._removeFromArray(subject, subjects);
 
             subject.error(new Error("Cache node request was aborted."));
         }
-
-        this._firstGraphSubjects = [];
     }
 
-    private _removeInitializeCacheSubscription(subscription: Subscription): void {
-        let index: number = this._initializeCacheSubscriptions.indexOf(subscription);
+    private _removeFromArray<T>(object: T, objects: T[]): void {
+        let index: number = objects.indexOf(object);
         if (index !== -1) {
-            this._initializeCacheSubscriptions.splice(index, 1);
+            objects.splice(index, 1);
         }
     }
 
-    private _resetInitializeCacheSubscriptions(): void {
-        for (let subscription of this._initializeCacheSubscriptions.slice()) {
-            this._removeInitializeCacheSubscription(subscription);
+    private _resetSubscriptions(subscriptions: Subscription[]): void {
+        for (let subscription of subscriptions.slice()) {
+            this._removeFromArray(subscription, subscriptions);
 
             if (!subscription.closed) {
                 subscription.unsubscribe();
             }
         }
-
-        this._initializeCacheSubscriptions = [];
-    }
-
-    private _removeSequenceSubscription(sequenceSubscription: Subscription): void {
-        let index: number = this._sequenceSubscriptions.indexOf(sequenceSubscription);
-        if (index !== -1) {
-            this._sequenceSubscriptions.splice(index, 1);
-        }
-    }
-
-    private _resetSequenceSubscriptions(): void {
-        for (let subscription of this._sequenceSubscriptions.slice()) {
-            this._removeSequenceSubscription(subscription);
-
-            if (!subscription.closed) {
-                subscription.unsubscribe();
-            }
-        }
-
-        this._sequenceSubscriptions = [];
-    }
-
-    private _removeSpatialSubscription(spatialSubscription: Subscription): void {
-        let index: number = this._spatialSubscriptions.indexOf(spatialSubscription);
-        if (index !== -1) {
-            this._spatialSubscriptions.splice(index, 1);
-        }
-    }
-
-    private _resetSpatialSubscriptions(): void {
-        for (let subscription of this._spatialSubscriptions.slice()) {
-            this._removeSpatialSubscription(subscription);
-
-            if (!subscription.closed) {
-                subscription.unsubscribe();
-            }
-        }
-
-        this._spatialSubscriptions = [];
     }
 }
 
