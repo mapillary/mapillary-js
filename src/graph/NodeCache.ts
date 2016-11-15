@@ -27,6 +27,8 @@ import {ImageSize} from "../Viewer";
  * @classdesc Represents the cached properties of a node.
  */
 export class NodeCache {
+    private _disposed: boolean;
+
     private _image: HTMLImageElement;
     private _loadStatus: ILoadStatus;
     private _mesh: IMesh;
@@ -50,6 +52,8 @@ export class NodeCache {
      * Create a new node cache instance.
      */
     constructor() {
+        this._disposed = false;
+
         this._image = null;
         this._loadStatus = { loaded: 0, total: 0 };
         this._mesh = null;
@@ -156,8 +160,9 @@ export class NodeCache {
      * @param {string} key - Key of the node to cache.
      * @param {boolean} pano - Value indicating whether node is a panorama.
      * @param {boolean} merged - Value indicating whether node is merged.
-     * @returns {Observable<Node>} Observable emitting this node whenever the
-     * load status has changed and when the mesh or image has been fully loaded.
+     * @returns {Observable<NodeCache>} Observable emitting this node
+     * cache whenever the load status has changed and when the mesh or image
+     * has been fully loaded.
      */
     public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
@@ -200,6 +205,16 @@ export class NodeCache {
         return this._cachingAssets$;
     }
 
+    /**
+     * Cache an image with a higher resolution than the current one.
+     *
+     * @param {string} key - Key of the node to cache.
+     * @param {ImageSize} imageSize - The size to cache.
+     * @returns {Observable<NodeCache>} Observable emitting a single item,
+     * the node cache, when the image has been cached. If supplied image
+     * size is not larger than the current image size the node cache is
+     * returned immediately.
+     */
     public cacheImage$(key: string, imageSize: ImageSize): Observable<NodeCache> {
         if (this._image != null && imageSize <= Math.max(this._image.width, this._image.height)) {
             return Observable.of<NodeCache>(this);
@@ -259,6 +274,11 @@ export class NodeCache {
         this._sequenceEdges = { cached: false, edges: [] };
         this._spatialEdges = { cached: false, edges: [] };
 
+        this._sequenceEdgesChanged$.next(this._sequenceEdges);
+        this._spatialEdgesChanged$.next(this._spatialEdges);
+
+        this._disposed = true;
+
         if (this._imageRequest != null) {
             this._imageRequest.abort();
         }
@@ -266,9 +286,6 @@ export class NodeCache {
         if (this._meshRequest != null) {
             this._meshRequest.abort();
         }
-
-        this._sequenceEdgesChanged$.next(this._sequenceEdges);
-        this._spatialEdgesChanged$.next(this._spatialEdges);
     }
 
     /**
@@ -319,6 +336,11 @@ export class NodeCache {
                     image.onload = (e: Event) => {
                         this._imageRequest = null;
 
+                        if (this._disposed) {
+                            window.URL.revokeObjectURL(image.src);
+                            return;
+                        }
+
                         subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: image });
                         subscriber.complete();
                     };
@@ -334,6 +356,10 @@ export class NodeCache {
                 };
 
                 xmlHTTP.onprogress = (pe: ProgressEvent) => {
+                    if (this._disposed) {
+                        return;
+                    }
+
                     subscriber.next({loaded: { loaded: pe.loaded, total: pe.total }, object: null });
                 };
 
@@ -380,6 +406,10 @@ export class NodeCache {
                 xmlHTTP.onload = (pe: ProgressEvent) => {
                     this._meshRequest = null;
 
+                    if (this._disposed) {
+                        return;
+                    }
+
                     let mesh: IMesh = xmlHTTP.status === 200 ?
                         MeshReader.read(new Buffer(xmlHTTP.response)) :
                         { faces: [], vertices: [] };
@@ -389,6 +419,10 @@ export class NodeCache {
                 };
 
                 xmlHTTP.onprogress = (pe: ProgressEvent) => {
+                    if (this._disposed) {
+                        return;
+                    }
+
                     subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: null });
                 };
 
