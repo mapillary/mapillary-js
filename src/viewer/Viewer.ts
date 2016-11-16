@@ -356,17 +356,18 @@ export class Viewer extends EventEmitter {
      *
      * Clear the filter by setting it to null or empty array.
      *
-     * @param {FilterExpression} The filter expression.
+     * @param {FilterExpression} filter - The filter expression.
+     * @returns {Promise<void>} Promise that resolves after filter is applied.
      *
      * @example `viewer.setFilter(["==", "sequenceKey", "<my sequence key>"]);`
      */
-    public setFilter(filter: FilterExpression): when.Promise<Node> {
-        return when.promise<Node>(
+    public setFilter(filter: FilterExpression): when.Promise<void> {
+        return when.promise<void>(
             (resolve: any, reject: any): void => {
                 this._navigator.setFilter$(filter)
                     .subscribe(
-                        (node: Node): void => {
-                            resolve(node);
+                        (): void => {
+                            resolve(undefined);
                         },
                         (error: Error): void => {
                             reject(error);

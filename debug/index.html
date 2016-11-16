@@ -63,7 +63,7 @@
             filterIndex = (filterIndex + 1) % filters.length;
             viewer.setFilter(filters[filterIndex]).then(
                 function(n) {
-                    console.log(n.key, filters[filterIndex]);
+                    console.log("filter", filters[filterIndex]);
                 });
         }
 

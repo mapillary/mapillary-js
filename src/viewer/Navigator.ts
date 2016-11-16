@@ -2,7 +2,6 @@
 
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
 
 import "rxjs/add/observable/throw";
 
@@ -26,7 +25,10 @@ import {
     Node,
 } from "../Graph";
 import {EdgeDirection} from "../Edge";
-import {StateService} from "../State";
+import {
+    StateService,
+    IFrame,
+} from "../State";
 import {LoadingService} from "../Viewer";
 
 export class Navigator {
@@ -39,7 +41,7 @@ export class Navigator {
     private _stateService: StateService;
 
     private _keyRequested$: BehaviorSubject<string>;
-    private _movedToKey$: Subject<string>;
+    private _movedToKey$: BehaviorSubject<string>;
     private _dirRequested$: BehaviorSubject<EdgeDirection>;
     private _latLonRequested$: BehaviorSubject<ILatLon>;
 
@@ -65,7 +67,7 @@ export class Navigator {
         this._stateService = stateService != null ? stateService : new StateService();
 
         this._keyRequested$ = new BehaviorSubject<string>(null);
-        this._movedToKey$ = new Subject<string>();
+        this._movedToKey$ = new BehaviorSubject<string>(null);
         this._dirRequested$ = new BehaviorSubject<EdgeDirection>(null);
         this._latLonRequested$ = new BehaviorSubject<ILatLon>(null);
     }
@@ -170,16 +172,106 @@ export class Navigator {
                 });
     }
 
-    public setFilter$(filter: FilterExpression): Observable<Node> {
-        return this.stateService.currentNode$
+    public setFilter$(filter: FilterExpression): Observable<void> {
+        this._stateService.clearNodes();
+
+        return this._movedToKey$
             .first()
             .mergeMap<Node>(
-                (node: Node): Observable<Node> => {
-                    return this._graphService.setFilter$(filter)
-                        .mergeMap<Node>(
-                            (graph: Graph): Observable<Node> => {
-                                return this._graphService.cacheNode$(node.key);
+                (key: string): Observable<Node> => {
+                    if (key != null) {
+                        return this._trajectoryKeys$()
+                            .mergeMap<Node>(
+                                (keys: string[]): Observable<Node> => {
+                                    return this._graphService.setFilter$(filter)
+                                        .mergeMap<Node>(
+                                            (graph: Graph): Observable<Node> => {
+                                                return this._cacheKeys$(keys);
+                                            });
+                                })
+                            .last();
+                    }
+
+                    return this._keyRequested$
+                        .mergeMap(
+                            (requestedKey: string): Observable<Node> => {
+                                if (requestedKey != null) {
+                                    return this._graphService.setFilter$(filter)
+                                        .mergeMap<Node>(
+                                            (graph: Graph): Observable<Node> => {
+                                                return this._graphService.cacheNode$(requestedKey);
+                                            });
+                                }
+
+                                return this._graphService.setFilter$(filter)
+                                    .map<Node>(
+                                        (graph: Graph): Node => {
+                                            return undefined;
+                                        });
                             });
+                })
+            .map<void>(
+                (node: Node): void => {
+                    return undefined;
+                });
+    }
+
+    public setToken$(token?: string): Observable<void> {
+        this._stateService.clearNodes();
+
+        return this._movedToKey$
+            .first()
+            .do(
+                (key: string): void => {
+                    this._apiV3.setToken(token);
+                })
+            .mergeMap<void>(
+                (key: string): Observable<void> => {
+                    return key == null ?
+                        this._graphService.reset$([])
+                            .map<void>(
+                                (graph: Graph): void => {
+                                    return undefined;
+                                }) :
+                        this._trajectoryKeys$()
+                            .mergeMap<Node>(
+                                (keys: string[]): Observable<Node> => {
+                                    return this._graphService.reset$(keys)
+                                        .mergeMap(
+                                            (graph: Graph): Observable<Node> => {
+                                                return this._cacheKeys$(keys);
+                                            });
+                                })
+                            .last()
+                            .map<void>(
+                                (node: Node): void => {
+                                    return undefined;
+                                });
+                    });
+    }
+
+    private _cacheKeys$(keys: string[]): Observable<Node> {
+        let cacheNodes$: Observable<Node>[] = keys
+            .map(
+                (key: string): Observable<Node> => {
+                        return this._graphService.cacheNode$(key);
+                });
+
+        return Observable
+            .from<Observable<Node>>(cacheNodes$)
+            .mergeAll();
+    }
+
+    private _trajectoryKeys$(): Observable<string[]> {
+        return this._stateService.currentState$
+            .first()
+            .map<string[]>(
+                (frame: IFrame): string[] => {
+                    return frame.state.trajectory
+                            .map(
+                                (node: Node): string => {
+                                    return node.key;
+                                });
                 });
     }
 }

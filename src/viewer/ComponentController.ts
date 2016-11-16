@@ -26,7 +26,10 @@ export class ComponentController {
             this._subscribeCoverComponent();
         } else {
             this._navigator.movedToKey$
-                .first()
+                .first(
+                    (k: string): boolean => {
+                        return k != null;
+                    })
                 .subscribe(
                     (movedToKey: string): void => {
                         this._key = movedToKey;
