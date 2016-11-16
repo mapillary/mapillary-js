@@ -294,6 +294,35 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Set a bearer token for API requests of protected resources.
+     *
+     * @description When the supplied token is an empty string
+     * or null, any previously set access token will be cleared.
+     *
+     * Calling setAuthToken aborts all outstanding move requests.
+     * The promises of those move requests will be rejected and
+     * the rejections need to be caught.
+     *
+     * @param {string} [token] token - Bearer token.
+     * @returns {Promise<void>} Promise that resolves after token
+     * is set.
+     */
+    public setAuthToken(token?: string): when.Promise<void> {
+        return when.promise<void>(
+            (resolve: any, reject: any): void => {
+                this._navigator.setToken$(token)
+                    .subscribe(
+                        (): void => {
+                            resolve(undefined);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        }
+                    );
+            });
+    }
+
+    /**
      * Set the basic coordinates of the current photo to be in the
      * center of the viewport.
      *
