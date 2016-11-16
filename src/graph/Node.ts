@@ -306,6 +306,18 @@ export class Node {
     }
 
     /**
+     * Get projectKey.
+     *
+     * @returns {string} Unique key of the project to which
+     * the node belongs.
+     */
+    public get projectKey(): string {
+        return this._fill.project != null ?
+            this._fill.project.key :
+            null;
+    }
+
+    /**
      * Get rotation.
      *
      * @description Will not be set if SfM has not been run.

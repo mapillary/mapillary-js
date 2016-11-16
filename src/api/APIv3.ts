@@ -92,6 +92,7 @@ export class APIv3 {
         this._propertiesFill = [
             "captured_at",
             "user",
+            "project",
         ];
 
         this._propertiesKey = [
@@ -127,8 +128,11 @@ export class APIv3 {
             this._wrapPromise$<IFalcorResult<IImageByKey<IFillNode>>>(this._model.get([
                 this._pathImageByKey,
                 keys,
-                this._propertiesKey.concat(this._propertiesFill).concat(this._propertiesSpatial),
-                this._propertiesKey.concat(this._propertiesUser)]))
+                this._propertiesKey
+                    .concat(this._propertiesFill)
+                    .concat(this._propertiesSpatial),
+                this._propertiesKey
+                    .concat(this._propertiesUser)]))
             .map<{ [key: string]: IFillNode }>(
                 (value: IFalcorResult<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
                     return value.json.imageByKey;
@@ -142,8 +146,12 @@ export class APIv3 {
             this._wrapPromise$<IFalcorResult<IImageByKey<IFullNode>>>(this._model.get([
                 this._pathImageByKey,
                 keys,
-                this._propertiesKey.concat(this._propertiesCore).concat(this._propertiesFill).concat(this._propertiesSpatial),
-                this._propertiesKey.concat(this._propertiesUser)]))
+                this._propertiesKey
+                    .concat(this._propertiesCore)
+                    .concat(this._propertiesFill)
+                    .concat(this._propertiesSpatial),
+                this._propertiesKey
+                    .concat(this._propertiesUser)]))
             .map<{ [key: string]: IFullNode }>(
                 (value: IFalcorResult<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
                     return value.json.imageByKey;
@@ -158,8 +166,12 @@ export class APIv3 {
             this._wrapPromise$<IFalcorResult<IImageCloseTo<IFullNode>>>(this._model.get([
                 this._pathImageCloseTo,
                 [lonLat],
-                this._propertiesKey.concat(this._propertiesCore).concat(this._propertiesFill).concat(this._propertiesSpatial),
-                this._propertiesKey.concat(this._propertiesUser)]))
+                this._propertiesKey
+                    .concat(this._propertiesCore)
+                    .concat(this._propertiesFill)
+                    .concat(this._propertiesSpatial),
+                this._propertiesKey
+                    .concat(this._propertiesUser)]))
             .map<IFullNode>(
                 (value: IFalcorResult<IImageCloseTo<IFullNode>>): IFullNode => {
                     return value != null ? value.json.imageCloseTo[lonLat] : null;
@@ -174,7 +186,8 @@ export class APIv3 {
                 this._pathImagesByH,
                 hs,
                 { from: 0, to: this._pageCount },
-                this._propertiesKey.concat(this._propertiesCore),
+                this._propertiesKey
+                    .concat(this._propertiesCore),
                 this._propertiesKey]))
             .map<{ [h: string]: { [index: string]: ICoreNode } }>(
                 (value: IFalcorResult<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
@@ -227,7 +240,8 @@ export class APIv3 {
             this._wrapPromise$<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
                 this._pathSequenceByKey,
                 sequenceKeys,
-                this._propertiesKey.concat(this._propertiesSequence)]))
+                this._propertiesKey
+                    .concat(this._propertiesSequence)]))
             .map<{ [sequenceKey: string]: ISequence }>(
                 (value: IFalcorResult<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
                     return value.json.sequenceByKey;

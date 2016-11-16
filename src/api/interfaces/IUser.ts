@@ -11,4 +11,3 @@ export interface IUser extends IKey {
      */
     username: string;
 }
-

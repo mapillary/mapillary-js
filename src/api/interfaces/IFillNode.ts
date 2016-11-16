@@ -1,4 +1,4 @@
-import {IGPano, IUser} from "../../API";
+import {IGPano, IProject, IUser} from "../../API";
 
 /**
  * Interface that describes the raw filling node properties.
@@ -70,7 +70,12 @@ export interface IFillNode {
     orientation?: number;
 
     /**
-     * User key of the user who uploaded the image.
+     * Project the image belongs to.
+     */
+    project?: IProject;
+
+    /**
+     * User who uploaded the image.
      */
     user: IUser;
 
