@@ -60,7 +60,8 @@ describe("Navigator.ctor", () => {
         let loadingService: LoadingService = new LoadingService();
         let stateService: StateService = new StateService();
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         expect(navigator).toBeDefined();
     });
@@ -79,7 +80,8 @@ describe("Navigator.moveToKey$", () => {
 
         spyOn(graphService, "cacheNode$").and.returnValue(Observable.empty<Node>());
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         let key: string = "key";
 
@@ -112,7 +114,8 @@ describe("Navigator.moveToKey$", () => {
 
         let stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$(key).subscribe();
 
@@ -137,7 +140,8 @@ describe("Navigator.moveToKey$", () => {
 
         let stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         let key: string = "key";
 
@@ -177,7 +181,8 @@ describe("Navigator.movedToKey$", () => {
 
         spyOn(stateService, "setNodes").and.stub();
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.movedToKey$
             .first(
@@ -208,7 +213,8 @@ describe("Navigator.moveCloseTo$", () => {
 
         spyOn(apiV3, "imageCloseTo$").and.returnValue(Observable.empty<IKey>());
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         let lat: number = 0;
         let lon: number = 0;
@@ -232,7 +238,8 @@ describe("Navigator.moveCloseTo$", () => {
         let key: string = "key";
         spyOn(apiV3, "imageCloseTo$").and.returnValue(Observable.of<IKey>({ key: key }));
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         let moveSpy: jasmine.Spy = spyOn(navigator, "moveToKey$");
         moveSpy.and.returnValue(Observable.empty<Node>());
@@ -259,7 +266,8 @@ describe("Navigator.moveCloseTo$", () => {
 
         spyOn(apiV3, "imageCloseTo$").and.returnValue(Observable.of<IKey>(null));
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         let moveSpy: jasmine.Spy = spyOn(navigator, "moveToKey$");
         moveSpy.and.returnValue(Observable.empty<Node>());
@@ -315,7 +323,8 @@ describe("Navigator.setFilter$", () => {
         let setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
         setFilterSpy.and.returnValue(setFilterSubject$);
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.setFilter$(["==", "key", "value"])
             .subscribe(
@@ -367,7 +376,8 @@ describe("Navigator.setFilter$", () => {
                 return cacheNodeSubject$;
             });
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$("moveToKey").subscribe();
 
@@ -427,7 +437,8 @@ describe("Navigator.setFilter$", () => {
                 return cacheNodeSubject2$;
             });
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$("key").subscribe();
 
@@ -496,7 +507,8 @@ describe("Navigator.reset$", () => {
         let resetSpy: jasmine.Spy = spyOn(graphService, "reset$");
         resetSpy.and.returnValue(resetSubject$);
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.setToken$("token")
             .subscribe(
@@ -553,7 +565,8 @@ describe("Navigator.reset$", () => {
                 return cacheNodeSubject2$;
             });
 
-        let navigator: Navigator = new Navigator(clientId, apiV3, graphService, imageLoadingService, loadingService, stateService);
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$("key").subscribe();
 

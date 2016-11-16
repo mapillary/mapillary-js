@@ -47,13 +47,14 @@ export class Navigator {
 
     constructor (
         clientId: string,
+        token?: string,
         apiV3?: APIv3,
         graphService?: GraphService,
         imageLoadingService?: ImageLoadingService,
         loadingService?: LoadingService,
         stateService?: StateService) {
 
-        this._apiV3 = apiV3 != null ? apiV3 : new APIv3(clientId);
+        this._apiV3 = apiV3 != null ? apiV3 : new APIv3(clientId, token);
 
         this._imageLoadingService = imageLoadingService != null ? imageLoadingService : new ImageLoadingService();
 

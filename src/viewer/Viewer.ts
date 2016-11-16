@@ -101,23 +101,25 @@ export class Viewer extends EventEmitter {
     /**
      * Create a new viewer instance.
      *
-     * @param {string} id - required `id` of an DOM element which will
+     * @param {string} id - Required `id` of a DOM element which will
      * be transformed into the viewer.
-     * @param {string} clientId - required `Mapillary API ClientID`, can
+     * @param {string} clientId - Required `Mapillary API ClientID`. Can
      * be obtained from https://www.mapillary.com/app/settings/developers.
-     * @param {string} key - optional `photoId` to start from, can be any
+     * @param {string} [key] - Optional `photoId` to start from, can be any
      * Mapillary photo, if null no image is loaded.
-     * @param {IViewerOptions} options - optional configuration object
+     * @param {IViewerOptions} [options] - Optional configuration object
      * specifing Viewer's initial setup.
+     * @param {string} [token] - Optional bearer token for API requests of
+     * protected resources.
      */
-    constructor (id: string, clientId: string, key?: string, options?: IViewerOptions) {
+    constructor (id: string, clientId: string, key?: string, options?: IViewerOptions, token?: string) {
         super();
 
         options = options != null ? options : {};
 
         Settings.setOptions(options);
 
-        this._navigator = new Navigator(clientId);
+        this._navigator = new Navigator(clientId, token);
         this._container = new Container(id, this._navigator.stateService, options);
         this._eventLauncher = new EventLauncher(this, this._navigator, this._container);
         this._componentController = new ComponentController(this._container, this._navigator, key, options.component);
