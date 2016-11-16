@@ -41,18 +41,18 @@ export class Viewer extends EventEmitter {
     public static loadingchanged: string = "loadingchanged";
 
     /**
-     * Fired when the viewer starts transitioning from one view to another,
-     * either by changing the node or by interaction such as pan and zoom.
-     * @event
-     */
-    public static movestart: string = "movestart";
-
-    /**
      * Fired when the viewer finishes transitioning and is in a fixed
      * position with a fixed point of view.
      * @event
      */
     public static moveend: string = "moveend";
+
+    /**
+     * Fired when the viewer starts transitioning from one view to another,
+     * either by changing the node or by interaction such as pan and zoom.
+     * @event
+     */
+    public static movestart: string = "movestart";
 
     /**
      * Fired every time the viewer navigates to a new node.
@@ -76,27 +76,27 @@ export class Viewer extends EventEmitter {
     public static spatialedgeschanged: string = "spatialedgeschanged";
 
     /**
+     * Private ComponentController object which manages component states.
+     */
+    private _componentController: ComponentController;
+
+    /**
      * Private Container object which maintains the DOM Element,
      * renderers and relevant services.
      */
     private _container: Container;
 
     /**
-     * Private Navigator object which controls navigation throught
-     * the vast seas of Mapillary.
-     */
-    private _navigator: Navigator;
-
-    /**
-     * Private ComponentController object which manages component states.
-     */
-    private _componentController: ComponentController;
-
-    /**
      * Private EventLauncher object which fires events on behalf of
      * the viewer.
      */
     private _eventLauncher: EventLauncher;
+
+    /**
+     * Private Navigator object which controls navigation throught
+     * the vast seas of Mapillary.
+     */
+    private _navigator: Navigator;
 
     /**
      * Create a new viewer instance.
@@ -124,97 +124,6 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Navigate to a given photo key.
-     *
-     * @param {string} key - A valid Mapillary photo key.
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
-     * @throws {Error} Propagates any IO errors to the caller.
-     */
-    public moveToKey(key: string): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveToKey$(key).subscribe(
-                (node: Node): void => {
-                    resolve(node);
-                },
-                (error: Error): void => {
-                    reject(error);
-                }
-            );
-        });
-    }
-
-    /**
-     * Navigate in a given direction.
-     *
-     * @description This method has to be called through EdgeDirection enumeration as in the example.
-     *
-     * @param {EdgeDirection} dir - Direction in which which to move.
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
-     * @throws {Error} If the current node does not have the edge direction
-     * or the edges has not yet been cached.
-     * @throws {Error} Propagates any IO errors to the caller.
-     *
-     * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
-     */
-    public moveDir(dir: EdgeDirection): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveDir$(dir).subscribe(
-                (node: Node): void => {
-                    resolve(node);
-                },
-                (error: Error): void => {
-                    reject(error);
-                }
-            );
-        });
-    }
-
-    /**
-     * Move close to given latitude and longitude.
-     *
-     * @param {Number} lat - Latitude, in degrees.
-     * @param {Number} lon - Longitude, in degrees.
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
-     * @throws {Error} If no nodes exist close to provided latitude
-     * longitude.
-     * @throws {Error} Propagates any IO errors to the caller.
-     */
-    public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveCloseTo$(lat, lon).subscribe(
-                (node: Node): void => {
-                    resolve(node);
-                },
-                (error: Error): void => {
-                    reject(error);
-                }
-            );
-        });
-    }
-
-    /**
-     * Detect the viewer's new width and height and resize it.
-     *
-     * @description The components will also detect the viewer's
-     * new size and resize their rendered elements if needed.
-     */
-    public resize(): void {
-        this._container.renderService.resize$.next(null);
-        this._componentController.resize();
-    }
-
-    /**
-     * Set the viewer's render mode.
-     *
-     * @param {RenderMode} renderMode - Render mode.
-     *
-     * @example `viewer.setRenderMode(Mapillary.RenderMode.Letterbox);`
-     */
-    public setRenderMode(renderMode: RenderMode): void {
-        this._container.renderService.renderMode$.next(renderMode);
-    }
-
-    /**
      * Activate a component.
      *
      * @param {string} name - Name of the component which will become active.
@@ -224,29 +133,19 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Activate the cover (deactivates all other components).
+     */
+    public activateCover(): void {
+        this._componentController.activateCover();
+    }
+
+    /**
      * Deactivate a component.
      *
      * @param {string} name - Name of component which become inactive.
      */
     public deactivateComponent(name: string): void {
         this._componentController.deactivate(name);
-    }
-
-    /**
-     * Get a component.
-     *
-     * @param {string} name - Name of component.
-     * @returns {Component} The requested component.
-     */
-    public getComponent<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
-        return this._componentController.get<TComponent>(name);
-    }
-
-    /**
-     * Activate the cover (deactivates all other components).
-     */
-    public activateCover(): void {
-        this._componentController.activateCover();
     }
 
     /**
@@ -284,6 +183,16 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Get a component.
+     *
+     * @param {string} name - Name of component.
+     * @returns {Component} The requested component.
+     */
+    public getComponent<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
+        return this._componentController.get<TComponent>(name);
+    }
+
+    /**
      * Get the photo's current zoom level.
      *
      * @returns {Promise<number>} Promise to the viewers's current
@@ -302,6 +211,86 @@ export class Viewer extends EventEmitter {
                         }
                     );
             });
+    }
+
+    /**
+     * Move close to given latitude and longitude.
+     *
+     * @param {Number} lat - Latitude, in degrees.
+     * @param {Number} lon - Longitude, in degrees.
+     * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @throws {Error} If no nodes exist close to provided latitude
+     * longitude.
+     * @throws {Error} Propagates any IO errors to the caller.
+     */
+    public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
+        return when.promise<Node>((resolve: any, reject: any): void => {
+            this._navigator.moveCloseTo$(lat, lon).subscribe(
+                (node: Node): void => {
+                    resolve(node);
+                },
+                (error: Error): void => {
+                    reject(error);
+                }
+            );
+        });
+    }
+
+    /**
+     * Navigate in a given direction.
+     *
+     * @description This method has to be called through EdgeDirection enumeration as in the example.
+     *
+     * @param {EdgeDirection} dir - Direction in which which to move.
+     * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @throws {Error} If the current node does not have the edge direction
+     * or the edges has not yet been cached.
+     * @throws {Error} Propagates any IO errors to the caller.
+     *
+     * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
+     */
+    public moveDir(dir: EdgeDirection): when.Promise<Node> {
+        return when.promise<Node>((resolve: any, reject: any): void => {
+            this._navigator.moveDir$(dir).subscribe(
+                (node: Node): void => {
+                    resolve(node);
+                },
+                (error: Error): void => {
+                    reject(error);
+                }
+            );
+        });
+    }
+
+    /**
+     * Navigate to a given photo key.
+     *
+     * @param {string} key - A valid Mapillary photo key.
+     * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @throws {Error} Propagates any IO errors to the caller.
+     */
+    public moveToKey(key: string): when.Promise<Node> {
+        return when.promise<Node>((resolve: any, reject: any): void => {
+            this._navigator.moveToKey$(key).subscribe(
+                (node: Node): void => {
+                    resolve(node);
+                },
+                (error: Error): void => {
+                    reject(error);
+                }
+            );
+        });
+    }
+
+    /**
+     * Detect the viewer's new width and height and resize it.
+     *
+     * @description The components will also detect the viewer's
+     * new size and resize their rendered elements if needed.
+     */
+    public resize(): void {
+        this._container.renderService.resize$.next(null);
+        this._componentController.resize();
     }
 
     /**
@@ -374,6 +363,17 @@ export class Viewer extends EventEmitter {
                         }
                     );
             });
+    }
+
+    /**
+     * Set the viewer's render mode.
+     *
+     * @param {RenderMode} renderMode - Render mode.
+     *
+     * @example `viewer.setRenderMode(Mapillary.RenderMode.Letterbox);`
+     */
+    public setRenderMode(renderMode: RenderMode): void {
+        this._container.renderService.renderMode$.next(renderMode);
     }
 
     /**
