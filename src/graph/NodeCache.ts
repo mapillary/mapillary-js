@@ -338,6 +338,8 @@ export class NodeCache {
 
                         if (this._disposed) {
                             window.URL.revokeObjectURL(image.src);
+                            subscriber.error(new Error(`Image load was aborted (${key})`));
+
                             return;
                         }
 
