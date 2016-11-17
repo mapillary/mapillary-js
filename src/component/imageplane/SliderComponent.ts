@@ -77,8 +77,6 @@ class SliderState {
     private _domNeedsRender: boolean;
     private _sliderVisible: boolean;
 
-    private _motionless: boolean;
-
     private _curtain: number;
 
     constructor() {
@@ -93,8 +91,6 @@ class SliderState {
 
         this._glNeedsRender = false;
         this._domNeedsRender = true;
-
-        this._motionless = false;
 
         this._curtain = 1;
     }
@@ -127,7 +123,6 @@ class SliderState {
     public get disabled(): boolean {
         return this._currentKey == null ||
             this._previousKey == null ||
-            this._motionless ||
             this._currentPano;
     }
 
@@ -135,9 +130,10 @@ class SliderState {
         this._updateFrameId(frame.id);
         let needsRender: boolean = this._updateImagePlanes(frame.state);
 
+        this._domNeedsRender = needsRender || this._domNeedsRender;
+
         needsRender = this._updateCurtain(frame.state.alpha) || needsRender;
         this._glNeedsRender = needsRender || this._glNeedsRender;
-        this._domNeedsRender = needsRender || this._domNeedsRender;
     }
 
     public updateTexture(image: HTMLImageElement, node: Node): void {
@@ -200,7 +196,6 @@ class SliderState {
             needsRender = true;
 
             this._previousKey = state.previousNode.key;
-            this._motionless = state.motionless;
             this._imagePlaneScene.setImagePlanesOld([
                 this._imagePlaneFactory.createMesh(state.previousNode, state.previousTransform),
             ]);
@@ -211,7 +206,6 @@ class SliderState {
 
             this._currentKey = state.currentNode.key;
             this._currentPano = state.currentNode.pano;
-            this._motionless = state.motionless;
             this._imagePlaneScene.setImagePlanes([
                 this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform),
             ]);
