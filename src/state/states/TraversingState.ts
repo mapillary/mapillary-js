@@ -95,6 +95,8 @@ export class TraversingState extends StateBase {
     constructor (state: IState) {
         super(state);
 
+        this._adjustCameras();
+
         this._motionless = this._motionlessTransition();
 
         this._baseAlpha = this._alpha;
@@ -370,13 +372,19 @@ export class TraversingState extends StateBase {
     protected _setCurrentCamera(): void {
         super._setCurrentCamera();
 
-        if (this._previousNode != null) {
-            let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
-            this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
+        this._adjustCameras();
+    }
 
-            if (this._currentNode.fullPano) {
-                this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
-            }
+    private _adjustCameras(): void {
+        if (this._previousNode == null) {
+            return;
+        }
+
+        let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
+        this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
+
+        if (this._currentNode.fullPano) {
+            this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
         }
     }
 

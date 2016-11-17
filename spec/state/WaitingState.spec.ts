@@ -135,7 +135,7 @@ describe("WaitingState.currentCamera.lookat", () => {
         expect(waitingState.currentCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to lookat of camera when pano", () => {
+    it("should correspond to lookat of camera when full pano", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -162,7 +162,7 @@ describe("WaitingState.currentCamera.lookat", () => {
             CroppedAreaImageHeightPixels: 1,
             CroppedAreaImageWidthPixels: 1,
             CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0.5,
+            CroppedAreaTopPixels: 0,
             FullPanoHeightPixels: 1,
             FullPanoWidthPixels: 1,
         };
@@ -176,11 +176,15 @@ describe("WaitingState.currentCamera.lookat", () => {
         expect(waitingState.currentCamera.position.y).toBeCloseTo(0, precision);
         expect(waitingState.currentCamera.position.z).toBeCloseTo(0, precision);
 
-        let lookat: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+        let cameraDirection: THREE.Vector3 = camera.lookat.clone().sub(camera.position).normalize();
+        let currentDirection: THREE.Vector3 = waitingState.currentCamera.lookat
+            .clone()
+            .sub(waitingState.currentCamera.position)
+            .normalize();
 
-        expect(waitingState.currentCamera.lookat.x).toBeCloseTo(lookat.x, precision);
-        expect(waitingState.currentCamera.lookat.y).toBeCloseTo(lookat.y, precision);
-        expect(waitingState.currentCamera.lookat.z).toBeCloseTo(lookat.z, precision);
+        expect(currentDirection.x).toBeCloseTo(cameraDirection.x, precision);
+        expect(currentDirection.y).toBeCloseTo(cameraDirection.y, precision);
+        expect(currentDirection.z).toBeCloseTo(cameraDirection.z, precision);
     });
 });
 
@@ -261,10 +265,8 @@ describe("WaitingState.previousCamera.lookat", () => {
         expect(waitingState.previousCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to lookat of camera when pano and previous node set", () => {
+    it("should correspond to direction of current camera when full pano and previous node set", () => {
         let camera: Camera = new Camera();
-        camera.position.fromArray([10, 10, 0]);
-        camera.lookat.fromArray([15, 15, 0]);
 
         let state: IState = {
             alpha: 1,
@@ -283,7 +285,7 @@ describe("WaitingState.previousCamera.lookat", () => {
             CroppedAreaImageHeightPixels: 1,
             CroppedAreaImageWidthPixels: 1,
             CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0.5,
+            CroppedAreaTopPixels: 0,
             FullPanoHeightPixels: 1,
             FullPanoWidthPixels: 1,
         };
@@ -292,20 +294,26 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let currentNode: TestNode = new TestNode();
         let currentFillNode: IFillNode = helper.createFillNode();
-        currentFillNode.c_rotation = [Math.PI, 0, 0];
+        currentFillNode.c_rotation = [0.2, 0.3, 0.4];
         currentNode.makeFull(currentFillNode);
 
         waitingState.set([previousNode]);
         waitingState.set([currentNode]);
 
-        expect(waitingState.currentCamera.position.x).toBeCloseTo(0, precision);
-        expect(waitingState.currentCamera.position.y).toBeCloseTo(0, precision);
-        expect(waitingState.currentCamera.position.z).toBeCloseTo(0, precision);
+        let currentDirection: THREE.Vector3 = waitingState.currentCamera.lookat
+            .clone()
+            .sub(waitingState.currentCamera.position);
 
-        let lookat: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+        let previousDirection: THREE.Vector3 = waitingState.previousCamera.lookat
+            .clone()
+            .sub(waitingState.previousCamera.position);
 
-        expect(waitingState.currentCamera.lookat.x).toBeCloseTo(lookat.x, precision);
-        expect(waitingState.currentCamera.lookat.y).toBeCloseTo(lookat.y, precision);
-        expect(waitingState.currentCamera.lookat.z).toBeCloseTo(lookat.z, precision);
+        expect(previousDirection.x).not.toBe(0);
+        expect(previousDirection.y).not.toBe(0);
+        expect(previousDirection.z).not.toBe(0);
+
+        expect(previousDirection.x).toBeCloseTo(currentDirection.x, precision);
+        expect(previousDirection.y).toBeCloseTo(currentDirection.y, precision);
+        expect(previousDirection.z).toBeCloseTo(currentDirection.z, precision);
     });
 });

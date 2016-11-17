@@ -5,6 +5,8 @@ export class WaitingState extends StateBase {
     constructor(state: IState) {
         super(state);
 
+        this._adjustCameras();
+
         this._motionless = this._motionlessTransition();
     }
 
@@ -53,23 +55,28 @@ export class WaitingState extends StateBase {
     public setZoom(zoom: number): void { return; }
 
     protected _getAlpha(): number {
-        return this._motionless ? Math.ceil(this._alpha) : this._alpha;
+        return this._motionless ? Math.round(this._alpha) : this._alpha;
     };
 
     protected _setCurrentCamera(): void {
         super._setCurrentCamera();
 
-        if (this._previousNode != null) {
+        this._adjustCameras();
+    }
+
+    private _adjustCameras(): void {
+        if (this._previousNode == null) {
+            return;
+        }
+
+        if (this._currentNode.fullPano) {
             let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
+            this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
+        }
 
-            if (this._previousNode.pano) {
-                let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
-                this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
-            }
-
-            if (this._currentNode.pano) {
-                this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
-            }
+        if (this._previousNode.fullPano) {
+            let lookat: THREE.Vector3 = this._currentCamera.lookat.clone().sub(this._currentCamera.position);
+            this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
         }
     }
 }
