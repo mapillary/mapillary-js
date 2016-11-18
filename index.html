@@ -7,7 +7,6 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
-	<script src="assets/js/modernizr.js"></script>
 </head>
 <body>
 <header>
@@ -72,8 +71,8 @@
 				<pre><code class="lang-html"><span class="hljs-meta">&lt;!DOCTYPE html&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.0.0/dist/mapillary.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.0.0/dist/mapillary.min.css'</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">'stylesheet'</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.1.0/dist/mapillary.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.1.0/dist/mapillary.min.css'</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">'stylesheet'</span> /&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
@@ -93,15 +92,22 @@
 				<p>Refer to the <a href="https://github.com/mapillary/mapillary-js#examples">Examples</a> and <a href="https://mapillary.github.io/mapillary-js">Documentation</a> sections below for more information.</p>
 				<h2 id="examples">Examples</h2>
 				<ul>
-					<li><a href="https://bl.ocks.org/knikel/4615432968a33f1fcd6b">Simple MapillaryJS embedding</a></li>
-					<li><a href="https://bl.ocks.org/knikel/630c2d6fa37a8a0e082a">Storytelling with MapillaryJS</a></li>
-					<li><a href="https://bl.ocks.org/knikel/bc0f813f611a8787ff02">Slider displaying difference in two photos</a></li>
-					<li>MapillaryJS + Leaflet - <a href="http://bl.ocks.org/knikel/f04c4656d1adeaaf1555">Panorama</a> - <a href="http://bl.ocks.org/knikel/151a77df042cd3890502">Perspective photo</a></li>
-					<li>MapillaryJS + Leaflet + Tangram - <a href="http://bl.ocks.org/knikel/0f297c5b1fcfd14e38ba">Panorama</a> - <a href="http://bl.ocks.org/knikel/fbeda1c8f89c97612b10">Perspective photo</a></li>
-					<li>MapillaryJS + Mapbox GL JS - <a href="https://bl.ocks.org/knikel/4ec4de69a0fc29318675">Panorama</a> - <a href="https://bl.ocks.org/knikel/010115b08ebe30baba86">Perspective photo</a></li>
-					<li>MapillaryJS + Esri Leaflet -  <a href="http://bl.ocks.org/knikel/dd38c3fb1bd8fb3a826c">Panorama</a> - <a href="http://bl.ocks.org/knikel/e85b802e97fd3390668f">Perspective photo</a></li>
-					<li>MapillaryJS + Google Maps - <a href="http://bl.ocks.org/knikel/451e2ee5d76ae72e669f">Panorama</a></li>
-					<li>MapillaryJS + Esri JavaScript API 3.x <a href="http://bl.ocks.org/raykendo/b2ff7b978efc44695940afd5d0cd36c1">Panorama</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/63644e3b2392f2f2b7d000af9c506da6">MapillaryJS fixed size</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39">MapillaryJS dynamic size</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade">MapillaryJS load immediately</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/4f6f7ae5e86db7446f78ccea1eb6c2a7">MapillaryJS no cover</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a">MapillaryJS viewer options</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820">MapillaryJS subscribe to node changed</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3">MapillaryJS slider</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c">MapillaryJS set filter</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82">MapillaryJS get center and zoom</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871">MapillaryJS set center and zoom</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/a9bd5d6dadcc5df7e024a04a9600b043">MapillaryJS + ESRI JS API</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/fda7ce2bdae8499580b1f72d139103de">MapillaryJS + Google Maps</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/0a11029a5627028c445a38016c76fb3a">MapillaryJS + Leaflet</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/5a0b23ea8259db871bed2a724ee3afec">MapillaryJS + Leaflet ESRI</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/6f0d316fee85320c552a4ed6838566a2">MapillaryJS + Leaflet Tangram</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/0b7c5763225029268fce0324af2b2b3a">MapillaryJS + Mapbox GL JS</a></li>
 				</ul>
 				<h2 id="documentation">Documentation</h2>
 				<ul>
@@ -179,7 +185,28 @@
 						<a href="interfaces/imesh.html" class="tsd-kind-icon">IMesh</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="interfaces/iproject.html" class="tsd-kind-icon">IProject</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/isequence.html" class="tsd-kind-icon">ISequence</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iuser.html" class="tsd-kind-icon">IUser</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/ivieweroptions.html" class="tsd-kind-icon">IViewer<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#filterexpression" class="tsd-kind-icon">Filter<wbr>Expression</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#filteroperation" class="tsd-kind-icon">Filter<wbr>Operation</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#filteroperator" class="tsd-kind-icon">Filter<wbr>Operator</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#filtervalue" class="tsd-kind-icon">Filter<wbr>Value</a>
 					</li>
 				</ul>
 			</nav>
@@ -246,7 +273,7 @@
 	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>

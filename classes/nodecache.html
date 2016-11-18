@@ -7,7 +7,6 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
-	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
 <header>
@@ -99,9 +98,12 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_cachingassets_" class="tsd-kind-icon">_caching<wbr>Assets$</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_disposed" class="tsd-kind-icon">_disposed</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_image" class="tsd-kind-icon">_image</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_imagerequest" class="tsd-kind-icon">_image<wbr>Request</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_loadstatus" class="tsd-kind-icon">_load<wbr>Status</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_mesh" class="tsd-kind-icon">_mesh</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_meshrequest" class="tsd-kind-icon">_mesh<wbr>Request</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_sequenceedges" class="tsd-kind-icon">_sequence<wbr>Edges</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_sequenceedges_" class="tsd-kind-icon">_sequence<wbr>Edges$</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_sequenceedgeschanged_" class="tsd-kind-icon">_sequence<wbr>Edges<wbr>Changed$</a></li>
@@ -127,13 +129,16 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_cacheimage" class="tsd-kind-icon">_cache<wbr>Image</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_cachemesh" class="tsd-kind-icon">_cache<wbr>Mesh</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_cacheimage_" class="tsd-kind-icon">_cache<wbr>Image$</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_cachemesh_" class="tsd-kind-icon">_cache<wbr>Mesh$</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_createemptymeshloadstatus" class="tsd-kind-icon">_create<wbr>Empty<wbr>Mesh<wbr>Load<wbr>Status</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="nodecache.html#_disposeimage" class="tsd-kind-icon">_dispose<wbr>Image</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nodecache.html#cacheassets_" class="tsd-kind-icon">cache<wbr>Assets$</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nodecache.html#cacheimage_" class="tsd-kind-icon">cache<wbr>Image$</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nodecache.html#cachesequenceedges" class="tsd-kind-icon">cache<wbr>Sequence<wbr>Edges</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nodecache.html#cachespatialedges" class="tsd-kind-icon">cache<wbr>Spatial<wbr>Edges</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nodecache.html#dispose" class="tsd-kind-icon">dispose</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nodecache.html#resetsequenceedges" class="tsd-kind-icon">reset<wbr>Sequence<wbr>Edges</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="nodecache.html#resetspatialedges" class="tsd-kind-icon">reset<wbr>Spatial<wbr>Edges</a></li>
 							</ul>
 						</section>
@@ -152,7 +157,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L45">graph/NodeCache.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L49">graph/NodeCache.ts:49</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -173,7 +178,17 @@
 					<div class="tsd-signature tsd-kind-icon">_caching<wbr>Assets$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="nodecache.html" class="tsd-signature-type">NodeCache</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L42">graph/NodeCache.ts:42</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L46">graph/NodeCache.ts:46</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_disposed" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _disposed</h3>
+					<div class="tsd-signature tsd-kind-icon">_disposed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L30">graph/NodeCache.ts:30</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -183,7 +198,17 @@
 					<div class="tsd-signature tsd-kind-icon">_image<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLImageElement</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L31">graph/NodeCache.ts:31</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L32">graph/NodeCache.ts:32</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_imagerequest" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _image<wbr>Request</h3>
+					<div class="tsd-signature tsd-kind-icon">_image<wbr>Request<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">XMLHttpRequest</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L38">graph/NodeCache.ts:38</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -193,7 +218,7 @@
 					<div class="tsd-signature tsd-kind-icon">_load<wbr>Status<span class="tsd-signature-symbol">:</span> <a href="../interfaces/iloadstatus.html" class="tsd-signature-type">ILoadStatus</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L32">graph/NodeCache.ts:32</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L33">graph/NodeCache.ts:33</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -203,7 +228,17 @@
 					<div class="tsd-signature tsd-kind-icon">_mesh<span class="tsd-signature-symbol">:</span> <a href="../interfaces/imesh.html" class="tsd-signature-type">IMesh</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L33">graph/NodeCache.ts:33</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L34">graph/NodeCache.ts:34</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_meshrequest" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _mesh<wbr>Request</h3>
+					<div class="tsd-signature tsd-kind-icon">_mesh<wbr>Request<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">XMLHttpRequest</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L39">graph/NodeCache.ts:39</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -213,7 +248,7 @@
 					<div class="tsd-signature tsd-kind-icon">_sequence<wbr>Edges<span class="tsd-signature-symbol">:</span> <a href="../interfaces/iedgestatus.html" class="tsd-signature-type">IEdgeStatus</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L34">graph/NodeCache.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L35">graph/NodeCache.ts:35</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -223,7 +258,7 @@
 					<div class="tsd-signature tsd-kind-icon">_sequence<wbr>Edges$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/iedgestatus.html" class="tsd-signature-type">IEdgeStatus</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L38">graph/NodeCache.ts:38</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L42">graph/NodeCache.ts:42</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -233,7 +268,7 @@
 					<div class="tsd-signature tsd-kind-icon">_sequence<wbr>Edges<wbr>Changed$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/iedgestatus.html" class="tsd-signature-type">IEdgeStatus</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L37">graph/NodeCache.ts:37</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L41">graph/NodeCache.ts:41</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -243,7 +278,7 @@
 					<div class="tsd-signature tsd-kind-icon">_sequence<wbr>Edges<wbr>Subscription<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subscription</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L44">graph/NodeCache.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L48">graph/NodeCache.ts:48</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -253,7 +288,7 @@
 					<div class="tsd-signature tsd-kind-icon">_spatial<wbr>Edges<span class="tsd-signature-symbol">:</span> <a href="../interfaces/iedgestatus.html" class="tsd-signature-type">IEdgeStatus</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L35">graph/NodeCache.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L36">graph/NodeCache.ts:36</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -263,7 +298,7 @@
 					<div class="tsd-signature tsd-kind-icon">_spatial<wbr>Edges$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/iedgestatus.html" class="tsd-signature-type">IEdgeStatus</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L40">graph/NodeCache.ts:40</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L44">graph/NodeCache.ts:44</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -273,7 +308,7 @@
 					<div class="tsd-signature tsd-kind-icon">_spatial<wbr>Edges<wbr>Changed$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/iedgestatus.html" class="tsd-signature-type">IEdgeStatus</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L39">graph/NodeCache.ts:39</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L43">graph/NodeCache.ts:43</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -283,7 +318,7 @@
 					<div class="tsd-signature tsd-kind-icon">_spatial<wbr>Edges<wbr>Subscription<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subscription</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L45">graph/NodeCache.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L49">graph/NodeCache.ts:49</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -300,7 +335,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L84">graph/NodeCache.ts:84</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L90">graph/NodeCache.ts:90</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -329,7 +364,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L94">graph/NodeCache.ts:94</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L100">graph/NodeCache.ts:100</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -353,7 +388,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L107">graph/NodeCache.ts:107</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L113">graph/NodeCache.ts:113</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -383,7 +418,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L117">graph/NodeCache.ts:117</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L123">graph/NodeCache.ts:123</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -407,7 +442,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L127">graph/NodeCache.ts:127</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L133">graph/NodeCache.ts:133</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -431,7 +466,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L137">graph/NodeCache.ts:137</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L143">graph/NodeCache.ts:143</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -455,7 +490,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L147">graph/NodeCache.ts:147</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L153">graph/NodeCache.ts:153</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -473,16 +508,16 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="_cacheimage" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _cache<wbr>Image</h3>
+					<a name="_cacheimage_" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _cache<wbr>Image$</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_cache<wbr>Image<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, pano<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ILoadStatusObject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">HTMLImageElement</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">_cache<wbr>Image$<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, imageSize<span class="tsd-signature-symbol">: </span><a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ILoadStatusObject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">HTMLImageElement</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L254">graph/NodeCache.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L316">graph/NodeCache.ts:316</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -499,10 +534,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>pano: <span class="tsd-signature-type">boolean</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Value indicating whether node is a panorama.</p>
-									</div>
+									<h5>imageSize: <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ILoadStatusObject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">HTMLImageElement</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -513,16 +545,16 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="_cachemesh" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _cache<wbr>Mesh</h3>
+					<a name="_cachemesh_" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _cache<wbr>Mesh$</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_cache<wbr>Mesh<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, merged<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ILoadStatusObject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imesh.html" class="tsd-signature-type">IMesh</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">_cache<wbr>Mesh$<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, merged<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ILoadStatusObject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imesh.html" class="tsd-signature-type">IMesh</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L271">graph/NodeCache.ts:271</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L395">graph/NodeCache.ts:395</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -562,7 +594,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L313">graph/NodeCache.ts:313</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L458">graph/NodeCache.ts:458</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -576,6 +608,23 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_disposeimage" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _dispose<wbr>Image</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_dispose<wbr>Image<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L465">graph/NodeCache.ts:465</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="cacheassets_" class="tsd-anchor"></a>
 					<h3>cache<wbr>Assets$</h3>
@@ -586,7 +635,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L160">graph/NodeCache.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L167">graph/NodeCache.ts:167</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -616,8 +665,50 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="nodecache.html" class="tsd-signature-type">NodeCache</a><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable emitting this node whenever the
-							load status has changed and when the mesh or image has been fully loaded.</p>
+							<p>Observable emitting this node
+								cache whenever the load status has changed and when the mesh or image
+							has been fully loaded.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="cacheimage_" class="tsd-anchor"></a>
+					<h3>cache<wbr>Image$</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">cache<wbr>Image$<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, imageSize<span class="tsd-signature-symbol">: </span><a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="nodecache.html" class="tsd-signature-type">NodeCache</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L218">graph/NodeCache.ts:218</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Cache an image with a higher resolution than the current one.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>key: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Key of the node to cache.</p>
+									</div>
+								</li>
+								<li>
+									<h5>imageSize: <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The size to cache.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="nodecache.html" class="tsd-signature-type">NodeCache</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>Observable emitting a single item,
+								the node cache, when the image has been cached. If supplied image
+								size is not larger than the current image size the node cache is
+							returned immediately.</p>
 						</li>
 					</ul>
 				</section>
@@ -631,7 +722,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L202">graph/NodeCache.ts:202</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L244">graph/NodeCache.ts:244</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -662,7 +753,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L212">graph/NodeCache.ts:212</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L254">graph/NodeCache.ts:254</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -693,7 +784,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L223">graph/NodeCache.ts:223</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L265">graph/NodeCache.ts:265</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -712,6 +803,28 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="resetsequenceedges" class="tsd-anchor"></a>
+					<h3>reset<wbr>Sequence<wbr>Edges</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">reset<wbr>Sequence<wbr>Edges<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L294">graph/NodeCache.ts:294</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Reset the sequence edges.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="resetspatialedges" class="tsd-anchor"></a>
 					<h3>reset<wbr>Spatial<wbr>Edges</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -721,7 +834,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/04a16c5/src/graph/NodeCache.ts#L240">graph/NodeCache.ts:240</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/graph/NodeCache.ts#L302">graph/NodeCache.ts:302</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -769,13 +882,22 @@
 								<a href="nodecache.html#_cachingassets_" class="tsd-kind-icon">_caching<wbr>Assets$</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="nodecache.html#_disposed" class="tsd-kind-icon">_disposed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="nodecache.html#_image" class="tsd-kind-icon">_image</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="nodecache.html#_imagerequest" class="tsd-kind-icon">_image<wbr>Request</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="nodecache.html#_loadstatus" class="tsd-kind-icon">_load<wbr>Status</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="nodecache.html#_mesh" class="tsd-kind-icon">_mesh</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="nodecache.html#_meshrequest" class="tsd-kind-icon">_mesh<wbr>Request</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="nodecache.html#_sequenceedges" class="tsd-kind-icon">_sequence<wbr>Edges</a>
@@ -823,16 +945,22 @@
 								<a href="nodecache.html#spatialedges_" class="tsd-kind-icon">spatial<wbr>Edges$</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="nodecache.html#_cacheimage" class="tsd-kind-icon">_cache<wbr>Image</a>
+								<a href="nodecache.html#_cacheimage_" class="tsd-kind-icon">_cache<wbr>Image$</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="nodecache.html#_cachemesh" class="tsd-kind-icon">_cache<wbr>Mesh</a>
+								<a href="nodecache.html#_cachemesh_" class="tsd-kind-icon">_cache<wbr>Mesh$</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="nodecache.html#_createemptymeshloadstatus" class="tsd-kind-icon">_create<wbr>Empty<wbr>Mesh<wbr>Load<wbr>Status</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="nodecache.html#_disposeimage" class="tsd-kind-icon">_dispose<wbr>Image</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="nodecache.html#cacheassets_" class="tsd-kind-icon">cache<wbr>Assets$</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="nodecache.html#cacheimage_" class="tsd-kind-icon">cache<wbr>Image$</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="nodecache.html#cachesequenceedges" class="tsd-kind-icon">cache<wbr>Sequence<wbr>Edges</a>
@@ -842,6 +970,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="nodecache.html#dispose" class="tsd-kind-icon">dispose</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="nodecache.html#resetsequenceedges" class="tsd-kind-icon">reset<wbr>Sequence<wbr>Edges</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="nodecache.html#resetspatialedges" class="tsd-kind-icon">reset<wbr>Spatial<wbr>Edges</a>
@@ -887,7 +1018,28 @@
 						<a href="../interfaces/imesh.html" class="tsd-kind-icon">IMesh</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="../interfaces/iproject.html" class="tsd-kind-icon">IProject</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/isequence.html" class="tsd-kind-icon">ISequence</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/iuser.html" class="tsd-kind-icon">IUser</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="../interfaces/ivieweroptions.html" class="tsd-kind-icon">IViewer<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#filterexpression" class="tsd-kind-icon">Filter<wbr>Expression</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#filteroperation" class="tsd-kind-icon">Filter<wbr>Operation</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#filteroperator" class="tsd-kind-icon">Filter<wbr>Operator</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#filtervalue" class="tsd-kind-icon">Filter<wbr>Value</a>
 					</li>
 				</ul>
 			</nav>
@@ -954,7 +1106,7 @@
 	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="../assets/js/main.js"></script>

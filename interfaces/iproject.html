@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IGPano | MapillaryJS</title>
+	<title>IProject | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="igpano.html">IGPano</a>
+					<a href="iproject.html">IProject</a>
 				</li>
 			</ul>
-			<h1>Interface IGPano</h1>
+			<h1>Interface IProject</h1>
 		</div>
 	</div>
 </header>
@@ -67,11 +67,11 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Interface that describes panorama metadata.</p>
+						<p>Interface that describes the raw image project properties.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
-						<dd><p>IGPano</p>
+						<dd><p>IProject</p>
 						</dd>
 					</dl>
 				</div>
@@ -80,7 +80,12 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IGPano</span>
+						<a href="ikey.html" class="tsd-signature-type">IKey</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">IProject</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -88,109 +93,30 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#croppedareaimageheightpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Height<wbr>Pixels</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#croppedareaimagewidthpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Width<wbr>Pixels</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#croppedarealeftpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Left<wbr>Pixels</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#croppedareatoppixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Top<wbr>Pixels</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#fullpanoheightpixels" class="tsd-kind-icon">Full<wbr>Pano<wbr>Height<wbr>Pixels</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="igpano.html#fullpanowidthpixels" class="tsd-kind-icon">Full<wbr>Pano<wbr>Width<wbr>Pixels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="iproject.html#key" class="tsd-kind-icon">key</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="croppedareaimageheightpixels" class="tsd-anchor"></a>
-					<h3>Cropped<wbr>Area<wbr>Image<wbr>Height<wbr>Pixels</h3>
-					<div class="tsd-signature tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Height<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="key" class="tsd-anchor"></a>
+					<h3>key</h3>
+					<div class="tsd-signature tsd-kind-icon">key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="ikey.html">IKey</a>.<a href="ikey.html#key">key</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/api/interfaces/IGPano.ts#L20">api/interfaces/IGPano.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/api/interfaces/IKey.ts#L10">api/interfaces/IKey.ts:10</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Height of cropped area in pixels.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="croppedareaimagewidthpixels" class="tsd-anchor"></a>
-					<h3>Cropped<wbr>Area<wbr>Image<wbr>Width<wbr>Pixels</h3>
-					<div class="tsd-signature tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Width<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/api/interfaces/IGPano.ts#L25">api/interfaces/IGPano.ts:25</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Width of cropped area in pixels.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="croppedarealeftpixels" class="tsd-anchor"></a>
-					<h3>Cropped<wbr>Area<wbr>Left<wbr>Pixels</h3>
-					<div class="tsd-signature tsd-kind-icon">Cropped<wbr>Area<wbr>Left<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/api/interfaces/IGPano.ts#L10">api/interfaces/IGPano.ts:10</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Margin of cropped area to left border in pixels.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="croppedareatoppixels" class="tsd-anchor"></a>
-					<h3>Cropped<wbr>Area<wbr>Top<wbr>Pixels</h3>
-					<div class="tsd-signature tsd-kind-icon">Cropped<wbr>Area<wbr>Top<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/api/interfaces/IGPano.ts#L15">api/interfaces/IGPano.ts:15</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Margin of cropped area to top border in pixels.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="fullpanoheightpixels" class="tsd-anchor"></a>
-					<h3>Full<wbr>Pano<wbr>Height<wbr>Pixels</h3>
-					<div class="tsd-signature tsd-kind-icon">Full<wbr>Pano<wbr>Height<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/api/interfaces/IGPano.ts#L30">api/interfaces/IGPano.ts:30</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Full height in pixels.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="fullpanowidthpixels" class="tsd-anchor"></a>
-					<h3>Full<wbr>Pano<wbr>Width<wbr>Pixels</h3>
-					<div class="tsd-signature tsd-kind-icon">Full<wbr>Pano<wbr>Width<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/a676660/src/api/interfaces/IGPano.ts#L35">api/interfaces/IGPano.ts:35</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Full width in pixels.</p>
+							<p>Unique key.</p>
 						</div>
 					</div>
 				</section>
@@ -242,33 +168,9 @@
 					<li class=" tsd-kind-interface">
 						<a href="ifillnode.html" class="tsd-kind-icon">IFill<wbr>Node</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class=" tsd-kind-interface">
 						<a href="igpano.html" class="tsd-kind-icon">IGPano</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="igpano.html#croppedareaimageheightpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Height<wbr>Pixels</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="igpano.html#croppedareaimagewidthpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Image<wbr>Width<wbr>Pixels</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="igpano.html#croppedarealeftpixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Left<wbr>Pixels</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="igpano.html#croppedareatoppixels" class="tsd-kind-icon">Cropped<wbr>Area<wbr>Top<wbr>Pixels</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="igpano.html#fullpanoheightpixels" class="tsd-kind-icon">Full<wbr>Pano<wbr>Height<wbr>Pixels</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="igpano.html#fullpanowidthpixels" class="tsd-kind-icon">Full<wbr>Pano<wbr>Width<wbr>Pixels</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="ikey.html" class="tsd-kind-icon">IKey</a>
 					</li>
@@ -281,9 +183,18 @@
 					<li class=" tsd-kind-interface">
 						<a href="imesh.html" class="tsd-kind-icon">IMesh</a>
 					</li>
-					<li class=" tsd-kind-interface">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
 						<a href="iproject.html" class="tsd-kind-icon">IProject</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="iproject.html#key" class="tsd-kind-icon">key</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="isequence.html" class="tsd-kind-icon">ISequence</a>
 					</li>
