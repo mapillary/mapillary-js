@@ -89,6 +89,8 @@ export class GLRenderer {
     private _eraserOperation$: Subject<IEraserOperation> = new Subject<IEraserOperation>();
     private _eraser$: Observable<IEraser>;
 
+    private _webGLRenderer$: Observable<THREE.WebGLRenderer>;
+
     private _renderFrameSubscription: Subscription;
 
     constructor (renderService: RenderService) {
@@ -240,22 +242,31 @@ export class GLRenderer {
             .merge(renderHash$, clearHash$)
             .subscribe(this._renderOperation$);
 
-        let createRenderer$: Observable<IGLRendererOperation> = this._render$
+        this._webGLRenderer$ = this._render$
+            .first()
+            .map<THREE.WebGLRenderer>(
+                (hash: IGLRenderHash): THREE.WebGLRenderer => {
+                    let element: HTMLElement = renderService.element;
+
+                    let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+                    webGLRenderer.setPixelRatio(window.devicePixelRatio);
+                    webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
+                    webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
+                    webGLRenderer.autoClear = false;
+                    webGLRenderer.sortObjects = false;
+
+                    element.appendChild(webGLRenderer.domElement);
+
+                    return webGLRenderer;
+                })
+            .publishReplay(1)
+            .refCount();
+
+        let createRenderer$: Observable<IGLRendererOperation> = this._webGLRenderer$
             .first()
             .map<IGLRendererOperation>(
-                (hash: IGLRenderHash): IGLRendererOperation => {
+                (webGLRenderer: THREE.WebGLRenderer): IGLRendererOperation => {
                     return (renderer: IGLRenderer): IGLRenderer => {
-                        let element: HTMLElement = renderService.element;
-
-                        let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
-                        webGLRenderer.setPixelRatio(window.devicePixelRatio);
-                        webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
-                        webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
-                        webGLRenderer.autoClear = false;
-                        webGLRenderer.sortObjects = false;
-
-                        element.appendChild(webGLRenderer.domElement);
-
                         renderer.needsRender = true;
                         renderer.renderer = webGLRenderer;
 
@@ -330,6 +341,10 @@ export class GLRenderer {
 
     public get render$(): Subject<IGLRenderHash> {
         return this._render$;
+    }
+
+    public get webGLRenderer$(): Observable<THREE.WebGLRenderer> {
+        return this._webGLRenderer$;
     }
 
     public clear(name: string): void {
