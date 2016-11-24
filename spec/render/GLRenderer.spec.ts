@@ -31,6 +31,7 @@ class RendererMock implements THREE.Renderer {
     public render(s: THREE.Scene, c: THREE.Camera): void { return; }
     public setSize(w: number, h: number, updateStyle?: boolean): void { return; }
     public setClearColor(c: THREE.Color, o: number): void { return; }
+    public setPixelRatio(ratio: number): void { return; }
     public clear(): void { return; }
     public clearDepth(): void { return; }
 }

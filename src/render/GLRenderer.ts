@@ -185,7 +185,6 @@ export class GLRenderer {
 
                     let renderer: THREE.WebGLRenderer = co.renderer.renderer;
 
-                    renderer.autoClear = false;
                     renderer.clear();
 
                     for (let render of backgroundRenders) {
@@ -246,15 +245,14 @@ export class GLRenderer {
             .map<IGLRendererOperation>(
                 (hash: IGLRenderHash): IGLRendererOperation => {
                     return (renderer: IGLRenderer): IGLRenderer => {
-                        let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
                         let element: HTMLElement = renderService.element;
 
+                        let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+                        webGLRenderer.setPixelRatio(window.devicePixelRatio);
                         webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
                         webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
+                        webGLRenderer.autoClear = false;
                         webGLRenderer.sortObjects = false;
-
-                        webGLRenderer.domElement.style.width = "100%";
-                        webGLRenderer.domElement.style.height = "100%";
 
                         element.appendChild(webGLRenderer.domElement);
 
