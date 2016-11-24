@@ -1,6 +1,16 @@
-import {GLRenderer, DOMRenderer, RenderService} from "../Render";
+import {
+    GLRenderer,
+    DOMRenderer,
+    RenderService,
+    TextureRenderer,
+} from "../Render";
 import {StateService} from "../State";
-import {IViewerOptions, MouseService, TouchService, SpriteService} from "../Viewer";
+import {
+    IViewerOptions,
+    MouseService,
+    TouchService,
+    SpriteService,
+} from "../Viewer";
 
 export class Container {
     public id: string;
@@ -10,6 +20,7 @@ export class Container {
 
     public glRenderer: GLRenderer;
     public domRenderer: DOMRenderer;
+    public textureRenderer: TextureRenderer;
 
     public mouseService: MouseService;
     public touchService: TouchService;
@@ -25,6 +36,7 @@ export class Container {
 
         this.glRenderer = new GLRenderer(this.renderService);
         this.domRenderer = new DOMRenderer(this.element, this.renderService, stateService.currentState$);
+        this.textureRenderer = new TextureRenderer(this.glRenderer);
 
         this.mouseService = new MouseService(this.element);
         this.touchService = new TouchService(this.element);
