@@ -1,9 +1,7 @@
-import {ImageTileLoader} from "../API";
 import {
     GLRenderer,
     DOMRenderer,
     RenderService,
-    TextureRenderer,
 } from "../Render";
 import {StateService} from "../State";
 import {
@@ -21,7 +19,6 @@ export class Container {
 
     public glRenderer: GLRenderer;
     public domRenderer: DOMRenderer;
-    public textureRenderer: TextureRenderer;
 
     public mouseService: MouseService;
     public touchService: TouchService;
@@ -37,7 +34,6 @@ export class Container {
 
         this.glRenderer = new GLRenderer(this.renderService);
         this.domRenderer = new DOMRenderer(this.element, this.renderService, stateService.currentState$);
-        this.textureRenderer = new TextureRenderer(this.glRenderer, new ImageTileLoader());
 
         this.mouseService = new MouseService(this.element);
         this.touchService = new TouchService(this.element);
