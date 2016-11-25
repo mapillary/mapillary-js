@@ -9,4 +9,5 @@ export {SpriteAlignment} from "./viewer/SpriteAlignment";
 export {SpriteService} from "./viewer/SpriteService";
 export {TouchService, TouchMove, IPinch} from "./viewer/TouchService";
 export {Viewer} from "./viewer/Viewer";
+export {ViewportService} from "./viewer/ViewportService";
 export * from "./viewer/interfaces/interfaces";
