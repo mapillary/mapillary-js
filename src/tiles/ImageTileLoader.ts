@@ -19,7 +19,7 @@ export class ImageTileLoader {
         w: number,
         h: number,
         scaledW: number,
-        scaledH: number): Observable<HTMLImageElement> {
+        scaledH: number): [Observable<HTMLImageElement>, Function] {
 
         let characteristics: string = `/${identifier}/${x},${y},${w},${h}/${scaledW},${scaledH}/0/default.jpg`;
         let url: string =
@@ -29,9 +29,11 @@ export class ImageTileLoader {
             characteristics +
             this._origin;
 
-        return Observable.create(
+        let xmlHTTP: XMLHttpRequest = null;
+
+        return [Observable.create(
             (subscriber: Subscriber<HTMLImageElement>): void => {
-                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+                xmlHTTP = new XMLHttpRequest();
                 xmlHTTP.open("GET", url, true);
                 xmlHTTP.responseType = "arraybuffer";
 
@@ -70,7 +72,13 @@ export class ImageTileLoader {
                 };
 
                 xmlHTTP.send(null);
-            });
+            }),
+            (): void => {
+                if (xmlHTTP != null) {
+                    xmlHTTP.abort();
+                }
+            },
+        ];
     }
 }
 

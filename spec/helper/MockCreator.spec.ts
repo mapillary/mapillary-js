@@ -11,7 +11,7 @@ export class MockCreator {
 
         }
 
-        return <T>(spy);
+        return <T>spy;
     }
 }
 

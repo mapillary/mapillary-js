@@ -49,6 +49,10 @@ export class ImagePlaneGLRenderer {
         return this._needsRender;
     }
 
+    public indicateNeedsRender(): void {
+        this._needsRender = true;
+    }
+
     public updateFrame(frame: IFrame): void {
         this._updateFrameId(frame.id);
         this._needsRender = this._updateAlpha(frame.state.alpha) || this._needsRender;

@@ -2,6 +2,8 @@
 
 import * as THREE from "three";
 
+import {Observable} from "rxjs/Observable";
+
 import {MockCreator} from "../helper/MockCreator.spec";
 
 import {
@@ -20,10 +22,12 @@ class RendererMock implements THREE.Renderer {
 describe("TextureRenderer.ctor", () => {
     it("should be contructed", () => {
         let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        (<jasmine.Spy>imageTileLoader.getTile).and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
+
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
-        let textureRenderer: TextureProvider = new TextureProvider(1, 1, new Image(), imageTileLoader, rendererMock);
+        let textureRenderer: TextureProvider = new TextureProvider("", 1, 1, new Image(), imageTileLoader, rendererMock);
 
         expect(textureRenderer).toBeDefined();
     });

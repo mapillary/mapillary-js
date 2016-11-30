@@ -187,7 +187,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     let renderer: THREE.WebGLRenderer = args[1];
 
                     let textureProvider: TextureProvider =
-                        new TextureProvider(node.width, node.height, node.image, this._imageTileLoader, renderer);
+                        new TextureProvider(node.key, node.width, node.height, node.image, this._imageTileLoader, renderer);
 
                     return textureProvider;
                 })
@@ -201,6 +201,21 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 (textureProvider: TextureProvider): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateTexture(textureProvider.texture);
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._rendererOperation$);
+
+        textureProvider$
+            .switchMap(
+                (provider: TextureProvider): Observable<boolean> => {
+                    return provider.updated$;
+                })
+            .map<IImagePlaneGLRendererOperation>(
+                (updated: boolean): IImagePlaneGLRendererOperation => {
+                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                        renderer.indicateNeedsRender();
 
                         return renderer;
                     };
