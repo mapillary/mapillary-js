@@ -19,7 +19,10 @@ import {
     IImagePlaneConfiguration,
     ImagePlaneGLRenderer,
 } from "../../Component";
-import {Transform} from "../../Geo";
+import {
+    Camera,
+    Transform,
+} from "../../Geo";
 import {IFrame} from "../../State";
 import {
     Container,
@@ -35,7 +38,14 @@ import {
     ImageLoader,
     Node,
 } from "../../Graph";
-import {Settings} from "../../Utils";
+import {
+    ImageTileLoader,
+    TextureProvider,
+} from "../../Tiles";
+import {
+    Settings,
+    Urls,
+} from "../../Utils";
 
 interface IImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
@@ -51,10 +61,13 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
     private _rendererSubscription: Subscription;
     private _stateSubscription: Subscription;
-    private _nodeSubscription: Subscription;
+
+    private _imageTileLoader: ImageTileLoader;
 
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._imageTileLoader = new ImageTileLoader(Urls.tileDomain, Urls.origin);
 
         this._rendererOperation$ = new Subject<IImagePlaneGLRendererOperation>();
         this._rendererCreator$ = new Subject<void>();
@@ -134,7 +147,75 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 })
             .subscribe(this._rendererOperation$);
 
-        this._nodeSubscription = Observable
+        let cameraStalled$: Observable<boolean> = this._navigator.stateService.currentState$
+            .map(
+                (frame: IFrame): Camera => {
+                    return frame.state.camera.clone();
+                })
+            .pairwise()
+            .map(
+                (cameras: [Camera, Camera]): boolean => {
+                    return cameras[0].position.distanceToSquared(cameras[1].position) < 1e-9;
+                })
+            .distinctUntilChanged()
+            .publish()
+            .refCount();
+
+        cameraStalled$.subscribe();
+
+        let textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentNode$
+            .switchMap(
+                 (node: Node): Observable<boolean> => {
+                     return cameraStalled$
+                        .filter(
+                            (stalled: boolean): boolean => {
+                                return stalled;
+                            })
+                        .first();
+                 })
+            .switchMap(
+                (stalled: boolean): Observable<[Node, THREE.WebGLRenderer]> => {
+                    return Observable
+                        .combineLatest(
+                            this._navigator.stateService.currentNode$,
+                            this._container.glRenderer.webGLRenderer$)
+                        .first();
+                })
+            .map(
+                (args: [Node, THREE.WebGLRenderer]): TextureProvider => {
+                    let node: Node = args[0];
+                    let renderer: THREE.WebGLRenderer = args[1];
+
+                    let textureProvider: TextureProvider =
+                        new TextureProvider(node.width, node.height, node.image, this._imageTileLoader, renderer);
+
+                    return textureProvider;
+                })
+            .publish()
+            .refCount();
+
+        textureProvider$.subscribe();
+
+        textureProvider$
+            .map<IImagePlaneGLRendererOperation>(
+                (textureProvider: TextureProvider): IImagePlaneGLRendererOperation => {
+                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                        renderer.updateTexture(textureProvider.texture);
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._rendererOperation$);
+
+        textureProvider$
+            .pairwise()
+            .subscribe(
+                (pair: [TextureProvider, TextureProvider]): void => {
+                    let previous: TextureProvider = pair[0];
+                    previous.dispose();
+                });
+
+        Observable
             .combineLatest(
                 this._navigator.stateService.currentNode$,
                 this._configuration$)
@@ -217,12 +298,11 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .map<IImagePlaneGLRendererOperation>(
                 (imn: [HTMLImageElement, Node]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
-                        renderer.updateTexture(imn[0], imn[1]);
+                        renderer.updateTextureImage(imn[0], imn[1]);
 
                         return renderer;
                     };
-                })
-            .subscribe(this._rendererOperation$);
+                });
     }
 
     protected _deactivate(): void {
@@ -230,7 +310,6 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
         this._rendererSubscription.unsubscribe();
         this._stateSubscription.unsubscribe();
-        this._nodeSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IImagePlaneConfiguration {

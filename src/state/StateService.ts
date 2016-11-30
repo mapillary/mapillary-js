@@ -117,7 +117,18 @@ export class StateService {
                 })
             .share();
 
+        let lastTime: number = window.performance.now();
+
         this._currentState$ = this._frame$
+            .do(
+                (id: number): void => {
+                    let newTime: number = window.performance.now();
+                    if (newTime - lastTime > 50) {
+                        console.log("Request animation frame", (newTime - lastTime).toFixed(2));
+                    }
+
+                    lastTime = newTime;
+                })
             .withLatestFrom(
                 this._fps$,
                 this._context$,

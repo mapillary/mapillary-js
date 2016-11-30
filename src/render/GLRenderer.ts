@@ -187,6 +187,8 @@ export class GLRenderer {
 
                     let renderer: THREE.WebGLRenderer = co.renderer.renderer;
 
+                    let ts: number = window.performance.now();
+
                     renderer.clear();
 
                     for (let render of backgroundRenders) {
@@ -197,6 +199,11 @@ export class GLRenderer {
 
                     for (let render of foregroundRenders) {
                         render(perspectiveCamera, renderer);
+                    }
+
+                    let te: number = window.performance.now();
+                    if (te - ts > 10) {
+                        console.warn("Render to screen", (te - ts).toFixed(2));
                     }
                 });
 
@@ -261,6 +268,8 @@ export class GLRenderer {
                 })
             .publishReplay(1)
             .refCount();
+
+        this._webGLRenderer$.subscribe();
 
         let createRenderer$: Observable<IGLRendererOperation> = this._webGLRenderer$
             .first()

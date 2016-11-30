@@ -1,5 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import * as THREE from "three";
+
 import {MockCreator} from "../helper/MockCreator.spec";
 
 import {
@@ -19,8 +21,9 @@ describe("TextureRenderer.ctor", () => {
     it("should be contructed", () => {
         let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
-        let textureRenderer: TextureProvider = new TextureProvider(imageTileLoader, rendererMock);
+        let textureRenderer: TextureProvider = new TextureProvider(1, 1, new Image(), imageTileLoader, rendererMock);
 
         expect(textureRenderer).toBeDefined();
     });
