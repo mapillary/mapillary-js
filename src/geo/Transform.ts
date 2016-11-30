@@ -290,10 +290,17 @@ export class Transform {
                 (fullPanoPixel[1] - this.gpano.CroppedAreaTopPixels - this.gpano.CroppedAreaImageHeightPixels / 2) / size,
             ];
         } else {
-            return [
-                bearing[0] * this._focal / bearing[2],
-                bearing[1] * this._focal / bearing[2],
-            ];
+            if (bearing[2] > 0) {
+                return [
+                    bearing[0] * this._focal / bearing[2],
+                    bearing[1] * this._focal / bearing[2],
+                ];
+            } else {
+                return [
+                    bearing[0] < 0 ? -Number.MAX_VALUE : Number.MAX_VALUE,
+                    bearing[1] < 0 ? -Number.MAX_VALUE : Number.MAX_VALUE,
+                ]
+            }
         }
     }
 

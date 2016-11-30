@@ -45,25 +45,9 @@ export class RegionOfInterestService {
             [0, size.height],
         ];
 
-        let basicPoints: number[][] = canvasPoints
-            .map(
-                (point: number[]): THREE.Vector3 => {
-                    return this._unproject(point[0], point[1], size.width, size.height, renderCamera.perspective);
-                })
-            .map(
-                (bearing: THREE.Vector3): number[] => {
-                    let projection: THREE.Vector3 = new THREE.Vector3(bearing.x, bearing.y, bearing.z)
-                        .applyMatrix4(this._transform.rt);
-
-                    if (projection.z < 0) {
-                        return [
-                            projection.x < 0 ? 0 : 1,
-                            projection.y < 0 ? 0 : 1,
-                        ];
-                    }
-
-                    return this._transform.projectBasic([bearing.x, bearing.y, bearing.z]);
-                });
+        let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
+            return this._canvasToBasic(point, size, renderCamera, this._transform);
+        });
 
         // todo(pau): This will not work for panoramas
         let bbox: IBoundingBox = this._boundingBox(basicPoints);
@@ -96,7 +80,16 @@ export class RegionOfInterestService {
         bbox.maxY = Math.min(1, bbox.maxY);
 
         return bbox;
-    };
+    }
+
+    private _canvasToBasic(
+        point: number [],
+        size: ISize,
+        renderCamera: RenderCamera,
+        transform: Transform): number[] {
+        let bearing: THREE.Vector3 = this._unproject(point[0], point[1], size.width, size.height, renderCamera.perspective);
+        return transform.projectBasic([bearing.x, bearing.y, bearing.z]);
+    }
 
     private _unproject(
         canvasX: number,
