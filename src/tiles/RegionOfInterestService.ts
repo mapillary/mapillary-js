@@ -1,5 +1,8 @@
+/// <reference path="../../typings/index.d.ts" />
+
+import * as THREE from "three";
+
 import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
 
 import {
     RenderService,
@@ -7,42 +10,31 @@ import {
     ISize,
 } from "../Render";
 import {Transform} from "../Geo";
-import {TextureProvider} from "../Tiles";
-
-
-interface IBoundingBox {
-    minX: number;
-    minY: number;
-    maxX: number;
-    maxY: number;
-}
-
-
-interface IRegionOfInterest {
-    bbox: IBoundingBox;
-    viewportHeight: number;
-    viewportWidth: number;
-}
+import {
+    IBoundingBox,
+    IRegionOfInterest,
+} from "../Tiles";
 
 
 export class RegionOfInterestService {
     private _transform: Transform;
 
-    private _roiObservable$: Observable<IRegionOfInterest>;
-    private _textureRoiSubscription: Subscription;
+    private _roi$: Observable<IRegionOfInterest>;
 
     constructor (
         renderSerive: RenderService,
-        transform: Transform,
-        textureProvider: TextureProvider) {
+        transform: Transform) {
 
         this._transform = transform;
 
-        this._roiObservable$ = renderSerive.renderCamera$
-            .withLatestFrom<IRegionOfInterest>(renderSerive.size$,
-                                               this._computeRegionOfInterest);
+        this._roi$ = renderSerive.renderCamera$
+            .withLatestFrom<IRegionOfInterest>(
+                renderSerive.size$,
+                this._computeRegionOfInterest.bind(this));
+    }
 
-        this._textureRoiSubscription = this._roiObservable$.subscribe(/* textureProvider.XXX */);
+    public get roi$(): Observable<IRegionOfInterest> {
+        return this._roi$;
     }
 
     private _computeRegionOfInterest(renderCamera: RenderCamera, size: ISize): IRegionOfInterest {
@@ -53,9 +45,25 @@ export class RegionOfInterestService {
             [0, size.height],
         ];
 
-        let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
-            return this._canvasToBasic(point, size, renderCamera, this._transform);
-        });
+        let basicPoints: number[][] = canvasPoints
+            .map(
+                (point: number[]): THREE.Vector3 => {
+                    return this._unproject(point[0], point[1], size.width, size.height, renderCamera.perspective);
+                })
+            .map(
+                (bearing: THREE.Vector3): number[] => {
+                    let projection: THREE.Vector3 = new THREE.Vector3(bearing.x, bearing.y, bearing.z)
+                        .applyMatrix4(this._transform.rt);
+
+                    if (projection.z < 0) {
+                        return [
+                            projection.x < 0 ? 0 : 1,
+                            projection.y < 0 ? 0 : 1,
+                        ];
+                    }
+
+                    return this._transform.projectBasic([bearing.x, bearing.y, bearing.z]);
+                });
 
         // todo(pau): This will not work for panoramas
         let bbox: IBoundingBox = this._boundingBox(basicPoints);
@@ -69,40 +77,37 @@ export class RegionOfInterestService {
 
     private _boundingBox(points: number[][]): IBoundingBox {
         let bbox: IBoundingBox = {
-            maxX: 999999,
-            maxY: -999999,
-            minX: 999999,
-            minY: -999999,
+            maxX: -Number.MAX_VALUE,
+            maxY: -Number.MAX_VALUE,
+            minX: Number.MAX_VALUE,
+            minY: Number.MAX_VALUE,
         };
+
         for (let i: number = 0; i < points.length; ++i) {
             bbox.minX = Math.min(bbox.minX, points[i][0]);
             bbox.minY = Math.min(bbox.minY, points[i][1]);
             bbox.maxX = Math.max(bbox.maxX, points[i][0]);
             bbox.maxY = Math.max(bbox.maxY, points[i][1]);
         }
+
+        bbox.minX = Math.max(0, bbox.minX);
+        bbox.maxX = Math.min(1, bbox.maxX);
+        bbox.minY = Math.max(0, bbox.minY);
+        bbox.maxY = Math.min(1, bbox.maxY);
+
         return bbox;
     };
-
-    private _canvasToBasic(
-        point: number [],
-        size: ISize,
-        renderCamera: RenderCamera,
-        transform: Transform): number[] {
-
-        let bearing: THREE.Vector3 = this._unproject(point[0], point[1], size.width, size.height, renderCamera.perspective);
-        return transform.projectBasic([bearing.x, bearing.y, bearing.z]);
-    }
 
     private _unproject(
         canvasX: number,
         canvasY: number,
-        offsetWidth: number,
-        offsetHeight: number,
+        canvasWidth: number,
+        canvasHeight: number,
         perspectiveCamera: THREE.PerspectiveCamera):
         THREE.Vector3 {
 
-        let projectedX: number = 2 * canvasX / offsetWidth - 1;
-        let projectedY: number = 1 - 2 * canvasY / offsetHeight;
+        let projectedX: number = 2 * canvasX / canvasWidth - 1;
+        let projectedY: number = 1 - 2 * canvasY / canvasHeight;
 
         return new THREE.Vector3(projectedX, projectedY, 1).unproject(perspectiveCamera);
     }
