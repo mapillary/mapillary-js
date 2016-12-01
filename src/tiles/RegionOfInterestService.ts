@@ -38,19 +38,29 @@ export class RegionOfInterestService {
     }
 
     private _computeRegionOfInterest(renderCamera: RenderCamera, size: ISize): IRegionOfInterest {
-        let canvasPoints: number[][] = [
-            [0, 0],
-            [size.width, 0],
-            [size.width, size.height],
-            [0, size.height],
-        ];
+        let epsilon: number = 0.01;
+        let pairs: number[][][] = [
+            [[0, 0], [0 + epsilon, 0 + epsilon]],
+            [[1, 0], [1 - epsilon, 0 + epsilon]],
+            [[1, 1], [1 - epsilon, 1 - epsilon]],
+            [[0, 1], [0 + epsilon, 1 - epsilon]]
+        ]
+        let canvasPairs: number[][][] = pairs.map((pair: number [][]): number[][] => {
+            return [
+                [size.width * pair[0][0], size.height * pair[0][1]],
+                [size.width * pair[1][0], size.height * pair[1][1]],
+            ];
+        })
 
-        let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
-            return this._canvasToBasic(point, size, renderCamera, this._transform);
+        let basicPairs: number[][][] = canvasPairs.map((pair: number [][]): number[][] => {
+            return [
+                this._canvasToBasic(pair[0], size, renderCamera, this._transform),
+                this._canvasToBasic(pair[1], size, renderCamera, this._transform),
+            ];
         });
 
         // todo(pau): This will not work for panoramas
-        let bbox: IBoundingBox = this._boundingBox(basicPoints);
+        let bbox: IBoundingBox = this._boundingBox(basicPairs);
 
         return {
             bbox: bbox,
@@ -59,7 +69,7 @@ export class RegionOfInterestService {
         };
     }
 
-    private _boundingBox(points: number[][]): IBoundingBox {
+    private _boundingBox(pairs: number[][][]): IBoundingBox {
         let bbox: IBoundingBox = {
             maxX: -Number.MAX_VALUE,
             maxY: -Number.MAX_VALUE,
@@ -67,11 +77,19 @@ export class RegionOfInterestService {
             minY: Number.MAX_VALUE,
         };
 
-        for (let i: number = 0; i < points.length; ++i) {
-            bbox.minX = Math.min(bbox.minX, points[i][0]);
-            bbox.minY = Math.min(bbox.minY, points[i][1]);
-            bbox.maxX = Math.max(bbox.maxX, points[i][0]);
-            bbox.maxY = Math.max(bbox.maxY, points[i][1]);
+        for (let i: number = 0; i < pairs.length; ++i) {
+            let dx: number = pairs[i][1][0] - pairs[i][0][0];
+            let dy: number = pairs[i][1][1] - pairs[i][0][1];
+            if (dx > 0) {
+                bbox.minX = Math.min(bbox.minX, pairs[i][0][0]);
+            } else {
+                bbox.maxX = Math.max(bbox.maxX, pairs[i][0][0]);
+            }
+            if (dy > 0) {
+                bbox.minY = Math.min(bbox.minY, pairs[i][0][1]);
+            } else {
+                bbox.maxY = Math.max(bbox.maxY, pairs[i][0][1]);
+            }
         }
 
         bbox.minX = Math.max(0, bbox.minX);

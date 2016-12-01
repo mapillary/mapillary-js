@@ -299,7 +299,7 @@ export class Transform {
                 return [
                     bearing[0] < 0 ? -Number.MAX_VALUE : Number.MAX_VALUE,
                     bearing[1] < 0 ? -Number.MAX_VALUE : Number.MAX_VALUE,
-                ]
+                ];
             }
         }
     }
