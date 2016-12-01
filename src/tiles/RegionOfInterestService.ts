@@ -38,28 +38,21 @@ export class RegionOfInterestService {
     }
 
     private _computeRegionOfInterest(renderCamera: RenderCamera, size: ISize): IRegionOfInterest {
-        let epsilon: number = 0.01;
-        let pairs: number[][][] = [
+        let epsilon: number = 1e-3;
+        let canvasPairs: number[][][] = [
             [[0, 0], [0 + epsilon, 0 + epsilon]],
             [[1, 0], [1 - epsilon, 0 + epsilon]],
             [[1, 1], [1 - epsilon, 1 - epsilon]],
-            [[0, 1], [0 + epsilon, 1 - epsilon]]
-        ]
-        let canvasPairs: number[][][] = pairs.map((pair: number [][]): number[][] => {
-            return [
-                [size.width * pair[0][0], size.height * pair[0][1]],
-                [size.width * pair[1][0], size.height * pair[1][1]],
-            ];
-        })
+            [[0, 1], [0 + epsilon, 1 - epsilon]],
+        ];
 
         let basicPairs: number[][][] = canvasPairs.map((pair: number [][]): number[][] => {
             return [
-                this._canvasToBasic(pair[0], size, renderCamera, this._transform),
-                this._canvasToBasic(pair[1], size, renderCamera, this._transform),
+                this._canvasToBasic(pair[0], renderCamera, this._transform),
+                this._canvasToBasic(pair[1], renderCamera, this._transform),
             ];
         });
 
-        // todo(pau): This will not work for panoramas
         let bbox: IBoundingBox = this._boundingBox(basicPairs);
 
         return {
@@ -102,23 +95,20 @@ export class RegionOfInterestService {
 
     private _canvasToBasic(
         point: number [],
-        size: ISize,
         renderCamera: RenderCamera,
         transform: Transform): number[] {
-        let bearing: THREE.Vector3 = this._unproject(point[0], point[1], size.width, size.height, renderCamera.perspective);
+        let bearing: THREE.Vector3 = this._unproject(point[0], point[1], renderCamera.perspective);
         return transform.projectBasic([bearing.x, bearing.y, bearing.z]);
     }
 
     private _unproject(
         canvasX: number,
         canvasY: number,
-        canvasWidth: number,
-        canvasHeight: number,
         perspectiveCamera: THREE.PerspectiveCamera):
         THREE.Vector3 {
 
-        let projectedX: number = 2 * canvasX / canvasWidth - 1;
-        let projectedY: number = 1 - 2 * canvasY / canvasHeight;
+        let projectedX: number = 2 * canvasX - 1;
+        let projectedY: number = 1 - 2 * canvasY;
 
         return new THREE.Vector3(projectedX, projectedY, 1).unproject(perspectiveCamera);
     }
