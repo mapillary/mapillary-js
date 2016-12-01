@@ -20,10 +20,12 @@ import {
     ImagePlaneGLRenderer,
 } from "../../Component";
 import {
-    Camera,
     Transform,
 } from "../../Geo";
-import {IFrame} from "../../State";
+import {
+    ICurrentState,
+    IFrame,
+} from "../../State";
 import {
     Container,
     Navigator,
@@ -40,6 +42,8 @@ import {
 } from "../../Graph";
 import {
     ImageTileLoader,
+    IRegionOfInterest,
+    RegionOfInterestService,
     TextureProvider,
 } from "../../Tiles";
 import {
@@ -49,6 +53,11 @@ import {
 
 interface IImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
+}
+
+type TileHandler = {
+    roiService: RegionOfInterestService;
+    provider: TextureProvider;
 }
 
 export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
@@ -147,70 +156,54 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 })
             .subscribe(this._rendererOperation$);
 
-        let cameraStalled$: Observable<boolean> = this._navigator.stateService.currentState$
-            .map(
-                (frame: IFrame): Camera => {
-                    return frame.state.camera.clone();
+        let tileHandler$: Observable<TileHandler> = this._navigator.stateService.currentState$
+            .distinctUntilChanged(
+                undefined,
+                (frame: IFrame): string => {
+                    return frame.state.currentNode.key;
                 })
-            .pairwise()
+            .withLatestFrom(this._container.glRenderer.webGLRenderer$)
             .map(
-                (cameras: [Camera, Camera]): boolean => {
-                    return cameras[0].position.distanceToSquared(cameras[1].position) < 1e-9;
-                })
-            .distinctUntilChanged()
-            .publish()
-            .refCount();
-
-        cameraStalled$.subscribe();
-
-        let textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentNode$
-            .switchMap(
-                 (node: Node): Observable<boolean> => {
-                     return cameraStalled$
-                        .filter(
-                            (stalled: boolean): boolean => {
-                                return stalled;
-                            })
-                        .first();
-                 })
-            .switchMap(
-                (stalled: boolean): Observable<[Node, THREE.WebGLRenderer]> => {
-                    return Observable
-                        .combineLatest(
-                            this._navigator.stateService.currentNode$,
-                            this._container.glRenderer.webGLRenderer$)
-                        .first();
-                })
-            .map(
-                (args: [Node, THREE.WebGLRenderer]): TextureProvider => {
-                    let node: Node = args[0];
+                (args: [IFrame, THREE.WebGLRenderer]): TileHandler => {
+                    let state: ICurrentState = args[0].state;
                     let renderer: THREE.WebGLRenderer = args[1];
 
-                    let textureProvider: TextureProvider =
-                        new TextureProvider(node.key, node.width, node.height, node.image, this._imageTileLoader, renderer);
+                    let roiService: RegionOfInterestService =
+                        new RegionOfInterestService(this._container.renderService, state.currentTransform);
 
-                    return textureProvider;
+                    let currentNode: Node = state.currentNode;
+
+                    let textureProvider: TextureProvider =
+                        new TextureProvider(
+                            currentNode.key,
+                            currentNode.width,
+                            currentNode.height,
+                            currentNode.image,
+                            this._imageTileLoader,
+                            renderer);
+
+                    return { provider: textureProvider, roiService: roiService };
                 })
-            .publish()
+            .publishReplay(1)
             .refCount();
 
-        textureProvider$.subscribe();
+        tileHandler$.subscribe();
 
-        textureProvider$
+        tileHandler$
             .map<IImagePlaneGLRendererOperation>(
-                (textureProvider: TextureProvider): IImagePlaneGLRendererOperation => {
+                (handler: TileHandler): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
-                        renderer.updateTexture(textureProvider.texture);
+                        renderer.updateTexture(handler.provider.texture);
 
                         return renderer;
                     };
                 })
             .subscribe(this._rendererOperation$);
 
-        textureProvider$
+        tileHandler$
             .switchMap(
-                (provider: TextureProvider): Observable<boolean> => {
-                    return provider.updated$;
+                (handler: TileHandler): Observable<boolean> => {
+                    return handler.provider.updated$;
                 })
             .map<IImagePlaneGLRendererOperation>(
                 (updated: boolean): IImagePlaneGLRendererOperation => {
@@ -222,12 +215,25 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 })
             .subscribe(this._rendererOperation$);
 
-        textureProvider$
+        tileHandler$
             .pairwise()
             .subscribe(
-                (pair: [TextureProvider, TextureProvider]): void => {
-                    let previous: TextureProvider = pair[0];
+                (pair: [TileHandler, TileHandler]): void => {
+                    let previous: TextureProvider = pair[0].provider;
                     previous.dispose();
+                });
+
+        tileHandler$
+            .switchMap(
+                (handler: TileHandler): Observable<[IRegionOfInterest, TextureProvider]> => {
+                    return Observable
+                        .combineLatest(
+                            handler.roiService.roi$,
+                            Observable.of(handler.provider));
+                })
+            .subscribe(
+                (args: [IRegionOfInterest, TextureProvider]): void => {
+                    console.log(args[0].bbox);
                 });
 
         Observable
