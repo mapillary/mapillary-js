@@ -56,8 +56,9 @@ interface IImagePlaneGLRendererOperation {
 }
 
 type TileHandler = {
-    roiService: RegionOfInterestService;
+    key: string;
     provider: TextureProvider;
+    roiService: RegionOfInterestService;
 }
 
 export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
@@ -182,7 +183,11 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                             this._imageTileLoader,
                             renderer);
 
-                    return { provider: textureProvider, roiService: roiService };
+                    return {
+                        key: currentNode.key,
+                        provider: textureProvider,
+                        roiService: roiService,
+                    };
                 })
             .publishReplay(1)
             .refCount();
@@ -190,29 +195,10 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         tileHandler$.subscribe();
 
         tileHandler$
-            .switchMap(
-                (handler: TileHandler): Observable<THREE.Texture> => {
-                    return handler.provider.textureCreated$;
-                })
             .map<IImagePlaneGLRendererOperation>(
-                (texture: THREE.Texture): IImagePlaneGLRendererOperation => {
+                (handler: TileHandler): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
-                        renderer.updateTexture(texture);
-
-                        return renderer;
-                    };
-                })
-            .subscribe(this._rendererOperation$);
-
-        tileHandler$
-            .switchMap(
-                (handler: TileHandler): Observable<boolean> => {
-                    return handler.provider.textureUpdated$;
-                })
-            .map<IImagePlaneGLRendererOperation>(
-                (updated: boolean): IImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
-                        renderer.indicateNeedsRender();
+                        renderer.setTextureProvider(handler.key, handler.provider);
 
                         return renderer;
                     };
@@ -224,7 +210,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .subscribe(
                 (pair: [TileHandler, TileHandler]): void => {
                     let previous: TextureProvider = pair[0].provider;
-                    previous.dispose();
+                    previous.abort();
                 });
 
         tileHandler$

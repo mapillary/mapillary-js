@@ -73,7 +73,23 @@ export class TextureProvider {
         return this._created$;
     }
 
+    public abort(): void {
+        for (let subscription of this._tileSubscriptions) {
+            subscription.unsubscribe();
+        }
+
+        this._tileSubscriptions = [];
+
+        for (let abort of this._abortFunctions) {
+            abort();
+        }
+
+        this._abortFunctions = [];
+    }
+
     public dispose(): void {
+        this.abort();
+
         if (this._renderTarget != null) {
             this._renderTarget.dispose();
             this._renderTarget = null;
@@ -86,18 +102,6 @@ export class TextureProvider {
         this._roi = null;
 
         this._createdSubscription.unsubscribe();
-
-        for (let subscription of this._tileSubscriptions) {
-            subscription.unsubscribe();
-        }
-
-        this._tileSubscriptions = [];
-
-        for (let abort of this._abortFunctions) {
-            abort();
-        }
-
-        this._abortFunctions = [];
     }
 
     public setRegionOfInterest(roi: IRegionOfInterest): void {

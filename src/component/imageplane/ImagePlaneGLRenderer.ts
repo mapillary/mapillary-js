@@ -2,11 +2,19 @@
 
 import * as THREE from "three";
 
-import {ImagePlaneScene, ImagePlaneFactory} from "../../Component";
+import {Subscription} from "rxjs/Subscription";
+
+import {
+    ImagePlaneScene,
+    ImagePlaneFactory,
+} from "../../Component";
 import {Camera} from "../../Geo";
 import {Node} from "../../Graph";
-import {ICurrentState, IFrame} from "../../State";
-
+import {
+    ICurrentState,
+    IFrame,
+} from "../../State";
+import {TextureProvider} from "../../Tiles";
 
 export class ImagePlaneGLRenderer {
     private _imagePlaneFactory: ImagePlaneFactory;
@@ -20,6 +28,7 @@ export class ImagePlaneGLRenderer {
 
     private _currentKey: string;
     private _previousKey: string;
+    private _providerDisposers: { [key: string]: () => void };
 
     private _frameId: number;
     private _needsRender: boolean;
@@ -36,6 +45,7 @@ export class ImagePlaneGLRenderer {
 
         this._currentKey = null;
         this._previousKey = null;
+        this._providerDisposers = {};
 
         this._frameId = 0;
         this._needsRender = false;
@@ -60,7 +70,33 @@ export class ImagePlaneGLRenderer {
         this._needsRender = this._updateImagePlanes(frame.state) || this._needsRender;
     }
 
-    public updateTexture(texture: THREE.Texture): void {
+    public setTextureProvider(key: string, provider: TextureProvider): void {
+        if (key !== this._currentKey) {
+            return;
+        }
+
+        let createdSubscription: Subscription = provider.textureCreated$
+            .subscribe(
+                (texture: THREE.Texture): void => {
+                    this._updateTexture(texture);
+                });
+
+        let updatedSubscription: Subscription = provider.textureUpdated$
+            .subscribe(
+                (updated: boolean): void => {
+                    this._needsRender = true;
+                });
+
+        let dispose: () => void = (): void => {
+            createdSubscription.unsubscribe();
+            updatedSubscription.unsubscribe();
+            provider.dispose();
+        };
+
+        this._providerDisposers[key] = dispose;
+    }
+
+    public _updateTexture(texture: THREE.Texture): void {
         this._needsRender = true;
 
         for (let plane of this._imagePlaneScene.imagePlanes) {
@@ -157,7 +193,16 @@ export class ImagePlaneGLRenderer {
             return false;
         }
 
-        this._previousKey = state.previousNode != null ? state.previousNode.key : null;
+        let previousKey: string = state.previousNode != null ? state.previousNode.key : null;
+
+        if (previousKey !== this._previousKey && this._previousKey in this._providerDisposers) {
+            let disposeProvider: () => void = this._providerDisposers[this._previousKey];
+            disposeProvider();
+
+            delete this._providerDisposers[this._previousKey];
+        }
+
+        this._previousKey = previousKey;
         if (this._previousKey != null) {
             if (this._previousKey !== this._currentKey) {
                 let previousMesh: THREE.Mesh =
