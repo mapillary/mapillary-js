@@ -190,10 +190,14 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         tileHandler$.subscribe();
 
         tileHandler$
+            .switchMap(
+                (handler: TileHandler): Observable<THREE.Texture> => {
+                    return handler.provider.textureCreated$;
+                })
             .map<IImagePlaneGLRendererOperation>(
-                (handler: TileHandler): IImagePlaneGLRendererOperation => {
+                (texture: THREE.Texture): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
-                        renderer.updateTexture(handler.provider.texture);
+                        renderer.updateTexture(texture);
 
                         return renderer;
                     };
@@ -203,7 +207,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         tileHandler$
             .switchMap(
                 (handler: TileHandler): Observable<boolean> => {
-                    return handler.provider.updated$;
+                    return handler.provider.textureUpdated$;
                 })
             .map<IImagePlaneGLRendererOperation>(
                 (updated: boolean): IImagePlaneGLRendererOperation => {
@@ -233,7 +237,10 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 })
             .subscribe(
                 (args: [IRegionOfInterest, TextureProvider]): void => {
-                    console.log(args[0].bbox);
+                    let roi: IRegionOfInterest = args[0];
+                    let provider: TextureProvider = args[1];
+
+                    provider.setRegionOfInterest(roi);
                 });
 
         Observable

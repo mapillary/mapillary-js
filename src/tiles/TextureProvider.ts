@@ -6,19 +6,30 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
-import {ImageTileLoader} from "../Tiles";
+import {
+    ImageTileLoader,
+    IRegionOfInterest,
+} from "../Tiles";
 
 export class TextureProvider {
-    private _abortFunctions: Function[];
+    private _background: HTMLImageElement;
     private _camera: THREE.OrthographicCamera;
-    private _height: number;
     private _imageTileLoader: ImageTileLoader;
-    private _key: string;
     private _renderer: THREE.WebGLRenderer;
     private _renderTarget: THREE.WebGLRenderTarget;
-    private _tileSize: number;
+    private _roi: IRegionOfInterest;
+
+    private _abortFunctions: Function[];
     private _tileSubscriptions: Subscription[];
+
+    private _created$: Observable<THREE.Texture>;
+    private _createdSubject$: Subject<THREE.Texture>;
+    private _createdSubscription: Subscription;
     private _updated$: Subject<boolean>;
+
+    private _height: number;
+    private _key: string;
+    private _tileSize: number;
     private _width: number;
 
     constructor (
@@ -36,45 +47,45 @@ export class TextureProvider {
         this._tileSize = 512;
 
         this._updated$ = new Subject<boolean>();
+        this._createdSubject$ = new Subject<THREE.Texture>();
+        this._created$ = this._createdSubject$
+            .publishReplay(1)
+            .refCount();
+
+        this._createdSubscription = this._created$.subscribe();
 
         this._abortFunctions = [];
         this._tileSubscriptions = [];
 
-        this._camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, -1, 1);
-        this._camera.position.z = 1;
-
+        this._background = background;
+        this._camera = null;
         this._imageTileLoader = imageTileLoader;
         this._renderer = renderer;
-
-        this._renderTarget = new THREE.WebGLRenderTarget(
-            width,
-            height,
-            {
-                depthBuffer: false,
-                format: THREE.RGBFormat,
-                magFilter: THREE.LinearFilter,
-                minFilter: THREE.LinearFilter,
-                stencilBuffer: false,
-            });
-
-        this._renderToTarget(0, 0, width, height, background);
-        this._renderTiles();
+        this._renderTarget = null;
+        this._roi = null;
     }
 
-    public get texture(): THREE.Texture {
-        return this._texture;
-    }
-
-    public get updated$(): Observable<boolean> {
+    public get textureUpdated$(): Observable<boolean> {
         return this._updated$;
     }
 
+    public get textureCreated$(): Observable<THREE.Texture> {
+        return this._created$;
+    }
+
     public dispose(): void {
-        this._renderTarget.dispose();
-        this._renderTarget = null;
-        this._renderer = null;
-        this._imageTileLoader = null;
+        if (this._renderTarget != null) {
+            this._renderTarget.dispose();
+            this._renderTarget = null;
+        }
+
+        this._background = null;
         this._camera = null;
+        this._imageTileLoader = null;
+        this._renderer = null;
+        this._roi = null;
+
+        this._createdSubscription.unsubscribe();
 
         for (let subscription of this._tileSubscriptions) {
             subscription.unsubscribe();
@@ -89,8 +100,39 @@ export class TextureProvider {
         this._abortFunctions = [];
     }
 
-    private get _texture(): THREE.Texture {
-        return (<any>this._renderTarget).texture;
+    public setRegionOfInterest(roi: IRegionOfInterest): void {
+        if (this._roi != null) {
+            return;
+        }
+
+        this._roi = roi;
+
+        this._camera = new THREE.OrthographicCamera(
+            -this._width / 2,
+            this._width / 2,
+            this._height / 2,
+            -this._height / 2,
+            -1,
+            1);
+
+        this._camera.position.z = 1;
+
+        this._renderTarget = new THREE.WebGLRenderTarget(
+            this._width,
+            this._height,
+            {
+                depthBuffer: false,
+                format: THREE.RGBFormat,
+                magFilter: THREE.LinearFilter,
+                minFilter: THREE.LinearFilter,
+                stencilBuffer: false,
+            });
+
+        this._renderToTarget(0, 0, this._width, this._height, this._background);
+
+        this._createdSubject$.next((<any>this._renderTarget).texture);
+
+        this._renderTiles();
     }
 
     private _removeFromArray<T>(item: T, array: T[]): void {
@@ -112,10 +154,11 @@ export class TextureProvider {
             .subscribe(
                 (image: HTMLImageElement): void => {
                     this._renderToTarget(x, y, w, h, image, true);
-                    this._updated$.next(true);
 
                     this._removeFromArray(subscription, this._tileSubscriptions);
                     this._removeFromArray(abort, this._abortFunctions);
+
+                    this._updated$.next(true);
                 },
                 (error: Error): void => {
                     this._removeFromArray(subscription, this._tileSubscriptions);
