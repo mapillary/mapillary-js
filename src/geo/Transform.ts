@@ -297,8 +297,8 @@ export class Transform {
                 ];
             } else {
                 return [
-                    bearing[0] < 0 ? -Number.MAX_VALUE : Number.MAX_VALUE,
-                    bearing[1] < 0 ? -Number.MAX_VALUE : Number.MAX_VALUE,
+                    bearing[0] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
+                    bearing[1] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
                 ];
             }
         }

@@ -64,10 +64,10 @@ export class RegionOfInterestService {
 
     private _boundingBox(pairs: number[][][]): IBoundingBox {
         let bbox: IBoundingBox = {
-            maxX: -Number.MAX_VALUE,
-            maxY: -Number.MAX_VALUE,
-            minX: Number.MAX_VALUE,
-            minY: Number.MAX_VALUE,
+            maxX: Number.NEGATIVE_INFINITY,
+            maxY: Number.NEGATIVE_INFINITY,
+            minX: Number.POSITIVE_INFINITY,
+            minY: Number.POSITIVE_INFINITY,
         };
 
         for (let i: number = 0; i < pairs.length; ++i) {
@@ -75,20 +75,27 @@ export class RegionOfInterestService {
             let dy: number = pairs[i][1][1] - pairs[i][0][1];
             if (dx > 0) {
                 bbox.minX = Math.min(bbox.minX, pairs[i][0][0]);
-            } else {
+            } else if (dx < 0) {
                 bbox.maxX = Math.max(bbox.maxX, pairs[i][0][0]);
             }
             if (dy > 0) {
                 bbox.minY = Math.min(bbox.minY, pairs[i][0][1]);
-            } else {
+            } else if (dy < 0) {
                 bbox.maxY = Math.max(bbox.maxY, pairs[i][0][1]);
             }
         }
 
-        bbox.minX = Math.max(0, bbox.minX);
-        bbox.maxX = Math.min(1, bbox.maxX);
-        bbox.minY = Math.max(0, bbox.minY);
-        bbox.maxY = Math.min(1, bbox.maxY);
+        // handle unbounded sides
+        if (bbox.minX === Number.POSITIVE_INFINITY) { bbox.minX = 0; }
+        if (bbox.maxX === Number.NEGATIVE_INFINITY) { bbox.maxX = 1; }
+        if (bbox.minY === Number.POSITIVE_INFINITY) { bbox.minY = 0; }
+        if (bbox.maxY === Number.NEGATIVE_INFINITY) { bbox.maxY = 1; }
+
+        // clip to [0, 1]
+        bbox.minX = Math.max(0, Math.min(1, bbox.minX));
+        bbox.maxX = Math.max(0, Math.min(1, bbox.maxX));
+        bbox.minY = Math.max(0, Math.min(1, bbox.minY));
+        bbox.maxY = Math.max(0, Math.min(1, bbox.maxY));
 
         return bbox;
     }
