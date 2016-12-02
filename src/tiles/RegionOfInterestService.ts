@@ -38,13 +38,7 @@ export class RegionOfInterestService {
     }
 
     private _computeRegionOfInterest(renderCamera: RenderCamera, size: ISize): IRegionOfInterest {
-        let epsilon: number = 1e-3;
-        let canvasPairs: number[][][] = [
-            [[0, 0], [0 + epsilon, 0 + epsilon]],
-            [[1, 0], [1 - epsilon, 0 + epsilon]],
-            [[1, 1], [1 - epsilon, 1 - epsilon]],
-            [[0, 1], [0 + epsilon, 1 - epsilon]],
-        ];
+        let canvasPairs: number[][][] = this._canvasBoundaryPairs(4);
 
         let basicPairs: number[][][] = canvasPairs.map((pair: number [][]): number[][] => {
             return [
@@ -60,6 +54,25 @@ export class RegionOfInterestService {
             viewportHeight: size.height,
             viewportWidth: size.width,
         };
+    }
+
+    private _canvasBoundaryPairs(pointsPerSide: number): number[][][] {
+        let epsilon: number = 1e-3;
+        let pairs: number[][][] = [];
+        let os: number[][] = [[0, 0], [1, 0], [1, 1], [0, 1]];
+        let ds: number[][] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+        for (let side: number = 0; side < 4; ++side) {
+            let o: number[] = os[side];
+            let d: number[] = ds[side];
+            for (let i: number = 0; i < pointsPerSide; ++i) {
+                let p1: number[] = [o[0] + d[0] * i / pointsPerSide,
+                                    o[1] + d[1] * i / pointsPerSide];
+                let p2: number[] = [p1[0] + (0.5 - p1[0]) * epsilon,
+                                    p1[1] + (0.5 - p1[1]) * epsilon];
+                pairs.push([p1, p2]);
+            }
+        }
+        return pairs;
     }
 
     private _boundingBox(pairs: number[][][]): IBoundingBox {
