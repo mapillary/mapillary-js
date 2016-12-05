@@ -30,6 +30,8 @@ export class TextureProvider {
     private _height: number;
     private _key: string;
     private _tileSize: number;
+    private _maxLevel: number;
+    private _currentLevel: number;
     private _width: number;
 
     constructor (
@@ -44,6 +46,8 @@ export class TextureProvider {
 
         this._width = width;
         this._height = height;
+        this._maxLevel = Math.ceil(Math.log(Math.max(height, width)) / Math.log(2) - 1);
+        this._currentLevel = this._maxLevel;
         this._tileSize = 512;
 
         this._updated$ = new Subject<boolean>();
@@ -105,38 +109,60 @@ export class TextureProvider {
     }
 
     public setRegionOfInterest(roi: IRegionOfInterest): void {
-        if (this._roi != null) {
-            return;
-        }
-
         this._roi = roi;
 
-        this._camera = new THREE.OrthographicCamera(
-            -this._width / 2,
-            this._width / 2,
-            this._height / 2,
-            -this._height / 2,
-            -1,
-            1);
+        let portionX: number = this._roi.bbox.maxX - this._roi.bbox.minX;
+        let portionY: number = this._roi.bbox.maxY - this._roi.bbox.minY;
 
-        this._camera.position.z = 1;
+        let height: number = Math.min(this._height, this._height * (this._roi.viewportHeight / this._height / portionY));
+        let width: number = Math.min(this._width, this._width * (this._roi.viewportWidth / this._width / portionX));
+        let size: number = Math.max(height, width);
 
-        this._renderTarget = new THREE.WebGLRenderTarget(
-            this._width,
-            this._height,
-            {
-                depthBuffer: false,
-                format: THREE.RGBFormat,
-                magFilter: THREE.LinearFilter,
-                minFilter: THREE.LinearFilter,
-                stencilBuffer: false,
-            });
+        this._currentLevel = Math.ceil(Math.log(size) / Math.log(2) - 1);
 
-        this._renderToTarget(0, 0, this._width, this._height, this._background);
+        let topLeft: number[] = this._getTileCoords([this._roi.bbox.minX, this._roi.bbox.minY]);
+        let bottomRight: number[] = this._getTileCoords([this._roi.bbox.maxX, this._roi.bbox.maxY]);
 
-        this._createdSubject$.next((<any>this._renderTarget).texture);
+        if (this._camera == null) {
+            this._camera = new THREE.OrthographicCamera(
+                -this._width / 2,
+                this._width / 2,
+                this._height / 2,
+                -this._height / 2,
+                -1,
+                1);
 
-        this._renderTiles();
+            this._camera.position.z = 1;
+
+            this._renderTarget = new THREE.WebGLRenderTarget(
+                this._width,
+                this._height,
+                {
+                    depthBuffer: false,
+                    format: THREE.RGBFormat,
+                    magFilter: THREE.LinearFilter,
+                    minFilter: THREE.LinearFilter,
+                    stencilBuffer: false,
+                });
+
+            this._renderToTarget(0, 0, this._width, this._height, this._background);
+
+            this._createdSubject$.next((<any>this._renderTarget).texture);
+        }
+
+        this._fetchTiles([topLeft[0], bottomRight[0]], [topLeft[1], bottomRight[1]]);
+    }
+
+    private _getTileCoords(point: number[]): number[] {
+        let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
+
+        let maxX: number = Math.ceil(this._width / tileSize) - 1;
+        let maxY: number = Math.ceil(this._height / tileSize) - 1;
+
+        return [
+            Math.min(Math.floor(this._width * point[0] / tileSize), maxX),
+            Math.min(Math.floor(this._height * point[1] / tileSize), maxY),
+        ];
     }
 
     private _removeFromArray<T>(item: T, array: T[]): void {
@@ -146,8 +172,10 @@ export class TextureProvider {
         }
     }
 
-    private _renderTile(x: number, y: number, w: number, h: number): void {
-        let getTile: [Observable<HTMLImageElement>, Function] = this._imageTileLoader.getTile(this._key, x, y, w, h, w, h);
+    private _fetchTile(x: number, y: number, w: number, h: number): void {
+        let scaledX: number = w < this._tileSize ? w : this._tileSize;
+        let scaledY: number = h < this._tileSize ? h : this._tileSize;
+        let getTile: [Observable<HTMLImageElement>, Function] = this._imageTileLoader.getTile(this._key, x, y, w, h, scaledX, scaledY);
 
         let tile$: Observable<HTMLImageElement> = getTile[0];
         let abort: Function = getTile[1];
@@ -174,17 +202,19 @@ export class TextureProvider {
         this._tileSubscriptions.push(subscription);
     }
 
-    private _renderTiles(): void {
+    private _fetchTiles(tilesX: number[], tilesY: number[]): void {
         let width: number = this._width;
         let height: number = this._height;
-        let tileSize: number = this._tileSize;
+        let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
 
-        for (let x: number = 0; x < width; x = x + tileSize) {
-            for (let y: number = 0; y < height; y = y + tileSize) {
-                let tileWidth: number = x + tileSize > width ? width - x : tileSize;
-                let tileHeight: number = y + tileSize > height ? height - y : tileSize;
+        for (let x: number = tilesX[0]; x <= tilesX[1]; x++) {
+            for (let y: number = tilesY[0]; y <= tilesY[1]; y++) {
+                let tileX: number = tileSize * x;
+                let tileY: number = tileSize * y;
+                let tileWidth: number = tileX + tileSize > width ? width - tileX : tileSize;
+                let tileHeight: number = tileY + tileSize > height ? height - tileY : tileSize;
 
-                this._renderTile(x, y, tileWidth, tileHeight);
+                this._fetchTile(tileX, tileY, tileWidth, tileHeight);
             }
         }
     }

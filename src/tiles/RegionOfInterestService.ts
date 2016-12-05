@@ -15,7 +15,7 @@ import {
     IRegionOfInterest,
 } from "../Tiles";
 
-type PositionLookat = [THREE.Vector3, THREE.Vector3];
+type PositionLookat = [THREE.Vector3, THREE.Vector3, number];
 
 export class RegionOfInterestService {
     private _transform: Transform;
@@ -28,15 +28,19 @@ export class RegionOfInterestService {
         this._roi$ = renderService.renderCameraFrame$
             .map(
                 (renderCamera: RenderCamera): PositionLookat => {
-                    return [renderCamera.camera.position.clone(), renderCamera.camera.lookat.clone()];
+                    return [
+                        renderCamera.camera.position.clone(),
+                        renderCamera.camera.lookat.clone(),
+                        renderCamera.zoom.valueOf()];
                 })
             .pairwise()
             .map(
                 (pls: [PositionLookat, PositionLookat]): boolean => {
-                    let pos: boolean = pls[0][0].equals(pls[1][0]);
-                    let lok: boolean = pls[0][1].equals(pls[1][1]);
+                    let samePosition: boolean = pls[0][0].equals(pls[1][0]);
+                    let sameLookat: boolean = pls[0][1].equals(pls[1][1]);
+                    let sameZoom: boolean = pls[0][2] === pls[1][2];
 
-                    return pos && lok;
+                    return samePosition && sameLookat && sameZoom;
                 })
             .distinctUntilChanged()
             .filter(
