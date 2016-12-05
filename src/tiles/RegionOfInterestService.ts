@@ -62,16 +62,18 @@ export class RegionOfInterestService {
     }
 
     private _computeRegionOfInterest(renderCamera: RenderCamera, size: ISize): IRegionOfInterest {
-        let canvasPairs: number[][][] = this._canvasBoundaryPairs(4);
+        let canvasPoints: number[][] = this._canvasBoundaryPoints(4);
 
-        let basicPairs: number[][][] = canvasPairs.map((pair: number [][]): number[][] => {
-            return [
-                this._canvasToBasic(pair[0], renderCamera, this._transform),
-                this._canvasToBasic(pair[1], renderCamera, this._transform),
-            ];
+        let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
+            return this._canvasToBasic(point, renderCamera, this._transform);
         });
 
-        let bbox: IBoundingBox = this._boundingBox(basicPairs);
+        let bbox: IBoundingBox;
+        if (this._transform.gpano != null) {
+            bbox = this._boundingBoxPano(basicPoints);
+        } else {
+            bbox = this._boundingBox(basicPoints);
+        }
 
         return {
             bbox: bbox,
@@ -80,26 +82,22 @@ export class RegionOfInterestService {
         };
     }
 
-    private _canvasBoundaryPairs(pointsPerSide: number): number[][][] {
-        let epsilon: number = 1e-3;
-        let pairs: number[][][] = [];
+    private _canvasBoundaryPoints(pointsPerSide: number): number[][] {
+        let points: number[][] = [];
         let os: number[][] = [[0, 0], [1, 0], [1, 1], [0, 1]];
         let ds: number[][] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
         for (let side: number = 0; side < 4; ++side) {
             let o: number[] = os[side];
             let d: number[] = ds[side];
             for (let i: number = 0; i < pointsPerSide; ++i) {
-                let p1: number[] = [o[0] + d[0] * i / pointsPerSide,
-                                    o[1] + d[1] * i / pointsPerSide];
-                let p2: number[] = [p1[0] + (0.5 - p1[0]) * epsilon,
-                                    p1[1] + (0.5 - p1[1]) * epsilon];
-                pairs.push([p1, p2]);
+                points.push([o[0] + d[0] * i / pointsPerSide,
+                             o[1] + d[1] * i / pointsPerSide]);
             }
         }
-        return pairs;
+        return points;
     }
 
-    private _boundingBox(pairs: number[][][]): IBoundingBox {
+    private _boundingBox(points: number[][]): IBoundingBox {
         let bbox: IBoundingBox = {
             maxX: Number.NEGATIVE_INFINITY,
             maxY: Number.NEGATIVE_INFINITY,
@@ -107,26 +105,12 @@ export class RegionOfInterestService {
             minY: Number.POSITIVE_INFINITY,
         };
 
-        for (let i: number = 0; i < pairs.length; ++i) {
-            let dx: number = pairs[i][1][0] - pairs[i][0][0];
-            let dy: number = pairs[i][1][1] - pairs[i][0][1];
-            if (dx > 0) {
-                bbox.minX = Math.min(bbox.minX, pairs[i][0][0]);
-            } else if (dx < 0) {
-                bbox.maxX = Math.max(bbox.maxX, pairs[i][0][0]);
-            }
-            if (dy > 0) {
-                bbox.minY = Math.min(bbox.minY, pairs[i][0][1]);
-            } else if (dy < 0) {
-                bbox.maxY = Math.max(bbox.maxY, pairs[i][0][1]);
-            }
+        for (let i: number = 0; i < points.length; ++i) {
+            bbox.minX = Math.min(bbox.minX, points[i][0]);
+            bbox.maxX = Math.max(bbox.maxX, points[i][0]);
+            bbox.minY = Math.min(bbox.minY, points[i][1]);
+            bbox.maxY = Math.max(bbox.maxY, points[i][1]);
         }
-
-        // handle unbounded sides
-        if (bbox.minX === Number.POSITIVE_INFINITY) { bbox.minX = 0; }
-        if (bbox.maxX === Number.NEGATIVE_INFINITY) { bbox.maxX = 1; }
-        if (bbox.minY === Number.POSITIVE_INFINITY) { bbox.minY = 0; }
-        if (bbox.maxY === Number.NEGATIVE_INFINITY) { bbox.maxY = 1; }
 
         // clip to [0, 1]
         bbox.minX = Math.max(0, Math.min(1, bbox.minX));
@@ -135,6 +119,48 @@ export class RegionOfInterestService {
         bbox.maxY = Math.max(0, Math.min(1, bbox.maxY));
 
         return bbox;
+    }
+
+    private _boundingBoxPano(points: number[][]): IBoundingBox {
+        let xs: number[] = [];
+        let ys: number[] = [];
+        for (let i: number = 0; i < points.length; ++i) {
+            xs.push(points[i][0]);
+            ys.push(points[i][1]);
+        }
+        xs.sort((a, b) => { return Math.sign(a - b); });
+        ys.sort((a, b) => { return Math.sign(a - b); });
+
+        let intervalX: number[] = this._intervalPano(xs);
+        let intervalY: number[] = [ys[0], ys[ys.length - 1]];
+
+        return {
+            maxX: Math.max(0, Math.min(1, intervalX[1])),
+            maxY: Math.max(0, Math.min(1, intervalY[1])),
+            minX: Math.max(0, Math.min(1, intervalX[0])),
+            minY: Math.max(0, Math.min(1, intervalY[0])),
+        };
+    }
+
+    // find the max interval between consecutive numbers.
+    // assumes numbers are between 0 and 1, sorted and
+    // that x is equivalent to x + 1.
+    private _intervalPano(xs: number[]): number[] {
+        let maxdx: number = 0;
+        let maxi: number = -1;
+        for (let i: number = 0; i < xs.length - 1; ++i) {
+            let dx: number = xs[i + 1] - xs[i];
+            if (dx > maxdx) {
+                maxdx = dx;
+                maxi = i;
+            }
+        }
+        let loopdx: number = xs[0] + 1 - xs[xs.length - 1];
+        if (loopdx > maxdx) {
+            return [xs[0], xs[xs.length - 1]];
+        } else {
+            return [xs[maxi + 1], xs[maxi]];
+        }
     }
 
     private _canvasToBasic(
