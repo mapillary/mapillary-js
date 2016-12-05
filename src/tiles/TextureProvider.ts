@@ -111,7 +111,10 @@ export class TextureProvider {
     public setRegionOfInterest(roi: IRegionOfInterest): void {
         this._roi = roi;
 
-        let portionX: number = this._roi.bbox.maxX - this._roi.bbox.minX;
+        let portionX: number = this._roi.bbox.maxX > this._roi.bbox.minX ?
+            this._roi.bbox.maxX - this._roi.bbox.minX :
+            1 - this._roi.bbox.minX + this._roi.bbox.maxX;
+
         let portionY: number = this._roi.bbox.maxY - this._roi.bbox.minY;
 
         let height: number = Math.min(this._height, this._height * (this._roi.viewportHeight / this._height / portionY));
@@ -122,6 +125,8 @@ export class TextureProvider {
 
         let topLeft: number[] = this._getTileCoords([this._roi.bbox.minX, this._roi.bbox.minY]);
         let bottomRight: number[] = this._getTileCoords([this._roi.bbox.maxX, this._roi.bbox.maxY]);
+
+        let tiles: number[][] = this._getTiles(topLeft, bottomRight);
 
         if (this._camera == null) {
             this._camera = new THREE.OrthographicCamera(
@@ -150,7 +155,7 @@ export class TextureProvider {
             this._createdSubject$.next((<any>this._renderTarget).texture);
         }
 
-        this._fetchTiles([topLeft[0], bottomRight[0]], [topLeft[1], bottomRight[1]]);
+        this._fetchTiles(tiles);
     }
 
     private _getTileCoords(point: number[]): number[] {
@@ -163,6 +168,37 @@ export class TextureProvider {
             Math.min(Math.floor(this._width * point[0] / tileSize), maxX),
             Math.min(Math.floor(this._height * point[1] / tileSize), maxY),
         ];
+    }
+
+    private _getTiles(topLeft: number[], bottomRight: number[]): number[][] {
+        let xs: number[] = [];
+
+        if (topLeft[0] > bottomRight[0]) {
+            let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
+            let maxX: number = Math.ceil(this._width / tileSize) - 1;
+
+            for (let x: number = topLeft[0]; x <= maxX; x++) {
+                xs.push(x);
+            }
+
+            for (let x: number = 0; x <= bottomRight[0]; x++) {
+                xs.push(x);
+            }
+        } else {
+            for (let x: number = topLeft[0]; x <= bottomRight[0]; x++) {
+                xs.push(x);
+            }
+        }
+
+        let tiles: number[][] = [];
+
+        for (let x of xs) {
+            for (let y: number = topLeft[1]; y <= bottomRight[1]; y++) {
+                tiles.push([x, y]);
+            }
+        }
+
+        return tiles;
     }
 
     private _removeFromArray<T>(item: T, array: T[]): void {
@@ -202,20 +238,18 @@ export class TextureProvider {
         this._tileSubscriptions.push(subscription);
     }
 
-    private _fetchTiles(tilesX: number[], tilesY: number[]): void {
+    private _fetchTiles(tiles: number[][]): void {
         let width: number = this._width;
         let height: number = this._height;
         let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
 
-        for (let x: number = tilesX[0]; x <= tilesX[1]; x++) {
-            for (let y: number = tilesY[0]; y <= tilesY[1]; y++) {
-                let tileX: number = tileSize * x;
-                let tileY: number = tileSize * y;
-                let tileWidth: number = tileX + tileSize > width ? width - tileX : tileSize;
-                let tileHeight: number = tileY + tileSize > height ? height - tileY : tileSize;
+        for (let tile of tiles) {
+            let tileX: number = tileSize * tile[0];
+            let tileY: number = tileSize * tile[1];
+            let tileWidth: number = tileX + tileSize > width ? width - tileX : tileSize;
+            let tileHeight: number = tileY + tileSize > height ? height - tileY : tileSize;
 
-                this._fetchTile(tileX, tileY, tileWidth, tileHeight);
-            }
+            this._fetchTile(tileX, tileY, tileWidth, tileHeight);
         }
     }
 

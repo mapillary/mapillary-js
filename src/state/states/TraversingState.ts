@@ -479,7 +479,7 @@ export class TraversingState extends StateBase {
 
         if (diff === 0) {
             return;
-        } else if (Math.abs(diff) < 0.0001) {
+        } else if (Math.abs(diff) < 5e-3) {
             this._zoom = this._desiredZoom;
         } else {
             this._zoom += 5 * animationSpeed * diff;
