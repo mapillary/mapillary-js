@@ -93,6 +93,13 @@ export class ImagePlaneGLRenderer {
             provider.dispose();
         };
 
+        if (key in this._providerDisposers) {
+            let disposeProvider: () => void = this._providerDisposers[key];
+            disposeProvider();
+
+            delete this._providerDisposers[key];
+        }
+
         this._providerDisposers[key] = dispose;
     }
 
@@ -194,22 +201,27 @@ export class ImagePlaneGLRenderer {
         }
 
         let previousKey: string = state.previousNode != null ? state.previousNode.key : null;
+        let currentKey: string = state.currentNode.key;
 
-        if (previousKey !== this._previousKey && this._previousKey in this._providerDisposers) {
+        if (this._previousKey !== previousKey &&
+            this._previousKey !== currentKey &&
+            this._previousKey in this._providerDisposers) {
+
             let disposeProvider: () => void = this._providerDisposers[this._previousKey];
             disposeProvider();
 
             delete this._providerDisposers[this._previousKey];
         }
 
-        this._previousKey = previousKey;
-        if (this._previousKey != null) {
-            if (this._previousKey !== this._currentKey) {
+        if (previousKey != null) {
+            if (previousKey !== this._currentKey && previousKey !== this._previousKey) {
                 let previousMesh: THREE.Mesh =
                     this._imagePlaneFactory.createMesh(state.previousNode, state.previousTransform);
 
                 this._imagePlaneScene.updateImagePlanes([previousMesh]);
             }
+
+            this._previousKey = previousKey;
         }
 
         this._currentKey = state.currentNode.key;

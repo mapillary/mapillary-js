@@ -15,21 +15,41 @@ import {
     IRegionOfInterest,
 } from "../Tiles";
 
+type PositionLookat = [THREE.Vector3, THREE.Vector3];
 
 export class RegionOfInterestService {
     private _transform: Transform;
 
     private _roi$: Observable<IRegionOfInterest>;
 
-    constructor (
-        renderSerive: RenderService,
-        transform: Transform) {
-
+    constructor (renderService: RenderService, transform: Transform) {
         this._transform = transform;
 
-        this._roi$ = renderSerive.renderCamera$
+        this._roi$ = renderService.renderCameraFrame$
+            .map(
+                (renderCamera: RenderCamera): PositionLookat => {
+                    return [renderCamera.camera.position.clone(), renderCamera.camera.lookat.clone()];
+                })
+            .pairwise()
+            .map(
+                (pls: [PositionLookat, PositionLookat]): boolean => {
+                    let pos: boolean = pls[0][0].equals(pls[1][0]);
+                    let lok: boolean = pls[0][1].equals(pls[1][1]);
+
+                    return pos && lok;
+                })
+            .distinctUntilChanged()
+            .filter(
+                (stalled: boolean): boolean => {
+                    return stalled;
+                })
+            .switchMap(
+                (stalled: boolean): Observable<RenderCamera> => {
+                    return renderService.renderCameraFrame$
+                        .first();
+                })
             .withLatestFrom<IRegionOfInterest>(
-                renderSerive.size$,
+                renderService.size$,
                 this._computeRegionOfInterest.bind(this));
     }
 
