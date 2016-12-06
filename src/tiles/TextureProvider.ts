@@ -220,10 +220,9 @@ export class TextureProvider {
         return tiles;
     }
 
-    private _fetchTile(tileKey: string, x: number, y: number, w: number, h: number): void {
-        let scaledX: number = w < this._tileSize ? w : this._tileSize;
-        let scaledY: number = h < this._tileSize ? h : this._tileSize;
-        let getTile: [Observable<HTMLImageElement>, Function] = this._imageTileLoader.getTile(this._key, x, y, w, h, scaledX, scaledY);
+    private _fetchTile(tileKey: string, x: number, y: number, w: number, h: number, scaledX: number, scaledY: number): void {
+        let getTile: [Observable<HTMLImageElement>, Function] =
+            this._imageTileLoader.getTile(this._key, x, y, w, h, scaledX, scaledY);
 
         let tile$: Observable<HTMLImageElement> = getTile[0];
         let abort: Function = getTile[1];
@@ -255,9 +254,9 @@ export class TextureProvider {
     }
 
     private _fetchTiles(tiles: number[][]): void {
-        let width: number = this._width;
-        let height: number = this._height;
         let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
+        let maxTileSize: number = Math.pow(2, this._maxLevel + 1);
+        let tileScale: number = maxTileSize >= tileSize ? 1 : maxTileSize / tileSize;
 
         for (let tile of tiles) {
             let tileKey: string = this._tileKey(tile);
@@ -268,10 +267,13 @@ export class TextureProvider {
 
             let tileX: number = tileSize * tile[0];
             let tileY: number = tileSize * tile[1];
-            let tileWidth: number = tileX + tileSize > width ? width - tileX : tileSize;
-            let tileHeight: number = tileY + tileSize > height ? height - tileY : tileSize;
+            let tileWidth: number = tileX + tileSize > this._width ? this._width - tileX : tileSize;
+            let tileHeight: number = tileY + tileSize > this._height ? this._height - tileY : tileSize;
+            let size: number = Math.max(tileWidth, tileHeight);
+            let scaledX: number = Math.floor(tileScale * (tileWidth < this._tileSize ? tileWidth : tileWidth / size * this._tileSize));
+            let scaledY: number = Math.floor(tileScale * (tileHeight < this._tileSize ? tileHeight : tileHeight / size * this._tileSize));
 
-            this._fetchTile(tileKey, tileX, tileY, tileWidth, tileHeight);
+            this._fetchTile(tileKey, tileX, tileY, tileWidth, tileHeight, scaledX, scaledY);
         }
     }
 
