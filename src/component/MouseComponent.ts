@@ -211,7 +211,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                         x = x + 1;
                     }
 
-                    return [x, y];
+                    return [this._spatial.clamp(x, -0.05, 0.05), this._spatial.clamp(y, -0.05, 0.05)];
                 })
             .subscribe(
                 (basicRotation: number[]): void => {
