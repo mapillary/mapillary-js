@@ -20,7 +20,7 @@ export class TextureProvider {
     private _roi: IRegionOfInterest;
 
     private _abortFunctions: Function[];
-    private _tileSubscriptions: Subscription[];
+    private _tileSubscriptions: { [key: string]: Subscription };
 
     private _created$: Observable<THREE.Texture>;
     private _createdSubject$: Subject<THREE.Texture>;
@@ -32,6 +32,7 @@ export class TextureProvider {
     private _tileSize: number;
     private _maxLevel: number;
     private _currentLevel: number;
+    private _renderedLevelTiles: { [key: string]: boolean };
     private _width: number;
 
     constructor (
@@ -59,7 +60,8 @@ export class TextureProvider {
         this._createdSubscription = this._created$.subscribe();
 
         this._abortFunctions = [];
-        this._tileSubscriptions = [];
+        this._tileSubscriptions = {};
+        this._renderedLevelTiles = {};
 
         this._background = background;
         this._camera = null;
@@ -78,11 +80,15 @@ export class TextureProvider {
     }
 
     public abort(): void {
-        for (let subscription of this._tileSubscriptions) {
-            subscription.unsubscribe();
+        for (let key in this._tileSubscriptions) {
+            if (!this._tileSubscriptions.hasOwnProperty(key)) {
+                continue;
+            }
+
+            this._tileSubscriptions[key].unsubscribe();
         }
 
-        this._tileSubscriptions = [];
+        this._tileSubscriptions = {};
 
         for (let abort of this._abortFunctions) {
             abort();
@@ -117,11 +123,16 @@ export class TextureProvider {
 
         let portionY: number = this._roi.bbox.maxY - this._roi.bbox.minY;
 
-        let height: number = Math.min(this._height, this._height * (this._roi.viewportHeight / this._height / portionY));
         let width: number = Math.min(this._width, this._width * (this._roi.viewportWidth / this._width / portionX));
+        let height: number = Math.min(this._height, this._height * (this._roi.viewportHeight / this._height / portionY));
         let size: number = Math.max(height, width);
 
-        this._currentLevel = Math.ceil(Math.log(size) / Math.log(2) - 1);
+        let currentLevel: number = Math.ceil(Math.log(size) / Math.log(2) - 1);
+        if (currentLevel !== this._currentLevel) {
+            this._currentLevel = currentLevel;
+            this._renderedLevelTiles = {};
+            this.abort();
+        }
 
         let topLeft: number[] = this._getTileCoords([this._roi.bbox.minX, this._roi.bbox.minY]);
         let bottomRight: number[] = this._getTileCoords([this._roi.bbox.maxX, this._roi.bbox.maxY]);
@@ -139,9 +150,17 @@ export class TextureProvider {
 
             this._camera.position.z = 1;
 
+            let gl: WebGLRenderingContext = this._renderer.getContext();
+            let maxTextureSize: number = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+            let backgroundSize: number = Math.max(this._width, this._height);
+            let scale: number = maxTextureSize > backgroundSize ? 1 : maxTextureSize / backgroundSize;
+
+            let targetWidth: number = Math.floor(scale * this._width);
+            let targetHeight: number = Math.floor(scale * this._height);
+
             this._renderTarget = new THREE.WebGLRenderTarget(
-                this._width,
-                this._height,
+                targetWidth,
+                targetHeight,
                 {
                     depthBuffer: false,
                     format: THREE.RGBFormat,
@@ -201,14 +220,7 @@ export class TextureProvider {
         return tiles;
     }
 
-    private _removeFromArray<T>(item: T, array: T[]): void {
-        let index: number = array.indexOf(item);
-        if (index !== -1) {
-            array.splice(index, 1);
-        }
-    }
-
-    private _fetchTile(x: number, y: number, w: number, h: number): void {
+    private _fetchTile(tileKey: string, x: number, y: number, w: number, h: number): void {
         let scaledX: number = w < this._tileSize ? w : this._tileSize;
         let scaledY: number = h < this._tileSize ? h : this._tileSize;
         let getTile: [Observable<HTMLImageElement>, Function] = this._imageTileLoader.getTile(this._key, x, y, w, h, scaledX, scaledY);
@@ -223,19 +235,23 @@ export class TextureProvider {
                 (image: HTMLImageElement): void => {
                     this._renderToTarget(x, y, w, h, image, true);
 
-                    this._removeFromArray(subscription, this._tileSubscriptions);
+                    this._removeFromDictionary(tileKey, this._tileSubscriptions);
                     this._removeFromArray(abort, this._abortFunctions);
+
+                    this._renderedLevelTiles[tileKey] = true;
 
                     this._updated$.next(true);
                 },
                 (error: Error): void => {
-                    this._removeFromArray(subscription, this._tileSubscriptions);
+                    this._removeFromDictionary(tileKey, this._tileSubscriptions);
                     this._removeFromArray(abort, this._abortFunctions);
 
                     console.error(error);
                 });
 
-        this._tileSubscriptions.push(subscription);
+        if (!subscription.closed) {
+            this._tileSubscriptions[tileKey] = subscription;
+        }
     }
 
     private _fetchTiles(tiles: number[][]): void {
@@ -244,12 +260,31 @@ export class TextureProvider {
         let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
 
         for (let tile of tiles) {
+            let tileKey: string = this._tileKey(tile);
+            if (tileKey in this._renderedLevelTiles ||
+                tileKey in this._tileSubscriptions) {
+                continue;
+            }
+
             let tileX: number = tileSize * tile[0];
             let tileY: number = tileSize * tile[1];
             let tileWidth: number = tileX + tileSize > width ? width - tileX : tileSize;
             let tileHeight: number = tileY + tileSize > height ? height - tileY : tileSize;
 
-            this._fetchTile(tileX, tileY, tileWidth, tileHeight);
+            this._fetchTile(tileKey, tileX, tileY, tileWidth, tileHeight);
+        }
+    }
+
+    private _removeFromArray<T>(item: T, array: T[]): void {
+        let index: number = array.indexOf(item);
+        if (index !== -1) {
+            array.splice(index, 1);
+        }
+    }
+
+    private _removeFromDictionary<T>(key: string, dict: { [key: string]: T }): void {
+        if (key in dict) {
+            delete dict[key];
         }
     }
 
@@ -287,6 +322,10 @@ export class TextureProvider {
         if (revoke) {
             window.URL.revokeObjectURL(image.src);
         }
+    }
+
+    private _tileKey(tile: number[]): string {
+        return tile[0] + "-" + tile[1];
     }
 }
 
