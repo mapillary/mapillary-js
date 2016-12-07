@@ -119,14 +119,8 @@ export class TextureProvider {
     public setRegionOfInterest(roi: IRegionOfInterest): void {
         this._roi = roi;
 
-        let portionX: number = this._roi.bbox.maxX > this._roi.bbox.minX ?
-            this._roi.bbox.maxX - this._roi.bbox.minX :
-            1 - this._roi.bbox.minX + this._roi.bbox.maxX;
-
-        let portionY: number = this._roi.bbox.maxY - this._roi.bbox.minY;
-
-        let width: number = this._width * (this._roi.viewportWidth / this._width / portionX);
-        let height: number = this._height * (this._roi.viewportHeight / this._height / portionY);
+        let width: number = 1 / this._roi.pixelWidth;
+        let height: number = 1 / this._roi.pixelHeight;
         let size: number = Math.max(height, width);
 
         let currentLevel: number = Math.min(this._maxLevel, Math.round(Math.log(size) / Math.log(2) - 1));

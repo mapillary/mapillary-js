@@ -63,22 +63,20 @@ export class RegionOfInterestService {
 
     private _computeRegionOfInterest(renderCamera: RenderCamera, size: ISize): IRegionOfInterest {
         let canvasPoints: number[][] = this._canvasBoundaryPoints(4);
+        let bbox: IBoundingBox = this._canvasPointsBoundingBox(canvasPoints, renderCamera);
 
-        let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
-            return this._canvasToBasic(point, renderCamera, this._transform);
-        });
-
-        let bbox: IBoundingBox;
-        if (this._transform.gpano != null) {
-            bbox = this._boundingBoxPano(basicPoints);
-        } else {
-            bbox = this._boundingBox(basicPoints);
-        }
+        let centralPixel: number[][] = [
+            [0.5 - 0.5 / size.width, 0.5 - 0.5 / size.height],
+            [0.5 + 0.5 / size.width, 0.5 - 0.5 / size.height],
+            [0.5 + 0.5 / size.width, 0.5 + 0.5 / size.height],
+            [0.5 - 0.5 / size.width, 0.5 + 0.5 / size.height],
+        ];
+        let cpbox: IBoundingBox = this._canvasPointsBoundingBox(centralPixel, renderCamera);
 
         return {
             bbox: bbox,
-            viewportHeight: size.height,
-            viewportWidth: size.width,
+            pixelWidth: cpbox.maxX - cpbox.minX + (cpbox.minX < cpbox.maxX ? 0 : 1),
+            pixelHeight: cpbox.maxY - cpbox.minY,
         };
     }
 
@@ -96,6 +94,20 @@ export class RegionOfInterestService {
         }
         return points;
     }
+
+    private _canvasPointsBoundingBox(canvasPoints: number[][], renderCamera: RenderCamera): IBoundingBox {
+        let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
+            return this._canvasToBasic(point, renderCamera, this._transform);
+        });
+
+        if (this._transform.gpano != null) {
+            return this._boundingBoxPano(basicPoints);
+        } else {
+            return this._boundingBox(basicPoints);
+        }
+    }
+
+
 
     private _boundingBox(points: number[][]): IBoundingBox {
         let bbox: IBoundingBox = {
