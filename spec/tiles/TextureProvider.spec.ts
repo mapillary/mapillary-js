@@ -8,6 +8,7 @@ import {MockCreator} from "../helper/MockCreator.spec";
 
 import {
     ImageTileLoader,
+    ImageTileStore,
     TextureProvider,
 } from "../../src/Tiles";
 
@@ -24,10 +25,12 @@ describe("TextureRenderer.ctor", () => {
         let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
         (<jasmine.Spy>imageTileLoader.getTile).and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
+        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
-        let textureRenderer: TextureProvider = new TextureProvider("", 1, 1, new Image(), imageTileLoader, rendererMock);
+        let textureRenderer: TextureProvider = new TextureProvider("", 1, 1, new Image(), imageTileLoader, imageTileStore, rendererMock);
 
         expect(textureRenderer).toBeDefined();
     });

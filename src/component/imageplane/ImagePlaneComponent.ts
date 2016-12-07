@@ -42,6 +42,7 @@ import {
 } from "../../Graph";
 import {
     ImageTileLoader,
+    ImageTileStore,
     IRegionOfInterest,
     RegionOfInterestService,
     TextureProvider,
@@ -181,6 +182,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                             currentNode.height,
                             currentNode.image,
                             this._imageTileLoader,
+                            new ImageTileStore(),
                             renderer);
 
                     return {

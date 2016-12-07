@@ -8,6 +8,7 @@ import {Subscription} from "rxjs/Subscription";
 
 import {
     ImageTileLoader,
+    ImageTileStore,
     IRegionOfInterest,
 } from "../Tiles";
 
@@ -15,6 +16,7 @@ export class TextureProvider {
     private _background: HTMLImageElement;
     private _camera: THREE.OrthographicCamera;
     private _imageTileLoader: ImageTileLoader;
+    private _imageTileStore: ImageTileStore;
     private _renderer: THREE.WebGLRenderer;
     private _renderTarget: THREE.WebGLRenderTarget;
     private _roi: IRegionOfInterest;
@@ -42,6 +44,7 @@ export class TextureProvider {
         height: number,
         background: HTMLImageElement,
         imageTileLoader: ImageTileLoader,
+        imageTileStore: ImageTileStore,
         renderer: THREE.WebGLRenderer) {
 
         this._key = key;
@@ -68,6 +71,7 @@ export class TextureProvider {
         this._background = background;
         this._camera = null;
         this._imageTileLoader = imageTileLoader;
+        this._imageTileStore = imageTileStore;
         this._renderer = renderer;
         this._renderTarget = null;
         this._roi = null;
@@ -106,6 +110,9 @@ export class TextureProvider {
             this._renderTarget.dispose();
             this._renderTarget = null;
         }
+
+        this._imageTileStore.dispose();
+        this._imageTileStore = null;
 
         this._background = null;
         this._camera = null;
@@ -181,7 +188,16 @@ export class TextureProvider {
         this._fetchTiles(tiles);
     }
 
-    private _fetchTile(tile: number[], x: number, y: number, w: number, h: number, scaledX: number, scaledY: number): void {
+    private _fetchTile(
+        tile: number[],
+        level: number,
+        x: number,
+        y: number,
+        w: number,
+        h: number,
+        scaledX: number,
+        scaledY: number): void {
+
         let getTile: [Observable<HTMLImageElement>, Function] =
             this._imageTileLoader.getTile(this._key, x, y, w, h, scaledX, scaledY);
 
@@ -195,12 +211,14 @@ export class TextureProvider {
         let subscription: Subscription = tile$
             .subscribe(
                 (image: HTMLImageElement): void => {
-                    this._renderToTarget(x, y, w, h, image, true);
+                    this._renderToTarget(x, y, w, h, image);
 
                     this._removeFromDictionary(tileKey, this._tileSubscriptions);
                     this._removeFromArray(abort, this._abortFunctions);
 
                     this._setTileRendered(tile, this._currentLevel);
+
+                    this._imageTileStore.addImage(image, tileKey, level);
 
                     this._updated$.next(true);
                 },
@@ -232,11 +250,20 @@ export class TextureProvider {
             let tileY: number = tileSize * tile[1];
             let tileWidth: number = tileX + tileSize > this._width ? this._width - tileX : tileSize;
             let tileHeight: number = tileY + tileSize > this._height ? this._height - tileY : tileSize;
+
+            if (this._imageTileStore.hasImage(tileKey, this._currentLevel)) {
+                this._renderToTarget(tileX, tileY, tileWidth, tileHeight, this._imageTileStore.getImage(tileKey, this._currentLevel));
+                this._setTileRendered(tile, this._currentLevel);
+
+                this._updated$.next(true);
+                continue;
+            }
+
             let size: number = Math.max(tileWidth, tileHeight);
             let scaledX: number = Math.floor(tileScale * (tileWidth < this._tileSize ? tileWidth : tileWidth / size * this._tileSize));
             let scaledY: number = Math.floor(tileScale * (tileHeight < this._tileSize ? tileHeight : tileHeight / size * this._tileSize));
 
-            this._fetchTile(tile, tileX, tileY, tileWidth, tileHeight, scaledX, scaledY);
+            this._fetchTile(tile, this._currentLevel, tileX, tileY, tileWidth, tileHeight, scaledX, scaledY);
         }
     }
 
@@ -296,7 +323,7 @@ export class TextureProvider {
         }
     }
 
-    private _renderToTarget(x: number, y: number, w: number, h: number, image: HTMLImageElement, revoke?: boolean): void {
+    private _renderToTarget(x: number, y: number, w: number, h: number, image: HTMLImageElement): void {
         let texture: THREE.Texture = new THREE.Texture(image);
         texture.minFilter = THREE.LinearFilter;
         texture.needsUpdate = true;
@@ -326,10 +353,6 @@ export class TextureProvider {
         geometry.dispose();
         material.dispose();
         texture.dispose();
-
-        if (revoke) {
-            window.URL.revokeObjectURL(image.src);
-        }
     }
 
     private _setTileRendered(tile: number[], level: number): void {
