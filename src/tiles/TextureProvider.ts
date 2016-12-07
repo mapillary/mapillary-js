@@ -125,11 +125,11 @@ export class TextureProvider {
 
         let portionY: number = this._roi.bbox.maxY - this._roi.bbox.minY;
 
-        let width: number = Math.min(this._width, this._width * (this._roi.viewportWidth / this._width / portionX));
-        let height: number = Math.min(this._height, this._height * (this._roi.viewportHeight / this._height / portionY));
+        let width: number = this._width * (this._roi.viewportWidth / this._width / portionX);
+        let height: number = this._height * (this._roi.viewportHeight / this._height / portionY);
         let size: number = Math.max(height, width);
 
-        let currentLevel: number = Math.ceil(Math.log(size) / Math.log(2) - 1);
+        let currentLevel: number = Math.min(this._maxLevel, Math.round(Math.log(size) / Math.log(2) - 1));
         if (currentLevel !== this._currentLevel) {
             this.abort();
 
