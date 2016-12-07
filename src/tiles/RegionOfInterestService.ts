@@ -64,6 +64,7 @@ export class RegionOfInterestService {
     private _computeRegionOfInterest(renderCamera: RenderCamera, size: ISize): IRegionOfInterest {
         let canvasPoints: number[][] = this._canvasBoundaryPoints(4);
         let bbox: IBoundingBox = this._canvasPointsBoundingBox(canvasPoints, renderCamera);
+        this._clipBoundingBox(bbox);
 
         let centralPixel: number[][] = [
             [0.5 - 0.5 / size.width, 0.5 - 0.5 / size.height],
@@ -75,8 +76,8 @@ export class RegionOfInterestService {
 
         return {
             bbox: bbox,
-            pixelWidth: cpbox.maxX - cpbox.minX + (cpbox.minX < cpbox.maxX ? 0 : 1),
             pixelHeight: cpbox.maxY - cpbox.minY,
+            pixelWidth: cpbox.maxX - cpbox.minX + (cpbox.minX < cpbox.maxX ? 0 : 1),
         };
     }
 
@@ -124,12 +125,6 @@ export class RegionOfInterestService {
             bbox.maxY = Math.max(bbox.maxY, points[i][1]);
         }
 
-        // clip to [0, 1]
-        bbox.minX = Math.max(0, Math.min(1, bbox.minX));
-        bbox.maxX = Math.max(0, Math.min(1, bbox.maxX));
-        bbox.minY = Math.max(0, Math.min(1, bbox.minY));
-        bbox.maxY = Math.max(0, Math.min(1, bbox.maxY));
-
         return bbox;
     }
 
@@ -144,13 +139,12 @@ export class RegionOfInterestService {
         ys.sort((a, b) => { return Math.sign(a - b); });
 
         let intervalX: number[] = this._intervalPano(xs);
-        let intervalY: number[] = [ys[0], ys[ys.length - 1]];
 
         return {
-            maxX: Math.max(0, Math.min(1, intervalX[1])),
-            maxY: Math.max(0, Math.min(1, intervalY[1])),
-            minX: Math.max(0, Math.min(1, intervalX[0])),
-            minY: Math.max(0, Math.min(1, intervalY[0])),
+            maxX: intervalX[1],
+            maxY: ys[ys.length - 1],
+            minX: intervalX[0],
+            minY: ys[0],
         };
     }
 
@@ -173,6 +167,13 @@ export class RegionOfInterestService {
         } else {
             return [xs[maxi + 1], xs[maxi]];
         }
+    }
+
+    private _clipBoundingBox(bbox: IBoundingBox): void {
+        bbox.minX = Math.max(0, Math.min(1, bbox.minX));
+        bbox.maxX = Math.max(0, Math.min(1, bbox.maxX));
+        bbox.minY = Math.max(0, Math.min(1, bbox.minY));
+        bbox.maxY = Math.max(0, Math.min(1, bbox.maxY));
     }
 
     private _canvasToBasic(
