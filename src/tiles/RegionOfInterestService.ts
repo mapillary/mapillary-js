@@ -135,8 +135,8 @@ export class RegionOfInterestService {
             xs.push(points[i][0]);
             ys.push(points[i][1]);
         }
-        xs.sort((a, b) => { return Math.sign(a - b); });
-        ys.sort((a, b) => { return Math.sign(a - b); });
+        xs.sort((a, b) => { return this._sign(a - b); });
+        ys.sort((a, b) => { return this._sign(a - b); });
 
         let intervalX: number[] = this._intervalPano(xs);
 
@@ -146,6 +146,10 @@ export class RegionOfInterestService {
             minX: intervalX[0],
             minY: ys[0],
         };
+    }
+
+    private _sign(n: number): number {
+        return n > 0 ? 1 : n < 0 ? -1 : 0;
     }
 
     // find the max interval between consecutive numbers.
