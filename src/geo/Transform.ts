@@ -37,10 +37,6 @@ export class Transform {
         let imageHeight: number = image != null ? image.height : 3;
         let keepOrientation: boolean = this._orientation < 5;
 
-        if (node.width <= 0 || node.height <= 1) {
-            console.warn(`Invalid node size (${node.key}): ${node.width}, ${node.height}`);
-        }
-
         this._width = this._getValue(node.width, keepOrientation ? imageWidth : imageHeight);
         this._height = this._getValue(node.height, keepOrientation ? imageHeight : imageWidth);
         this._basicAspect = keepOrientation ?

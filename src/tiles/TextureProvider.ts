@@ -27,6 +27,9 @@ export class TextureProvider {
     private _created$: Observable<THREE.Texture>;
     private _createdSubject$: Subject<THREE.Texture>;
     private _createdSubscription: Subscription;
+    private _hasSubject$: Subject<boolean>;
+    private _has$: Observable<boolean>;
+    private _hasSubscription: Subscription;
     private _updated$: Subject<boolean>;
 
     private _height: number;
@@ -63,6 +66,14 @@ export class TextureProvider {
 
         this._createdSubscription = this._created$.subscribe();
 
+        this._hasSubject$ = new Subject<boolean>();
+        this._has$ = this._hasSubject$
+            .startWith(false)
+            .publishReplay(1)
+            .refCount();
+
+        this._hasSubscription = this._has$.subscribe();
+
         this._abortFunctions = [];
         this._tileSubscriptions = {};
         this._renderedCurrentLevelTiles = {};
@@ -75,6 +86,14 @@ export class TextureProvider {
         this._renderer = renderer;
         this._renderTarget = null;
         this._roi = null;
+    }
+
+    public get hasTexture$(): Observable<boolean> {
+        return this._has$;
+    }
+
+    public get key(): string {
+        return this._key;
     }
 
     public get textureUpdated$(): Observable<boolean> {
@@ -121,6 +140,7 @@ export class TextureProvider {
         this._roi = null;
 
         this._createdSubscription.unsubscribe();
+        this._hasSubscription.unsubscribe();
     }
 
     public setRegionOfInterest(roi: IRegionOfInterest): void {
@@ -187,9 +207,14 @@ export class TextureProvider {
             this._renderToTarget(0, 0, this._width, this._height, this._background);
 
             this._createdSubject$.next((<any>this._renderTarget).texture);
+            this._hasSubject$.next(true);
         }
 
         this._fetchTiles(tiles);
+    }
+
+    public updateBackground(background: HTMLImageElement): void {
+        this._background = background;
     }
 
     private _fetchTile(

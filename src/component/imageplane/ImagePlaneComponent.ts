@@ -231,11 +231,30 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     provider.setRegionOfInterest(roi);
                 });
 
-        Observable
+        let hasTexture$: Observable<boolean> = tileHandler$
+            .switchMap(
+                (handler: TileHandler): Observable<boolean> => {
+                    return handler.provider.hasTexture$;
+                })
+            .publishReplay(1)
+            .refCount();
+
+        hasTexture$.subscribe();
+
+        let nodeImage$: Observable<[HTMLImageElement, Node]> = Observable
             .combineLatest(
                 this._navigator.stateService.currentNode$,
                 this._configuration$)
             .debounceTime(1000)
+            .withLatestFrom(hasTexture$)
+            .filter(
+                (args: [[Node, IImagePlaneConfiguration], boolean]): boolean => {
+                    return !args[1];
+                })
+            .map(
+                (args: [[Node, IImagePlaneConfiguration], boolean]): [Node, IImagePlaneConfiguration] => {
+                    return args[0];
+                })
             .withLatestFrom(
                 this._navigator.stateService.currentTransform$,
                 (nc: [Node, IImagePlaneConfiguration], t: Transform): [Node, IImagePlaneConfiguration, Transform] => {
@@ -303,6 +322,13 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     }
 
                     return image$
+                        .takeUntil(
+                            hasTexture$
+                                .filter(
+                                    (hasTexture: boolean): boolean => {
+
+                                        return hasTexture;
+                                    }))
                         .catch(
                             (error: Error, caught: Observable<[HTMLImageElement, Node]>):
                                 Observable<[HTMLImageElement, Node]> => {
@@ -311,6 +337,21 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                                 return Observable.empty<[HTMLImageElement, Node]>();
                             });
                 })
+            .publish()
+            .refCount();
+
+        nodeImage$
+            .withLatestFrom(tileHandler$)
+            .subscribe(
+                (args: [[HTMLImageElement, Node], TileHandler]): void => {
+                    if (args[0][1].key !== args[1].key) {
+                        return;
+                    }
+
+                    args[1].provider.updateBackground(args[0][0]);
+                });
+
+        nodeImage$
             .map<IImagePlaneGLRendererOperation>(
                 (imn: [HTMLImageElement, Node]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -318,7 +359,8 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
                         return renderer;
                     };
-                });
+                })
+            .subscribe(this._rendererOperation$);
     }
 
     protected _deactivate(): void {
