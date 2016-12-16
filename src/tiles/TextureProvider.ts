@@ -124,6 +124,10 @@ export class TextureProvider {
     }
 
     public setRegionOfInterest(roi: IRegionOfInterest): void {
+        if (this._width <= 0 || this._height <= 0) {
+            return;
+        }
+
         this._roi = roi;
 
         let width: number = 1 / this._roi.pixelWidth;
