@@ -476,13 +476,17 @@ export class TraversingState extends StateBase {
 
     private _updateZoom(animationSpeed: number): void {
         let diff: number = this._desiredZoom - this._zoom;
+        let sign: number = diff > 0 ? 1 : diff < 0 ? -1 : 0;
 
         if (diff === 0) {
             return;
-        } else if (Math.abs(diff) < 5e-3) {
+        } else if (Math.abs(diff) < 2e-3) {
             this._zoom = this._desiredZoom;
+            if (this._desiredLookat != null) {
+                this._desiredLookat = null;
+            }
         } else {
-            this._zoom += 5 * animationSpeed * diff;
+            this._zoom += sign * Math.max(Math.abs(5 * animationSpeed * diff), 2e-3);
         }
     }
 
@@ -493,7 +497,7 @@ export class TraversingState extends StateBase {
 
         let diff: number = this._desiredLookat.distanceToSquared(this._currentCamera.lookat);
 
-        if (Math.abs(diff) < 0.00001) {
+        if (Math.abs(diff) < 1e-6) {
             this._currentCamera.lookat.copy(this._desiredLookat);
             this._desiredLookat = null;
         } else {
