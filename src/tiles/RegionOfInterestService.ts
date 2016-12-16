@@ -4,6 +4,8 @@ import * as THREE from "three";
 
 import {Observable} from "rxjs/Observable";
 
+import "rxjs/add/operator/skipWhile";
+
 import {
     RenderService,
     RenderCamera,
@@ -34,6 +36,10 @@ export class RegionOfInterestService {
                         renderCamera.zoom.valueOf()];
                 })
             .pairwise()
+            .skipWhile(
+                (pls: [PositionLookat, PositionLookat]): boolean => {
+                    return pls[1][2] - pls[0][2] < 0 || pls[1][2] === 0;
+                })
             .map(
                 (pls: [PositionLookat, PositionLookat]): boolean => {
                     let samePosition: boolean = pls[0][0].equals(pls[1][0]);
