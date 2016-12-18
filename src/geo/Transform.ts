@@ -17,6 +17,8 @@ export class Transform {
     private _focal: number;
     private _orientation: number;
     private _scale: number;
+    private _basicWidth: number;
+    private _basicHeight: number;
     private _basicAspect: number;
 
     private _gpano: IGPano;
@@ -39,9 +41,10 @@ export class Transform {
 
         this._width = this._getValue(node.width, keepOrientation ? imageWidth : imageHeight);
         this._height = this._getValue(node.height, keepOrientation ? imageHeight : imageWidth);
-        this._basicAspect = keepOrientation ?
-            this._width / this._height :
-            this._height / this._width;
+
+        this._basicWidth = keepOrientation ? node.width : node.height;
+        this._basicHeight = keepOrientation ? node.height : node.width;
+        this._basicAspect = this._basicWidth / this._basicHeight;
 
         this._focal = this._getValue(node.focal, 1);
         this._scale = this._getValue(node.scale, 0);
@@ -58,6 +61,24 @@ export class Transform {
      */
     public get basicAspect(): number {
         return this._basicAspect;
+    }
+
+    /**
+     * Get basic width.
+     * @returns {number} The width of the basic version image
+     * (adjusted for orientation).
+     */
+    public get basicWidth(): number {
+        return this._basicWidth;
+    }
+
+    /**
+     * Get basic height.
+     * @returns {number} The height of the basic version image
+     * (adjusted for orientation).
+     */
+    public get basicHeight(): number {
+        return this._basicHeight;
     }
 
     /**

@@ -170,6 +170,8 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     let state: ICurrentState = args[0].state;
                     let renderer: THREE.WebGLRenderer = args[1];
 
+                    let currentTransform: Transform = state.currentTransform;
+
                     let roiService: RegionOfInterestService =
                         new RegionOfInterestService(this._container.renderService, state.currentTransform);
 
@@ -178,8 +180,8 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     let textureProvider: TextureProvider =
                         new TextureProvider(
                             currentNode.key,
-                            currentNode.width,
-                            currentNode.height,
+                            currentTransform.basicWidth,
+                            currentTransform.basicHeight,
                             currentNode.image,
                             this._imageTileLoader,
                             new ImageTileStore(),

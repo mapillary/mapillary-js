@@ -266,6 +266,86 @@ describe("Transform.srt", () => {
     });
 });
 
+describe("Transform.basicWidth", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should be width of node when landscape orientation", () => {
+        let width: number = 11;
+
+        let t: number[] = [0, 0, 0];
+
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
+        fillNode.width = width;
+        fillNode.orientation = 1;
+        node.makeFull(fillNode);
+
+        let transform: Transform = new Transform(node, null, t);
+
+        expect(transform.basicWidth).toBe(width);
+    });
+
+    it("should be height of node when portriat orientation", () => {
+        let height: number = 11;
+
+        let t: number[] = [0, 0, 0];
+
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
+        fillNode.height = height;
+        fillNode.orientation = 5;
+        node.makeFull(fillNode);
+
+        let transform: Transform = new Transform(node, null, t);
+
+        expect(transform.basicWidth).toBe(height);
+    });
+});
+
+describe("Transform.basicHeight", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should be height of node when landscape orientation", () => {
+        let height: number = 11;
+
+        let t: number[] = [0, 0, 0];
+
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
+        fillNode.height = height;
+        fillNode.orientation = 1;
+        node.makeFull(fillNode);
+
+        let transform: Transform = new Transform(node, null, t);
+
+        expect(transform.basicHeight).toBe(height);
+    });
+
+    it("should be width of node when portriat orientation", () => {
+        let width: number = 11;
+
+        let t: number[] = [0, 0, 0];
+
+        let node: Node = new Node(helper.createCoreNode());
+        let fillNode: IFillNode = helper.createFillNode();
+        fillNode.width = width;
+        fillNode.orientation = 5;
+        node.makeFull(fillNode);
+
+        let transform: Transform = new Transform(node, null, t);
+
+        expect(transform.basicHeight).toBe(width);
+    });
+});
+
 describe("Transform.width", () => {
     let helper: NodeHelper;
 
