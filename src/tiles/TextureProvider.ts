@@ -55,6 +55,10 @@ export class TextureProvider {
 
         this._key = key;
 
+        if (width <= 0 || height <= 0) {
+            console.warn(`Original image size (${width}, ${height}) is invalid (${key}). Tiles will not be loaded.`);
+        }
+
         this._width = width;
         this._height = height;
         this._maxLevel = Math.ceil(Math.log(Math.max(height, width)) / Math.log(2) - 1);

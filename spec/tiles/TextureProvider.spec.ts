@@ -22,6 +22,8 @@ class RendererMock implements THREE.Renderer {
 
 describe("TextureRenderer.ctor", () => {
     it("should be contructed", () => {
+        spyOn(console, "warn").and.stub();
+
         let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
         (<jasmine.Spy>imageTileLoader.getTile).and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
@@ -30,7 +32,7 @@ describe("TextureRenderer.ctor", () => {
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
-        let textureRenderer: TextureProvider = new TextureProvider("", 1, 1, new Image(), imageTileLoader, imageTileStore, rendererMock);
+        let textureRenderer: TextureProvider = new TextureProvider("", 1, 1, 1, new Image(), imageTileLoader, imageTileStore, rendererMock);
 
         expect(textureRenderer).toBeDefined();
     });
