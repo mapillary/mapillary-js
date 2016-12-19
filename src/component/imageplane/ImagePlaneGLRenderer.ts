@@ -224,7 +224,7 @@ export class ImagePlaneGLRenderer {
             this._previousKey = previousKey;
         }
 
-        this._currentKey = state.currentNode.key;
+        this._currentKey = currentKey;
         let currentMesh: THREE.Mesh =
             this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform);
 

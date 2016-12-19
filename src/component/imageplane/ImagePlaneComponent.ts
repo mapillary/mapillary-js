@@ -32,8 +32,9 @@ import {
     ImageSize,
 } from "../../Viewer";
 import {
-    IGLRenderHash,
     GLRenderStage,
+    IGLRenderHash,
+    ISize,
 } from "../../Render";
 import {Node} from "../../Graph";
 import {
@@ -169,11 +170,14 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 (args: [IFrame, IImagePlaneConfiguration]): IFrame => {
                     return args[0];
                 })
-            .withLatestFrom(this._container.glRenderer.webGLRenderer$)
+            .withLatestFrom(
+                this._container.glRenderer.webGLRenderer$,
+                this._container.renderService.size$)
             .map(
-                (args: [IFrame, THREE.WebGLRenderer]): TileHandler => {
+                (args: [IFrame, THREE.WebGLRenderer, ISize]): TileHandler => {
                     let state: ICurrentState = args[0].state;
                     let renderer: THREE.WebGLRenderer = args[1];
+                    let viewportSize: ISize = args[2];
 
                     let currentTransform: Transform = state.currentTransform;
 
@@ -181,12 +185,14 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                         new RegionOfInterestService(this._container.renderService, state.currentTransform);
 
                     let currentNode: Node = state.currentNode;
+                    let tileSize: number = Math.max(viewportSize.width, viewportSize.height) > 1024 ? 1024 : 512;
 
                     let textureProvider: TextureProvider =
                         new TextureProvider(
                             currentNode.key,
                             currentTransform.basicWidth,
                             currentTransform.basicHeight,
+                            tileSize,
                             currentNode.image,
                             this._imageTileLoader,
                             new ImageTileStore(),

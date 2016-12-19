@@ -46,6 +46,7 @@ export class TextureProvider {
         key: string,
         width: number,
         height: number,
+        tileSize: number,
         background: HTMLImageElement,
         imageTileLoader: ImageTileLoader,
         imageTileStore: ImageTileStore,
@@ -63,7 +64,7 @@ export class TextureProvider {
         this._height = height;
         this._maxLevel = Math.ceil(Math.log(Math.max(height, width)) / Math.log(2) - 1);
         this._currentLevel = -1;
-        this._tileSize = 512;
+        this._tileSize = tileSize;
 
         this._updated$ = new Subject<boolean>();
         this._createdSubject$ = new Subject<THREE.Texture>();
