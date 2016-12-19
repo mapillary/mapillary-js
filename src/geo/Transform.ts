@@ -42,9 +42,12 @@ export class Transform {
         this._width = this._getValue(node.width, keepOrientation ? imageWidth : imageHeight);
         this._height = this._getValue(node.height, keepOrientation ? imageHeight : imageWidth);
 
+        this._basicAspect = keepOrientation ?
+             this._width / this._height :
+             this._height / this._width;
+
         this._basicWidth = keepOrientation ? node.width : node.height;
         this._basicHeight = keepOrientation ? node.height : node.width;
-        this._basicAspect = this._basicWidth / this._basicHeight;
 
         this._focal = this._getValue(node.focal, 1);
         this._scale = this._getValue(node.scale, 0);
@@ -64,21 +67,29 @@ export class Transform {
     }
 
     /**
-     * Get basic width.
-     * @returns {number} The width of the basic version image
-     * (adjusted for orientation).
-     */
-    public get basicWidth(): number {
-        return this._basicWidth;
-    }
-
-    /**
      * Get basic height.
+     *
+     * @description Does not fall back to node image height but
+     * uses original value from API so can be faulty.
+     *
      * @returns {number} The height of the basic version image
      * (adjusted for orientation).
      */
     public get basicHeight(): number {
         return this._basicHeight;
+    }
+
+    /**
+     * Get basic width.
+     *
+     * @description Does not fall back to node image width but
+     * uses original value from API so can be faulty.
+     *
+     * @returns {number} The width of the basic version image
+     * (adjusted for orientation).
+     */
+    public get basicWidth(): number {
+        return this._basicWidth;
     }
 
     /**
@@ -99,6 +110,10 @@ export class Transform {
 
     /**
      * Get height.
+     *
+     * @description Falls back to the node image height if
+     * the API data is faulty.
+     *
      * @returns {number} The orientation adjusted image height.
      */
     public get height(): number {
@@ -139,6 +154,10 @@ export class Transform {
 
     /**
      * Get width.
+     *
+     * @description Falls back to the node image width if
+     * the API data is faulty.
+     *
      * @returns {number} The orientation adjusted image width.
      */
     public get width(): number {
