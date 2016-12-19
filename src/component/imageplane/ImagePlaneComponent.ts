@@ -35,11 +35,7 @@ import {
     IGLRenderHash,
     GLRenderStage,
 } from "../../Render";
-import {
-    ILoadStatusObject,
-    ImageLoader,
-    Node,
-} from "../../Graph";
+import {Node} from "../../Graph";
 import {
     ImageTileLoader,
     ImageTileStore,
@@ -164,6 +160,15 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 (frame: IFrame): string => {
                     return frame.state.currentNode.key;
                 })
+            .combineLatest(this._configuration$)
+            .filter(
+                (args: [IFrame, IImagePlaneConfiguration]): boolean => {
+                    return args[1].imageTiling === true;
+                })
+            .map(
+                (args: [IFrame, IImagePlaneConfiguration]): IFrame => {
+                    return args[0];
+                })
             .withLatestFrom(this._container.glRenderer.webGLRenderer$)
             .map(
                 (args: [IFrame, THREE.WebGLRenderer]): TileHandler => {
@@ -225,6 +230,11 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                             handler.roiService.roi$,
                             Observable.of(handler.provider));
                 })
+            .filter(
+                (args: [IRegionOfInterest, TextureProvider]): boolean => {
+                    return !args[1].disposed;
+                }
+            )
             .subscribe(
                 (args: [IRegionOfInterest, TextureProvider]): void => {
                     let roi: IRegionOfInterest = args[0];
@@ -238,62 +248,31 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 (handler: TileHandler): Observable<boolean> => {
                     return handler.provider.hasTexture$;
                 })
+            .startWith(false)
             .publishReplay(1)
             .refCount();
 
         hasTexture$.subscribe();
 
-        let nodeImage$: Observable<[HTMLImageElement, Node]> = Observable
-            .combineLatest(
-                this._navigator.stateService.currentNode$,
-                this._configuration$)
+        let nodeImage$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentNode$
             .debounceTime(1000)
             .withLatestFrom(hasTexture$)
             .filter(
-                (args: [[Node, IImagePlaneConfiguration], boolean]): boolean => {
+                (args: [Node, boolean]): boolean => {
                     return !args[1];
                 })
             .map(
-                (args: [[Node, IImagePlaneConfiguration], boolean]): [Node, IImagePlaneConfiguration] => {
+                (args: [Node, boolean]): Node => {
                     return args[0];
                 })
-            .withLatestFrom(
-                this._navigator.stateService.currentTransform$,
-                (nc: [Node, IImagePlaneConfiguration], t: Transform): [Node, IImagePlaneConfiguration, Transform] => {
-                    return [nc[0], nc[1], t];
-                })
-            .map<[Node, number]>(
-                (params: [Node, IImagePlaneConfiguration, Transform]): [Node, number] => {
-                    let node: Node = params[0];
-                    let configuration: IImagePlaneConfiguration = params[1];
-                    let transform: Transform = params[2];
-
-                    let imageSize: number = Settings.maxImageSize;
-
-                    if (node.pano) {
-                        if (configuration.maxPanoramaResolution === "high") {
-                            imageSize = Math.max(imageSize, Math.min(4096, Math.max(transform.width, transform.height)));
-                        } else if (configuration.maxPanoramaResolution === "full") {
-                            imageSize = Math.max(imageSize, transform.width, transform.height);
-                        }
-                    }
-
-                    return [node, imageSize];
-                })
             .filter(
-                (params: [Node, number]): boolean => {
-                    let node: Node = params[0];
-                    let imageSize: number = params[1];
-
+                (node: Node): boolean => {
                     return node.pano ?
-                        imageSize > Settings.basePanoramaSize :
-                        imageSize > Settings.baseImageSize;
+                        Settings.maxImageSize > Settings.basePanoramaSize :
+                        Settings.maxImageSize > Settings.baseImageSize;
                 })
             .switchMap<[HTMLImageElement, Node]>(
-                (params: [Node, number]): Observable<[HTMLImageElement, Node]> => {
-                    let node: Node = params[0];
-                    let imageSize: number = params[1];
-
+                (node: Node): Observable<[HTMLImageElement, Node]> => {
                     let baseImageSize: ImageSize = node.pano ?
                         Settings.basePanoramaSize :
                         Settings.baseImageSize;
@@ -302,26 +281,12 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                         return Observable.empty<[HTMLImageElement, Node]>();
                     }
 
-                    let image$: Observable<[HTMLImageElement, Node]> = null;
-
-                    if (node.pano && imageSize > Settings.maxImageSize) {
-                        image$ = ImageLoader.loadDynamic(node.key, imageSize)
-                            .first(
-                                (statusObject: ILoadStatusObject<HTMLImageElement>): boolean => {
-                                    return statusObject.object != null;
-                                })
-                            .zip(
-                                Observable.of<Node>(node),
-                                (status: ILoadStatusObject<HTMLImageElement>, n: Node): [HTMLImageElement, Node] => {
-                                    return [status.object, n];
-                                });
-                    } else {
-                        image$ = node.cacheImage$(imageSize)
+                    let image$: Observable<[HTMLImageElement, Node]> = node
+                        .cacheImage$(Settings.maxImageSize)
                             .map<[HTMLImageElement, Node]>(
                                 (n: Node): [HTMLImageElement, Node] => {
                                     return [n.image, n];
                                 });
-                    }
 
                     return image$
                         .takeUntil(
@@ -346,7 +311,8 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .withLatestFrom(tileHandler$)
             .subscribe(
                 (args: [[HTMLImageElement, Node], TileHandler]): void => {
-                    if (args[0][1].key !== args[1].key) {
+                    if (args[0][1].key !== args[1].key ||
+                        args[1].provider.disposed) {
                         return;
                     }
 
@@ -373,7 +339,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IImagePlaneConfiguration {
-        return { maxPanoramaResolution: "auto" };
+        return { imageTiling: false };
     }
 }
 

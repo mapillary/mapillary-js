@@ -32,6 +32,7 @@ export class TextureProvider {
     private _hasSubscription: Subscription;
     private _updated$: Subject<boolean>;
 
+    private _disposed: boolean;
     private _height: number;
     private _key: string;
     private _tileSize: number;
@@ -49,6 +50,8 @@ export class TextureProvider {
         imageTileLoader: ImageTileLoader,
         imageTileStore: ImageTileStore,
         renderer: THREE.WebGLRenderer) {
+
+        this._disposed = false;
 
         this._key = key;
 
@@ -86,6 +89,10 @@ export class TextureProvider {
         this._renderer = renderer;
         this._renderTarget = null;
         this._roi = null;
+    }
+
+    public get disposed(): boolean {
+        return this._disposed;
     }
 
     public get hasTexture$(): Observable<boolean> {
@@ -141,6 +148,8 @@ export class TextureProvider {
 
         this._createdSubscription.unsubscribe();
         this._hasSubscription.unsubscribe();
+
+        this._disposed = true;
     }
 
     public setRegionOfInterest(roi: IRegionOfInterest): void {
