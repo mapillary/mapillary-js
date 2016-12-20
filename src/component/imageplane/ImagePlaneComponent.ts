@@ -85,7 +85,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     constructor (name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._imageTileLoader = new ImageTileLoader(Urls.tileDomain, Urls.origin);
+        this._imageTileLoader = new ImageTileLoader(Urls.tileScheme, Urls.tileDomain, Urls.origin);
         this._roiCalculator = new RegionOfInterestCalculator();
 
         this._rendererOperation$ = new Subject<IImagePlaneGLRendererOperation>();

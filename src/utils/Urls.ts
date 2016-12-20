@@ -1,4 +1,8 @@
 export class Urls {
+    public static get tileScheme(): string {
+        return "https";
+    }
+
     public static get tileDomain(): string {
         return "d2qb1440i7l50o.cloudfront.net";
     }
@@ -7,12 +11,8 @@ export class Urls {
         return "mapillary.webgl";
     }
 
-    public static dynamicImage(key: string, size: number): string {
-        return `https://d2qb1440i7l50o.cloudfront.net/${key}/full/!${size},${size}/0/default.jpg?origin=mapillary.webgl`;
-    }
-
     public static thumbnail(key: string, size: number): string {
-        return `https://d1cuyjsrcm0gby.cloudfront.net/${key}/thumb-${size}.jpg?origin=mapillary.webgl`;
+        return `https://d1cuyjsrcm0gby.cloudfront.net/${key}/thumb-${size}.jpg?origin=${this.origin}`;
     }
 
     public static falcorModel(clientId: string): string {

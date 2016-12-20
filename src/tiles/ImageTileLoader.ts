@@ -6,8 +6,8 @@ export class ImageTileLoader {
     private _scheme: string;
     private _server: string;
 
-    constructor(server: string, origin?: string) {
-        this._scheme = "https";
+    constructor(scheme: string, server: string, origin?: string) {
+        this._scheme = scheme;
         this._server = server;
         this._origin = origin != null ? `?origin=${origin}` : "";
     }
