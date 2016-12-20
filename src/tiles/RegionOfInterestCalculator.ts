@@ -2,12 +2,7 @@
 
 import * as THREE from "three";
 
-import {Observable} from "rxjs/Observable";
-
-import "rxjs/add/operator/skipWhile";
-
 import {
-    RenderService,
     RenderCamera,
     ISize,
 } from "../Render";
@@ -17,59 +12,10 @@ import {
     IRegionOfInterest,
 } from "../Tiles";
 
-type PositionLookat = [THREE.Vector3, THREE.Vector3, number];
-
-export class RegionOfInterestService {
-    private _transform: Transform;
-
-    private _roi$: Observable<IRegionOfInterest>;
-
-    constructor (renderService: RenderService, transform: Transform) {
-        this._transform = transform;
-
-        this._roi$ = renderService.renderCameraFrame$
-            .map(
-                (renderCamera: RenderCamera): PositionLookat => {
-                    return [
-                        renderCamera.camera.position.clone(),
-                        renderCamera.camera.lookat.clone(),
-                        renderCamera.zoom.valueOf()];
-                })
-            .pairwise()
-            .skipWhile(
-                (pls: [PositionLookat, PositionLookat]): boolean => {
-                    return pls[1][2] - pls[0][2] < 0 || pls[1][2] === 0;
-                })
-            .map(
-                (pls: [PositionLookat, PositionLookat]): boolean => {
-                    let samePosition: boolean = pls[0][0].equals(pls[1][0]);
-                    let sameLookat: boolean = pls[0][1].equals(pls[1][1]);
-                    let sameZoom: boolean = pls[0][2] === pls[1][2];
-
-                    return samePosition && sameLookat && sameZoom;
-                })
-            .distinctUntilChanged()
-            .filter(
-                (stalled: boolean): boolean => {
-                    return stalled;
-                })
-            .switchMap(
-                (stalled: boolean): Observable<RenderCamera> => {
-                    return renderService.renderCameraFrame$
-                        .first();
-                })
-            .withLatestFrom<IRegionOfInterest>(
-                renderService.size$,
-                this._computeRegionOfInterest.bind(this));
-    }
-
-    public get roi$(): Observable<IRegionOfInterest> {
-        return this._roi$;
-    }
-
-    private _computeRegionOfInterest(renderCamera: RenderCamera, size: ISize): IRegionOfInterest {
+export class RegionOfInterestCalculator {
+    public computeRegionOfInterest(renderCamera: RenderCamera, size: ISize, transform: Transform): IRegionOfInterest {
         let canvasPoints: number[][] = this._canvasBoundaryPoints(4);
-        let bbox: IBoundingBox = this._canvasPointsBoundingBox(canvasPoints, renderCamera);
+        let bbox: IBoundingBox = this._canvasPointsBoundingBox(canvasPoints, renderCamera, transform);
         this._clipBoundingBox(bbox);
 
         let centralPixel: number[][] = [
@@ -78,7 +24,7 @@ export class RegionOfInterestService {
             [0.5 + 0.5 / size.width, 0.5 + 0.5 / size.height],
             [0.5 - 0.5 / size.width, 0.5 + 0.5 / size.height],
         ];
-        let cpbox: IBoundingBox = this._canvasPointsBoundingBox(centralPixel, renderCamera);
+        let cpbox: IBoundingBox = this._canvasPointsBoundingBox(centralPixel, renderCamera, transform);
 
         return {
             bbox: bbox,
@@ -102,19 +48,17 @@ export class RegionOfInterestService {
         return points;
     }
 
-    private _canvasPointsBoundingBox(canvasPoints: number[][], renderCamera: RenderCamera): IBoundingBox {
+    private _canvasPointsBoundingBox(canvasPoints: number[][], renderCamera: RenderCamera, transform: Transform): IBoundingBox {
         let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
-            return this._canvasToBasic(point, renderCamera, this._transform);
+            return this._canvasToBasic(point, renderCamera, transform);
         });
 
-        if (this._transform.gpano != null) {
+        if (transform.gpano != null) {
             return this._boundingBoxPano(basicPoints);
         } else {
             return this._boundingBox(basicPoints);
         }
     }
-
-
 
     private _boundingBox(points: number[][]): IBoundingBox {
         let bbox: IBoundingBox = {
@@ -154,13 +98,11 @@ export class RegionOfInterestService {
         };
     }
 
-    private _sign(n: number): number {
-        return n > 0 ? 1 : n < 0 ? -1 : 0;
-    }
-
-    // find the max interval between consecutive numbers.
-    // assumes numbers are between 0 and 1, sorted and
-    // that x is equivalent to x + 1.
+    /**
+     * Find the max interval between consecutive numbers.
+     * Assumes numbers are between 0 and 1, sorted and that
+     * x is equivalent to x + 1.
+     */
     private _intervalPano(xs: number[]): number[] {
         let maxdx: number = 0;
         let maxi: number = -1;
@@ -186,6 +128,10 @@ export class RegionOfInterestService {
         bbox.maxY = Math.max(0, Math.min(1, bbox.maxY));
     }
 
+    private _sign(n: number): number {
+        return n > 0 ? 1 : n < 0 ? -1 : 0;
+    }
+
     private _canvasToBasic(
         point: number [],
         renderCamera: RenderCamera,
@@ -208,4 +154,4 @@ export class RegionOfInterestService {
 
 }
 
-export default RegionOfInterestService;
+export default RegionOfInterestCalculator;
