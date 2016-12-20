@@ -8,7 +8,7 @@ MapillaryJS is a JavaScript & WebGL library that renders street level photos fro
 
 ## Using MapillaryJS
 
-To use MapillaryJS you must [create an account](https://www.mapillary.com/signup) and then [obtain a Client ID](https://www.mapillary.com/app/settings/developers). Then you can use MapillaryJS with a `<script>` tag.
+To use MapillaryJS you must [create an account](https://www.mapillary.com/signup) and [obtain a Client ID](https://www.mapillary.com/app/settings/developers). Then you can use MapillaryJS with a `<script>` tag.
 
 ```html
 <!DOCTYPE html>
@@ -19,7 +19,7 @@ To use MapillaryJS you must [create an account](https://www.mapillary.com/signup
 </head>
 
 <body>
-    <div id='mly' style='width: 640px; height: 480px;' />
+    <div id='mly' style='width: 640px; height: 480px;'></div>
 
     <script>
         var mly = new Mapillary.Viewer(
@@ -38,16 +38,20 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 
 ## Examples
 
-- [MapillaryJS fixed size](https://bl.ocks.org/oscarlorentzon/63644e3b2392f2f2b7d000af9c506da6)
-- [MapillaryJS dynamic size](https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39)
-- [MapillaryJS load immediately](https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade)
-- [MapillaryJS no cover](https://bl.ocks.org/oscarlorentzon/4f6f7ae5e86db7446f78ccea1eb6c2a7)
-- [MapillaryJS viewer options](https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a)
-- [MapillaryJS subscribe to node changed](https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820)
-- [MapillaryJS slider](https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3)
-- [MapillaryJS set filter](https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c)
-- [MapillaryJS get center and zoom](https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82)
-- [MapillaryJS set center and zoom](https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871)
+- [Fixed size](https://bl.ocks.org/oscarlorentzon/63644e3b2392f2f2b7d000af9c506da6)
+- [Dynamic size](https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39)
+- [Load immediately](https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade)
+- [No cover](https://bl.ocks.org/oscarlorentzon/4f6f7ae5e86db7446f78ccea1eb6c2a7)
+- [Move to key](https://bl.ocks.org/oscarlorentzon/317da436accbcf2ff04c642f86cefaf8)
+- [Move in direction](https://bl.ocks.org/oscarlorentzon/63ac2aa3f0998f0c2d2b01a42c8babe4)
+- [Move close to latitude and longitude](https://bl.ocks.org/oscarlorentzon/a60f3dad3f3accfe67ea1048be88df26)
+- [Viewer options](https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a)
+- [Subscribe to node changed](https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820)
+- [Set filter](https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c)
+- [Get center and zoom](https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82)
+- [Set center and zoom](https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871)
+- [Slider](https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3)
+- [Storytelling with route component](https://bl.ocks.org/oscarlorentzon/2a4041c93fb3711dc8dc53d1a217defe)
 - [MapillaryJS + ESRI JS API](https://bl.ocks.org/oscarlorentzon/a9bd5d6dadcc5df7e024a04a9600b043)
 - [MapillaryJS + Google Maps](https://bl.ocks.org/oscarlorentzon/fda7ce2bdae8499580b1f72d139103de)
 - [MapillaryJS + Leaflet](https://bl.ocks.org/oscarlorentzon/0a11029a5627028c445a38016c76fb3a)
