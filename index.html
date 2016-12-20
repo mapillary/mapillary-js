@@ -67,16 +67,16 @@
 				<p>MapillaryJS is a JavaScript &amp; WebGL library that renders street level photos from <a href="https://www.mapillary.com">Mapillary</a>.</p>
 				<p><a href="https://www.mapillary.com/app/?focus=photo&amp;pKey=VKf9Ay98ubkclhS2cCEWDg"><img width="49%" alt="San Francisco on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964788/9d75b25e-2f1a-11e6-9c5f-b4a42853a1eb.png"></a> <a href="https://www.mapillary.com/app/?focus=photo&amp;pKey=FjsftlSr2Vqigl8P2zpOAw"><img width="49%" alt="Frigilana on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964789/9d8256c6-2f1a-11e6-9d4b-bd906875078c.png"></a></p>
 				<h2 id="using-mapillaryjs">Using MapillaryJS</h2>
-				<p>To use MapillaryJS you must <a href="https://www.mapillary.com/signup">create an account</a> and then <a href="https://www.mapillary.com/app/settings/developers">obtain a Client ID</a>. Then you can use MapillaryJS with a <code>&lt;script&gt;</code> tag.</p>
+				<p>To use MapillaryJS you must <a href="https://www.mapillary.com/signup">create an account</a> and <a href="https://www.mapillary.com/app/settings/developers">obtain a Client ID</a>. Then you can use MapillaryJS with a <code>&lt;script&gt;</code> tag.</p>
 				<pre><code class="lang-html"><span class="hljs-meta">&lt;!DOCTYPE html&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.1.0/dist/mapillary.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.1.0/dist/mapillary.min.css'</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">'stylesheet'</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.2.0/dist/mapillary.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.2.0/dist/mapillary.min.css'</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">'stylesheet'</span> /&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'mly'</span> <span class="hljs-attr">style</span>=<span class="hljs-string">'width: 640px; height: 480px;'</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'mly'</span> <span class="hljs-attr">style</span>=<span class="hljs-string">'width: 640px; height: 480px;'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 
     <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="actionscript">
         <span class="hljs-keyword">var</span> mly = <span class="hljs-keyword">new</span> Mapillary.Viewer(
@@ -92,16 +92,20 @@
 				<p>Refer to the <a href="https://github.com/mapillary/mapillary-js#examples">Examples</a> and <a href="https://mapillary.github.io/mapillary-js">Documentation</a> sections below for more information.</p>
 				<h2 id="examples">Examples</h2>
 				<ul>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/63644e3b2392f2f2b7d000af9c506da6">MapillaryJS fixed size</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39">MapillaryJS dynamic size</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade">MapillaryJS load immediately</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/4f6f7ae5e86db7446f78ccea1eb6c2a7">MapillaryJS no cover</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a">MapillaryJS viewer options</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820">MapillaryJS subscribe to node changed</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3">MapillaryJS slider</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c">MapillaryJS set filter</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82">MapillaryJS get center and zoom</a></li>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871">MapillaryJS set center and zoom</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/63644e3b2392f2f2b7d000af9c506da6">Fixed size</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39">Dynamic size</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade">Load immediately</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/4f6f7ae5e86db7446f78ccea1eb6c2a7">No cover</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/317da436accbcf2ff04c642f86cefaf8">Move to key</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/63ac2aa3f0998f0c2d2b01a42c8babe4">Move in direction</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/a60f3dad3f3accfe67ea1048be88df26">Move close to latitude and longitude</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a">Viewer options</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820">Subscribe to node changed</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c">Set filter</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82">Get center and zoom</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871">Set center and zoom</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3">Slider</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/2a4041c93fb3711dc8dc53d1a217defe">Storytelling with route component</a></li>
 					<li><a href="https://bl.ocks.org/oscarlorentzon/a9bd5d6dadcc5df7e024a04a9600b043">MapillaryJS + ESRI JS API</a></li>
 					<li><a href="https://bl.ocks.org/oscarlorentzon/fda7ce2bdae8499580b1f72d139103de">MapillaryJS + Google Maps</a></li>
 					<li><a href="https://bl.ocks.org/oscarlorentzon/0a11029a5627028c445a38016c76fb3a">MapillaryJS + Leaflet</a></li>
