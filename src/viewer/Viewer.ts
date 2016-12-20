@@ -296,10 +296,12 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Set a bearer token for API requests of protected resources.
+     * Set a bearer token for authenticated API requests of
+     * protected resources.
      *
-     * @description When the supplied token is an empty string
-     * or null, any previously set access token will be cleared.
+     * @description When the supplied token is null or undefined,
+     * any previously set bearer token will be cleared and the
+     * viewer will make unauthenticated requests.
      *
      * Calling setAuthToken aborts all outstanding move requests.
      * The promises of those move requests will be rejected and
