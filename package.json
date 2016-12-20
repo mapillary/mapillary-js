@@ -47,14 +47,14 @@
     "karma-jasmine": "^1.0.2",
     "postcss-cli": "^2.6.0",
     "postcss-middleware": "^1.1.2",
-    "tsify": "^2.0.3",
-    "tslint": "3.15.1",
-    "typedoc": "^0.5.1",
-    "typedoc-default-themes": "^0.4.0",
-    "typescript": "^2.0.8",
-    "typings": "^2.0.0",
+    "tsify": "~2.0.3",
+    "tslint": "~3.15.1",
+    "typedoc": "~0.5.1",
+    "typedoc-default-themes": "~0.4.0",
+    "typescript": "~2.0.8",
+    "typings": "~2.0.0",
     "uglify-js": "^2.7.4",
-    "watchify": "3.7.0"
+    "watchify": "^3.7.0"
   },
   "browser": {
     "falcor": "./node_modules/falcor/dist/falcor.browser.min.js",
