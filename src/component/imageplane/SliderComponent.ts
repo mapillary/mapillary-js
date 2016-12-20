@@ -510,7 +510,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     this._navigator.stateService.setNodes([co.nodes.foreground]);
                 },
                 (e: Error): void => {
-                    console.log(e);
+                    console.error(e);
                 });
 
         let previousNode$: Observable<Node> = this._navigator.stateService.currentState$
@@ -606,7 +606,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         return this._navigator.graphService.cacheNode$(key)
             .catch(
                 (error: Error, caught: Observable<Node>): Observable<Node> => {
-                    console.log(`Failed to cache slider node (${key})`, error);
+                    console.error(`Failed to cache slider node (${key})`, error);
 
                     return Observable.empty<Node>();
                 });

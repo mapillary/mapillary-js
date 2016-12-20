@@ -136,8 +136,6 @@ export class ImagePlaneGLRenderer {
     public render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
-        let ts: number = window.performance.now();
-
         let planeAlpha: number = this._imagePlaneScene.imagePlanesOld.length ? 1 : this._alpha;
 
         for (let plane of this._imagePlaneScene.imagePlanes) {
@@ -156,11 +154,6 @@ export class ImagePlaneGLRenderer {
         }
 
         renderer.render(this._imagePlaneScene.scene, perspectiveCamera);
-
-        let te: number = window.performance.now();
-        if (te - ts > 10) {
-            console.warn("Render image planes", (te - ts).toFixed(2));
-        }
     }
 
     public clearNeedsRender(): void {

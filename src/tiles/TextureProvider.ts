@@ -381,15 +381,8 @@ export class TextureProvider {
         let scene: THREE.Scene = new THREE.Scene();
         scene.add(mesh);
 
-        let ts: number = window.performance.now();
-
         this._renderer.render(scene, this._camera, this._renderTarget);
         this._renderer.setRenderTarget(undefined);
-
-        let te: number = window.performance.now();
-        if (te - ts > 10) {
-            console.warn("Render to target", (te - ts).toFixed(2), w, h);
-        }
 
         scene.remove(mesh);
 
