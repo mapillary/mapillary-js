@@ -2,16 +2,20 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/observable/combineLatest";
-import "rxjs/add/observable/of";
-
+import "rxjs/add/operator/catch";
+import "rxjs/add/operator/combineLatest";
 import "rxjs/add/operator/debounceTime";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
+import "rxjs/add/operator/pairwise";
+import "rxjs/add/operator/publish";
+import "rxjs/add/operator/publishReplay";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/skipWhile";
+import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/takeUntil";
 import "rxjs/add/operator/withLatestFrom";
 
 import {
@@ -65,8 +69,15 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     private _rendererCreator$: Subject<void>;
     private _rendererDisposer$: Subject<void>;
 
+    private _abortTextureProviderSubscription: Subscription;
+    private _hasTextureSubscription: Subscription;
     private _rendererSubscription: Subscription;
+    private _setRegionOfInterestSubscription: Subscription;
+    private _setTextureProviderSubscription: Subscription;
     private _stateSubscription: Subscription;
+    private _textureProviderSubscription: Subscription;
+    private _updateBackgroundSubscription: Subscription;
+    private _updateTextureImageSubscription: Subscription;
 
     private _imageTileLoader: ImageTileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
@@ -196,9 +207,9 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .publishReplay(1)
             .refCount();
 
-        textureProvider$.subscribe();
+        this._textureProviderSubscription = textureProvider$.subscribe();
 
-        textureProvider$
+        this._setTextureProviderSubscription = textureProvider$
             .map<IImagePlaneGLRendererOperation>(
                 (provider: TextureProvider): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -209,7 +220,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 })
             .subscribe(this._rendererOperation$);
 
-        textureProvider$
+        this._abortTextureProviderSubscription = textureProvider$
             .pairwise()
             .subscribe(
                 (pair: [TextureProvider, TextureProvider]): void => {
@@ -252,7 +263,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 this._container.renderService.size$,
                 this._navigator.stateService.currentTransform$);
 
-        textureProvider$
+        this._setRegionOfInterestSubscription = textureProvider$
             .switchMap(
                 (provider: TextureProvider): Observable<[IRegionOfInterest, TextureProvider]> => {
                     return roiTrigger$
@@ -285,7 +296,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .publishReplay(1)
             .refCount();
 
-        hasTexture$.subscribe();
+        this._hasTextureSubscription = hasTexture$.subscribe();
 
         let nodeImage$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentNode$
             .debounceTime(1000)
@@ -340,7 +351,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .publish()
             .refCount();
 
-        nodeImage$
+        this._updateBackgroundSubscription = nodeImage$
             .withLatestFrom(textureProvider$)
             .subscribe(
                 (args: [[HTMLImageElement, Node], TextureProvider]): void => {
@@ -352,7 +363,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     args[1].updateBackground(args[0][0]);
                 });
 
-        nodeImage$
+        this._updateTextureImageSubscription = nodeImage$
             .map<IImagePlaneGLRendererOperation>(
                 (imn: [HTMLImageElement, Node]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -367,8 +378,15 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     protected _deactivate(): void {
         this._rendererDisposer$.next(null);
 
+        this._abortTextureProviderSubscription.unsubscribe();
+        this._hasTextureSubscription.unsubscribe();
         this._rendererSubscription.unsubscribe();
+        this._setRegionOfInterestSubscription.unsubscribe();
+        this._setTextureProviderSubscription.unsubscribe();
         this._stateSubscription.unsubscribe();
+        this._textureProviderSubscription.unsubscribe();
+        this._updateBackgroundSubscription.unsubscribe();
+        this._updateTextureImageSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IImagePlaneConfiguration {
