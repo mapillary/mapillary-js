@@ -430,7 +430,7 @@ export class Node {
      */
     public cacheAssets$(): Observable<Node> {
         return this._cache.cacheAssets$(this.key, this.pano, this.merged)
-            .map<Node>(
+            .map(
                 (cache: NodeCache): Node => {
                     return this;
                 });
@@ -438,7 +438,7 @@ export class Node {
 
     public cacheImage$(imageSize: ImageSize): Observable<Node> {
         return this._cache.cacheImage$(this.key, imageSize)
-            .map<Node>(
+            .map(
                 (cache: NodeCache): Node => {
                     return this;
                 });

@@ -123,13 +123,13 @@ export class Navigator {
 
         return this.stateService.currentNode$
             .first()
-            .mergeMap<string>(
+            .mergeMap(
                 (node: Node): Observable<string> => {
                     return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
                         node.sequenceEdges$ :
                         node.spatialEdges$)
                             .first()
-                            .map<string>(
+                            .map(
                                 (status: IEdgeStatus): string => {
                                     for (let edge of status.edges) {
                                         if (edge.data.direction === direction) {
@@ -140,14 +140,13 @@ export class Navigator {
                                     return null;
                                 });
                 })
-            .mergeMap<Node>(
+            .mergeMap(
                 (directionKey: string) => {
                     if (directionKey == null) {
                         this.loadingService.stopLoading(this._loadingName);
 
                         return Observable
-                            .throw<Node>(
-                                new Error(`Direction (${direction}) does not exist for current node.`));
+                            .throw(new Error(`Direction (${direction}) does not exist for current node.`));
                     }
 
                     return this.moveToKey$(directionKey);
@@ -159,14 +158,13 @@ export class Navigator {
         this._latLonRequested$.next({lat: lat, lon: lon});
 
         return this.apiV3.imageCloseTo$(lat, lon)
-            .mergeMap<Node>(
+            .mergeMap(
                 (fullNode: IFullNode): Observable<Node> => {
                     if (fullNode == null) {
                         this.loadingService.stopLoading(this._loadingName);
 
                         return Observable
-                            .throw<Node>(
-                                new Error(`No image found close to lat ${lat}, lon ${lon}.`));
+                            .throw(new Error(`No image found close to lat ${lat}, lon ${lon}.`));
                     }
 
                     return this.moveToKey$(fullNode.key);
@@ -178,14 +176,14 @@ export class Navigator {
 
         return this._movedToKey$
             .first()
-            .mergeMap<Node>(
+            .mergeMap(
                 (key: string): Observable<Node> => {
                     if (key != null) {
                         return this._trajectoryKeys$()
-                            .mergeMap<Node>(
+                            .mergeMap(
                                 (keys: string[]): Observable<Node> => {
                                     return this._graphService.setFilter$(filter)
-                                        .mergeMap<Node>(
+                                        .mergeMap(
                                             (graph: Graph): Observable<Node> => {
                                                 return this._cacheKeys$(keys);
                                             });
@@ -198,20 +196,20 @@ export class Navigator {
                             (requestedKey: string): Observable<Node> => {
                                 if (requestedKey != null) {
                                     return this._graphService.setFilter$(filter)
-                                        .mergeMap<Node>(
+                                        .mergeMap(
                                             (graph: Graph): Observable<Node> => {
                                                 return this._graphService.cacheNode$(requestedKey);
                                             });
                                 }
 
                                 return this._graphService.setFilter$(filter)
-                                    .map<Node>(
+                                    .map(
                                         (graph: Graph): Node => {
                                             return undefined;
                                         });
                             });
                 })
-            .map<void>(
+            .map(
                 (node: Node): void => {
                     return undefined;
                 });
@@ -226,16 +224,16 @@ export class Navigator {
                 (key: string): void => {
                     this._apiV3.setToken(token);
                 })
-            .mergeMap<void>(
+            .mergeMap(
                 (key: string): Observable<void> => {
                     return key == null ?
                         this._graphService.reset$([])
-                            .map<void>(
+                            .map(
                                 (graph: Graph): void => {
                                     return undefined;
                                 }) :
                         this._trajectoryKeys$()
-                            .mergeMap<Node>(
+                            .mergeMap(
                                 (keys: string[]): Observable<Node> => {
                                     return this._graphService.reset$(keys)
                                         .mergeMap(
@@ -244,7 +242,7 @@ export class Navigator {
                                             });
                                 })
                             .last()
-                            .map<void>(
+                            .map(
                                 (node: Node): void => {
                                     return undefined;
                                 });
@@ -266,7 +264,7 @@ export class Navigator {
     private _trajectoryKeys$(): Observable<string[]> {
         return this._stateService.currentState$
             .first()
-            .map<string[]>(
+            .map(
                 (frame: IFrame): string[] => {
                     return frame.state.trajectory
                             .map(

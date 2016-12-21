@@ -182,7 +182,7 @@ export class SpriteService {
                 (atlas: SpriteAtlas): SpriteAtlas => {
                     return atlas;
                 })
-            .scan<SpriteAtlas>(
+            .scan(
                 (atlas: SpriteAtlas, operation: ISpriteAtlasOperation): SpriteAtlas => {
                     return operation(atlas);
                 },

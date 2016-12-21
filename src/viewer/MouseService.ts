@@ -86,7 +86,7 @@ export class MouseService {
                 });
 
         this._preventMouseDownOperation$
-            .scan<boolean>(
+            .scan(
                 (prevent: boolean, operation: IPreventMouseDownOperation): boolean => {
                     return operation(prevent);
                 },
@@ -94,7 +94,7 @@ export class MouseService {
             .subscribe();
 
         this._preventMouseDown$
-            .map<IPreventMouseDownOperation>(
+            .map(
                 (prevent: boolean): IPreventMouseDownOperation => {
                     return (previous: boolean): boolean => {
                         return prevent;
@@ -103,7 +103,7 @@ export class MouseService {
             .subscribe(this._preventMouseDownOperation$);
 
         this._mouseDown$
-            .map<IPreventMouseDownOperation>(
+            .map(
                 (e: MouseEvent): IPreventMouseDownOperation => {
                     return (prevent: boolean): boolean => {
                         if (prevent) {
@@ -116,7 +116,7 @@ export class MouseService {
             .subscribe(this._preventMouseDownOperation$);
 
         this._mouseMove$ = this._mouseMoveOperation$
-            .scan<MouseEvent>(
+            .scan(
                 (e: MouseEvent, operation: IMouseMoveOperation): MouseEvent => {
                     return operation(e);
                 },
@@ -124,7 +124,7 @@ export class MouseService {
 
         Observable
             .fromEvent<MouseEvent>(element, "mousemove")
-            .map<IMouseMoveOperation>(
+            .map(
                 (e: MouseEvent) => {
                     return (previous: MouseEvent): MouseEvent => {
                         if (previous == null) {
@@ -164,26 +164,29 @@ export class MouseService {
             .merge<MouseEvent>(this._mouseLeave$, this._mouseUp$);
 
         this._mouseDragStart$ = this._mouseDown$
-            .mergeMap<MouseEvent>((e: MouseEvent): Observable<MouseEvent> => {
-                return this._mouseMove$
-                    .takeUntil(dragStop$)
-                    .take(1);
-            });
+            .mergeMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return this._mouseMove$
+                        .takeUntil(dragStop$)
+                        .take(1);
+                });
 
         this._mouseDrag$ = this._mouseDown$
-            .mergeMap<MouseEvent>((e: MouseEvent): Observable<MouseEvent> => {
-                return this._mouseMove$
-                    .skip(1)
-                    .takeUntil(dragStop$);
-            });
+            .mergeMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return this._mouseMove$
+                        .skip(1)
+                        .takeUntil(dragStop$);
+                });
 
         this._mouseDragEnd$ = this._mouseDragStart$
-            .mergeMap<MouseEvent>((e: MouseEvent): Observable<MouseEvent> => {
-                return dragStop$.first();
-            });
+            .mergeMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return dragStop$.first();
+                });
 
         this._staticClick$ = this._mouseDown$
-            .switchMap<MouseEvent>(
+            .switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._click$
                         .takeUntil(this._mouseMove$)
@@ -191,7 +194,7 @@ export class MouseService {
                 });
 
         this._mouseOwner$ = this._claimMouse$
-            .scan<{[key: string]: number}>(
+            .scan(
                 (claims: {[key: string]: number}, mouseClaim: IMouseClaim): {[key: string]: number} => {
                     if (mouseClaim.zindex == null) {
                         delete claims[mouseClaim.name];
@@ -201,7 +204,7 @@ export class MouseService {
                     return claims;
                 },
                 {})
-            .map<string>((claims: {[key: string]: number}): string => {
+            .map((claims: {[key: string]: number}): string => {
                 let owner: string = null;
                 let curZ: number = -1;
 
@@ -294,7 +297,7 @@ export class MouseService {
                 (eo: [T, string]): boolean => {
                     return eo[1] === name;
                 })
-            .map<T>(
+            .map(
                 (eo: [T, string]): T => {
                     return eo[0];
                 });

@@ -36,7 +36,7 @@ export class EventLauncher {
             });
 
         this._sequenceEdgesSubscription = this._navigator.stateService.currentNodeExternal$
-            .switchMap<IEdgeStatus>(
+            .switchMap(
                 (node: Node): Observable<IEdgeStatus> => {
                     return node.sequenceEdges$;
                 })
@@ -46,7 +46,7 @@ export class EventLauncher {
                 });
 
         this._spatialEdgesSubscription = this._navigator.stateService.currentNodeExternal$
-            .switchMap<IEdgeStatus>(
+            .switchMap(
                 (node: Node): Observable<IEdgeStatus> => {
                     return node.spatialEdges$;
                 })
@@ -56,10 +56,10 @@ export class EventLauncher {
                 });
 
         Observable
-            .combineLatest<boolean>(
+            .combineLatest(
                 this._navigator.stateService.moving$,
                 this._container.mouseService.active$)
-            .map<boolean>(
+            .map(
                 (values: boolean[]): boolean => {
                     return values[0] || values[1];
                 })

@@ -20,11 +20,11 @@ export class BearingComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._renderSubscription = this._navigator.stateService.currentNode$
-            .map<boolean>(
+            .map(
                 (node: Node): boolean => {
                     return node.fullPano;
                 })
-            .map<IVNodeHash>(
+            .map(
                 (pano: boolean): IVNodeHash => {
                     return {
                         name: this._name,

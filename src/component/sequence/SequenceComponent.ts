@@ -86,7 +86,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._hoveredKey$ = this._hoveredKeySubject$.share();
 
         this._edgeStatus$ = this._navigator.stateService.currentNode$
-            .switchMap<IEdgeStatus>(
+            .switchMap(
                 (node: Node): Observable<IEdgeStatus> => {
                     return node.sequenceEdges$;
                 })
@@ -191,7 +191,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     public resize(): void {
         this._configuration$
             .first()
-            .map<number>(
+            .map(
                 (configuration: ISequenceConfiguration): number => {
                     return this._sequenceDOMRenderer.getContainerWidth(
                         this._container.element,
@@ -205,11 +205,11 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
     protected _activate(): void {
         this._renderSubscription = Observable
-            .combineLatest<IEdgeStatus, ISequenceConfiguration, number>(
+            .combineLatest(
                 this._edgeStatus$,
                 this._configuration$,
                 this._containerWidth$)
-            .map<IVNodeHash>(
+            .map(
                 (ec: [IEdgeStatus, ISequenceConfiguration, number]): IVNodeHash => {
                     let edgeStatus: IEdgeStatus = ec[0];
                     let configuration: ISequenceConfiguration = ec[1];
@@ -236,7 +236,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (configuration: ISequenceConfiguration) => {
                     return [configuration.minWidth, configuration.maxWidth];
                 })
-            .map<number>(
+            .map(
                 (configuration: ISequenceConfiguration): number => {
                     return this._sequenceDOMRenderer.getContainerWidth(
                         this._container.element,
@@ -260,7 +260,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .subscribe();
 
         this._configuration$
-            .map<IConfigurationOperation>(
+            .map(
                 (newConfiguration: ISequenceConfiguration) => {
                     return (configuration: ISequenceConfiguration): ISequenceConfiguration => {
                         if (newConfiguration.playing !== configuration.playing) {
@@ -294,7 +294,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     return Observable
                         .combineLatest<IEdgeStatus, EdgeDirection>(edgeStatus$, edgeDirection$);
                 })
-            .map<boolean>(
+            .map(
                 (ne: [IEdgeStatus, EdgeDirection]): boolean => {
                     let edgeStatus: IEdgeStatus = ne[0];
                     let direction: EdgeDirection = ne[1];
@@ -315,17 +315,17 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (hasEdge: boolean): boolean => {
                     return !hasEdge;
                 })
-            .map<ISequenceConfiguration>(
+            .map(
                 (hasEdge: boolean): ISequenceConfiguration => {
                     return { playing: false };
                 })
             .subscribe(this._configurationSubject$);
 
         this._hoveredKeySubscription = this._sequenceDOMInteraction.mouseEnterDirection$
-            .switchMap<string>(
+            .switchMap(
                 (direction: EdgeDirection): Observable<string> => {
                     return this._edgeStatus$
-                        .map<string>(
+                        .map(
                             (edgeStatus: IEdgeStatus): string => {
                                 for (let edge of edgeStatus.edges) {
                                     if (edge.data.direction === direction) {
@@ -368,7 +368,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (frame: IFrame): boolean => {
                     return frame.state.nodesAhead < this._nodesAhead;
                 })
-            .map<Node>(
+            .map(
                 (frame: IFrame): Node => {
                     return frame.state.lastNode;
                 })
@@ -382,7 +382,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (lastNode: Node, configuration: ISequenceConfiguration): [Node, EdgeDirection] => {
                     return [lastNode, configuration.direction];
                 })
-            .switchMap<[IEdgeStatus, EdgeDirection]>(
+            .switchMap(
                 (nd: [Node, EdgeDirection]): Observable<[IEdgeStatus, EdgeDirection]> => {
                     return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(nd[1]) > -1 ?
                             nd[0].sequenceEdges$ :
@@ -391,13 +391,13 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                             (status: IEdgeStatus): boolean => {
                                 return status.cached;
                             })
-                        .zip<EdgeDirection, [IEdgeStatus, EdgeDirection]>(
+                        .zip(
                             Observable.of<EdgeDirection>(nd[1]),
                             (status: IEdgeStatus, direction: EdgeDirection): [IEdgeStatus, EdgeDirection] => {
                                 return [status, direction];
                             });
                 })
-            .map<string>(
+            .map(
                 (ed: [IEdgeStatus, EdgeDirection]): string => {
                     let direction: EdgeDirection = ed[1];
 
@@ -413,7 +413,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (key: string): boolean => {
                     return key != null;
                 })
-            .switchMap<Node>(
+            .switchMap(
                 (key: string): Observable<Node> => {
                     return this._navigator.graphService.cacheNode$(key);
                 })

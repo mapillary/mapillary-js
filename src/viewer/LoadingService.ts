@@ -23,7 +23,7 @@ export class LoadingService {
 
     constructor () {
         this._loaders$ = this._loadersSubject$
-            .scan<{[key: string]: boolean}>(
+            .scan(
                 (loaders: {[key: string]: boolean}, loader: ILoader): {[key: string]: boolean} => {
                     if (loader.task !== undefined) {
                         loaders[loader.task] = loader.loading;

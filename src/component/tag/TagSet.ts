@@ -21,7 +21,7 @@ export class TagSet {
 
     constructor() {
         this._tagData$ = this._tagDataOperation$
-            .scan<TagData>(
+            .scan(
                 (tagData: TagData, operation: ITagDataOperation): TagData => {
                     return operation(tagData);
                 },
@@ -29,7 +29,7 @@ export class TagSet {
             .share();
 
         this._set$
-            .map<ITagDataOperation>(
+            .map(
                 (tags: Tag[]): ITagDataOperation => {
                     return (tagData: TagData): TagData => {
                         for (let key of Object.keys(tagData)) {

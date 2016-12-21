@@ -52,7 +52,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
 
     protected _activate(): void {
         this._sequenceSubscription = Observable
-            .combineLatest<IEdgeStatus, ICacheConfiguration>(
+            .combineLatest(
                 this._navigator.stateService.currentNode$
                     .switchMap(
                         (node: Node): Observable<IEdgeStatus> => {
@@ -63,7 +63,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                             return status.cached;
                         }),
                 this._configuration$)
-            .switchMap<EdgesDepth>(
+            .switchMap(
                 (nc: [IEdgeStatus, ICacheConfiguration]): Observable<EdgesDepth> => {
                     let status: IEdgeStatus = nc[0];
                     let configuration: ICacheConfiguration = nc[1];
@@ -87,7 +87,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
             .subscribe();
 
         this._spatialSubscription = this._navigator.stateService.currentNode$
-                .switchMap<[Node, IEdgeStatus]>(
+                .switchMap(
                     (node: Node): Observable<[Node, IEdgeStatus]> => {
                         return Observable
                             .combineLatest(
@@ -104,7 +104,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                         [Node, IEdgeStatus, ICacheConfiguration] => {
                             return [ns[0], ns[1], configuration];
                         })
-            .switchMap<EdgesDepth>(
+            .switchMap(
                 (args: [Node, IEdgeStatus, ICacheConfiguration]): Observable<EdgesDepth> => {
                     let node: Node = args[0];
                     let edges: IEdge[] = args[1].edges;
@@ -156,7 +156,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
 
     private _cache$(edges: IEdge[], direction: EdgeDirection, depth: number): Observable<EdgesDepth> {
         return Observable
-            .zip<EdgesDepth>(
+            .zip(
                 Observable.of<IEdge[]>(edges),
                 Observable.of<number>(depth))
             .expand(
@@ -171,7 +171,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                             if (edge.data.direction === direction) {
                                 edgesDepths$.push(
                                     Observable
-                                        .zip<EdgesDepth>(
+                                        .zip(
                                             this._navigator.graphService.cacheNode$(edge.to)
                                                 .mergeMap(
                                                     (n: Node): Observable<IEdge[]> => {
@@ -198,7 +198,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                     (status: IEdgeStatus): boolean => {
                         return status.cached;
                     })
-                .map<IEdge[]>(
+                .map(
                     (status: IEdgeStatus): IEdge[] => {
                         return status.edges;
                     });

@@ -43,7 +43,7 @@ export class OutlineCreateTag {
 
     public get geometryChanged$(): Observable<OutlineCreateTag> {
         return this._geometry.changed$
-            .map<OutlineCreateTag>(
+            .map(
                 (geometry: VertexGeometry): OutlineCreateTag => {
                     return this;
                 });

@@ -36,7 +36,7 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
         this._configuration$ =
             this._configurationSubject$
                 .startWith(this.defaultConfiguration)
-                .scan<TConfiguration>(
+                .scan(
                     (conf: TConfiguration, newConf: TConfiguration): TConfiguration => {
                         for (let key in newConf) {
                             if (newConf.hasOwnProperty(key)) {

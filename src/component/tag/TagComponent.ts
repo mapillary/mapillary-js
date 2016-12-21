@@ -170,14 +170,14 @@ export class TagComponent extends Component<ITagConfiguration> {
                 (renderer: TagGLRenderer): TagGLRenderer => {
                     return renderer;
                 })
-            .scan<TagGLRenderer>(
+            .scan(
                 (renderer: TagGLRenderer, operation: ITagGLRendererOperation): TagGLRenderer => {
                     return operation(renderer);
                 },
                 new TagGLRenderer());
 
         this._tags$ = this._tagSet.tagData$
-            .map<Tag[]>(
+            .map(
                 (tagData: { [id: string]: Tag }): Tag[] => {
                     let tags: Tag[] = [];
 
@@ -193,7 +193,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._renderTags$ = this.tags$
             .withLatestFrom(this._navigator.stateService.currentTransform$)
-            .map<RenderTag<Tag>[]>(
+            .map(
                 (args: [Tag[], Transform]): RenderTag<Tag>[] => {
                     let tags: Tag[] = args[0];
                     let transform: Transform = args[1];
@@ -215,14 +215,14 @@ export class TagComponent extends Component<ITagConfiguration> {
             .share();
 
         this._tagChanged$ = this._tags$
-            .switchMap<Tag>(
+            .switchMap(
                 (tags: Tag[]): Observable<Tag> => {
                     return Observable
                         .from(tags)
-                        .mergeMap<Tag>(
+                        .mergeMap(
                             (tag: Tag): Observable<Tag> => {
                                 return Observable
-                                    .merge<Tag>(
+                                    .merge(
                                         tag.changed$,
                                         tag.geometryChanged$);
                             });
@@ -230,11 +230,11 @@ export class TagComponent extends Component<ITagConfiguration> {
             .share();
 
         this._renderTagGLChanged$ = this._renderTags$
-            .switchMap<RenderTag<Tag>>(
+            .switchMap(
                 (tags: RenderTag<Tag>[]): Observable<RenderTag<Tag>> => {
                     return Observable
                         .from(tags)
-                        .mergeMap<RenderTag<Tag>>(
+                        .mergeMap(
                             (tag: RenderTag<Tag>): Observable<RenderTag<Tag>> => {
                                 return tag.glObjectsChanged$;
                             });
@@ -242,14 +242,14 @@ export class TagComponent extends Component<ITagConfiguration> {
             .share();
 
         this._tagInterationInitiated$ = this._renderTags$
-            .switchMap<string>(
+            .switchMap(
                 (tags: RenderTag<Tag>[]): Observable<string> => {
                     return Observable
                         .from(tags)
-                        .mergeMap<string>(
+                        .mergeMap(
                             (tag: RenderTag<Tag>): Observable<string> => {
                                 return tag.interact$
-                                    .map<string>(
+                                    .map(
                                         (interaction: IInteraction): string => {
                                             return interaction.tag.id;
                                         });
@@ -261,32 +261,32 @@ export class TagComponent extends Component<ITagConfiguration> {
             .merge(
                 this._container.mouseService.mouseUp$,
                 this._container.mouseService.mouseLeave$)
-            .map<void>(
+            .map(
                 (e: MouseEvent): void => {
                     return;
                 })
             .share();
 
         this._activeTag$ = this._renderTags$
-            .switchMap<IInteraction>(
+            .switchMap(
                 (tags: RenderTag<Tag>[]): Observable<IInteraction> => {
                     return Observable
                         .from(tags)
-                        .mergeMap<IInteraction>(
+                        .mergeMap(
                             (tag: RenderTag<Tag>): Observable<IInteraction> => {
                                 return tag.interact$;
                             });
                 })
             .merge<IInteraction>(
                 this._tagInteractionAbort$
-                    .map<IInteraction>(
+                    .map(
                         (): IInteraction => {
                             return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
                         }))
             .share();
 
         this._createGeometryChanged$ = this._tagCreator.tag$
-            .switchMap<OutlineCreateTag>(
+            .switchMap(
                 (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.geometryChanged$ :
@@ -295,7 +295,7 @@ export class TagComponent extends Component<ITagConfiguration> {
             .share();
 
         this._tagCreated$ = this._tagCreator.tag$
-            .switchMap<OutlineCreateTag>(
+            .switchMap(
                 (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.created$ :
@@ -304,7 +304,7 @@ export class TagComponent extends Component<ITagConfiguration> {
             .share();
 
         this._vertexGeometryCreated$ = this._tagCreated$
-            .map<Geometry>(
+            .map(
                 (tag: OutlineCreateTag): Geometry => {
                     return tag.geometry;
                 })
@@ -329,7 +329,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                     [MouseEvent, RenderCamera, Transform] => {
                     return [event, renderCamera, transform];
                 })
-            .map<number[]>(
+            .map(
                 (ert: [MouseEvent, RenderCamera, Transform]): number[] => {
                     let event: MouseEvent = ert[0];
                     let camera: RenderCamera = ert[1];
@@ -371,7 +371,7 @@ export class TagComponent extends Component<ITagConfiguration> {
             .refCount();
 
         this._creating$ = this._creatingConfiguration$
-            .map<boolean>(
+            .map(
                 (configuration: ITagConfiguration): boolean => {
                     return configuration.creating;
                 })
@@ -453,30 +453,30 @@ export class TagComponent extends Component<ITagConfiguration> {
                 });
 
         let nodeChanged$: Observable<void> = this.configuration$
-            .switchMap<void>(
+            .switchMap(
                 (configuration: ITagConfiguration): Observable<void> => {
                     return configuration.creating ?
                         this._navigator.stateService.currentNode$
                             .skip(1)
                             .take(1)
-                            .map<void>((n: Node): void => { return null; }) :
+                            .map((n: Node): void => { return null; }) :
                         Observable.empty<void>();
                 });
 
         let tagAborted$: Observable<void> = this._tagCreator.tag$
-            .switchMap<void>(
+            .switchMap(
                 (tag: OutlineCreateTag): Observable<void> => {
                     return tag != null ?
                         tag.aborted$
-                            .map<void>((t: OutlineCreateTag): void => { return null; }) :
+                            .map((t: OutlineCreateTag): void => { return null; }) :
                         Observable.empty<void>();
                 });
 
         let tagCreated$: Observable<void> = this._tagCreated$
-            .map<void>((t: OutlineCreateTag): void => { return null; });
+            .map((t: OutlineCreateTag): void => { return null; });
 
         let pointGeometryCreated$: Observable<void> = this._pointGeometryCreated$
-            .map<void>((p: PointGeometry): void => { return null; });
+            .map((p: PointGeometry): void => { return null; });
 
         this._stopCreateSubscription = Observable
             .merge(
@@ -490,7 +490,7 @@ export class TagComponent extends Component<ITagConfiguration> {
             .subscribe(this._tagCreator.configuration$);
 
         this._createSubscription = this._creatingConfiguration$
-            .switchMap<number[]>(
+            .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
                     return configuration.creating &&
                         configuration.createType === "rect" ||
@@ -501,14 +501,14 @@ export class TagComponent extends Component<ITagConfiguration> {
             .subscribe(this._tagCreator.create$);
 
         this._createPointSubscription = this._creatingConfiguration$
-            .switchMap<number[]>(
+            .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
                     return configuration.creating &&
                         configuration.createType === "point" ?
                         this._validBasicClick$.take(1) :
                         Observable.empty<number[]>();
                 })
-            .map<Geometry>(
+            .map(
                 (basic: number[]): Geometry => {
                     return new PointGeometry(basic);
                 })
@@ -550,7 +550,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 });
 
         this._addPointSubscription = this._creatingConfiguration$
-            .switchMap<number[]>(
+            .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
                     let createType: GeometryType = configuration.createType;
 
@@ -587,7 +587,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 (tag: OutlineCreateTag, transform: Transform): [OutlineCreateTag, Transform] => {
                     return [tag, transform];
                 })
-            .map<ITagGLRendererOperation>(
+            .map(
                 (tt: [OutlineCreateTag, Transform]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         let tag: OutlineCreateTag = tt[0];
@@ -687,7 +687,7 @@ export class TagComponent extends Component<ITagConfiguration> {
              });
 
         this._setTagsSubscription = this._renderTags$
-            .map<ITagGLRendererOperation>(
+            .map(
                 (tags: RenderTag<Tag>[]): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.setTags(tags);
@@ -698,7 +698,7 @@ export class TagComponent extends Component<ITagConfiguration> {
             .subscribe(this._tagGlRendererOperation$);
 
         this._updateGLTagSubscription = this._renderTagGLChanged$
-            .map<ITagGLRendererOperation>(
+            .map(
                 (tag: RenderTag<Tag>): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.updateTag(tag);
@@ -709,7 +709,7 @@ export class TagComponent extends Component<ITagConfiguration> {
             .subscribe(this._tagGlRendererOperation$);
 
         this._setNeedsRenderSubscription = this._tagChanged$
-            .map<ITagGLRendererOperation>(
+            .map(
                 (tag: Tag): ITagGLRendererOperation => {
                     return (renderer: TagGLRenderer): TagGLRenderer => {
                         renderer.setNeedsRender();
@@ -744,7 +744,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                     [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration, Transform] => {
                     return [args[0], args[1], args[2], args[3], args[4], args[5], transform];
                 })
-            .map<IVNodeHash>(
+            .map(
                 (args: [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration, Transform]):
                     IVNodeHash => {
                     return {
@@ -760,7 +760,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 (frame: IFrame, renderer: TagGLRenderer): [IFrame, TagGLRenderer] => {
                     return [frame, renderer];
                 })
-            .map<IGLRenderHash>(
+            .map(
                 (fr: [IFrame, TagGLRenderer]): IGLRenderHash => {
                     let frame: IFrame = fr[0];
                     let renderer: TagGLRenderer = fr[1];

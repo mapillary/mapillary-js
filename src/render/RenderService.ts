@@ -55,7 +55,7 @@ export class RenderService {
                 });
 
         this._resize$
-            .map<ISize>(
+            .map(
                 (): ISize => {
                     return { height: this._element.offsetHeight, width: this._element.offsetWidth };
                 })
@@ -68,7 +68,7 @@ export class RenderService {
                 (rc: RenderCamera): RenderCamera => {
                     return rc;
                 })
-            .scan<RenderCamera>(
+            .scan(
                 (rc: RenderCamera, operation: IRenderCameraOperation): RenderCamera => {
                     return operation(rc);
                 },
@@ -120,7 +120,7 @@ export class RenderService {
 
                     rc.frameId = frame.id;
                 })
-            .map<RenderCamera>(
+            .map(
                 (args: [IFrame, RenderCamera]): RenderCamera => {
                     return args[1];
                 })
@@ -137,7 +137,7 @@ export class RenderService {
 
         this._size$
             .skip(1)
-            .map<IRenderCameraOperation>(
+            .map(
                 (size: ISize) => {
                     return (rc: RenderCamera): RenderCamera => {
                         rc.perspective.aspect = size.width / size.height;
@@ -150,7 +150,7 @@ export class RenderService {
 
         this._renderMode$
             .skip(1)
-            .map<IRenderCameraOperation>(
+            .map(
                 (rm: RenderMode) => {
                     return (rc: RenderCamera): RenderCamera => {
                         rc.renderMode = rm;

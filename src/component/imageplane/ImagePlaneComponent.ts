@@ -93,7 +93,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         this._rendererDisposer$ = new Subject<void>();
 
         this._renderer$ = this._rendererOperation$
-            .scan<ImagePlaneGLRenderer>(
+            .scan(
                 (renderer: ImagePlaneGLRenderer, operation: IImagePlaneGLRendererOperation): ImagePlaneGLRenderer => {
                     return operation(renderer);
                 },
@@ -109,7 +109,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 });
 
         this._rendererCreator$
-            .map<IImagePlaneGLRendererOperation>(
+            .map(
                 (): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         if (renderer != null) {
@@ -122,7 +122,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .subscribe(this._rendererOperation$);
 
         this._rendererDisposer$
-            .map<IImagePlaneGLRendererOperation>(
+            .map(
                 (): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.dispose();
@@ -135,7 +135,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
     protected _activate(): void {
         this._rendererSubscription = this._renderer$
-            .map<IGLRenderHash>(
+            .map(
                 (renderer: ImagePlaneGLRenderer): IGLRenderHash => {
                     let renderHash: IGLRenderHash = {
                         name: this._name,
@@ -156,7 +156,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         this._rendererCreator$.next(null);
 
         this._stateSubscription = this._navigator.stateService.currentState$
-            .map<IImagePlaneGLRendererOperation>(
+            .map(
                 (frame: IFrame): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateFrame(frame);
@@ -210,7 +210,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         this._textureProviderSubscription = textureProvider$.subscribe();
 
         this._setTextureProviderSubscription = textureProvider$
-            .map<IImagePlaneGLRendererOperation>(
+            .map(
                 (provider: TextureProvider): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.setTextureProvider(provider.key, provider);
@@ -315,7 +315,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
-            .switchMap<[HTMLImageElement, Node]>(
+            .switchMap(
                 (node: Node): Observable<[HTMLImageElement, Node]> => {
                     let baseImageSize: ImageSize = node.pano ?
                         Settings.basePanoramaSize :
@@ -327,7 +327,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
                     let image$: Observable<[HTMLImageElement, Node]> = node
                         .cacheImage$(Settings.maxImageSize)
-                            .map<[HTMLImageElement, Node]>(
+                            .map(
                                 (n: Node): [HTMLImageElement, Node] => {
                                     return [n.image, n];
                                 });
@@ -364,7 +364,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 });
 
         this._updateTextureImageSubscription = nodeImage$
-            .map<IImagePlaneGLRendererOperation>(
+            .map(
                 (imn: [HTMLImageElement, Node]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateTextureImage(imn[0], imn[1]);

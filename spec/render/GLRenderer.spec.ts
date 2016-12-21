@@ -207,7 +207,7 @@ describe("GLRenderer.renderer", () => {
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
         frame$
-            .map<IGLRenderHash>(
+            .map(
                 (frame: IFrame): IGLRenderHash => {
                     let renderHash: IGLRenderHash = createGLRenderHash(frame.id, true);
 
@@ -239,7 +239,7 @@ describe("GLRenderer.renderer", () => {
         let glRenderer: GLRenderer = new GLRenderer(renderServiceMock);
 
         let frameSubscription: Subscription = frame$
-            .map<IGLRenderHash>(
+            .map(
                 (frame: IFrame): IGLRenderHash => {
                     let renderHash: IGLRenderHash = createGLRenderHash(frame.id, true);
 

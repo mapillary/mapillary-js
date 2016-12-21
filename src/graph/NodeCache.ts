@@ -230,7 +230,7 @@ export class NodeCache {
                     this._disposeImage();
                     this._image = status.object;
                 })
-            .map<NodeCache>(
+            .map(
                 (imageStatus: ILoadStatusObject<HTMLImageElement>): NodeCache => {
                     return this;
                 });

@@ -105,7 +105,7 @@ export class TouchService {
         this._preventTouchMove$ = new Subject<boolean>();
 
         this._preventTouchMoveOperation$
-            .scan<boolean>(
+            .scan(
                 (prevent: boolean, operation: IPreventTouchMoveOperation): boolean => {
                     return operation(prevent);
                 },
@@ -113,7 +113,7 @@ export class TouchService {
             .subscribe();
 
         this._preventTouchMove$
-            .map<IPreventTouchMoveOperation>(
+            .map(
                 (prevent: boolean): IPreventTouchMoveOperation => {
                     return (previous: boolean): boolean => {
                         return prevent;
@@ -122,7 +122,7 @@ export class TouchService {
             .subscribe(this._preventTouchMoveOperation$);
 
         this._touchMove$
-            .map<IPreventTouchMoveOperation>(
+            .map(
                 (te: TouchEvent): IPreventTouchMoveOperation => {
                     return (prevent: boolean): boolean => {
                         if (prevent) {
@@ -137,7 +137,7 @@ export class TouchService {
         this._singleTouchMoveOperation$ = new Subject<ITouchMoveOperation>();
 
         this._singleTouchMove$ = this._singleTouchMoveOperation$
-            .scan<TouchMove>(
+            .scan(
                 (touch: TouchMove, operation: ITouchMoveOperation): TouchMove => {
                     return operation(touch);
                 },
@@ -148,7 +148,7 @@ export class TouchService {
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 1 && te.targetTouches.length === 1;
                 })
-            .map<ITouchMoveOperation>(
+            .map(
                 (te: TouchEvent): ITouchMoveOperation => {
                     return (previous: TouchMove): TouchMove => {
                         let touch: Touch = te.touches[0];
@@ -193,7 +193,7 @@ export class TouchService {
                 });
 
         this._singleTouch$ = singleTouchStart$
-            .switchMap<TouchMove>(
+            .switchMap(
                 (te: TouchEvent): Observable<TouchMove> => {
                     return this._singleTouchMove$
                         .skip(1)
@@ -224,7 +224,7 @@ export class TouchService {
         this._pinchOperation$ = new Subject<IPinchOperation>();
 
         this._pinch$ = this._pinchOperation$
-            .scan<IPinch>(
+            .scan(
                 (pinch: IPinch, operation: IPinchOperation): IPinch => {
                     return operation(pinch);
                 },
@@ -250,7 +250,7 @@ export class TouchService {
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 2 && te.targetTouches.length === 2;
                 })
-            .map<IPinchOperation>(
+            .map(
                 (te: TouchEvent): IPinchOperation => {
                     return (previous: IPinch): IPinch => {
                         let touch1: Touch = te.touches[0];
@@ -304,7 +304,7 @@ export class TouchService {
             .subscribe(this._pinchOperation$);
 
         this._pinchChange$ = pinchStart$
-            .switchMap<IPinch>(
+            .switchMap(
                 (te: TouchEvent): Observable<IPinch> => {
                     return this._pinch$
                         .skip(1)

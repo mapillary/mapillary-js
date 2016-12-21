@@ -97,14 +97,14 @@ export class GLRenderer {
         this._renderService = renderService;
 
         this._renderer$ = this._rendererOperation$
-            .scan<IGLRenderer>(
+            .scan(
                 (renderer: IGLRenderer, operation: IGLRendererOperation): IGLRenderer => {
                     return operation(renderer);
                 },
                 { needsRender: false, renderer: null });
 
         this._renderCollection$ = this._renderOperation$
-            .scan<IGLRenderHashes>(
+            .scan(
                 (hashes: IGLRenderHashes, operation: IGLRenderHashesOperation): IGLRenderHashes => {
                     return operation(hashes);
                 },
@@ -112,7 +112,7 @@ export class GLRenderer {
             .share();
 
         this._renderCamera$ = this._renderCameraOperation$
-            .scan<IRenderCamera>(
+            .scan(
                 (rc: IRenderCamera, operation: IRenderCameraOperation): IRenderCamera => {
                     return operation(rc);
                 },
@@ -123,7 +123,7 @@ export class GLRenderer {
                 (eraser: IEraser): IEraser => {
                     return eraser;
                 })
-            .scan<IEraser>(
+            .scan(
                 (eraser: IEraser, operation: IEraserOperation): IEraser => {
                     return operation(eraser);
                 },
@@ -201,7 +201,7 @@ export class GLRenderer {
                 });
 
         this._renderFrame$
-            .map<IRenderCameraOperation>(
+            .map(
                 (rc: RenderCamera): IRenderCameraOperation => {
                     return (irc: IRenderCamera): IRenderCamera => {
                         irc.frameId = rc.frameId;
@@ -219,7 +219,7 @@ export class GLRenderer {
         this._renderFrameSubscribe();
 
         let renderHash$: Observable<IGLRenderHashesOperation> = this._render$
-            .map<IGLRenderHashesOperation>(
+            .map(
                 (hash: IGLRenderHash) => {
                     return (hashes: IGLRenderHashes): IGLRenderHashes => {
                         hashes[hash.name] = hash.render;
@@ -229,7 +229,7 @@ export class GLRenderer {
                 });
 
         let clearHash$: Observable<IGLRenderHashesOperation> = this._clear$
-            .map<IGLRenderHashesOperation>(
+            .map(
                 (name: string) => {
                     return (hashes: IGLRenderHashes): IGLRenderHashes => {
                         delete hashes[name];
@@ -244,7 +244,7 @@ export class GLRenderer {
 
         this._webGLRenderer$ = this._render$
             .first()
-            .map<THREE.WebGLRenderer>(
+            .map(
                 (hash: IGLRenderHash): THREE.WebGLRenderer => {
                     let element: HTMLElement = renderService.element;
 
@@ -266,7 +266,7 @@ export class GLRenderer {
 
         let createRenderer$: Observable<IGLRendererOperation> = this._webGLRenderer$
             .first()
-            .map<IGLRendererOperation>(
+            .map(
                 (webGLRenderer: THREE.WebGLRenderer): IGLRendererOperation => {
                     return (renderer: IGLRenderer): IGLRenderer => {
                         renderer.needsRender = true;
@@ -277,7 +277,7 @@ export class GLRenderer {
                 });
 
         let resizeRenderer$: Observable<IGLRendererOperation> = this._renderService.size$
-            .map<IGLRendererOperation>(
+            .map(
                 (size: ISize): IGLRendererOperation => {
                     return (renderer: IGLRenderer): IGLRenderer => {
                         if (renderer.renderer == null) {
@@ -292,7 +292,7 @@ export class GLRenderer {
                 });
 
         let clearRenderer$: Observable<IGLRendererOperation> = this._clear$
-            .map<IGLRendererOperation>(
+            .map(
                 (name: string) => {
                     return (renderer: IGLRenderer): IGLRenderer => {
                         if (renderer.renderer == null) {
@@ -330,7 +330,7 @@ export class GLRenderer {
                 });
 
         renderCollectionEmpty$
-            .map<IEraserOperation>(
+            .map(
                 (hashes: IGLRenderHashes): IEraserOperation => {
                     return (eraser: IEraser): IEraser => {
                         eraser.needsRender = true;
@@ -356,7 +356,7 @@ export class GLRenderer {
     private _renderFrameSubscribe(): void {
         this._render$
             .first()
-            .map<IRenderCameraOperation>(
+            .map(
                 (renderHash: IGLRenderHash): IRenderCameraOperation => {
                     return (irc: IRenderCamera): IRenderCamera => {
                         irc.needsRender = true;
@@ -371,7 +371,7 @@ export class GLRenderer {
 
         this._renderFrameSubscription = this._render$
             .first()
-            .mergeMap<RenderCamera>(
+            .mergeMap(
                 (hash: IGLRenderHash): Observable<RenderCamera> => {
                     return this._renderService.renderCameraFrame$;
                 })

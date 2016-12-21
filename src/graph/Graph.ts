@@ -190,7 +190,7 @@ export class Graph {
 
                     delete this._cachingFill$[key];
                 })
-            .map<Graph>(
+            .map(
                 (imageByKeyFill: { [key: string]: IFillNode }): Graph => {
                     return this;
                 })
@@ -252,7 +252,7 @@ export class Graph {
                         delete this._cachingFull$[key];
                     }
                 })
-            .map<Graph>(
+            .map(
                 (imageByKeyFull: { [key: string]: IFullNode }): Graph => {
                     return this;
                 })
@@ -393,7 +393,7 @@ export class Graph {
                             delete this._cachingSpatialArea$[key];
                         }
                     })
-                .map<Graph>(
+                .map(
                     (imageByKeyFill: { [key: string]: IFillNode }): Graph => {
                         return this;
                     })
@@ -583,7 +583,7 @@ export class Graph {
 
                             delete this._cachingTiles$[h];
                         })
-                    .map<Graph>(
+                    .map(
                         (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): Graph => {
                             return this;
                         })
@@ -969,7 +969,7 @@ export class Graph {
 
                     delete this._cachingSequences$[sequenceKey];
                 })
-            .map<Graph>(
+            .map(
                 (sequenceByKey: { [sequenceKey: string]: ISequence }): Graph => {
                     return this;
                 })

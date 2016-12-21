@@ -64,7 +64,7 @@ export class DOMRenderer {
         element.appendChild(rootNode);
 
         this._offset$ = this._adaptiveOperation$
-            .scan<IAdaptive>(
+            .scan(
                 (adaptive: IAdaptive, operation: IAdaptiveOperation): IAdaptive => {
                     return operation(adaptive);
                 },
@@ -78,7 +78,7 @@ export class DOMRenderer {
                 (adaptive: IAdaptive): boolean => {
                     return adaptive.imageAspect > 0 && adaptive.elementWidth > 0 && adaptive.elementHeight > 0;
                 })
-            .map<IOffset>(
+            .map(
                 (adaptive: IAdaptive): IOffset => {
                     let elementAspect: number = adaptive.elementWidth / adaptive.elementHeight;
                     let ratio: number = adaptive.imageAspect / elementAspect;
@@ -120,11 +120,11 @@ export class DOMRenderer {
                 (frame: IFrame): string => {
                     return frame.state.currentNode.key;
                 })
-            .map<number>(
+            .map(
                 (frame: IFrame): number => {
                     return frame.state.currentTransform.basicAspect;
                 })
-            .map<IAdaptiveOperation>(
+            .map(
                  (aspect: number): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
                         adaptive.imageAspect = aspect;
@@ -135,7 +135,7 @@ export class DOMRenderer {
             .subscribe(this._adaptiveOperation$);
 
         this._renderAdaptive$
-            .scan<IVNodeHashes>(
+            .scan(
                 (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
                     if (vNodeHash.vnode == null) {
                         delete vNodeHashes[vNodeHash.name];
@@ -146,7 +146,7 @@ export class DOMRenderer {
                 },
                 {})
             .combineLatest(this._offset$)
-            .map<IVNodeHash>(
+            .map(
                 (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
                     let vNodes: vd.VNode[] = _.values(vo[0]);
                     let offset: IOffset = vo[1];
@@ -170,7 +170,7 @@ export class DOMRenderer {
             .subscribe(this._render$);
 
         this._vNode$ = this._render$
-            .scan<IVNodeHashes>(
+            .scan(
                 (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
                     if (vNodeHash.vnode == null) {
                         delete vNodeHashes[vNodeHash.name];
@@ -188,14 +188,14 @@ export class DOMRenderer {
                 });
 
         this._vPatch$ = this._vNode$
-            .scan<INodePatch>(
+            .scan(
                 (nodePatch: INodePatch, vNode: vd.VNode): INodePatch => {
                     nodePatch.vpatch = vd.diff(nodePatch.vnode, vNode);
                     nodePatch.vnode = vNode;
                     return nodePatch;
                 },
                 {vnode: vd.h("div.domRenderer", []), vpatch: null})
-            .pluck<vd.VPatch[]>("vpatch");
+            .pluck<INodePatch, vd.VPatch[]>("vpatch");
 
         this._element$ = this._vPatch$
             .scan(
@@ -209,7 +209,7 @@ export class DOMRenderer {
         this._element$.subscribe();
 
         this._renderService.size$
-            .map<IAdaptiveOperation>(
+            .map(
                 (size: ISize): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
                         adaptive.elementWidth = size.width;
@@ -221,7 +221,7 @@ export class DOMRenderer {
             .subscribe(this._adaptiveOperation$);
 
         this._renderService.renderMode$
-            .map<IAdaptiveOperation>(
+            .map(
                 (renderMode: RenderMode): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
                         adaptive.renderMode = renderMode;

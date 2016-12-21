@@ -88,11 +88,11 @@ export class RouteComponent extends Component<IRouteConfiguration> {
 
         _routeTrack$ = this.configuration$.mergeMap((conf: IRouteConfiguration): Observable<IRoutePath> => {
             return Observable.from<IRoutePath>(conf.paths);
-        }).distinct((p1: IRoutePath, p2: IRoutePath): boolean => {
-            return p1.sequenceKey === p2.sequenceKey;
-        }).mergeMap<ISequence>((path: IRoutePath): Observable<ISequence> => {
+        }).distinct((p: IRoutePath): string => {
+            return p.sequenceKey;
+        }).mergeMap((path: IRoutePath): Observable<ISequence> => {
             return this._navigator.apiV3.sequenceByKey$([path.sequenceKey])
-                .map<ISequence>(
+                .map(
                     (sequenceByKey: { [sequenceKey: string]: ISequence }): ISequence => {
                         return sequenceByKey[path.sequenceKey];
                     });
@@ -129,7 +129,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
             }
 
             return instructionPlaces;
-        }).scan<RouteTrack>(
+        }).scan(
             (routeTrack: RouteTrack, instructionPlaces: IInstructionPlace[]): RouteTrack => {
                 for (let instructionPlace of instructionPlaces) {
                     routeTrack.nodeInstructionsOrdered[instructionPlace.place] = instructionPlace.nodeInstructions;
@@ -143,7 +143,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
             .combineLatest(_routeTrack$, this.configuration$,
                            (frame: IFrame, routeTrack: RouteTrack, conf: IRouteConfiguration): IRtAndFrame => {
                                return {conf: conf, frame: frame, routeTrack: routeTrack};
-                           }).scan<RouteState>(
+                           }).scan(
                                (routeState: RouteState, rtAndFrame: IRtAndFrame): RouteState => {
                                    if (rtAndFrame.conf.playing === undefined || rtAndFrame.conf.playing) {
                                        routeState.routeTrack = rtAndFrame.routeTrack;
@@ -171,7 +171,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                 return false;
             }).distinctUntilChanged(undefined, (routeState: RouteState): string => {
                 return routeState.lastNode.key;
-            }).mergeMap<Node>((routeState: RouteState): Observable<Node> => {
+            }).mergeMap((routeState: RouteState): Observable<Node> => {
                 let i: number = 0;
                 for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
                     if (nodeInstruction.key === routeState.lastNode.key) {
@@ -190,7 +190,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                 return {conf: conf, node: node};
             }).filter((cAN: IConfAndNode) => {
                 return cAN.node !== null && cAN.conf.playing;
-            }).pluck<Node>("node").subscribe(this._navigator.stateService.appendNode$);
+            }).pluck<IConfAndNode, Node>("node").subscribe(this._navigator.stateService.appendNode$);
 
         this._disposableDescription = this._navigator.stateService.currentNode$
             .combineLatest(_routeTrack$, this.configuration$,
@@ -209,7 +209,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                                }
 
                                return description;
-            }).scan<DescriptionState>(
+            }).scan(
                 (descriptionState: DescriptionState, description: string): DescriptionState => {
                     if (description !== descriptionState.description && description !== null) {
                         descriptionState.description = description;

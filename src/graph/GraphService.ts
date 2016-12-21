@@ -89,11 +89,11 @@ export class GraphService {
             .refCount();
 
         let node$: Observable<Node> = firstGraph$
-            .map<Node>(
+            .map(
                 (graph: Graph): Node => {
                     return graph.getNode(key);
                 })
-            .mergeMap<Node>(
+            .mergeMap(
                 (node: Node): Observable<Node> => {
                     return node.assetsCached ?
                         Observable.of(node) :
@@ -112,7 +112,7 @@ export class GraphService {
 
         let initializeCacheSubscription: Subscription = this._graph$
             .first()
-            .mergeMap<Graph>(
+            .mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.isCachingFull(key) || !graph.hasNode(key)) {
                         return graph.cacheFull$(key);
@@ -153,7 +153,7 @@ export class GraphService {
         }
 
         let sequenceSubscription: Subscription = firstGraph$
-            .mergeMap<Graph>(
+            .mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.isCachingNodeSequence(key) || !graph.hasNodeSequence(key)) {
                         return graph.cacheNodeSequence$(key);
@@ -197,7 +197,7 @@ export class GraphService {
                         .mergeMap(
                             (graph$: Observable<Graph>): Observable<Graph> => {
                                 return graph$
-                                    .mergeMap<Graph>(
+                                    .mergeMap(
                                         (g: Graph): Observable<Graph> => {
                                             if (g.isCachingTiles(key)) {
                                                 return Observable.empty<Graph>();
@@ -214,7 +214,7 @@ export class GraphService {
                             });
                 })
             .last()
-            .mergeMap<Graph>(
+            .mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.hasSpatialArea(key)) {
                         return Observable.of<Graph>(graph);
@@ -234,7 +234,7 @@ export class GraphService {
                             });
                 })
             .last()
-            .mergeMap<Graph>(
+            .mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     return graph.hasNodeSequence(key) ?
                         Observable.of<Graph>(graph) :
@@ -282,7 +282,7 @@ export class GraphService {
     public cacheSequence$(sequenceKey: string): Observable<Sequence> {
         return this._graph$
             .first()
-            .mergeMap<Graph>(
+            .mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.isCachingSequence(sequenceKey) || !graph.hasSequence(sequenceKey)) {
                         return graph.cacheSequence$(sequenceKey);
@@ -290,7 +290,7 @@ export class GraphService {
 
                     return Observable.of<Graph>(graph);
                 })
-            .map<Sequence>(
+            .map(
                 (graph: Graph): Sequence => {
                     return graph.getSequence(sequenceKey);
                 });

@@ -11,7 +11,7 @@ export class ImageLoadingService {
 
     constructor () {
         this._loadstatus$ = this._loadnode$
-            .scan<{[key: string]: ILoadStatus}>(
+            .scan(
                 (nodes: {[key: string]: ILoadStatus}, node: Node): {[key: string]: ILoadStatus} => {
                     nodes[node.key] = node.loadStatus;
                     return nodes;

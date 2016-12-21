@@ -30,7 +30,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._sequenceSubscription = this._navigator.stateService.currentNode$
-            .scan<IKeys>(
+            .scan(
                 (keys: IKeys, node: Node): IKeys => {
                     let sKey: string = node.sequenceKey;
                     keys.report = [];
@@ -47,7 +47,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                 (keys: IKeys): boolean => {
                     return keys.report.length > 0;
                 })
-            .mergeMap<void>(
+            .mergeMap(
                 (keys: IKeys): Observable<void> => {
                     return this._navigator.apiV3.sequenceViewAdd$(keys.report)
                         .catch(
@@ -60,12 +60,12 @@ export class StatsComponent extends Component<IComponentConfiguration> {
             .subscribe();
 
         this._imageSubscription = this._navigator.stateService.currentNode$
-            .map<string>(
+            .map(
                 (node: Node): string => {
                     return node.key;
                 })
             .buffer(this._navigator.stateService.currentNode$.debounceTime(5000))
-            .scan<IKeys>(
+            .scan(
                  (keys: IKeys, newKeys: string[]): IKeys => {
                      keys.report = [];
 
@@ -83,7 +83,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                 (keys: IKeys): boolean => {
                     return keys.report.length > 0;
                 })
-            .mergeMap<void>(
+            .mergeMap(
                 (keys: IKeys): Observable<void> => {
                     return this._navigator.apiV3.imageViewAdd$(keys.report)
                         .catch(

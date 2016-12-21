@@ -82,7 +82,7 @@ export class StateService {
             });
 
         this._context$ = this._contextOperation$
-            .scan<IStateContext>(
+            .scan(
                 (context: IStateContext, operation: IContextOperation): IStateContext => {
                     return operation(context);
                 },
@@ -91,7 +91,7 @@ export class StateService {
             .refCount();
 
         this._state$ = this._context$
-            .map<State>(
+            .map(
                 (context: IStateContext): State => {
                     return context.state;
                 })
@@ -100,16 +100,16 @@ export class StateService {
             .refCount();
 
         this._fps$ = this._start$
-            .switchMap<number>(
+            .switchMap(
                 (): Observable<number> => {
                     return this._frame$
                         .bufferCount(1, this._fpsSampleRate)
-                        .map<number>(
+                        .map(
                             (frameIds: number[]): number => {
                                 return new Date().getTime();
                             })
                         .pairwise()
-                        .map<number>(
+                        .map(
                             (times: [number, number]): number => {
                                 return Math.max(20, 1000 * this._fpsSampleRate / (times[1] - times[0]));
                             })
@@ -132,7 +132,7 @@ export class StateService {
                 (fc: [number, number, IStateContext]): void => {
                     fc[2].update(fc[1]);
                 })
-            .map<IFrame>(
+            .map(
                 (fc: [number, number, IStateContext]): IFrame => {
                     return { fps: fc[1], id: fc[0], state: fc[2] };
                 })
@@ -156,7 +156,7 @@ export class StateService {
         nodeChanged$.subscribe(nodeChangedSubject$);
 
         this._currentNode$ = nodeChangedSubject$
-            .map<Node>(
+            .map(
                 (f: IFrame): Node => {
                     return f.state.currentNode;
                 })
@@ -164,7 +164,7 @@ export class StateService {
             .refCount();
 
         this._currentCamera$ = nodeChangedSubject$
-            .map<Camera>(
+            .map(
                 (f: IFrame): Camera => {
                     return f.state.currentCamera;
                 })
@@ -172,7 +172,7 @@ export class StateService {
             .refCount();
 
         this._currentTransform$ = nodeChangedSubject$
-            .map<Transform>(
+            .map(
                 (f: IFrame): Transform => {
                     return f.state.currentTransform;
                 })
@@ -180,7 +180,7 @@ export class StateService {
             .refCount();
 
         this._reference$ = nodeChangedSubject$
-            .map<ILatLonAlt>(
+            .map(
                 (f: IFrame): ILatLonAlt => {
                     return f.state.reference;
                 })
@@ -195,7 +195,7 @@ export class StateService {
             .refCount();
 
         this._currentNodeExternal$ = nodeChanged$
-            .map<Node>(
+            .map(
                 (f: IFrame): Node => {
                     return f.state.currentNode;
                 })
@@ -203,7 +203,7 @@ export class StateService {
             .refCount();
 
         this._appendNode$
-            .map<IContextOperation>(
+            .map(
                 (node: Node) => {
                     return (context: IStateContext): IStateContext => {
                         context.append([node]);
@@ -216,7 +216,7 @@ export class StateService {
         this._movingOperation$ = new Subject<boolean>();
 
         nodeChanged$
-            .map<boolean>(
+            .map(
                 (frame: IFrame): boolean => {
                     return true;
                 })
@@ -228,19 +228,19 @@ export class StateService {
                 (moving: boolean): boolean => {
                     return moving;
                 })
-            .switchMap<boolean>(
+            .switchMap(
                 (moving: boolean): Observable<boolean> => {
                     return this._currentState$
                         .filter(
                             (frame: IFrame): boolean => {
                                 return frame.state.nodesAhead === 0;
                             })
-                        .map<[Camera, number]>(
+                        .map(
                             (frame: IFrame): [Camera, number] => {
                                 return [frame.state.camera.clone(), frame.state.zoom];
                             })
                         .pairwise()
-                        .map<boolean>(
+                        .map(
                             (pair: [[Camera, number], [Camera, number]]): boolean => {
                                 let c1: Camera = pair[0][0];
                                 let c2: Camera = pair[1][0];
@@ -381,7 +381,7 @@ export class StateService {
     public getCenter(): Observable<number[]> {
         return this._lastState$
             .first()
-            .map<number[]>(
+            .map(
                 (frame: IFrame): number[] => {
                     return (<IStateContext>frame.state).getCenter();
                 });
@@ -390,7 +390,7 @@ export class StateService {
     public getZoom(): Observable<number> {
         return this._lastState$
             .first()
-            .map<number>(
+            .map(
                 (frame: IFrame): number => {
                     return frame.state.zoom;
                 });

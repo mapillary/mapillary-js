@@ -138,7 +138,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._markerObjects = {};
 
         this._disposable = Observable
-            .combineLatest<IUpdateArgs>(
+            .combineLatest(
                 [
                     this._navigator.stateService.currentState$,
                     this._markerSet.markers$,
@@ -151,7 +151,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 (args: IUpdateArgs): number => {
                     return args.frame.id;
                 })
-            .map<IGLRenderHash>(
+            .map(
                 (args: IUpdateArgs): IGLRenderHash => {
                     return this._renderHash(args);
                 })

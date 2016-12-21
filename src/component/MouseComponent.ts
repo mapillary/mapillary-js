@@ -60,7 +60,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
         let draggingStarted$: Observable<boolean> =
              this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDragStart$)
-                .map<boolean>(
+                .map(
                     (event: MouseEvent): boolean => {
                         return true;
                     });
@@ -68,7 +68,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
         let draggingStopped$: Observable<boolean> =
              this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDragEnd$)
-                .map<boolean>(
+                .map(
                     (event: MouseEvent): boolean => {
                         return false;
                     });
@@ -84,7 +84,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
             .subscribe(this._container.mouseService.activate$);
 
         this._cursorSubscription = dragging$
-            .map<IVNodeHash>(
+            .map(
                 (dragging: boolean): IVNodeHash => {
                     let className: string = dragging ? "MouseContainerGrabbing" : "MouseContainerGrab";
                     let vNode: vd.VNode = vd.h("div." + className, {}, []);
@@ -96,7 +96,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
         let mouseMovement$: Observable<IMovement> =
             this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDrag$)
-                .map<IMovement>(
+                .map(
                     (e: MouseEvent): IMovement => {
                         return {
                             clientX: e.clientX,
@@ -108,7 +108,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
         let touchMovement$: Observable<IMovement> =
             this._container.touchService.singleTouchMove$
-                .map<IMovement>(
+                .map(
                     (touch: TouchMove): IMovement => {
                         return {
                             clientX: touch.clientX,
@@ -119,7 +119,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     });
 
         this._movementSubscription = Observable
-            .merge<IMovement>(
+            .merge(
                 mouseMovement$,
                 touchMovement$)
             .withLatestFrom(
@@ -132,7 +132,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let state: ICurrentState = args[1].state;
                     return state.currentNode.fullPano || state.nodesAhead < 1;
                 })
-            .map<IMovement>(
+            .map(
                 (args: [IMovement, IFrame]): IMovement => {
                     return args[0];
                 })
@@ -143,7 +143,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                 (m: IMovement, r: RenderCamera, t: Transform, c: Camera): [IMovement, RenderCamera, Transform, Camera] => {
                     return [m, r, t, c];
                 })
-            .map<number[]>(
+            .map(
                 (args: [IMovement, RenderCamera, Transform, Camera]): number[] => {
                     let movement: IMovement = args[0];
                     let render: RenderCamera = args[1];
@@ -230,7 +230,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let state: ICurrentState = args[1].state;
                     return state.currentNode.fullPano || state.nodesAhead < 1;
                 })
-            .map<WheelEvent>(
+            .map(
                 (args: [WheelEvent, IFrame]): WheelEvent => {
                     return args[0];
                 })
@@ -284,7 +284,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let state: ICurrentState = args[1].state;
                     return state.currentNode.fullPano || state.nodesAhead < 1;
                 })
-            .map<IPinch>(
+            .map(
                 (args: [IPinch, IFrame]): IPinch => {
                     return args[0];
                 })

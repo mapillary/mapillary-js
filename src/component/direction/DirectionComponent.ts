@@ -129,7 +129,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                     this._renderer.setNode(node);
                 })
             .withLatestFrom(this._configuration$)
-            .switchMap<[IEdgeStatus, Sequence]>(
+            .switchMap(
                 (nc: [Node, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
                     let node: Node = nc[0];
                     let configuration: IDirectionConfiguration = nc[1];
@@ -157,7 +157,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                 (renderCamera: RenderCamera): void => {
                     this._renderer.setRenderCamera(renderCamera);
                 })
-            .map<DirectionDOMRenderer>(
+            .map(
                 (renderCamera: RenderCamera): DirectionDOMRenderer => {
                     return this._renderer;
                 })
@@ -165,14 +165,14 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                 (renderer: DirectionDOMRenderer): boolean => {
                     return renderer.needsRender;
                 })
-            .map<IVNodeHash>(
+            .map(
                 (renderer: DirectionDOMRenderer): IVNodeHash => {
                     return { name: this._name, vnode: renderer.render(this._navigator) };
                 })
             .subscribe(this._container.domRenderer.render$);
 
         this._hoveredKeySubscription = Observable
-            .combineLatest<Element>(
+            .combineLatest(
                 [
                     this._container.domRenderer.element$,
                     this._container.renderService.renderCamera$,
@@ -182,7 +182,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                 (e: Element, rc: RenderCamera, mm: MouseEvent, mu: MouseEvent): Element => {
                     return e;
                 })
-            .map<string>(
+            .map(
                 (element: Element): string => {
                     let elements: NodeListOf<Element> = element.getElementsByClassName("DirectionsPerspective");
 

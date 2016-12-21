@@ -93,7 +93,7 @@ export abstract class Tag extends EventEmitter {
      */
     public get geometryChanged$(): Observable<Tag> {
         return this._geometry.changed$
-            .map<Tag>(
+            .map(
                 (geometry: Geometry): Tag => {
                     return this;
                 })

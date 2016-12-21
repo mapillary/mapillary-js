@@ -34,7 +34,7 @@ export class TagCreator {
         this._configuration$ = new Subject<ITagConfiguration>();
 
         this._tag$ = this._tagOperation$
-            .scan<OutlineCreateTag>(
+            .scan(
                 (tag: OutlineCreateTag, operation: ICreateTagOperation): OutlineCreateTag => {
                     return operation(tag);
                 },
@@ -47,7 +47,7 @@ export class TagCreator {
                 (coordinate: number[], type: ITagConfiguration): [number[], ITagConfiguration] => {
                     return [coordinate, type];
                 })
-            .map<ICreateTagOperation>(
+            .map(
                 (ct: [number[], ITagConfiguration]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
                         let coordinate: number[] = ct[0];
@@ -78,7 +78,7 @@ export class TagCreator {
             .subscribe(this._tagOperation$);
 
         this._delete$
-            .map<ICreateTagOperation>(
+            .map(
                 (): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
                         return null;

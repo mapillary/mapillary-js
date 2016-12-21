@@ -133,7 +133,7 @@ export class APIv3 {
                     .concat(this._propertiesSpatial),
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
-            .map<{ [key: string]: IFillNode }>(
+            .map(
                 (value: IFalcorResult<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
                     return value.json.imageByKey;
                 }),
@@ -152,7 +152,7 @@ export class APIv3 {
                     .concat(this._propertiesSpatial),
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
-            .map<{ [key: string]: IFullNode }>(
+            .map(
                 (value: IFalcorResult<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
                     return value.json.imageByKey;
                 }),
@@ -172,7 +172,7 @@ export class APIv3 {
                     .concat(this._propertiesSpatial),
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
-            .map<IFullNode>(
+            .map(
                 (value: IFalcorResult<IImageCloseTo<IFullNode>>): IFullNode => {
                     return value != null ? value.json.imageCloseTo[lonLat] : null;
                 }),
@@ -189,7 +189,7 @@ export class APIv3 {
                 this._propertiesKey
                     .concat(this._propertiesCore),
                 this._propertiesKey]))
-            .map<{ [h: string]: { [index: string]: ICoreNode } }>(
+            .map(
                 (value: IFalcorResult<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
                     if (value == null) {
                         value = { json: { imagesByH: {} } };
@@ -242,7 +242,7 @@ export class APIv3 {
                 sequenceKeys,
                 this._propertiesKey
                     .concat(this._propertiesSequence)]))
-            .map<{ [sequenceKey: string]: ISequence }>(
+            .map(
                 (value: IFalcorResult<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
                     return value.json.sequenceByKey;
                 }),

@@ -269,7 +269,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._sliderStateDisposer$ = new Subject<void>();
 
         this._sliderState$ = this._sliderStateOperation$
-            .scan<SliderState>(
+            .scan(
                 (sliderState: SliderState, operation: ISliderStateOperation): SliderState => {
                     return operation(sliderState);
                 },
@@ -285,7 +285,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 });
 
         this._sliderStateCreator$
-            .map<ISliderStateOperation>(
+            .map(
                 (): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
                         if (sliderState != null) {
@@ -298,7 +298,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .subscribe(this._sliderStateOperation$);
 
         this._sliderStateDisposer$
-            .map<ISliderStateOperation>(
+            .map(
                 (): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
                         sliderState.dispose();
@@ -360,7 +360,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 });
 
         this._glRenderSubscription = this._sliderState$
-            .map<IGLRenderHash>(
+            .map(
                 (sliderState: SliderState): IGLRenderHash => {
                     let renderHash: IGLRenderHash = {
                         name: this._name,
@@ -383,7 +383,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 (sliderState: SliderState): boolean => {
                     return sliderState.domNeedsRender;
                 })
-            .map<IVNodeHash>(
+            .map(
                 (sliderState: SliderState): IVNodeHash => {
                     let sliderInput: vd.VNode = vd.h(
                         "input.SliderControl",
@@ -411,7 +411,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .subscribe(this._container.domRenderer.render$);
 
         this._elementSubscription = this._container.domRenderer.element$
-            .map<HTMLInputElement>(
+            .map(
                 (e: Element): HTMLInputElement => {
                     let nodeList: NodeListOf<Element> = e.getElementsByClassName("SliderControl");
 
@@ -423,11 +423,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 (input: HTMLInputElement): boolean => {
                     return input != null;
                 })
-            .switchMap<Event>(
+            .switchMap(
                 (input: HTMLInputElement): Observable<Event> => {
                     return Observable.fromEvent<Event>(input, "input");
                 })
-            .map<number>(
+            .map(
                 (e: Event): number => {
                     return Number((<HTMLInputElement>e.target).value) / 1000;
                 })
@@ -439,7 +439,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._sliderStateCreator$.next(null);
 
         this._stateSubscription = this._navigator.stateService.currentState$
-            .map<ISliderStateOperation>(
+            .map(
                 (frame: IFrame): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
                         sliderState.update(frame);
@@ -450,12 +450,12 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .subscribe(this._sliderStateOperation$);
 
         this._setSliderVisibleSubscription = this._configuration$
-            .map<boolean>(
+            .map(
                 (configuration: ISliderConfiguration): boolean => {
                     return configuration.sliderVisible == null || configuration.sliderVisible;
                 })
             .distinctUntilChanged()
-            .map<ISliderStateOperation>(
+            .map(
                 (sliderVisible: boolean): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
                         sliderState.sliderVisible = sliderVisible;
@@ -470,18 +470,18 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 (configuration: ISliderConfiguration): boolean => {
                     return configuration.keys != null;
                 })
-            .switchMap<ISliderCombination>(
+            .switchMap(
                 (configuration: ISliderConfiguration): Observable<ISliderCombination> => {
                     return Observable
-                        .zip<Node, Node>(
+                        .zip(
                             this._catchCacheNode$(configuration.keys.background),
                             this._catchCacheNode$(configuration.keys.foreground))
-                        .map<ISliderNodes>(
+                        .map(
                             (nodes: [Node, Node]): ISliderNodes => {
                                 return { background: nodes[0], foreground: nodes[1] };
                             })
                         .zip(this._navigator.stateService.currentState$.first())
-                        .map<ISliderCombination>(
+                        .map(
                             (nf: [ISliderNodes, IFrame]): ISliderCombination => {
                                 return { nodes: nf[0], state: nf[1].state };
                             });
@@ -514,7 +514,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 });
 
         let previousNode$: Observable<Node> = this._navigator.stateService.currentState$
-            .map<Node>(
+            .map(
                 (frame: IFrame): Node => {
                     return frame.state.previousNode;
                 })
@@ -549,7 +549,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     }
 
                     return node.cacheImage$(Settings.maxImageSize)
-                            .map<[HTMLImageElement, Node]>(
+                            .map(
                                 (n: Node): [HTMLImageElement, Node] => {
                                     return [n.image, n];
                                 })
@@ -561,7 +561,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                     return Observable.empty<[HTMLImageElement, Node]>();
                                 });
                 })
-            .map<ISliderStateOperation>(
+            .map(
                 (imn: [HTMLImageElement, Node]): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
                         sliderState.updateTexture(imn[0], imn[1]);

@@ -37,7 +37,7 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._renderSubscription = this._navigator.stateService.currentNode$
-            .switchMap<IEdge[]>(
+            .switchMap(
                 (node: Node): Observable<IEdge[]> => {
                     return node.pano ?
                         Observable.of<IEdge[]>([]) :

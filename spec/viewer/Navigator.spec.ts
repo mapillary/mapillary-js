@@ -136,7 +136,7 @@ describe("Navigator.moveToKey$", () => {
         spyOn(loadingService, "startLoading").and.stub();
         let stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
 
-        spyOn(graphService, "cacheNode$").and.returnValue(Observable.throw<Node>(new Error()));
+        spyOn(graphService, "cacheNode$").and.returnValue(Observable.throw(new Error()));
 
         let stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
 

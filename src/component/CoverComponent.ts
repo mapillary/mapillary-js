@@ -35,8 +35,8 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                 (nc: [Node, ICoverConfiguration]): boolean => {
                     return nc[0].key !== nc[1].key;
                 })
-            .map<Node>((nc: [Node, ICoverConfiguration]): Node => { return nc[0]; })
-            .map<ICoverConfiguration>(
+            .map((nc: [Node, ICoverConfiguration]): Node => { return nc[0]; })
+            .map(
                 (node: Node): ICoverConfiguration => {
                     return { key: node.key, src: node.image.src };
                 })

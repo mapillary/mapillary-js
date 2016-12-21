@@ -45,13 +45,13 @@ export class KeyboardComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         let sequenceEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
-            .switchMap<IEdgeStatus>(
+            .switchMap(
                 (node: Node): Observable<IEdgeStatus> => {
                     return node.sequenceEdges$;
                 });
 
         let spatialEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
-            .switchMap<IEdgeStatus>(
+            .switchMap(
                 (node: Node): Observable<IEdgeStatus> => {
                     return node.spatialEdges$;
                 });
