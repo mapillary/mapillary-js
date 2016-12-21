@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import {IGPano} from "../../../src/API";
-import {RectGeometry, GeometryTagError} from "../../../src/Component";
+import {RectGeometry} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
 import {Node} from "../../../src/Graph";
 
@@ -26,19 +26,19 @@ describe("RectGeometry.ctor", () => {
     it("should throw if y values are inverted", () => {
         let original: number[] = [0.2, 0.4, 0.4, 0.2];
 
-        expect(() => { return new RectGeometry(original); }).toThrowError(GeometryTagError);
+        expect(() => { return new RectGeometry(original); }).toThrowError(Error);
     });
 
     it("should throw if value is below supported range", () => {
         let original: number[] = [-1, 0.4, 0.4, 0.2];
 
-        expect(() => { return new RectGeometry(original); }).toThrowError(GeometryTagError);
+        expect(() => { return new RectGeometry(original); }).toThrowError(Error);
     });
 
     it("should throw if value is above supported range", () => {
         let original: number[] = [2, 0.4, 0.4, 0.2];
 
-        expect(() => { return new RectGeometry(original); }).toThrowError(GeometryTagError);
+        expect(() => { return new RectGeometry(original); }).toThrowError(Error);
     });
 });
 

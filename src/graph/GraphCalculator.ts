@@ -155,7 +155,7 @@ export class GraphCalculator {
         let euler: THREE.Euler = new THREE.Euler(x, y, compassAngle * Math.PI / 180, "XYZ");
         let re: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(euler);
 
-        let rotation: THREE.Vector4 = new THREE.Vector4().setAxisAngleFromRotationMatrix(re.multiply(rz));
+        let rotation: THREE.Vector4 = new THREE.Vector4().setAxisAngleFromRotationMatrix(<any>re.multiply(rz));
 
         return rotation.multiplyScalar(rotation.w).toArray().slice(0, 3);
     }

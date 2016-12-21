@@ -8,7 +8,6 @@ import {
     IEdge,
     IPotentialEdge,
 } from "../../../src/Edge";
-import {ArgumentMapillaryError} from "../../../src/Error";
 import {Node} from "../../../src/Graph";
 import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
@@ -45,7 +44,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     it("should throw when node is not full", () => {
         node = helper.createCoreNode("", { alt: 0, lat: 0, lon: 0 }, "");
 
-        expect(() => { edgeCalculator.computeTurnEdges(node, []); }).toThrowError(ArgumentMapillaryError);
+        expect(() => { edgeCalculator.computeTurnEdges(node, []); }).toThrowError(Error);
     });
 
     it("should not have any edges because potential is pano", () => {

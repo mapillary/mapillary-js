@@ -13,7 +13,7 @@ describe("EventEmitter", () => {
         expect(eventEmitter).toBeDefined();
     });
 
-    it("should emit on event", (done) => {
+    it("should emit on event", (done: Function) => {
         let data: string = "testdata";
 
         eventEmitter.on("test", (ev: any) => {
@@ -24,7 +24,7 @@ describe("EventEmitter", () => {
         eventEmitter.fire("test", data);
     });
 
-    it("should get two different events only once", (done) => {
+    it("should get two different events only once", (done: Function) => {
         let data: string = "testdata";
         let data2: string = "testdata2";
 
@@ -47,7 +47,7 @@ describe("EventEmitter", () => {
         eventEmitter.fire("test2", data2);
     });
 
-    it("should get the same event twice", (done) => {
+    it("should get the same event twice", (done: Function) => {
         let data: string = "testdata";
 
         let i: number = 0;

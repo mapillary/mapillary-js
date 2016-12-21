@@ -24,7 +24,7 @@ describe("DOMRenderer.ctor", () => {
 });
 
 describe("DOMRenderer.render$", () => {
-    it("should render one element", (done) => {
+    it("should render one element", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService = new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
         let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty<IFrame>());
@@ -49,7 +49,7 @@ describe("DOMRenderer.render$", () => {
         domRenderer.render$.next({ name: "test", vnode: vNode });
     });
 
-    it("should render multiple elements with different hash names", (done) => {
+    it("should render multiple elements with different hash names", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService = new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
         let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty<IFrame>());
@@ -80,7 +80,7 @@ describe("DOMRenderer.render$", () => {
         domRenderer.render$.next({ name: "test2", vnode: vNode2 });
     });
 
-    it("should apply patch", (done) => {
+    it("should apply patch", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService = new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
         let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty<IFrame>());

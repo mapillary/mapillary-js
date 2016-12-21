@@ -2,6 +2,8 @@
 
 import * as THREE from "three";
 
+import {IShaderMaterial} from "../../Component";
+
 export class ImagePlaneScene {
     public scene: THREE.Scene;
     public sceneOld: THREE.Scene;
@@ -77,7 +79,7 @@ export class ImagePlaneScene {
             scene.remove(plane);
             plane.geometry.dispose();
             plane.material.dispose();
-            let texture: THREE.Texture = (<THREE.ShaderMaterial>plane.material).uniforms.projectorTex.value;
+            let texture: THREE.Texture = (<IShaderMaterial>plane.material).uniforms.projectorTex.value;
             if (texture != null) {
                 texture.dispose();
             }

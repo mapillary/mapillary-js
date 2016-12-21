@@ -104,7 +104,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 1;
@@ -123,7 +123,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 1;
@@ -143,7 +143,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 1;
@@ -163,7 +163,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 1;
@@ -183,7 +183,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 1;
@@ -203,7 +203,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 0.5;
@@ -223,7 +223,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 1;
@@ -243,7 +243,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 1;
@@ -263,7 +263,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 0.5;
@@ -283,7 +283,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 1;
@@ -303,7 +303,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 2;
@@ -323,7 +323,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 2;
@@ -343,7 +343,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 4;
@@ -363,7 +363,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 0.5;
@@ -383,7 +383,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Letterbox
+            RenderMode.Letterbox,
         );
 
         let d: number = 0.25;

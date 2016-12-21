@@ -7,7 +7,6 @@ import {
     EdgeDirection,
     IEdge,
 } from "../../../src/Edge";
-import {ArgumentMapillaryError} from "../../../src/Error";
 import {Node, Sequence} from "../../../src/Graph";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
@@ -34,7 +33,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let node: Node = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey);
         let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [key] });
 
-        expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(ArgumentMapillaryError);
+        expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(Error);
     });
 
     it("should throw when node sequence key differ from key of sequence", () => {
@@ -45,7 +44,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let node: Node = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey1);
         let sequence: Sequence = new Sequence({ key: sequenceKey2, keys: [key] });
 
-        expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(ArgumentMapillaryError);
+        expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(Error);
     });
 
     it("should return a next edge", () => {

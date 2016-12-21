@@ -19,7 +19,7 @@ describe("NodeCache.mesh", () => {
 });
 
 describe("NodeCache.sequenceEdges$", () => {
-    it("should emit uncached empty edge status initially", (done) => {
+    it("should emit uncached empty edge status initially", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache();
 
         nodeCache.sequenceEdges$
@@ -33,7 +33,7 @@ describe("NodeCache.sequenceEdges$", () => {
                 });
     });
 
-    it("should emit cached non empty edge status when sequence edges cached", (done) => {
+    it("should emit cached non empty edge status when sequence edges cached", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache();
 
         let sequenceEdge: IEdge = {
@@ -92,7 +92,7 @@ describe("NodeCache.sequenceEdges$", () => {
 });
 
 describe("NodeCache.spatialEdges$", () => {
-    it("should emit uncached empty edge status initially", (done) => {
+    it("should emit uncached empty edge status initially", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache();
 
         nodeCache.spatialEdges$
@@ -106,7 +106,7 @@ describe("NodeCache.spatialEdges$", () => {
                 });
     });
 
-    it("should emit cached non empty edge status when spatial edges cached", (done) => {
+    it("should emit cached non empty edge status when spatial edges cached", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache();
 
         let spatialEdge: IEdge = {

@@ -69,7 +69,7 @@ describe("Graph.cacheFull$", () => {
         expect(graph.getNode(fullNode.key)).toBeUndefined();
     });
 
-    it("should fetch", (done) => {
+    it("should fetch", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -141,10 +141,10 @@ describe("Graph.cacheFull$", () => {
         imageByKeyFull.complete();
 
         expect(graph.isCachingFull(fullNode.key)).toBe(false);
-        expect(() => { graph.cacheFull$(fullNode.key); }).toThrowError(GraphMapillaryError);
+        expect(() => { graph.cacheFull$(fullNode.key); }).toThrowError(Error);
     });
 
-    it("should throw if sequence key is missing", (done) => {
+    it("should throw if sequence key is missing", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -427,7 +427,7 @@ describe("Graph.cacheFill$", () => {
 
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
 
-        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(GraphMapillaryError);
+        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(Error);
     });
 
     it("should throw if node does not exist", () => {
@@ -440,7 +440,7 @@ describe("Graph.cacheFill$", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        expect(() => { graph.cacheFill$("key"); }).toThrowError(GraphMapillaryError);
+        expect(() => { graph.cacheFill$("key"); }).toThrowError(Error);
     });
 
     it("should throw if already full", () => {
@@ -463,7 +463,7 @@ describe("Graph.cacheFill$", () => {
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(GraphMapillaryError);
+        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(Error);
     });
 });
 
@@ -989,7 +989,7 @@ describe("Graph.cacheNodeSequence$", () => {
         let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
+        expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(Error);
     });
 
     it("should throw if already cached", () => {
@@ -1023,7 +1023,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
         expect(graph.hasNodeSequence(fullNode.key)).toBe(true);
 
-        expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(GraphMapillaryError);
+        expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(Error);
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
@@ -1055,7 +1055,7 @@ describe("Graph.cacheNodeSequence$", () => {
         expect(sequenceByKeySpy.calls.count()).toBe(1);
     });
 
-    it("should emit to changed stream", (done) => {
+    it("should emit to changed stream", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -1139,7 +1139,7 @@ describe("Graph.cacheSequence$", () => {
         expect(graph.isCachingSequence(sequenceKey)).toBe(true);
     });
 
-    it("should cache", (done) => {
+    it("should cache", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);

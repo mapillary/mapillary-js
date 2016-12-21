@@ -9,7 +9,7 @@ describe("LoadingService", () => {
         loadingService = new LoadingService();
     });
 
-    it("should be initialized to not loading", (done) => {
+    it("should be initialized to not loading", (done: Function) => {
         loadingService.loading$
             .subscribe((loading: boolean) => {
                 expect(loading).toBe(false);

@@ -9,5 +9,6 @@ export {IComponentConfiguration} from "./IComponentConfiguration";
 export {ISequenceConfiguration} from "./ISequenceConfiguration";
 export {ITagConfiguration} from "./ITagConfiguration";
 export {IShader} from "./IShader";
+export * from "../imageplane/interfaces/interfaces";
 export * from "../marker/interfaces/interfaces";
 export * from "../tag/interfaces/interfaces";

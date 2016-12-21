@@ -158,7 +158,7 @@ describe("Navigator.moveToKey$", () => {
 });
 
 describe("Navigator.movedToKey$", () => {
-    it("should emit when move succeeds", (done) => {
+    it("should emit when move succeeds", (done: Function) => {
         let clientId: string = "clientId";
         let apiV3: APIv3 = new APIv3(clientId);
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
@@ -308,7 +308,7 @@ describe("Navigator.setFilter$", () => {
         helper = new NodeHelper();
     });
 
-    it("should set filter when no key requested", (done) => {
+    it("should set filter when no key requested", (done: Function) => {
         let clientId: string = "clientId";
         let apiV3: APIv3 = new APIv3(clientId);
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
@@ -345,7 +345,7 @@ describe("Navigator.setFilter$", () => {
         setFilterSubject$.complete();
     });
 
-    it("should set filter and cache requested when key requested but not moved to", (done) => {
+    it("should set filter and cache requested when key requested but not moved to", (done: Function) => {
         let clientId: string = "clientId";
         let apiV3: APIv3 = new APIv3(clientId);
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
@@ -402,7 +402,7 @@ describe("Navigator.setFilter$", () => {
         cacheNodeSubject$.complete();
     });
 
-    it("should set filter and cache trajectory keys when moved to", (done) => {
+    it("should set filter and cache trajectory keys when moved to", (done: Function) => {
         let clientId: string = "clientId";
         let apiV3: APIv3 = new APIv3(clientId);
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
@@ -491,7 +491,7 @@ describe("Navigator.reset$", () => {
         helper = new NodeHelper();
     });
 
-    it("should set token on api and reset when not moved to key", (done) => {
+    it("should set token on api and reset when not moved to key", (done: Function) => {
         let clientId: string = "clientId";
         let apiV3: APIv3 = new APIv3(clientId);
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
@@ -529,7 +529,7 @@ describe("Navigator.reset$", () => {
         resetSubject$.complete();
     });
 
-    it("should set token, reset and cache trajectory keys when moved to", (done) => {
+    it("should set token, reset and cache trajectory keys when moved to", (done: Function) => {
         let clientId: string = "clientId";
         let apiV3: APIv3 = new APIv3(clientId);
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();

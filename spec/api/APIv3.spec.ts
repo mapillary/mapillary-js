@@ -22,7 +22,7 @@ describe("APIv3.ctor", () => {
 });
 
 describe("APIv3.imageByKeyFill$", () => {
-    it("should call model correctly", (done) => {
+    it("should call model correctly", (done: Function) => {
         let promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 resolve({ json: { imageByKey: {} } });
@@ -56,7 +56,7 @@ describe("APIv3.imageByKeyFill$", () => {
                 });
     });
 
-    it("should invalidate model correctly when error is thrown", (done) => {
+    it("should invalidate model correctly when error is thrown", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -89,11 +89,11 @@ describe("APIv3.imageByKeyFill$", () => {
                     expect(invalidateSpy.calls.first().args[0][1][0]).toBe(key);
 
                     done();
-                }
+                },
             );
     });
 
-    it("should invalidate model for every error on retry", (done) => {
+    it("should invalidate model for every error on retry", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -127,13 +127,13 @@ describe("APIv3.imageByKeyFill$", () => {
                     expect(invalidateSpy.calls.first().args[0][1][0]).toBe(key);
 
                     done();
-                }
+                },
             );
     });
 });
 
 describe("APIv3.imageByKeyFull$", () => {
-    it("should call model correctly", (done) => {
+    it("should call model correctly", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -168,7 +168,7 @@ describe("APIv3.imageByKeyFull$", () => {
                 });
     });
 
-    it("should invalidate model correctly when error is thrown", (done) => {
+    it("should invalidate model correctly when error is thrown", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -201,13 +201,13 @@ describe("APIv3.imageByKeyFull$", () => {
                     expect(invalidateSpy.calls.first().args[0][1][0]).toBe(key);
 
                     done();
-                }
+                },
             );
     });
 });
 
 describe("APIv3.imageCloseTo$", () => {
-    it("should call model correctly", (done) => {
+    it("should call model correctly", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -243,7 +243,7 @@ describe("APIv3.imageCloseTo$", () => {
                 });
     });
 
-    it("should invalidate model correctly when error is thrown", (done) => {
+    it("should invalidate model correctly when error is thrown", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -277,13 +277,13 @@ describe("APIv3.imageCloseTo$", () => {
                     expect(invalidateSpy.calls.first().args[0][1][0]).toBe("0:0");
 
                     done();
-                }
+                },
             );
     });
 });
 
 describe("APIv3.imagesByH$", () => {
-    it("should call model correctly", (done) => {
+    it("should call model correctly", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -318,7 +318,7 @@ describe("APIv3.imagesByH$", () => {
                 });
     });
 
-    it("should invalidate model correctly when error is thrown", (done) => {
+    it("should invalidate model correctly when error is thrown", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -351,11 +351,11 @@ describe("APIv3.imagesByH$", () => {
                     expect(invalidateSpy.calls.first().args[0][1][0]).toBe(h);
 
                     done();
-                }
+                },
             );
     });
 
-    it("should handle undefined response", (done) => {
+    it("should handle undefined response", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -387,7 +387,7 @@ describe("APIv3.imagesByH$", () => {
 });
 
 describe("APIv3.sequenceByKey$", () => {
-    it("should call model correctly", (done) => {
+    it("should call model correctly", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -422,7 +422,7 @@ describe("APIv3.sequenceByKey$", () => {
                 });
     });
 
-    it("should invalidate model correctly when error is thrown", (done) => {
+    it("should invalidate model correctly when error is thrown", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -455,13 +455,13 @@ describe("APIv3.sequenceByKey$", () => {
                     expect(invalidateSpy.calls.first().args[0][1][0]).toBe(skey);
 
                     done();
-                }
+                },
             );
     });
 });
 
 describe("APIv3.imageViewAdd$", () => {
-    it("should call model correctly", (done) => {
+    it("should call model correctly", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -495,7 +495,7 @@ describe("APIv3.imageViewAdd$", () => {
                 });
     });
 
-    it("should invalidate model correctly when error is thrown", (done) => {
+    it("should invalidate model correctly when error is thrown", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -529,13 +529,13 @@ describe("APIv3.imageViewAdd$", () => {
                     expect(invalidateSpy.calls.first().args[1][0][0]).toBe(key);
 
                     done();
-                }
+                },
             );
     });
 });
 
 describe("APIv3.sequenceViewAdd$", () => {
-    it("should call model correctly", (done) => {
+    it("should call model correctly", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -569,7 +569,7 @@ describe("APIv3.sequenceViewAdd$", () => {
                 });
     });
 
-    it("should invalidate model correctly when error is thrown", (done) => {
+    it("should invalidate model correctly when error is thrown", (done: Function) => {
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -603,7 +603,7 @@ describe("APIv3.sequenceViewAdd$", () => {
                     expect(invalidateSpy.calls.first().args[1][0][0]).toBe(skey);
 
                     done();
-                }
+                },
             );
     });
 });

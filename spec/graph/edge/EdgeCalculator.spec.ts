@@ -2,7 +2,6 @@
 
 import {IGPano} from "../../../src/API";
 import {EdgeCalculator, IPotentialEdge} from "../../../src/Edge";
-import {ArgumentMapillaryError} from "../../../src/Error";
 import {GeoCoords, ILatLonAlt, Spatial} from "../../../src/Geo";
 import {Node} from "../../../src/Graph";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
@@ -37,7 +36,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
     it("should throw when node is not full", () => {
         let node: Node = helper.createCoreNode("", { alt: 0, lat: 0, lon: 0 }, "");
 
-        expect(() => { edgeCalculator.getPotentialEdges(node, null, []); }).toThrowError(ArgumentMapillaryError);
+        expect(() => { edgeCalculator.getPotentialEdges(node, null, []); }).toThrowError(Error);
     });
 
     it("should return empty when node is not merged", () => {

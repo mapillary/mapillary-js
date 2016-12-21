@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import {IGPano} from "../../../src/API";
-import {PointGeometry, GeometryTagError} from "../../../src/Component";
+import {PointGeometry} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
 import {Node} from "../../../src/Graph";
 
@@ -20,13 +20,13 @@ describe("PointGeometry.ctor", () => {
     });
 
     it("should throw if basic coord is below supported range", () => {
-        expect(() => { return new PointGeometry([-1, 0.5]); }).toThrowError(GeometryTagError);
-        expect(() => { return new PointGeometry([0.5, -1]); }).toThrowError(GeometryTagError);
+        expect(() => { return new PointGeometry([-1, 0.5]); }).toThrowError(Error);
+        expect(() => { return new PointGeometry([0.5, -1]); }).toThrowError(Error);
     });
 
     it("should throw if basic coord is above supported range", () => {
-        expect(() => { return new PointGeometry([2, 0.5]); }).toThrowError(GeometryTagError);
-        expect(() => { return new PointGeometry([0.5, 2]); }).toThrowError(GeometryTagError);
+        expect(() => { return new PointGeometry([2, 0.5]); }).toThrowError(Error);
+        expect(() => { return new PointGeometry([0.5, 2]); }).toThrowError(Error);
     });
 });
 

@@ -7,6 +7,7 @@ import {Subscription} from "rxjs/Subscription";
 import {
     ImagePlaneScene,
     ImagePlaneFactory,
+    IShaderMaterial,
 } from "../../Component";
 import {Camera} from "../../Geo";
 import {Node} from "../../Graph";
@@ -107,7 +108,7 @@ export class ImagePlaneGLRenderer {
         this._needsRender = true;
 
         for (let plane of this._imagePlaneScene.imagePlanes) {
-            let material: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
+            let material: IShaderMaterial = <IShaderMaterial>plane.material;
 
             let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
             material.uniforms.projectorTex.value = null;
@@ -125,7 +126,7 @@ export class ImagePlaneGLRenderer {
         this._needsRender = true;
 
         for (let plane of this._imagePlaneScene.imagePlanes) {
-            let material: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
+            let material: IShaderMaterial = <IShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
             texture.image = image;
@@ -139,18 +140,18 @@ export class ImagePlaneGLRenderer {
         let planeAlpha: number = this._imagePlaneScene.imagePlanesOld.length ? 1 : this._alpha;
 
         for (let plane of this._imagePlaneScene.imagePlanes) {
-            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = planeAlpha;
+            (<IShaderMaterial>plane.material).uniforms.opacity.value = planeAlpha;
         }
 
         for (let plane of this._imagePlaneScene.imagePlanesOld) {
-            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = this._alphaOld;
+            (<IShaderMaterial>plane.material).uniforms.opacity.value = this._alphaOld;
         }
 
         renderer.render(this._imagePlaneScene.scene, perspectiveCamera);
         renderer.render(this._imagePlaneScene.sceneOld, perspectiveCamera);
 
         for (let plane of this._imagePlaneScene.imagePlanes) {
-            (<THREE.ShaderMaterial>plane.material).uniforms.opacity.value = this._alpha;
+            (<IShaderMaterial>plane.material).uniforms.opacity.value = this._alpha;
         }
 
         renderer.render(this._imagePlaneScene.scene, perspectiveCamera);

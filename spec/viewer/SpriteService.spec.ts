@@ -41,7 +41,7 @@ describe("SpriteService.ctor", () => {
 });
 
 describe("SpriteService.spriteAtlas$", () => {
-    it("should emit a defined item when no sprite is provided", (done) => {
+    it("should emit a defined item when no sprite is provided", (done: Function) => {
         let spriteService: SpriteService = new SpriteService();
 
         spriteService.spriteAtlas$
@@ -53,7 +53,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 });
     });
 
-    it("should throw when trying to get a GL sprite for none loaded atlas", (done) => {
+    it("should throw when trying to get a GL sprite for none loaded atlas", (done: Function) => {
         let spriteService: SpriteService = new SpriteService();
 
         spriteService.spriteAtlas$
@@ -67,7 +67,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 });
     });
 
-    it("should throw when trying to get a GL sprite for none loaded atlas", (done) => {
+    it("should throw when trying to get a GL sprite for none loaded atlas", (done: Function) => {
         let spriteService: SpriteService = new SpriteService();
 
         spriteService.spriteAtlas$
@@ -81,7 +81,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 });
     });
 
-    it("should emit an item that is not loaded when no sprite is provided", (done) => {
+    it("should emit an item that is not loaded when no sprite is provided", (done: Function) => {
         let spriteService: SpriteService = new SpriteService();
 
         spriteService.spriteAtlas$
@@ -93,7 +93,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 });
     });
 
-    it("should retrieve an image if a sprite is provided", (done) => {
+    it("should retrieve an image if a sprite is provided", (done: Function) => {
         let pngXmlHTTPRequestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         let jsonXmlHTTPRequestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         let imageMock: ImageMock = new ImageMock();
@@ -137,7 +137,7 @@ describe("SpriteService.spriteAtlas$", () => {
         imageMock.onload(new Event("load"));
     });
 
-    it("should retrieve json definition if a sprite is provided", (done) => {
+    it("should retrieve json definition if a sprite is provided", (done: Function) => {
         let pngXmlHTTPRequestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         let jsonXmlHTTPRequestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
 
@@ -175,7 +175,7 @@ describe("SpriteService.spriteAtlas$", () => {
         jsonXmlHTTPRequestMock.fireLoad("json");
     });
 
-    it("should be loaded when both image and json has been retrieved", (done) => {
+    it("should be loaded when both image and json has been retrieved", (done: Function) => {
         let pngXmlHTTPRequestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         let jsonXmlHTTPRequestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         let imageMock: ImageMock = new ImageMock();

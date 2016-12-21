@@ -8,7 +8,7 @@
     "falcor": "file:typings/created/falcor/falcor.d.ts",
     "falcor-http-datasource": "file:typings/created/falcor-http-datasource/falcor-http-datasource.d.ts",
     "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#aed176536a202b9a2475ce1989ea6d2d0226a185",
-    "three": "github:DefinitelyTyped/DefinitelyTyped/threejs/three.d.ts#a44529fcb1e1cdc0355e71c42a6048de99b57c34",
+    "three": "github:DefinitelyTyped/DefinitelyTyped/three/index.d.ts#e31c49ce6e6c45c983d6cf05c4905f568d0abeb4",
     "underscore": "github:DefinitelyTyped/DefinitelyTyped/underscore/underscore.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e",
     "virtual-dom": "github:DefinitelyTyped/DefinitelyTyped/virtual-dom/virtual-dom.d.ts#70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e",
     "when": "github:DefinitelyTyped/DefinitelyTyped/when/when.d.ts#001ca36ba58cef903c4c063555afb07bbc36bb58"

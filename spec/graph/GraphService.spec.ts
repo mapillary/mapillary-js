@@ -143,7 +143,7 @@ describe("GraphService.cacheNode$", () => {
         helper = new NodeHelper();
     });
 
-    it("should cache and return node", (done) => {
+    it("should cache and return node", (done: Function) => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
         let loadNodeSpy: jasmine.Spy = spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
@@ -199,7 +199,7 @@ describe("GraphService.cacheNode$", () => {
         cacheAssets$.next(node);
     });
 
-    it("should fill and return node", (done) => {
+    it("should fill and return node", (done: Function) => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 

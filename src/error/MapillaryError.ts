@@ -1,10 +1,8 @@
 export class MapillaryError extends Error {
     constructor (message?: string) {
-        super();
+        super(message);
 
-        this.message = message;
         this.name = "MapillaryError";
-        this.stack = new Error().stack;
     }
 }
 

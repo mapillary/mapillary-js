@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import {IGPano} from "../../../src/API";
-import {PolygonGeometry, GeometryTagError} from "../../../src/Component";
+import {PolygonGeometry} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
 import {Node} from "../../../src/Graph";
 
@@ -26,28 +26,28 @@ describe("PolygonGeometry.ctor", () => {
 
     it("should throw if polygon has less than three positions", () => {
         expect(() => { return new PolygonGeometry([[0, 0], [0, 0]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should throw if first and last positions are not equivalent", () => {
         expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [1, 1], [0, 1]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should throw if basic coord is below supported range", () => {
         expect(() => { return new PolygonGeometry([[-0.5, 0], [1, 0], [1, 1], [-0.5, 0]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
 
         expect(() => { return new PolygonGeometry([[0, -0.5], [1, 0], [1, 1], [0, -0.5]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should throw if basic coord is above supported range", () => {
         expect(() => { return new PolygonGeometry([[1.5, 0], [1, 0], [1, 1], [1.5, 0]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
 
         expect(() => { return new PolygonGeometry([[0, 1.5], [1, 0], [1, 1], [0, 1.5]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("holes should be set", () => {
@@ -66,28 +66,28 @@ describe("PolygonGeometry.ctor", () => {
 
     it("should throw if hole has less than three positions", () => {
         expect(() => { return new PolygonGeometry([[0, 0], [0, 0], [0, 0]], [[[0, 0], [0, 0]]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should throw if first and last positions are not equivalent", () => {
         expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[0, 0], [1, 0], [1, 1]]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should throw if basic coord is below supported range for hole", () => {
         expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[-0.5, 0], [1, 0], [1, 1], [-0.5, 0]]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
 
         expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[0, -0.5], [1, 0], [1, 1], [0, -0.5]]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should throw if basic coord is above supported range for hole", () => {
         expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[1.5, 0], [1, 0], [1, 1], [1.5, 0]]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
 
         expect(() => { return new PolygonGeometry([[0, 0], [1, 0], [0, 0]], [[[0, 1.5], [1, 0], [1, 1], [0, 1.5]]]); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 });
 
@@ -147,7 +147,7 @@ describe("PolygonGeometry.removeVertex2d", () => {
         let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
 
         expect(() => { polygonGeometry.removeVertex2d(-1); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should throw if index is larger than last index of array", () => {
@@ -156,7 +156,7 @@ describe("PolygonGeometry.removeVertex2d", () => {
         let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
 
         expect(() => { polygonGeometry.removeVertex2d(4); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should throw if polygon has too few vertices", () => {
@@ -165,7 +165,7 @@ describe("PolygonGeometry.removeVertex2d", () => {
         let polygonGeometry: PolygonGeometry = new PolygonGeometry(original);
 
         expect(() => { polygonGeometry.removeVertex2d(1); })
-            .toThrowError(GeometryTagError);
+            .toThrowError(Error);
     });
 
     it("should remove second vertex", () => {

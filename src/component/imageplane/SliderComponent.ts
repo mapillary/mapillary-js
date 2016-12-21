@@ -41,12 +41,14 @@ import {
 } from "../../Render";
 import {Settings} from "../../Utils";
 import {
+    IBBoxShaderMaterial,
     Component,
     ComponentService,
     ImagePlaneScene,
     ImagePlaneFactory,
     ISliderKeys,
     ISliderConfiguration,
+    IShaderMaterial,
 } from "../../Component";
 
 interface ISliderNodes {
@@ -150,7 +152,7 @@ class SliderState {
         this._glNeedsRender = true;
 
         for (let plane of imagePlanes) {
-            let material: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
+            let material: IShaderMaterial = <IShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
             texture.image = image;
@@ -232,7 +234,7 @@ class SliderState {
 
     private _updateBbox(): void {
         for (let plane of this._imagePlaneScene.imagePlanes) {
-            let shaderMaterial: THREE.ShaderMaterial = <THREE.ShaderMaterial>plane.material;
+            let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
             let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
 
             bbox.z = this._curtain;
