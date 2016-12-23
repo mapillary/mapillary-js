@@ -41,6 +41,42 @@ export class BearingComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
+        let nodeBearingFov$: Observable<[number, number]> = this._navigator.stateService.currentState$
+            .distinctUntilChanged(
+                undefined,
+                (frame: IFrame): string => {
+                    return frame.state.currentNode.key;
+                })
+            .map(
+                (frame: IFrame): [number, number] => {
+                    let node: Node = frame.state.currentNode;
+                    let transform: Transform = frame.state.currentTransform;
+
+                    if (node.pano) {
+                        let hFov: number = 360 * node.gpano.CroppedAreaImageWidthPixels / node.gpano.FullPanoWidthPixels;
+
+                        return [node.ca, hFov];
+                    }
+
+                    let size: number = Math.max(transform.basicWidth, transform.basicHeight);
+
+                    if (size <= 0) {
+                        console.warn(
+                            `Original image size (${transform.basicWidth}, ${transform.basicHeight}) is invalid (${node.key}. ` +
+                            "Not showing available fov.");
+                    }
+
+                    let hFov: number = size > 0 ?
+                        2 * Math.atan(0.5 * transform.basicWidth / (size * transform.focal)) :
+                        0;
+
+                    return [node.ca, Math.round(this._spatial.radToDeg(hFov))];
+                })
+            .distinctUntilChanged(
+                (a1: [number, number], a2: [number, number]): boolean => {
+                    return a1[0] === a2[0] && a1[1] === a2[1];
+                });
+
         let cameraBearingFov$: Observable<[number, number]> = this._container.renderService.renderCamera$
             .map(
                 (rc: RenderCamera): [number, number] => {
@@ -60,77 +96,49 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                     return a1[0] === a2[0] && a1[1] === a2[1];
                 });
 
-        let nodeBearingFov$: Observable<[number, number]> = this._navigator.stateService.currentState$
-            .distinctUntilChanged(
-                undefined,
-                (frame: IFrame): string => {
-                    return frame.state.currentNode.key;
-                })
-            .map(
-                (frame: IFrame): [number, number] => {
-                    let node: Node = frame.state.currentNode;
-                    let transform: Transform = frame.state.currentTransform;
-
-                    if (node.pano) {
-                        let hFov: number = 360 * node.gpano.CroppedAreaImageWidthPixels / node.gpano.FullPanoWidthPixels;
-
-                        return [node.ca, hFov];
-                    }
-
-                    let size: number = Math.max(transform.basicWidth, transform.basicHeight);
-                    let hFov: number = 2 * Math.atan(0.5 * transform.basicWidth / (size * transform.focal));
-
-                    return [node.ca, Math.round(this._spatial.radToDeg(hFov))];
-                })
-            .distinctUntilChanged(
-                (a1: [number, number], a2: [number, number]): boolean => {
-                    return a1[0] === a2[0] && a1[1] === a2[1];
-                });
-
         Observable
             .combineLatest(
-                cameraBearingFov$,
-                nodeBearingFov$)
+                nodeBearingFov$,
+                cameraBearingFov$)
             .map(
                 (args: [[number, number], [number, number]]): IVNodeHash => {
-                    let backgroundImageSegment: string =
-                        `linear-gradient(${args[0][0] + 90 + Math.max(5, args[0][1] / 2)}deg, transparent 50%, #555555 50%),` +
-                        `linear-gradient(${args[0][0] + 90 - Math.max(5, args[0][1] / 2)}deg, #555555 50%, transparent 50%)`;
+                    let compass: vd.VNode = vd.h(
+                        "div.FovIndicatorCompass",
+                        {},
+                        [
+                            vd.h("div.FovIndicatorCompassRectangle", {}, []),
+                            vd.h("div.FovIndicatorCompassCircle", {}, []),
+                        ]);
 
-                    let backgroundColorFov: string = args[1][1] >= 180 ? "black" : "#555555";
-                    let foregroundColorFov: string = args[1][1] >= 180 ? "#555555" : "black";
+                    let north: vd.VNode = vd.h("div.FovIndicatorNorth", {}, []);
 
-                    let firstGradient: string = args[1][1] >= 180 ?
-                        `${foregroundColorFov} 50%, transparent 50%` :
-                        `transparent 50%, ${foregroundColorFov} 50%`;
+                    let nodeSegments: vd.VNode[] =
+                        this._createCircleSegment(
+                            args[0][0],
+                            args[0][1],
+                            "Node");
 
-                    let secondGradient: string = args[1][1] >= 180 ?
-                        `transparent 50%, ${foregroundColorFov} 50%` :
-                        `${foregroundColorFov} 50%, transparent 50%`;
+                    let cameraSegments: vd.VNode[] =
+                        this._createCircleSegment(
+                            args[1][0],
+                            args[1][1],
+                            "Camera");
 
-                    let backgroundImageFov: string =
-                        `linear-gradient(${args[1][0] + 90 + args[1][1] / 2}deg, ${firstGradient}),` +
-                        `linear-gradient(${args[1][0] + 90 - args[1][1] / 2}deg, ${secondGradient})`;
-
-                    let fovProperties: vd.createProperties = {
-                        style: {
-                            "background-color": backgroundColorFov,
-                            "background-image": backgroundImageFov,
-                        },
-                    };
-
-                    let segmentProperties: vd.createProperties = { style: { "background-image": backgroundImageSegment } };
+                    let container: vd.VNode = vd.h("div.FovIndicatorContainer", {}, nodeSegments.concat(cameraSegments));
+                    let center: vd.VNode = vd.h("div.FovIndicatorCenterBorder", {}, []);
+                    let centerBorder: vd.VNode = vd.h("div.FovIndicatorCenter", {}, []);
 
                     return {
                         name: this._name,
                         vnode: vd.h(
-                            "div.BearingIndicator",
+                            "div.FovIndicator",
                             {},
                             [
-                                vd.h("div.BearingIndicatorFov", fovProperties, []),
-                                vd.h("div.BearingIndicatorSegment", segmentProperties, []),
-                                vd.h("div.BearingIndicatorCenterBorder", {}, []),
-                                vd.h("div.BearingIndicatorCenter", {}, []),
+                                compass,
+                                north,
+                                container,
+                                center,
+                                centerBorder,
                             ]),
                     };
                 })
@@ -158,6 +166,38 @@ export class BearingComponent extends Component<IComponentConfiguration> {
        return phi;
     }
 
+    private _createCircleSegment(bearing: number, fov: number, className: string): vd.VNode[] {
+        if (fov >= 357) {
+            return [this._createFullCircleSegment(className)];
+        }
+
+        fov = Math.max(8, fov);
+        let rotate: number = bearing - fov / 2;
+        let skew: number = fov - 90;
+
+        let segmentProperties: vd.createProperties = {
+            style: {
+                transform: `rotate(${rotate}deg) skewY(${skew}deg)`,
+            },
+        };
+
+        let contentProperties: vd.createProperties = {
+            style: {
+                transform: `skewY(${-skew}deg)`,
+            },
+        };
+
+        let segmentElement: string = `div.FovIndicator${className}Segment`;
+        let contentElement: string = `div.FovIndicator${className}Content`;
+
+        return [vd.h(segmentElement, segmentProperties, [vd.h(contentElement, contentProperties, [])])];
+    }
+
+    private _createFullCircleSegment(className: string): vd.VNode {
+        let fullSegmentElement: string = `div.FovIndicator${className}FullSegment`;
+
+        return vd.h(fullSegmentElement, {}, []);
+    }
 }
 
 ComponentService.register(BearingComponent);
