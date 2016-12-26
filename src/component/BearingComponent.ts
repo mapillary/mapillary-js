@@ -103,42 +103,42 @@ export class BearingComponent extends Component<IComponentConfiguration> {
             .map(
                 (args: [[number, number], [number, number]]): IVNodeHash => {
                     let compass: vd.VNode = vd.h(
-                        "div.FovIndicatorCompass",
+                        "div.BearingIndicatorCompass",
                         {},
                         [
-                            vd.h("div.FovIndicatorCompassRectangle", {}, []),
-                            vd.h("div.FovIndicatorCompassCircle", {}, []),
+                            vd.h("div.BearingIndicatorCompassRectangle", {}, []),
+                            vd.h("div.BearingIndicatorCompassCircle", {}, []),
                         ]);
 
-                    let north: vd.VNode = vd.h("div.FovIndicatorNorth", {}, []);
+                    let north: vd.VNode = vd.h("div.BearingIndicatorNorth", {}, []);
 
-                    let nodeSegments: vd.VNode[] =
-                        this._createCircleSegment(
+                    let nodeSectors: vd.VNode[] =
+                        this._createCircleSector(
                             args[0][0],
                             args[0][1],
                             "Node");
 
-                    let cameraSegments: vd.VNode[] =
-                        this._createCircleSegment(
+                    let cameraSectors: vd.VNode[] =
+                        this._createCircleSector(
                             args[1][0],
                             args[1][1],
                             "Camera");
 
-                    let container: vd.VNode = vd.h("div.FovIndicatorContainer", {}, nodeSegments.concat(cameraSegments));
-                    let center: vd.VNode = vd.h("div.FovIndicatorCenterBorder", {}, []);
-                    let centerBorder: vd.VNode = vd.h("div.FovIndicatorCenter", {}, []);
+                    let container: vd.VNode = vd.h("div.BearingIndicatorContainer", {}, nodeSectors.concat(cameraSectors));
+                    let centerBorder: vd.VNode = vd.h("div.BearingIndicatorCenterBorder", {}, []);
+                    let center: vd.VNode = vd.h("div.BearingIndicatorCenter", {}, []);
 
                     return {
                         name: this._name,
                         vnode: vd.h(
-                            "div.FovIndicator",
+                            "div.BearingIndicator",
                             {},
                             [
                                 compass,
                                 north,
                                 container,
-                                center,
                                 centerBorder,
+                                center,
                             ]),
                     };
                 })
@@ -166,37 +166,57 @@ export class BearingComponent extends Component<IComponentConfiguration> {
        return phi;
     }
 
-    private _createCircleSegment(bearing: number, fov: number, className: string): vd.VNode[] {
-        if (fov >= 357) {
-            return [this._createFullCircleSegment(className)];
+    private _createCircleSector(bearing: number, fov: number, className: string): vd.VNode[] {
+        if (fov === 0) {
+            return [];
         }
 
-        fov = Math.max(8, fov);
-        let rotate: number = bearing - fov / 2;
-        let skew: number = fov - 90;
+        if (fov >= 357) {
+            return [this._createCircle(className)];
+        }
 
-        let segmentProperties: vd.createProperties = {
+        let circleSector: vd.VNode[] = [];
+
+        let fovStart: number = bearing - fov / 2;
+        let fovLeft: number = Math.max(bearing + fov / 2 - fovStart, 8);
+
+        while (fovLeft > 1) {
+            let fovPart: number = Math.min(fovLeft, 90);
+
+            circleSector.push(this._createCircleSectorPart(fovStart, fovPart, className));
+
+            fovStart += Math.min(fovPart, 89);
+            fovLeft -= Math.min(fovPart, 89);
+        }
+
+        return circleSector;
+    }
+
+    private _createCircleSectorPart(startAngle: number, centralAngle: number, className: string): vd.VNode {
+        let skew: number = 90 - centralAngle;
+
+        let sectorProperties: vd.createProperties = {
             style: {
-                transform: `rotate(${rotate}deg) skewY(${skew}deg)`,
+                transform: `rotate(${startAngle}deg) skewY(${-skew}deg)`,
             },
         };
 
         let contentProperties: vd.createProperties = {
             style: {
-                transform: `skewY(${-skew}deg)`,
+                transform: `skewY(${skew}deg)`,
             },
         };
 
-        let segmentElement: string = `div.FovIndicator${className}Segment`;
-        let contentElement: string = `div.FovIndicator${className}Content`;
+        let sectorElement: string = `div.BearingIndicator${className}Sector`;
+        let contentElement: string = `div.BearingIndicator${className}Content`;
 
-        return [vd.h(segmentElement, segmentProperties, [vd.h(contentElement, contentProperties, [])])];
+        return vd.h(sectorElement, sectorProperties, [vd.h(contentElement, contentProperties, [])]);
     }
 
-    private _createFullCircleSegment(className: string): vd.VNode {
-        let fullSegmentElement: string = `div.FovIndicator${className}FullSegment`;
+    private _createCircle(className: string): vd.VNode {
+        let fullSectorElement: string = `div.BearingIndicator${className}FullSector`;
 
-        return vd.h(fullSegmentElement, {}, []);
+        return vd.h(fullSectorElement, {}, []);
     }
 }
 
