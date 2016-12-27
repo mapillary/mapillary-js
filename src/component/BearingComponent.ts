@@ -180,13 +180,13 @@ export class BearingComponent extends Component<IComponentConfiguration> {
         let fovStart: number = bearing - fov / 2;
         let fovLeft: number = Math.max(bearing + fov / 2 - fovStart, 8);
 
-        while (fovLeft > 1) {
+        while (fovLeft > 2) {
             let fovPart: number = Math.min(fovLeft, 90);
 
             circleSector.push(this._createCircleSectorPart(fovStart, fovPart, className));
 
-            fovStart += Math.min(fovPart, 89);
-            fovLeft -= Math.min(fovPart, 89);
+            fovStart += Math.min(fovPart, 88);
+            fovLeft -= Math.min(fovPart, 88);
         }
 
         return circleSector;
