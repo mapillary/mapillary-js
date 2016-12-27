@@ -215,6 +215,14 @@ export class TraversingState extends StateBase {
         if (this._requestedBasicRotation != null) {
             this._requestedBasicRotation[0] += basicRotation[0];
             this._requestedBasicRotation[1] += basicRotation[1];
+
+            let threshold: number = 0.05 / Math.pow(2, this._zoom);
+
+            this._requestedBasicRotation[0] =
+                this._spatial.clamp(this._requestedBasicRotation[0], -threshold, threshold);
+
+            this._requestedBasicRotation[1] =
+                this._spatial.clamp(this._requestedBasicRotation[1], -threshold, threshold);
         } else {
             this._requestedBasicRotation = basicRotation.slice();
         }
