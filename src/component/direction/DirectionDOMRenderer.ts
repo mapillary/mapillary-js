@@ -1,11 +1,10 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import * as THREE from "three";
 import * as vd from "virtual-dom";
 
 import {DirectionDOMCalculator, IDirectionConfiguration} from "../../Component";
 import {EdgeDirection, IEdge} from "../../Edge";
-import {Camera, Spatial} from "../../Geo";
+import {Spatial} from "../../Geo";
 import {IEdgeStatus, Node, Sequence} from "../../Graph";
 import {RenderCamera} from "../../Render";
 import {IRotation} from "../../State";
@@ -139,10 +138,7 @@ export class DirectionDOMRenderer {
      * @param {RenderCamera} renderCamera
      */
     public setRenderCamera(renderCamera: RenderCamera): void {
-        let camera: Camera = renderCamera.camera;
-
-        let direction: THREE.Vector3 = this._directionFromCamera(camera);
-        let rotation: IRotation = this._getRotation(direction, camera.up);
+        let rotation: IRotation = renderCamera.rotation;
 
         if (Math.abs(rotation.phi - this._rotation.phi) < this._epsilon) {
             return;
@@ -244,20 +240,6 @@ export class DirectionDOMRenderer {
                 }
             }
         }
-    }
-
-    private _directionFromCamera(camera: Camera): THREE.Vector3 {
-        return camera.lookat.clone().sub(camera.position);
-    }
-
-    private _getRotation(direction: THREE.Vector3, up: THREE.Vector3): IRotation {
-       let upProjection: number = direction.clone().dot(up);
-       let planeProjection: THREE.Vector3 = direction.clone().sub(up.clone().multiplyScalar(upProjection));
-
-       let phi: number = Math.atan2(planeProjection.y, planeProjection.x);
-       let theta: number = Math.PI / 2 - this._spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
-
-       return { phi: phi, theta: theta };
     }
 
     private _createPanoArrows(navigator: Navigator, rotation: IRotation): Array<vd.VNode> {

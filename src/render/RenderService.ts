@@ -114,6 +114,7 @@ export class RenderService {
 
                         rc.camera.copy(camera);
                         rc.updatePerspective(camera);
+                        rc.updateRotation(camera);
 
                         rc.updateProjection();
                     }

@@ -1,6 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as THREE from "three";
 import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
@@ -12,7 +11,6 @@ import {
     IComponentConfiguration,
 } from "../Component";
 import {
-    Camera,
     Spatial,
     Transform,
 } from "../Geo";
@@ -70,7 +68,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                         2 * Math.atan(0.5 * transform.basicWidth / (size * transform.focal)) :
                         0;
 
-                    return [node.ca, Math.round(this._spatial.radToDeg(hFov))];
+                    return [Math.round(node.ca), Math.round(this._spatial.radToDeg(hFov))];
                 })
             .distinctUntilChanged(
                 (a1: [number, number], a2: [number, number]): boolean => {
@@ -80,14 +78,11 @@ export class BearingComponent extends Component<IComponentConfiguration> {
         let cameraBearingFov$: Observable<[number, number]> = this._container.renderService.renderCamera$
             .map(
                 (rc: RenderCamera): [number, number] => {
-                    let direction: THREE.Vector3 = this._directionFromCamera(rc.camera);
-                    let rotation: number = this._getRotation(direction, rc.camera.up);
-
                     let vFov: number = this._spatial.degToRad(rc.perspective.fov);
                     let hFov: number = Math.atan(rc.perspective.aspect * Math.tan(0.5 * vFov)) * 2;
 
                     return [
-                        Math.round(this._spatial.wrap(-this._spatial.radToDeg(rotation) + 90, 0, 360)),
+                        Math.round(this._spatial.wrap(-this._spatial.radToDeg(rc.rotation.phi) + 90, 0, 360)),
                         Math.round(this._spatial.radToDeg(hFov)),
                     ];
                 })
@@ -151,19 +146,6 @@ export class BearingComponent extends Component<IComponentConfiguration> {
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
         return {};
-    }
-
-    private _directionFromCamera(camera: Camera): THREE.Vector3 {
-        return camera.lookat.clone().sub(camera.position);
-    }
-
-    private _getRotation(direction: THREE.Vector3, up: THREE.Vector3): number {
-       let upProjection: number = direction.clone().dot(up);
-       let planeProjection: THREE.Vector3 = direction.clone().sub(up.clone().multiplyScalar(upProjection));
-
-       let phi: number = Math.atan2(planeProjection.y, planeProjection.x);
-
-       return phi;
     }
 
     private _createCircleSector(bearing: number, fov: number, className: string): vd.VNode[] {

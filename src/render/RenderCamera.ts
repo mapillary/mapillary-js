@@ -2,8 +2,12 @@
 
 import * as THREE from "three";
 
-import {Camera} from "../Geo";
+import {
+    Camera,
+    Spatial,
+} from "../Geo";
 import {RenderMode} from "../Render";
+import {IRotation} from "../State";
 
 export class RenderCamera {
     public alpha: number;
@@ -14,8 +18,11 @@ export class RenderCamera {
     public previousPano: boolean;
     public renderMode: RenderMode;
 
+    private _spatial: Spatial;
+
     private _camera: Camera;
     private _perspective: THREE.PerspectiveCamera;
+    private _rotation: IRotation;
 
     private _frameId: number;
 
@@ -38,16 +45,15 @@ export class RenderCamera {
 
         this.renderMode = renderMode;
 
+        this._spatial = new Spatial();
+
         this._camera = new Camera();
         this._perspective = new THREE.PerspectiveCamera(
             50,
             perspectiveCameraAspect,
             0.4,
             10000);
-    }
-
-    public get perspective(): THREE.PerspectiveCamera {
-        return this._perspective;
+        this._rotation = { phi: 0, theta: 0 };
     }
 
     public get camera(): Camera {
@@ -69,6 +75,14 @@ export class RenderCamera {
             this._changed = false;
             this._changedForFrame = value;
         }
+    }
+
+    public get perspective(): THREE.PerspectiveCamera {
+        return this._perspective;
+    }
+
+    public get rotation(): IRotation {
+        return this._rotation;
     }
 
     public updateProjection(): void {
@@ -100,6 +114,10 @@ export class RenderCamera {
         this._changed = true;
     }
 
+    public updateRotation(camera: Camera): void {
+        this._rotation = this._getRotation(camera);
+    }
+
     private _getVerticalFov(aspect: number, focal: number, zoom: number): number {
         return 2 * Math.atan(0.5 / (Math.pow(2, zoom) * aspect * focal)) * 180 / Math.PI;
     }
@@ -124,6 +142,19 @@ export class RenderCamera {
             coeff * nodeAspect;
 
         return aspect;
+    }
+
+    private _getRotation(camera: Camera): IRotation {
+        let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+        let up: THREE.Vector3 = camera.up.clone();
+
+        let upProjection: number = direction.clone().dot(up);
+        let planeProjection: THREE.Vector3 = direction.clone().sub(up.clone().multiplyScalar(upProjection));
+
+        let phi: number = Math.atan2(planeProjection.y, planeProjection.x);
+        let theta: number = Math.PI / 2 - this._spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
+
+        return { phi: phi, theta: theta };
     }
 }
 
