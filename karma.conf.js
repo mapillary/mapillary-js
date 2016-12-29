@@ -14,6 +14,9 @@ module.exports = function(config) {
       'spec/**/*.spec.ts'
     ],
     frameworks: ['jasmine', 'browserify'],
+    mime: {
+      'text/x-typescript': ['ts','tsx']
+    },
     preprocessors: {
       'spec/**/*.spec.ts': ['browserify'],
     }
