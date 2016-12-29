@@ -54,6 +54,16 @@ type SpatialArea = {
     cacheNodes: { [key: string]: Node };
 }
 
+type NodeAccess = {
+    node: Node;
+    accessed: number;
+}
+
+type TileAccess = {
+    nodes: Node[];
+    accessed: number;
+}
+
 /**
  * @class Graph
  *
@@ -62,10 +72,10 @@ type SpatialArea = {
 export class Graph {
     private _apiV3: APIv3;
 
-    private _cachedNodes: { [key: string]: Node };
+    private _cachedNodes: { [key: string]: NodeAccess };
     private _cachedNodeTiles: { [key: string]: boolean };
     private _cachedSpatialEdges: { [key: string]: Node };
-    private _cachedTiles: { [h: string]: Node[] };
+    private _cachedTiles: { [h: string]: TileAccess };
 
     private _cachingFill$: { [key: string]: Observable<Graph> };
     private _cachingFull$: { [key: string]: Observable<Graph> };
@@ -83,6 +93,8 @@ export class Graph {
 
     private _nodes: { [key: string]: Node };
     private _nodeIndex: rbush.RBush<NodeIndexItem>;
+    private _nodeIndexTiles: { [h: string]: NodeIndexItem[] };
+    private _nodeToTile: { [key: string]: string };
 
     private _preStored: { [h: string]:  { [key: string]: Node }; };
 
@@ -132,6 +144,8 @@ export class Graph {
 
         this._nodes = {};
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<NodeIndexItem>(16, [".lon", ".lat", ".lon", ".lat"]);
+        this._nodeIndexTiles = {};
+        this._nodeToTile = {};
 
         this._preStored = {};
 
@@ -469,7 +483,7 @@ export class Graph {
             let spatialNode: Node = allSpatialNodes[spatialNodeKey];
 
             if (filter(spatialNode)) {
-                potentialNodes.push(allSpatialNodes[spatialNodeKey]);
+                potentialNodes.push(spatialNode);
             }
         }
 
@@ -542,8 +556,9 @@ export class Graph {
                                 return;
                             }
 
-                            this._cachedTiles[h] = [];
-                            let hCache: Node[] = this._cachedTiles[h];
+                            this._nodeIndexTiles[h] = [];
+                            this._cachedTiles[h] = { accessed: new Date().getTime(), nodes: [] };
+                            let hCache: Node[] = this._cachedTiles[h].nodes;
                             let preStored: { [key: string]: Node } = this._removeFromPreStore(h);
 
                             for (let index in coreNodes) {
@@ -569,7 +584,16 @@ export class Graph {
                                     delete preStored[coreNode.key];
 
                                     hCache.push(node);
-                                    this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
+
+                                    let nodeIndexItem: NodeIndexItem = {
+                                        lat: node.latLon.lat,
+                                        lon: node.latLon.lon,
+                                        node: node,
+                                    };
+
+                                    this._nodeIndex.insert(nodeIndexItem);
+                                    this._nodeIndexTiles[h].push(nodeIndexItem);
+                                    this._nodeToTile[node.key] = h;
 
                                     continue;
                                 }
@@ -577,7 +601,17 @@ export class Graph {
                                 let node: Node = new Node(coreNode);
 
                                 hCache.push(node);
-                                this._nodeIndex.insert({ lat: node.latLon.lat, lon: node.latLon.lon, node: node });
+
+                                let nodeIndexItem: NodeIndexItem = {
+                                    lat: node.latLon.lat,
+                                    lon: node.latLon.lon,
+                                    node: node,
+                                };
+
+                                this._nodeIndex.insert(nodeIndexItem);
+                                this._nodeIndexTiles[h].push(nodeIndexItem);
+                                this._nodeToTile[node.key] = h;
+
                                 this._setNode(node);
                             }
 
@@ -656,7 +690,13 @@ export class Graph {
 
         let node: Node = this.getNode(key);
         node.initializeCache(new NodeCache());
-        this._cachedNodes[key] = node;
+
+        let accessed: number = new Date().getTime();
+        this._cachedNodes[key] = { accessed: accessed, node: node };
+
+        if (key in this._nodeToTile) {
+            this._cachedTiles[this._nodeToTile[key]].accessed = accessed;
+        }
     }
 
     /**
@@ -831,9 +871,11 @@ export class Graph {
             throw new GraphMapillaryError(`Node does not exist in graph (${key}).`);
         }
 
+        let nodeTiles: NodeTiles = { cache: [], caching: [] };
+
         if (!(key in this._requiredNodeTiles)) {
             let node: Node = this.getNode(key);
-            let cache: string[] = this._graphCalculator
+            nodeTiles.cache = this._graphCalculator
                 .encodeHs(
                     node.latLon,
                     this._tilePrecision,
@@ -843,14 +885,14 @@ export class Graph {
                         return !(h in this._cachedTiles);
                     });
 
-            this._requiredNodeTiles[key] = {
-                cache: cache,
-                caching: [],
-            };
+            if (nodeTiles.cache.length > 0) {
+                this._requiredNodeTiles[key] = nodeTiles;
+            }
+        } else {
+            nodeTiles = this._requiredNodeTiles[key];
         }
 
-        return this._requiredNodeTiles[key].cache.length === 0 &&
-            this._requiredNodeTiles[key].caching.length === 0;
+        return nodeTiles.cache.length === 0 && nodeTiles.caching.length === 0;
     }
 
     /**
@@ -860,6 +902,16 @@ export class Graph {
      * @returns {Node} Retrieved node.
      */
     public getNode(key: string): Node {
+        let accessed: number = new Date().getTime();
+
+        if (key in this._cachedNodes) {
+            this._cachedNodes[key].accessed = accessed;
+        }
+
+        if (key in this._nodeToTile) {
+            this._cachedTiles[this._nodeToTile[key]].accessed = accessed;
+        }
+
         return this._nodes[key];
     }
 
@@ -912,7 +964,7 @@ export class Graph {
                 continue;
             }
 
-            this._cachedNodes[cachedKey].dispose();
+            this._cachedNodes[cachedKey].node.dispose();
             delete this._cachedNodes[cachedKey];
         }
 
@@ -927,6 +979,7 @@ export class Graph {
         this._cachingTiles$ = {};
 
         this._nodes = {};
+        this._nodeToTile = {};
 
         this._preStored = {};
 
@@ -942,6 +995,7 @@ export class Graph {
 
         this._sequences = {};
 
+        this._nodeIndexTiles = {};
         this._nodeIndex.clear();
     }
 
@@ -953,6 +1007,79 @@ export class Graph {
      */
     public setFilter(filter: FilterExpression): void {
         this._filter = this._filterCreator.createFilter(filter);
+    }
+
+    public uncache(keepKeys: string[]): void {
+        let keysInUse: { [key: string]: boolean } = {};
+
+        this._addNewKeys(keysInUse, this._cachingFull$);
+        this._addNewKeys(keysInUse, this._cachingFill$);
+        this._addNewKeys(keysInUse, this._cachingTiles$);
+        this._addNewKeys(keysInUse, this._cachingSpatialArea$);
+        this._addNewKeys(keysInUse, this._requiredNodeTiles);
+        this._addNewKeys(keysInUse, this._requiredSpatialArea);
+
+        for (let key of keepKeys) {
+            if (key in keysInUse) {
+                continue;
+            }
+
+            keysInUse[key] = true;
+        }
+
+        let keepHs: { [h: string]: boolean } = {};
+        for (let key in keysInUse) {
+            if (!keysInUse.hasOwnProperty(key)) {
+                continue;
+            }
+
+            let node: Node = this._nodes[key];
+
+            let nodeHs: string[] = this._graphCalculator.encodeHs(node.latLon);
+            for (let nodeH of nodeHs) {
+                if (!(nodeH in keepHs)) {
+                    keepHs[nodeH] = true;
+                }
+            }
+        }
+
+        let potentialHs: [string, TileAccess][] = [];
+        for (let h in this._cachedTiles) {
+            if (!(h in keepHs)) {
+                potentialHs.push([h, this._cachedTiles[h]]);
+            }
+        }
+
+        potentialHs
+            .sort(
+                (h1: [string, TileAccess], h2: [string, TileAccess]): number => {
+                    return h2[1].accessed - h1[1].accessed;
+                });
+
+        let maxUnusedTiles: number = 4;
+
+        let uncacheHs: string[] = potentialHs
+            .slice(maxUnusedTiles)
+            .map(
+                (h: [string, TileAccess]): string => {
+                    return h[0];
+                });
+
+        for (let uncacheH of uncacheHs) {
+            this._uncacheTile(uncacheH);
+        }
+    }
+
+    private _addNewKeys<T>(keys: { [key: string]: boolean }, dict: { [key: string]: T }): void {
+        for (let key in dict) {
+            if (!dict.hasOwnProperty(key) || !this.hasNode(key)) {
+                continue;
+            }
+
+            if (!(key in keys)) {
+                keys[key] = true;
+            }
+        }
     }
 
     private _cacheSequence$(sequenceKey: string): Observable<Graph> {
@@ -1026,6 +1153,36 @@ export class Graph {
         }
 
         this._nodes[key] = node;
+    }
+
+    private _uncacheTile(h: string): void {
+        for (let node of this._cachedTiles[h].nodes) {
+            let key: string = node.key;
+
+            delete this._nodes[key];
+            delete this._nodeToTile[key];
+
+            if (key in this._cachedNodes) {
+                delete this._cachedNodes[key];
+            }
+
+            if (key in this._cachedNodeTiles) {
+                delete this._cachedNodeTiles[key];
+            }
+
+            if (key in this._cachedSpatialEdges) {
+                delete this._cachedSpatialEdges[key];
+            }
+
+            node.dispose();
+        }
+
+        for (let nodeIndexItem of this._nodeIndexTiles[h]) {
+            this._nodeIndex.remove(nodeIndexItem);
+        }
+
+        delete this._nodeIndexTiles[h];
+        delete this._cachedTiles[h];
     }
 }
 
