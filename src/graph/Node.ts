@@ -528,6 +528,19 @@ export class Node {
     public resetSpatialEdges(): void {
         this._cache.resetSpatialEdges();
     }
+
+    /**
+     * Clears the image and mesh assets, aborts
+     * any outstanding requests and resets edges.
+     */
+    public uncache(): void {
+        if (this._cache == null) {
+            return;
+        }
+
+        this._cache.dispose();
+        this._cache = null;
+    }
 }
 
 export default Node;

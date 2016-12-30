@@ -1045,20 +1045,19 @@ export class Graph {
 
         let potentialHs: [string, TileAccess][] = [];
         for (let h in this._cachedTiles) {
-            if (!(h in keepHs)) {
-                potentialHs.push([h, this._cachedTiles[h]]);
+            if (!this._cachedTiles.hasOwnProperty(h) || h in keepHs) {
+                continue;
             }
+
+            potentialHs.push([h, this._cachedTiles[h]]);
         }
 
-        potentialHs
+        let maxUnusedTiles: number = 4;
+        let uncacheHs: string[] = potentialHs
             .sort(
                 (h1: [string, TileAccess], h2: [string, TileAccess]): number => {
                     return h2[1].accessed - h1[1].accessed;
-                });
-
-        let maxUnusedTiles: number = 4;
-
-        let uncacheHs: string[] = potentialHs
+                })
             .slice(maxUnusedTiles)
             .map(
                 (h: [string, TileAccess]): string => {
@@ -1067,6 +1066,37 @@ export class Graph {
 
         for (let uncacheH of uncacheHs) {
             this._uncacheTile(uncacheH);
+        }
+
+        let potentialNodes: NodeAccess[] = [];
+        for (let key in this._cachedNodes) {
+            if (!this._cachedNodes.hasOwnProperty(key) || key in keysInUse) {
+                continue;
+            }
+
+            potentialNodes.push(this._cachedNodes[key]);
+        }
+
+        let maxUnusedNodes: number = 30;
+        let uncacheNodes: NodeAccess[] = potentialNodes
+            .sort(
+                (n1: NodeAccess, n2: NodeAccess): number => {
+                    return n2.accessed - n1.accessed;
+                })
+            .slice(maxUnusedNodes);
+
+        for (let nodeAccess of uncacheNodes) {
+            nodeAccess.node.uncache();
+            let key: string = nodeAccess.node.key;
+            delete this._cachedNodes[key];
+
+            if (key in this._cachedNodeTiles) {
+                delete this._cachedNodeTiles[key];
+            }
+
+            if (key in this._cachedSpatialEdges) {
+                delete this._cachedSpatialEdges[key];
+            }
         }
     }
 

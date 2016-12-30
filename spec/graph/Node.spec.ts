@@ -83,6 +83,51 @@ describe("Node.dispose", () => {
     });
 });
 
+describe("Node.uncache", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should handle when cache is not initilized", () => {
+        let coreNode: ICoreNode = helper.createCoreNode();
+        let node: Node = new Node(coreNode);
+
+        node.uncache();
+    });
+
+    it("should dispose node cache", () => {
+        let coreNode: ICoreNode = helper.createCoreNode();
+        let node: Node = new Node(coreNode);
+        let nodeCache: NodeCache = new NodeCache();
+
+        let disposeSpy: jasmine.Spy = spyOn(nodeCache, "dispose");
+        disposeSpy.and.stub();
+
+        node.initializeCache(nodeCache);
+
+        node.uncache();
+
+        expect(disposeSpy.calls.count()).toBe(1);
+    });
+
+    it("should be able to initialize cache again after uncache", () => {
+        let coreNode: ICoreNode = helper.createCoreNode();
+        let node: Node = new Node(coreNode);
+        let nodeCache: NodeCache = new NodeCache();
+
+        let disposeSpy: jasmine.Spy = spyOn(nodeCache, "dispose");
+        disposeSpy.and.stub();
+
+        node.initializeCache(nodeCache);
+
+        node.uncache();
+
+        node.initializeCache(nodeCache);
+    });
+});
+
 describe("Node.fullPano", () => {
     let helper: NodeHelper;
 
