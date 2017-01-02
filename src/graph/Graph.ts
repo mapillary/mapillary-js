@@ -160,7 +160,7 @@ export class Graph {
             };
 
         this._nodes = {};
-        this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<NodeIndexItem>(16, [".lon", ".lat", ".lon", ".lat"]);
+        this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<NodeIndexItem>(16, [".lat", ".lon", ".lat", ".lon"]);
         this._nodeIndexTiles = {};
         this._nodeToTile = {};
 
@@ -861,10 +861,10 @@ export class Graph {
         let bbox: [ILatLon, ILatLon] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
 
         let spatialItems: NodeIndexItem[] = this._nodeIndex.search({
-            maxX: bbox[1].lon,
-            maxY: bbox[1].lat,
-            minX: bbox[0].lon,
-            minY: bbox[0].lat,
+            maxX: bbox[1].lat,
+            maxY: bbox[1].lon,
+            minX: bbox[0].lat,
+            minY: bbox[0].lon,
         });
 
         let spatialNodes: SpatialArea = {
