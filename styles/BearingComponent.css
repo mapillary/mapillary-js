@@ -8,11 +8,11 @@
     z-index: 10;
 }
 
-.BearingIndicatorCompass {
+.BearingIndicatorBackground {
     opacity: 0.5;
 }
 
-.BearingIndicatorCompassRectangle {
+.BearingIndicatorBackgroundRectangle {
     background: #242528;
     height: 12px;
     left: 23px;
@@ -21,7 +21,7 @@
     width: 10px;
 }
 
-.BearingIndicatorCompassCircle {
+.BearingIndicatorBackgroundCircle {
     background: #242528;
     border-radius: 50%;
     bottom: 0;
@@ -37,76 +37,4 @@
     position: absolute;
     top: 4px;
     width: 2px;
-}
-
-.BearingIndicatorContainer {
-    bottom: 4px;
-    height: 48px;
-    left: 4px;
-    position: absolute;
-    width: 48px;
-}
-
-.BearingIndicatorNodeFullSector,
-.BearingIndicatorCameraFullSector {
-    border-radius: 50%;
-    height: 100%;
-    position: absolute;
-    width: 100%;
-}
-
-.BearingIndicatorNodeFullSector {
-    background: black;
-}
-
-.BearingIndicatorCameraFullSector {
-    background: white;
-}
-
-.BearingIndicatorNodeSector,
-.BearingIndicatorCameraSector {
-    height: 50%;
-    overflow: hidden;
-    position: absolute;
-    right: 0;
-    top: 0;
-    transform-origin: 0% 100%;
-    width: 50%;
-}
-
-.BearingIndicatorNodeContent,
-.BearingIndicatorCameraContent {
-    border-radius: 50%;
-    height: 200%;
-    left: -100%;
-    position: absolute;
-    width: 200%;
-}
-
-.BearingIndicatorNodeContent {
-    background: black;
-}
-
-.BearingIndicatorCameraContent {
-    background: white;
-}
-
-.BearingIndicatorCenterBorder {
-    background: black;
-    border-radius: 50%;
-    bottom: 20px;
-    height: 16px;
-    left: 20px;
-    position: absolute;
-    width: 16px;
-}
-
-.BearingIndicatorCenter {
-    background: #ABB1B9;
-    border-radius: 50%;
-    bottom: 22px;
-    height: 12px;
-    left: 22px;
-    position:absolute;
-    width: 12px;
 }
