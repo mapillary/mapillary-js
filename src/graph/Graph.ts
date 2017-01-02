@@ -64,6 +64,11 @@ type TileAccess = {
     accessed: number;
 }
 
+type SequenceAccess = {
+    sequence: Sequence;
+    accessed: number;
+}
+
 /**
  * @class Graph
  *
@@ -101,7 +106,7 @@ export class Graph {
     private _requiredNodeTiles: { [key: string]: NodeTiles };
     private _requiredSpatialArea: { [key: string]: SpatialArea };
 
-    private _sequences: { [skey: string]: Sequence };
+    private _sequences: { [skey: string]: SequenceAccess };
 
     private _tilePrecision: number;
     private _tileThreshold: number;
@@ -337,7 +342,7 @@ export class Graph {
             throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceKey})`);
         }
 
-        let sequence: Sequence = this._sequences[node.sequenceKey];
+        let sequence: Sequence = this._sequences[node.sequenceKey].sequence;
         let edges: IEdge[] = this._edgeCalculator.computeSequenceEdges(node, sequence);
 
         node.cacheSequenceEdges(edges);
@@ -459,7 +464,7 @@ export class Graph {
         }
 
         let node: Node = this.getNode(key);
-        let sequence: Sequence = this._sequences[node.sequenceKey];
+        let sequence: Sequence = this._sequences[node.sequenceKey].sequence;
 
         let fallbackKeys: string[] = [];
         let prevKey: string = sequence.findPrevKey(node.key);
@@ -788,8 +793,15 @@ export class Graph {
      */
     public hasNodeSequence(key: string): boolean {
         let node: Node = this.getNode(key);
+        let sequenceKey: string = node.sequenceKey;
 
-        return node.sequenceKey in this._sequences;
+        let hasNodeSequence: boolean = sequenceKey in this._sequences;
+
+        if (hasNodeSequence) {
+            this._sequences[sequenceKey].accessed = new Date().getTime();
+        }
+
+        return hasNodeSequence;
     }
 
     /**
@@ -800,7 +812,13 @@ export class Graph {
      * in the graph.
      */
     public hasSequence(sequenceKey: string): boolean {
-        return sequenceKey in this._sequences;
+        let hasSequence: boolean = sequenceKey in this._sequences;
+
+        if (hasSequence) {
+            this._sequences[sequenceKey].accessed = new Date().getTime();
+        }
+
+        return hasSequence;
     }
 
     /**
@@ -922,7 +940,10 @@ export class Graph {
      * @returns {Node} Retrieved sequence.
      */
     public getSequence(sequenceKey: string): Sequence {
-        return this._sequences[sequenceKey];
+        let sequenceAccess: SequenceAccess = this._sequences[sequenceKey];
+        sequenceAccess.accessed = new Date().getTime();
+
+        return sequenceAccess.sequence;
     }
 
     /**
@@ -1098,6 +1119,32 @@ export class Graph {
                 delete this._cachedSpatialEdges[key];
             }
         }
+
+        let potentialSequences: SequenceAccess[] = [];
+        for (let sequenceKey in this._sequences) {
+            if (!this._sequences.hasOwnProperty(sequenceKey) ||
+                sequenceKey in this._cachingSequences$) {
+                continue;
+            }
+
+            potentialSequences.push(this._sequences[sequenceKey]);
+        }
+
+        let maxSequences: number = 50;
+        let uncacheSequences: SequenceAccess[] = potentialSequences
+            .sort(
+                (s1: SequenceAccess, s2: SequenceAccess): number => {
+                    return s2.accessed - s1.accessed;
+                })
+            .slice(maxSequences);
+
+        for (let sequenceAccess of uncacheSequences) {
+            let sequenceKey: string = sequenceAccess.sequence.key;
+
+            delete this._sequences[sequenceKey];
+
+            sequenceAccess.sequence.dispose();
+        }
     }
 
     private _addNewKeys<T>(keys: { [key: string]: boolean }, dict: { [key: string]: T }): void {
@@ -1121,7 +1168,10 @@ export class Graph {
             .do(
                 (sequenceByKey: { [sequenceKey: string]: ISequence }): void => {
                     if (!(sequenceKey in this._sequences)) {
-                        this._sequences[sequenceKey] = new Sequence(sequenceByKey[sequenceKey]);
+                        this._sequences[sequenceKey] = {
+                            accessed: new Date().getTime(),
+                            sequence: new Sequence(sequenceByKey[sequenceKey]),
+                        };
                     }
 
                     delete this._cachingSequences$[sequenceKey];

@@ -42,6 +42,16 @@ export class Sequence {
     }
 
     /**
+     * Dispose the sequence.
+     *
+     * @description Disposes all cached assets.
+     */
+    public dispose(): void {
+        this._key = null;
+        this._keys = null;
+    }
+
+    /**
      * Find the next node key in the sequence with respect to
      * the provided node key.
      *
