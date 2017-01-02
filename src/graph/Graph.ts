@@ -31,6 +31,7 @@ import {
     FilterCreator,
     FilterExpression,
     FilterFunction,
+    IGraphConfiguration,
     Node,
     NodeCache,
     Sequence,
@@ -95,6 +96,7 @@ export class Graph {
     private _filter: FilterFunction;
     private _filterCreator: FilterCreator;
     private _graphCalculator: GraphCalculator;
+    private _configuration: IGraphConfiguration;
 
     private _nodes: { [key: string]: Node };
     private _nodeIndex: rbush.RBush<NodeIndexItem>;
@@ -118,13 +120,16 @@ export class Graph {
      * @param {rbush.RBush<NodeIndexItem>} [nodeIndex] - Node index for fast spatial retreival.
      * @param {GraphCalculator} [graphCalculator] - Instance for graph calculations.
      * @param {EdgeCalculator} [edgeCalculator] - Instance for edge calculations.
+     * @param {FilterCreator} [filterCreator] - Instance for  filter creation.
+     * @param {IGraphConfiguration} [configuration] - Configuration struct.
      */
     constructor(
         apiV3: APIv3,
         nodeIndex?: rbush.RBush<NodeIndexItem>,
         graphCalculator?: GraphCalculator,
         edgeCalculator?: EdgeCalculator,
-        filterCreator?: FilterCreator) {
+        filterCreator?: FilterCreator,
+        configuration?: IGraphConfiguration) {
 
         this._apiV3 = apiV3;
 
@@ -146,6 +151,13 @@ export class Graph {
         this._filterCreator = filterCreator != null ? filterCreator : new FilterCreator();
         this._filter = this._filterCreator.createFilter(undefined);
         this._graphCalculator = graphCalculator != null ? graphCalculator : new GraphCalculator();
+        this._configuration = configuration != null ?
+            configuration :
+            {
+                maxSequences: 50,
+                maxUnusedNodes: 100,
+                maxUnusedTiles: 20,
+            };
 
         this._nodes = {};
         this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<NodeIndexItem>(16, [".lon", ".lat", ".lon", ".lat"]);
@@ -1071,13 +1083,12 @@ export class Graph {
             potentialHs.push([h, this._cachedTiles[h]]);
         }
 
-        let maxUnusedTiles: number = 4;
         let uncacheHs: string[] = potentialHs
             .sort(
                 (h1: [string, TileAccess], h2: [string, TileAccess]): number => {
                     return h2[1].accessed - h1[1].accessed;
                 })
-            .slice(maxUnusedTiles)
+            .slice(this._configuration.maxUnusedTiles)
             .map(
                 (h: [string, TileAccess]): string => {
                     return h[0];
@@ -1096,13 +1107,12 @@ export class Graph {
             potentialNodes.push(this._cachedNodes[key]);
         }
 
-        let maxUnusedNodes: number = 30;
         let uncacheNodes: NodeAccess[] = potentialNodes
             .sort(
                 (n1: NodeAccess, n2: NodeAccess): number => {
                     return n2.accessed - n1.accessed;
                 })
-            .slice(maxUnusedNodes);
+            .slice(this._configuration.maxUnusedNodes);
 
         for (let nodeAccess of uncacheNodes) {
             nodeAccess.node.uncache();
@@ -1128,13 +1138,12 @@ export class Graph {
             potentialSequences.push(this._sequences[sequenceKey]);
         }
 
-        let maxSequences: number = 50;
         let uncacheSequences: SequenceAccess[] = potentialSequences
             .sort(
                 (s1: SequenceAccess, s2: SequenceAccess): number => {
                     return s2.accessed - s1.accessed;
                 })
-            .slice(maxSequences);
+            .slice(this._configuration.maxSequences);
 
         for (let sequenceAccess of uncacheSequences) {
             let sequenceKey: string = sequenceAccess.sequence.key;
