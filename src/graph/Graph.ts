@@ -1,5 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import * as rbush from "rbush";
+
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
@@ -10,8 +12,6 @@ import "rxjs/add/operator/do";
 import "rxjs/add/operator/finally";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/publish";
-
-import * as rbush from "rbush";
 
 import {
     APIv3,
@@ -699,9 +699,7 @@ export class Graph {
         let accessed: number = new Date().getTime();
         this._cachedNodes[key] = { accessed: accessed, node: node };
 
-        if (key in this._nodeToTile) {
-            this._cachedTiles[this._nodeToTile[key]].accessed = accessed;
-        }
+        this._updateCachedTileAccess(key, accessed);
     }
 
     /**
@@ -781,6 +779,11 @@ export class Graph {
      * @returns {boolean} Value indicating if a node exist in the graph.
      */
     public hasNode(key: string): boolean {
+        let accessed: number = new Date().getTime();
+
+        this._updateCachedNodeAccess(key, accessed);
+        this._updateCachedTileAccess(key, accessed);
+
         return key in this._nodes;
     }
 
@@ -922,13 +925,8 @@ export class Graph {
     public getNode(key: string): Node {
         let accessed: number = new Date().getTime();
 
-        if (key in this._cachedNodes) {
-            this._cachedNodes[key].accessed = accessed;
-        }
-
-        if (key in this._nodeToTile) {
-            this._cachedTiles[this._nodeToTile[key]].accessed = accessed;
-        }
+        this._updateCachedNodeAccess(key, accessed);
+        this._updateCachedTileAccess(key, accessed);
 
         return this._nodes[key];
     }
@@ -1263,6 +1261,18 @@ export class Graph {
 
         delete this._nodeIndexTiles[h];
         delete this._cachedTiles[h];
+    }
+
+    private _updateCachedTileAccess(key: string, accessed: number): void {
+        if (key in this._nodeToTile) {
+            this._cachedTiles[this._nodeToTile[key]].accessed = accessed;
+        }
+    }
+
+    private _updateCachedNodeAccess(key: string, accessed: number): void {
+        if (key in this._cachedNodes) {
+            this._cachedNodes[key].accessed = accessed;
+        }
     }
 }
 
