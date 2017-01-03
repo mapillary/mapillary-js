@@ -633,3 +633,31 @@ describe("GraphService.setFilter$", () => {
         expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });
 });
+
+describe("GraphService.uncache$", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should reset spatial edges and set filter", () => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        let uncacheSpy: jasmine.Spy = spyOn(graph, "uncache").and.stub();
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        graphService.uncache$(["nKey"]).subscribe();
+
+        expect(uncacheSpy.calls.count()).toBe(1);
+
+        expect(uncacheSpy.calls.count()).toBe(1);
+        expect(uncacheSpy.calls.first().args.length).toBe(1);
+        expect(uncacheSpy.calls.first().args[0].length).toBe(1);
+        expect(uncacheSpy.calls.first().args[0][0]).toBe("nKey");
+    });
+});

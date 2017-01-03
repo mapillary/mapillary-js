@@ -341,6 +341,26 @@ export class GraphService {
                 });
     }
 
+    /**
+     * Uncache the graph.
+     *
+     * @description Uncaches the graph by removing tiles, nodes and
+     * sequences. Keeps the nodes of the supplied keys and the tiles
+     * related to those nodes.
+     *
+     * @param {Array<string>} keepKeys - Keys of nodes to keep in graph.
+     * @return {Observable<Graph>} Observable emitting a single item,
+     * the graph, when the graph has been uncached.
+     */
+    public uncache$(keepKeys: string[]): Observable<Graph> {
+        return this._graph$
+            .first()
+            .do(
+                (graph: Graph): void => {
+                    graph.uncache(keepKeys);
+                });
+    }
+
     private _abortSubjects<T>(subjects: Subject<T>[]): void {
         for (let subject of subjects.slice()) {
             this._removeFromArray(subject, subjects);
