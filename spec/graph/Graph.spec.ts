@@ -1231,6 +1231,96 @@ describe("Graph.resetSpatialEdges", () => {
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
+        let searchSpy: jasmine.Spy =  spyOn(index, "search");
+        searchSpy.and.returnValue([{ node: node }]);
+
+        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+
+        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        getPotentialSpy.and.returnValue([]);
+
+        spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
+
+        graph.initializeCache(fullNode.key);
+        graph.cacheSpatialEdges(fullNode.key);
+
+        let nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
+        let nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
+
+        graph.resetSpatialEdges();
+
+        expect(nodeSequenceResetSpy.calls.count()).toBe(0);
+        expect(nodeSpatialResetSpy.calls.count()).toBe(1);
+
+        let countBefore: number = searchSpy.calls.count();
+        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+        let countAfter: number = searchSpy.calls.count();
+
+        expect(countAfter - countBefore).toBe(1);
+    });
+
+    it("should have to re-encode hs after spatial edges reset", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let graphCalculator: GraphCalculator = new GraphCalculator(null);
+        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        let h: string = "h";
+        spyOn(graphCalculator, "encodeH").and.returnValue(h);
+        let encodeHsSpy: jasmine.Spy = spyOn(graphCalculator, "encodeHs");
+        encodeHsSpy.and.returnValue([h]);
+
+        let fullNode: IFullNode = helper.createFullNode();
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        graph.cacheFull$(fullNode.key).subscribe();
+
+        let fetchResult: { [key: string]: IFullNode } = {};
+        fetchResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fetchResult);
+        imageByKeyFull.complete();
+
+        graph.cacheNodeSequence$(fullNode.key).subscribe();
+
+        let result: { [key: string]: ISequence } = {};
+        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        expect(graph.hasTiles(fullNode.key)).toBe(false);
+        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        Observable
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe();
+
+        let imagesByHresult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        imagesByHresult[h] = {};
+        imagesByHresult[h]["0"] = fullNode;
+        imagesByH.next(imagesByHresult);
+
+        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
+
+        let node: Node = graph.getNode(fullNode.key);
+
+        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+
         spyOn(index, "search").and.returnValue([{ node: node }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
@@ -1254,6 +1344,13 @@ describe("Graph.resetSpatialEdges", () => {
 
         expect(nodeSequenceResetSpy.calls.count()).toBe(0);
         expect(nodeSpatialResetSpy.calls.count()).toBe(1);
+
+        let countBefore: number = encodeHsSpy.calls.count();
+        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        let countAfter: number = encodeHsSpy.calls.count();
+
+        expect(countAfter - countBefore).toBe(1);
+
     });
 });
 

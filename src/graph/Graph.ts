@@ -585,6 +585,7 @@ export class Graph {
 
         this._cachedSpatialEdges[key] = node;
         delete this._requiredSpatialArea[key];
+        delete this._cachedNodeTiles[key];
     }
 
     /**
@@ -599,6 +600,10 @@ export class Graph {
     public cacheTiles$(key: string): Observable<Graph>[] {
         if (key in this._cachedNodeTiles) {
             throw new GraphMapillaryError(`Tiles already cached (${key}).`);
+        }
+
+        if (key in this._cachedSpatialEdges) {
+            throw new GraphMapillaryError(`Spatial edges already cached so tiles considered cached (${key}).`);
         }
 
         if (!(key in this._requiredNodeTiles)) {
@@ -959,6 +964,10 @@ export class Graph {
      */
     public hasTiles(key: string): boolean {
         if (key in this._cachedNodeTiles) {
+            return true;
+        }
+
+        if (key in this._cachedSpatialEdges) {
             return true;
         }
 
