@@ -78,15 +78,49 @@ type SequenceAccess = {
 export class Graph {
     private _apiV3: APIv3;
 
+    /**
+     * Nodes that have initialized cache with a timestamp of last access.
+     */
     private _cachedNodes: { [key: string]: NodeAccess };
+
+    /**
+     * Nodes for which the required tiles are cached.
+     */
     private _cachedNodeTiles: { [key: string]: boolean };
+
+    /**
+     * Nodes for which the spatial edges are cached.
+     */
     private _cachedSpatialEdges: { [key: string]: Node };
+
+    /**
+     * Cached tiles with a timestamp of last access.
+     */
     private _cachedTiles: { [h: string]: TileAccess };
 
+    /**
+     * Nodes for which fill properties are being retreived.
+     */
     private _cachingFill$: { [key: string]: Observable<Graph> };
+
+    /**
+     * Nodes for which full properties are being retrieved.
+     */
     private _cachingFull$: { [key: string]: Observable<Graph> };
+
+    /**
+     * Sequences that are being retrieved.
+     */
     private _cachingSequences$: { [sequenceKey: string]: Observable<Graph> };
+
+    /**
+     * Nodes for which the spatial area fill properties are being retrieved.
+     */
     private _cachingSpatialArea$: { [key: string]: Observable<Graph>[] };
+
+    /**
+     * Tiles that are being retrieved.
+     */
     private _cachingTiles$: { [h: string]: Observable<Graph> };
 
     private _changed$: Subject<Graph>;
@@ -98,16 +132,44 @@ export class Graph {
     private _graphCalculator: GraphCalculator;
     private _configuration: IGraphConfiguration;
 
+    /**
+     * All nodes in the graph.
+     */
     private _nodes: { [key: string]: Node };
+
+    /**
+     * Contains all nodes in the graph. Used for fast spatial lookups.
+     */
     private _nodeIndex: rbush.RBush<NodeIndexItem>;
+
+    /**
+     * All node index items sorted in tiles for easy uncache.
+     */
     private _nodeIndexTiles: { [h: string]: NodeIndexItem[] };
+
+    /**
+     * Node to tile dictionary for easy tile access updates.
+     */
     private _nodeToTile: { [key: string]: string };
 
+    /**
+     * Nodes retrieved before tiles, stored on tile level.
+     */
     private _preStored: { [h: string]:  { [key: string]: Node }; };
 
+    /**
+     * Tiles required for a node to retrive spatial area.
+     */
     private _requiredNodeTiles: { [key: string]: NodeTiles };
+
+    /**
+     * Other nodes required for node to calculate spatial edges.
+     */
     private _requiredSpatialArea: { [key: string]: SpatialArea };
 
+    /**
+     * All sequences in graph with a timestamp of last access.
+     */
     private _sequences: { [skey: string]: SequenceAccess };
 
     private _tilePrecision: number;
@@ -1040,6 +1102,19 @@ export class Graph {
         this._filter = this._filterCreator.createFilter(filter);
     }
 
+    /**
+     * Uncache the graph according to the graph configuration.
+     *
+     * @description Uncaches unused tiles, unused nodes and
+     * sequences according to the numbers specified in the
+     * graph configuration. Sequences does not have a direct
+     * reference to either tiles or nodes and may be uncached
+     * even if they are related to the nodes that should be kept.
+     *
+     * @param {Array<string>} keepKeys - Keys of nodes to keep in
+     * graph unrelated to last access. Tiles related to those keys
+     * will also be kept in graph.
+     */
     public uncache(keepKeys: string[]): void {
         let keysInUse: { [key: string]: boolean } = {};
 
