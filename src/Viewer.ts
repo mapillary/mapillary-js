@@ -1,4 +1,5 @@
-export {Container} from "./viewer/Container"
+export {Container} from "./viewer/Container";
+export {CacheService} from "./viewer/CacheService";
 export {EventLauncher} from "./viewer/EventLauncher";
 export {ImageSize} from "./viewer/ImageSize";
 export {LoadingService} from "./viewer/LoadingService";
