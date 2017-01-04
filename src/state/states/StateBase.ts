@@ -195,6 +195,12 @@ export abstract class StateBase implements IState {
         this._setCurrentNode();
     }
 
+    public clearPrior(): void {
+        if (this._currentIndex > 0) {
+            this.remove(this._currentIndex - 1);
+        }
+    }
+
     public clear(): void {
         this.cut();
 

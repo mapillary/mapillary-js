@@ -301,3 +301,67 @@ describe("StateBase.clear", () => {
         expect(stateBase.trajectory.length).toBe(2);
     });
 });
+
+describe("StateBase.clearPrior", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should clear prior of empty state without affecting it", () => {
+        let state: IState = createState();
+        let stateBase: TestStateBase = new TestStateBase(state);
+
+        stateBase.clearPrior();
+
+        expect(stateBase.currentIndex).toBe(state.currentIndex);
+    });
+
+    it("should remove one previous node", () => {
+        let state: IState = createState();
+
+        let stateBase: TestStateBase = new TestStateBase(state);
+
+        let coreNode: ICoreNode = helper.createCoreNode();
+        coreNode.key = "currentNode";
+        let node: TestNode = new TestNode(coreNode);
+        node.makeFull(helper.createFillNode());
+
+        stateBase.set([node]);
+        stateBase.prepend([createFullNode(), createFullNode()]);
+
+        stateBase.clearPrior();
+
+        expect(stateBase.currentNode).toBeDefined();
+        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentIndex).toBe(1);
+        expect(stateBase.trajectory.length).toBe(2);
+    });
+
+    it("should remove multiple previous nodes", () => {
+        let state: IState = createState();
+
+        let stateBase: TestStateBase = new TestStateBase(state);
+
+        let coreNode: ICoreNode = helper.createCoreNode();
+        coreNode.key = "currentNode";
+        let node: TestNode = new TestNode(coreNode);
+        node.makeFull(helper.createFillNode());
+
+        stateBase.set([node]);
+        stateBase.prepend([
+            createFullNode(),
+            createFullNode(),
+            createFullNode(),
+            createFullNode(),
+        ]);
+
+        stateBase.clearPrior();
+
+        expect(stateBase.currentNode).toBeDefined();
+        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentIndex).toBe(1);
+        expect(stateBase.trajectory.length).toBe(2);
+    });
+});

@@ -334,6 +334,10 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.clear(); });
     }
 
+    public clearPriorNodes(): void {
+        this._invokeContextOperation((context: IStateContext) => { context.clearPrior(); });
+    }
+
     public cutNodes(): void {
         this._invokeContextOperation((context: IStateContext) => { context.cut(); });
     }
