@@ -164,6 +164,7 @@ describe("RenderService.renderCameraFrame", () => {
                 });
 
         frame$.next(createFrame(0));
+        frame$.complete();
     });
 
     it("should be changed for first frame", (done: Function) => {
@@ -183,6 +184,7 @@ describe("RenderService.renderCameraFrame", () => {
                 });
 
         frame$.next(createFrame(0));
+        frame$.complete();
     });
 
     it("should not be changed for two identical frames", (done: Function) => {
@@ -204,6 +206,7 @@ describe("RenderService.renderCameraFrame", () => {
 
         frame$.next(createFrame(0));
         frame$.next(createFrame(1));
+        frame$.complete();
     });
 
     it("should be changed for alpha changes between two frames", (done: Function) => {
@@ -225,6 +228,7 @@ describe("RenderService.renderCameraFrame", () => {
 
         frame$.next(createFrame(0, 0.00));
         frame$.next(createFrame(1, 0.01));
+        frame$.complete();
     });
 
     it("should be changed for camera changes between two frames", (done: Function) => {
@@ -249,6 +253,7 @@ describe("RenderService.renderCameraFrame", () => {
 
         camera.position.x = 0.01;
         frame$.next(createFrame(1, 0, camera));
+        frame$.complete();
     });
 
     it("should be changed for resize", (done: Function) => {
@@ -272,6 +277,7 @@ describe("RenderService.renderCameraFrame", () => {
 
         renderService.resize$.next(null);
         frame$.next(createFrame(1));
+        frame$.complete();
     });
 
     it("should be changed for changed render mode", (done: Function) => {
@@ -295,6 +301,7 @@ describe("RenderService.renderCameraFrame", () => {
 
         renderService.renderMode$.next(RenderMode.Fill);
         frame$.next(createFrame(1));
+        frame$.complete();
     });
 
     it("should have correct render mode when changed before subscribe", (done: Function) => {
@@ -316,6 +323,7 @@ describe("RenderService.renderCameraFrame", () => {
                 });
 
         frame$.next(createFrame(0));
+        frame$.complete();
     });
 
     it("should emit once for each frame", (done: Function) => {
@@ -341,9 +349,7 @@ describe("RenderService.renderCameraFrame", () => {
         renderService.resize$.next(null);
 
         frame$.next(createFrame(2));
-
         frame$.next(createFrame(3));
-
         frame$.complete();
     });
 });
@@ -393,6 +399,7 @@ describe("RenderService.renderCamera", () => {
                 });
 
         frame$.next(createFrame(0));
+        frame$.complete();
     });
 
     it("should only emit when camera has changed", (done: Function) => {
@@ -415,6 +422,7 @@ describe("RenderService.renderCamera", () => {
         frame$.next(createFrame(0));
         frame$.next(createFrame(1));
         frame$.next(createFrame(2, 0.5));
+        frame$.complete();
     });
 
     it("should check width and height only once on resize", () => {
@@ -438,8 +446,8 @@ describe("RenderService.renderCamera", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.size$.subscribe();
-        renderService.size$.subscribe();
+        renderService.size$.subscribe(() => { /*noop*/ });
+        renderService.size$.subscribe(() => { /*noop*/ });
 
         spyOn(element, "getOffsetHeight");
         spyOn(element, "getOffsetWidth");

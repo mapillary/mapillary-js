@@ -110,7 +110,7 @@ export class TouchService {
                     return operation(prevent);
                 },
                 true)
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         this._preventTouchMove$
             .map(

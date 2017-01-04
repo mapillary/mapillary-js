@@ -207,7 +207,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .publishReplay(1)
             .refCount();
 
-        this._textureProviderSubscription = textureProvider$.subscribe();
+        this._textureProviderSubscription = textureProvider$.subscribe(() => { /*noop*/ });
 
         this._setTextureProviderSubscription = textureProvider$
             .map(
@@ -296,7 +296,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
             .publishReplay(1)
             .refCount();
 
-        this._hasTextureSubscription = hasTexture$.subscribe();
+        this._hasTextureSubscription = hasTexture$.subscribe(() => { /*noop*/ });
 
         let nodeImage$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentNode$
             .debounceTime(1000)

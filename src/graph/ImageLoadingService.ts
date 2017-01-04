@@ -20,7 +20,7 @@ export class ImageLoadingService {
             .publishReplay(1)
             .refCount();
 
-        this._loadstatus$.subscribe();
+        this._loadstatus$.subscribe(() => { /*noop*/ });
     }
 
     public get loadnode$(): Subject<Node> {

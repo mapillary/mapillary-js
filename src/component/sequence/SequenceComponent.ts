@@ -259,7 +259,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                         this._stop();
                     }
                 })
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         this._configuration$
             .map(

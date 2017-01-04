@@ -190,7 +190,7 @@ export class SpriteService {
             .publishReplay(1)
             .refCount();
 
-        this._spriteAtlas$.subscribe();
+        this._spriteAtlas$.subscribe(() => { /*noop*/ });
 
         if (sprite == null) {
             return;

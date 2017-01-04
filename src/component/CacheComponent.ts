@@ -84,7 +84,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                                 return Observable.empty<EdgesDepth>();
                             });
                  })
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         this._spatialSubscription = this._navigator.stateService.currentNode$
                 .switchMap(
@@ -142,7 +142,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                                 return Observable.empty<EdgesDepth>();
                             });
                 })
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
     }
 
     protected _deactivate(): void {

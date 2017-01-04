@@ -50,7 +50,7 @@ export class GraphService {
             .publishReplay(1)
             .refCount();
 
-        this._graph$.subscribe();
+        this._graph$.subscribe(() => { /*noop*/ });
 
         this._imageLoadingService = imageLoadingService;
 

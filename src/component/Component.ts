@@ -49,7 +49,7 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
                 .publishReplay(1)
                 .refCount();
 
-        this._configuration$.subscribe();
+        this._configuration$.subscribe(() => { /*noop*/ });
     }
 
     public get activated(): boolean {

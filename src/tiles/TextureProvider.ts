@@ -72,7 +72,7 @@ export class TextureProvider {
             .publishReplay(1)
             .refCount();
 
-        this._createdSubscription = this._created$.subscribe();
+        this._createdSubscription = this._created$.subscribe(() => { /*noop*/ });
 
         this._hasSubject$ = new Subject<boolean>();
         this._has$ = this._hasSubject$
@@ -80,7 +80,7 @@ export class TextureProvider {
             .publishReplay(1)
             .refCount();
 
-        this._hasSubscription = this._has$.subscribe();
+        this._hasSubscription = this._has$.subscribe(() => { /*noop*/ });
 
         this._abortFunctions = [];
         this._tileSubscriptions = {};

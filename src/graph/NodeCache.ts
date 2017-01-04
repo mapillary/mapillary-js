@@ -66,7 +66,7 @@ export class NodeCache {
             .publishReplay(1)
             .refCount();
 
-        this._sequenceEdgesSubscription = this._sequenceEdges$.subscribe();
+        this._sequenceEdgesSubscription = this._sequenceEdges$.subscribe(() => { /*noop*/ });
 
         this._spatialEdgesChanged$ = new Subject<IEdgeStatus>();
         this._spatialEdges$ = this._spatialEdgesChanged$
@@ -74,7 +74,7 @@ export class NodeCache {
             .publishReplay(1)
             .refCount();
 
-        this._spatialEdgesSubscription = this._spatialEdges$.subscribe();
+        this._spatialEdgesSubscription = this._spatialEdges$.subscribe(() => { /*noop*/ });
 
         this._cachingAssets$ = null;
     }

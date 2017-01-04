@@ -57,7 +57,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                                 return Observable.empty<void>();
                             });
                 })
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         this._imageSubscription = this._navigator.stateService.currentNode$
             .map(
@@ -93,7 +93,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                                 return Observable.empty<void>();
                             });
                 })
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
     }
 
     protected _deactivate(): void {

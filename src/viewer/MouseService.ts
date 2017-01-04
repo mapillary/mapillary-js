@@ -91,7 +91,7 @@ export class MouseService {
                     return operation(prevent);
                 },
                 true)
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         this._preventMouseDown$
             .map(

@@ -117,8 +117,8 @@ describe("Graph.cacheFull$", () => {
 
         let graph: Graph = new Graph(apiV3, index, calculator);
 
-        graph.cacheFull$(fullNode.key).subscribe();
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(imageByKeyFullSpy.calls.count()).toBe(1);
     });
@@ -135,7 +135,7 @@ describe("Graph.cacheFull$", () => {
 
         let fullNode: IFullNode = helper.createFullNode();
 
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
@@ -204,7 +204,7 @@ describe("Graph.cacheFull$", () => {
 
         let otherNode: IFullNode = helper.createFullNode();
         otherNode.key = otherKey;
-        graph.cacheFull$(otherNode.key).subscribe();
+        graph.cacheFull$(otherNode.key).subscribe(() => { /*noop*/ });
 
         let otherFullResult: { [key: string]: IFullNode } = {};
         otherFullResult[otherNode.key] = otherNode;
@@ -215,11 +215,11 @@ describe("Graph.cacheFull$", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(otherNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasNode(fullNode.key)).toBe(false);
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
@@ -272,7 +272,7 @@ describe("Graph.cacheFill$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -282,7 +282,7 @@ describe("Graph.cacheFill$", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
@@ -294,7 +294,7 @@ describe("Graph.cacheFill$", () => {
         expect(graph.getNode(tileNode.key).full).toBe(false);
         expect(graph.isCachingFill(tileNode.key)).toBe(false);
 
-        graph.cacheFill$(tileNode.key).subscribe();
+        graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.getNode(tileNode.key).full).toBe(false);
         expect(graph.isCachingFill(tileNode.key)).toBe(true);
@@ -322,7 +322,7 @@ describe("Graph.cacheFill$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -332,7 +332,7 @@ describe("Graph.cacheFill$", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
@@ -344,7 +344,7 @@ describe("Graph.cacheFill$", () => {
         expect(graph.getNode(tileNode.key).full).toBe(false);
         expect(graph.isCachingFill(tileNode.key)).toBe(false);
 
-        graph.cacheFill$(tileNode.key).subscribe();
+        graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
 
         let fillTileNode: IFillNode = helper.createFullNode();
         let fillResult: { [key: string]: IFillNode } = {};
@@ -378,7 +378,7 @@ describe("Graph.cacheFill$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -388,7 +388,7 @@ describe("Graph.cacheFill$", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
@@ -400,8 +400,8 @@ describe("Graph.cacheFill$", () => {
         expect(graph.getNode(tileNode.key).full).toBe(false);
         expect(graph.isCachingFill(tileNode.key)).toBe(false);
 
-        graph.cacheFill$(tileNode.key).subscribe();
-        graph.cacheFill$(tileNode.key).subscribe();
+        graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
 
         expect(imageByKeyFillSpy.calls.count()).toBe(1);
     });
@@ -524,7 +524,7 @@ describe("Graph.cacheTiles$", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: Graph = new Graph(apiV3, index, calculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
         expect(graph.isCachingTiles(fullNode.key)).toBe(false);
@@ -532,7 +532,7 @@ describe("Graph.cacheTiles$", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
@@ -592,14 +592,14 @@ describe("Graph.cacheTiles$", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: Graph = new Graph(apiV3, index, calculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
 
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
@@ -631,7 +631,7 @@ describe("Graph.cacheSpatialArea$", () => {
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -666,7 +666,7 @@ describe("Graph.cacheSpatialArea$", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -683,7 +683,7 @@ describe("Graph.cacheSpatialArea$", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
@@ -721,14 +721,14 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
         result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
@@ -777,14 +777,14 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
         result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
@@ -838,14 +838,14 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
         result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
@@ -903,7 +903,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
         let fullNode: IFullNode = helper.createFullNode();
 
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -924,7 +924,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
         let fullNode: IFullNode = helper.createFullNode();
 
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -953,7 +953,7 @@ describe("Graph.cacheNodeSequence$", () => {
         let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
@@ -1010,13 +1010,13 @@ describe("Graph.cacheNodeSequence$", () => {
         let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
         result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
@@ -1045,14 +1045,14 @@ describe("Graph.cacheNodeSequence$", () => {
         let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(sequenceByKeySpy.calls.count()).toBe(1);
     });
@@ -1073,13 +1073,13 @@ describe("Graph.cacheNodeSequence$", () => {
         let fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence.key = "sequenceKey";
 
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         graph.changed$
             .first()
@@ -1135,7 +1135,7 @@ describe("Graph.cacheSequence$", () => {
 
         let sequenceKey: string = "sequenceKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
         expect(graph.hasSequence(sequenceKey)).toBe(false);
         expect(graph.isCachingSequence(sequenceKey)).toBe(true);
@@ -1186,8 +1186,8 @@ describe("Graph.cacheSequence$", () => {
 
         let sequenceKey: string = "sequenceKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
+        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
         expect(sequenceByKeySpy.calls.count()).toBe(1);
     });
@@ -1215,14 +1215,14 @@ describe("Graph.resetSpatialEdges", () => {
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
         result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
@@ -1285,14 +1285,14 @@ describe("Graph.resetSpatialEdges", () => {
         spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe();
+        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
         result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
@@ -1309,7 +1309,7 @@ describe("Graph.resetSpatialEdges", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let imagesByHresult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHresult[h] = {};
@@ -1379,7 +1379,7 @@ describe("Graph.reset", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1413,7 +1413,7 @@ describe("Graph.reset", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1448,7 +1448,7 @@ describe("Graph.reset", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1503,7 +1503,7 @@ describe("Graph.uncache", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1548,7 +1548,7 @@ describe("Graph.uncache", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1593,7 +1593,7 @@ describe("Graph.uncache", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1639,7 +1639,7 @@ describe("Graph.uncache", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1659,7 +1659,7 @@ describe("Graph.uncache", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(node.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
         nodeUncacheSpy.and.stub();
@@ -1698,7 +1698,7 @@ describe("Graph.uncache", () => {
         let imageByKeyFull1: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
-        graph.cacheFull$(fullNode1.key).subscribe();
+        graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull1.next(result1);
         imageByKeyFull1.complete();
@@ -1713,7 +1713,7 @@ describe("Graph.uncache", () => {
         let imageByKeyFull2: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
-        graph.cacheFull$(fullNode2.key).subscribe();
+        graph.cacheFull$(fullNode2.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull2.next(result2);
         imageByKeyFull2.complete();
@@ -1769,7 +1769,7 @@ describe("Graph.uncache", () => {
 
         let sequenceKey: string = "sequenceKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
         let result: { [sequenceKey: string]: ISequence } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [] };
@@ -1808,7 +1808,7 @@ describe("Graph.uncache", () => {
 
         let sequenceKey: string = "sequenceKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
         let result: { [sequenceKey: string]: ISequence } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [] };
@@ -1850,7 +1850,7 @@ describe("Graph.uncache", () => {
         let sequenceByKey1: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         sequenceByKeySpy.and.returnValue(sequenceByKey1);
 
-        graph.cacheSequence$(sequenceKey1).subscribe();
+        graph.cacheSequence$(sequenceKey1).subscribe(() => { /*noop*/ });
 
         let result1: { [sequenceKey: string]: ISequence } = {};
         result1[sequenceKey1] = { key: sequenceKey1, keys: [] };
@@ -1868,7 +1868,7 @@ describe("Graph.uncache", () => {
         let sequenceByKey2: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         sequenceByKeySpy.and.returnValue(sequenceByKey2);
 
-        graph.cacheSequence$(sequenceKey2).subscribe();
+        graph.cacheSequence$(sequenceKey2).subscribe(() => { /*noop*/ });
 
         let result2: { [sequenceKey: string]: ISequence } = {};
         result2[sequenceKey2] = { key: sequenceKey2, keys: [] };
@@ -1920,7 +1920,7 @@ describe("Graph.uncache", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1935,7 +1935,7 @@ describe("Graph.uncache", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
@@ -1979,7 +1979,7 @@ describe("Graph.uncache", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -1994,7 +1994,7 @@ describe("Graph.uncache", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
@@ -2039,7 +2039,7 @@ describe("Graph.uncache", () => {
         let fullNode: IFullNode = helper.createFullNode();
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe();
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -2054,7 +2054,7 @@ describe("Graph.uncache", () => {
         Observable
             .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
             .mergeAll()
-            .subscribe();
+            .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};

@@ -161,9 +161,9 @@ export class RenderService {
                 })
             .subscribe(this._renderCameraOperation$);
 
-        this._renderCameraHolder$.subscribe();
-        this._size$.subscribe();
-        this._renderMode$.subscribe();
+        this._renderCameraHolder$.subscribe(() => { /*noop*/ });
+        this._size$.subscribe(() => { /*noop*/ });
+        this._renderMode$.subscribe(() => { /*noop*/ });
     }
 
     public get element(): HTMLElement {

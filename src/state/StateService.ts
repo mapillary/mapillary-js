@@ -261,13 +261,13 @@ export class StateService {
             .distinctUntilChanged()
             .share();
 
-        this._state$.subscribe();
-        this._currentNode$.subscribe();
-        this._currentCamera$.subscribe();
-        this._currentTransform$.subscribe();
-        this._reference$.subscribe();
-        this._currentNodeExternal$.subscribe();
-        this._lastState$.subscribe();
+        this._state$.subscribe(() => { /*noop*/ });
+        this._currentNode$.subscribe(() => { /*noop*/ });
+        this._currentCamera$.subscribe(() => { /*noop*/ });
+        this._currentTransform$.subscribe(() => { /*noop*/ });
+        this._reference$.subscribe(() => { /*noop*/ });
+        this._currentNodeExternal$.subscribe(() => { /*noop*/ });
+        this._lastState$.subscribe(() => { /*noop*/ });
 
         this._frameId = null;
         this._frameGenerator = new RequestAnimationFrameDefinition(window);

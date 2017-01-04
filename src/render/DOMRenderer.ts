@@ -206,7 +206,7 @@ export class DOMRenderer {
             .publishReplay(1)
             .refCount();
 
-        this._element$.subscribe();
+        this._element$.subscribe(() => { /*noop*/ });
 
         this._renderService.size$
             .map(

@@ -262,7 +262,7 @@ export class GLRenderer {
             .publishReplay(1)
             .refCount();
 
-        this._webGLRenderer$.subscribe();
+        this._webGLRenderer$.subscribe(() => { /*noop*/ });
 
         let createRenderer$: Observable<IGLRendererOperation> = this._webGLRenderer$
             .first()

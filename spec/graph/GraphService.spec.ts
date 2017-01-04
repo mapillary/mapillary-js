@@ -45,7 +45,7 @@ describe("GraphService.cacheSequence$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        graphService.cacheSequence$("sequenceKey").subscribe();
+        graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
 
         cacheSequence$.next(graph);
 
@@ -71,7 +71,7 @@ describe("GraphService.cacheSequence$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        graphService.cacheSequence$("sequenceKey").subscribe();
+        graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
 
         cacheSequence$.next(graph);
 
@@ -97,7 +97,7 @@ describe("GraphService.cacheSequence$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        graphService.cacheSequence$("sequenceKey").subscribe();
+        graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
 
         cacheSequence$.next(graph);
 
@@ -291,7 +291,7 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key).subscribe();
+        graphService.cacheNode$(node.key).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
@@ -342,7 +342,7 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key).subscribe();
+        graphService.cacheNode$(node.key).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
@@ -559,7 +559,7 @@ describe("GraphService.setFilter$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe();
+        graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe(() => { /*noop*/ });
 
         expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
 
@@ -626,7 +626,7 @@ describe("GraphService.setFilter$", () => {
         node.assetsCached = true;
         cacheAssets$.next(node);
 
-        graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe();
+        graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe(() => { /*noop*/ });
 
         cacheTiles$.next([Observable.of<Graph>(graph)]);
 
@@ -651,7 +651,7 @@ describe("GraphService.uncache$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        graphService.uncache$(["nKey"]).subscribe();
+        graphService.uncache$(["nKey"]).subscribe(() => { /*noop*/ });
 
         expect(uncacheSpy.calls.count()).toBe(1);
 

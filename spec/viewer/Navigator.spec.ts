@@ -136,7 +136,7 @@ describe("Navigator.moveToKey$", () => {
         let navigator: Navigator =
             new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
-        navigator.moveToKey$(key).subscribe();
+        navigator.moveToKey$(key).subscribe(() => { /*noop*/ });
 
         expect(stateSpy.calls.count()).toBe(1);
 
@@ -233,7 +233,7 @@ describe("Navigator.movedToKey$", () => {
                     done();
                 });
 
-        navigator.moveToKey$(key).subscribe();
+        navigator.moveToKey$(key).subscribe(() => { /*noop*/ });
     });
 });
 
@@ -265,7 +265,7 @@ describe("Navigator.moveCloseTo$", () => {
         let lat: number = 0;
         let lon: number = 0;
 
-        navigator.moveCloseTo$(lat, lon).subscribe();
+        navigator.moveCloseTo$(lat, lon).subscribe(() => { /*noop*/ });
 
         expect(startLoadingSpy.calls.count()).toBe(1);
         expect(startLoadingSpy.calls.first().args[0]).toBe("navigator");
@@ -302,7 +302,7 @@ describe("Navigator.moveCloseTo$", () => {
         let lat: number = 0;
         let lon: number = 0;
 
-        navigator.moveCloseTo$(lat, lon).subscribe();
+        navigator.moveCloseTo$(lat, lon).subscribe(() => { /*noop*/ });
 
         expect(moveSpy.calls.count()).toBe(1);
         expect(moveSpy.calls.first().args[0]).toBe(key);
@@ -461,7 +461,7 @@ describe("Navigator.setFilter$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveToKey$("moveToKey").subscribe();
+        navigator.moveToKey$("moveToKey").subscribe(() => { /*noop*/ });
 
         navigator.setFilter$(["==", "key", "value"])
             .subscribe(
@@ -533,7 +533,7 @@ describe("Navigator.setFilter$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveToKey$("key").subscribe();
+        navigator.moveToKey$("key").subscribe(() => { /*noop*/ });
 
         let coreNode0: ICoreNode = helper.createCoreNode();
         coreNode0.key = "node0";
@@ -684,7 +684,7 @@ describe("Navigator.reset$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveToKey$("key").subscribe();
+        navigator.moveToKey$("key").subscribe(() => { /*noop*/ });
 
         let coreNode0: ICoreNode = helper.createCoreNode();
         coreNode0.key = "node0";
