@@ -11,6 +11,10 @@ export class Spatial {
 
     private _epsilon: number = 1e-9;
 
+    public azimuthalToBearing(phi: number): number {
+         return -phi + Math.PI / 2;
+    }
+
     /**
      * Converts degrees to radians.
      *

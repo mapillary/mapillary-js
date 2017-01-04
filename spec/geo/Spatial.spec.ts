@@ -41,6 +41,22 @@ describe("Spatial.rotationMatrix", () => {
     });
 });
 
+describe("Spatial.azimuthalToBearing", () => {
+    let spatial: Spatial;
+
+    beforeEach(() => {
+        spatial = new Spatial();
+    });
+
+    it("should convert correctly", () => {
+        expect(spatial.azimuthalToBearing(0)).toBeCloseTo(Math.PI / 2, precision);
+        expect(spatial.azimuthalToBearing(Math.PI / 2)).toBeCloseTo(0, precision);
+        expect(spatial.azimuthalToBearing(Math.PI)).toBeCloseTo(-Math.PI / 2, precision);
+        expect(spatial.azimuthalToBearing(3 * Math.PI / 2)).toBeCloseTo(-Math.PI, precision);
+        expect(spatial.azimuthalToBearing(-Math.PI / 4)).toBeCloseTo(3 * Math.PI / 4, precision);
+    });
+});
+
 describe("Spatial.rotate", () => {
     let spatial: Spatial;
 

@@ -86,7 +86,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                     let vFov: number = this._spatial.degToRad(rc.perspective.fov);
                     let hFov: number = Math.atan(rc.perspective.aspect * Math.tan(0.5 * vFov)) * 2;
 
-                    return [-rc.rotation.phi + Math.PI / 2, hFov];
+                    return [this._spatial.azimuthalToBearing(rc.rotation.phi), hFov];
                 })
             .distinctUntilChanged(
                 (a1: [number, number], a2: [number, number]): boolean => {
