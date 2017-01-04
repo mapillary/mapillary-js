@@ -23,6 +23,7 @@ export class ModelCreator {
         }
 
         return new falcor.Model({
+            maxSize: 16 * 1024 * 1024,
             source: new HttpDataSource(Urls.falcorModel(clientId), configuration),
         });
     }
