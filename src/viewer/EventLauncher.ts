@@ -5,14 +5,24 @@ import "rxjs/add/observable/combineLatest";
 
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/map";
+import "rxjs/add/operator/throttleTime";
 
-import {IEdgeStatus, Node} from "../Graph";
+import {
+    IEdgeStatus,
+    Node,
+} from "../Graph";
 import {EventEmitter} from "../Utils";
-import {Container, Navigator, Viewer} from "../Viewer";
+import {
+    Container,
+    Navigator,
+    Viewer,
+} from "../Viewer";
 
 export class EventLauncher {
+    private _bearingSubscription: Subscription;
     private _currentNodeSubscription: Subscription;
     private _loadingSubscription: Subscription;
+    private _moveSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
 
@@ -55,7 +65,7 @@ export class EventLauncher {
                     this._eventEmitter.fire(Viewer.spatialedgeschanged, status);
                 });
 
-        Observable
+        this._moveSubscription = Observable
             .combineLatest(
                 this._navigator.stateService.moving$,
                 this._container.mouseService.active$)
@@ -72,11 +82,26 @@ export class EventLauncher {
                         this._eventEmitter.fire(Viewer.moveend, null);
                     }
                 });
+
+        this._bearingSubscription = this._container.renderService.bearing$
+            .throttleTime(100)
+            .distinctUntilChanged(
+                (b1: number, b2: number): boolean => {
+                    return Math.abs(b2 - b1) < 1;
+                })
+            .subscribe(
+                (bearing): void => {
+                    this._eventEmitter.fire(Viewer.bearingchanged, bearing);
+                 });
     }
 
     public dispose(): void {
+        this._bearingSubscription.unsubscribe();
         this._loadingSubscription.unsubscribe();
         this._currentNodeSubscription.unsubscribe();
+        this._moveSubscription.unsubscribe();
+        this._sequenceEdgesSubscription.unsubscribe();
+        this._spatialEdgesSubscription.unsubscribe();
     }
 }
 

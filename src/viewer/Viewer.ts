@@ -34,6 +34,14 @@ import {RenderMode} from "../Render";
  */
 export class Viewer extends EventEmitter {
     /**
+     * Fired when the viewing direction of the camera changes.
+     * @event
+     * @type {boolean} bearing - Value indicating the current bearing
+     * measured in degrees clockwise with respect to north.
+     */
+    public static bearingchanged: string = "bearingchanged";
+
+    /**
      * Fired when the viewer is loading more data.
      * @event
      * @type {boolean} loading - Value indicating whether the viewer is loading.
@@ -158,6 +166,35 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Get the bearing of the current viewer camera.
+     *
+     * @description The bearing depends on how the camera
+     * is currently rotated and does not correspond
+     * to the compass angle of the current node if the view
+     * has been panned.
+     *
+     * Bearing is measured in degrees clockwise with respect to
+     * north.
+     *
+     * @returns {Promise<number>} Promise to the bearing
+     * of the current viewer camera.
+     */
+    public getBearing(): when.Promise<number> {
+        return when.promise<number>(
+            (resolve: any, reject: any): void => {
+                this._container.renderService.bearing$
+                    .first()
+                    .subscribe(
+                        (bearing: number): void => {
+                            resolve(bearing);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
      * Get the basic coordinates of the current photo that is
      * at the center of the viewport.
      *
@@ -179,8 +216,7 @@ export class Viewer extends EventEmitter {
                         },
                         (error: Error): void => {
                             reject(error);
-                        }
-                    );
+                        });
             });
     }
 
@@ -210,8 +246,7 @@ export class Viewer extends EventEmitter {
                         },
                         (error: Error): void => {
                             reject(error);
-                        }
-                    );
+                        });
             });
     }
 
@@ -233,8 +268,7 @@ export class Viewer extends EventEmitter {
                 },
                 (error: Error): void => {
                     reject(error);
-                }
-            );
+                });
         });
     }
 
@@ -259,8 +293,7 @@ export class Viewer extends EventEmitter {
                 },
                 (error: Error): void => {
                     reject(error);
-                }
-            );
+                });
         });
     }
 
@@ -279,8 +312,7 @@ export class Viewer extends EventEmitter {
                 },
                 (error: Error): void => {
                     reject(error);
-                }
-            );
+                });
         });
     }
 
@@ -321,8 +353,7 @@ export class Viewer extends EventEmitter {
                         },
                         (error: Error): void => {
                             reject(error);
-                        }
-                    );
+                        });
             });
     }
 
@@ -393,8 +424,7 @@ export class Viewer extends EventEmitter {
                         },
                         (error: Error): void => {
                             reject(error);
-                        }
-                    );
+                        });
             });
     }
 
