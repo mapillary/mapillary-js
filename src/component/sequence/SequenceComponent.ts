@@ -9,6 +9,7 @@ import {Subject} from "rxjs/Subject";
 import "rxjs/add/observable/combineLatest";
 import "rxjs/add/observable/of";
 
+import "rxjs/add/operator/bufferCount";
 import "rxjs/add/operator/concat";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/filter";
@@ -72,6 +73,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _hoveredKeySubscription: Subscription;
 
     private _playingSubscription: Subscription;
+    private _clearSubscription: Subscription;
     private _stopSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -427,12 +429,22 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 }
             );
 
+        this._clearSubscription = this._navigator.stateService.currentNode$
+            .bufferCount(1, 7)
+            .subscribe(
+                (nodes: Node[]): void => {
+                    this._navigator.stateService.clearPriorNodes();
+                });
+
         this.fire(SequenceComponent.playingchanged, true);
     }
 
     private _stop(): void {
         this._playingSubscription.unsubscribe();
         this._playingSubscription = null;
+
+        this._clearSubscription.unsubscribe();
+        this._clearSubscription = null;
 
         this.fire(SequenceComponent.playingchanged, false);
     }
