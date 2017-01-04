@@ -15,7 +15,7 @@ import "rxjs/add/operator/skip";
 import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/withLatestFrom";
 
-import {Camera, Transform} from "../Geo";
+import {Camera, Spatial, Transform} from "../Geo";
 import {Node} from "../Graph";
 import {RenderCamera, RenderMode, ISize} from "../Render";
 import {IFrame} from "../State";
@@ -25,6 +25,8 @@ interface IRenderCameraOperation {
 }
 
 export class RenderService {
+    private _bearing$: Observable<number>;
+
     private _element: HTMLElement;
     private _currentFrame$: Observable<IFrame>;
 
@@ -36,11 +38,15 @@ export class RenderService {
     private _resize$: Subject<void>;
     private _size$: BehaviorSubject<ISize>;
 
+    private _spatial: Spatial;
+
     private _renderMode$: BehaviorSubject<RenderMode>;
 
     constructor(element: HTMLElement, currentFrame$: Observable<IFrame>, renderMode: RenderMode) {
         this._element = element;
         this._currentFrame$ = currentFrame$;
+
+        this._spatial = new Spatial();
 
         renderMode = renderMode != null ? renderMode : RenderMode.Fill;
 
@@ -136,6 +142,18 @@ export class RenderService {
             .publishReplay(1)
             .refCount();
 
+        this._bearing$ = this._renderCamera$
+            .map(
+                (renderCamera: RenderCamera): number => {
+                    let bearing: number =
+                        this._spatial.radToDeg(
+                            this._spatial.azimuthalToBearing(renderCamera.rotation.phi));
+
+                    return this._spatial.wrap(bearing, 0, 360);
+                })
+            .publishReplay(1)
+            .refCount();
+
         this._size$
             .skip(1)
             .map(
@@ -162,9 +180,14 @@ export class RenderService {
                 })
             .subscribe(this._renderCameraOperation$);
 
+        this._bearing$.subscribe(() => { /*noop*/ });
         this._renderCameraHolder$.subscribe(() => { /*noop*/ });
         this._size$.subscribe(() => { /*noop*/ });
         this._renderMode$.subscribe(() => { /*noop*/ });
+    }
+
+    public get bearing$(): Observable<number> {
+        return this._bearing$;
     }
 
     public get element(): HTMLElement {

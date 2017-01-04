@@ -354,7 +354,7 @@ describe("RenderService.renderCameraFrame", () => {
     });
 });
 
-describe("RenderService.renderCamera", () => {
+describe("RenderService.renderCamera$", () => {
     let createFrame: (frameId: number, alpha?: number, camera?: Camera) => IFrame =
         (frameId: number, alpha?: number, camera?: Camera): IFrame => {
             let state: ICurrentState = {
@@ -458,3 +458,74 @@ describe("RenderService.renderCamera", () => {
         expect((<jasmine.Spy>element.getOffsetWidth).calls.count()).toBe(1);
     });
 });
+
+describe("RenderService.bearing$", () => {
+    let createFrame: (frameId: number, alpha?: number, camera?: Camera) => IFrame =
+        (frameId: number, alpha?: number, camera?: Camera): IFrame => {
+            let state: ICurrentState = {
+                alpha: alpha != null ? alpha : 0,
+                camera: camera != null ? camera : new Camera(),
+                currentCamera: camera != null ? camera : new Camera(),
+                currentIndex: 0,
+                currentNode: null,
+                currentTransform: null,
+                lastNode: null,
+                motionless: false,
+                nodesAhead: 0,
+                previousNode: null,
+                previousTransform: null,
+                reference: { alt: 0, lat: 0, lon: 0 },
+                trajectory: [],
+                zoom: 0,
+            };
+
+            spyOn(state, "currentNode").and.returnValue({ });
+            spyOn(state, "currentTransform").and.returnValue({ });
+            spyOn(state, "previousNode").and.returnValue({ });
+            spyOn(state, "previousTransform").and.returnValue({ });
+
+            return { fps: 60, id: frameId, state: state };
+        };
+
+    it("should be defined", (done: Function) => {
+        let element: HTMLDivElement = document.createElement("div");
+
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
+
+        let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
+
+        renderService.bearing$
+            .first()
+            .subscribe(
+                (bearing: number): void => {
+                    expect(bearing).toBeDefined();
+
+                    done();
+                });
+
+        frame$.next(createFrame(0));
+    });
+
+    it("should be 90 degrees", (done: Function) => {
+        let element: HTMLDivElement = document.createElement("div");
+
+        let frame$: Subject<IFrame> = new Subject<IFrame>();
+
+        let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
+
+        renderService.bearing$
+            .first()
+            .subscribe(
+                (bearing: number): void => {
+                    expect(bearing).toBeCloseTo(90, 5);
+
+                    done();
+                });
+
+        let frame: IFrame = createFrame(0);
+        frame.state.camera.lookat.set(1, 0, 0);
+
+        frame$.next(frame);
+    });
+});
+
