@@ -29,11 +29,15 @@ import {
     StateService,
     IFrame,
 } from "../State";
-import {LoadingService} from "../Viewer";
+import {
+    CacheService,
+    LoadingService,
+} from "../Viewer";
 
 export class Navigator {
     private _apiV3: APIv3;
 
+    private _cacheService: CacheService;
     private _graphService: GraphService;
     private _imageLoadingService: ImageLoadingService;
     private _loadingService: LoadingService;
@@ -52,7 +56,8 @@ export class Navigator {
         graphService?: GraphService,
         imageLoadingService?: ImageLoadingService,
         loadingService?: LoadingService,
-        stateService?: StateService) {
+        stateService?: StateService,
+        cacheService?: CacheService) {
 
         this._apiV3 = apiV3 != null ? apiV3 : new APIv3(clientId, token);
 
@@ -66,6 +71,12 @@ export class Navigator {
         this._loadingName = "navigator";
 
         this._stateService = stateService != null ? stateService : new StateService();
+
+        this._cacheService = cacheService != null ?
+            cacheService :
+            new CacheService(this._graphService, this._stateService);
+
+        this._cacheService.start();
 
         this._keyRequested$ = new BehaviorSubject<string>(null);
         this._movedToKey$ = new BehaviorSubject<string>(null);
