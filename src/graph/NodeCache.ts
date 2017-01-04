@@ -316,12 +316,10 @@ export class NodeCache {
     private _cacheImage$(key: string, imageSize: ImageSize): Observable<ILoadStatusObject<HTMLImageElement>> {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<HTMLImageElement>>): void => {
-                let image: HTMLImageElement = new Image();
-                image.crossOrigin = "Anonymous";
-
                 let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
                 xmlHTTP.open("GET", Urls.thumbnail(key, imageSize), true);
                 xmlHTTP.responseType = "arraybuffer";
+                xmlHTTP.timeout = 15000;
 
                 xmlHTTP.onload = (pe: ProgressEvent) => {
                     if (xmlHTTP.status !== 200) {
@@ -332,6 +330,9 @@ export class NodeCache {
 
                         return;
                     }
+
+                    let image: HTMLImageElement = new Image();
+                    image.crossOrigin = "Anonymous";
 
                     image.onload = (e: Event) => {
                         this._imageRequest = null;
@@ -371,6 +372,12 @@ export class NodeCache {
                     subscriber.error(new Error(`Failed to fetch image (${key})`));
                 };
 
+                xmlHTTP.ontimeout = (e: Event) => {
+                    this._imageRequest = null;
+
+                    subscriber.error(new Error(`Image request timed out (${key})`));
+                };
+
                 xmlHTTP.onabort = (event: Event) => {
                     this._imageRequest = null;
 
@@ -404,6 +411,7 @@ export class NodeCache {
                 let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
                 xmlHTTP.open("GET", Urls.protoMesh(key), true);
                 xmlHTTP.responseType = "arraybuffer";
+                xmlHTTP.timeout = 15000;
 
                 xmlHTTP.onload = (pe: ProgressEvent) => {
                     this._meshRequest = null;
@@ -437,7 +445,16 @@ export class NodeCache {
                     subscriber.complete();
                 };
 
-                xmlHTTP.onabort = (event: Event) => {
+                xmlHTTP.ontimeout = (e: Event) => {
+                    this._meshRequest = null;
+
+                    console.error(`Mesh request timed out (${key})`);
+
+                    subscriber.next(this._createEmptyMeshLoadStatus());
+                    subscriber.complete();
+                };
+
+                xmlHTTP.onabort = (e: Event) => {
                     this._meshRequest = null;
 
                     subscriber.error(new Error(`Mesh request was aborted (${key})`));

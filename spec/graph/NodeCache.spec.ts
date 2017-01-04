@@ -18,6 +18,13 @@ describe("NodeCache.mesh", () => {
     });
 });
 
+describe("NodeCache.image", () => {
+    it("should be null initially", () => {
+        let nodeCache: NodeCache = new NodeCache();
+        expect(nodeCache.image).toBeNull();
+    });
+});
+
 describe("NodeCache.sequenceEdges$", () => {
     it("should emit uncached empty edge status initially", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache();
