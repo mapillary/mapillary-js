@@ -12,7 +12,22 @@ import {
     IRegionOfInterest,
 } from "../Tiles";
 
+/**
+ * @class RegionOfInterestCalculator
+ *
+ * @classdesc Represents a calculator for regions of interest.
+ */
 export class RegionOfInterestCalculator {
+    /**
+     * Compute a region of interest based on the current render camera
+     * and the viewport size.
+     *
+     * @param {RenderCamera} renderCamera - Render camera used for unprojections.
+     * @param {ISize} size - Viewport size in pixels.
+     * @param {Transform} transform - Transform used for projections.
+     *
+     * @returns {IRegionOfInterest} A region of interest.
+     */
     public computeRegionOfInterest(renderCamera: RenderCamera, size: ISize, transform: Transform): IRegionOfInterest {
         let canvasPoints: number[][] = this._canvasBoundaryPoints(4);
         let bbox: IBoundingBox = this._canvasPointsBoundingBox(canvasPoints, renderCamera, transform);

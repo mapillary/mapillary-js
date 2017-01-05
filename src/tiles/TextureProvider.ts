@@ -12,6 +12,11 @@ import {
     IRegionOfInterest,
 } from "../Tiles";
 
+/**
+ * @class TextureProvider
+ *
+ * @classdesc Represents a provider of textures.
+ */
 export class TextureProvider {
     private _background: HTMLImageElement;
     private _camera: THREE.OrthographicCamera;
@@ -42,6 +47,18 @@ export class TextureProvider {
     private _renderedTiles: { [level: string]: number[][] };
     private _width: number;
 
+    /**
+     * Create a new node texture provider instance.
+     *
+     * @param {string} key - The identifier of the image for which to request tiles.
+     * @param {number} width - The full width of the original image.
+     * @param {number} height - The full height of the original image.
+     * @param {number} tileSize - The size used when requesting tiles.
+     * @param {HTMLImageElement} background - Image to use as background.
+     * @param {ImageTileLoader} imageTileLoader - Loader for retrieving tiles.
+     * @param {ImageTileStore} imageTileStore - Store for saving tiles.
+     * @param {THREE.WebGLRenderer} renderer - Renderer used for rendering tiles to texture.
+     */
     constructor (
         key: string,
         width: number,
@@ -96,26 +113,60 @@ export class TextureProvider {
         this._roi = null;
     }
 
+    /**
+     * Get disposed.
+     *
+     * @returns {boolean} Value indicating whether provider has
+     * been disposed.
+     */
     public get disposed(): boolean {
         return this._disposed;
     }
 
+    /**
+     * Get hasTexture$.
+     *
+     * @returns {Observable<boolean>} Observable emitting
+     * values indicating when the existance of a texture
+     * changes.
+     */
     public get hasTexture$(): Observable<boolean> {
         return this._has$;
     }
 
+    /**
+     * Get key.
+     *
+     * @returns {boolean} The identifier of the image for
+     * which to render textures.
+     */
     public get key(): string {
         return this._key;
     }
 
+    /**
+     * Get textureUpdated$.
+     *
+     * @returns {Observable<boolean>} Observable emitting
+     * values when an existing texture has been updated.
+     */
     public get textureUpdated$(): Observable<boolean> {
         return this._updated$;
     }
 
+    /**
+     * Get textureCreated$.
+     *
+     * @returns {Observable<boolean>} Observable emitting
+     * values when a new texture has been created.
+     */
     public get textureCreated$(): Observable<THREE.Texture> {
         return this._created$;
     }
 
+    /**
+     * Abort all outstanding image tile requests.
+     */
     public abort(): void {
         for (let key in this._tileSubscriptions) {
             if (!this._tileSubscriptions.hasOwnProperty(key)) {
@@ -134,6 +185,12 @@ export class TextureProvider {
         this._abortFunctions = [];
     }
 
+    /**
+     * Dispose the provider.
+     *
+     * @description Disposes all cached assets and
+     * aborts all outstanding image tile requests.
+     */
     public dispose(): void {
         this.abort();
 
@@ -157,6 +214,16 @@ export class TextureProvider {
         this._disposed = true;
     }
 
+    /**
+     * Set the region of interest.
+     *
+     * @description When the region of interest is set the
+     * the tile level is determined and tiles for the region
+     * are fetched from the store or the loader and renderedLevel
+     * to the texture.
+     *
+     * @param {IRegionOfInterest} roi - Spatial edges to cache.
+     */
     public setRegionOfInterest(roi: IRegionOfInterest): void {
         if (this._width <= 0 || this._height <= 0) {
             return;
@@ -227,10 +294,31 @@ export class TextureProvider {
         this._fetchTiles(tiles);
     }
 
+    /**
+     * Update the image used as background for the texture.
+     *
+     * @param {HTMLImageElement} background - The background image.
+     */
     public updateBackground(background: HTMLImageElement): void {
         this._background = background;
     }
 
+    /**
+     * Retrieve an image tile.
+     *
+     * @description Retrieve an image tile and render it to the
+     * texture. Add the tile to the store and emit to the updated
+     * observable.
+     *
+     * @param {Array<number>} tile - The tile coordinates.
+     * @param {number} level - The tile level.
+     * @param {number} x - The top left x pixel coordinate of the tile.
+     * @param {number} y - The top left y pixel coordinate of the tile.
+     * @param {number} w - The pixel width of the tile.
+     * @param {number} h - The pixel height of the tile.
+     * @param {number} scaledW - The scaled width of the returned tile.
+     * @param {number} scaledH - The scaled height of the returned tile.
+     */
     private _fetchTile(
         tile: number[],
         level: number,
@@ -277,6 +365,16 @@ export class TextureProvider {
         }
     }
 
+    /**
+     * Retrieve image tiles.
+     *
+     * @description Retrieve a image tiles and render them to the
+     * texture. Retrieve from store if it exists, otherwise Retrieve
+     * from loader.
+     *
+     * @param {Array<Array<number>>} tiles - Array of tile coordinates to
+     * retrieve.
+     */
     private _fetchTiles(tiles: number[][]): void {
         let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
         let maxTileSize: number = Math.pow(2, this._maxLevel + 1);
@@ -310,6 +408,13 @@ export class TextureProvider {
         }
     }
 
+    /**
+     * Get tile coordinates for a point using the current level.
+     *
+     * @param {Array<number>} point - Point in basic coordinates.
+     *
+     * @returns {Array<number>} x and y tile coodinates.
+     */
     private _getTileCoords(point: number[]): number[] {
         let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
 
@@ -322,6 +427,15 @@ export class TextureProvider {
         ];
     }
 
+    /**
+     * Get tile coordinates for all tiles contained in a bounding
+     * box.
+     *
+     * @param {Array<number>} topLeft - Top left tile coordinate of bounding box.
+     * @param {Array<number>} bottomRight - Bottom right tile coordinate of bounding box.
+     *
+     * @returns {Array<Array<number>>} Array of x, y tile coodinates.
+     */
     private _getTiles(topLeft: number[], bottomRight: number[]): number[][] {
         let xs: number[] = [];
 
@@ -353,6 +467,12 @@ export class TextureProvider {
         return tiles;
     }
 
+    /**
+     * Remove an item from an array if it exists in array.
+     *
+     * @param {T} item - Item to remove.
+     * @param {Array<T>} array - Array from which item should be removed.
+     */
     private _removeFromArray<T>(item: T, array: T[]): void {
         let index: number = array.indexOf(item);
         if (index !== -1) {
@@ -360,12 +480,27 @@ export class TextureProvider {
         }
     }
 
+    /**
+     * Remove an item from a dictionary.
+     *
+     * @param {string} key - Key of the item to remove.
+     * @param {Object} dict - Dictionary from which item should be removed.
+     */
     private _removeFromDictionary<T>(key: string, dict: { [key: string]: T }): void {
         if (key in dict) {
             delete dict[key];
         }
     }
 
+    /**
+     * Render an image tile to the target texture.
+     *
+     * @param {number} x - The top left x pixel coordinate of the tile.
+     * @param {number} y - The top left y pixel coordinate of the tile.
+     * @param {number} w - The pixel width of the tile.
+     * @param {number} h - The pixel height of the tile.
+     * @param {HTMLImageElement} background - The image tile to render.
+     */
     private _renderToTarget(x: number, y: number, w: number, h: number, image: HTMLImageElement): void {
         let texture: THREE.Texture = new THREE.Texture(image);
         texture.minFilter = THREE.LinearFilter;
@@ -391,6 +526,16 @@ export class TextureProvider {
         texture.dispose();
     }
 
+    /**
+     * Mark a tile as rendered.
+     *
+     * @description Clears tiles marked as rendered in other
+     * levels of the tile pyramid  if they were rendered on
+     * top of or below the tile.
+     *
+     * @param {Arrary<number>} tile - The tile coordinates.
+     * @param {number} level - Tile level of the tile coordinates.
+     */
     private _setTileRendered(tile: number[], level: number): void {
         let otherLevels: number[] =
             Object.keys(this._renderedTiles)
@@ -441,6 +586,14 @@ export class TextureProvider {
         this._renderedCurrentLevelTiles[this._tileKey(tile)] = true;
     }
 
+    /**
+     * Create a tile key from a tile coordinates.
+     *
+     * @description Tile keys are used as a hash for
+     * storing the tile in a dictionary.
+     *
+     * @param {Arrary<number>} tile - The tile coordinates.
+     */
     private _tileKey(tile: number[]): string {
         return tile[0] + "-" + tile[1];
     }

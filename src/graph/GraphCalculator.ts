@@ -17,17 +17,45 @@ class GeoHashDirections {
     public static ne: string = "ne";
 }
 
+/**
+ * @class GraphCalculator
+ *
+ * @classdesc Represents a calculator for graph entities.
+ */
 export class GraphCalculator {
     private _geoCoords: GeoCoords;
 
+    /**
+     * Create a new graph calculator instance.
+     *
+     * @param {GeoCoords} geoCoords - Geo coords instance.
+     */
     constructor(geoCoords?: GeoCoords) {
         this._geoCoords = geoCoords != null ? geoCoords : new GeoCoords();
     }
 
+    /**
+     * Encode the geohash tile for geodetic coordinates.
+     *
+     * @param {ILatLon} latlon - Latitude and longitude to encode.
+     * @param {number} precision - Precision of the encoding.
+     *
+     * @returns {string} The geohash tile for the lat, lon and precision.
+     */
     public encodeH(latLon: ILatLon, precision: number = 7): string {
         return geohash.encode(latLon.lat, latLon.lon, precision);
     }
 
+    /**
+     * Encode the geohash tiles within a threshold from a position
+     * using Manhattan distance.
+     *
+     * @param {ILatLon} latlon - Latitude and longitude to encode.
+     * @param {number} precision - Precision of the encoding.
+     * @param {number} threshold - Threshold of the encoding in meters.
+     *
+     * @returns {string} The geohash tiles reachable within the threshold.
+     */
     public encodeHs(latLon: ILatLon, precision: number = 7, threshold: number = 20): string[] {
         let h: string = geohash.encode(latLon.lat, latLon.lon, precision);
         let bounds: geohash.IBounds = geohash.bounds(h);
@@ -101,6 +129,16 @@ export class GraphCalculator {
         return hs;
     }
 
+    /**
+     * Get the bounding box corners for a circle with radius of a threshold
+     * with center in a geodetic position.
+     *
+     * @param {ILatLon} latlon - Latitude and longitude to encode.
+     * @param {number} threshold - Threshold distance from the position in meters.
+     *
+     * @returns {Array<ILatLon>} The south west and north east corners of the
+     * bounding box.
+     */
     public boundingBoxCorners(latLon: ILatLon, threshold: number): [ILatLon, ILatLon] {
         let bl: number[] =
             this._geoCoords.enuToGeodetic(
@@ -126,6 +164,14 @@ export class GraphCalculator {
         ];
     }
 
+    /**
+     * Convert a compass angle to an angle axis rotation vector.
+     *
+     * @param {number} compassAngle - The compass angle in degrees.
+     * @param {number} orientation - The orientation of the original image.
+     *
+     * @returns {Array<number>} Angle axis rotation vector.
+     */
     public rotationFromCompass(compassAngle: number, orientation: number): number[] {
         let x: number = 0;
         let y: number = 0;

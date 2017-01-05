@@ -1,17 +1,45 @@
 import {Observable} from "rxjs/Observable";
 import {Subscriber} from "rxjs/Subscriber";
 
+/**
+ * @class ImageTileLoader
+ *
+ * @classdesc Represents a loader of image tiles.
+ */
 export class ImageTileLoader {
     private _origin: string;
     private _scheme: string;
-    private _server: string;
+    private _host: string;
 
-    constructor(scheme: string, server: string, origin?: string) {
+    /**
+     * Create a new node image tile loader instance.
+     *
+     * @param {string} scheme - The URI scheme.
+     * @param {string} host - The URI host.
+     * @param {string} [origin] - The origin query param.
+     */
+    constructor(scheme: string, host: string, origin?: string) {
         this._scheme = scheme;
-        this._server = server;
+        this._host = host;
         this._origin = origin != null ? `?origin=${origin}` : "";
     }
 
+    /**
+     * Retrieve an image tile.
+     *
+     * @description Retrieve an image tile by specifying the area
+     * as well as the scaled size.
+     *
+     * @param {string} identifier - The identifier of the image.
+     * @param {number} x - The top left x pixel coordinate for the tile
+     * in the original image.
+     * @param {number} y - The top left y pixel coordinate for the tile
+     * in the original image.
+     * @param {number} w - The pixel width of the tile in the original image.
+     * @param {number} h - The pixel height of the tile in the original image.
+     * @param {number} scaledW - The scaled width of the returned tile.
+     * @param {number} scaledH - The scaled height of the returned tile.
+     */
     public getTile(
         identifier: string,
         x: number,
@@ -25,7 +53,7 @@ export class ImageTileLoader {
         let url: string =
             this._scheme +
             "://" +
-            this._server +
+            this._host +
             characteristics +
             this._origin;
 
