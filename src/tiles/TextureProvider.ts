@@ -79,7 +79,7 @@ export class TextureProvider {
 
         this._width = width;
         this._height = height;
-        this._maxLevel = Math.ceil(Math.log(Math.max(height, width)) / Math.log(2) - 1);
+        this._maxLevel = Math.ceil(Math.log(Math.max(height, width)) / Math.log(2));
         this._currentLevel = -1;
         this._tileSize = tileSize;
 
@@ -235,7 +235,7 @@ export class TextureProvider {
         let height: number = 1 / this._roi.pixelHeight;
         let size: number = Math.max(height, width);
 
-        let currentLevel: number = Math.min(this._maxLevel, Math.round(Math.log(size) / Math.log(2) - 1));
+        let currentLevel: number = Math.max(0, Math.min(this._maxLevel, Math.round(Math.log(size) / Math.log(2))));
         if (currentLevel !== this._currentLevel) {
             this.abort();
 
@@ -377,8 +377,6 @@ export class TextureProvider {
      */
     private _fetchTiles(tiles: number[][]): void {
         let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
-        let maxTileSize: number = Math.pow(2, this._maxLevel + 1);
-        let tileScale: number = maxTileSize >= tileSize ? 1 : maxTileSize / tileSize;
 
         for (let tile of tiles) {
             let tileKey: string = this._tileKey(tile);
@@ -400,9 +398,8 @@ export class TextureProvider {
                 continue;
             }
 
-            let size: number = Math.max(tileWidth, tileHeight);
-            let scaledX: number = Math.floor(tileScale * (tileWidth < this._tileSize ? tileWidth : tileWidth / size * this._tileSize));
-            let scaledY: number = Math.floor(tileScale * (tileHeight < this._tileSize ? tileHeight : tileHeight / size * this._tileSize));
+            let scaledX: number = Math.floor(tileWidth / tileSize * this._tileSize);
+            let scaledY: number = Math.floor(tileHeight / tileSize * this._tileSize);
 
             this._fetchTile(tile, this._currentLevel, tileX, tileY, tileWidth, tileHeight, scaledX, scaledY);
         }
