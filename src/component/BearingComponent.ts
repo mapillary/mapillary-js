@@ -94,7 +94,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                         Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
                 });
 
-        Observable
+        this._renderSubscription = Observable
             .combineLatest(
                 nodeBearingFov$,
                 cameraBearingFov$)
