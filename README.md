@@ -32,7 +32,7 @@ To use MapillaryJS you must [create an account](https://www.mapillary.com/signup
 </html>
 ```
 
-Alternatively, you can `npm install mapillary-js` to use it with module loader or bundler of your choice.
+Alternatively, you can `npm install mapillary-js` to use it with a module loader or bundler of your choice.
 
 Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and [Documentation](https://mapillary.github.io/mapillary-js) sections below for more information.
 
@@ -50,6 +50,7 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [Set filter](https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c)
 - [Get center and zoom](https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82)
 - [Set center and zoom](https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871)
+- [Get bearing](https://bl.ocks.org/oscarlorentzon/ca9cee671156c685aca3e1f0f52a230e)
 - [Slider](https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3)
 - [Storytelling with route component](https://bl.ocks.org/oscarlorentzon/2a4041c93fb3711dc8dc53d1a217defe)
 - [MapillaryJS + ESRI JS API](https://bl.ocks.org/oscarlorentzon/a9bd5d6dadcc5df7e024a04a9600b043)
