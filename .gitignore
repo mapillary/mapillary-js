@@ -1,7 +1,10 @@
 # IDE
 .vscode/*
+.vagrant/*
+vagrant.*
+Vagrantfile
 
-# Npm
+# npm
 node_modules/
 
 # Typings
@@ -18,5 +21,5 @@ typings/*
 dist/
 spec/*.js
 
-# Docs
+# Doc artifacts
 docs/
