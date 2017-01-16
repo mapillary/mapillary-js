@@ -68,10 +68,11 @@ export class EventLauncher {
         this._moveSubscription = Observable
             .combineLatest(
                 this._navigator.stateService.moving$,
-                this._container.mouseService.active$)
+                this._container.mouseService.active$,
+                this._container.touchService.active$)
             .map(
                 (values: boolean[]): boolean => {
-                    return values[0] || values[1];
+                    return values[0] || values[1] || values[2];
                 })
             .distinctUntilChanged()
             .subscribe(

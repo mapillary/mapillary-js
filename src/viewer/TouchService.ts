@@ -1,5 +1,4 @@
-/// <reference path="../../typings/index.d.ts" />
-
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
@@ -77,6 +76,9 @@ interface IPreventTouchMoveOperation {
 export class TouchService {
     private _element: HTMLElement;
 
+    private _activeSubject$: BehaviorSubject<boolean>;
+    private _active$: Observable<boolean>;
+
     private _touchStart$: Observable<TouchEvent>;
     private _touchMove$: Observable<TouchEvent>;
     private _touchEnd$: Observable<TouchEvent>;
@@ -97,6 +99,13 @@ export class TouchService {
 
     constructor(element: HTMLElement) {
         this._element = element;
+
+        this._activeSubject$ = new BehaviorSubject<boolean>(false);
+
+        this._active$ = this._activeSubject$
+            .distinctUntilChanged()
+            .publishReplay(1)
+            .refCount();
 
         this._touchStart$ = Observable.fromEvent<TouchEvent>(element, "touchstart");
         this._touchMove$ = Observable.fromEvent<TouchEvent>(element, "touchmove");
@@ -333,6 +342,14 @@ export class TouchService {
                         .skip(1)
                         .takeUntil(pinchStop$);
                 });
+    }
+
+    public get active$(): Observable<boolean> {
+        return this._active$;
+    }
+
+    public get activate$(): Subject<boolean> {
+        return this._activeSubject$;
     }
 
     public get touchStart$(): Observable<TouchEvent> {
