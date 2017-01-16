@@ -34,6 +34,8 @@ export class WaitingState extends StateBase {
 
     public rotateBasic(basicRotation: number[]): void { return; }
 
+    public rotateBasicUnbounded(basicRotation: number[]): void { return; }
+
     public rotateToBasic(basic: number[]): void { return; }
 
     public zoomIn(delta: number, reference: number[]): void { return; }

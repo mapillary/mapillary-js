@@ -79,6 +79,7 @@ export class TraversingState extends StateBase {
 
     private _basicRotation: number[];
     private _requestedBasicRotation: number[];
+    private _requestedBasicRotationUnbounded: number[];
 
     private _rotationAcceleration: number;
     private _rotationIncreaseAlpha: number;
@@ -109,6 +110,7 @@ export class TraversingState extends StateBase {
 
         this._basicRotation = [0, 0];
         this._requestedBasicRotation = null;
+        this._requestedBasicRotationUnbounded = null;
 
         this._rotationAcceleration = 0.86;
         this._rotationIncreaseAlpha = 0.97;
@@ -225,6 +227,19 @@ export class TraversingState extends StateBase {
                 this._spatial.clamp(this._requestedBasicRotation[1], -threshold, threshold);
         } else {
             this._requestedBasicRotation = basicRotation.slice();
+        }
+    }
+
+    public rotateBasicUnbounded(basicRotation: number[]): void {
+        if (this._currentNode == null) {
+            return;
+        }
+
+        if (this._requestedBasicRotationUnbounded != null) {
+            this._requestedBasicRotationUnbounded[0] += basicRotation[0];
+            this._requestedBasicRotationUnbounded[1] += basicRotation[1];
+        } else {
+            this._requestedBasicRotationUnbounded = basicRotation.slice();
         }
     }
 
@@ -558,6 +573,31 @@ export class TraversingState extends StateBase {
             this._requestedBasicRotation = null;
 
             return;
+        }
+
+        if (this._requestedBasicRotationUnbounded != null) {
+            let reqX: number = this._requestedBasicRotationUnbounded[0];
+            let reqY: number = this._requestedBasicRotationUnbounded[1];
+
+            if (Math.abs(reqX) > 0) {
+                this._basicRotation[0] = (1 - 0.8) * this._basicRotation[0] + 0.8 * reqX;
+            }
+
+            if (Math.abs(reqY) > 0) {
+                this._basicRotation[1] = (1 - 0.8) * this._basicRotation[1] + 0.8 * reqY;
+            }
+
+            if (this._desiredLookat != null) {
+                let desiredBasicLookat: number[] = this.currentTransform.projectBasic(this._desiredLookat.toArray());
+
+                desiredBasicLookat[0] += reqX;
+                desiredBasicLookat[1] += reqY;
+
+                this._desiredLookat = new THREE.Vector3()
+                    .fromArray(this.currentTransform.unprojectBasic(desiredBasicLookat, this._lookatDepth));
+            }
+
+            this._requestedBasicRotationUnbounded = null;
         }
 
         if (this._basicRotation[0] === 0 && this._basicRotation[1] === 0) {

@@ -149,6 +149,10 @@ export class StateContext implements IStateContext {
         this._state.rotateBasic(basicRotation);
     }
 
+    public rotateBasicUnbounded(basicRotation: number[]): void {
+        this._state.rotateBasicUnbounded(basicRotation);
+    }
+
     public rotateToBasic(basic: number[]): void {
         this._state.rotateToBasic(basic);
     }
