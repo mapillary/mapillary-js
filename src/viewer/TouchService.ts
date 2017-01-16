@@ -84,6 +84,8 @@ export class TouchService {
 
     private _singleTouchMoveOperation$: Subject<ITouchMoveOperation>;
     private _singleTouchMove$: Observable<TouchMove>;
+    private _singleTouchMoveStart$: Observable<TouchMove>;
+    private _singleTouchMoveEnd$: Observable<TouchEvent>;
     private _singleTouch$: Observable<TouchMove>;
 
     private _pinchOperation$: Subject<IPinchOperation>;
@@ -190,6 +192,27 @@ export class TouchService {
             .filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 0;
+                });
+
+        this._singleTouchMoveStart$ = singleTouchStart$
+            .mergeMap(
+                (e: TouchEvent): Observable<TouchMove> => {
+                    return this._singleTouchMove$
+                        .takeUntil(
+                            Observable.merge(
+                                touchStop$,
+                                multipleTouchStart$))
+                        .take(1);
+                });
+
+        this._singleTouchMoveEnd$ = singleTouchStart$
+            .mergeMap(
+                (e: TouchEvent): Observable<TouchEvent> => {
+                    return Observable
+                        .merge(
+                            touchStop$,
+                            multipleTouchStart$)
+                        .first();
                 });
 
         this._singleTouch$ = singleTouchStart$
@@ -328,8 +351,16 @@ export class TouchService {
         return this._touchCancel$;
     }
 
+    public get singleTouchMoveStart$(): Observable<TouchMove> {
+        return this._singleTouchMoveStart$;
+    }
+
     public get singleTouchMove$(): Observable<TouchMove> {
         return this._singleTouch$;
+    }
+
+    public get singleTouchMoveEnd$(): Observable<TouchEvent> {
+        return this._singleTouchMoveEnd$;
     }
 
     public get pinch$(): Observable<IPinch> {

@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
