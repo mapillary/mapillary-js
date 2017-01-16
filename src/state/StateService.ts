@@ -64,6 +64,9 @@ export class StateService {
     private _movingOperation$: Subject<boolean>;
     private _moving$: Observable<boolean>;
 
+    private _inTranslationOperation$: Subject<boolean>;
+    private _inTranslation$: Observable<boolean>;
+
     private _appendNode$: Subject<Node> = new Subject<Node>();
 
     private _frameGenerator: RequestAnimationFrameDefinition;
@@ -261,6 +264,49 @@ export class StateService {
             .distinctUntilChanged()
             .share();
 
+        this._inTranslationOperation$ = new Subject<boolean>();
+
+        nodeChanged$
+            .map(
+                (frame: IFrame): boolean => {
+                    return true;
+                })
+            .subscribe(this._inTranslationOperation$);
+
+        this._inTranslationOperation$
+            .distinctUntilChanged()
+            .filter(
+                (inTranslation: boolean): boolean => {
+                    return inTranslation;
+                })
+            .switchMap(
+                (inTranslation: boolean): Observable<boolean> => {
+                    return this._currentState$
+                        .filter(
+                            (frame: IFrame): boolean => {
+                                return frame.state.nodesAhead === 0;
+                            })
+                        .map(
+                            (frame: IFrame): THREE.Vector3 => {
+                                return frame.state.camera.position.clone();
+                            })
+                        .pairwise()
+                        .map(
+                            (pair: [THREE.Vector3, THREE.Vector3]): boolean => {
+                                return pair[0].distanceToSquared(pair[1]) !== 0;
+                            })
+                        .first(
+                            (changed: boolean): boolean => {
+                                return !changed;
+                            });
+                })
+            .subscribe(this._inTranslationOperation$);
+
+        this._inTranslation$ = this._inTranslationOperation$
+            .distinctUntilChanged()
+            .publishReplay(1)
+            .refCount();
+
         this._state$.subscribe(() => { /*noop*/ });
         this._currentNode$.subscribe(() => { /*noop*/ });
         this._currentCamera$.subscribe(() => { /*noop*/ });
@@ -268,6 +314,7 @@ export class StateService {
         this._reference$.subscribe(() => { /*noop*/ });
         this._currentNodeExternal$.subscribe(() => { /*noop*/ });
         this._lastState$.subscribe(() => { /*noop*/ });
+        this._inTranslation$.subscribe(() => { /*noop*/ });
 
         this._frameId = null;
         this._frameGenerator = new RequestAnimationFrameDefinition(window);
@@ -303,6 +350,10 @@ export class StateService {
 
     public get moving$(): Observable<boolean> {
         return this._moving$;
+    }
+
+    public get inTranslation$(): Observable<boolean> {
+        return this._inTranslation$;
     }
 
     public get appendNode$(): Subject<Node> {
