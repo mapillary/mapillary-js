@@ -260,19 +260,19 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                             transform,
                             render.perspective);
 
-                    if (pixelDistances[0] > 0 && y < 0) {
+                    if (pixelDistances[0] > 0 && y < 0 && basic[1] < 0.5) {
                         y /= Math.max(1, pixelDistances[0] / 5);
                     }
 
-                    if (pixelDistances[1] > 0 && x > 0) {
+                    if (pixelDistances[1] > 0 && x > 0 && basic[0] > 0.5) {
                         x /= Math.max(1, pixelDistances[1] / 5);
                     }
 
-                    if (pixelDistances[2] > 0 && y > 0) {
+                    if (pixelDistances[2] > 0 && y > 0 && basic[1] > 0.5) {
                         y /= Math.max(1, pixelDistances[2] / 5);
                     }
 
-                    if (pixelDistances[3] > 0 && x < 0) {
+                    if (pixelDistances[3] > 0 && x < 0 && basic[0] < 0.5) {
                         x /= Math.max(1, pixelDistances[3] / 5);
                     }
 
