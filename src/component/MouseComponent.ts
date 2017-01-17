@@ -17,9 +17,20 @@ import {
     Component,
     IComponentConfiguration,
 } from "../Component";
-import {Camera, Spatial, Transform} from "../Geo";
-import {IVNodeHash, RenderCamera} from "../Render";
-import {ICurrentState, IFrame} from "../State";
+import {
+    Camera,
+    ViewportCoords,
+    Spatial,
+    Transform,
+} from "../Geo";
+import {
+    IVNodeHash,
+    RenderCamera,
+} from "../Render";
+import {
+    ICurrentState,
+    IFrame,
+} from "../State";
 import {
     Container,
     Navigator,
@@ -42,10 +53,12 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "mouse";
 
+    private _viewportCoords: ViewportCoords;
     private _spatial: Spatial;
 
     private _activeMouseSubscription: Subscription;
     private _activeTouchSubscription: Subscription;
+    private _bounceSubscription: Subscription;
     private _cursorSubscription: Subscription;
     private _movementSubscription: Subscription;
     private _mouseWheelSubscription: Subscription;
@@ -54,6 +67,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
+        this._viewportCoords = new ViewportCoords();
         this._spatial = new Spatial();
     }
 
@@ -186,15 +200,15 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let canvasY: number = movement.clientY - clientRect.top;
 
                     let currentDirection: THREE.Vector3 =
-                        this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective)
+                        this._viewportCoords.unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective)
                             .sub(render.perspective.position);
 
                     let directionX: THREE.Vector3 =
-                        this._unproject(canvasX - movement.movementX, canvasY, offsetWidth, offsetHeight, render.perspective)
+                        this._viewportCoords.unproject(canvasX - movement.movementX, canvasY, offsetWidth, offsetHeight, render.perspective)
                             .sub(render.perspective.position);
 
                     let directionY: THREE.Vector3 =
-                        this._unproject(canvasX, canvasY - movement.movementY, offsetWidth, offsetHeight, render.perspective)
+                        this._viewportCoords.unproject(canvasX, canvasY - movement.movementY, offsetWidth, offsetHeight, render.perspective)
                             .sub(render.perspective.position);
 
                     let deltaPhi: number = (movement.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
@@ -236,7 +250,33 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                         x = x + 1;
                     }
 
-                    return [this._spatial.clamp(x, -0.05, 0.05), this._spatial.clamp(y, -0.05, 0.05)];
+                    x = this._spatial.clamp(x, -0.05, 0.05);
+                    y = this._spatial.clamp(y, -0.05, 0.05);
+
+                    let pixelDistances: number[] =
+                        this._viewportCoords.getPixelDistances(
+                            this._container.element.offsetWidth,
+                            this._container.element.offsetHeight,
+                            transform,
+                            render.perspective);
+
+                    if (pixelDistances[0] > 0 && y < 0) {
+                        y /= Math.max(1, pixelDistances[0] / 5);
+                    }
+
+                    if (pixelDistances[1] > 0 && x > 0) {
+                        x /= Math.max(1, pixelDistances[1] / 5);
+                    }
+
+                    if (pixelDistances[2] > 0 && y > 0) {
+                        y /= Math.max(1, pixelDistances[2] / 5);
+                    }
+
+                    if (pixelDistances[3] > 0 && x < 0) {
+                        x /= Math.max(1, pixelDistances[3] / 5);
+                    }
+
+                    return [x, y];
                 })
             .subscribe(
                 (basicRotation: number[]): void => {
@@ -282,7 +322,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let canvasY: number = event.clientY - clientRect.top;
 
                     let unprojected: THREE.Vector3 =
-                        this._unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective);
+                        this._viewportCoords.unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective);
 
                     let reference: number[] = transform.projectBasic(unprojected.toArray());
 
@@ -333,7 +373,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let clientRect: ClientRect = element.getBoundingClientRect();
 
                     let unprojected: THREE.Vector3 =
-                        this._unproject(
+                        this._viewportCoords.unproject(
                             pinch.centerClientX - clientRect.left,
                             pinch.centerClientY - clientRect.top,
                             offsetWidth,
@@ -347,6 +387,60 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     this._navigator.stateService.zoomIn(zoom, reference);
                 });
 
+        this._bounceSubscription = Observable
+            .combineLatest(
+                this._navigator.stateService.inTranslation$,
+                this._container.mouseService.active$,
+                this._container.touchService.active$)
+            .map(
+                (noForce: boolean[]): boolean => {
+                    return noForce[0] || noForce[1] || noForce[2];
+                })
+            .skip(1)
+            .startWith(true)
+            .distinctUntilChanged()
+            .switchMap(
+                (noForce: boolean): Observable<[RenderCamera, Transform]> => {
+                    return noForce ?
+                        Observable.empty() :
+                        Observable.combineLatest(
+                            this._container.renderService.renderCamera$,
+                            this._navigator.stateService.currentTransform$.first());
+                })
+            .subscribe(
+                (args: [RenderCamera, Transform]): void => {
+                    let basicDistances: number[] = this._viewportCoords.getBasicDistances(args[1], args[0].perspective);
+
+                    let basicX: number = 0;
+                    let basicY: number = 0;
+
+                    if (basicDistances[0] < 1e-6 && basicDistances[1] < 1e-6 &&
+                        basicDistances[2] < 1e-6 && basicDistances[3] < 1e-6) {
+                        return;
+                    }
+
+                    if (basicDistances[1] > 0 && basicDistances[3] === 0) {
+                        basicX = -basicDistances[1] / 8;
+                    } else if (basicDistances[1] === 0 && basicDistances[3] > 0) {
+                        basicX = basicDistances[3] / 8;
+                    } else if (basicDistances[1] > 0 && basicDistances[3] > 0) {
+                        basicX = (basicDistances[3] - basicDistances[1]) / 8;
+                    }
+
+                    if (basicDistances[0] > 0 && basicDistances[2] === 0) {
+                        basicY = basicDistances[0] / 8;
+                    } else if (basicDistances[0] === 0 && basicDistances[2] > 0) {
+                        basicY = -basicDistances[2] / 8;
+                    } else if (basicDistances[0] > 0 && basicDistances[2] > 0) {
+                        basicY = (basicDistances[0] - basicDistances[2]) / 8;
+                    }
+
+                    basicX = this._spatial.clamp(basicX, -0.05, 0.05);
+                    basicY = this._spatial.clamp(basicY, -0.05, 0.05);
+
+                    this._navigator.stateService.rotateBasicUnbounded([basicX, basicY]);
+                });
+
         this._container.mouseService.claimMouse(this._name, 0);
     }
 
@@ -355,6 +449,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
         this._activeMouseSubscription.unsubscribe();
         this._activeTouchSubscription.unsubscribe();
+        this._bounceSubscription.unsubscribe();
         this._cursorSubscription.unsubscribe();
         this._movementSubscription.unsubscribe();
         this._mouseWheelSubscription.unsubscribe();
@@ -363,20 +458,6 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
         return {};
-    }
-
-    private _unproject(
-        canvasX: number,
-        canvasY: number,
-        offsetWidth: number,
-        offsetHeight: number,
-        perspectiveCamera: THREE.PerspectiveCamera):
-        THREE.Vector3 {
-
-        let projectedX: number = 2 * canvasX / offsetWidth - 1;
-        let projectedY: number = 1 - 2 * canvasY / offsetHeight;
-
-        return new THREE.Vector3(projectedX, projectedY, 1).unproject(perspectiveCamera);
     }
 }
 

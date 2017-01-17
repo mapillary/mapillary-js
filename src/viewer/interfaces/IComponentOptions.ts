@@ -27,7 +27,7 @@ export interface IComponentOptions {
     background?: boolean;
 
     /**
-     * Show indicator for panoramas.
+     * Show indicator for bearing and field of view.
      *
      * @default true
      */
