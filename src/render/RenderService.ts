@@ -97,7 +97,7 @@ export class RenderService {
 
                     if (rc.alpha !== frame.state.alpha ||
                         rc.zoom !== frame.state.zoom ||
-                        rc.camera.diff(camera) > 1e-6) {
+                        rc.camera.diff(camera) > 1e-9) {
 
                         let currentTransform: Transform = frame.state.currentTransform;
                         let previousTransform: Transform =

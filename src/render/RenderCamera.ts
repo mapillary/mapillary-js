@@ -53,6 +53,9 @@ export class RenderCamera {
             perspectiveCameraAspect,
             0.4,
             10000);
+
+        this._perspective.matrixAutoUpdate = false;
+
         this._rotation = { phi: 0, theta: 0 };
     }
 
@@ -110,6 +113,9 @@ export class RenderCamera {
         this._perspective.up.copy(camera.up);
         this._perspective.position.copy(camera.position);
         this._perspective.lookAt(camera.lookat);
+
+        this._perspective.updateMatrix();
+        this._perspective.updateMatrixWorld(false);
 
         this._changed = true;
     }
