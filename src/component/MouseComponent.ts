@@ -44,7 +44,8 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
     private _spatial: Spatial;
 
-    private _activeSubscription: Subscription;
+    private _activeMouseSubscription: Subscription;
+    private _activeTouchSubscription: Subscription;
     private _cursorSubscription: Subscription;
     private _movementSubscription: Subscription;
     private _mouseWheelSubscription: Subscription;
@@ -80,8 +81,32 @@ export class MouseComponent extends Component<IComponentConfiguration> {
             .startWith(false)
             .share();
 
-        this._activeSubscription = dragging$
+        this._activeMouseSubscription = dragging$
             .subscribe(this._container.mouseService.activate$);
+
+        let touchMovingStarted$: Observable<boolean> =
+            this._container.touchService.singleTouchMoveStart$
+                .map(
+                    (event: TouchMove): boolean => {
+                        return true;
+                    });
+
+        let touchMovingStopped$: Observable<boolean> =
+            this._container.touchService.singleTouchMoveEnd$
+                .map(
+                    (event: TouchEvent): boolean => {
+                        return false;
+                    });
+
+        let touchMoving$: Observable<boolean> = Observable
+            .merge(
+                touchMovingStarted$,
+                touchMovingStopped$)
+            .startWith(false)
+            .share();
+
+        this._activeTouchSubscription = touchMoving$
+            .subscribe(this._container.touchService.activate$);
 
         this._cursorSubscription = dragging$
             .map(
@@ -328,7 +353,8 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     protected _deactivate(): void {
         this._container.mouseService.unclaimMouse(this._name);
 
-        this._activeSubscription.unsubscribe();
+        this._activeMouseSubscription.unsubscribe();
+        this._activeTouchSubscription.unsubscribe();
         this._cursorSubscription.unsubscribe();
         this._movementSubscription.unsubscribe();
         this._mouseWheelSubscription.unsubscribe();
