@@ -556,17 +556,19 @@ export class TraversingState extends StateBase {
         if (this._requestedBasicRotation != null) {
             let x: number = this._basicRotation[0];
             let y: number = this._basicRotation[1];
-            let lengthSquared: number = x * x + y * y;
 
             let reqX: number = this._requestedBasicRotation[0];
             let reqY: number = this._requestedBasicRotation[1];
-            let reqLengthSquared: number = reqX * reqX + reqY * reqY;
 
-            if (reqLengthSquared > lengthSquared) {
+            if (Math.abs(reqX) > Math.abs(x)) {
                 this._basicRotation[0] = (1 - this._rotationIncreaseAlpha) * x + this._rotationIncreaseAlpha * reqX;
-                this._basicRotation[1] = (1 - this._rotationIncreaseAlpha) * y + this._rotationIncreaseAlpha * reqY;
             } else {
                 this._basicRotation[0] = (1 - this._rotationDecreaseAlpha) * x + this._rotationDecreaseAlpha * reqX;
+            }
+
+            if (Math.abs(reqY) > Math.abs(y)) {
+                this._basicRotation[1] = (1 - this._rotationIncreaseAlpha) * y + this._rotationIncreaseAlpha * reqY;
+            } else {
                 this._basicRotation[1] = (1 - this._rotationDecreaseAlpha) * y + this._rotationDecreaseAlpha * reqY;
             }
 
