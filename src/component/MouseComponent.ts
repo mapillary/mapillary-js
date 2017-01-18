@@ -53,6 +53,11 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "mouse";
 
+    private _basicDistanceThreshold: number;
+    private _basicRotationThreshold: number;
+    private _bounceCoeff: number;
+    private _forceCoeff: number;
+
     private _viewportCoords: ViewportCoords;
     private _spatial: Spatial;
 
@@ -66,6 +71,11 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._basicDistanceThreshold = 1e-6;
+        this._basicRotationThreshold = 0.05;
+        this._bounceCoeff = 1 / 8;
+        this._forceCoeff = 1 / 5;
 
         this._viewportCoords = new ViewportCoords();
         this._spatial = new Spatial();
@@ -265,8 +275,10 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                         x = x + 1;
                     }
 
-                    x = this._spatial.clamp(x, -0.05, 0.05);
-                    y = this._spatial.clamp(y, -0.05, 0.05);
+                    let rotationThreshold: number = this._basicRotationThreshold;
+
+                    x = this._spatial.clamp(x, -rotationThreshold, rotationThreshold);
+                    y = this._spatial.clamp(y, -rotationThreshold, rotationThreshold);
 
                     if (transform.fullPano) {
                         return [x, y];
@@ -279,20 +291,22 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                             transform,
                             render.perspective);
 
+                    let coeff: number = this._forceCoeff;
+
                     if (pixelDistances[0] > 0 && y < 0 && basic[1] < 0.5) {
-                        y /= Math.max(1, pixelDistances[0] / 5);
+                        y /= Math.max(1, coeff * pixelDistances[0]);
                     }
 
                     if (pixelDistances[1] > 0 && x > 0 && basic[0] > 0.5) {
-                        x /= Math.max(1, pixelDistances[1] / 5);
+                        x /= Math.max(1, coeff * pixelDistances[1]);
                     }
 
                     if (pixelDistances[2] > 0 && y > 0 && basic[1] > 0.5) {
-                        y /= Math.max(1, pixelDistances[2] / 5);
+                        y /= Math.max(1, coeff * pixelDistances[2]);
                     }
 
                     if (pixelDistances[3] > 0 && x < 0 && basic[0] < 0.5) {
-                        x /= Math.max(1, pixelDistances[3] / 5);
+                        x /= Math.max(1, coeff * pixelDistances[3]);
                     }
 
                     return [x, y];
@@ -438,29 +452,35 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let basicX: number = 0;
                     let basicY: number = 0;
 
-                    if (basicDistances[0] < 1e-6 && basicDistances[1] < 1e-6 &&
-                        basicDistances[2] < 1e-6 && basicDistances[3] < 1e-6) {
+                    let distanceThreshold: number = this._basicDistanceThreshold;
+
+                    if (basicDistances[0] < distanceThreshold && basicDistances[1] < distanceThreshold &&
+                        basicDistances[2] < distanceThreshold && basicDistances[3] < distanceThreshold) {
                         return;
                     }
 
+                    let coeff: number = this._bounceCoeff;
+
                     if (basicDistances[1] > 0 && basicDistances[3] === 0) {
-                        basicX = -basicDistances[1] / 8;
+                        basicX = -coeff * basicDistances[1];
                     } else if (basicDistances[1] === 0 && basicDistances[3] > 0) {
-                        basicX = basicDistances[3] / 8;
+                        basicX = coeff * basicDistances[3];
                     } else if (basicDistances[1] > 0 && basicDistances[3] > 0) {
-                        basicX = (basicDistances[3] - basicDistances[1]) / 8;
+                        basicX = coeff * (basicDistances[3] - basicDistances[1]);
                     }
 
                     if (basicDistances[0] > 0 && basicDistances[2] === 0) {
-                        basicY = basicDistances[0] / 8;
+                        basicY = coeff * basicDistances[0];
                     } else if (basicDistances[0] === 0 && basicDistances[2] > 0) {
-                        basicY = -basicDistances[2] / 8;
+                        basicY = -coeff * basicDistances[2];
                     } else if (basicDistances[0] > 0 && basicDistances[2] > 0) {
-                        basicY = (basicDistances[0] - basicDistances[2]) / 8;
+                        basicY = coeff * (basicDistances[0] - basicDistances[2]);
                     }
 
-                    basicX = this._spatial.clamp(basicX, -0.05, 0.05);
-                    basicY = this._spatial.clamp(basicY, -0.05, 0.05);
+                    let rotationThreshold: number = this._basicRotationThreshold;
+
+                    basicX = this._spatial.clamp(basicX, -rotationThreshold, rotationThreshold);
+                    basicY = this._spatial.clamp(basicY, -rotationThreshold, rotationThreshold);
 
                     this._navigator.stateService.rotateBasicUnbounded([basicX, basicY]);
                 });

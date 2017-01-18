@@ -85,6 +85,7 @@ export class TraversingState extends StateBase {
     private _rotationIncreaseAlpha: number;
     private _rotationDecreaseAlpha: number;
     private _rotationThreshold: number;
+    private _unboundedRotationAlpha: number;
 
     private _desiredZoom: number;
     private _minZoom: number;
@@ -116,6 +117,7 @@ export class TraversingState extends StateBase {
         this._rotationIncreaseAlpha = 0.97;
         this._rotationDecreaseAlpha = 0.9;
         this._rotationThreshold = 0.001;
+        this._unboundedRotationAlpha = 0.8;
 
         this._desiredZoom = state.zoom;
         this._minZoom = 0;
@@ -582,11 +584,11 @@ export class TraversingState extends StateBase {
             let reqY: number = this._requestedBasicRotationUnbounded[1];
 
             if (Math.abs(reqX) > 0) {
-                this._basicRotation[0] = (1 - 0.8) * this._basicRotation[0] + 0.8 * reqX;
+                this._basicRotation[0] = (1 - this._unboundedRotationAlpha) * this._basicRotation[0] + this._unboundedRotationAlpha * reqX;
             }
 
             if (Math.abs(reqY) > 0) {
-                this._basicRotation[1] = (1 - 0.8) * this._basicRotation[1] + 0.8 * reqY;
+                this._basicRotation[1] = (1 - this._unboundedRotationAlpha) * this._basicRotation[1] + this._unboundedRotationAlpha * reqY;
             }
 
             if (this._desiredLookat != null) {
