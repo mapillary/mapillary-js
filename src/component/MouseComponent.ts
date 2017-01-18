@@ -200,16 +200,31 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let canvasY: number = movement.clientY - clientRect.top;
 
                     let currentDirection: THREE.Vector3 =
-                        this._viewportCoords.unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective)
-                            .sub(render.perspective.position);
+                        this._viewportCoords.unprojectFromCanvas(
+                            canvasX,
+                            canvasY,
+                            offsetWidth,
+                            offsetHeight,
+                            render.perspective)
+                                .sub(render.perspective.position);
 
                     let directionX: THREE.Vector3 =
-                        this._viewportCoords.unproject(canvasX - movement.movementX, canvasY, offsetWidth, offsetHeight, render.perspective)
-                            .sub(render.perspective.position);
+                        this._viewportCoords.unprojectFromCanvas(
+                            canvasX - movement.movementX,
+                            canvasY,
+                            offsetWidth,
+                            offsetHeight,
+                            render.perspective)
+                                .sub(render.perspective.position);
 
                     let directionY: THREE.Vector3 =
-                        this._viewportCoords.unproject(canvasX, canvasY - movement.movementY, offsetWidth, offsetHeight, render.perspective)
-                            .sub(render.perspective.position);
+                        this._viewportCoords.unprojectFromCanvas(
+                            canvasX,
+                            canvasY - movement.movementY,
+                            offsetWidth,
+                            offsetHeight,
+                            render.perspective)
+                                .sub(render.perspective.position);
 
                     let deltaPhi: number = (movement.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
                     let deltaTheta: number = (movement.movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
@@ -322,7 +337,12 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let canvasY: number = event.clientY - clientRect.top;
 
                     let unprojected: THREE.Vector3 =
-                        this._viewportCoords.unproject(canvasX, canvasY, offsetWidth, offsetHeight, render.perspective);
+                        this._viewportCoords.unprojectFromCanvas(
+                            canvasX,
+                            canvasY,
+                            offsetWidth,
+                            offsetHeight,
+                            render.perspective);
 
                     let reference: number[] = transform.projectBasic(unprojected.toArray());
 
@@ -373,7 +393,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     let clientRect: ClientRect = element.getBoundingClientRect();
 
                     let unprojected: THREE.Vector3 =
-                        this._viewportCoords.unproject(
+                        this._viewportCoords.unprojectFromCanvas(
                             pinch.centerClientX - clientRect.left,
                             pinch.centerClientY - clientRect.top,
                             offsetWidth,

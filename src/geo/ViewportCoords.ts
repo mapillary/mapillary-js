@@ -8,25 +8,76 @@ import {Transform} from "../Geo";
  * @class ViewportCoords
  */
 export class ViewportCoords {
-    public canvasToViewport(canvasX: number, canvasY: number, canvasWidth: number, canvasHeight: number): number[] {
+    private _unprojectDepth: number = 200;
+
+    public basicToCanvas(
+        basicX: number,
+        basicY: number,
+        canvasWidth: number,
+        canvasHeight: number,
+        transform: Transform,
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
+
+        let point3d: number[] = transform.unprojectBasic([basicX, basicY], this._unprojectDepth);
+        let canvas: number[] = this.projectToCanvas(point3d, canvasWidth, canvasHeight, perspectiveCamera);
+
+        return canvas;
+    }
+
+    public basicToViewport(
+        basicX: number,
+        basicY: number,
+        transform: Transform,
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
+
+        let point3d: number[] = transform.unprojectBasic([basicX, basicY], this._unprojectDepth);
+        let viewport: number[] = this.projectToViewport(point3d, perspectiveCamera);
+
+        return viewport;
+    }
+
+    public canvasToBasic(
+        canvasX: number,
+        canvasY: number,
+        canvasWidth: number,
+        canvasHeight: number,
+        transform: Transform,
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
+
+        let point3d: number[] =
+            this.unprojectFromCanvas(canvasX, canvasY, canvasWidth, canvasHeight, perspectiveCamera)
+            .toArray();
+
+        let basic: number[] = transform.projectBasic(point3d);
+
+        return basic;
+    }
+
+    public canvasToViewport(
+        canvasX: number,
+        canvasY: number,
+        canvasWidth: number,
+        canvasHeight: number):
+        number[] {
+
         let viewportX: number = 2 * canvasX / canvasWidth - 1;
         let viewportY: number = 1 - 2 * canvasY / canvasHeight;
 
         return [viewportX, viewportY];
     }
 
-    public getBasicDistances(transform: Transform, perspectiveCamera: THREE.PerspectiveCamera): number[] {
-        let topLeft: THREE.Vector3 = new THREE.Vector3(-1, 1, 1).unproject(perspectiveCamera);
-        let topLeftBasic: number[] = transform.projectBasic([topLeft.x, topLeft.y, topLeft.z]);
+    public getBasicDistances(
+        transform: Transform,
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
 
-        let topRight: THREE.Vector3 = new THREE.Vector3(1, 1, 1).unproject(perspectiveCamera);
-        let topRightBasic: number[] = transform.projectBasic([topRight.x, topRight.y, topRight.z]);
-
-        let bottomRight: THREE.Vector3 = new THREE.Vector3(1, -1, 1).unproject(perspectiveCamera);
-        let bottomRightBasic: number[] = transform.projectBasic([bottomRight.x, bottomRight.y, bottomRight.z]);
-
-        let bottomLeft: THREE.Vector3 = new THREE.Vector3(-1, -1, 1).unproject(perspectiveCamera);
-        let bottomLeftBasic: number[] = transform.projectBasic([bottomLeft.x, bottomLeft.y, bottomLeft.z]);
+        let topLeftBasic: number[] = this.viewportToBasic(-1, 1, transform, perspectiveCamera);
+        let topRightBasic: number[] = this.viewportToBasic(1, 1, transform, perspectiveCamera);
+        let bottomRightBasic: number[] = this.viewportToBasic(1, -1, transform, perspectiveCamera);
+        let bottomLeftBasic: number[] = this.viewportToBasic(-1, -1, transform, perspectiveCamera);
 
         let topBasicDistance: number = 0;
         let rightBasicDistance: number = 0;
@@ -61,22 +112,16 @@ export class ViewportCoords {
     }
 
     public getPixelDistances(
-        elementWidth: number,
-        elementHeight: number,
+        canvasWidth: number,
+        canvasHeight: number,
         transform: Transform,
-        perspectiveCamera: THREE.PerspectiveCamera): number[] {
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
 
-        let topLeft: THREE.Vector3 = new THREE.Vector3(-1, 1, 1).unproject(perspectiveCamera);
-        let topLeftBasic: number[] = transform.projectBasic([topLeft.x, topLeft.y, topLeft.z]);
-
-        let topRight: THREE.Vector3 = new THREE.Vector3(1, 1, 1).unproject(perspectiveCamera);
-        let topRightBasic: number[] = transform.projectBasic([topRight.x, topRight.y, topRight.z]);
-
-        let bottomRight: THREE.Vector3 = new THREE.Vector3(1, -1, 1).unproject(perspectiveCamera);
-        let bottomRightBasic: number[] = transform.projectBasic([bottomRight.x, bottomRight.y, bottomRight.z]);
-
-        let bottomLeft: THREE.Vector3 = new THREE.Vector3(-1, -1, 1).unproject(perspectiveCamera);
-        let bottomLeftBasic: number[] = transform.projectBasic([bottomLeft.x, bottomLeft.y, bottomLeft.z]);
+        let topLeftBasic: number[] = this.viewportToBasic(-1, 1, transform, perspectiveCamera);
+        let topRightBasic: number[] = this.viewportToBasic(1, 1, transform, perspectiveCamera);
+        let bottomRightBasic: number[] = this.viewportToBasic(1, -1, transform, perspectiveCamera);
+        let bottomLeftBasic: number[] = this.viewportToBasic(-1, -1, transform, perspectiveCamera);
 
         let topPixelDistance: number = 0;
         let rightPixelDistance: number = 0;
@@ -88,10 +133,9 @@ export class ViewportCoords {
                 topLeftBasic[0] :
                 topRightBasic[0];
 
-            let unprojected: number[] = transform.unprojectBasic([basicX, 0], 100);
-            let canvasPoint: number[] = this.project(unprojected, elementWidth, elementHeight, perspectiveCamera);
+            let canvas: number[] = this.basicToCanvas(basicX, 0, canvasWidth, canvasHeight, transform, perspectiveCamera);
 
-            topPixelDistance = canvasPoint[1] > 0 ? canvasPoint[1] : 0;
+            topPixelDistance = canvas[1] > 0 ? canvas[1] : 0;
         }
 
         if (topRightBasic[0] > 1 && bottomRightBasic[0] > 1) {
@@ -99,10 +143,9 @@ export class ViewportCoords {
                 topRightBasic[1] :
                 bottomRightBasic[1];
 
-            let unprojected: number[] = transform.unprojectBasic([1, basicY], 100);
-            let canvasPoint: number[] = this.project(unprojected, elementWidth, elementHeight, perspectiveCamera);
+            let canvas: number[] = this.basicToCanvas(1, basicY, canvasWidth, canvasHeight, transform, perspectiveCamera);
 
-            rightPixelDistance = canvasPoint[0] < elementWidth ? elementWidth - canvasPoint[0] : 0;
+            rightPixelDistance = canvas[0] < canvasWidth ? canvasWidth - canvas[0] : 0;
         }
 
         if (bottomRightBasic[1] > 1 && bottomLeftBasic[1] > 1) {
@@ -110,10 +153,9 @@ export class ViewportCoords {
                 bottomRightBasic[0] :
                 bottomLeftBasic[0];
 
-            let unprojected: number[] = transform.unprojectBasic([basicX, 1], 100);
-            let canvasPoint: number[] = this.project(unprojected, elementWidth, elementHeight, perspectiveCamera);
+            let canvas: number[] = this.basicToCanvas(basicX, 1, canvasWidth, canvasHeight, transform, perspectiveCamera);
 
-            bottomPixelDistance = canvasPoint[1] < elementHeight ? elementHeight - canvasPoint[1] : 0;
+            bottomPixelDistance = canvas[1] < canvasHeight ? canvasHeight - canvas[1] : 0;
         }
 
         if (bottomLeftBasic[0] < 0 && topLeftBasic[0] < 0) {
@@ -121,19 +163,30 @@ export class ViewportCoords {
                 bottomLeftBasic[1] :
                 topLeftBasic[1];
 
-            let unprojected: number[] = transform.unprojectBasic([0, basicY], 100);
-            let canvasPoint: number[] = this.project(unprojected, elementWidth, elementHeight, perspectiveCamera);
+            let canvas: number[] = this.basicToCanvas(0, basicY, canvasWidth, canvasHeight, transform, perspectiveCamera);
 
-            leftPixelDistance = canvasPoint[0] > 0 ? canvasPoint[0] : 0;
+            leftPixelDistance = canvas[0] > 0 ? canvas[0] : 0;
         }
 
         return [topPixelDistance, rightPixelDistance, bottomPixelDistance, leftPixelDistance];
     }
 
-    public project(
+    public projectToCanvas(
         point3d: number[],
         canvasWidth: number,
         canvasHeight: number,
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
+
+        let viewport: number[] = this.projectToViewport(point3d, perspectiveCamera);
+        let canvas: number[] =
+            this.viewportToCanvas(viewport[0], viewport[1], canvasWidth, canvasHeight);
+
+        return canvas;
+    }
+
+    public projectToViewport(
+        point3d: number[],
         perspectiveCamera: THREE.PerspectiveCamera):
         number[] {
 
@@ -144,13 +197,10 @@ export class ViewportCoords {
         let viewportX: number = projected.x / projected.z;
         let viewportY: number = projected.y / projected.z;
 
-        let canvas: number[] =
-            this.viewportToCanvas(viewportX, viewportY, canvasWidth, canvasHeight);
-
-        return canvas;
+        return [viewportX, viewportY];
     }
 
-    public unproject(
+    public unprojectFromCanvas(
         canvasX: number,
         canvasY: number,
         canvasWidth: number,
@@ -161,11 +211,49 @@ export class ViewportCoords {
         let viewport: number[] =
             this.canvasToViewport(canvasX, canvasY, canvasWidth, canvasHeight);
 
-        return new THREE.Vector3(viewport[0], viewport[1], 1)
-            .unproject(perspectiveCamera);
+        let point3d: THREE.Vector3 =
+            this.unprojectFromViewport(viewport[0], viewport[1], perspectiveCamera);
+
+        return point3d;
     }
 
-    public viewportToCanvas(viewportX: number, viewportY: number, canvasWidth: number, canvasHeight: number): number[] {
+    public unprojectFromViewport(
+        viewportX: number,
+        viewportY: number,
+        perspectiveCamera: THREE.PerspectiveCamera):
+        THREE.Vector3 {
+
+        let point3d: THREE.Vector3 =
+            new THREE.Vector3(viewportX, viewportY, 1)
+                .unproject(perspectiveCamera);
+
+        return point3d;
+    }
+
+    public viewportToBasic(
+        viewportX: number,
+        viewportY: number,
+        transform: Transform,
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
+
+        let point3d: number[] =
+            new THREE.Vector3(viewportX, viewportY, 1)
+                .unproject(perspectiveCamera)
+                .toArray();
+
+        let basic: number[] = transform.projectBasic(point3d);
+
+        return basic;
+    }
+
+    public viewportToCanvas(
+        viewportX: number,
+        viewportY: number,
+        canvasWidth: number,
+        canvasHeight: number):
+        number[] {
+
         let canvasX: number = canvasWidth * (viewportX + 1) / 2;
         let canvasY: number = -canvasHeight * (viewportY - 1) / 2;
 
