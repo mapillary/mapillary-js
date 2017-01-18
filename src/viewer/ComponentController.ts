@@ -1,3 +1,5 @@
+import {Observable} from "rxjs/Observable";
+
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {CoverComponent, ComponentService, ICoverConfiguration, Component, IComponentConfiguration} from "../Component";
@@ -31,8 +33,8 @@ export class ComponentController {
                         return k != null;
                     })
                 .subscribe(
-                    (movedToKey: string): void => {
-                        this._key = movedToKey;
+                    (k: string): void => {
+                        this._key = k;
                         this._componentService.deactivateCover();
                         this._coverComponent.configure({ key: this._key, loading: false, visible: false });
                         this._subscribeCoverComponent();
@@ -103,7 +105,15 @@ export class ComponentController {
     private _subscribeCoverComponent(): void {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
-                this._navigator.moveToKey$(conf.key)
+                this._navigator.stateService.currentKey$
+                    .first()
+                    .switchMap(
+                        (key: string): Observable<Node> => {
+                            return key == null || key !== conf.key ?
+                                this._navigator.moveToKey$(conf.key) :
+                                this._navigator.stateService.currentNode$
+                                    .first();
+                        })
                     .subscribe(
                         (node: Node): void => {
                             this._navigator.stateService.start();

@@ -58,6 +58,7 @@ export class StateService {
     private _currentNode$: Observable<Node>;
     private _currentNodeExternal$: Observable<Node>;
     private _currentCamera$: Observable<Camera>;
+    private _currentKey$: BehaviorSubject<string>;
     private _currentTransform$: Observable<Transform>;
     private _reference$: Observable<ILatLonAlt>;
 
@@ -156,7 +157,17 @@ export class StateService {
 
         let nodeChangedSubject$: Subject<IFrame> = new Subject<IFrame>();
 
-        nodeChanged$.subscribe(nodeChangedSubject$);
+        nodeChanged$
+            .subscribe(nodeChangedSubject$);
+
+        this._currentKey$ = new BehaviorSubject<string>(null);
+
+        nodeChangedSubject$
+            .map(
+                (f: IFrame): string => {
+                    return f.state.currentNode.key;
+                })
+            .subscribe(this._currentKey$);
 
         this._currentNode$ = nodeChangedSubject$
             .map(
@@ -328,6 +339,10 @@ export class StateService {
 
     public get currentNode$(): Observable<Node> {
         return this._currentNode$;
+    }
+
+    public get currentKey$(): Observable<string> {
+        return this._currentKey$;
     }
 
     public get currentNodeExternal$(): Observable<Node> {
