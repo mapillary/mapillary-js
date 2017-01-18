@@ -61,8 +61,8 @@ export class StateService {
     private _currentTransform$: Observable<Transform>;
     private _reference$: Observable<ILatLonAlt>;
 
-    private _movingOperation$: Subject<boolean>;
-    private _moving$: Observable<boolean>;
+    private _inMotionOperation$: Subject<boolean>;
+    private _inMotion$: Observable<boolean>;
 
     private _inTranslationOperation$: Subject<boolean>;
     private _inTranslation$: Observable<boolean>;
@@ -216,16 +216,16 @@ export class StateService {
                 })
             .subscribe(this._contextOperation$);
 
-        this._movingOperation$ = new Subject<boolean>();
+        this._inMotionOperation$ = new Subject<boolean>();
 
         nodeChanged$
             .map(
                 (frame: IFrame): boolean => {
                     return true;
                 })
-            .subscribe(this._movingOperation$);
+            .subscribe(this._inMotionOperation$);
 
-        this._movingOperation$
+        this._inMotionOperation$
             .distinctUntilChanged()
             .filter(
                 (moving: boolean): boolean => {
@@ -258,11 +258,12 @@ export class StateService {
                                 return !changed;
                             });
                 })
-            .subscribe(this._movingOperation$);
+            .subscribe(this._inMotionOperation$);
 
-        this._moving$ = this._movingOperation$
+        this._inMotion$ = this._inMotionOperation$
             .distinctUntilChanged()
-            .share();
+            .publishReplay(1)
+            .refCount();
 
         this._inTranslationOperation$ = new Subject<boolean>();
 
@@ -314,6 +315,7 @@ export class StateService {
         this._reference$.subscribe(() => { /*noop*/ });
         this._currentNodeExternal$.subscribe(() => { /*noop*/ });
         this._lastState$.subscribe(() => { /*noop*/ });
+        this._inMotion$.subscribe(() => { /*noop*/ });
         this._inTranslation$.subscribe(() => { /*noop*/ });
 
         this._frameId = null;
@@ -348,8 +350,8 @@ export class StateService {
         return this._reference$;
     }
 
-    public get moving$(): Observable<boolean> {
-        return this._moving$;
+    public get inMotion$(): Observable<boolean> {
+        return this._inMotion$;
     }
 
     public get inTranslation$(): Observable<boolean> {
@@ -361,7 +363,7 @@ export class StateService {
     }
 
     public traverse(): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.traverse(); });
     }
 
@@ -398,32 +400,32 @@ export class StateService {
     }
 
     public rotate(delta: IRotation): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotate(delta); });
     }
 
     public rotateBasic(basicRotation: number[]): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotateBasic(basicRotation); });
     }
 
     public rotateBasicUnbounded(basicRotation: number[]): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotateBasicUnbounded(basicRotation); });
     }
 
     public rotateToBasic(basic: number[]): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotateToBasic(basic); });
     }
 
     public move(delta: number): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.move(delta); });
     }
 
     public moveTo(position: number): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
@@ -434,7 +436,7 @@ export class StateService {
      * @parameter {Array<number>} reference - Reference point in basic coordinates.
      */
     public zoomIn(delta: number, reference: number[]): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.zoomIn(delta, reference); });
     }
 
@@ -457,12 +459,12 @@ export class StateService {
     }
 
     public setCenter(center: number[]): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.setCenter(center); });
     }
 
     public setZoom(zoom: number): void {
-        this._movingOperation$.next(true);
+        this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.setZoom(zoom); });
     }
 

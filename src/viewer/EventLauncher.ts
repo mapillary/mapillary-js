@@ -67,7 +67,7 @@ export class EventLauncher {
 
         this._moveSubscription = Observable
             .combineLatest(
-                this._navigator.stateService.moving$,
+                this._navigator.stateService.inMotion$,
                 this._container.mouseService.active$,
                 this._container.touchService.active$)
             .map(
