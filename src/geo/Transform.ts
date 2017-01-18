@@ -101,6 +101,20 @@ export class Transform {
     }
 
     /**
+     * Get fullPano.
+     *
+     * @returns {boolean} Value indicating whether the node is a complete
+     * 360 panorama.
+     */
+    public get fullPano(): boolean {
+        return this._gpano != null &&
+            this._gpano.CroppedAreaLeftPixels === 0 &&
+            this._gpano.CroppedAreaTopPixels === 0 &&
+            this._gpano.CroppedAreaImageWidthPixels === this._gpano.FullPanoWidthPixels &&
+            this._gpano.CroppedAreaImageHeightPixels === this._gpano.FullPanoHeightPixels;
+    }
+
+    /**
      * Get gpano.
      * @returns {number} The node gpano information.
      */

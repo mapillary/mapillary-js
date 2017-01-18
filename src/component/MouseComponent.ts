@@ -268,6 +268,10 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     x = this._spatial.clamp(x, -0.05, 0.05);
                     y = this._spatial.clamp(y, -0.05, 0.05);
 
+                    if (transform.fullPano) {
+                        return [x, y];
+                    }
+
                     let pixelDistances: number[] =
                         this._viewportCoords.getPixelDistances(
                             this._container.element.offsetWidth,
