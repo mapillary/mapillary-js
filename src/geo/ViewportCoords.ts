@@ -8,6 +8,13 @@ import {Transform} from "../Geo";
  * @class ViewportCoords
  */
 export class ViewportCoords {
+    public canvasToViewport(canvasX: number, canvasY: number, canvasWidth: number, canvasHeight: number): number[] {
+        let viewportX: number = 2 * canvasX / canvasWidth - 1;
+        let viewportY: number = 1 - 2 * canvasY / canvasHeight;
+
+        return [viewportX, viewportY];
+    }
+
     public getBasicDistances(transform: Transform, perspectiveCamera: THREE.PerspectiveCamera): number[] {
         let topLeft: THREE.Vector3 = new THREE.Vector3(-1, 1, 1).unproject(perspectiveCamera);
         let topLeftBasic: number[] = transform.projectBasic([topLeft.x, topLeft.y, topLeft.z]);
@@ -137,10 +144,10 @@ export class ViewportCoords {
         let viewportX: number = projected.x / projected.z;
         let viewportY: number = projected.y / projected.z;
 
-        let canvasX: number = canvasWidth * (viewportX + 1) / 2;
-        let canvasY: number = -canvasHeight * (viewportY - 1) / 2;
+        let canvas: number[] =
+            this.viewportToCanvas(viewportX, viewportY, canvasWidth, canvasHeight);
 
-        return [canvasX, canvasY];
+        return canvas;
     }
 
     public unproject(
@@ -151,11 +158,18 @@ export class ViewportCoords {
         perspectiveCamera: THREE.PerspectiveCamera):
         THREE.Vector3 {
 
-        let viewportX: number = 2 * canvasX / canvasWidth - 1;
-        let viewportY: number = 1 - 2 * canvasY / canvasHeight;
+        let viewport: number[] =
+            this.canvasToViewport(canvasX, canvasY, canvasWidth, canvasHeight);
 
-        return new THREE.Vector3(viewportX, viewportY, 1)
+        return new THREE.Vector3(viewport[0], viewport[1], 1)
             .unproject(perspectiveCamera);
+    }
+
+    public viewportToCanvas(viewportX: number, viewportY: number, canvasWidth: number, canvasHeight: number): number[] {
+        let canvasX: number = canvasWidth * (viewportX + 1) / 2;
+        let canvasY: number = -canvasHeight * (viewportY - 1) / 2;
+
+        return [canvasX, canvasY];
     }
 }
 
