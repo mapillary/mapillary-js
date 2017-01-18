@@ -72,7 +72,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._basicDistanceThreshold = 1e-6;
+        this._basicDistanceThreshold = 1e-3;
         this._basicRotationThreshold = 0.05;
         this._bounceCoeff = 1 / 8;
         this._forceCoeff = 1 / 5;
@@ -447,15 +447,30 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                 })
             .subscribe(
                 (args: [RenderCamera, Transform]): void => {
-                    let basicDistances: number[] = this._viewportCoords.getBasicDistances(args[1], args[0].perspective);
+                    let renderCamera: RenderCamera = args[0];
+                    let perspectiveCamera: THREE.PerspectiveCamera = renderCamera.perspective;
+                    let transform: Transform = args[1];
+
+                    let distanceThreshold: number = this._basicDistanceThreshold / Math.pow(2, renderCamera.zoom);
+
+                    let basicCenter: number[] = this._viewportCoords.viewportToBasic(0, 0, transform, perspectiveCamera);
+
+                    if (Math.abs(basicCenter[0] - 0.5) < distanceThreshold && Math.abs(basicCenter[1] - 0.5) < distanceThreshold) {
+                        return;
+                    }
+
+                    let basicDistances: number[] = this._viewportCoords.getBasicDistances(transform, perspectiveCamera);
 
                     let basicX: number = 0;
                     let basicY: number = 0;
 
-                    let distanceThreshold: number = this._basicDistanceThreshold;
-
                     if (basicDistances[0] < distanceThreshold && basicDistances[1] < distanceThreshold &&
                         basicDistances[2] < distanceThreshold && basicDistances[3] < distanceThreshold) {
+                        return;
+                    }
+
+                    if (Math.abs(basicDistances[0] - basicDistances[2]) < distanceThreshold &&
+                        Math.abs(basicDistances[1] - basicDistances[3]) < distanceThreshold) {
                         return;
                     }
 
