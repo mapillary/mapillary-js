@@ -132,12 +132,20 @@ export class Camera {
     /**
      * Get the focal length based on the transform.
      *
-     * @description Returns 0.5 focal length if transform has gpano
-     * information.
+     * @description Returns the focal length of the transform if gpano info is not available.
+     * Returns a focal length corresponding to a vertical fov clamped to [45, 90] degrees based on
+     * the gpano information if available.
      *
      * @returns {number} Focal length.
      */
     private _getFocal(transform: Transform): number {
-        return transform.gpano == null ? transform.focal : 0.5;
+        if (transform.gpano == null) {
+            return transform.focal;
+        }
+
+        let vFov: number = Math.PI * transform.gpano.CroppedAreaImageHeightPixels / transform.gpano.FullPanoHeightPixels;
+        let focal: number = 0.5 / Math.tan(vFov / 2);
+
+        return Math.min(1 / (2 * (Math.sqrt(2) - 1)), Math.max(0.5, focal));
     }
 }

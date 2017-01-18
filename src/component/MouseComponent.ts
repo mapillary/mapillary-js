@@ -73,9 +73,9 @@ export class MouseComponent extends Component<IComponentConfiguration> {
         super(name, container, navigator);
 
         this._basicDistanceThreshold = 1e-3;
-        this._basicRotationThreshold = 0.05;
-        this._bounceCoeff = 1 / 8;
-        this._forceCoeff = 1 / 5;
+        this._basicRotationThreshold = 5e-2;
+        this._bounceCoeff = 1e-1;
+        this._forceCoeff = 2e-1;
 
         this._viewportCoords = new ViewportCoords();
         this._spatial = new Spatial();
@@ -479,7 +479,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     } else if (basicDistances[1] === 0 && basicDistances[3] > 0) {
                         basicX = coeff * basicDistances[3];
                     } else if (basicDistances[1] > 0 && basicDistances[3] > 0) {
-                        basicX = coeff * (basicDistances[3] - basicDistances[1]);
+                        basicX = coeff * (basicDistances[3] - basicDistances[1]) / 2;
                     }
 
                     if (basicDistances[0] > 0 && basicDistances[2] === 0) {
@@ -487,7 +487,7 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                     } else if (basicDistances[0] === 0 && basicDistances[2] > 0) {
                         basicY = -coeff * basicDistances[2];
                     } else if (basicDistances[0] > 0 && basicDistances[2] > 0) {
-                        basicY = coeff * (basicDistances[0] - basicDistances[2]);
+                        basicY = coeff * (basicDistances[0] - basicDistances[2]) / 2;
                     }
 
                     let rotationThreshold: number = this._basicRotationThreshold;
