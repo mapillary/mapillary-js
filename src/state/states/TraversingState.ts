@@ -116,7 +116,7 @@ export class TraversingState extends StateBase {
         this._rotationAcceleration = 0.86;
         this._rotationIncreaseAlpha = 0.97;
         this._rotationDecreaseAlpha = 0.9;
-        this._rotationThreshold = 0.001;
+        this._rotationThreshold = 1e-3;
         this._unboundedRotationAlpha = 0.8;
 
         this._desiredZoom = state.zoom;

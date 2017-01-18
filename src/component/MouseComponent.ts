@@ -434,8 +434,6 @@ export class MouseComponent extends Component<IComponentConfiguration> {
                 (noForce: boolean[]): boolean => {
                     return noForce[0] || noForce[1] || noForce[2];
                 })
-            .skip(1)
-            .startWith(true)
             .distinctUntilChanged()
             .switchMap(
                 (noForce: boolean): Observable<[RenderCamera, Transform]> => {

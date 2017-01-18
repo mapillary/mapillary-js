@@ -184,6 +184,8 @@ export class RenderService {
         this._renderCameraHolder$.subscribe(() => { /*noop*/ });
         this._size$.subscribe(() => { /*noop*/ });
         this._renderMode$.subscribe(() => { /*noop*/ });
+        this._renderCamera$.subscribe(() => { /*noop*/ });
+        this._renderCameraFrame$.subscribe(() => { /*noop*/ });
     }
 
     public get bearing$(): Observable<number> {
