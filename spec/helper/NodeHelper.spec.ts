@@ -1,4 +1,10 @@
-import {ICoreNode, IFillNode, IFullNode} from "../../src/API";
+import {
+    ICoreNode,
+    IFillNode,
+    IFullNode,
+    IGPano,
+} from "../../src/API";
+import {Node} from "../../src/Graph";
 
 export class NodeHelper {
     private _nodeKey: string = "nkey";
@@ -56,6 +62,16 @@ export class NodeHelper {
             width: 0,
         };
     }
+
+    public createNode(gpano?: IGPano): Node {
+        let fullNode: IFullNode = this.createFullNode();
+        fullNode.gpano = gpano;
+
+        let node: Node = new Node(fullNode);
+        node.makeFull(fullNode);
+
+        return node;
+    };
 }
 
 export default NodeHelper;
