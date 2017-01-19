@@ -1,12 +1,13 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as THREE from "three";
-
 import {
     RenderCamera,
     ISize,
 } from "../Render";
-import {Transform} from "../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../Geo";
 import {
     IBoundingBox,
     IRegionOfInterest,
@@ -18,6 +19,8 @@ import {
  * @classdesc Represents a calculator for regions of interest.
  */
 export class RegionOfInterestCalculator {
+    private _viewportCoords: ViewportCoords = new ViewportCoords();
+
     /**
      * Compute a region of interest based on the current render camera
      * and the viewport size.
@@ -65,7 +68,8 @@ export class RegionOfInterestCalculator {
 
     private _canvasPointsBoundingBox(canvasPoints: number[][], renderCamera: RenderCamera, transform: Transform): IBoundingBox {
         let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
-            return this._canvasToBasic(point, renderCamera, transform);
+            return this._viewportCoords
+                .canvasToBasic(point[0], point[1], 1, 1, transform, renderCamera.perspective);
         });
 
         if (transform.gpano != null) {
@@ -146,27 +150,6 @@ export class RegionOfInterestCalculator {
     private _sign(n: number): number {
         return n > 0 ? 1 : n < 0 ? -1 : 0;
     }
-
-    private _canvasToBasic(
-        point: number [],
-        renderCamera: RenderCamera,
-        transform: Transform): number[] {
-        let bearing: THREE.Vector3 = this._unproject(point[0], point[1], renderCamera.perspective);
-        return transform.projectBasic([bearing.x, bearing.y, bearing.z]);
-    }
-
-    private _unproject(
-        canvasX: number,
-        canvasY: number,
-        perspectiveCamera: THREE.PerspectiveCamera):
-        THREE.Vector3 {
-
-        let projectedX: number = 2 * canvasX - 1;
-        let projectedY: number = 1 - 2 * canvasY;
-
-        return new THREE.Vector3(projectedX, projectedY, 1).unproject(perspectiveCamera);
-    }
-
 }
 
 export default RegionOfInterestCalculator;

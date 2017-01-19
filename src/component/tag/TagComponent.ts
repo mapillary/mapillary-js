@@ -1,7 +1,5 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import * as THREE from "three";
-
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
@@ -55,7 +53,10 @@ import {
     TagSet,
     VertexGeometry,
 } from "../../Component";
-import {Transform} from "../../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../../Geo";
 import {Node} from "../../Graph";
 import {
     GLRenderStage,
@@ -98,7 +99,6 @@ export class TagComponent extends Component<ITagConfiguration> {
      */
     public static geometrycreated: string = "geometrycreated";
 
-
     /**
      * Event fired when the tags collection has changed.
      *
@@ -110,6 +110,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _tagDomRenderer: TagDOMRenderer;
     private _tagSet: TagSet;
     private _tagCreator: TagCreator;
+    private _viewportCoords: ViewportCoords;
 
     private _tagGlRendererOperation$: Subject<ITagGLRendererOperation>;
     private _tagGlRenderer$: Observable<TagGLRenderer>;
@@ -162,6 +163,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._tagDomRenderer = new TagDOMRenderer();
         this._tagSet = new TagSet();
         this._tagCreator = new TagCreator();
+        this._viewportCoords = new ViewportCoords();
 
         this._tagGlRendererOperation$ = new Subject<ITagGLRendererOperation>();
 
@@ -837,13 +839,17 @@ export class TagComponent extends Component<ITagConfiguration> {
         let canvasX: number = event.clientX - clientRect.left - offsetX;
         let canvasY: number = event.clientY - clientRect.top - offsetY;
 
-        let projectedX: number = 2 * canvasX / element.offsetWidth - 1;
-        let projectedY: number = 1 - 2 * canvasY / element.offsetHeight;
+        let canvasWidth: number = element.offsetWidth;
+        let canvasHeight: number = element.offsetHeight;
 
-        let unprojected: THREE.Vector3 =
-            new THREE.Vector3(projectedX, projectedY, 1).unproject(camera.perspective);
-
-        let basic: number[] = transform.projectBasic(unprojected.toArray());
+        let basic: number[] =
+            this._viewportCoords.canvasToBasic(
+                canvasX,
+                canvasY,
+                canvasWidth,
+                canvasHeight,
+                transform,
+                camera.perspective);
 
         return basic;
     }
