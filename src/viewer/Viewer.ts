@@ -198,9 +198,9 @@ export class Viewer extends EventEmitter {
      * Get the basic coordinates of the current photo that is
      * at the center of the viewport.
      *
-     * @description Basic coordinates are on the [0, 1] interval and
-     * has the origin point, [0, 0], at the top left corner and the
-     * maximum value, [1, 1], at the bottom right corner of the original
+     * @description Basic coordinates are 2D coordinates on the [0, 1] interval
+     * and have the origin point, (0, 0), at the top left corner and the
+     * maximum value, (1, 1), at the bottom right corner of the original
      * photo.
      *
      * @returns {Promise<number[]>} Promise to the basic coordinates
@@ -361,9 +361,9 @@ export class Viewer extends EventEmitter {
      * Set the basic coordinates of the current photo to be in the
      * center of the viewport.
      *
-     * @description Basic coordinates are on the [0, 1] interval and
-     * has the origin point, [0, 0], at the top left corner and the
-     * maximum value, [1, 1], at the bottom right corner of the original
+     * @description Basic coordinates are 2D coordinates on the [0, 1] interval
+     * and has the origin point, (0, 0), at the top left corner and the
+     * maximum value, (1, 1), at the bottom right corner of the original
      * photo.
      *
      * @param {number[]} The basic coordinates of the current

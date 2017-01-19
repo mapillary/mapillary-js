@@ -6,10 +6,43 @@ import {Transform} from "../Geo";
 
 /**
  * @class ViewportCoords
+ *
+ * @classdesc Provides methods for calculating 2D coordinate conversions
+ * as well as 3D projection and unprojection.
+ *
+ * Basic coordinates are 2D coordinates on the [0, 1] interval and
+ * have the origin point, (0, 0), at the top left corner and the
+ * maximum value, (1, 1), at the bottom right corner of the original
+ * photo.
+ *
+ * Viewport coordinates are 2D coordinates on the [-1, 1] interval and
+ * have the origin point in the center. The bottom left corner point is
+ * (-1, -1) and the top right corner point is (1, 1).
+ *
+ * Canvas coordiantes are 2D pixel coordinates on the [0, canvasWidth] and
+ * [0, canvasHeight] intervals. The origin point (0, 0) is in the top left
+ * corner and the maximum value is (canvasWidth, canvasHeight) is in the
+ * bottom right corner.
+ *
+ * 3D coordinates are in the topocentric world reference frame.
  */
 export class ViewportCoords {
     private _unprojectDepth: number = 200;
 
+    /**
+     * Convert basic coordinates to canvas coordinates.
+     *
+     * @description Transform origin and perspective camera position needs to be the
+     * equal for reliable return value.
+     *
+     * @param {number} basicX - Basic X coordinate.
+     * @param {number} basicY - Basic Y coordinate.
+     * @param {number} canvasWidth - Width of canvas.
+     * @param {number} canvasHeight - Height of canvas.
+     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 2D canvas coordinates.
+     */
     public basicToCanvas(
         basicX: number,
         basicY: number,
@@ -25,6 +58,20 @@ export class ViewportCoords {
         return canvas;
     }
 
+    /**
+     * Convert basic coordinates to viewport coordinates.
+     *
+     * @description Transform origin and perspective camera position needs to be the
+     * equal for reliable return value.
+     *
+     * @param {number} basicX - Basic X coordinate.
+     * @param {number} basicY - Basic Y coordinate.
+     * @param {number} canvasWidth - Width of canvas.
+     * @param {number} canvasHeight - Height of canvas.
+     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 2D canvas coordinates.
+     */
     public basicToViewport(
         basicX: number,
         basicY: number,
@@ -38,6 +85,20 @@ export class ViewportCoords {
         return viewport;
     }
 
+    /**
+     * Convert canvas coordinates to basic coordinates.
+     *
+     * @description Transform origin and perspective camera position needs to be the
+     * equal for reliable return value.
+     *
+     * @param {number} canvasX - Canvas X coordinate.
+     * @param {number} canvasY - Canvas Y coordinate.
+     * @param {number} canvasWidth - Width of canvas.
+     * @param {number} canvasHeight - Height of canvas.
+     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 2D basic coordinates.
+     */
     public canvasToBasic(
         canvasX: number,
         canvasY: number,
@@ -49,13 +110,22 @@ export class ViewportCoords {
 
         let point3d: number[] =
             this.unprojectFromCanvas(canvasX, canvasY, canvasWidth, canvasHeight, perspectiveCamera)
-            .toArray();
+                .toArray();
 
         let basic: number[] = transform.projectBasic(point3d);
 
         return basic;
     }
 
+    /**
+     * Convert canvas coordinates to viewport coordinates.
+     *
+     * @param {number} canvasX - Canvas X coordinate.
+     * @param {number} canvasY - Canvas Y coordinate.
+     * @param {number} canvasWidth - Width of canvas.
+     * @param {number} canvasHeight - Height of canvas.
+     * @returns {Array<number>} 2D viewport coordinates.
+     */
     public canvasToViewport(
         canvasX: number,
         canvasY: number,
@@ -69,6 +139,18 @@ export class ViewportCoords {
         return [viewportX, viewportY];
     }
 
+    /**
+     * Determine basic distances from image to canvas corners.
+     *
+     * @description Transform origin and perspective camera position needs to be the
+     * equal for reliable return value.
+     *
+     * Determines the smallest basic distance for every side of the canvas.
+     *
+     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} Array of basic distances as [top, right, bottom, left].
+     */
     public getBasicDistances(
         transform: Transform,
         perspectiveCamera: THREE.PerspectiveCamera):
@@ -111,6 +193,20 @@ export class ViewportCoords {
         return [topBasicDistance, rightBasicDistance, bottomBasicDistance, leftBasicDistance];
     }
 
+    /**
+     * Determine pixel distances from image to canvas corners.
+     *
+     * @description Transform origin and perspective camera position needs to be the
+     * equal for reliable return value.
+     *
+     * Determines the smallest pixel distance for every side of the canvas.
+     *
+     * @param {number} canvasWidth - Width of canvas.
+     * @param {number} canvasHeight - Height of canvas.
+     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} Array of pixel distances as [top, right, bottom, left].
+     */
     public getPixelDistances(
         canvasWidth: number,
         canvasHeight: number,
@@ -171,6 +267,15 @@ export class ViewportCoords {
         return [topPixelDistance, rightPixelDistance, bottomPixelDistance, leftPixelDistance];
     }
 
+    /**
+     * Project 3D world coordinates to canvas coordinates.
+     *
+     * @param {Array<number>} point3D - 3D world coordinates.
+     * @param {number} canvasWidth - Width of canvas.
+     * @param {number} canvasHeight - Height of canvas.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 3D world coordinates.
+     */
     public projectToCanvas(
         point3d: number[],
         canvasWidth: number,
@@ -185,6 +290,13 @@ export class ViewportCoords {
         return canvas;
     }
 
+    /**
+     * Project 3D world coordinates to viewport coordinates.
+     *
+     * @param {Array<number>} point3D - 3D world coordinates.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 3D world coordinates.
+     */
     public projectToViewport(
         point3d: number[],
         perspectiveCamera: THREE.PerspectiveCamera):
@@ -194,12 +306,27 @@ export class ViewportCoords {
             new THREE.Vector3(point3d[0], point3d[1], point3d[2])
                 .project(perspectiveCamera);
 
-        let viewportX: number = projected.x / projected.z;
-        let viewportY: number = projected.y / projected.z;
+        let z: number = Math.abs(projected.z) < 1e-9 ?
+            projected.z < 0 ?
+                -1e-9 : 1e-9 :
+            projected.z;
+
+        let viewportX: number = projected.x / z;
+        let viewportY: number = projected.y / z;
 
         return [viewportX, viewportY];
     }
 
+    /**
+     * Uproject canvas coordinates to 3D world coordinates.
+     *
+     * @param {number} canvasX - Canvas X coordinate.
+     * @param {number} canvasY - Canvas Y coordinate.
+     * @param {number} canvasWidth - Width of canvas.
+     * @param {number} canvasHeight - Height of canvas.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 3D world coordinates.
+     */
     public unprojectFromCanvas(
         canvasX: number,
         canvasY: number,
@@ -217,6 +344,14 @@ export class ViewportCoords {
         return point3d;
     }
 
+    /**
+     * Unproject viewport coordinates to 3D world coordinates.
+     *
+     * @param {number} viewportX - Viewport X coordinate.
+     * @param {number} viewportY - Viewport Y coordinate.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 3D world coordinates.
+     */
     public unprojectFromViewport(
         viewportX: number,
         viewportY: number,
@@ -230,6 +365,18 @@ export class ViewportCoords {
         return point3d;
     }
 
+    /**
+     * Convert viewport coordinates to basic coordinates.
+     *
+     * @description Transform origin and perspective camera position needs to be the
+     * equal for reliable return value.
+     *
+     * @param {number} viewportX - Viewport X coordinate.
+     * @param {number} viewportY - Viewport Y coordinate.
+     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 2D basic coordinates.
+     */
     public viewportToBasic(
         viewportX: number,
         viewportY: number,
@@ -247,6 +394,15 @@ export class ViewportCoords {
         return basic;
     }
 
+    /**
+     * Convert viewport coordinates to canvas coordinates.
+     *
+     * @param {number} viewportX - Viewport X coordinate.
+     * @param {number} viewportY - Viewport Y coordinate.
+     * @param {number} canvasWidth - Width of canvas.
+     * @param {number} canvasHeight - Height of canvas.
+     * @returns {Array<number>} 2D canvas coordinates.
+     */
     public viewportToCanvas(
         viewportX: number,
         viewportY: number,
