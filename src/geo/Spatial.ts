@@ -8,9 +8,15 @@ import * as THREE from "three";
  * @classdesc Provides methods for scalar, vector and matrix calculations.
  */
 export class Spatial {
-
     private _epsilon: number = 1e-9;
 
+    /**
+     * Converts azimuthal phi rotation (counter-clockwise with origin on X-axis) to
+     * bearing (clockwise with origin at north or Y-axis).
+     *
+     * @param {number} phi - Azimuthal phi angle in radians.
+     * @returns {number} Bearing in radians.
+     */
     public azimuthalToBearing(phi: number): number {
          return -phi + Math.PI / 2;
     }
@@ -18,7 +24,8 @@ export class Spatial {
     /**
      * Converts degrees to radians.
      *
-     * @param {number} deg Degrees.
+     * @param {number} deg - Degrees.
+     * @returns {number} Radians.
      */
     public degToRad(deg: number): number {
         return Math.PI * deg / 180;
@@ -27,7 +34,8 @@ export class Spatial {
     /**
      * Converts radians to degrees.
      *
-     * @param {number} rad Radians.
+     * @param {number} rad - Radians.
+     * @returns {number} Degrees.
      */
     public radToDeg(rad: number): number {
         return 180 * rad / Math.PI;
@@ -36,7 +44,8 @@ export class Spatial {
     /**
      * Creates a rotation matrix from an angle-axis vector.
      *
-     * @param {Array<number>} angleAxis Angle-axis representation of a rotation.
+     * @param {Array<number>} angleAxis - Angle-axis representation of a rotation.
+     * @returns {THREE.Matrix4} Rotation matrix.
      */
     public rotationMatrix(angleAxis: number[]): THREE.Matrix4 {
         let axis: THREE.Vector3 =
@@ -51,8 +60,9 @@ export class Spatial {
     /**
      * Rotates a vector according to a angle-axis rotation vector.
      *
-     * @param {Array<number>} vector Vector to rotate.
-     * @param {Array<number>} angleAxis Angle-axis representation of a rotation.
+     * @param {Array<number>} vector - Vector to rotate.
+     * @param {Array<number>} angleAxis - Angle-axis representation of a rotation.
+     * @returns {THREE.Vector3} Rotated vector.
      */
     public rotate(vector: number[], angleAxis: number[]): THREE.Vector3 {
         let v: THREE.Vector3 = new THREE.Vector3(vector[0], vector[1], vector[2]);
@@ -67,8 +77,9 @@ export class Spatial {
      * on the angle-axis representation and a translation vector
      * according to C = -R^T t.
      *
-     * @param {Array<number>} rotation Angle-axis representation of a rotation.
-     * @param {Array<number>} translation Translation vector.
+     * @param {Array<number>} rotation - Angle-axis representation of a rotation.
+     * @param {Array<number>} translation - Translation vector.
+     * @returns {THREE.Vector3} Optical center.
      */
     public opticalCenter(rotation: number[], translation: number[]): THREE.Vector3 {
         let angleAxis: number[] = [-rotation[0], -rotation[1], -rotation[2]];
@@ -81,7 +92,8 @@ export class Spatial {
      * Calculates the viewing direction from a rotation vector
      * on the angle-axis representation.
      *
-     * @param {number[]} rotation Angle-axis representation of a rotation.
+     * @param {number[]} rotation - Angle-axis representation of a rotation.
+     * @returns {THREE.Vector3} Viewing direction.
      */
     public viewingDirection(rotation: number[]): THREE.Vector3 {
         let angleAxis: number[] = [-rotation[0], -rotation[1], -rotation[2]];
@@ -92,11 +104,10 @@ export class Spatial {
     /**
      * Wrap a number on the interval [min, max].
      *
-     * @param {number} value Value to wrap.
-     * @param {number} min Lower endpoint of interval.
-     * @param {number} max Upper endpoint of interval.
-     *
-     * @returs {number} The wrapped number.
+     * @param {number} value - Value to wrap.
+     * @param {number} min - Lower endpoint of interval.
+     * @param {number} max - Upper endpoint of interval.
+     * @returns {number} The wrapped number.
      */
     public wrap(value: number, min: number, max: number): number {
         if (max < min) {
@@ -119,9 +130,8 @@ export class Spatial {
     /**
      * Wrap an angle on the interval [-Pi, Pi].
      *
-     * @param {number} angle Value to wrap.
-     *
-     * @returs {number} The wrapped angle.
+     * @param {number} angle - Value to wrap.
+     * @returns {number} Wrapped angle.
      */
     public wrapAngle(angle: number): number {
         return this.wrap(angle, -Math.PI, Math.PI);
@@ -131,11 +141,10 @@ export class Spatial {
      * Limit the value to the interval [min, max] by changing the value to
      * the nearest available one when it is outside the interval.
      *
-     * @param {number} value Value to clamp.
-     * @param {number} min Minimum of the interval.
-     * @param {number} max Maximum of the interval.
-     *
-     * @returns {number} The clamped value.
+     * @param {number} value - Value to clamp.
+     * @param {number} min - Minimum of the interval.
+     * @param {number} max - Maximum of the interval.
+     * @returns {number} Clamped value.
      */
     public clamp(value: number, min: number, max: number): number {
         if (value < min) {
@@ -153,10 +162,11 @@ export class Spatial {
      * Calculates the counter-clockwise angle from the first
      * vector (x1, y1)^T to the second (x2, y2)^T.
      *
-     * @param {number} x1 X-value of first vector.
-     * @param {number} y1 Y-value of first vector.
-     * @param {number} x2 X-value of second vector.
-     * @param {number} y2 Y-value of second vector.
+     * @param {number} x1 - X coordinate of first vector.
+     * @param {number} y1 - Y coordinate of first vector.
+     * @param {number} x2 - X coordinate of second vector.
+     * @param {number} y2 - Y coordinate of second vector.
+     * @returns {number} Counter clockwise angle between the vectors.
      */
     public angleBetweenVector2(x1: number, y1: number, x2: number, y2: number): number {
         let angle: number = Math.atan2(y2, x2) - Math.atan2(y1, x1);
@@ -168,8 +178,9 @@ export class Spatial {
      * Calculates the minimum (absolute) angle change for rotation
      * from one angle to another on the [-Pi, Pi] interval.
      *
-     * @param {number} angle1 The origin angle.
-     * @param {number} angle2 The destination angle.
+     * @param {number} angle1 - Start angle.
+     * @param {number} angle2 - Destination angle.
+     * @returns {number} Absolute angle change between angles.
      */
     public angleDifference(angle1: number, angle2: number): number {
         let angle: number = angle2 - angle1;
@@ -181,8 +192,9 @@ export class Spatial {
      * Calculates the relative rotation angle between two
      * angle-axis vectors.
      *
-     * @param {number} rotation1 First angle-axis vector.
-     * @param {number} rotation2 Second angle-axis vector.
+     * @param {number} rotation1 - First angle-axis vector.
+     * @param {number} rotation2 - Second angle-axis vector.
+     * @returns {number} Relative rotation angle.
      */
     public relativeRotationAngle(rotation1: number[], rotation2: number[]): number {
         let R1T: THREE.Matrix4 = this.rotationMatrix(
@@ -201,8 +213,9 @@ export class Spatial {
     /**
      * Calculates the angle from a vector to a plane.
      *
-     * @param {Array<number>} vector The vector.
-     * @param {Array<number>} planeNormal Normal of the plane.
+     * @param {Array<number>} vector - The vector.
+     * @param {Array<number>} planeNormal - Normal of the plane.
+     * @returns {number} Angle from between plane and vector.
      */
     public angleToPlane(vector: number[], planeNormal: number[]): number {
         let v: THREE.Vector3 = new THREE.Vector3().fromArray(vector);
@@ -222,10 +235,11 @@ export class Spatial {
      * (latitude longitude pairs) in meters according to
      * the haversine formula.
      *
-     * @param {number} lat1 The latitude of the first coordinate.
-     * @param {number} lon1 The longitude of the first coordinate.
-     * @param {number} lat2 The latitude of the second coordinate.
-     * @param {number} lon2 The longitude of the second coordinate.
+     * @param {number} lat1 - Latitude of the first coordinate.
+     * @param {number} lon1 - Longitude of the first coordinate.
+     * @param {number} lat2 - Latitude of the second coordinate.
+     * @param {number} lon2 - Longitude of the second coordinate.
+     * @returns {number} Distance between lat lon positions.
      */
     public distanceFromLatLon(lat1: number, lon1: number, lat2: number, lon2: number): number {
         let r: number = 6371000;

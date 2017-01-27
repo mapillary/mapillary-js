@@ -36,7 +36,7 @@ export class Viewer extends EventEmitter {
     /**
      * Fired when the viewing direction of the camera changes.
      * @event
-     * @type {boolean} bearing - Value indicating the current bearing
+     * @type {number} bearing - Value indicating the current bearing
      * measured in degrees clockwise with respect to north.
      */
     public static bearingchanged: string = "bearingchanged";

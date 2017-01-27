@@ -46,6 +46,11 @@ type APIPath =
     "sequenceByKey" |
     "sequenceViewAdd";
 
+/**
+ * @class APIv3
+ *
+ * @classdesc Provides methods for access of API v3.
+ */
 export class APIv3 {
     private _clientId: string;
 
@@ -68,6 +73,14 @@ export class APIv3 {
     private _propertiesSpatial: string[];
     private _propertiesUser: string[];
 
+    /**
+     * Create a new api v3 instance.
+     *
+     * @param {number} clientId - Client id for API requests.
+     * @param {number} [token] - Optional bearer token for API requests of
+     * protected resources.
+     * @param {ModelCreator} [creator] - Optional model creator instance.
+     */
     constructor(clientId: string, token?: string, creator?: ModelCreator) {
         this._clientId = clientId;
 
