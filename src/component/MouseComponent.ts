@@ -64,7 +64,6 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     private _activeMouseSubscription: Subscription;
     private _activeTouchSubscription: Subscription;
     private _bounceSubscription: Subscription;
-    private _cursorSubscription: Subscription;
     private _movementSubscription: Subscription;
     private _mouseWheelSubscription: Subscription;
     private _pinchSubscription: Subscription;
@@ -82,6 +81,11 @@ export class MouseComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
+        let vNode: vd.VNode = vd.h("div.MouseContainer", {}, []);
+        let vNodeHash: IVNodeHash = { name: this._name, vnode: vNode };
+
+        this._container.domRenderer.render$.next(vNodeHash);
+
         let draggingStarted$: Observable<boolean> =
              this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDragStart$)
@@ -131,16 +135,6 @@ export class MouseComponent extends Component<IComponentConfiguration> {
 
         this._activeTouchSubscription = touchMoving$
             .subscribe(this._container.touchService.activate$);
-
-        this._cursorSubscription = dragging$
-            .map(
-                (dragging: boolean): IVNodeHash => {
-                    let className: string = dragging ? "MouseContainerGrabbing" : "MouseContainerGrab";
-                    let vNode: vd.VNode = vd.h("div." + className, {}, []);
-
-                    return { name: this._name, vnode: vNode };
-                })
-            .subscribe(this._container.domRenderer.render$);
 
         let mouseMovement$: Observable<IMovement> =
             this._container.mouseService
@@ -507,7 +501,6 @@ export class MouseComponent extends Component<IComponentConfiguration> {
         this._activeMouseSubscription.unsubscribe();
         this._activeTouchSubscription.unsubscribe();
         this._bounceSubscription.unsubscribe();
-        this._cursorSubscription.unsubscribe();
         this._movementSubscription.unsubscribe();
         this._mouseWheelSubscription.unsubscribe();
         this._pinchSubscription.unsubscribe();
