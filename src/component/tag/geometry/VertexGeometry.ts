@@ -1,6 +1,7 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
 import * as earcut from "earcut";
+import * as polylabel from "polylabel";
 
 import {Geometry} from "../../../Component";
 import {Transform} from "../../../Geo";
@@ -72,6 +73,19 @@ export abstract class VertexGeometry extends Geometry {
      * @param {Transform} transform - The transform of the node related to the geometry.
      */
     public abstract setVertex2d(index: number, value: number[], transform: Transform): void;
+
+    /**
+     * Finds the polygon pole of inaccessibility, the most distant internal
+     * point from the polygon outline.
+     *
+     * @param {Array<Array<number>>} points2d - 2d points of outline to triangulate.
+     * @returns {Array<number>} Point of inaccessibility.
+     */
+    protected _getPoleOfInaccessibility2d(points2d: number[][]): number[] {
+        let pole2d: number[] = polylabel([points2d], 3e-2);
+
+        return pole2d;
+    }
 
     /**
      * Triangulates a 2d polygon and returns the triangle

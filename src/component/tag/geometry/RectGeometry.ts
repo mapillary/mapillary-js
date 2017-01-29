@@ -257,6 +257,13 @@ export class RectGeometry extends VertexGeometry {
     }
 
     /** @inheritdoc */
+    public getPoleOfAccessibility3d(transform: Transform): number[] {
+        let pole2d: number[] = this._getPoleOfInaccessibility2d(this._rectToVertices2d(this._rect));
+
+        return transform.unprojectBasic(pole2d, 200);
+    }
+
+    /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
         return this._triangulate(this._rectToVertices2d(this._rect), this.getVertices3d(transform));
     }

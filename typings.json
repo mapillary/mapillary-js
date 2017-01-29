@@ -6,6 +6,7 @@
   "globalDependencies": {
     "es6-shim": "registry:dt/es6-shim#0.31.2+20160602141504",
     "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#aed176536a202b9a2475ce1989ea6d2d0226a185",
+    "polylabel": "github:DefinitelyTyped/DefinitelyTyped/polylabel/index.d.ts#ae4fe7b6dec1fbbee9a2b454e7cc389b3bd2fd35",
     "three": "github:DefinitelyTyped/DefinitelyTyped/three/index.d.ts#e31c49ce6e6c45c983d6cf05c4905f568d0abeb4",
     "underscore": "github:DefinitelyTyped/DefinitelyTyped/underscore/underscore.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e",
     "virtual-dom": "github:DefinitelyTyped/DefinitelyTyped/virtual-dom/virtual-dom.d.ts#70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e",

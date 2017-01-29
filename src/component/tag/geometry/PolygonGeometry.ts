@@ -236,6 +236,13 @@ export class PolygonGeometry extends VertexGeometry {
             this.getHoleVertices3d(transform));
     }
 
+    /** @inheritdoc */
+    public getPoleOfAccessibility3d(transform: Transform): number[] {
+        let pole2d: number[] = this._getPoleOfInaccessibility2d(this._polygon.slice());
+
+        return transform.unprojectBasic(pole2d, 200);
+    }
+
     private _getCentroid2d(): number[] {
         let polygon: number[][] = this._polygon;
 
