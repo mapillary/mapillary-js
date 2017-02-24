@@ -102,6 +102,10 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
         return this._configuration$;
     }
 
+    public get name(): string {
+        return this._name;
+    }
+
     public activate(conf?: TConfiguration): void {
         if (this._activated) {
             return;
@@ -111,8 +115,8 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
             this._configurationSubject$.next(conf);
         }
 
-        this._activate();
         this._activated = true;
+        this._activate();
         this._activated$.next(true);
     };
 
@@ -125,10 +129,10 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
             return;
         }
 
+        this._activated = false;
         this._deactivate();
         this._container.domRenderer.clear(this._name);
         this._container.glRenderer.clear(this._name);
-        this._activated = false;
         this._activated$.next(false);
     };
 
