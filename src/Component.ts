@@ -16,6 +16,7 @@ export {Marker} from "./component/marker/Marker";
 export {MarkerComponent} from "./component/marker/MarkerComponent";
 export {MouseComponent} from "./component/MouseComponent";
 export {MouseHandlerBase} from "./component/mouse/MouseHandlerBase";
+export {DragPanHandler} from "./component/mouse/DragPanHandler";
 export {ScrollZoomHandler} from "./component/mouse/ScrollZoomHandler";
 export {NavigationComponent} from "./component/NavigationComponent";
 export {RouteComponent} from "./component/RouteComponent";
