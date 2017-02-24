@@ -3,6 +3,7 @@ import {Subscription} from "rxjs/Subscription";
 import {
     Component,
     IMouseConfiguration,
+    MouseHandlerBase,
 } from "../../Component";
 import {
     ViewportCoords,
@@ -20,54 +21,18 @@ import {
     Navigator,
 } from "../../Viewer";
 
-export class ScrollZoomHandler {
-    private _component: Component<IMouseConfiguration>;
-    private _container: Container;
-    private _navigator: Navigator;
-    private _viewportCoords: ViewportCoords;
-
-    private _enabled: boolean;
-
+export class ScrollZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _preventDefaultSubscription: Subscription;
     private _zoomSubscription: Subscription;
 
     constructor(component: Component<IMouseConfiguration>, container: Container, navigator: Navigator, viewportCoords: ViewportCoords) {
-        this._component = component;
-        this._container = container;
-        this._navigator = navigator;
-        this._viewportCoords = viewportCoords;
-
-        this._enabled = false;
+        super(component, container, navigator, viewportCoords);
 
         this._preventDefaultSubscription = null;
         this._zoomSubscription = null;
     }
 
-    public get isEnabled(): boolean {
-        return this._enabled;
-    }
-
-    public enable(): void {
-        if (this._enabled || !this._component.activated) { return; }
-
-        this._subscribe();
-        this._enabled = true;
-
-        this._component.configure({ scrollZoom: true });
-    }
-
-    public disable(): void {
-        if (!this._enabled) { return; }
-
-        this._unsubscribe();
-        this._enabled = false;
-
-        if (this._component.activated) {
-            this._component.configure({ scrollZoom: false });
-        }
-    }
-
-    private _subscribe(): void {
+    protected _enable(): void {
         this._preventDefaultSubscription = this._container.mouseService.mouseWheel$
             .subscribe(
                 (event: WheelEvent): void => {
@@ -135,12 +100,16 @@ export class ScrollZoomHandler {
                 });
     }
 
-    private _unsubscribe(): void {
+    protected _disable(): void {
         this._preventDefaultSubscription.unsubscribe();
         this._zoomSubscription.unsubscribe();
 
         this._preventDefaultSubscription = null;
         this._zoomSubscription = null;
+    }
+
+    protected _getConfiguration(enable: boolean): IMouseConfiguration {
+        return { scrollZoom: enable };
     }
 }
 
