@@ -77,14 +77,10 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                         return false;
                     });
 
-        let dragging$: Observable<boolean> = Observable
+        this._activeMouseSubscription = Observable
             .merge(
                 draggingStarted$,
                 draggingStopped$)
-            .startWith(false)
-            .share();
-
-        this._activeMouseSubscription = dragging$
             .subscribe(this._container.mouseService.activate$);
 
         let touchMovingStarted$: Observable<boolean> =
@@ -101,16 +97,11 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                         return false;
                     });
 
-        let touchMoving$: Observable<boolean> = Observable
+        this._activeTouchSubscription = Observable
             .merge(
                 touchMovingStarted$,
                 touchMovingStopped$)
-            .startWith(false)
-            .share();
-
-        this._activeTouchSubscription = touchMoving$
             .subscribe(this._container.touchService.activate$);
-
 
         let mouseMovement$: Observable<IMovement> =
             this._container.mouseService
@@ -292,8 +283,8 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
         this._activeTouchSubscription.unsubscribe();
         this._rotateBasicSubscription.unsubscribe();
 
-        this._activeMouseSubscription.unsubscribe();
-        this._activeTouchSubscription.unsubscribe();
+        this._activeMouseSubscription = null;
+        this._activeTouchSubscription = null;
         this._rotateBasicSubscription = null;
     }
 

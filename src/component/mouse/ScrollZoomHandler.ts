@@ -1,36 +1,19 @@
 import {Subscription} from "rxjs/Subscription";
 
 import {
-    Component,
     IMouseConfiguration,
     MouseHandlerBase,
 } from "../../Component";
-import {
-    ViewportCoords,
-    Transform,
-} from "../../Geo";
-import {
-    RenderCamera,
-} from "../../Render";
+import {Transform} from "../../Geo";
+import {RenderCamera} from "../../Render";
 import {
     ICurrentState,
     IFrame,
 } from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
 
 export class ScrollZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _preventDefaultSubscription: Subscription;
     private _zoomSubscription: Subscription;
-
-    constructor(component: Component<IMouseConfiguration>, container: Container, navigator: Navigator, viewportCoords: ViewportCoords) {
-        super(component, container, navigator, viewportCoords);
-
-        this._preventDefaultSubscription = null;
-        this._zoomSubscription = null;
-    }
 
     protected _enable(): void {
         this._preventDefaultSubscription = this._container.mouseService.mouseWheel$
