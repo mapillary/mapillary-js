@@ -15,6 +15,7 @@ export {LoadingComponent} from "./component/LoadingComponent";
 export {Marker} from "./component/marker/Marker";
 export {MarkerComponent} from "./component/marker/MarkerComponent";
 export {MouseComponent} from "./component/MouseComponent";
+export {ScrollZoomHandler} from "./component/mouse/ScrollZoomHandler";
 export {NavigationComponent} from "./component/NavigationComponent";
 export {RouteComponent} from "./component/RouteComponent";
 export {SequenceComponent} from "./component/sequence/SequenceComponent";
