@@ -57,6 +57,7 @@ export interface IPinch {
     distanceChange: number;
     distanceX: number;
     distanceY: number;
+    originalEvent: TouchEvent;
     touch1: Touch;
     touch2: Touch;
 }
@@ -92,6 +93,8 @@ export class TouchService {
 
     private _pinchOperation$: Subject<IPinchOperation>;
     private _pinch$: Observable<IPinch>;
+    private _pinchStart$: Observable<TouchEvent>;
+    private _pinchEnd$: Observable<TouchEvent>;
     private _pinchChange$: Observable<IPinch>;
 
     private _preventTouchMoveOperation$: Subject<IPreventTouchMoveOperation>;
@@ -242,17 +245,18 @@ export class TouchService {
                 this._touchEnd$,
                 this._touchCancel$);
 
-        let pinchStart$: Observable<TouchEvent> = touchesChanged$
+        this._pinchStart$ = touchesChanged$
             .filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 2 && te.targetTouches.length === 2;
                 });
 
-        let pinchStop$: Observable<TouchEvent> = touchesChanged$
+        this._pinchEnd$ = touchesChanged$
             .filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length !== 2 || te.targetTouches.length !== 2;
                 });
+
         this._pinchOperation$ = new Subject<IPinchOperation>();
 
         this._pinch$ = this._pinchOperation$
@@ -273,6 +277,7 @@ export class TouchService {
                     distanceChange: 0,
                     distanceX: 0,
                     distanceY: 0,
+                    originalEvent: null,
                     touch1: null,
                     touch2: null,
                 });
@@ -326,6 +331,7 @@ export class TouchService {
                             distanceChange: distanceChange,
                             distanceX: distanceX,
                             distanceY: distanceY,
+                            originalEvent: te,
                             touch1: touch1,
                             touch2: touch2,
                         };
@@ -335,12 +341,12 @@ export class TouchService {
                 })
             .subscribe(this._pinchOperation$);
 
-        this._pinchChange$ = pinchStart$
+        this._pinchChange$ = this._pinchStart$
             .switchMap(
                 (te: TouchEvent): Observable<IPinch> => {
                     return this._pinch$
                         .skip(1)
-                        .takeUntil(pinchStop$);
+                        .takeUntil(this._pinchEnd$);
                 });
     }
 
@@ -382,6 +388,14 @@ export class TouchService {
 
     public get pinch$(): Observable<IPinch> {
         return this._pinchChange$;
+    }
+
+    public get pinchStart$(): Observable<TouchEvent> {
+        return this._pinchStart$;
+    }
+
+    public get pinchEnd$(): Observable<TouchEvent> {
+        return this._pinchEnd$;
     }
 
     public get preventDefaultTouchMove$(): Subject<boolean> {
