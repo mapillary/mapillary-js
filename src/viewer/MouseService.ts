@@ -159,9 +159,21 @@ export class MouseService {
             .subscribe(this._mouseMoveOperation$);
 
         let dragStop$: Observable<MouseEvent> = Observable
-            .merge<MouseEvent>(this._mouseLeave$, this._mouseUp$);
+            .merge<MouseEvent>(
+                this._mouseLeave$,
+                this._mouseUp$.filter(
+                    (e: MouseEvent): boolean => {
+                        return e.button === 0;
+                    }));
 
-        this._mouseDragStart$ = this._mouseDown$
+        let leftButtonDown$: Observable<MouseEvent> = this._mouseDown$
+            .filter(
+                (e: MouseEvent): boolean => {
+                    return e.button === 0;
+                })
+            .share();
+
+        this._mouseDragStart$ = leftButtonDown$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._mouseMove$
@@ -169,7 +181,7 @@ export class MouseService {
                         .take(1);
                 });
 
-        this._mouseDrag$ = this._mouseDown$
+        this._mouseDrag$ = leftButtonDown$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._mouseMove$
