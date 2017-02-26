@@ -18,6 +18,7 @@ export {MouseComponent} from "./component/MouseComponent";
 export {MouseHandlerBase} from "./component/mouse/MouseHandlerBase";
 export {DragPanHandler} from "./component/mouse/DragPanHandler";
 export {ScrollZoomHandler} from "./component/mouse/ScrollZoomHandler";
+export {TouchZoomHandler} from "./component/mouse/TouchZoomHandler";
 export {NavigationComponent} from "./component/NavigationComponent";
 export {RouteComponent} from "./component/RouteComponent";
 export {SequenceComponent} from "./component/sequence/SequenceComponent";
