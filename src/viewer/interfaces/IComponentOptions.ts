@@ -1,6 +1,7 @@
 import {
     ICacheConfiguration,
     IDirectionConfiguration,
+    IMouseConfiguration,
     ISequenceConfiguration,
     ISliderConfiguration,
     ITagConfiguration,
@@ -96,11 +97,11 @@ export interface IComponentOptions {
     marker?: boolean;
 
     /**
-     * Enable mouse interaction for zoom and look around.
+     * Enable mouse and touch interaction for zoom and pan.
      *
      * @default true
      */
-    mouse?: boolean;
+    mouse?: boolean | IMouseConfiguration;
 
     /**
      * Show static navigation arrows in the corners.
