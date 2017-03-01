@@ -40,6 +40,7 @@ export class MouseService {
     private _mouseUp$: Observable<MouseEvent>;
     private _mouseOver$: Observable<MouseEvent>;
 
+    private _contextMenu$: Observable<MouseEvent>;
     private _click$: Observable<MouseEvent>;
 
     private _mouseWheel$: Observable<WheelEvent>;
@@ -75,13 +76,14 @@ export class MouseService {
 
         this._click$ = Observable.fromEvent<MouseEvent>(element, "click");
 
-        this._mouseWheel$ = Observable.fromEvent<WheelEvent>(element, "wheel");
-
-        this._mouseWheel$
+        this._contextMenu$ = Observable.fromEvent<MouseEvent>(element, "contextmenu");
+        this._contextMenu$
             .subscribe(
-                (event: WheelEvent): void => {
+                (event: MouseEvent): void => {
                     event.preventDefault();
                 });
+
+        this._mouseWheel$ = Observable.fromEvent<WheelEvent>(element, "wheel");
 
         this._preventMouseDownOperation$
             .scan(
@@ -262,6 +264,10 @@ export class MouseService {
 
     public get click$(): Observable<MouseEvent> {
         return this._click$;
+    }
+
+    public get contextMenu$(): Observable<MouseEvent> {
+        return this._contextMenu$;
     }
 
     public get mouseWheel$(): Observable<WheelEvent> {
