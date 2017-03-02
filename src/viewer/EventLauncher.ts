@@ -19,6 +19,8 @@ import {
 } from "../Viewer";
 
 export class EventLauncher {
+    private _started: boolean;
+
     private _bearingSubscription: Subscription;
     private _currentNodeSubscription: Subscription;
     private _loadingSubscription: Subscription;
@@ -34,6 +36,20 @@ export class EventLauncher {
         this._container = container;
         this._eventEmitter = eventEmitter;
         this._navigator = navigator;
+
+        this._started = false;
+    }
+
+    public get started(): boolean {
+        return this._started;
+    }
+
+    public start(): void {
+        if (this._started) {
+            return;
+        }
+
+        this._started = true;
 
         this._loadingSubscription = this._navigator.loadingService.loading$
             .subscribe((loading: boolean): void => {
@@ -96,13 +112,26 @@ export class EventLauncher {
                  });
     }
 
-    public dispose(): void {
+    public stop(): void {
+        if (!this.started) {
+            return;
+        }
+
+        this._started = false;
+
         this._bearingSubscription.unsubscribe();
         this._loadingSubscription.unsubscribe();
         this._currentNodeSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
+
+        this._bearingSubscription = null;
+        this._loadingSubscription = null;
+        this._currentNodeSubscription = null;
+        this._moveSubscription = null;
+        this._sequenceEdgesSubscription = null;
+        this._spatialEdgesSubscription = null;
     }
 }
 

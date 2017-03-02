@@ -3,18 +3,25 @@ import {Observable} from "rxjs/Observable";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {CoverComponent, ComponentService, ICoverConfiguration, Component, IComponentConfiguration} from "../Component";
-import {IComponentOptions} from "../Viewer";
+import {IComponentOptions, EventLauncher} from "../Viewer";
 
 export class ComponentController {
     private _container: Container;
     private _coverComponent: CoverComponent;
+    private _eventLauncher: EventLauncher;
     private _navigator: Navigator;
     private _componentService: ComponentService;
     private _options: IComponentOptions;
     private _key: string;
 
-    constructor(container: Container, navigator: Navigator, key: string, options: IComponentOptions) {
+    constructor(
+        container: Container,
+        navigator: Navigator,
+        eventLauncher: EventLauncher,
+        key: string, options:
+        IComponentOptions) {
         this._container = container;
+        this._eventLauncher = eventLauncher;
         this._navigator = navigator;
         this._options = options != null ? options : {};
         this._key = key;
@@ -39,6 +46,7 @@ export class ComponentController {
                         this._coverComponent.configure({ key: this._key, loading: false, visible: false });
                         this._subscribeCoverComponent();
                         this._navigator.stateService.start();
+                        this._eventLauncher.start();
                     });
         }
     }
@@ -117,6 +125,7 @@ export class ComponentController {
                     .subscribe(
                         (node: Node): void => {
                             this._navigator.stateService.start();
+                            this._eventLauncher.start();
                             this._coverComponent.configure({ loading: false, visible: false });
                             this._componentService.deactivateCover();
                         },
@@ -126,6 +135,7 @@ export class ComponentController {
                             this._coverComponent.configure({ loading: false, visible: true });
                         });
             } else if (conf.visible) {
+                this._eventLauncher.stop();
                 this._navigator.stateService.stop();
                 this._componentService.activateCover();
             }

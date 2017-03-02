@@ -130,7 +130,7 @@ export class Viewer extends EventEmitter {
         this._navigator = new Navigator(clientId, token);
         this._container = new Container(id, this._navigator.stateService, options);
         this._eventLauncher = new EventLauncher(this, this._navigator, this._container);
-        this._componentController = new ComponentController(this._container, this._navigator, key, options.component);
+        this._componentController = new ComponentController(this._container, this._navigator, this._eventLauncher, key, options.component);
     }
 
     /**
