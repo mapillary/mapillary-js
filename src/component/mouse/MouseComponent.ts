@@ -1,4 +1,4 @@
-/// <reference path="../../typings/index.d.ts" />
+/// <reference path="../../../typings/index.d.ts" />
 
 import * as THREE from "three";
 import * as vd from "virtual-dom";
@@ -19,20 +19,20 @@ import {
     IMouseConfiguration,
     ScrollZoomHandler,
     TouchZoomHandler,
-} from "../Component";
+} from "../../Component";
 import {
     ViewportCoords,
     Spatial,
     Transform,
-} from "../Geo";
+} from "../../Geo";
 import {
     IVNodeHash,
     RenderCamera,
-} from "../Render";
+} from "../../Render";
 import {
     Container,
     Navigator,
-} from "../Viewer";
+} from "../../Viewer";
 
 /**
  * @class MouseComponent
