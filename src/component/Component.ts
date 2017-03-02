@@ -46,35 +46,6 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
 
                         return conf;
                     })
-                .map(
-                    (newConf: TConfiguration): TConfiguration => {
-                        let copy: IComponentConfiguration = {};
-
-                        for (let key in newConf) {
-                            if (!newConf.hasOwnProperty(key)) {
-                                continue;
-                            }
-
-                            copy[key] = newConf[key];
-                        }
-
-                        return <TConfiguration>copy;
-
-                    })
-                .distinctUntilChanged(
-                    (conf: TConfiguration, newConf: TConfiguration): boolean => {
-                        for (let key in newConf) {
-                            if (!newConf.hasOwnProperty(key)) {
-                                continue;
-                            }
-
-                            if (conf[key] !== newConf[key]) {
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    })
                 .publishReplay(1)
                 .refCount();
 

@@ -65,22 +65,4 @@ describe("Component.configuration$", () => {
         component.configure({ test: "test" });
         component.configure({ test: "testchanged" });
     });
-
-    it("should not emit when configured with same value", () => {
-        let component: TestComponent = new TestComponent("test", undefined, undefined);
-
-        let emitCount: number = 0;
-
-        component.configuration$
-            .skip(1)
-            .subscribe(
-                (configuration: ITestConfiguration): void => {
-                    emitCount++;
-                });
-
-        component.configure({ test: "test" });
-        component.configure({ test: "test" });
-
-        expect(emitCount).toBe(1);
-    });
 });

@@ -63,6 +63,7 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
 
     protected _enable(): void {
         this._preventDefaultSubscription = Observable.merge(
+            this._container.mouseService.mouseDown$,
             this._container.mouseService.mouseMove$,
             this._container.touchService.touchMove$)
             .subscribe(
