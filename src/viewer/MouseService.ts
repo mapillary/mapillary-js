@@ -30,9 +30,6 @@ export class MouseService {
     private _activeSubject$: BehaviorSubject<boolean>;
     private _active$: Observable<boolean>;
 
-    private _preventMouseDownOperation$: Subject<IPreventMouseDownOperation>;
-    private _preventMouseDown$: Subject<boolean>;
-
     private _mouseDown$: Observable<MouseEvent>;
     private _mouseMoveOperation$: Subject<IMouseMoveOperation>;
     private _mouseMove$: Observable<MouseEvent>;
@@ -64,8 +61,6 @@ export class MouseService {
             .publishReplay(1)
             .refCount();
 
-        this._preventMouseDownOperation$ = new Subject<IPreventMouseDownOperation>();
-        this._preventMouseDown$ = new Subject<boolean>();
         this._mouseMoveOperation$ = new Subject<IMouseMoveOperation>();
         this._claimMouse$ = new Subject<IMouseClaim>();
 
@@ -84,36 +79,6 @@ export class MouseService {
                 });
 
         this._mouseWheel$ = Observable.fromEvent<WheelEvent>(element, "wheel");
-
-        this._preventMouseDownOperation$
-            .scan(
-                (prevent: boolean, operation: IPreventMouseDownOperation): boolean => {
-                    return operation(prevent);
-                },
-                true)
-            .subscribe(() => { /*noop*/ });
-
-        this._preventMouseDown$
-            .map(
-                (prevent: boolean): IPreventMouseDownOperation => {
-                    return (previous: boolean): boolean => {
-                        return prevent;
-                    };
-                })
-            .subscribe(this._preventMouseDownOperation$);
-
-        this._mouseDown$
-            .map(
-                (e: MouseEvent): IPreventMouseDownOperation => {
-                    return (prevent: boolean): boolean => {
-                        if (prevent) {
-                            e.preventDefault();
-                        }
-
-                        return prevent;
-                    };
-                })
-            .subscribe(this._preventMouseDownOperation$);
 
         this._mouseMove$ = this._mouseMoveOperation$
             .scan(
@@ -288,10 +253,6 @@ export class MouseService {
 
     public get staticClick$(): Observable<MouseEvent> {
         return this._staticClick$;
-    }
-
-    public get preventDefaultMouseDown$(): Subject<boolean> {
-        return this._preventMouseDown$;
     }
 
     public claimMouse(name: string, zindex: number): void {

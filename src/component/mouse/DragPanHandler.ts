@@ -44,6 +44,7 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
 
     private _activeMouseSubscription: Subscription;
     private _activeTouchSubscription: Subscription;
+    private _preventDefaultSubscription: Subscription;
     private _rotateBasicSubscription: Subscription;
 
     constructor(
@@ -61,6 +62,14 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
     }
 
     protected _enable(): void {
+        this._preventDefaultSubscription = Observable.merge(
+            this._container.mouseService.mouseMove$,
+            this._container.touchService.touchMove$)
+            .subscribe(
+                (event: MouseEvent | TouchEvent): void => {
+                    event.preventDefault(); // prevent selection of content outside the viewer
+                });
+
         let draggingStarted$: Observable<boolean> =
              this._container.mouseService
                 .filtered$(this._component.name, this._container.mouseService.mouseDragStart$)
@@ -281,6 +290,7 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
     protected _disable(): void {
         this._activeMouseSubscription.unsubscribe();
         this._activeTouchSubscription.unsubscribe();
+        this._preventDefaultSubscription.unsubscribe();
         this._rotateBasicSubscription.unsubscribe();
 
         this._activeMouseSubscription = null;

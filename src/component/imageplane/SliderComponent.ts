@@ -343,20 +343,17 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     }
 
     protected _activate(): void {
-        this._container.mouseService.preventDefaultMouseDown$.next(false);
-        this._container.touchService.preventDefaultTouchMove$.next(false);
-
         Observable
             .combineLatest<State, ISliderConfiguration>(
                 this._navigator.stateService.state$,
                 this._configuration$)
             .first()
             .subscribe(
-                (stateConfig: [State, ISliderConfiguration]): void => {
-                    if (stateConfig[0] === State.Traversing) {
+                ([state, configuration]: [State, ISliderConfiguration]): void => {
+                    if (state === State.Traversing) {
                         this._navigator.stateService.wait();
 
-                        let position: number = stateConfig[1].initialPosition;
+                        let position: number = configuration.initialPosition;
                         this._navigator.stateService.moveTo(position != null ? position : 1);
                     }
                 });
@@ -564,9 +561,9 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                 });
                 })
             .map(
-                (imn: [HTMLImageElement, Node]): ISliderStateOperation => {
+                ([element, node]: [HTMLImageElement, Node]): ISliderStateOperation => {
                     return (sliderState: SliderState): SliderState => {
-                        sliderState.updateTexture(imn[0], imn[1]);
+                        sliderState.updateTexture(element, node);
 
                         return sliderState;
                     };
@@ -575,9 +572,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     }
 
     protected _deactivate(): void {
-        this._container.mouseService.preventDefaultMouseDown$.next(true);
-        this._container.touchService.preventDefaultTouchMove$.next(true);
-
         this._navigator.stateService.state$
             .first()
             .subscribe(

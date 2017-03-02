@@ -97,9 +97,6 @@ export class TouchService {
     private _pinchEnd$: Observable<TouchEvent>;
     private _pinchChange$: Observable<IPinch>;
 
-    private _preventTouchMoveOperation$: Subject<IPreventTouchMoveOperation>;
-    private _preventTouchMove$: Subject<boolean>;
-
     constructor(element: HTMLElement) {
         this._element = element;
 
@@ -114,39 +111,6 @@ export class TouchService {
         this._touchMove$ = Observable.fromEvent<TouchEvent>(element, "touchmove");
         this._touchEnd$ = Observable.fromEvent<TouchEvent>(element, "touchend");
         this._touchCancel$ = Observable.fromEvent<TouchEvent>(element, "touchcancel");
-
-        this._preventTouchMoveOperation$ = new Subject<IPreventTouchMoveOperation>();
-        this._preventTouchMove$ = new Subject<boolean>();
-
-        this._preventTouchMoveOperation$
-            .scan(
-                (prevent: boolean, operation: IPreventTouchMoveOperation): boolean => {
-                    return operation(prevent);
-                },
-                true)
-            .subscribe(() => { /*noop*/ });
-
-        this._preventTouchMove$
-            .map(
-                (prevent: boolean): IPreventTouchMoveOperation => {
-                    return (previous: boolean): boolean => {
-                        return prevent;
-                    };
-                })
-            .subscribe(this._preventTouchMoveOperation$);
-
-        this._touchMove$
-            .map(
-                (te: TouchEvent): IPreventTouchMoveOperation => {
-                    return (prevent: boolean): boolean => {
-                        if (prevent) {
-                            te.preventDefault();
-                        }
-
-                        return prevent;
-                    };
-                })
-            .subscribe(this._preventTouchMoveOperation$);
 
         this._singleTouchMoveOperation$ = new Subject<ITouchMoveOperation>();
 
@@ -396,9 +360,5 @@ export class TouchService {
 
     public get pinchEnd$(): Observable<TouchEvent> {
         return this._pinchEnd$;
-    }
-
-    public get preventDefaultTouchMove$(): Subject<boolean> {
-        return this._preventTouchMove$;
     }
 }
