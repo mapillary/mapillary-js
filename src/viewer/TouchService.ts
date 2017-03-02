@@ -45,20 +45,82 @@ export class TouchMove implements Touch {
 }
 
 export interface IPinch {
-    centerClientX: number;
-    centerClientY: number;
-    centerPageX: number;
-    centerPageY: number;
-    centerScreenX: number;
-    centerScreenY: number;
+    /**
+     * X client coordinate for center of pinch.
+     */
+    clientX: number;
+
+    /**
+     * Y client coordinate for center of pinch.
+     */
+    clientY: number;
+
+    /**
+     * X page coordinate for center of pinch.
+     */
+    pageX: number;
+
+    /**
+     * Y page coordinate for center of pinch.
+     */
+    pageY: number;
+
+    /**
+     * X screen coordinate for center of pinch.
+     */
+    screenX: number;
+
+    /**
+     * Y screen coordinate for center of pinch.
+     */
+    screenY: number;
+
+    /**
+     * Distance change in X direction between touches
+     * compared to previous event.
+     */
     changeX: number;
+
+    /**
+     * Distance change in Y direction between touches
+     * compared to previous event.
+     */
     changeY: number;
+
+    /**
+     * Pixel distance between touches.
+     */
     distance: number;
+
+    /**
+     * Change in pixel distance between touches compared
+     * to previous event.
+     */
     distanceChange: number;
+
+    /**
+     * Distance in X direction between touches.
+     */
     distanceX: number;
+
+    /**
+     * Distance in Y direction between touches.
+     */
     distanceY: number;
+
+    /**
+     * Original touch event.
+     */
     originalEvent: TouchEvent;
+
+    /**
+     * First touch.
+     */
     touch1: Touch;
+
+    /**
+     * Second touch.
+     */
     touch2: Touch;
 }
 
@@ -229,19 +291,19 @@ export class TouchService {
                     return operation(pinch);
                 },
                 {
-                    centerClientX: 0,
-                    centerClientY: 0,
-                    centerPageX: 0,
-                    centerPageY: 0,
-                    centerScreenX: 0,
-                    centerScreenY: 0,
                     changeX: 0,
                     changeY: 0,
+                    clientX: 0,
+                    clientY: 0,
                     distance: 0,
                     distanceChange: 0,
                     distanceX: 0,
                     distanceY: 0,
                     originalEvent: null,
+                    pageX: 0,
+                    pageY: 0,
+                    screenX: 0,
+                    screenY: 0,
                     touch1: null,
                     touch2: null,
                 });
@@ -283,19 +345,19 @@ export class TouchService {
                         let changeY: number = distanceY - previous.distanceY;
 
                         let current: IPinch = {
-                            centerClientX: centerClientX,
-                            centerClientY: centerClientY,
-                            centerPageX: centerPageX,
-                            centerPageY: centerPageY,
-                            centerScreenX: centerScreenX,
-                            centerScreenY: centerScreenY,
                             changeX: changeX,
                             changeY: changeY,
+                            clientX: centerClientX,
+                            clientY: centerClientY,
                             distance: distance,
                             distanceChange: distanceChange,
                             distanceX: distanceX,
                             distanceY: distanceY,
                             originalEvent: te,
+                            pageX: centerPageX,
+                            pageY: centerPageY,
+                            screenX: centerScreenX,
+                            screenY: centerScreenY,
                             touch1: touch1,
                             touch2: touch2,
                         };

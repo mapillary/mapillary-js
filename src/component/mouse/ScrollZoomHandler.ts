@@ -52,20 +52,17 @@ export class ScrollZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
 
                     let element: HTMLElement = this._container.element;
 
-                    let offsetWidth: number = element.offsetWidth;
-                    let offsetHeight: number = element.offsetHeight;
+                    let canvasWidth: number = element.offsetWidth;
+                    let canvasHeight: number = element.offsetHeight;
 
-                    let clientRect: ClientRect = element.getBoundingClientRect();
-
-                    let canvasX: number = event.clientX - clientRect.left;
-                    let canvasY: number = event.clientY - clientRect.top;
+                    let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 
                     let unprojected: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX,
                             canvasY,
-                            offsetWidth,
-                            offsetHeight,
+                            canvasWidth,
+                            canvasHeight,
                             render.perspective);
 
                     let reference: number[] = transform.projectBasic(unprojected.toArray());
@@ -77,7 +74,7 @@ export class ScrollZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
                         deltaY = 800 * deltaY;
                     }
 
-                    let zoom: number = -3 * deltaY / offsetHeight;
+                    let zoom: number = -3 * deltaY / canvasHeight;
 
                     this._navigator.stateService.zoomIn(zoom, reference);
                 });

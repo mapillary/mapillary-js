@@ -29,13 +29,6 @@ import {
     TouchMove,
 } from "../../Viewer";
 
-interface IMovement {
-    clientX: number;
-    clientY: number;
-    movementX: number;
-    movementY: number;
-}
-
 export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
 
@@ -113,102 +106,65 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                 touchMovingStopped$)
             .subscribe(this._container.touchService.activate$);
 
-        let mouseMovement$: Observable<IMovement> =
-            this._container.mouseService
-                .filtered$(this._component.name, this._container.mouseService.mouseDrag$)
-                .map(
-                    (e: MouseEvent): IMovement => {
-                        return {
-                            clientX: e.clientX,
-                            clientY: e.clientY,
-                            movementX: e.movementX,
-                            movementY: e.movementY,
-                        };
-                    });
-
-        let touchMovement$: Observable<IMovement> =
-            this._container.touchService.singleTouchMove$
-                .map(
-                    (touch: TouchMove): IMovement => {
-                        return {
-                            clientX: touch.clientX,
-                            clientY: touch.clientY,
-                            movementX: touch.movementX,
-                            movementY: touch.movementY,
-                        };
-                    });
-
         this._rotateBasicSubscription = Observable
             .merge(
-                mouseMovement$,
-                touchMovement$)
-            .withLatestFrom(
-                this._navigator.stateService.currentState$,
-                (m: IMovement, f: IFrame): [IMovement, IFrame] => {
-                    return [m, f];
-                })
+                this._container.mouseService
+                    .filtered$(this._component.name, this._container.mouseService.mouseDrag$),
+                this._container.touchService.singleTouchMove$)
+            .withLatestFrom(this._navigator.stateService.currentState$)
             .filter(
-                (args: [IMovement, IFrame]): boolean => {
+                (args: [MouseEvent | TouchMove, IFrame]): boolean => {
                     let state: ICurrentState = args[1].state;
                     return state.currentNode.fullPano || state.nodesAhead < 1;
                 })
             .map(
-                (args: [IMovement, IFrame]): IMovement => {
+                (args: [MouseEvent | TouchMove, IFrame]): MouseEvent | TouchMove => {
                     return args[0];
                 })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
-                this._navigator.stateService.currentCamera$,
-                (m: IMovement, r: RenderCamera, t: Transform, c: Camera): [IMovement, RenderCamera, Transform, Camera] => {
-                    return [m, r, t, c];
-                })
+                this._navigator.stateService.currentCamera$)
             .map(
-                (args: [IMovement, RenderCamera, Transform, Camera]): number[] => {
-                    let movement: IMovement = args[0];
-                    let render: RenderCamera = args[1];
-                    let transform: Transform = args[2];
-                    let camera: Camera = args[3].clone();
+                ([event, render, transform, c]: [MouseEvent | TouchMove, RenderCamera, Transform, Camera]): number[] => {
+                    let camera: Camera = c.clone();
 
                     let element: HTMLElement = this._container.element;
 
-                    let offsetWidth: number = element.offsetWidth;
-                    let offsetHeight: number = element.offsetHeight;
+                    let canvasWidth: number = element.offsetWidth;
+                    let canvasHeight: number = element.offsetHeight;
 
-                    let clientRect: ClientRect = element.getBoundingClientRect();
-
-                    let canvasX: number = movement.clientX - clientRect.left;
-                    let canvasY: number = movement.clientY - clientRect.top;
+                    let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 
                     let currentDirection: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX,
                             canvasY,
-                            offsetWidth,
-                            offsetHeight,
+                            canvasWidth,
+                            canvasHeight,
                             render.perspective)
                                 .sub(render.perspective.position);
 
                     let directionX: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
-                            canvasX - movement.movementX,
+                            canvasX - event.movementX,
                             canvasY,
-                            offsetWidth,
-                            offsetHeight,
+                            canvasWidth,
+                            canvasHeight,
                             render.perspective)
                                 .sub(render.perspective.position);
 
                     let directionY: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX,
-                            canvasY - movement.movementY,
-                            offsetWidth,
-                            offsetHeight,
+                            canvasY - event.movementY,
+                            canvasWidth,
+                            canvasHeight,
                             render.perspective)
                                 .sub(render.perspective.position);
 
-                    let deltaPhi: number = (movement.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
-                    let deltaTheta: number = (movement.movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
+                    let deltaPhi: number = (event.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
+                    let deltaTheta: number = (event.movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
                     let upQuaternion: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
                     let upQuaternionInverse: THREE.Quaternion = upQuaternion.clone().inverse();

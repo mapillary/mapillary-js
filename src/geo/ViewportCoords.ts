@@ -70,7 +70,7 @@ export class ViewportCoords {
      * @param {number} canvasHeight - Height of canvas.
      * @param {Transform} transform - Transform of the node to unproject from.
      * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
-     * @returns {Array<number>} 2D canvas coordinates.
+     * @returns {Array<number>} 2D viewport coordinates.
      */
     public basicToViewport(
         basicX: number,
@@ -83,6 +83,25 @@ export class ViewportCoords {
         let viewport: number[] = this.projectToViewport(point3d, perspectiveCamera);
 
         return viewport;
+    }
+
+    /**
+     * Get canvas pixel position from event.
+     *
+     * @description Transform origin and perspective camera position needs to be the
+     * equal for reliable return value.
+     *
+     * @param {Event} event - Event containing clientX and clientY properties.
+     * @param {HTMLElement} element - HTML element.
+     * @returns {Array<number>} 2D canvas coordinates.
+     */
+    public canvasPosition(event: { clientX: number, clientY: number }, element: HTMLElement): number[] {
+        let clientRect: ClientRect = element.getBoundingClientRect();
+
+        let canvasX: number = event.clientX - clientRect.left;
+        let canvasY: number = event.clientY - clientRect.top;
+
+        return [canvasX, canvasY];
     }
 
     /**

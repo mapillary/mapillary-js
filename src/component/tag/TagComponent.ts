@@ -834,10 +834,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         offsetX = offsetX != null ? offsetX : 0;
         offsetY = offsetY != null ? offsetY : 0;
 
-        let clientRect: ClientRect = element.getBoundingClientRect();
-
-        let canvasX: number = event.clientX - clientRect.left - offsetX;
-        let canvasY: number = event.clientY - clientRect.top - offsetY;
+        let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 
         let canvasWidth: number = element.offsetWidth;
         let canvasHeight: number = element.offsetHeight;
