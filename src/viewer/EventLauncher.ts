@@ -1,3 +1,7 @@
+/// <reference path="../../typings/index.d.ts" />
+
+import * as THREE from "three";
+
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
@@ -7,13 +11,22 @@ import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/throttleTime";
 
+import {ILatLon} from "../API";
+import {
+    GeoCoords,
+    ILatLonAlt,
+    Transform,
+    ViewportCoords,
+} from "../Geo";
 import {
     IEdgeStatus,
     Node,
 } from "../Graph";
+import {RenderCamera} from "../Render";
 import {EventEmitter} from "../Utils";
 import {
     Container,
+    IViewerMouseEvent,
     Navigator,
     Viewer,
 } from "../Viewer";
@@ -31,11 +44,15 @@ export class EventLauncher {
     private _container: Container;
     private _eventEmitter: EventEmitter;
     private _navigator: Navigator;
+    private _viewportCoords: ViewportCoords;
+    private _geoCoords: GeoCoords;
 
     constructor(eventEmitter: EventEmitter, navigator: Navigator, container: Container) {
         this._container = container;
         this._eventEmitter = eventEmitter;
         this._navigator = navigator;
+        this._viewportCoords = new ViewportCoords();
+        this._geoCoords = new GeoCoords();
 
         this._started = false;
     }
@@ -110,6 +127,62 @@ export class EventLauncher {
                 (bearing): void => {
                     this._eventEmitter.fire(Viewer.bearingchanged, bearing);
                  });
+
+        this._container.mouseService.staticClick$
+            .withLatestFrom(
+                this._container.renderService.renderCamera$,
+                this._navigator.stateService.reference$,
+                this._navigator.stateService.currentTransform$)
+            .map(
+                ([event, render, reference, transform]: [MouseEvent, RenderCamera, ILatLonAlt, Transform]): IViewerMouseEvent => {
+                    let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, this._container.element);
+                    let [viewportX, viewportY]: number[] =
+                        this._viewportCoords.canvasToViewport(
+                            canvasX,
+                            canvasY,
+                            this._container.element.offsetWidth,
+                            this._container.element.offsetHeight);
+
+                    let point3d: THREE.Vector3 = new THREE.Vector3(viewportX, viewportY, 1)
+                        .unproject(render.perspective);
+
+                    let basicPoint: number[] = transform.projectBasic(point3d.toArray());
+                    if (basicPoint[0] < 0 || basicPoint[0] > 1 || basicPoint[1] < 0 || basicPoint[1] > 1) {
+                        basicPoint = null;
+                    }
+
+                    let direction3d: THREE.Vector3 = point3d.clone().sub(render.camera.position).normalize();
+                    let dist: number = -2 / direction3d.z;
+
+                    let latLon: ILatLon = null;
+                    if (dist > 0 && dist < 100) {
+                        let point: THREE.Vector3 = direction3d.clone().multiplyScalar(dist).add(render.camera.position);
+                        let latLonArray: number[] = this._geoCoords
+                            .enuToGeodetic(
+                                point.x,
+                                point.y,
+                                point.z,
+                                reference.lat,
+                                reference.lon,
+                                reference.alt)
+                            .slice(0, 2);
+
+                        latLon = { lat: latLonArray[0], lon: latLonArray[1] };
+                    }
+
+                    return {
+                        basicPoint: basicPoint,
+                        latLon: latLon,
+                        originalEvent: event,
+                        pixelPoint: [canvasX, canvasY],
+                        target: <Viewer>this._eventEmitter,
+                        type: "click",
+                    };
+                })
+            .subscribe(
+                (event: IViewerMouseEvent): void => {
+                    this._eventEmitter.fire("click", event);
+                });
     }
 
     public stop(): void {
