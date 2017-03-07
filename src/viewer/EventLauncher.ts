@@ -40,6 +40,7 @@ export class EventLauncher {
     private _moveSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
+    private _viewerMouseEventSubscription: Subscription;
 
     private _container: Container;
     private _eventEmitter: EventEmitter;
@@ -128,60 +129,55 @@ export class EventLauncher {
                     this._eventEmitter.fire(Viewer.bearingchanged, bearing);
                  });
 
-        this._container.mouseService.staticClick$
+        let click$: Observable<[string, MouseEvent]> = this._container.mouseService.staticClick$
+            .map(
+                (event: MouseEvent): [string, MouseEvent] => {
+                    return ["click", event];
+                });
+
+        let mouseDown$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseDown$
+            .map(
+                (event: MouseEvent): [string, MouseEvent] => {
+                    return ["mousedown", event];
+                });
+
+        let mouseMove$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseMove$
+            .map(
+                (event: MouseEvent): [string, MouseEvent] => {
+                    return ["mousemove", event];
+                });
+
+        let mouseOut$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseOut$
+            .map(
+                (event: MouseEvent): [string, MouseEvent] => {
+                    return ["mouseout", event];
+                });
+
+        let mouseUp$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseUp$
+            .map(
+                (event: MouseEvent): [string, MouseEvent] => {
+                    return ["mouseup", event];
+                });
+
+        this._viewerMouseEventSubscription = Observable
+            .merge(
+                click$,
+                mouseDown$,
+                mouseMove$,
+                mouseOut$,
+                mouseUp$)
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.reference$,
                 this._navigator.stateService.currentTransform$)
             .map(
-                ([event, render, reference, transform]: [MouseEvent, RenderCamera, ILatLonAlt, Transform]): IViewerMouseEvent => {
-                    let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, this._container.element);
-                    let [viewportX, viewportY]: number[] =
-                        this._viewportCoords.canvasToViewport(
-                            canvasX,
-                            canvasY,
-                            this._container.element.offsetWidth,
-                            this._container.element.offsetHeight);
-
-                    let point3d: THREE.Vector3 = new THREE.Vector3(viewportX, viewportY, 1)
-                        .unproject(render.perspective);
-
-                    let basicPoint: number[] = transform.projectBasic(point3d.toArray());
-                    if (basicPoint[0] < 0 || basicPoint[0] > 1 || basicPoint[1] < 0 || basicPoint[1] > 1) {
-                        basicPoint = null;
-                    }
-
-                    let direction3d: THREE.Vector3 = point3d.clone().sub(render.camera.position).normalize();
-                    let dist: number = -2 / direction3d.z;
-
-                    let latLon: ILatLon = null;
-                    if (dist > 0 && dist < 100) {
-                        let point: THREE.Vector3 = direction3d.clone().multiplyScalar(dist).add(render.camera.position);
-                        let latLonArray: number[] = this._geoCoords
-                            .enuToGeodetic(
-                                point.x,
-                                point.y,
-                                point.z,
-                                reference.lat,
-                                reference.lon,
-                                reference.alt)
-                            .slice(0, 2);
-
-                        latLon = { lat: latLonArray[0], lon: latLonArray[1] };
-                    }
-
-                    return {
-                        basicPoint: basicPoint,
-                        latLon: latLon,
-                        originalEvent: event,
-                        pixelPoint: [canvasX, canvasY],
-                        target: <Viewer>this._eventEmitter,
-                        type: "click",
-                    };
+                ([[type, event], render, reference, transform]:
+                [[string, MouseEvent], RenderCamera, ILatLonAlt, Transform]): IViewerMouseEvent => {
+                    return this._createViewerMouseEvent(type, event, render, reference, transform);
                 })
             .subscribe(
                 (event: IViewerMouseEvent): void => {
-                    this._eventEmitter.fire("click", event);
+                    this._eventEmitter.fire(event.type, event);
                 });
     }
 
@@ -198,6 +194,7 @@ export class EventLauncher {
         this._moveSubscription.unsubscribe();
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
+        this._viewerMouseEventSubscription.unsubscribe();
 
         this._bearingSubscription = null;
         this._loadingSubscription = null;
@@ -205,6 +202,61 @@ export class EventLauncher {
         this._moveSubscription = null;
         this._sequenceEdgesSubscription = null;
         this._spatialEdgesSubscription = null;
+        this._viewerMouseEventSubscription = null;
+    }
+
+    private _createViewerMouseEvent(
+        type: string,
+        event: MouseEvent,
+        render: RenderCamera,
+        reference: ILatLonAlt,
+        transform: Transform): IViewerMouseEvent {
+
+        let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, this._container.element);
+        let [viewportX, viewportY]: number[] =
+            this._viewportCoords.canvasToViewport(
+                canvasX,
+                canvasY,
+                this._container.element.offsetWidth,
+                this._container.element.offsetHeight);
+
+        let point3d: THREE.Vector3 = new THREE.Vector3(viewportX, viewportY, 1)
+            .unproject(render.perspective);
+
+        let basicPoint: number[] = transform.projectBasic(point3d.toArray());
+        if (basicPoint[0] < 0 || basicPoint[0] > 1 || basicPoint[1] < 0 || basicPoint[1] > 1) {
+            basicPoint = null;
+        }
+
+        let direction3d: THREE.Vector3 = point3d.clone().sub(render.camera.position).normalize();
+        let dist: number = -2 / direction3d.z;
+
+        let latLon: ILatLon = null;
+        if (dist > 0 && dist < 100 && !!basicPoint) {
+            let point: THREE.Vector3 = direction3d.clone().multiplyScalar(dist).add(render.camera.position);
+            let latLonArray: number[] = this._geoCoords
+                .enuToGeodetic(
+                    point.x,
+                    point.y,
+                    point.z,
+                    reference.lat,
+                    reference.lon,
+                    reference.alt)
+                .slice(0, 2);
+
+            latLon = { lat: latLonArray[0], lon: latLonArray[1] };
+        }
+
+        let viewerMouseEvent: IViewerMouseEvent = {
+            basicPoint: basicPoint,
+            latLon: latLon,
+            originalEvent: event,
+            pixelPoint: [canvasX, canvasY],
+            target: <Viewer>this._eventEmitter,
+            type: type,
+        };
+
+        return viewerMouseEvent;
     }
 }
 
