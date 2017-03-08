@@ -25,6 +25,7 @@
       "./src/graph/NodeCache.ts",
       "./src/render/RenderMode.ts",
       "./src/viewer/interfaces/IComponentOptions.ts",
+      "./src/viewer/interfaces/IViewerMouseEvent.ts",
       "./src/viewer/interfaces/IViewerOptions.ts",
       "./src/viewer/ImageSize.ts",
       "./src/viewer/Viewer.ts"

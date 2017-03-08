@@ -123,57 +123,14 @@ export class Observer {
                     this._eventEmitter.fire(Viewer.bearingchanged, bearing);
                  });
 
-        const click$: Observable<[string, MouseEvent]> = this._container.mouseService.staticClick$
-            .map(
-                (event: MouseEvent): [string, MouseEvent] => {
-                    return ["click", event];
-                });
-
-        const mouseDown$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseDown$
-            .map(
-                (event: MouseEvent): [string, MouseEvent] => {
-                    return ["mousedown", event];
-                });
-
-        const mouseMove$: Observable<[string, MouseEvent]> = this._container.mouseService.active$
-            .switchMap(
-                (active: boolean): Observable<MouseEvent> => {
-                    return active ?
-                        Observable.empty<MouseEvent>() :
-                        this._container.mouseService.mouseMove$;
-                })
-            .map(
-                (event: MouseEvent): [string, MouseEvent] => {
-                    return ["mousemove", event];
-                });
-
-        const mouseOut$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseOut$
-            .map(
-                (event: MouseEvent): [string, MouseEvent] => {
-                    return ["mouseout", event];
-                });
-
-
-        const mouseOver$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseOver$
-            .map(
-                (event: MouseEvent): [string, MouseEvent] => {
-                    return ["mouseover", event];
-                });
-
-        const mouseUp$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseUp$
-            .map(
-                (event: MouseEvent): [string, MouseEvent] => {
-                    return ["mouseup", event];
-                });
-
         this._viewerMouseEventSubscription = Observable
             .merge(
-                click$,
-                mouseDown$,
-                mouseMove$,
-                mouseOut$,
-                mouseOver$,
-                mouseUp$)
+                this._mapMouseEvent$(Viewer.click, this._container.mouseService.staticClick$),
+                this._mapMouseEvent$(Viewer.mousedown, this._container.mouseService.mouseDown$),
+                this._mapMouseEvent$(Viewer.mousemove, this._container.mouseService.mouseMove$),
+                this._mapMouseEvent$(Viewer.mouseout, this._container.mouseService.mouseOut$),
+                this._mapMouseEvent$(Viewer.mouseover, this._container.mouseService.mouseOver$),
+                this._mapMouseEvent$(Viewer.mouseup, this._container.mouseService.mouseUp$))
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.reference$,
@@ -247,6 +204,13 @@ export class Observer {
 
                     return unprojection.latLon;
                 });
+    }
+
+    private _mapMouseEvent$(type: string, mouseEvent$: Observable<MouseEvent>): Observable<[string, MouseEvent]> {
+        return mouseEvent$.map(
+            (event: MouseEvent): [string, MouseEvent] => {
+                return [type, event];
+            });
     }
 }
 

@@ -11,9 +11,9 @@ import {
 import {
     ComponentController,
     Container,
-    Observer,
     IViewerOptions,
     Navigator,
+    Observer,
 } from "../Viewer";
 import {
     Component,
@@ -35,6 +35,14 @@ import {RenderMode} from "../Render";
  */
 export class Viewer extends EventEmitter {
     /**
+     * Fired when a pointing device (usually a mouse) is pressed and released at
+     * the same point in the viewer.
+     * @event
+     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     */
+    public static click: string = "click";
+
+    /**
      * Fired when the viewing direction of the camera changes.
      * @event
      * @type {number} bearing - Value indicating the current bearing
@@ -50,15 +58,51 @@ export class Viewer extends EventEmitter {
     public static loadingchanged: string = "loadingchanged";
 
     /**
-     * Fired when the viewer finishes transitioning and is in a fixed
+     * Fired when a pointing device (usually a mouse) is pressed within the viewer.
+     * @event
+     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     */
+    public static mousedown: string = "mousedown";
+
+    /**
+     * Fired when a pointing device (usually a mouse) is moved within the viewer.
+     * @event
+     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     */
+    public static mousemove: string = "mousemove";
+
+    /**
+     * Fired when a pointing device (usually a mouse) leaves the viewer's canvas.
+     * @event
+     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     */
+    public static mouseout: string = "mouseout";
+
+    /**
+     * Fired when a pointing device (usually a mouse) is moved onto the viewer's canvas.
+     * @event
+     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     */
+    public static mouseover: string = "mouseover";
+
+    /**
+     * Fired when a pointing device (usually a mouse) is released within the viewer.
+     * @event
+     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     */
+    public static mouseup: string = "mouseup";
+
+    /**
+     * Fired when the viewer motion stops and it is in a fixed
      * position with a fixed point of view.
      * @event
      */
     public static moveend: string = "moveend";
 
     /**
-     * Fired when the viewer starts transitioning from one view to another,
-     * either by changing the node or by interaction such as pan and zoom.
+     * Fired when the motion from one view to another start,
+     * either by changing the position (e.g. when changing node) or
+     * when changing point of view (e.g. by interaction such as pan and zoom).
      * @event
      */
     public static movestart: string = "movestart";
