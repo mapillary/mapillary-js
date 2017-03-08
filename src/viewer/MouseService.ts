@@ -14,6 +14,7 @@ import "rxjs/add/operator/scan";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 
+import {ViewportCoords} from "../Geo";
 import {IMouseClaim} from "../Viewer";
 
 interface IMouseMoveOperation {
@@ -27,6 +28,7 @@ interface IPreventMouseDownOperation {
 export class MouseService {
     private _container: HTMLElement;
     private _canvasContainer: HTMLElement;
+    private _viewportCoords: ViewportCoords;
 
     private _activeSubject$: BehaviorSubject<boolean>;
     private _active$: Observable<boolean>;
@@ -63,9 +65,10 @@ export class MouseService {
     private _claimMouse$: Subject<IMouseClaim>;
     private _mouseOwner$: Observable<string>;
 
-    constructor(canvasContainer: HTMLElement, container: HTMLElement) {
+    constructor(canvasContainer: HTMLElement, container: HTMLElement, viewportCoords?: ViewportCoords) {
         this._canvasContainer = canvasContainer;
         this._container = container;
+        this._viewportCoords = viewportCoords != null ? viewportCoords : new ViewportCoords();
 
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
 
@@ -80,7 +83,7 @@ export class MouseService {
         this._documentMouseDown$ = Observable.fromEvent<MouseEvent>(document, "mousedown")
             .filter(
                 (event: MouseEvent): boolean => {
-                    return this._insideCanvas(event, this._container);
+                    return this._viewportCoords.insideElement(event, this._container);
                 })
             .share();
 
@@ -90,7 +93,7 @@ export class MouseService {
         this._documentCanvasMouseMove$ = this._documentMouseMove$
             .filter(
                 (event: MouseEvent): boolean => {
-                    return this._insideCanvas(event, this._container);
+                    return this._viewportCoords.insideElement(event, this._container);
                 })
             .share();
 
@@ -112,7 +115,7 @@ export class MouseService {
         this._mouseWheel$ = Observable.fromEvent<WheelEvent>(document, "wheel")
             .filter(
                 (event: WheelEvent): boolean => {
-                    return this._insideCanvas(event, this._container);
+                    return this._viewportCoords.insideElement(event, this._container);
                 })
             .share();
 
@@ -201,7 +204,7 @@ export class MouseService {
         this._documentCanvasMouseDown$ = this._documentMouseDown$
             .filter(
                 (e: MouseEvent): boolean => {
-                    return this._insideCanvas(e, this._container);
+                    return this._viewportCoords.insideElement(e, this._container);
                 })
             .share();
 
@@ -386,15 +389,6 @@ export class MouseService {
                 (eo: [T, string]): T => {
                     return eo[0];
                 });
-    }
-
-    private _insideCanvas(event: MouseEvent, element: HTMLElement): boolean {
-        let clientRect: ClientRect = this._container.getBoundingClientRect();
-
-        return event.clientX > clientRect.left &&
-            event.clientX < clientRect.right &&
-            event.clientY > clientRect.top &&
-            event.clientY < clientRect.bottom;
     }
 }
 

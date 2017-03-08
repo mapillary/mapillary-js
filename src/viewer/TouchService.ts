@@ -195,8 +195,8 @@ export class TouchService {
 
                         let current: TouchMove = new TouchMove(touch);
 
-                        current.movementX = touch.pageX - previous.pageX;
-                        current.movementY = touch.pageY - previous.pageY;
+                        current.movementX = touch.clientX - previous.clientX;
+                        current.movementY = touch.clientY - previous.clientY;
 
                         return current;
                     };

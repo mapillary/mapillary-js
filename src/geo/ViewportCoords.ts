@@ -88,9 +88,6 @@ export class ViewportCoords {
     /**
      * Get canvas pixel position from event.
      *
-     * @description Transform origin and perspective camera position needs to be the
-     * equal for reliable return value.
-     *
      * @param {Event} event - Event containing clientX and clientY properties.
      * @param {HTMLElement} element - HTML element.
      * @returns {Array<number>} 2D canvas coordinates.
@@ -98,8 +95,8 @@ export class ViewportCoords {
     public canvasPosition(event: { clientX: number, clientY: number }, element: HTMLElement): number[] {
         let clientRect: ClientRect = element.getBoundingClientRect();
 
-        let canvasX: number = event.clientX - clientRect.left;
-        let canvasY: number = event.clientY - clientRect.top;
+        let canvasX: number = event.clientX - clientRect.left - element.clientLeft;
+        let canvasY: number = event.clientY - clientRect.top - element.clientTop;
 
         return [canvasX, canvasY];
     }
@@ -287,13 +284,34 @@ export class ViewportCoords {
     }
 
     /**
+     * Determine if an event occured inside an element.
+     *
+     * @param {Event} event - Event containing clientX and clientY properties.
+     * @param {HTMLElement} element - HTML element.
+     * @returns {boolean} Value indicating if the event occured inside the element or not.
+     */
+    public insideElement(event: { clientX: number, clientY: number }, element: HTMLElement): boolean {
+        let clientRect: ClientRect = element.getBoundingClientRect();
+
+        let minX: number = clientRect.left + element.clientLeft;
+        let maxX: number = minX + element.clientWidth;
+        let minY: number = clientRect.top + element.clientTop;
+        let maxY: number = minY + element.clientHeight;
+
+        return event.clientX > minX &&
+            event.clientX < maxX &&
+            event.clientY > minY &&
+            event.clientY < maxY;
+    }
+
+    /**
      * Project 3D world coordinates to canvas coordinates.
      *
      * @param {Array<number>} point3D - 3D world coordinates.
      * @param {number} canvasWidth - Width of canvas.
      * @param {number} canvasHeight - Height of canvas.
      * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
-     * @returns {Array<number>} 3D world coordinates.
+     * @returns {Array<number>} 2D canvas coordinates.
      */
     public projectToCanvas(
         point3d: number[],
@@ -314,7 +332,7 @@ export class ViewportCoords {
      *
      * @param {Array<number>} point3D - 3D world coordinates.
      * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
-     * @returns {Array<number>} 3D world coordinates.
+     * @returns {Array<number>} 2D viewport coordinates.
      */
     public projectToViewport(
         point3d: number[],
