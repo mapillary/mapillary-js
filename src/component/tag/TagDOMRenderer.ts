@@ -4,7 +4,6 @@ import * as THREE from "three";
 import * as vd from "virtual-dom";
 
 import {
-    ITagConfiguration,
     OutlineCreateTag,
     RenderTag,
     Tag,
@@ -18,8 +17,7 @@ export class TagDOMRenderer {
         createTag: OutlineCreateTag,
         atlas: ISpriteAtlas,
         camera: THREE.PerspectiveCamera,
-        transform: Transform,
-        configuration: ITagConfiguration): vd.VNode {
+        transform: Transform): vd.VNode {
 
         let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
         let projectionMatrix: THREE.Matrix4 = camera.projectionMatrix;
@@ -34,13 +32,7 @@ export class TagDOMRenderer {
             vNodes = vNodes.concat(createTag.getDOMObjects(transform, matrixWorldInverse, projectionMatrix));
         }
 
-        let properties: vd.createProperties = {
-            style: {
-                "pointer-events": configuration.creating ? "all" : "none",
-            },
-        };
-
-        return vd.h("div.TagContainer", properties, vNodes);
+        return vd.h("div.TagContainer", {}, vNodes);
     }
 
     public clear(): vd.VNode {

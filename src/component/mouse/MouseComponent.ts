@@ -1,7 +1,6 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import * as THREE from "three";
-import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
@@ -25,10 +24,7 @@ import {
     Spatial,
     Transform,
 } from "../../Geo";
-import {
-    IVNodeHash,
-    RenderCamera,
-} from "../../Render";
+import {RenderCamera} from "../../Render";
 import {
     Container,
     Navigator,
@@ -55,7 +51,6 @@ export class MouseComponent extends Component<IMouseConfiguration> {
 
     private _bounceSubscription: Subscription;
     private _configurationSubscription: Subscription;
-    private _cursorSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -88,16 +83,6 @@ export class MouseComponent extends Component<IMouseConfiguration> {
     }
 
     protected _activate(): void {
-        this._cursorSubscription = this._configuration$
-            .map(
-                (configuration: IMouseConfiguration): IVNodeHash => {
-                    let tagName: string = configuration.dragPan ? "div.MouseContainer" : "div";
-                    let vNode: vd.VNode = vd.h(tagName, {}, []);
-
-                    return { name: this._name, vnode: vNode };
-                })
-            .subscribe(this._container.domRenderer.render$);
-
         this._configurationSubscription = this._configuration$
             .subscribe(
                 (configuration: IMouseConfiguration): void => {
@@ -201,7 +186,6 @@ export class MouseComponent extends Component<IMouseConfiguration> {
 
         this._bounceSubscription.unsubscribe();
         this._configurationSubscription.unsubscribe();
-        this._cursorSubscription.unsubscribe();
 
         this._dragPanHandler.disable();
         this._scrollZoomHandler.disable();

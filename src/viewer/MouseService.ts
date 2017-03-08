@@ -25,10 +25,21 @@ interface IPreventMouseDownOperation {
 }
 
 export class MouseService {
-    private _element: HTMLElement;
+    private _container: HTMLElement;
+    private _canvasContainer: HTMLElement;
 
     private _activeSubject$: BehaviorSubject<boolean>;
     private _active$: Observable<boolean>;
+
+    private _documentMouseDown$: Observable<MouseEvent>;
+    private _documentMouseMove$: Observable<MouseEvent>;
+    private _documentMouseUp$: Observable<MouseEvent>;
+
+    private _documentCanvasMouseDown$: Observable<MouseEvent>;
+    private _documentCanvasMouseMove$: Observable<MouseEvent>;
+    private _documentCanvasMouseDragStart$: Observable<MouseEvent>;
+    private _documentCanvasMouseDrag$: Observable<MouseEvent>;
+    private _documentCanvasMouseDragEnd$: Observable<MouseEvent>;
 
     private _mouseDown$: Observable<MouseEvent>;
     private _mouseMoveOperation$: Subject<IMouseMoveOperation>;
@@ -51,8 +62,9 @@ export class MouseService {
     private _claimMouse$: Subject<IMouseClaim>;
     private _mouseOwner$: Observable<string>;
 
-    constructor(element: HTMLElement) {
-        this._element = element;
+    constructor(canvasContainer: HTMLElement, container: HTMLElement) {
+        this._canvasContainer = canvasContainer;
+        this._container = container;
 
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
 
@@ -64,21 +76,43 @@ export class MouseService {
         this._mouseMoveOperation$ = new Subject<IMouseMoveOperation>();
         this._claimMouse$ = new Subject<IMouseClaim>();
 
-        this._mouseDown$ = Observable.fromEvent<MouseEvent>(element, "mousedown");
-        this._mouseLeave$ = Observable.fromEvent<MouseEvent>(element, "mouseleave");
-        this._mouseUp$ = Observable.fromEvent<MouseEvent>(element, "mouseup");
-        this._mouseOut$ = Observable.fromEvent<MouseEvent>(element, "mouseout");
+        this._documentMouseDown$ = Observable.fromEvent<MouseEvent>(document, "mousedown")
+            .filter(
+                (event: MouseEvent): boolean => {
+                    return this._insideCanvas(event, this._container);
+                })
+            .share();
 
-        this._click$ = Observable.fromEvent<MouseEvent>(element, "click");
+        this._documentMouseMove$ = Observable.fromEvent<MouseEvent>(document, "mousemove");
+        this._documentMouseUp$ = Observable.fromEvent<MouseEvent>(document, "mouseup");
 
-        this._contextMenu$ = Observable.fromEvent<MouseEvent>(element, "contextmenu");
+        this._documentCanvasMouseMove$ = this._documentMouseMove$
+            .filter(
+                (event: MouseEvent): boolean => {
+                    return this._insideCanvas(event, this._container);
+                })
+            .share();
+
+        this._mouseDown$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mousedown");
+        this._mouseLeave$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseleave");
+        this._mouseUp$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseup");
+        this._mouseOut$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseout");
+
+        this._click$ = Observable.fromEvent<MouseEvent>(canvasContainer, "click");
+
+        this._contextMenu$ = Observable.fromEvent<MouseEvent>(canvasContainer, "contextmenu");
         this._contextMenu$
             .subscribe(
                 (event: MouseEvent): void => {
                     event.preventDefault();
                 });
 
-        this._mouseWheel$ = Observable.fromEvent<WheelEvent>(element, "wheel");
+        this._mouseWheel$ = Observable.fromEvent<WheelEvent>(document, "wheel")
+            .filter(
+                (event: WheelEvent): boolean => {
+                    return this._insideCanvas(event, this._container);
+                })
+            .share();
 
         this._mouseMove$ = this._mouseMoveOperation$
             .scan(
@@ -88,7 +122,7 @@ export class MouseService {
                 null);
 
         Observable
-            .fromEvent<MouseEvent>(element, "mousemove")
+            .fromEvent<MouseEvent>(canvasContainer, "mousemove")
             .map(
                 (e: MouseEvent) => {
                     return (previous: MouseEvent): MouseEvent => {
@@ -127,11 +161,11 @@ export class MouseService {
 
         let dragStop$: Observable<MouseEvent> = Observable
             .merge<MouseEvent>(
-                this._mouseLeave$,
-                this._mouseUp$.filter(
+                this._documentMouseUp$.filter(
                     (e: MouseEvent): boolean => {
                         return e.button === 0;
-                    }));
+                    }))
+            .share();
 
         let leftButtonDown$: Observable<MouseEvent> = this._mouseDown$
             .filter(
@@ -143,7 +177,7 @@ export class MouseService {
         this._mouseDragStart$ = leftButtonDown$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
-                    return this._mouseMove$
+                    return this._documentMouseMove$
                         .takeUntil(dragStop$)
                         .take(1);
                 });
@@ -151,12 +185,48 @@ export class MouseService {
         this._mouseDrag$ = leftButtonDown$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
-                    return this._mouseMove$
+                    return this._documentMouseMove$
                         .skip(1)
                         .takeUntil(dragStop$);
                 });
 
         this._mouseDragEnd$ = this._mouseDragStart$
+            .mergeMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return dragStop$.first();
+                });
+
+        this._documentCanvasMouseDown$ = this._documentMouseDown$
+            .filter(
+                (e: MouseEvent): boolean => {
+                    return this._insideCanvas(e, this._container);
+                })
+            .share();
+
+        let documentCanvasLeftButtonDown$: Observable<MouseEvent> = this._documentCanvasMouseDown$
+            .filter(
+                (e: MouseEvent): boolean => {
+                    return e.button === 0;
+                })
+            .share();
+
+        this._documentCanvasMouseDragStart$ = documentCanvasLeftButtonDown$
+            .mergeMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return this._documentCanvasMouseMove$
+                        .takeUntil(dragStop$)
+                        .take(1);
+                });
+
+        this._documentCanvasMouseDrag$ = documentCanvasLeftButtonDown$
+            .mergeMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return this._documentCanvasMouseMove$
+                        .skip(1)
+                        .takeUntil(dragStop$);
+                });
+
+        this._documentCanvasMouseDragEnd$ = this._documentCanvasMouseDragStart$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return dragStop$.first();
@@ -205,6 +275,34 @@ export class MouseService {
 
     public get activate$(): Subject<boolean> {
         return this._activeSubject$;
+    }
+
+    public get documentCanvasMouseDown$(): Observable<MouseEvent> {
+        return this._documentCanvasMouseDown$;
+    }
+
+    public get documentCanvasMouseMove$(): Observable<MouseEvent> {
+        return this._documentCanvasMouseMove$;
+    }
+
+    public get documentCanvasMouseDragStart$(): Observable<MouseEvent> {
+        return this._documentCanvasMouseDragStart$;
+    }
+
+    public get documentCanvasMouseDrag$(): Observable<MouseEvent> {
+        return this._documentCanvasMouseDrag$;
+    }
+
+    public get documentCanvasMouseDragEnd$(): Observable<MouseEvent> {
+        return this._documentCanvasMouseDragEnd$;
+    }
+
+    public get documentMouseMove$(): Observable<MouseEvent> {
+        return this._documentMouseMove$;
+    }
+
+    public get documentMouseUp$(): Observable<MouseEvent> {
+        return this._documentMouseUp$;
     }
 
     public get mouseOwner$(): Observable<string> {
@@ -282,6 +380,15 @@ export class MouseService {
                 (eo: [T, string]): T => {
                     return eo[0];
                 });
+    }
+
+    private _insideCanvas(event: MouseEvent, element: HTMLElement): boolean {
+        let clientRect: ClientRect = this._container.getBoundingClientRect();
+
+        return event.clientX > clientRect.left &&
+            event.clientX < clientRect.right &&
+            event.clientY > clientRect.top &&
+            event.clientY < clientRect.bottom;
     }
 }
 

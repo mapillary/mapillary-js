@@ -158,7 +158,6 @@ export class DOMRenderer {
                             position: "absolute",
                             right: offset.right + "px",
                             top: offset.top + "px",
-                            zIndex: -1,
                         },
                     };
 

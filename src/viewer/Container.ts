@@ -13,7 +13,6 @@ import {
 
 export class Container {
     public id: string;
-    public element: HTMLElement;
 
     public renderService: RenderService;
 
@@ -25,20 +24,37 @@ export class Container {
 
     public spriteService: SpriteService;
 
+    private _canvasContainer: HTMLElement;
+    private _container: HTMLElement;
+
     constructor (id: string, stateService: StateService, options: IViewerOptions) {
         this.id = id;
-        this.element = document.getElementById(id);
-        this.element.classList.add("mapillary-js");
 
-        this.renderService = new RenderService(this.element, stateService.currentState$, options.renderMode);
+        this._container = document.getElementById(id);
+        this._container.classList.add("mapillary-js");
 
-        this.glRenderer = new GLRenderer(this.renderService);
-        this.domRenderer = new DOMRenderer(this.element, this.renderService, stateService.currentState$);
+        this._canvasContainer = document.createElement("div");
+        this._canvasContainer.className = "mapillary-js-interactive";
 
-        this.mouseService = new MouseService(this.element);
-        this.touchService = new TouchService(this.element);
+        this._container.appendChild(this._canvasContainer);
+
+        this.renderService = new RenderService(this._container, stateService.currentState$, options.renderMode);
+
+        this.glRenderer = new GLRenderer(this._canvasContainer, this.renderService);
+        this.domRenderer = new DOMRenderer(this._container, this.renderService, stateService.currentState$);
+
+        this.mouseService = new MouseService(this._canvasContainer, this._container);
+        this.touchService = new TouchService(this._canvasContainer);
 
         this.spriteService = new SpriteService(options.sprite);
+    }
+
+    public get element(): HTMLElement {
+        return this._container;
+    }
+
+    public get canvasContainer(): HTMLElement {
+        return this.canvasContainer;
     }
 }
 

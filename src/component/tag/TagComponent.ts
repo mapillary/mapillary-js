@@ -150,6 +150,8 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _addPointSubscription: Subscription;
     private _deleteCreatedSubscription: Subscription;
     private _setGLCreateTagSubscription: Subscription;
+    private _preventDefaultSubscription: Subscription;
+    private _containerClassListSubscription: Subscription;
 
     private _domSubscription: Subscription;
     private _glSubscription: Subscription;
@@ -260,13 +262,8 @@ export class TagComponent extends Component<ITagConfiguration> {
             .share();
 
         this._tagInteractionAbort$ = Observable
-            .merge(
-                this._container.mouseService.mouseUp$,
-                this._container.mouseService.mouseLeave$)
-            .map(
-                (e: MouseEvent): void => {
-                    return;
-                })
+            .merge(this._container.mouseService.documentMouseUp$)
+            .map((e: MouseEvent): void => { /* noop */ })
             .share();
 
         this._activeTag$ = this._renderTags$
@@ -442,6 +439,14 @@ export class TagComponent extends Component<ITagConfiguration> {
     }
 
     protected _activate(): void {
+        this._preventDefaultSubscription = Observable.merge(
+                this._container.mouseService.documentCanvasMouseDown$,
+                this._container.mouseService.documentCanvasMouseMove$)
+            .subscribe(
+                (event: MouseEvent): void => {
+                    event.preventDefault(); // prevent selection of content outside the viewer
+                });
+
         this._geometryCreatedEventSubscription = this._geometryCreated$
             .subscribe(
                 (geometry: Geometry): void => {
@@ -518,7 +523,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._setCreateVertexSubscription = Observable
             .combineLatest<MouseEvent, OutlineCreateTag, RenderCamera>(
-                this._container.mouseService.mouseMove$,
+                this._container.mouseService.documentCanvasMouseMove$,
                 this._tagCreator.tag$,
                 this._container.renderService.renderCamera$)
             .filter(
@@ -574,6 +579,16 @@ export class TagComponent extends Component<ITagConfiguration> {
                     tag.addPoint(basic);
                 });
 
+        this._containerClassListSubscription = this._creating$
+            .subscribe(
+                (creating: boolean): void => {
+                    if (creating) {
+                        this._container.element.classList.add("component-tag-create");
+                    } else {
+                        this._container.element.classList.remove("component-tag-create");
+                    }
+                });
+
         this._deleteCreatedSubscription = this._creating$
             .subscribe(
                 (creating: boolean): void => {
@@ -609,7 +624,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._claimMouseSubscription = this._tagInterationInitiated$
             .switchMap(
                 (id: string): Observable<MouseEvent> => {
-                    return this._container.mouseService.mouseMove$
+                    return this._container.mouseService.documentCanvasMouseMove$
                         .takeUntil(this._tagInteractionAbort$)
                         .take(1);
                 })
@@ -620,7 +635,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._mouseDragSubscription = this._activeTag$
             .withLatestFrom(
-                this._container.mouseService.mouseMove$,
+                this._container.mouseService.documentCanvasMouseMove$,
                 (a: IInteraction, e: MouseEvent): [IInteraction, MouseEvent] => {
                     return [a, e];
                 })
@@ -638,7 +653,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                         .concat<MouseEvent>(
                             this._container.mouseService.filtered$(
                                 this._name,
-                                this._container.mouseService.mouseDrag$));
+                                this._container.mouseService.documentCanvasMouseDrag$));
 
                     return Observable
                         .combineLatest<MouseEvent, RenderCamera>(
@@ -683,7 +698,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 });
 
         this._unclaimMouseSubscription = this._container.mouseService
-            .filtered$(this._name, this._container.mouseService.mouseDragEnd$)
+            .filtered$(this._name, this._container.mouseService.documentCanvasMouseDragEnd$)
             .subscribe((e: MouseEvent): void => {
                 this._container.mouseService.unclaimMouse(this._name);
              });
@@ -735,23 +750,22 @@ export class TagComponent extends Component<ITagConfiguration> {
                 this._container.spriteService.spriteAtlas$,
                 this._tagChanged$.startWith(null),
                 this._tagCreator.tag$.merge(this._createGeometryChanged$).startWith(null),
-                this._configuration$,
-                (renderTags: RenderTag<Tag>[], rc: RenderCamera, atlas: ISpriteAtlas, tag: Tag, ct: OutlineCreateTag, c: ITagConfiguration):
-                [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration] => {
-                    return [rc, atlas, renderTags, tag, ct, c];
+                (renderTags: RenderTag<Tag>[], rc: RenderCamera, atlas: ISpriteAtlas, tag: Tag, ct: OutlineCreateTag):
+                [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag] => {
+                    return [rc, atlas, renderTags, tag, ct];
                 })
             .withLatestFrom(
                 this._navigator.stateService.currentTransform$,
-                (args: [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration], transform: Transform):
-                    [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration, Transform] => {
-                    return [args[0], args[1], args[2], args[3], args[4], args[5], transform];
+                (args: [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag], transform: Transform):
+                    [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, Transform] => {
+                    return [args[0], args[1], args[2], args[3], args[4], transform];
                 })
             .map(
-                (args: [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, ITagConfiguration, Transform]):
+                (args: [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag, Transform]):
                     IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._tagDomRenderer.render(args[2], args[4], args[1], args[0].perspective, args[6], args[5]),
+                        vnode: this._tagDomRenderer.render(args[2], args[4], args[1], args[0].perspective, args[5]),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);
@@ -807,6 +821,8 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._addPointSubscription.unsubscribe();
         this._deleteCreatedSubscription.unsubscribe();
         this._setGLCreateTagSubscription.unsubscribe();
+        this._preventDefaultSubscription.unsubscribe();
+        this._containerClassListSubscription.unsubscribe();
 
         this._domSubscription.unsubscribe();
         this._glSubscription.unsubscribe();

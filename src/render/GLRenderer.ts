@@ -93,7 +93,7 @@ export class GLRenderer {
 
     private _renderFrameSubscription: Subscription;
 
-    constructor (renderService: RenderService) {
+    constructor (canvasContainer: HTMLElement, renderService: RenderService) {
         this._renderService = renderService;
 
         this._renderer$ = this._rendererOperation$
@@ -254,8 +254,9 @@ export class GLRenderer {
                     webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
                     webGLRenderer.autoClear = false;
                     webGLRenderer.sortObjects = false;
+                    webGLRenderer.domElement.style.position = "absolute";
 
-                    element.appendChild(webGLRenderer.domElement);
+                    canvasContainer.appendChild(webGLRenderer.domElement);
 
                     return webGLRenderer;
                 })
