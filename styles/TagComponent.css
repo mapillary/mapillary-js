@@ -13,7 +13,7 @@
 .TagMover,
 .TagResizer {
     transform: translate(-50%, -50%);
-    pointer-events: all;
+    pointer-events: auto;
 }
 
 .TagMover {
@@ -52,7 +52,7 @@
 .TagCompleter,
 .TagSpotInteractor {
     transform: translate(-50%, -50%);
-    pointer-events: all;
+    pointer-events: auto;
     border-radius: 7px;
     width: 14px;
     height: 14px;

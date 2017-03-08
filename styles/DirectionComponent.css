@@ -19,7 +19,7 @@
 .DirectionsCircleSequence,
 .DirectionsCircleHighlight,
 .DirectionsCircleSequenceHighlight {
-    pointer-events: all;
+    pointer-events: auto;
 }
 
 .DirectionsCircle:hover,
@@ -79,7 +79,7 @@
 .TurnCircleSequenceHighlight {
     position: absolute;
     border-radius: 50%;
-    pointer-events: all;
+    pointer-events: auto;
 }
 
 .TurnCircle,

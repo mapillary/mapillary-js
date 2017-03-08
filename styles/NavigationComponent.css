@@ -13,7 +13,7 @@
     background: url(./arrow-up-white.svg);
     background-size: contain;
     background-repeat: no-repeat;
-    pointer-events: all;
+    pointer-events: auto;
     cursor: pointer;
 }
 

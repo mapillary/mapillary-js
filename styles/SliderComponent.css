@@ -3,6 +3,7 @@
     position: absolute;
     bottom: 40px;
     left: 0;
+    pointer-events: none;
     right: 0;
     z-index: 20;
 }
@@ -22,6 +23,7 @@
     border-radius: 999px;
     -webkit-appearance: none;
     appearance: none;
+    pointer-events: auto;
 }
 
 .SliderControl::-webkit-slider-thumb {
