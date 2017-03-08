@@ -47,6 +47,7 @@ export class MouseService {
     private _mouseLeave$: Observable<MouseEvent>;
     private _mouseUp$: Observable<MouseEvent>;
     private _mouseOut$: Observable<MouseEvent>;
+    private _mouseOver$: Observable<MouseEvent>;
 
     private _contextMenu$: Observable<MouseEvent>;
     private _click$: Observable<MouseEvent>;
@@ -97,6 +98,7 @@ export class MouseService {
         this._mouseLeave$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseleave");
         this._mouseUp$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseup");
         this._mouseOut$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseout");
+        this._mouseOver$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseover");
 
         this._click$ = Observable.fromEvent<MouseEvent>(canvasContainer, "click");
 
@@ -323,6 +325,10 @@ export class MouseService {
 
     public get mouseOut$(): Observable<MouseEvent> {
         return this._mouseOut$;
+    }
+
+    public get mouseOver$(): Observable<MouseEvent> {
+        return this._mouseOver$;
     }
 
     public get mouseUp$(): Observable<MouseEvent> {

@@ -153,6 +153,13 @@ export class EventLauncher {
                     return ["mouseout", event];
                 });
 
+
+        let mouseOver$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseOver$
+            .map(
+                (event: MouseEvent): [string, MouseEvent] => {
+                    return ["mouseover", event];
+                });
+
         let mouseUp$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseUp$
             .map(
                 (event: MouseEvent): [string, MouseEvent] => {
@@ -165,6 +172,7 @@ export class EventLauncher {
                 mouseDown$,
                 mouseMove$,
                 mouseOut$,
+                mouseOver$,
                 mouseUp$)
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
