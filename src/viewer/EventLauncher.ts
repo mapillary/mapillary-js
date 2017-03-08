@@ -141,7 +141,13 @@ export class EventLauncher {
                     return ["mousedown", event];
                 });
 
-        let mouseMove$: Observable<[string, MouseEvent]> = this._container.mouseService.mouseMove$
+        let mouseMove$: Observable<[string, MouseEvent]> = this._container.mouseService.active$
+            .switchMap(
+                (active: boolean): Observable<MouseEvent> => {
+                    return active ?
+                        Observable.empty<MouseEvent>() :
+                        this._container.mouseService.mouseMove$;
+                })
             .map(
                 (event: MouseEvent): [string, MouseEvent] => {
                     return ["mousemove", event];
