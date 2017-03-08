@@ -857,8 +857,8 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         let basic: number[] =
             this._viewportCoords.canvasToBasic(
-                canvasX,
-                canvasY,
+                canvasX - offsetX,
+                canvasY - offsetY,
                 canvasWidth,
                 canvasHeight,
                 transform,
