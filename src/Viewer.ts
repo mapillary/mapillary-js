@@ -8,6 +8,6 @@ export {Navigator} from "./viewer/Navigator";
 export {ComponentController} from "./viewer/ComponentController";
 export {SpriteAlignment} from "./viewer/SpriteAlignment";
 export {SpriteService} from "./viewer/SpriteService";
-export {TouchService, IPinch} from "./viewer/TouchService";
+export {TouchService} from "./viewer/TouchService";
 export {Viewer} from "./viewer/Viewer";
 export * from "./viewer/interfaces/interfaces";
