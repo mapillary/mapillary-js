@@ -27,7 +27,7 @@ import {
     Viewer,
 } from "../Viewer";
 
-export class EventLauncher {
+export class Observer {
     private _started: boolean;
 
     private _bearingSubscription: Subscription;
@@ -56,7 +56,7 @@ export class EventLauncher {
         return this._started;
     }
 
-    public start(): void {
+    public startEmit(): void {
         if (this._started) {
             return;
         }
@@ -204,7 +204,7 @@ export class EventLauncher {
                 });
     }
 
-    public stop(): void {
+    public stopEmit(): void {
         if (!this.started) {
             return;
         }
@@ -250,4 +250,4 @@ export class EventLauncher {
     }
 }
 
-export default EventLauncher;
+export default Observer;

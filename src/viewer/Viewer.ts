@@ -11,7 +11,7 @@ import {
 import {
     ComponentController,
     Container,
-    EventLauncher,
+    Observer,
     IViewerOptions,
     Navigator,
 } from "../Viewer";
@@ -96,10 +96,10 @@ export class Viewer extends EventEmitter {
     private _container: Container;
 
     /**
-     * Private EventLauncher object which fires events on behalf of
-     * the viewer.
+     * Private Observer object which observes the viewer state and
+     * fires events on behalf of the viewer.
      */
-    private _eventLauncher: EventLauncher;
+    private _observer: Observer;
 
     /**
      * Private Navigator object which controls navigation throught
@@ -130,8 +130,8 @@ export class Viewer extends EventEmitter {
 
         this._navigator = new Navigator(clientId, token);
         this._container = new Container(id, this._navigator.stateService, options);
-        this._eventLauncher = new EventLauncher(this, this._navigator, this._container);
-        this._componentController = new ComponentController(this._container, this._navigator, this._eventLauncher, key, options.component);
+        this._observer = new Observer(this, this._navigator, this._container);
+        this._componentController = new ComponentController(this._container, this._navigator, this._observer, key, options.component);
     }
 
     /**
@@ -456,7 +456,7 @@ export class Viewer extends EventEmitter {
     public unproject(pixelPoint: number[]): when.Promise<ILatLon> {
         return when.promise<ILatLon>(
             (resolve: any, reject: any): void => {
-                this._eventLauncher.unproject$(pixelPoint)
+                this._observer.unproject$(pixelPoint)
                     .subscribe(
                         (latLon: ILatLon): void => {
                             resolve(latLon);

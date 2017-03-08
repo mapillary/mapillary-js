@@ -3,12 +3,12 @@ import {Observable} from "rxjs/Observable";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {CoverComponent, ComponentService, ICoverConfiguration, Component, IComponentConfiguration} from "../Component";
-import {IComponentOptions, EventLauncher} from "../Viewer";
+import {IComponentOptions, Observer} from "../Viewer";
 
 export class ComponentController {
     private _container: Container;
     private _coverComponent: CoverComponent;
-    private _eventLauncher: EventLauncher;
+    private _observer: Observer;
     private _navigator: Navigator;
     private _componentService: ComponentService;
     private _options: IComponentOptions;
@@ -17,11 +17,11 @@ export class ComponentController {
     constructor(
         container: Container,
         navigator: Navigator,
-        eventLauncher: EventLauncher,
+        observer: Observer,
         key: string, options:
         IComponentOptions) {
         this._container = container;
-        this._eventLauncher = eventLauncher;
+        this._observer = observer;
         this._navigator = navigator;
         this._options = options != null ? options : {};
         this._key = key;
@@ -46,7 +46,7 @@ export class ComponentController {
                         this._coverComponent.configure({ key: this._key, loading: false, visible: false });
                         this._subscribeCoverComponent();
                         this._navigator.stateService.start();
-                        this._eventLauncher.start();
+                        this._observer.startEmit();
                     });
         }
     }
@@ -125,7 +125,7 @@ export class ComponentController {
                     .subscribe(
                         (node: Node): void => {
                             this._navigator.stateService.start();
-                            this._eventLauncher.start();
+                            this._observer.startEmit();
                             this._coverComponent.configure({ loading: false, visible: false });
                             this._componentService.deactivateCover();
                         },
@@ -135,7 +135,7 @@ export class ComponentController {
                             this._coverComponent.configure({ loading: false, visible: true });
                         });
             } else if (conf.visible) {
-                this._eventLauncher.stop();
+                this._observer.stopEmit();
                 this._navigator.stateService.stop();
                 this._componentService.activateCover();
             }
