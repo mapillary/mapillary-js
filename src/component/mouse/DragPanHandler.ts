@@ -19,15 +19,14 @@ import {
 import {
     RenderCamera,
 } from "../../Render";
-import {
-    ICurrentState,
-    IFrame,
-} from "../../State";
+import {IFrame} from "../../State";
 import {
     Container,
     Navigator,
     TouchMove,
 } from "../../Viewer";
+
+type MouseTouchPair = [MouseEvent, MouseEvent] | [TouchMove, TouchMove];
 
 export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
@@ -106,33 +105,64 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                 touchMovingStopped$)
             .subscribe(this._container.touchService.activate$);
 
-        this._rotateBasicSubscription = Observable
-            .merge(
-                this._container.mouseService
-                    .filtered$(this._component.name, this._container.mouseService.mouseDrag$),
-                this._container.touchService.singleTouchMove$)
-            .withLatestFrom(this._navigator.stateService.currentState$)
-            .filter(
-                (args: [MouseEvent | TouchMove, IFrame]): boolean => {
-                    let state: ICurrentState = args[1].state;
-                    return state.currentNode.fullPano || state.nodesAhead < 1;
-                })
+        this._rotateBasicSubscription = this._navigator.stateService.currentState$
             .map(
-                (args: [MouseEvent | TouchMove, IFrame]): MouseEvent | TouchMove => {
-                    return args[0];
+                (frame: IFrame): boolean => {
+                    return frame.state.currentNode.fullPano || frame.state.nodesAhead < 1;
+                })
+            .distinctUntilChanged()
+            .switchMap(
+                (enable: boolean): Observable<MouseTouchPair> => {
+                    if (!enable) {
+                        return Observable.empty<MouseTouchPair>();
+                    }
+
+                    let mouseDrag$: Observable<[MouseEvent, MouseEvent]> = Observable
+                        .merge(
+                            this._container.mouseService.mouseDragStart$,
+                            this._container.mouseService.mouseDrag$,
+                            this._container.mouseService.mouseDragEnd$.map((e: MouseEvent): MouseEvent => { return null; }))
+                        .pairwise()
+                        .filter(
+                            (pair: [MouseEvent, MouseEvent]): boolean => {
+                                return pair[0] != null && pair[1] != null;
+                            });
+
+                    let singleTouchMove$: Observable<[TouchMove, TouchMove]> = Observable
+                        .merge(
+                            this._container.touchService.singleTouchMoveStart$,
+                            this._container.touchService.singleTouchMove$,
+                            this._container.touchService.singleTouchMoveEnd$.map((t: TouchEvent): TouchMove => { return null; }))
+                        .pairwise()
+                        .filter(
+                            (pair: [TouchMove, TouchMove]): boolean => {
+                                return pair[0] != null && pair[1] != null;
+                            });
+
+                    return Observable
+                        .merge(
+                            mouseDrag$,
+                            singleTouchMove$);
                 })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
                 this._navigator.stateService.currentCamera$)
             .map(
-                ([event, render, transform, c]: [MouseEvent | TouchMove, RenderCamera, Transform, Camera]): number[] => {
+                ([events, render, transform, c]: [MouseTouchPair, RenderCamera, Transform, Camera]): number[] => {
                     let camera: Camera = c.clone();
+
+                    let previousEvent: MouseEvent | TouchMove = events[0];
+                    let event: MouseEvent | TouchMove = events[1];
+
+                    let movementX: number = event.clientX - previousEvent.clientX;
+                    let movementY: number = event.clientY - previousEvent.clientY;
 
                     let element: HTMLElement = this._container.element;
 
                     let canvasWidth: number = element.offsetWidth;
                     let canvasHeight: number = element.offsetHeight;
+
 
                     let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 
@@ -147,7 +177,7 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
 
                     let directionX: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
-                            canvasX - event.movementX,
+                            canvasX - movementX,
                             canvasY,
                             canvasWidth,
                             canvasHeight,
@@ -157,14 +187,14 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                     let directionY: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX,
-                            canvasY - event.movementY,
+                            canvasY - movementY,
                             canvasWidth,
                             canvasHeight,
                             render.perspective)
                                 .sub(render.perspective.position);
 
-                    let deltaPhi: number = (event.movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
-                    let deltaTheta: number = (event.movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
+                    let deltaPhi: number = (movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
+                    let deltaTheta: number = (movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
                     let upQuaternion: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
                     let upQuaternionInverse: THREE.Quaternion = upQuaternion.clone().inverse();
