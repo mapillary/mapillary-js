@@ -8,42 +8,6 @@ import "rxjs/add/operator/merge";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/switchMap";
 
-export class TouchMove implements Touch {
-    public movementX: number;
-    public movementY: number;
-
-    public identifier: number;
-
-    public clientX: number;
-    public clientY: number;
-    public pageX: number;
-    public pageY: number;
-    public screenX: number;
-    public screenY: number;
-
-    public target: EventTarget;
-
-    constructor(touch?: Touch) {
-        this.movementX = 0;
-        this.movementY = 0;
-
-        if (touch == null) {
-            return;
-        }
-
-        this.identifier = touch.identifier;
-
-        this.clientX = touch.clientX;
-        this.clientY = touch.clientY;
-        this.pageX = touch.pageX;
-        this.pageY = touch.pageY;
-        this.screenX = touch.screenX;
-        this.screenY = touch.screenY;
-
-        this.target = touch.target;
-    }
-}
-
 export interface IPinch {
     /**
      * X client coordinate for center of pinch.
@@ -128,14 +92,6 @@ interface IPinchOperation {
     (pinch: IPinch): IPinch;
 }
 
-interface ITouchMoveOperation {
-    (touchMove: TouchMove): TouchMove;
-}
-
-interface IPreventTouchMoveOperation {
-    (prevent: boolean): boolean;
-}
-
 export class TouchService {
     private _element: HTMLElement;
 
@@ -147,11 +103,10 @@ export class TouchService {
     private _touchEnd$: Observable<TouchEvent>;
     private _touchCancel$: Observable<TouchEvent>;
 
-    private _singleTouchMoveOperation$: Subject<ITouchMoveOperation>;
-    private _singleTouchMove$: Observable<TouchMove>;
-    private _singleTouchMoveStart$: Observable<TouchMove>;
-    private _singleTouchMoveEnd$: Observable<TouchEvent>;
-    private _singleTouch$: Observable<TouchMove>;
+    private _singleTouchDrag$: Observable<TouchEvent>;
+    private _singleTouchDragStart$: Observable<TouchEvent>;
+    private _singleTouchDragEnd$: Observable<TouchEvent>;
+    private _singleTouchMove$: Observable<TouchEvent>;
 
     private _pinchOperation$: Subject<IPinchOperation>;
     private _pinch$: Observable<IPinch>;
@@ -174,34 +129,12 @@ export class TouchService {
         this._touchEnd$ = Observable.fromEvent<TouchEvent>(element, "touchend");
         this._touchCancel$ = Observable.fromEvent<TouchEvent>(element, "touchcancel");
 
-        this._singleTouchMoveOperation$ = new Subject<ITouchMoveOperation>();
-
-        this._singleTouchMove$ = this._singleTouchMoveOperation$
-            .scan(
-                (touch: TouchMove, operation: ITouchMoveOperation): TouchMove => {
-                    return operation(touch);
-                },
-                new TouchMove());
-
-        this._touchMove$
+        this._singleTouchMove$ = this._touchMove$
             .filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 1 && te.targetTouches.length === 1;
                 })
-            .map(
-                (te: TouchEvent): ITouchMoveOperation => {
-                    return (previous: TouchMove): TouchMove => {
-                        let touch: Touch = te.touches[0];
-
-                        let current: TouchMove = new TouchMove(touch);
-
-                        current.movementX = touch.clientX - previous.clientX;
-                        current.movementY = touch.clientY - previous.clientY;
-
-                        return current;
-                    };
-                })
-            .subscribe(this._singleTouchMoveOperation$);
+            .share();
 
         let singleTouchStart$: Observable<TouchEvent> = Observable
             .merge<TouchEvent>(
@@ -232,9 +165,9 @@ export class TouchService {
                     return te.touches.length === 0;
                 });
 
-        this._singleTouchMoveStart$ = singleTouchStart$
+        this._singleTouchDragStart$ = singleTouchStart$
             .mergeMap(
-                (e: TouchEvent): Observable<TouchMove> => {
+                (e: TouchEvent): Observable<TouchEvent> => {
                     return this._singleTouchMove$
                         .takeUntil(
                             Observable.merge(
@@ -243,7 +176,7 @@ export class TouchService {
                         .take(1);
                 });
 
-        this._singleTouchMoveEnd$ = singleTouchStart$
+        this._singleTouchDragEnd$ = singleTouchStart$
             .mergeMap(
                 (e: TouchEvent): Observable<TouchEvent> => {
                     return Observable
@@ -253,9 +186,9 @@ export class TouchService {
                         .first();
                 });
 
-        this._singleTouch$ = singleTouchStart$
+        this._singleTouchDrag$ = singleTouchStart$
             .switchMap(
-                (te: TouchEvent): Observable<TouchMove> => {
+                (te: TouchEvent): Observable<TouchEvent> => {
                     return this._singleTouchMove$
                         .skip(1)
                         .takeUntil(
@@ -400,16 +333,16 @@ export class TouchService {
         return this._touchCancel$;
     }
 
-    public get singleTouchMoveStart$(): Observable<TouchMove> {
-        return this._singleTouchMoveStart$;
+    public get singleTouchDragStart$(): Observable<TouchEvent> {
+        return this._singleTouchDragStart$;
     }
 
-    public get singleTouchMove$(): Observable<TouchMove> {
-        return this._singleTouch$;
+    public get singleTouchDrag$(): Observable<TouchEvent> {
+        return this._singleTouchDrag$;
     }
 
-    public get singleTouchMoveEnd$(): Observable<TouchEvent> {
-        return this._singleTouchMoveEnd$;
+    public get singleTouchDragEnd$(): Observable<TouchEvent> {
+        return this._singleTouchDragEnd$;
     }
 
     public get pinch$(): Observable<IPinch> {

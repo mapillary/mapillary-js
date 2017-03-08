@@ -23,10 +23,9 @@ import {IFrame} from "../../State";
 import {
     Container,
     Navigator,
-    TouchMove,
 } from "../../Viewer";
 
-type MouseTouchPair = [MouseEvent, MouseEvent] | [TouchMove, TouchMove];
+type MouseTouchPair = [MouseEvent, MouseEvent] | [Touch, Touch];
 
 export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
@@ -86,14 +85,14 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
             .subscribe(this._container.mouseService.activate$);
 
         let touchMovingStarted$: Observable<boolean> =
-            this._container.touchService.singleTouchMoveStart$
+            this._container.touchService.singleTouchDragStart$
                 .map(
-                    (event: TouchMove): boolean => {
+                    (event: TouchEvent): boolean => {
                         return true;
                     });
 
         let touchMovingStopped$: Observable<boolean> =
-            this._container.touchService.singleTouchMoveEnd$
+            this._container.touchService.singleTouchDragEnd$
                 .map(
                     (event: TouchEvent): boolean => {
                         return false;
@@ -128,21 +127,26 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                                 return pair[0] != null && pair[1] != null;
                             });
 
-                    let singleTouchMove$: Observable<[TouchMove, TouchMove]> = Observable
+                    let singleTouchDrag$: Observable<[Touch, Touch]> = Observable
                         .merge(
-                            this._container.touchService.singleTouchMoveStart$,
-                            this._container.touchService.singleTouchMove$,
-                            this._container.touchService.singleTouchMoveEnd$.map((t: TouchEvent): TouchMove => { return null; }))
+                            this._container.touchService.singleTouchDragStart$,
+                            this._container.touchService.singleTouchDrag$,
+                            this._container.touchService.singleTouchDragEnd$.map((t: TouchEvent): TouchEvent => { return null; }))
+                        .map(
+                            (event: TouchEvent): Touch => {
+                                return event != null && event.touches.length > 0 ?
+                                    event.touches[0] : null;
+                            })
                         .pairwise()
                         .filter(
-                            (pair: [TouchMove, TouchMove]): boolean => {
+                            (pair: [Touch, Touch]): boolean => {
                                 return pair[0] != null && pair[1] != null;
                             });
 
                     return Observable
                         .merge(
                             mouseDrag$,
-                            singleTouchMove$);
+                            singleTouchDrag$);
                 })
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
@@ -152,8 +156,8 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                 ([events, render, transform, c]: [MouseTouchPair, RenderCamera, Transform, Camera]): number[] => {
                     let camera: Camera = c.clone();
 
-                    let previousEvent: MouseEvent | TouchMove = events[0];
-                    let event: MouseEvent | TouchMove = events[1];
+                    let previousEvent: MouseEvent | Touch = events[0];
+                    let event: MouseEvent | Touch = events[1];
 
                     let movementX: number = event.clientX - previousEvent.clientX;
                     let movementY: number = event.clientY - previousEvent.clientY;
