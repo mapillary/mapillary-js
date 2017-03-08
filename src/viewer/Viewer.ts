@@ -2,6 +2,7 @@
 
 import * as when from "when";
 
+import {ILatLon} from "../API";
 import {EdgeDirection} from "../Edge";
 import {
     FilterExpression,
@@ -450,5 +451,19 @@ export class Viewer extends EventEmitter {
      */
     public setZoom(zoom: number): void {
         this._navigator.stateService.setZoom(zoom);
+    }
+
+    public unproject(pixelPoint: number[]): when.Promise<ILatLon> {
+        return when.promise<ILatLon>(
+            (resolve: any, reject: any): void => {
+                this._eventLauncher.unproject$(pixelPoint)
+                    .subscribe(
+                        (latLon: ILatLon): void => {
+                            resolve(latLon);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
     }
 }
