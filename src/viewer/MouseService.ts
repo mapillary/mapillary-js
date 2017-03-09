@@ -52,6 +52,7 @@ export class MouseService {
     private _mouseOver$: Observable<MouseEvent>;
 
     private _contextMenu$: Observable<MouseEvent>;
+    private _consistentContextMenu$: Observable<MouseEvent>;
     private _click$: Observable<MouseEvent>;
     private _dblClick$: Observable<MouseEvent>;
 
@@ -171,6 +172,27 @@ export class MouseService {
                     };
                 })
             .subscribe(this._mouseMoveOperation$);
+
+        this._consistentContextMenu$ = Observable
+            .merge(
+                this._mouseDown$,
+                this._mouseMove$,
+                this._mouseOut$,
+                this._mouseUp$,
+                this._contextMenu$)
+            .bufferCount(3, 1)
+            .filter(
+                (events: MouseEvent[]): boolean => {
+                    // fire context menu on mouse up both on mac and windows
+                    return events[0].type === "mousedown" &&
+                        events[1].type === "contextmenu" &&
+                        events[2].type === "mouseup";
+                })
+            .map(
+                (events: MouseEvent[]): MouseEvent => {
+                    return events[1];
+                })
+            .share();
 
         let dragStop$: Observable<MouseEvent> = Observable
             .merge<MouseEvent>(
@@ -355,7 +377,7 @@ export class MouseService {
     }
 
     public get contextMenu$(): Observable<MouseEvent> {
-        return this._contextMenu$;
+        return this._consistentContextMenu$;
     }
 
     public get mouseWheel$(): Observable<WheelEvent> {

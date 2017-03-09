@@ -51,6 +51,13 @@ export class Viewer extends EventEmitter {
     public static click: string = "click";
 
     /**
+     * Fired when the right button of the mouse is clicked within the viewer.
+     * @event
+     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     */
+    public static contextmenu: string = "contextmenu";
+
+    /**
      * Fired when a pointing device (usually a mouse) is clicked twice at
      * the same point in the viewer.
      * @event
