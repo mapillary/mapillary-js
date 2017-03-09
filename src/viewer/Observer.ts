@@ -134,6 +134,7 @@ export class Observer {
         this._viewerMouseEventSubscription = Observable
             .merge(
                 this._mapMouseEvent$(Viewer.click, this._container.mouseService.staticClick$),
+                this._mapMouseEvent$(Viewer.dblclick, this._container.mouseService.dblClick$),
                 this._mapMouseEvent$(Viewer.mousedown, this._container.mouseService.mouseDown$),
                 this._mapMouseEvent$(Viewer.mousemove, mouseMove$),
                 this._mapMouseEvent$(Viewer.mouseout, this._container.mouseService.mouseOut$),

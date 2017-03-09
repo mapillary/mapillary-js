@@ -35,6 +35,14 @@ import {RenderMode} from "../Render";
  */
 export class Viewer extends EventEmitter {
     /**
+     * Fired when the viewing direction of the camera changes.
+     * @event
+     * @type {number} bearing - Value indicating the current bearing
+     * measured in degrees clockwise with respect to north.
+     */
+    public static bearingchanged: string = "bearingchanged";
+
+    /**
      * Fired when a pointing device (usually a mouse) is pressed and released at
      * the same point in the viewer.
      * @event
@@ -43,12 +51,12 @@ export class Viewer extends EventEmitter {
     public static click: string = "click";
 
     /**
-     * Fired when the viewing direction of the camera changes.
+     * Fired when a pointing device (usually a mouse) is clicked twice at
+     * the same point in the viewer.
      * @event
-     * @type {number} bearing - Value indicating the current bearing
-     * measured in degrees clockwise with respect to north.
+     * @type {IViewerMouseEvent} event - Viewer mouse event data.
      */
-    public static bearingchanged: string = "bearingchanged";
+    public static dblclick: string = "dblclick";
 
     /**
      * Fired when the viewer is loading more data.

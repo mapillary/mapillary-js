@@ -53,6 +53,7 @@ export class MouseService {
 
     private _contextMenu$: Observable<MouseEvent>;
     private _click$: Observable<MouseEvent>;
+    private _dblClick$: Observable<MouseEvent>;
 
     private _mouseWheel$: Observable<WheelEvent>;
 
@@ -104,6 +105,13 @@ export class MouseService {
         this._mouseOver$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseover");
 
         this._click$ = Observable.fromEvent<MouseEvent>(canvasContainer, "click");
+
+        this._dblClick$ = Observable.fromEvent<MouseEvent>(canvasContainer, "dblclick");
+        this._dblClick$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    event.preventDefault();
+                });
 
         this._contextMenu$ = Observable.fromEvent<MouseEvent>(canvasContainer, "contextmenu");
         this._contextMenu$
@@ -340,6 +348,10 @@ export class MouseService {
 
     public get click$(): Observable<MouseEvent> {
         return this._click$;
+    }
+
+    public get dblClick$(): Observable<MouseEvent> {
+        return this._dblClick$;
     }
 
     public get contextMenu$(): Observable<MouseEvent> {
