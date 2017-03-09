@@ -14,6 +14,7 @@ import "rxjs/add/operator/withLatestFrom";
 import {
     ComponentService,
     Component,
+    DoubleClickZoomHandler,
     DragPanHandler,
     IMouseConfiguration,
     ScrollZoomHandler,
@@ -45,6 +46,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
     private _viewportCoords: ViewportCoords;
     private _spatial: Spatial;
 
+    private _doubleClickZoomHandler: DoubleClickZoomHandler;
     private _dragPanHandler: DragPanHandler;
     private _scrollZoomHandler: ScrollZoomHandler;
     private _touchZoomHandler: TouchZoomHandler;
@@ -65,6 +67,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._spatial = spatial;
         this._viewportCoords = viewportCoords;
 
+        this._doubleClickZoomHandler = new DoubleClickZoomHandler(this, container, navigator, viewportCoords);
         this._dragPanHandler = new DragPanHandler(this, container, navigator, viewportCoords, spatial);
         this._scrollZoomHandler = new ScrollZoomHandler(this, container, navigator, viewportCoords);
         this._touchZoomHandler = new TouchZoomHandler(this, container, navigator, viewportCoords);
@@ -86,16 +89,22 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._configurationSubscription = this._configuration$
             .subscribe(
                 (configuration: IMouseConfiguration): void => {
-                    if (configuration.scrollZoom) {
-                        this._scrollZoomHandler.enable();
+                    if (configuration.doubleClickZoom) {
+                        this._doubleClickZoomHandler.enable();
                     } else {
-                        this._scrollZoomHandler.disable();
+                        this._doubleClickZoomHandler.disable();
                     }
 
                     if (configuration.dragPan) {
                         this._dragPanHandler.enable();
                     } else {
                         this._dragPanHandler.disable();
+                    }
+
+                    if (configuration.scrollZoom) {
+                        this._scrollZoomHandler.enable();
+                    } else {
+                        this._scrollZoomHandler.disable();
                     }
 
                     if (configuration.touchZoom) {
@@ -187,13 +196,14 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._bounceSubscription.unsubscribe();
         this._configurationSubscription.unsubscribe();
 
+        this._doubleClickZoomHandler.disable();
         this._dragPanHandler.disable();
         this._scrollZoomHandler.disable();
         this._touchZoomHandler.disable();
     }
 
     protected _getDefaultConfiguration(): IMouseConfiguration {
-        return { dragPan: true, scrollZoom: true, touchZoom: true };
+        return { doubleClickZoom: true, dragPan: true, scrollZoom: true, touchZoom: true };
     }
 }
 
