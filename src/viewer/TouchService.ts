@@ -2,6 +2,9 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
+import "rxjs/add/observable/timer";
+
+import "rxjs/add/operator/bufferWhen";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/merge";
@@ -36,6 +39,8 @@ export class TouchService {
     private _pinchEnd$: Observable<TouchEvent>;
     private _pinchChange$: Observable<IPinch>;
 
+    private _doubleTap$: Observable<TouchEvent>;
+
     constructor(element: HTMLElement) {
         this._element = element;
 
@@ -50,6 +55,36 @@ export class TouchService {
         this._touchMove$ = Observable.fromEvent<TouchEvent>(element, "touchmove");
         this._touchEnd$ = Observable.fromEvent<TouchEvent>(element, "touchend");
         this._touchCancel$ = Observable.fromEvent<TouchEvent>(element, "touchcancel");
+
+        const tapStart$: Observable<TouchEvent> = this._touchStart$
+            .filter(
+                (te: TouchEvent): boolean => {
+                    return te.touches.length === 1 && te.targetTouches.length === 1;
+                })
+            .share();
+
+        this._doubleTap$ = tapStart$
+            .bufferWhen(
+                (): Observable<number> => {
+                    return tapStart$
+                        .first()
+                        .switchMap(
+                            (event: TouchEvent): Observable<number | TouchEvent> => {
+                                return Observable
+                                    .timer(300)
+                                    .merge(tapStart$)
+                                    .take(1);
+                            });
+                })
+            .filter(
+                (events: TouchEvent[]): boolean => {
+                    return events.length === 2;
+                })
+            .map(
+                (events: TouchEvent[]): TouchEvent => {
+                    return events[events.length - 1];
+                })
+            .share();
 
         this._singleTouchMove$ = this._touchMove$
             .filter(
@@ -237,6 +272,10 @@ export class TouchService {
 
     public get activate$(): Subject<boolean> {
         return this._activeSubject$;
+    }
+
+    public get doubleTap$(): Observable<TouchEvent> {
+        return this._doubleTap$;
     }
 
     public get touchStart$(): Observable<TouchEvent> {
