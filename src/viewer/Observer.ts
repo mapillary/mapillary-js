@@ -123,11 +123,19 @@ export class Observer {
                     this._eventEmitter.fire(Viewer.bearingchanged, bearing);
                  });
 
+        const mouseMove$: Observable<MouseEvent> = this._container.mouseService.active$
+            .switchMap(
+                (active: boolean): Observable<MouseEvent> => {
+                    return active ?
+                        Observable.empty<MouseEvent>() :
+                        this._container.mouseService.mouseMove$;
+                });
+
         this._viewerMouseEventSubscription = Observable
             .merge(
                 this._mapMouseEvent$(Viewer.click, this._container.mouseService.staticClick$),
                 this._mapMouseEvent$(Viewer.mousedown, this._container.mouseService.mouseDown$),
-                this._mapMouseEvent$(Viewer.mousemove, this._container.mouseService.mouseMove$),
+                this._mapMouseEvent$(Viewer.mousemove, mouseMove$),
                 this._mapMouseEvent$(Viewer.mouseout, this._container.mouseService.mouseOut$),
                 this._mapMouseEvent$(Viewer.mouseover, this._container.mouseService.mouseOver$),
                 this._mapMouseEvent$(Viewer.mouseup, this._container.mouseService.mouseUp$))
