@@ -553,16 +553,19 @@ export class DirectionDOMRenderer {
             "rotateX(60deg)" :
             `perspective(${this._calculator.containerWidthCss}) rotateX(60deg)`;
 
-        let perspectiveStyle: any = {
-            bottom: this._calculator.containerBottomCss,
-            height: this._calculator.containerHeightCss,
-            left: this._calculator.containerLeftCss,
-            marginLeft: this._calculator.containerMarginCss,
-            transform: transform,
-            width: this._calculator.containerWidthCss,
+        let properties: vd.createProperties = {
+            oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); },
+            style: {
+                bottom: this._calculator.containerBottomCss,
+                height: this._calculator.containerHeightCss,
+                left: this._calculator.containerLeftCss,
+                marginLeft: this._calculator.containerMarginCss,
+                transform: transform,
+                width: this._calculator.containerWidthCss,
+            },
         };
 
-        return vd.h("div.DirectionsPerspective", { style: perspectiveStyle }, turns.concat(steps));
+        return vd.h("div.DirectionsPerspective", properties, turns.concat(steps));
     }
 }
 

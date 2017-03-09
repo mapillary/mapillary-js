@@ -102,7 +102,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                 (args: [[number, number], [number, number]]): IVNodeHash => {
                     let background: vd.VNode = vd.h(
                         "div.BearingIndicatorBackground",
-                        {},
+                        { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
                         [
                             vd.h("div.BearingIndicatorBackgroundRectangle", {}, []),
                             vd.h("div.BearingIndicatorBackgroundCircle", {}, []),

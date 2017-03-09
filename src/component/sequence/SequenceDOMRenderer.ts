@@ -53,6 +53,7 @@ export class SequenceDOMRenderer {
         let arrows: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, configuration, interaction, navigator);
 
         let containerProperties: vd.createProperties = {
+            oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); },
             style: { height: (0.27 * containerWidth) + "px", width: containerWidth + "px" },
         };
 
