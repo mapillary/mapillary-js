@@ -17,14 +17,6 @@ import "rxjs/add/operator/withLatestFrom";
 import {ViewportCoords} from "../Geo";
 import {IMouseClaim} from "../Viewer";
 
-interface IMouseMoveOperation {
-    (e: MouseEvent): MouseEvent;
-}
-
-interface IPreventMouseDownOperation {
-    (prevent: boolean): boolean;
-}
-
 export class MouseService {
     private _container: HTMLElement;
     private _canvasContainer: HTMLElement;
@@ -44,7 +36,6 @@ export class MouseService {
     private _documentCanvasMouseDragEnd$: Observable<MouseEvent>;
 
     private _mouseDown$: Observable<MouseEvent>;
-    private _mouseMoveOperation$: Subject<IMouseMoveOperation>;
     private _mouseMove$: Observable<MouseEvent>;
     private _mouseLeave$: Observable<MouseEvent>;
     private _mouseUp$: Observable<MouseEvent>;
@@ -79,7 +70,6 @@ export class MouseService {
             .publishReplay(1)
             .refCount();
 
-        this._mouseMoveOperation$ = new Subject<IMouseMoveOperation>();
         this._claimMouse$ = new Subject<IMouseClaim>();
 
         this._documentMouseDown$ = Observable.fromEvent<MouseEvent>(document, "mousedown")
@@ -101,6 +91,7 @@ export class MouseService {
 
         this._mouseDown$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mousedown");
         this._mouseLeave$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseleave");
+        this._mouseMove$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mousemove");
         this._mouseUp$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseup");
         this._mouseOut$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseout");
         this._mouseOver$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseover");
@@ -127,51 +118,6 @@ export class MouseService {
                     return this._viewportCoords.insideElement(event, this._container);
                 })
             .share();
-
-        this._mouseMove$ = this._mouseMoveOperation$
-            .scan(
-                (e: MouseEvent, operation: IMouseMoveOperation): MouseEvent => {
-                    return operation(e);
-                },
-                null);
-
-        Observable
-            .fromEvent<MouseEvent>(canvasContainer, "mousemove")
-            .map(
-                (e: MouseEvent) => {
-                    return (previous: MouseEvent): MouseEvent => {
-                        if (previous == null) {
-                            previous = e;
-                        }
-
-                        if (e.movementX == null) {
-                            Object.defineProperty(
-                                e,
-                                "movementX",
-                                {
-                                    configurable: false,
-                                    enumerable: false,
-                                    value: e.clientX - previous.clientX,
-                                    writable: false,
-                                });
-                        }
-
-                        if (e.movementY == null) {
-                            Object.defineProperty(
-                                e,
-                                "movementY",
-                                {
-                                    configurable: false,
-                                    enumerable: false,
-                                    value: e.clientY - previous.clientY,
-                                    writable: false,
-                                });
-                        }
-
-                        return e;
-                    };
-                })
-            .subscribe(this._mouseMoveOperation$);
 
         this._consistentContextMenu$ = Observable
             .merge(
