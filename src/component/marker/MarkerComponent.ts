@@ -40,22 +40,22 @@ import {
     ILatLonAlt,
 } from "../../Geo";
 
-interface IUpdateArgs {
-    frame: IFrame;
-    markers: MarkerIndex;
-}
-
 export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
+
+    private _clampedConfiguration: Observable<IMarkerConfiguration>;
 
     private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
     private _markerSet: MarkerSet;
 
+    private _needsRender: boolean;
+
     private _renderedMarkers: { [id: string]: THREE.Object3D };
     private _renderSubscription: Subscription;
 
     private _scene: THREE.Scene;
+    private _updateSceneSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -63,6 +63,12 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._geoCoords = new GeoCoords();
         this._graphCalculator = new GraphCalculator();
         this._markerSet = new MarkerSet();
+
+        this._clampedConfiguration = this._configuration$
+            .map(
+                (configuration: IMarkerConfiguration): IMarkerConfiguration => {
+                    return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
+                });
     }
 
     public get markers$(): Observable<MarkerIndex> {
@@ -89,71 +95,57 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._scene = new THREE.Scene();
         this._renderedMarkers = {};
 
-        this._renderSubscription = Observable
+        this._updateSceneSubscription = Observable
             .combineLatest(
-                [
-                    this._navigator.stateService.currentState$,
-                    this._markerSet.markerIndex$,
-                ],
-                (frame: IFrame, markers: MarkerIndex): IUpdateArgs => {
-                    return { frame: frame, markers: markers };
-                })
-            .distinctUntilChanged(
-                undefined,
-                (args: IUpdateArgs): number => {
-                    return args.frame.id;
-                })
+                this._markerSet.markerIndex$,
+                this._navigator.stateService.currentNode$,
+                this._clampedConfiguration,
+                this._navigator.stateService.reference$)
+            .subscribe(
+                ([markerIndex, node, configuration, reference]:
+                    [MarkerIndex, Node, IMarkerConfiguration, ILatLonAlt]): void => {
+                    this._updateScene(markerIndex, node, configuration, reference);
+                });
+
+        this._renderSubscription = this._navigator.stateService.currentState$
             .map(
-                (args: IUpdateArgs): IGLRenderHash => {
-                    return this._renderHash(args);
+                (frame: IFrame): IGLRenderHash => {
+                    return {
+                        name: this._name,
+                        render: {
+                            frameId: frame.id,
+                            needsRender: this._needsRender,
+                            render: this._render.bind(this),
+                            stage: GLRenderStage.Foreground,
+                        },
+                    };
                 })
             .subscribe(this._container.glRenderer.render$);
     }
 
     protected _deactivate(): void {
-        // release memory
-        this._disposeScene();
         this._renderSubscription.unsubscribe();
+        this._updateSceneSubscription.unsubscribe();
+
+        this._disposeScene();
     }
 
     protected _getDefaultConfiguration(): IMarkerConfiguration {
-        return {};
+        return { visibleBBoxSize: 100 };
     }
 
-    private _renderHash(args: IUpdateArgs): IGLRenderHash {
-        // determine if render is needed while updating scene
-        // specific properies.
-        let needsRender: boolean = this._updateScene(args);
-
-        // return render hash with render function and
-        // render in foreground.
-        return {
-            name: this._name,
-            render: {
-                frameId: args.frame.id,
-                needsRender: needsRender,
-                render: this._render.bind(this),
-                stage: GLRenderStage.Foreground,
-            },
-        };
-    }
-
-    private _updateScene(args: IUpdateArgs): boolean {
-        if (!args.frame ||
-            !args.markers ||
-            !args.frame.state.currentNode) {
-            return false;
-        }
-
-        let needRender: boolean = false;
+    private _updateScene(
+        markerIndex: MarkerIndex,
+        node: Node,
+        configuration: IMarkerConfiguration,
+        reference: ILatLonAlt): void {
         let markersToRemove: { [id: string]: THREE.Object3D } = Object.assign({}, this._renderedMarkers);
 
-        const node: Node = args.frame.state.currentNode;
         const [sw, ne]: ILatLon[] =
-            this._graphCalculator.boundingBoxCorners(node.latLon, 50);
+            this._graphCalculator.boundingBoxCorners(node.latLon, configuration.visibleBBoxSize / 2);
 
         const markers: Marker[] =
-            args.markers
+            markerIndex
                 .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })
                 .map(
                     (item: IMarkerIndexItem) => {
@@ -169,7 +161,6 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             if (marker.id in this._renderedMarkers) {
                 delete markersToRemove[marker.id];
             } else {
-                const reference: ILatLonAlt = args.frame.state.reference;
                 const point3d: number[] = this._geoCoords
                     .geodeticToEnu(
                         marker.latLonAlt.lat,
@@ -185,7 +176,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 this._scene.add(markerObject);
                 this._renderedMarkers[marker.id] = markerObject;
 
-                needRender = true;
+                this._needsRender = true;
             }
         }
 
@@ -197,10 +188,8 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             this._disposeObject(markersToRemove[key]);
             delete this._renderedMarkers[key];
 
-            needRender = true;
+            this._needsRender = true;
         }
-
-        return needRender;
     }
 
     private _render(
