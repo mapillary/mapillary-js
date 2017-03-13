@@ -48,6 +48,7 @@ interface IUpdateArgs {
 export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
 
+    private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
     private _markerSet: MarkerSet;
 
@@ -59,6 +60,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
+        this._geoCoords = new GeoCoords();
         this._graphCalculator = new GraphCalculator();
         this._markerSet = new MarkerSet();
     }
@@ -144,14 +146,13 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         }
 
         let needRender: boolean = false;
-        let oldObjects: { [id: string]: THREE.Object3D } = this._renderedMarkers;
-        let node: Node = args.frame.state.currentNode;
-        this._renderedMarkers = {};
+        let markersToRemove: { [id: string]: THREE.Object3D } = Object.assign({}, this._renderedMarkers);
 
-        let [sw, ne]: ILatLon[] =
+        const node: Node = args.frame.state.currentNode;
+        const [sw, ne]: ILatLon[] =
             this._graphCalculator.boundingBoxCorners(node.latLon, 50);
 
-        let markers: Marker[] =
+        const markers: Marker[] =
             args.markers
                 .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })
                 .map(
@@ -165,28 +166,38 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     });
 
         for (let marker of markers) {
-            if (marker.id in oldObjects) {
-                this._renderedMarkers[marker.id] = oldObjects[marker.id];
-                delete oldObjects[marker.id];
+            if (marker.id in this._renderedMarkers) {
+                delete markersToRemove[marker.id];
             } else {
-                let reference: ILatLonAlt = args.frame.state.reference;
-                let p: number[] = (new GeoCoords).geodeticToEnu(
-                    marker.latLonAlt.lat, marker.latLonAlt.lon, marker.latLonAlt.alt,
-                    reference.lat, reference.lon, reference.alt);
+                const reference: ILatLonAlt = args.frame.state.reference;
+                const point3d: number[] = this._geoCoords
+                    .geodeticToEnu(
+                        marker.latLonAlt.lat,
+                        marker.latLonAlt.lon,
+                        marker.latLonAlt.alt,
+                        reference.lat,
+                        reference.lon,
+                        reference.alt);
 
-                let o: THREE.Object3D = marker.createGeometry();
-                o.position.set(p[0], p[1], p[2]);
-                this._scene.add(o);
-                this._renderedMarkers[marker.id] = o;
+                const markerObject: THREE.Object3D = marker.createGeometry();
+                markerObject.position.set(point3d[0], point3d[1], point3d[2]);
+
+                this._scene.add(markerObject);
+                this._renderedMarkers[marker.id] = markerObject;
+
                 needRender = true;
             }
         }
 
-        for (let i in oldObjects) {
-            if (oldObjects.hasOwnProperty(i)) {
-                this._disposeObject(oldObjects[i]);
-                needRender = true;
+        for (let key in markersToRemove) {
+            if (!markersToRemove.hasOwnProperty(key)) {
+                continue;
             }
+
+            this._disposeObject(markersToRemove[key]);
+            delete this._renderedMarkers[key];
+
+            needRender = true;
         }
 
         return needRender;
