@@ -1,3 +1,3 @@
 export {IMarkerOptions} from "./IMarkerOptions"
 export {ISimpleMarkerStyle} from "./ISimpleMarkerStyle";
-export {ISpatialMarker} from "./ISpatialMarker";
+export {IMarkerIndexItem} from "./IMarkerIndexItem";

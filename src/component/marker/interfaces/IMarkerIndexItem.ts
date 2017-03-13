@@ -1,10 +1,9 @@
 import {Marker} from "../../../Component";
 
-export interface ISpatialMarker {
-    id: string;
+export interface IMarkerIndexItem {
     lat: number;
     lon: number;
     marker: Marker;
 }
 
-export default ISpatialMarker;
+export default IMarkerIndexItem;

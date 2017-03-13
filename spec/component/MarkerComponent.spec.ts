@@ -1,11 +1,15 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as rbush from "rbush";
-
-import {IMarkerOptions, ISpatialMarker, Marker, MarkerComponent} from "../../src/Component";
-import {Container, Navigator} from "../../src/Viewer";
-
-type MarkerIndex = rbush.RBush<ISpatialMarker>;
+import {
+    IMarkerOptions,
+    Marker,
+    MarkerComponent,
+    MarkerIndex,
+} from "../../src/Component";
+import {
+    Container,
+    Navigator,
+} from "../../src/Viewer";
 
 describe("MarkerComponent", () => {
     let markerComponent: MarkerComponent;

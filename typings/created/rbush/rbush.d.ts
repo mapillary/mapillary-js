@@ -9,7 +9,7 @@ declare module rbush {
     interface RBush<T> {
         insert(item: T): void;
         load(items: T[]): void;
-        remove(item: T): void;
+        remove(item: T, compare?: (a: T, b: T) => boolean): void;
         search(item: RBushItem): T[];
         all(): T[];
         clear(): void;

@@ -14,7 +14,7 @@ export {KeyboardComponent} from "./component/KeyboardComponent";
 export {LoadingComponent} from "./component/LoadingComponent";
 export {Marker} from "./component/marker/Marker";
 export {MarkerComponent} from "./component/marker/MarkerComponent";
-export {MarkerSet} from "./component/marker/MarkerSet";
+export {MarkerSet, MarkerIndex} from "./component/marker/MarkerSet";
 export {MouseComponent} from "./component/mouse/MouseComponent";
 export {MouseHandlerBase} from "./component/mouse/MouseHandlerBase";
 export {DragPanHandler} from "./component/mouse/DragPanHandler";

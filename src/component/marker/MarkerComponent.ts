@@ -2,7 +2,6 @@
 
 import * as _ from "underscore";
 import * as THREE from "three";
-import * as rbush from "rbush";
 
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
@@ -19,8 +18,9 @@ import "rxjs/add/operator/switchMap";
 import {
     IMarkerConfiguration,
     IMarkerOptions,
-    ISpatialMarker,
+    IMarkerIndexItem,
     Marker,
+    MarkerIndex,
     MarkerSet,
     ComponentService,
     Component,
@@ -31,8 +31,6 @@ import {Container, Navigator} from "../../Viewer";
 import {IGLRenderHash, GLRenderStage} from "../../Render";
 import {Node} from "../../Graph";
 import {GeoCoords, ILatLonAlt} from "../../Geo";
-
-type MarkerIndex = rbush.RBush<ISpatialMarker>;
 
 interface IUpdateArgs {
     frame: IFrame;
@@ -61,7 +59,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             .combineLatest(
                 [
                     this._navigator.stateService.currentState$,
-                    this._markerSet.markers$,
+                    this._markerSet.markerIndex$,
                 ],
                 (frame: IFrame, markers: MarkerIndex): IUpdateArgs => {
                     return { frame: frame, markers: markers };
@@ -97,15 +95,15 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     public addMarker(marker: Marker): void {
-        this._markerSet.addMarker(marker);
+        this._markerSet.add(marker);
     }
 
     public get markers$(): Observable<MarkerIndex> {
-        return this._markerSet.markers$;
+        return this._markerSet.markerIndex$;
     }
 
     public removeMarker(id: string): void {
-        this._markerSet.removeMarker(id);
+        this._markerSet.remove(id);
     }
 
     private _renderHash(args: IUpdateArgs): IGLRenderHash {
@@ -148,7 +146,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         let markers: Marker[] = _.map(
             args.markers.search({ maxX: maxLon, maxY: maxLat, minX: minLon, minY: minLat }),
-            (item: ISpatialMarker) => {
+            (item: IMarkerIndexItem) => {
                 return item.marker;
             }).filter((marker: Marker) => {
                 return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);
