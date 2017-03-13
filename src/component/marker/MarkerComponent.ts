@@ -1,6 +1,5 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import * as _ from "underscore";
 import * as THREE from "three";
 
 import {Observable} from "rxjs/Observable";
@@ -9,12 +8,9 @@ import {Subscription} from "rxjs/Subscription";
 import "rxjs/add/observable/combineLatest";
 
 import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/switchMap";
 
+import {ILatLon} from "../../API";
 import {
     IMarkerConfiguration,
     IMarkerOptions,
@@ -27,10 +23,22 @@ import {
     SimpleMarker,
 } from "../../Component";
 import {IFrame} from "../../State";
-import {Container, Navigator} from "../../Viewer";
-import {IGLRenderHash, GLRenderStage} from "../../Render";
-import {Node} from "../../Graph";
-import {GeoCoords, ILatLonAlt} from "../../Geo";
+import {
+    Container,
+    Navigator,
+} from "../../Viewer";
+import {
+    IGLRenderHash,
+    GLRenderStage,
+} from "../../Render";
+import {
+    GraphCalculator,
+    Node,
+} from "../../Graph";
+import {
+    GeoCoords,
+    ILatLonAlt,
+} from "../../Geo";
 
 interface IUpdateArgs {
     frame: IFrame;
@@ -40,22 +48,46 @@ interface IUpdateArgs {
 export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
 
-    private _disposable: Subscription;
+    private _graphCalculator: GraphCalculator;
     private _markerSet: MarkerSet;
 
+    private _renderedMarkers: { [id: string]: THREE.Object3D };
+    private _renderSubscription: Subscription;
+
     private _scene: THREE.Scene;
-    private _markerObjects: {[id: string]: THREE.Object3D};
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._graphCalculator = new GraphCalculator();
+        this._markerSet = new MarkerSet();
+    }
+
+    public get markers$(): Observable<MarkerIndex> {
+        return this._markerSet.markerIndex$;
+    }
+
+    public addMarker(marker: Marker): void {
+        this._markerSet.add(marker);
+    }
+
+    public createMarker(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions): Marker {
+        if (markerOptions.type === "marker") {
+            return new SimpleMarker(latLonAlt, markerOptions);
+        }
+
+        return null;
+    }
+
+    public removeMarker(id: string): void {
+        this._markerSet.remove(id);
     }
 
     protected _activate(): void {
         this._scene = new THREE.Scene();
-        this._markerSet = new MarkerSet();
-        this._markerObjects = {};
+        this._renderedMarkers = {};
 
-        this._disposable = Observable
+        this._renderSubscription = Observable
             .combineLatest(
                 [
                     this._navigator.stateService.currentState$,
@@ -79,31 +111,11 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     protected _deactivate(): void {
         // release memory
         this._disposeScene();
-        this._disposable.unsubscribe();
+        this._renderSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IMarkerConfiguration {
         return {};
-    }
-
-    public createMarker(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions): Marker {
-        if (markerOptions.type === "marker") {
-            return new SimpleMarker(latLonAlt, markerOptions);
-        }
-
-        return null;
-    }
-
-    public addMarker(marker: Marker): void {
-        this._markerSet.add(marker);
-    }
-
-    public get markers$(): Observable<MarkerIndex> {
-        return this._markerSet.markerIndex$;
-    }
-
-    public removeMarker(id: string): void {
-        this._markerSet.remove(id);
     }
 
     private _renderHash(args: IUpdateArgs): IGLRenderHash {
@@ -132,29 +144,29 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         }
 
         let needRender: boolean = false;
-        let oldObjects: { [id: string]: THREE.Object3D } = this._markerObjects;
+        let oldObjects: { [id: string]: THREE.Object3D } = this._renderedMarkers;
         let node: Node = args.frame.state.currentNode;
-        this._markerObjects = {};
+        this._renderedMarkers = {};
 
-        let boxWidth: number = 0.001;
+        let [sw, ne]: ILatLon[] =
+            this._graphCalculator.boundingBoxCorners(node.latLon, 50);
 
-        let minLon: number = node.latLon.lon - boxWidth / 2;
-        let minLat: number = node.latLon.lat - boxWidth / 2;
-
-        let maxLon: number = node.latLon.lon + boxWidth / 2;
-        let maxLat: number = node.latLon.lat + boxWidth / 2;
-
-        let markers: Marker[] = _.map(
-            args.markers.search({ maxX: maxLon, maxY: maxLat, minX: minLon, minY: minLat }),
-            (item: IMarkerIndexItem) => {
-                return item.marker;
-            }).filter((marker: Marker) => {
-                return marker.visibleInKeys.length === 0 || _.contains(marker.visibleInKeys, node.key);
-            });
+        let markers: Marker[] =
+            args.markers
+                .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })
+                .map(
+                    (item: IMarkerIndexItem) => {
+                        return item.marker;
+                    })
+                .filter(
+                    (marker: Marker) => {
+                        return marker.visibleInKeys.length === 0 ||
+                            marker.visibleInKeys.indexOf(node.key) > -1;
+                    });
 
         for (let marker of markers) {
             if (marker.id in oldObjects) {
-                this._markerObjects[marker.id] = oldObjects[marker.id];
+                this._renderedMarkers[marker.id] = oldObjects[marker.id];
                 delete oldObjects[marker.id];
             } else {
                 let reference: ILatLonAlt = args.frame.state.reference;
@@ -165,7 +177,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 let o: THREE.Object3D = marker.createGeometry();
                 o.position.set(p[0], p[1], p[2]);
                 this._scene.add(o);
-                this._markerObjects[marker.id] = o;
+                this._renderedMarkers[marker.id] = o;
                 needRender = true;
             }
         }
@@ -197,12 +209,12 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     private _disposeScene(): void {
-        for (let i in this._markerObjects) {
-            if (this._markerObjects.hasOwnProperty(i)) {
-                this._disposeObject(this._markerObjects[i]);
+        for (let i in this._renderedMarkers) {
+            if (this._renderedMarkers.hasOwnProperty(i)) {
+                this._disposeObject(this._renderedMarkers[i]);
             }
         }
-        this._markerObjects = {};
+        this._renderedMarkers = {};
     }
 }
 

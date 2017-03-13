@@ -5,6 +5,10 @@ import * as rbush from "rbush";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/scan";
+
 import {
     IMarkerIndexItem,
     Marker,
