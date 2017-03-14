@@ -4,7 +4,6 @@ import {
     IMarkerOptions,
     Marker,
     MarkerComponent,
-    MarkerIndex,
 } from "../../src/Component";
 import {
     Container,
@@ -23,12 +22,6 @@ describe("MarkerComponent", () => {
     });
 
     it("It should be able to create two markers at the exact same position", () => {
-        let markers: MarkerIndex = null;
-
-        markerComponent.markers$.subscribe((ms: MarkerIndex) => {
-            markers = ms;
-        });
-
         let options: IMarkerOptions = {
             id: "test1",
             style: {
@@ -38,8 +31,12 @@ describe("MarkerComponent", () => {
         };
 
         let m1: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
-        markerComponent.addMarker(m1);
-        expect(markers.all().length).toBe(1);
+        markerComponent.add([m1]);
+        markerComponent.getAll$()
+            .subscribe(
+                (markers: Marker[]): void => {
+                    expect(markers.length).toBe(1);
+                });
 
         options = {
             id: "test2",
@@ -50,23 +47,29 @@ describe("MarkerComponent", () => {
         };
 
         let m2: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
-        markerComponent.addMarker(m2);
-        expect(markers.all().length).toBe(2);
+        markerComponent.add([m2]);
+        markerComponent.getAll$()
+            .subscribe(
+                (markers: Marker[]): void => {
+                    expect(markers.length).toBe(2);
+                });
 
-        markerComponent.removeMarker(m1.id);
-        expect(markers.all().length).toBe(1);
+        markerComponent.remove([m1.id]);
+        markerComponent.getAll$()
+            .subscribe(
+                (markers: Marker[]): void => {
+                    expect(markers.length).toBe(1);
+                });
 
-        markerComponent.removeMarker(m2.id);
-        expect(markers.all().length).toBe(0);
+        markerComponent.remove([m2.id]);
+        markerComponent.getAll$()
+            .subscribe(
+                (markers: Marker[]): void => {
+                    expect(markers.length).toBe(0);
+                });
     });
 
     it("It should be able to update an marker by using the same id", () => {
-        let markers: MarkerIndex = null;
-
-        markerComponent.markers$.subscribe((ms: MarkerIndex) => {
-            markers = ms;
-        });
-
         let options: IMarkerOptions = {
             id: "test",
             style: {
@@ -76,11 +79,19 @@ describe("MarkerComponent", () => {
         };
 
         let m1: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
-        markerComponent.addMarker(m1);
-        expect(markers.all().length).toBe(1);
+        markerComponent.add([m1]);
+        markerComponent.getAll$()
+            .subscribe(
+                (markers: Marker[]): void => {
+                    expect(markers.length).toBe(1);
+                });
 
         let m2: Marker = markerComponent.createMarker({ alt: 1, lat: 1, lon: 1 }, options);
-        markerComponent.addMarker(m2);
-        expect(markers.all().length).toBe(1);
+        markerComponent.add([m2]);
+        markerComponent.getAll$()
+            .subscribe(
+                (markers: Marker[]): void => {
+                    expect(markers.length).toBe(1);
+                });
     });
 });

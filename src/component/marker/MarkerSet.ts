@@ -26,13 +26,14 @@ interface IMarkerOperation extends Function {
 export type MarkerIndex = rbush.RBush<IMarkerIndexItem>;
 
 export class MarkerSet {
-    private _add$: Subject<Marker> = new Subject<Marker>();
-    private _remove$: Subject<string> = new Subject<string>();
-    private _update$: Subject<IMarkerOperation> = new Subject<IMarkerOperation>();
+    private _add$: Subject<Marker[]> = new Subject<Marker[]>();
+    private _remove$: Subject<string[]> = new Subject<string[]>();
+
     private _markerIndex$: Observable<MarkerIndex>;
+    private _markerIndexOperation$: Subject<IMarkerOperation> = new Subject<IMarkerOperation>();
 
     constructor() {
-        this._markerIndex$ = this._update$
+        this._markerIndex$ = this._markerIndexOperation$
             .scan(
                 (markers: IMarkerData, operation: IMarkerOperation): IMarkerData => {
                     return operation(markers);
@@ -47,46 +48,54 @@ export class MarkerSet {
 
         this._add$
             .map(
-                (marker: Marker): IMarkerOperation => {
-                    return (markers: IMarkerData) => {
-                        if (markers.hash[marker.id]) {
-                            markers.index.remove(markers.hash[marker.id]);
+                (markers: Marker[]): IMarkerOperation => {
+                    return (data: IMarkerData) => {
+                        const items: IMarkerIndexItem[] = [];
+
+                        for (let marker of markers) {
+                            if (data.hash[marker.id]) {
+                                data.index.remove(data.hash[marker.id]);
+                            }
+
+                            let item: IMarkerIndexItem = {
+                                lat: marker.latLonAlt.lat,
+                                lon: marker.latLonAlt.lon,
+                                marker: marker,
+                            };
+
+                            data.hash[marker.id] = item;
+                            items.push(item);
                         }
 
-                        let item: IMarkerIndexItem = {
-                            lat: marker.latLonAlt.lat,
-                            lon: marker.latLonAlt.lon,
-                            marker: marker,
-                        };
+                        data.index.load(items);
 
-                        markers.index.insert(item);
-                        markers.hash[marker.id] = item;
-
-                        return markers;
+                        return data;
                     };
                 })
-            .subscribe(this._update$);
+            .subscribe(this._markerIndexOperation$);
 
         this._remove$
             .map(
-                (id: string): IMarkerOperation => {
-                    return (markers: IMarkerData) => {
-                        let item: IMarkerIndexItem = markers.hash[id];
-                        markers.index.remove(item);
-                        delete markers.hash[id];
+                (ids: string[]): IMarkerOperation => {
+                    return (data: IMarkerData) => {
+                        for (let id of ids) {
+                            let item: IMarkerIndexItem = data.hash[id];
+                            data.index.remove(item);
+                            delete data.hash[id];
+                        }
 
-                        return markers;
+                        return data;
                     };
                 })
-            .subscribe(this._update$);
+            .subscribe(this._markerIndexOperation$);
     }
 
-    public add(marker: Marker): void {
-        this._add$.next(marker);
+    public add(markers: Marker[]): void {
+        this._add$.next(markers);
     }
 
-    public remove(id: string): void {
-        this._remove$.next(id);
+    public remove(ids: string[]): void {
+        this._remove$.next(ids);
     }
 
     public get markerIndex$(): Observable<MarkerIndex> {

@@ -71,12 +71,8 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 });
     }
 
-    public get markers$(): Observable<MarkerIndex> {
-        return this._markerSet.markerIndex$;
-    }
-
-    public addMarker(marker: Marker): void {
-        this._markerSet.add(marker);
+    public add(markers: Marker[]): void {
+        this._markerSet.add(markers);
     }
 
     public createMarker(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions): Marker {
@@ -87,8 +83,22 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         return null;
     }
 
-    public removeMarker(id: string): void {
-        this._markerSet.remove(id);
+    public getAll$(): Observable<Marker[]> {
+        return this._markerSet.markerIndex$
+            .first()
+            .map(
+                (index: MarkerIndex): Marker[] => {
+                    return index
+                        .all()
+                        .map(
+                            (indexItem: IMarkerIndexItem): Marker => {
+                                return indexItem.marker;
+                            });
+                });
+    }
+
+    public remove(ids: string[]): void {
+        this._markerSet.remove(ids);
     }
 
     protected _activate(): void {
