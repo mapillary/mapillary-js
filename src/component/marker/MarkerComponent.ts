@@ -13,14 +13,12 @@ import "rxjs/add/operator/map";
 import {ILatLon} from "../../API";
 import {
     IMarkerConfiguration,
-    IMarkerOptions,
     IMarkerIndexItem,
     Marker,
     MarkerIndex,
     MarkerSet,
     ComponentService,
     Component,
-    SimpleMarker,
 } from "../../Component";
 import {IFrame} from "../../State";
 import {
@@ -73,14 +71,6 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
     public add(markers: Marker[]): void {
         this._markerSet.add(markers);
-    }
-
-    public createMarker(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions): Marker {
-        if (markerOptions.type === "marker") {
-            return new SimpleMarker(latLonAlt, markerOptions);
-        }
-
-        return null;
     }
 
     public getAll$(): Observable<Marker[]> {
@@ -173,9 +163,9 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             } else {
                 const point3d: number[] = this._geoCoords
                     .geodeticToEnu(
-                        marker.latLonAlt.lat,
-                        marker.latLonAlt.lon,
-                        marker.latLonAlt.alt,
+                        marker.latLon.lat,
+                        marker.latLon.lon,
+                        0,
                         reference.lat,
                         reference.lon,
                         reference.alt);

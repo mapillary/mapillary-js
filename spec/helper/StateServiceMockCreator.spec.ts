@@ -4,8 +4,9 @@ import {Subject} from "rxjs/Subject";
 
 import {MockCreator} from "./MockCreator.spec";
 
+import {ILatLonAlt} from "../../src/Geo";
 import {Node} from "../../src/Graph";
-import {StateService} from "../../src/State";
+import {IFrame, StateService} from "../../src/State";
 
 export class StateServiceMockCreator extends MockCreator {
     public createMock(): StateService {
@@ -18,6 +19,24 @@ export class StateServiceMockCreator extends MockCreator {
             {
                 get: (): Subject<Node> => { return currentNode$; },
                 set: (value: Subject<Node>): void => { currentNode$ = value; },
+            });
+
+        let currentState$: Subject<IFrame> = new Subject<IFrame>();
+        Object.defineProperty(
+            mock,
+            "currentState$",
+            {
+                get: (): Subject<IFrame> => { return currentState$; },
+                set: (value: Subject<IFrame>): void => { currentState$ = value; },
+            });
+
+        let reference$: Subject<ILatLonAlt> = new Subject<ILatLonAlt>();
+        Object.defineProperty(
+            mock,
+            "reference$",
+            {
+                get: (): Subject<ILatLonAlt> => { return reference$; },
+                set: (value: Subject<ILatLonAlt>): void => { reference$ = value; },
             });
 
         return mock;

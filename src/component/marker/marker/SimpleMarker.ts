@@ -1,46 +1,54 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
 import * as THREE from "three";
 
-import {IMarkerOptions, ISimpleMarkerStyle, Marker} from "../../Component";
-import {ILatLonAlt} from "../../Geo";
+import {ILatLon} from "../../../API";
+import {
+    ISimpleMarkerOptions,
+    Marker,
+} from "../../../Component";
 
 export class SimpleMarker extends Marker {
     private _circleToRayAngle: number = 2.0;
-    private _simpleMarkerStyle: ISimpleMarkerStyle;
+    private _simpleMarkerOptions: ISimpleMarkerOptions;
 
-    constructor(latLonAlt: ILatLonAlt, markerOptions: IMarkerOptions) {
-        super(latLonAlt, markerOptions);
-        this._simpleMarkerStyle = <ISimpleMarkerStyle> markerOptions.style;
+    constructor(id: string, latLon: ILatLon, options: ISimpleMarkerOptions) {
+        super(id, latLon);
+
+        this._simpleMarkerOptions = options;
     }
 
     public createGeometry(): THREE.Object3D {
-        let radius: number = 2;
+        let radius: number = 1;
 
         let cone: THREE.Mesh = new THREE.Mesh(
-            this._markerGeometry(radius, 16, 8),
+            this._markerGeometry(radius, 8, 8),
             new THREE.MeshBasicMaterial({
-                color: this._stringToRBG(this._simpleMarkerStyle.color),
+                color: this._simpleMarkerOptions.ballColor,
                 depthWrite: false,
-                opacity: this._simpleMarkerStyle.opacity,
+                opacity: this._simpleMarkerOptions.opacity,
                 shading: THREE.SmoothShading,
                 transparent: true,
             })
         );
 
         let ball: THREE.Mesh = new THREE.Mesh(
-            new THREE.SphereGeometry(radius / 2, 16, 8),
+            new THREE.SphereGeometry(radius / 2, 8, 8),
             new THREE.MeshBasicMaterial({
-                color: this._stringToRBG(this._simpleMarkerStyle.ballColor),
+                color: this._simpleMarkerOptions.ballColor,
                 depthWrite: false,
-                opacity: this._simpleMarkerStyle.ballOpacity,
+                opacity: this._simpleMarkerOptions.ballOpacity,
                 shading: THREE.SmoothShading,
                 transparent: true,
             })
         );
+
         ball.position.z = this._markerHeight(radius);
 
         let group: THREE.Object3D = new THREE.Object3D();
         group.add(ball);
         group.add(cone);
+
         return group;
     }
 
@@ -106,15 +114,6 @@ export class SimpleMarker extends Marker {
         geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), radius + height);
         return geometry;
     }
-
-    private _stringToRBG(str: string): number {
-        let ret: number = 0;
-        for (let i: number = 0; i < str.length; i++) {
-            ret = str.charCodeAt(i) + ((ret << 5) - ret);
-        }
-        return ret;
-    }
-
 }
 
 export default SimpleMarker;

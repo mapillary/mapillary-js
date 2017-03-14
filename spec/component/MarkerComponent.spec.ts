@@ -1,36 +1,29 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import {
-    IMarkerOptions,
+    SimpleMarker,
     Marker,
     MarkerComponent,
 } from "../../src/Component";
-import {
-    Container,
-    Navigator,
-} from "../../src/Viewer";
+
+import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";
+import {NavigatorMockCreator} from "../helper/NavigatorMockCreator.spec";
 
 describe("MarkerComponent", () => {
     let markerComponent: MarkerComponent;
 
     beforeEach(() => {
-        document.body.innerHTML = "<div id='dummy'></div>";
-        let navigator: Navigator = new Navigator("MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo5NWEzOTg3OWUxZDI3MjM4");
-        let container: Container = new Container("dummy", navigator.stateService, {});
-        markerComponent = new MarkerComponent("marker", container, navigator);
+        markerComponent =
+            new MarkerComponent(
+                MarkerComponent.componentName,
+                new ContainerMockCreator().createMock(),
+                new NavigatorMockCreator().createMock());
+
         markerComponent.activate();
     });
 
     it("It should be able to create two markers at the exact same position", () => {
-        let options: IMarkerOptions = {
-            id: "test1",
-            style: {
-                color: "#F00",
-            },
-            type: "marker",
-        };
-
-        let m1: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
+        let m1: Marker = new SimpleMarker("1", { lat: 0, lon: 0}, {});
         markerComponent.add([m1]);
         markerComponent.getAll$()
             .subscribe(
@@ -38,15 +31,7 @@ describe("MarkerComponent", () => {
                     expect(markers.length).toBe(1);
                 });
 
-        options = {
-            id: "test2",
-            style: {
-                color: "#F00",
-            },
-            type: "marker",
-        };
-
-        let m2: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
+        let m2: Marker = new SimpleMarker("2", { lat: 0, lon: 0}, {});
         markerComponent.add([m2]);
         markerComponent.getAll$()
             .subscribe(
@@ -70,15 +55,7 @@ describe("MarkerComponent", () => {
     });
 
     it("It should be able to update an marker by using the same id", () => {
-        let options: IMarkerOptions = {
-            id: "test",
-            style: {
-                color: "#F00",
-            },
-            type: "marker",
-        };
-
-        let m1: Marker = markerComponent.createMarker({ alt: 0, lat: 0, lon: 0 }, options);
+        let m1: Marker = new SimpleMarker("1", { lat: 0, lon: 0}, {});
         markerComponent.add([m1]);
         markerComponent.getAll$()
             .subscribe(
@@ -86,7 +63,7 @@ describe("MarkerComponent", () => {
                     expect(markers.length).toBe(1);
                 });
 
-        let m2: Marker = markerComponent.createMarker({ alt: 1, lat: 1, lon: 1 }, options);
+        let m2: Marker = new SimpleMarker("1", { lat: 0, lon: 0}, {});
         markerComponent.add([m2]);
         markerComponent.getAll$()
             .subscribe(

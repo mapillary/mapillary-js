@@ -58,8 +58,8 @@ export class MarkerSet {
                             }
 
                             let item: IMarkerIndexItem = {
-                                lat: marker.latLonAlt.lat,
-                                lon: marker.latLonAlt.lon,
+                                lat: marker.latLon.lat,
+                                lon: marker.latLon.lon,
                                 marker: marker,
                             };
 

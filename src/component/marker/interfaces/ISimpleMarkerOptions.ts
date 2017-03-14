@@ -1,8 +1,8 @@
-export interface ISimpleMarkerStyle {
+export interface ISimpleMarkerOptions {
     ballColor?: string;
     ballOpacity?: number;
     color?: string;
     opacity?: number;
 }
 
-export default ISimpleMarkerStyle;
+export default ISimpleMarkerOptions;

@@ -9,3 +9,6 @@ export {ImageSize, Viewer} from "./Viewer";
 
 import * as TagComponent from "./component/tag/Tag";
 export {TagComponent};
+
+import * as MarkerComponent from "./component/marker/Marker";
+export {MarkerComponent};
