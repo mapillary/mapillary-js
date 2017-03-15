@@ -18,7 +18,11 @@ export class SimpleMarker extends Marker {
         this._simpleMarkerOptions = options;
     }
 
-    public createGeometry(): THREE.Object3D {
+    public createGeometry(position: number[]): void {
+        if (!!this._geometry) {
+            return;
+        }
+
         let radius: number = 1;
 
         let cone: THREE.Mesh = new THREE.Mesh(
@@ -29,8 +33,7 @@ export class SimpleMarker extends Marker {
                 opacity: this._simpleMarkerOptions.opacity,
                 shading: THREE.SmoothShading,
                 transparent: true,
-            })
-        );
+            }));
 
         let ball: THREE.Mesh = new THREE.Mesh(
             new THREE.SphereGeometry(radius / 2, 8, 8),
@@ -40,16 +43,37 @@ export class SimpleMarker extends Marker {
                 opacity: this._simpleMarkerOptions.ballOpacity,
                 shading: THREE.SmoothShading,
                 transparent: true,
-            })
-        );
+            }));
 
         ball.position.z = this._markerHeight(radius);
 
         let group: THREE.Object3D = new THREE.Object3D();
         group.add(ball);
         group.add(cone);
+        group.position.fromArray(position);
 
-        return group;
+        this._geometry = group;
+    }
+
+    public disposeGeometry(): void {
+        if (!this._geometry) {
+            return;
+        }
+
+        for (let mesh of <THREE.Mesh[]>this._geometry.children) {
+            mesh.geometry.dispose();
+            mesh.material.dispose();
+        }
+
+        this._geometry = null;
+    }
+
+    public updatePosition(position: number[]): void {
+        if (!!this._geometry) {
+            return;
+        }
+
+        this._geometry.position.fromArray(position);
     }
 
     private _markerHeight(radius: number): number {
@@ -112,6 +136,7 @@ export class SimpleMarker extends Marker {
 
         geometry.computeFaceNormals();
         geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), radius + height);
+
         return geometry;
     }
 }

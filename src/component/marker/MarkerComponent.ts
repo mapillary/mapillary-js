@@ -41,7 +41,9 @@ import {
 export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
 
-    private _clampedConfiguration: Observable<IMarkerConfiguration>;
+    private _clampedConfiguration$: Observable<IMarkerConfiguration>;
+    private _visibleBBox$: Observable<[ILatLon, ILatLon]>;
+    private _visibleMarkers$: Observable<Marker[]>;
 
     private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
@@ -49,7 +51,8 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
     private _needsRender: boolean;
 
-    private _renderedMarkers: { [id: string]: THREE.Object3D };
+    private _renderedMarkers: { [id: string]: Marker };
+
     private _renderSubscription: Subscription;
 
     private _scene: THREE.Scene;
@@ -62,10 +65,41 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._graphCalculator = new GraphCalculator();
         this._markerSet = new MarkerSet();
 
-        this._clampedConfiguration = this._configuration$
+        this._clampedConfiguration$ = this._configuration$
             .map(
                 (configuration: IMarkerConfiguration): IMarkerConfiguration => {
                     return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
+                });
+
+        let latLon$: Observable<ILatLon> = this._navigator.stateService.currentNode$
+            .map(
+                (node: Node): ILatLon => {
+                    return node.latLon;
+                });
+
+        this._visibleBBox$ = Observable
+            .combineLatest(
+                this._clampedConfiguration$,
+                latLon$)
+            .map(
+                ([configuration, latLon]: [IMarkerConfiguration, ILatLon]): [ILatLon, ILatLon] => {
+                    return this._graphCalculator
+                        .boundingBoxCorners(latLon, configuration.visibleBBoxSize / 2);
+                })
+            .share();
+
+        this._visibleMarkers$ = Observable
+            .combineLatest(
+                this._visibleBBox$,
+                this._markerSet.markerIndex$)
+            .map(
+                ([[sw, ne], index]: [[ILatLon, ILatLon], MarkerIndex]): Marker[] => {
+                    return index
+                        .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })
+                        .map(
+                            (indexItem: IMarkerIndexItem): Marker => {
+                                return indexItem.marker;
+                            });
                 });
     }
 
@@ -97,14 +131,12 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         this._updateSceneSubscription = Observable
             .combineLatest(
-                this._markerSet.markerIndex$,
-                this._navigator.stateService.currentNode$,
-                this._clampedConfiguration,
+                this._visibleMarkers$,
                 this._navigator.stateService.reference$)
             .subscribe(
-                ([markerIndex, node, configuration, reference]:
-                    [MarkerIndex, Node, IMarkerConfiguration, ILatLonAlt]): void => {
-                    this._updateScene(markerIndex, node, configuration, reference);
+                ([markers, reference]:
+                    [Marker[], ILatLonAlt]): void => {
+                    this._updateScene(markers, reference);
                 });
 
         this._renderSubscription = this._navigator.stateService.currentState$
@@ -134,30 +166,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         return { visibleBBoxSize: 100 };
     }
 
-    private _updateScene(
-        markerIndex: MarkerIndex,
-        node: Node,
-        configuration: IMarkerConfiguration,
-        reference: ILatLonAlt): void {
-        let markersToRemove: { [id: string]: THREE.Object3D } = Object.assign({}, this._renderedMarkers);
+    private _updateScene(visibleMarkers: Marker[], reference: ILatLonAlt): void {
+        let markersToRemove: { [id: string]: Marker } = Object.assign({}, this._renderedMarkers);
 
-        const [sw, ne]: ILatLon[] =
-            this._graphCalculator.boundingBoxCorners(node.latLon, configuration.visibleBBoxSize / 2);
-
-        const markers: Marker[] =
-            markerIndex
-                .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })
-                .map(
-                    (item: IMarkerIndexItem) => {
-                        return item.marker;
-                    })
-                .filter(
-                    (marker: Marker) => {
-                        return marker.visibleInKeys.length === 0 ||
-                            marker.visibleInKeys.indexOf(node.key) > -1;
-                    });
-
-        for (let marker of markers) {
+        for (let marker of visibleMarkers) {
             if (marker.id in this._renderedMarkers) {
                 delete markersToRemove[marker.id];
             } else {
@@ -170,11 +182,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         reference.lon,
                         reference.alt);
 
-                const markerObject: THREE.Object3D = marker.createGeometry();
-                markerObject.position.set(point3d[0], point3d[1], point3d[2]);
+                marker.createGeometry(point3d);
 
-                this._scene.add(markerObject);
-                this._renderedMarkers[marker.id] = markerObject;
+                this._scene.add(marker.geometry);
+                this._renderedMarkers[marker.id] = marker;
 
                 this._needsRender = true;
             }
@@ -185,7 +196,8 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 continue;
             }
 
-            this._disposeObject(markersToRemove[key]);
+            this._scene.remove(markersToRemove[key].geometry);
+            markersToRemove[key].disposeGeometry();
             delete this._renderedMarkers[key];
 
             this._needsRender = true;
@@ -199,21 +211,16 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         renderer.render(this._scene, perspectiveCamera);
     }
 
-    private _disposeObject(object: THREE.Object3D): void {
-        this._scene.remove(object);
-        for (let i: number = 0; i < object.children.length; ++i) {
-            let c: THREE.Mesh = <THREE.Mesh> object.children[i];
-            c.geometry.dispose();
-            c.material.dispose();
-        }
-    }
-
     private _disposeScene(): void {
-        for (let i in this._renderedMarkers) {
-            if (this._renderedMarkers.hasOwnProperty(i)) {
-                this._disposeObject(this._renderedMarkers[i]);
+        for (let key in this._renderedMarkers) {
+            if (!this._renderedMarkers.hasOwnProperty(key)) {
+                continue;
             }
+
+            this._scene.remove(this._renderedMarkers[key].geometry);
+            this._renderedMarkers[key].disposeGeometry();
         }
+
         this._renderedMarkers = {};
     }
 }
