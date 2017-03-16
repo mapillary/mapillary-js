@@ -78,6 +78,27 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     protected _activate(): void {
+        const altitude$: Observable<number> = this._navigator.stateService.currentState$
+            .map(
+                (frame: IFrame): number => {
+                    return frame.state.camera.position.z - 2;
+                })
+            .distinctUntilChanged(
+                (a1: number, a2: number): boolean => {
+                    return Math.abs(a1 - a2) < 0.2;
+                })
+            .publishReplay(1)
+            .refCount();
+
+        const geoInitiated$: Observable<void> = Observable
+            .combineLatest(
+                altitude$,
+                this._navigator.stateService.reference$)
+            .first()
+            .map((): void => { /* noop */ })
+            .publishReplay(1)
+            .refCount();
+
         const clampedConfiguration$: Observable<IMarkerConfiguration> = this._configuration$
             .map(
                 (configuration: IMarkerConfiguration): IMarkerConfiguration => {
@@ -107,15 +128,17 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     return set.search(bbox);
                 });
 
-        this._setChangedSubscription = this._navigator.stateService.reference$
-            .first()
+        this._setChangedSubscription = geoInitiated$
             .switchMap(
-                (reference: ILatLonAlt): Observable<[Marker[], ILatLonAlt]> => {
+                (): Observable<[Marker[], ILatLonAlt, number]> => {
+                    console.log("test");
                     return visibleMarkers$
-                        .withLatestFrom(this._navigator.stateService.reference$);
+                        .withLatestFrom(
+                            this._navigator.stateService.reference$.do(console.log),
+                            altitude$.do(console.log));
                 })
             .subscribe(
-                ([markers, reference]: [Marker[], ILatLonAlt]): void => {
+                ([markers, reference, alt]: [Marker[], ILatLonAlt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
                     const sceneMarkers: { [id: string]: Marker } = markerScene.markers;
@@ -129,7 +152,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                                 .geodeticToEnu(
                                     marker.latLon.lat,
                                     marker.latLon.lon,
-                                    0,
+                                    reference.alt + alt,
                                     reference.lat,
                                     reference.lon,
                                     reference.alt);
@@ -147,17 +170,17 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     }
                 });
 
-        this._markersUpdatedSubscription = this._navigator.stateService.reference$
-            .first()
+        this._markersUpdatedSubscription = geoInitiated$
             .switchMap(
-                (reference: ILatLonAlt): Observable<[Marker[], [ILatLon, ILatLon], ILatLonAlt]> => {
+                (): Observable<[Marker[], [ILatLon, ILatLon], ILatLonAlt, number]> => {
                     return this._markerSet.updated$
                         .withLatestFrom(
                             visibleBBox$,
-                            this._navigator.stateService.reference$);
+                            this._navigator.stateService.reference$,
+                            altitude$);
                 })
             .subscribe(
-                ([markers, [sw, ne], reference]: [Marker[], [ILatLon, ILatLon], ILatLonAlt]): void => {
+                ([markers, [sw, ne], reference, alt]: [Marker[], [ILatLon, ILatLon], ILatLonAlt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
@@ -173,7 +196,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                                 .geodeticToEnu(
                                     marker.latLon.lat,
                                     marker.latLon.lon,
-                                    0,
+                                    reference.alt + alt,
                                     reference.lat,
                                     reference.lon,
                                     reference.alt);
@@ -191,8 +214,9 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         this._referenceSubscription = this._navigator.stateService.reference$
             .skip(1)
+            .withLatestFrom(altitude$)
             .subscribe(
-                (reference: ILatLonAlt): void => {
+                ([reference, alt]: [ILatLonAlt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
@@ -201,7 +225,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                                 .geodeticToEnu(
                                     marker.latLon.lat,
                                     marker.latLon.lon,
-                                    0,
+                                    reference.alt + alt,
                                     reference.lat,
                                     reference.lon,
                                     reference.alt);
