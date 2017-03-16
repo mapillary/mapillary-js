@@ -22,11 +22,37 @@ export abstract class Marker {
         return this._latLon;
     }
 
-    public abstract createGeometry(position: number[]): void;
+    public createGeometry(position: number[]): void {
+        if (!!this._geometry) {
+            return;
+        }
 
-    public abstract disposeGeometry(): void;
+        this._createGeometry(position);
+    }
 
-    public abstract updatePosition(position: number[]): void;
+    public disposeGeometry(): void {
+        if (!this._geometry) {
+            return;
+        }
+
+        this._disposeGeometry();
+
+        this._geometry = null;
+    }
+
+    public updatePosition(position: number[]): void {
+        if (!!this._geometry) {
+            return;
+        }
+
+        this._updatePosition(position);
+    }
+
+    protected abstract _createGeometry(position: number[]): void;
+
+    protected abstract _disposeGeometry(): void;
+
+    protected abstract _updatePosition(position: number[]): void;
 }
 
 export default Marker;

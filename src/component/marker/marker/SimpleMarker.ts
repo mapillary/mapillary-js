@@ -18,11 +18,7 @@ export class SimpleMarker extends Marker {
         this._simpleMarkerOptions = options;
     }
 
-    public createGeometry(position: number[]): void {
-        if (!!this._geometry) {
-            return;
-        }
-
+    protected _createGeometry(position: number[]): void {
         let radius: number = 1;
 
         let cone: THREE.Mesh = new THREE.Mesh(
@@ -55,24 +51,14 @@ export class SimpleMarker extends Marker {
         this._geometry = group;
     }
 
-    public disposeGeometry(): void {
-        if (!this._geometry) {
-            return;
-        }
-
+    protected _disposeGeometry(): void {
         for (let mesh of <THREE.Mesh[]>this._geometry.children) {
             mesh.geometry.dispose();
             mesh.material.dispose();
         }
-
-        this._geometry = null;
     }
 
-    public updatePosition(position: number[]): void {
-        if (!!this._geometry) {
-            return;
-        }
-
+    protected _updatePosition(position: number[]): void {
         this._geometry.position.fromArray(position);
     }
 
