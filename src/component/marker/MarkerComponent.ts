@@ -38,16 +38,13 @@ import {
 export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
 
-    private _clampedConfiguration$: Observable<IMarkerConfiguration>;
-    private _visibleBBox$: Observable<[ILatLon, ILatLon]>;
-    private _visibleMarkers$: Observable<Marker[]>;
-
     private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
     private _markerScene: MarkerScene;
     private _markerSet: MarkerSet;
 
     private _markersUpdatedSubscription: Subscription;
+    private _referenceSubscription: Subscription;
     private _renderSubscription: Subscription;
     private _setChangedSubscription: Subscription;
 
@@ -58,38 +55,6 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._graphCalculator = new GraphCalculator();
         this._markerScene = new MarkerScene();
         this._markerSet = new MarkerSet();
-
-        this._clampedConfiguration$ = this._configuration$
-            .map(
-                (configuration: IMarkerConfiguration): IMarkerConfiguration => {
-                    return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
-                });
-
-        const latLon$: Observable<ILatLon> = this._navigator.stateService.currentNode$
-            .map(
-                (node: Node): ILatLon => {
-                    return node.latLon;
-                });
-
-        this._visibleBBox$ = Observable
-            .combineLatest(
-                this._clampedConfiguration$,
-                latLon$)
-            .map(
-                ([configuration, latLon]: [IMarkerConfiguration, ILatLon]): [ILatLon, ILatLon] => {
-                    return this._graphCalculator
-                        .boundingBoxCorners(latLon, configuration.visibleBBoxSize / 2);
-                })
-            .share();
-
-        this._visibleMarkers$ = Observable
-            .combineLatest(
-                this._visibleBBox$,
-                this._markerSet.changed$)
-            .map(
-                ([bbox, set]: [[ILatLon, ILatLon], MarkerSet]): Marker[] => {
-                    return set.search(bbox);
-                });
     }
 
     public add(markers: Marker[]): void {
@@ -113,10 +78,42 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     protected _activate(): void {
-        this._setChangedSubscription = Observable
+        const clampedConfiguration$: Observable<IMarkerConfiguration> = this._configuration$
+            .map(
+                (configuration: IMarkerConfiguration): IMarkerConfiguration => {
+                    return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
+                });
+
+        const visibleBBox$: Observable<[ILatLon, ILatLon]> = Observable
             .combineLatest(
-                this._visibleMarkers$,
-                this._navigator.stateService.reference$)
+                clampedConfiguration$,
+                this._navigator.stateService.currentNode$)
+            .map(
+                ([configuration, node]: [IMarkerConfiguration, Node]): [ILatLon, ILatLon] => {
+                    return this._graphCalculator
+                        .boundingBoxCorners(node.latLon, configuration.visibleBBoxSize / 2);
+                })
+            .publishReplay(1)
+            .refCount();
+
+        const visibleMarkers$: Observable<Marker[]> = Observable
+            .combineLatest(
+                Observable
+                    .of<MarkerSet>(this._markerSet)
+                    .concat(this._markerSet.changed$),
+                visibleBBox$)
+            .map(
+                ([set, bbox]: [MarkerSet, [ILatLon, ILatLon]]): Marker[] => {
+                    return set.search(bbox);
+                });
+
+        this._setChangedSubscription = this._navigator.stateService.reference$
+            .first()
+            .switchMap(
+                (reference: ILatLonAlt): Observable<[Marker[], ILatLonAlt]> => {
+                    return visibleMarkers$
+                        .withLatestFrom(this._navigator.stateService.reference$);
+                })
             .subscribe(
                 ([markers, reference]: [Marker[], ILatLonAlt]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
@@ -150,10 +147,15 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     }
                 });
 
-        this._markersUpdatedSubscription = this._markerSet.updated$
-            .withLatestFrom(
-                this._visibleBBox$,
-                this._navigator.stateService.reference$)
+        this._markersUpdatedSubscription = this._navigator.stateService.reference$
+            .first()
+            .switchMap(
+                (reference: ILatLonAlt): Observable<[Marker[], [ILatLon, ILatLon], ILatLonAlt]> => {
+                    return this._markerSet.updated$
+                        .withLatestFrom(
+                            visibleBBox$,
+                            this._navigator.stateService.reference$);
+                })
             .subscribe(
                 ([markers, [sw, ne], reference]: [Marker[], [ILatLon, ILatLon], ILatLonAlt]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
@@ -187,6 +189,27 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     }
                 });
 
+        this._referenceSubscription = this._navigator.stateService.reference$
+            .skip(1)
+            .subscribe(
+                (reference: ILatLonAlt): void => {
+                    const geoCoords: GeoCoords = this._geoCoords;
+                    const markerScene: MarkerScene = this._markerScene;
+
+                    for (const marker of markerScene.getAll()) {
+                        const point3d: number[] = geoCoords
+                                .geodeticToEnu(
+                                    marker.latLon.lat,
+                                    marker.latLon.lon,
+                                    0,
+                                    reference.lat,
+                                    reference.lon,
+                                    reference.alt);
+
+                        markerScene.update(marker.id, point3d);
+                    }
+                });
+
         this._renderSubscription = this._navigator.stateService.currentState$
             .map(
                 (frame: IFrame): IGLRenderHash => {
@@ -207,6 +230,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
     protected _deactivate(): void {
         this._markersUpdatedSubscription.unsubscribe();
+        this._referenceSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
         this._setChangedSubscription.unsubscribe();
 

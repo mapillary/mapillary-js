@@ -47,6 +47,12 @@ export class MarkerScene {
         this._needsRender = true;
     }
 
+    public getAll(): Marker[] {
+        return Object
+            .keys(this._markers)
+            .map((id: string): Marker => { return this._markers[id]; });
+    }
+
     public has(id: string): boolean {
         return id in this._markers;
     }
