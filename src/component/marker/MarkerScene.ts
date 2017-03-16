@@ -47,6 +47,10 @@ export class MarkerScene {
         this._needsRender = true;
     }
 
+    public has(id: string): boolean {
+        return id in this._markers;
+    }
+
     public remove(id: string): void {
         if (!(id in this._markers)) {
             return;

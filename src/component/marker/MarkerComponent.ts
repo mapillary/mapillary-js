@@ -147,14 +147,23 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 });
 
         this._markersUpdatedSubscription = this._markerSet.updated$
-            .withLatestFrom(this._navigator.stateService.reference$)
+            .withLatestFrom(
+                this._visibleBBox$,
+                this._navigator.stateService.reference$)
             .subscribe(
-                ([markers, reference]: [Marker[], ILatLonAlt]): void => {
+                ([markers, [sw, ne], reference]: [Marker[], [ILatLon, ILatLon], ILatLonAlt]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
                     for (const marker of markers) {
-                        const point3d: number[] = geoCoords
+                        const exists: boolean = markerScene.has(marker.id);
+                        const visible: boolean = marker.latLon.lat > sw.lat &&
+                            marker.latLon.lat < ne.lat &&
+                            marker.latLon.lon > sw.lon &&
+                            marker.latLon.lon < ne.lon;
+
+                        if (visible) {
+                            const point3d: number[] = geoCoords
                                 .geodeticToEnu(
                                     marker.latLon.lat,
                                     marker.latLon.lon,
@@ -163,7 +172,14 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                                     reference.lon,
                                     reference.alt);
 
-                        markerScene.update(marker.id, point3d);
+                            if (exists) {
+                                markerScene.update(marker.id, point3d);
+                            } else {
+                                markerScene.add(marker, point3d);
+                            }
+                        } else if (!visible && exists) {
+                            markerScene.remove(marker.id);
+                        }
                     }
                 });
 
