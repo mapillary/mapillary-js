@@ -105,6 +105,13 @@ export class MarkerSet {
         this._indexChanged$.next(this);
     }
 
+    public removeAll(): void {
+        this._hash = {};
+        this._index.clear();
+
+        this._indexChanged$.next(this);
+    }
+
     public search([sw, ne]: [ILatLon, ILatLon]): Marker[] {
         return this._index
             .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })

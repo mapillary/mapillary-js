@@ -108,6 +108,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._markerSet.remove(markerIds);
     }
 
+    public removeAll(): void {
+        this._markerSet.removeAll();
+    }
+
     protected _activate(): void {
         this._setChangedSubscription = Observable
             .combineLatest(
