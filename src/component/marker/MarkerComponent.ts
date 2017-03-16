@@ -1,7 +1,5 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import * as THREE from "three";
-
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
@@ -16,6 +14,7 @@ import {
     IMarkerIndexItem,
     Marker,
     MarkerIndex,
+    MarkerScene,
     MarkerSet,
     ComponentService,
     Component,
@@ -47,22 +46,18 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
     private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
+    private _markerScene: MarkerScene;
     private _markerSet: MarkerSet;
 
-    private _needsRender: boolean;
-
-    private _renderedMarkers: { [id: string]: Marker };
-
     private _renderSubscription: Subscription;
-
-    private _scene: THREE.Scene;
-    private _updateSceneSubscription: Subscription;
+    private _sceneUpdateSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
         this._geoCoords = new GeoCoords();
         this._graphCalculator = new GraphCalculator();
+        this._markerScene = new MarkerScene();
         this._markerSet = new MarkerSet();
 
         this._clampedConfiguration$ = this._configuration$
@@ -126,28 +121,53 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     protected _activate(): void {
-        this._scene = new THREE.Scene();
-        this._renderedMarkers = {};
-
-        this._updateSceneSubscription = Observable
+        this._sceneUpdateSubscription = Observable
             .combineLatest(
                 this._visibleMarkers$,
                 this._navigator.stateService.reference$)
             .subscribe(
-                ([markers, reference]:
-                    [Marker[], ILatLonAlt]): void => {
-                    this._updateScene(markers, reference);
+                ([markers, reference]: [Marker[], ILatLonAlt]): void => {
+                    const markerScene: MarkerScene = this._markerScene;
+                    const sceneMarkers: { [id: string]: Marker } = markerScene.markers;
+                    const markersToRemove: { [id: string]: Marker } = Object.assign({}, sceneMarkers);
+
+                    for (let marker of markers) {
+                         if (marker.id in sceneMarkers) {
+                            delete markersToRemove[marker.id];
+                        } else {
+                            const point3d: number[] = this._geoCoords
+                                .geodeticToEnu(
+                                    marker.latLon.lat,
+                                    marker.latLon.lon,
+                                    0,
+                                    reference.lat,
+                                    reference.lon,
+                                    reference.alt);
+
+                            markerScene.add(marker, point3d);
+                        }
+                    }
+
+                    for (let id in markersToRemove) {
+                        if (!markersToRemove.hasOwnProperty(id)) {
+                            continue;
+                        }
+
+                        markerScene.remove(id);
+                    }
                 });
 
         this._renderSubscription = this._navigator.stateService.currentState$
             .map(
                 (frame: IFrame): IGLRenderHash => {
+                    const scene: MarkerScene = this._markerScene;
+
                     return {
                         name: this._name,
                         render: {
                             frameId: frame.id,
-                            needsRender: this._needsRender,
-                            render: this._render.bind(this),
+                            needsRender: scene.needsRender,
+                            render: scene.render.bind(scene),
                             stage: GLRenderStage.Foreground,
                         },
                     };
@@ -157,71 +177,13 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
     protected _deactivate(): void {
         this._renderSubscription.unsubscribe();
-        this._updateSceneSubscription.unsubscribe();
+        this._sceneUpdateSubscription.unsubscribe();
 
-        this._disposeScene();
+        this._markerScene.clear();
     }
 
     protected _getDefaultConfiguration(): IMarkerConfiguration {
         return { visibleBBoxSize: 100 };
-    }
-
-    private _updateScene(visibleMarkers: Marker[], reference: ILatLonAlt): void {
-        let markersToRemove: { [id: string]: Marker } = Object.assign({}, this._renderedMarkers);
-
-        for (let marker of visibleMarkers) {
-            if (marker.id in this._renderedMarkers) {
-                delete markersToRemove[marker.id];
-            } else {
-                const point3d: number[] = this._geoCoords
-                    .geodeticToEnu(
-                        marker.latLon.lat,
-                        marker.latLon.lon,
-                        0,
-                        reference.lat,
-                        reference.lon,
-                        reference.alt);
-
-                marker.createGeometry(point3d);
-
-                this._scene.add(marker.geometry);
-                this._renderedMarkers[marker.id] = marker;
-
-                this._needsRender = true;
-            }
-        }
-
-        for (let key in markersToRemove) {
-            if (!markersToRemove.hasOwnProperty(key)) {
-                continue;
-            }
-
-            this._scene.remove(markersToRemove[key].geometry);
-            markersToRemove[key].disposeGeometry();
-            delete this._renderedMarkers[key];
-
-            this._needsRender = true;
-        }
-    }
-
-    private _render(
-        perspectiveCamera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer): void {
-
-        renderer.render(this._scene, perspectiveCamera);
-    }
-
-    private _disposeScene(): void {
-        for (let key in this._renderedMarkers) {
-            if (!this._renderedMarkers.hasOwnProperty(key)) {
-                continue;
-            }
-
-            this._scene.remove(this._renderedMarkers[key].geometry);
-            this._renderedMarkers[key].disposeGeometry();
-        }
-
-        this._renderedMarkers = {};
     }
 }
 
