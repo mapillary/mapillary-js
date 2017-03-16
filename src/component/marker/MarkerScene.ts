@@ -57,6 +57,16 @@ export class MarkerScene {
         return id in this._markers;
     }
 
+    public lerpAltitude(id: string, alt: number, alpha: number): void {
+        if (!(id in this._markers)) {
+            return;
+        }
+
+        this._markers[id].lerpAltitude(alt, alpha);
+
+        this._needsRender = true;
+    }
+
     public remove(id: string): void {
         if (!(id in this._markers)) {
             return;

@@ -78,21 +78,21 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     protected _activate(): void {
-        const altitude$: Observable<number> = this._navigator.stateService.currentState$
+        const groundAltitude$: Observable<number> = this._navigator.stateService.currentState$
             .map(
                 (frame: IFrame): number => {
                     return frame.state.camera.position.z - 2;
                 })
             .distinctUntilChanged(
                 (a1: number, a2: number): boolean => {
-                    return Math.abs(a1 - a2) < 0.2;
+                    return Math.abs(a1 - a2) < 0.01;
                 })
             .publishReplay(1)
             .refCount();
 
         const geoInitiated$: Observable<void> = Observable
             .combineLatest(
-                altitude$,
+                groundAltitude$,
                 this._navigator.stateService.reference$)
             .first()
             .map((): void => { /* noop */ })
@@ -105,14 +105,19 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
                 });
 
+        const currentlatLon$: Observable<ILatLon> = this._navigator.stateService.currentNode$
+            .map((node: Node): ILatLon => { return node.latLon; })
+            .publishReplay(1)
+            .refCount();
+
         const visibleBBox$: Observable<[ILatLon, ILatLon]> = Observable
             .combineLatest(
                 clampedConfiguration$,
-                this._navigator.stateService.currentNode$)
+                currentlatLon$)
             .map(
-                ([configuration, node]: [IMarkerConfiguration, Node]): [ILatLon, ILatLon] => {
+                ([configuration, latLon]: [IMarkerConfiguration, ILatLon]): [ILatLon, ILatLon] => {
                     return this._graphCalculator
-                        .boundingBoxCorners(node.latLon, configuration.visibleBBoxSize / 2);
+                        .boundingBoxCorners(latLon, configuration.visibleBBoxSize / 2);
                 })
             .publishReplay(1)
             .refCount();
@@ -131,11 +136,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._setChangedSubscription = geoInitiated$
             .switchMap(
                 (): Observable<[Marker[], ILatLonAlt, number]> => {
-                    console.log("test");
                     return visibleMarkers$
                         .withLatestFrom(
-                            this._navigator.stateService.reference$.do(console.log),
-                            altitude$.do(console.log));
+                            this._navigator.stateService.reference$,
+                            groundAltitude$);
                 })
             .subscribe(
                 ([markers, reference, alt]: [Marker[], ILatLonAlt, number]): void => {
@@ -177,7 +181,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         .withLatestFrom(
                             visibleBBox$,
                             this._navigator.stateService.reference$,
-                            altitude$);
+                            groundAltitude$);
                 })
             .subscribe(
                 ([markers, [sw, ne], reference, alt]: [Marker[], [ILatLon, ILatLon], ILatLonAlt, number]): void => {
@@ -214,7 +218,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         this._referenceSubscription = this._navigator.stateService.reference$
             .skip(1)
-            .withLatestFrom(altitude$)
+            .withLatestFrom(groundAltitude$)
             .subscribe(
                 ([reference, alt]: [ILatLonAlt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
@@ -231,6 +235,47 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                                     reference.alt);
 
                         markerScene.update(marker.id, point3d);
+                    }
+                });
+
+        groundAltitude$
+            .skip(1)
+            .withLatestFrom(
+                this._navigator.stateService.reference$,
+                currentlatLon$)
+            .subscribe(
+                ([alt, reference, latLon]: [number, ILatLonAlt, ILatLon]): void => {
+                    const geoCoords: GeoCoords = this._geoCoords;
+                    const markerScene: MarkerScene = this._markerScene;
+
+                    let position: number[] = geoCoords
+                        .geodeticToEnu(
+                            latLon.lat,
+                            latLon.lon,
+                            reference.alt + alt,
+                            reference.lat,
+                            reference.lon,
+                            reference.alt);
+
+                    for (const marker of markerScene.getAll()) {
+                        const point3d: number[] = geoCoords
+                                .geodeticToEnu(
+                                    marker.latLon.lat,
+                                    marker.latLon.lon,
+                                    reference.alt + alt,
+                                    reference.lat,
+                                    reference.lon,
+                                    reference.alt);
+
+                        let distanceX: number = point3d[0] - position[0];
+                        let distanceY: number = point3d[1] - position[1];
+
+                        let groundDistance: number = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+                        if (groundDistance > 50) {
+                            continue;
+                        }
+
+                        markerScene.lerpAltitude(marker.id, alt, Math.min(1, Math.max(0, 1.2 - 1.2 * groundDistance / 50)));
                     }
                 });
 

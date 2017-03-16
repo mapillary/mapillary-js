@@ -58,10 +58,6 @@ export class SimpleMarker extends Marker {
         }
     }
 
-    protected _updatePosition(position: number[]): void {
-        this._geometry.position.fromArray(position);
-    }
-
     private _markerHeight(radius: number): number {
         let t: number = Math.tan(Math.PI - this._circleToRayAngle);
         return radius * Math.sqrt(1 + t * t);

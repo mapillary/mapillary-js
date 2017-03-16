@@ -40,19 +40,25 @@ export abstract class Marker {
         this._geometry = null;
     }
 
+    public lerpAltitude(alt: number, alpha: number): void {
+        if (!this._geometry) {
+            return;
+        }
+
+        this._geometry.position.z = (1 - alpha) * this._geometry.position.z + alpha * alt;
+    }
+
     public updatePosition(position: number[]): void {
         if (!this._geometry) {
             return;
         }
 
-        this._updatePosition(position);
+        this._geometry.position.fromArray(position);
     }
 
     protected abstract _createGeometry(position: number[]): void;
 
     protected abstract _disposeGeometry(): void;
-
-    protected abstract _updatePosition(position: number[]): void;
 }
 
 export default Marker;
