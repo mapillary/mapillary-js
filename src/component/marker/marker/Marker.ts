@@ -41,7 +41,7 @@ export abstract class Marker {
     }
 
     public updatePosition(position: number[]): void {
-        if (!!this._geometry) {
+        if (!this._geometry) {
             return;
         }
 

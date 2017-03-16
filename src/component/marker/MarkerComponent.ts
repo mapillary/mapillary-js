@@ -11,9 +11,7 @@ import "rxjs/add/operator/map";
 import {ILatLon} from "../../API";
 import {
     IMarkerConfiguration,
-    IMarkerIndexItem,
     Marker,
-    MarkerIndex,
     MarkerScene,
     MarkerSet,
     ComponentService,
@@ -49,8 +47,9 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     private _markerScene: MarkerScene;
     private _markerSet: MarkerSet;
 
+    private _markersUpdatedSubscription: Subscription;
     private _renderSubscription: Subscription;
-    private _sceneUpdateSubscription: Subscription;
+    private _setChangedSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -66,7 +65,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
                 });
 
-        let latLon$: Observable<ILatLon> = this._navigator.stateService.currentNode$
+        const latLon$: Observable<ILatLon> = this._navigator.stateService.currentNode$
             .map(
                 (node: Node): ILatLon => {
                     return node.latLon;
@@ -86,15 +85,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._visibleMarkers$ = Observable
             .combineLatest(
                 this._visibleBBox$,
-                this._markerSet.markerIndex$)
+                this._markerSet.changed$)
             .map(
-                ([[sw, ne], index]: [[ILatLon, ILatLon], MarkerIndex]): Marker[] => {
-                    return index
-                        .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })
-                        .map(
-                            (indexItem: IMarkerIndexItem): Marker => {
-                                return indexItem.marker;
-                            });
+                ([bbox, set]: [[ILatLon, ILatLon], MarkerSet]): Marker[] => {
+                    return set.search(bbox);
                 });
     }
 
@@ -102,40 +96,35 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._markerSet.add(markers);
     }
 
-    public getAll$(): Observable<Marker[]> {
-        return this._markerSet.markerIndex$
-            .first()
-            .map(
-                (index: MarkerIndex): Marker[] => {
-                    return index
-                        .all()
-                        .map(
-                            (indexItem: IMarkerIndexItem): Marker => {
-                                return indexItem.marker;
-                            });
-                });
+    public get(markerId: string): Marker {
+        return this._markerSet.get(markerId);
     }
 
-    public remove(ids: string[]): void {
-        this._markerSet.remove(ids);
+    public getAll(): Marker[] {
+        return this._markerSet.getAll();
+    }
+
+    public remove(markerIds: string[]): void {
+        this._markerSet.remove(markerIds);
     }
 
     protected _activate(): void {
-        this._sceneUpdateSubscription = Observable
+        this._setChangedSubscription = Observable
             .combineLatest(
                 this._visibleMarkers$,
                 this._navigator.stateService.reference$)
             .subscribe(
                 ([markers, reference]: [Marker[], ILatLonAlt]): void => {
+                    const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
                     const sceneMarkers: { [id: string]: Marker } = markerScene.markers;
                     const markersToRemove: { [id: string]: Marker } = Object.assign({}, sceneMarkers);
 
-                    for (let marker of markers) {
+                    for (const marker of markers) {
                          if (marker.id in sceneMarkers) {
                             delete markersToRemove[marker.id];
                         } else {
-                            const point3d: number[] = this._geoCoords
+                            const point3d: number[] = geoCoords
                                 .geodeticToEnu(
                                     marker.latLon.lat,
                                     marker.latLon.lon,
@@ -148,12 +137,33 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         }
                     }
 
-                    for (let id in markersToRemove) {
+                    for (const id in markersToRemove) {
                         if (!markersToRemove.hasOwnProperty(id)) {
                             continue;
                         }
 
                         markerScene.remove(id);
+                    }
+                });
+
+        this._markersUpdatedSubscription = this._markerSet.updated$
+            .withLatestFrom(this._navigator.stateService.reference$)
+            .subscribe(
+                ([markers, reference]: [Marker[], ILatLonAlt]): void => {
+                    const geoCoords: GeoCoords = this._geoCoords;
+                    const markerScene: MarkerScene = this._markerScene;
+
+                    for (const marker of markers) {
+                        const point3d: number[] = geoCoords
+                                .geodeticToEnu(
+                                    marker.latLon.lat,
+                                    marker.latLon.lon,
+                                    0,
+                                    reference.lat,
+                                    reference.lon,
+                                    reference.alt);
+
+                        markerScene.update(marker.id, point3d);
                     }
                 });
 
@@ -176,8 +186,9 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     protected _deactivate(): void {
+        this._markersUpdatedSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
-        this._sceneUpdateSubscription.unsubscribe();
+        this._setChangedSubscription.unsubscribe();
 
         this._markerScene.clear();
     }

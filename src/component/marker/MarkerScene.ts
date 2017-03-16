@@ -36,7 +36,7 @@ export class MarkerScene {
     }
 
     public clear(): void {
-        for (let id in this._markers) {
+        for (const id in this._markers) {
             if (!this._markers.hasOwnProperty) {
                 continue;
             }
@@ -49,7 +49,6 @@ export class MarkerScene {
 
     public remove(id: string): void {
         if (!(id in this._markers)) {
-            console.warn("remove", id);
             return;
         }
 
@@ -68,8 +67,7 @@ export class MarkerScene {
     }
 
     public update(id: string, position: number[]): void {
-        if (id in this._markers) {
-            console.warn("update", id);
+        if (!(id in this._markers)) {
             return;
         }
 
