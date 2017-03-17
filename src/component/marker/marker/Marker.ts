@@ -48,7 +48,11 @@ export abstract class Marker {
         this._geometry.position.z = (1 - alpha) * this._geometry.position.z + alpha * alt;
     }
 
-    public updatePosition(position: number[]): void {
+    public updatePosition(position: number[], latLon?: ILatLon): void {
+        if (!!latLon) {
+            this._latLon = latLon;
+        }
+
         if (!this._geometry) {
             return;
         }

@@ -206,7 +206,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                                     reference.alt);
 
                             if (exists) {
-                                markerScene.update(marker.id, point3d);
+                                markerScene.update(marker.id, point3d, marker.latLon);
                             } else {
                                 markerScene.add(marker, point3d);
                             }
