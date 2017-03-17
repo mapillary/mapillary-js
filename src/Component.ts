@@ -33,6 +33,7 @@ export {ImagePlaneGLRenderer} from "./component/imageplane/ImagePlaneGLRenderer"
 export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene";
 export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders";
 export {SimpleMarker} from "./component/marker/marker/SimpleMarker";
+export {CircleMarker} from "./component/marker/marker/CircleMarker";
 export {SliderComponent} from "./component/imageplane/SliderComponent";
 export {StatsComponent} from "./component/StatsComponent";
 export {Tag} from "./component/tag/tag/Tag";

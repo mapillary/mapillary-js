@@ -1,0 +1,40 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
+import * as THREE from "three";
+
+import {ILatLon} from "../../../API";
+import {Marker} from "../../../Component";
+
+export class CircleMarker extends Marker {
+    constructor(id: string, latLon: ILatLon) {
+        super(id, latLon);
+    }
+
+    protected _createGeometry(position: number[]): void {
+        let radius: number = 1;
+        let geometry: THREE.CircleGeometry = new THREE.CircleGeometry(radius, 32);
+        let material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
+            color: "#0f0",
+            depthWrite: false,
+            opacity: 0.6,
+            transparent: true,
+        });
+        let circle: THREE.Mesh = new THREE.Mesh(geometry, material);
+        circle.up.fromArray([0, 0, 1]);
+
+        let group: THREE.Object3D = new THREE.Object3D();
+        group.add(circle);
+        group.position.fromArray(position);
+
+        this._geometry = group;
+    }
+
+    protected _disposeGeometry(): void {
+        for (let mesh of <THREE.Mesh[]>this._geometry.children) {
+            mesh.geometry.dispose();
+            mesh.material.dispose();
+        }
+    }
+}
+
+export default CircleMarker;

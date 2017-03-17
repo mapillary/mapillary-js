@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MapillaryJS Markers Debug Page</title>
+    <meta charset='utf-8'>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <script src='dist/mapillary.js'></script>
+    <link rel='stylesheet' href='dist/mapillary.min.css' />
+    <style>
+        body { margin: 0; padding: 0; }
+        html, body { width: 100%; height: 100%; }
+        #viewer { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <div id='viewer'></div>
+    <script>
+        let mly = new Mapillary.Viewer(
+            'viewer',
+            'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh',
+            null,
+            {
+                component: {
+                    cover: false,
+                    marker: true,
+                },
+            });
+
+        let key = !!window.location.hash ? window.location.hash.substring(1) : '6Zhtztzt67fWmdd4OYH44w';
+        mly.moveToKey(key)
+            .then((n) => {
+                let markers = createRandomMarkers(250000, n.latLon);
+                addMarkers(markers);
+            });
+
+        function getRandomUniform(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        let createRandomMarkers = function(count, latLon) {
+            let t0 = window.performance.now();
+            let boxWidth = 0.06;
+
+            let minLat = latLon.lat - boxWidth / 2;
+            let maxLat = latLon.lat + boxWidth / 2;
+            let minLon = latLon.lon - boxWidth / 2;
+            let maxLon = latLon.lon + boxWidth / 2;
+
+            let markers = [];
+            for (let i = 0; i < count; i++) {
+                let lat = getRandomUniform(minLat, maxLat);
+                let lon = getRandomUniform(minLon, maxLon);
+
+                let marker = new Mapillary.MarkerComponent.SimpleMarker(
+                    i.toString(),
+                    { lat: lat, lon: lon },
+                    {
+                        ballColor: '#f00',
+                        ballOpacity: 0.8,
+                        color: '#f00',
+                        opacity: 0.4,
+                    });
+
+                markers.push(marker);
+            }
+
+            let t1 = window.performance.now();
+            console.log('create markers:', (t1 - t0).toFixed(2));
+
+            return markers;
+        }
+
+        let mc = mly.getComponent("marker");
+
+        function addMarkers(markers) {
+            let t0 = window.performance.now();
+            mc.add(markers);
+
+            let t1 = window.performance.now();
+            console.log('add markers:', (t1 - t0).toFixed(2));
+        }
+
+        window.addEventListener('resize', function() { mly.resize(); });
+     </script>
+</body>
+</html>
