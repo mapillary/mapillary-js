@@ -58,6 +58,11 @@ export class SimpleMarker extends Marker {
         }
     }
 
+    protected _getDraggableObjectIds(): string[] {
+        return !!this._simpleMarkerOptions.draggable ?
+            [this._geometry.children[0].uuid] : [];
+    }
+
     private _markerHeight(radius: number): number {
         let t: number = Math.tan(Math.PI - this._circleToRayAngle);
         return radius * Math.sqrt(1 + t * t);

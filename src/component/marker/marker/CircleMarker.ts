@@ -36,6 +36,10 @@ export class CircleMarker extends Marker {
             mesh.material.dispose();
         }
     }
+
+    protected _getDraggableObjectIds(): string[] {
+        return [];
+    }
 }
 
 export default CircleMarker;
