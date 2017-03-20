@@ -10,15 +10,18 @@ import "rxjs/add/operator/publishReplay";
 import "rxjs/add/operator/scan";
 
 import {ILatLon} from "../../API";
-import {
-    IMarkerIndexItem,
-    Marker,
-} from "../../Component";
+import {Marker} from "../../Component";
 
-export type MarkerIndex = rbush.RBush<IMarkerIndexItem>;
+type MarkerIndexItem = {
+    lat: number;
+    lon: number;
+    marker: Marker;
+};
+
+type MarkerIndex = rbush.RBush<MarkerIndexItem>;
 
 export class MarkerSet {
-    private _hash: { [id: string]: IMarkerIndexItem };
+    private _hash: { [id: string]: MarkerIndexItem };
     private _index: MarkerIndex;
 
     private _indexChanged$: Subject<MarkerSet>;
@@ -26,7 +29,7 @@ export class MarkerSet {
 
     constructor() {
         this._hash = {};
-        this._index = rbush<IMarkerIndexItem>(16, [".lon", ".lat", ".lon", ".lat"]);
+        this._index = rbush<MarkerIndexItem>(16, [".lon", ".lat", ".lon", ".lat"]);
 
         this._indexChanged$ = new Subject<MarkerSet>();
         this._updated$ = new Subject<Marker[]>();
@@ -41,9 +44,9 @@ export class MarkerSet {
     }
 
     public add(markers: Marker[]): void {
-        const items: IMarkerIndexItem[] = [];
+        const items: MarkerIndexItem[] = [];
         const updated: Marker[] = [];
-        const hash: { [id: string]: IMarkerIndexItem } = this._hash;
+        const hash: { [id: string]: MarkerIndexItem } = this._hash;
         const index: MarkerIndex = this._index;
 
         for (const marker of markers) {
@@ -54,7 +57,7 @@ export class MarkerSet {
                 updated.push(marker);
             }
 
-            const item: IMarkerIndexItem = {
+            const item: MarkerIndexItem = {
                 lat: marker.latLon.lat,
                 lon: marker.latLon.lon,
                 marker: marker,
@@ -83,13 +86,13 @@ export class MarkerSet {
         return this._index
             .all()
             .map(
-                (indexItem: IMarkerIndexItem): Marker => {
+                (indexItem: MarkerIndexItem): Marker => {
                     return indexItem.marker;
                 });
     }
 
     public remove(ids: string[]): void {
-        const hash: { [id: string]: IMarkerIndexItem } = this._hash;
+        const hash: { [id: string]: MarkerIndexItem } = this._hash;
         const index: MarkerIndex = this._index;
 
         for (const id of ids) {
@@ -97,7 +100,7 @@ export class MarkerSet {
                 continue;
             }
 
-            const item: IMarkerIndexItem = hash[id];
+            const item: MarkerIndexItem = hash[id];
             index.remove(item);
             delete hash[id];
         }
@@ -116,7 +119,7 @@ export class MarkerSet {
         return this._index
             .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })
             .map(
-                (indexItem: IMarkerIndexItem): Marker => {
+                (indexItem: MarkerIndexItem): Marker => {
                     return indexItem.marker;
                 });
     }
