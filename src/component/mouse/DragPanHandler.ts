@@ -118,9 +118,10 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
 
                     let mouseDrag$: Observable<[MouseEvent, MouseEvent]> = Observable
                         .merge(
-                            this._container.mouseService.mouseDragStart$,
-                            this._container.mouseService.mouseDrag$,
-                            this._container.mouseService.mouseDragEnd$.map((e: MouseEvent): MouseEvent => { return null; }))
+                            this._container.mouseService.filtered$(this._component.name, this._container.mouseService.mouseDragStart$),
+                            this._container.mouseService.filtered$(this._component.name, this._container.mouseService.mouseDrag$),
+                            this._container.mouseService.filtered$(this._component.name, this._container.mouseService.mouseDragEnd$)
+                                .map((e: MouseEvent): MouseEvent => { return null; }))
                         .pairwise()
                         .filter(
                             (pair: [MouseEvent, MouseEvent]): boolean => {
