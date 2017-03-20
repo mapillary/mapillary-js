@@ -1,5 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 
+import * as THREE from "three";
+
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
@@ -11,6 +13,7 @@ import "rxjs/add/operator/map";
 import {ILatLon} from "../../API";
 import {
     IMarkerConfiguration,
+    IMarkerEvent,
     Marker,
     MarkerScene,
     MarkerSet,
@@ -25,6 +28,7 @@ import {
 import {
     IGLRenderHash,
     GLRenderStage,
+    RenderCamera,
 } from "../../Render";
 import {
     GraphCalculator,
@@ -33,15 +37,24 @@ import {
 import {
     GeoCoords,
     ILatLonAlt,
+    ViewportCoords,
 } from "../../Geo";
 
 export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
 
+    /**
+     * Fired when the position of a marker is changed.
+     * @event
+     * @type {IMarkerEvent} markerEvent - Event with the marker.
+     */
+    public static changed: string = "changed";
+
     private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
     private _markerScene: MarkerScene;
     private _markerSet: MarkerSet;
+    private _viewportCoords: ViewportCoords;
 
     private _markersUpdatedSubscription: Subscription;
     private _referenceSubscription: Subscription;
@@ -55,6 +68,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._graphCalculator = new GraphCalculator();
         this._markerScene = new MarkerScene();
         this._markerSet = new MarkerSet();
+        this._viewportCoords = new ViewportCoords();
     }
 
     public add(markers: Marker[]): void {
@@ -248,7 +262,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
-                    let position: number[] = geoCoords
+                    const position: number[] = geoCoords
                         .geodeticToEnu(
                             latLon.lat,
                             latLon.lon,
@@ -267,10 +281,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                                     reference.lon,
                                     reference.alt);
 
-                        let distanceX: number = point3d[0] - position[0];
-                        let distanceY: number = point3d[1] - position[1];
+                        const distanceX: number = point3d[0] - position[0];
+                        const distanceY: number = point3d[1] - position[1];
 
-                        let groundDistance: number = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+                        const groundDistance: number = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
                         if (groundDistance > 50) {
                             continue;
                         }
@@ -295,6 +309,134 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     };
                 })
             .subscribe(this._container.glRenderer.render$);
+
+        const hoveredMarkerId$: Observable<string> = Observable
+            .combineLatest(
+                this._container.renderService.renderCamera$,
+                this._container.mouseService.mouseMove$)
+            .map(
+                ([render, event]: [RenderCamera, MouseEvent]): string => {
+                    const viewport: number[] = this._viewportCoords.canvasToViewport(
+                        event.clientX,
+                        event.clientY,
+                        this._container.element.offsetWidth,
+                        this._container.element.offsetHeight);
+
+                    const markerId: string = this._markerScene.intersectObjects(viewport, render.perspective);
+
+                    return markerId;
+                })
+            .publishReplay(1)
+            .refCount();
+
+        const draggingStarted$: Observable<boolean> =
+             this._container.mouseService
+                .filtered$(this._name, this._container.mouseService.mouseDragStart$)
+                .map(
+                    (event: MouseEvent): boolean => {
+                        return true;
+                    });
+
+        const draggingStopped$: Observable<boolean> =
+             this._container.mouseService
+                .filtered$(this._name, this._container.mouseService.mouseDragEnd$)
+                .map(
+                    (event: MouseEvent): boolean => {
+                        return false;
+                    });
+
+        const dragging$: Observable<boolean> = Observable
+            .merge(
+                draggingStarted$,
+                draggingStopped$)
+            .startWith(false);
+
+        Observable
+            .combineLatest(
+                this._container.mouseService.active$,
+                hoveredMarkerId$,
+                dragging$)
+            .map(
+                ([active, markerId, dragging]: [boolean, string, boolean]): boolean => {
+                    return (!active && markerId != null) || dragging;
+                })
+            .distinctUntilChanged()
+            .subscribe(
+                (hovered: boolean): void => {
+                    if (hovered) {
+                        this._container.mouseService.claimMouse(this._name, 1);
+                    } else {
+                        this._container.mouseService.unclaimMouse(this._name);
+                    }
+                });
+
+        const offset$: Observable<[Marker, number[], RenderCamera]> = this._container.mouseService
+            .filtered$(this._name, this._container.mouseService.mouseDragStart$)
+            .withLatestFrom(
+                hoveredMarkerId$,
+                this._container.renderService.renderCamera$)
+            .map(
+                ([e, id, r]: [MouseEvent, string, RenderCamera]): [Marker, number[], RenderCamera] => {
+                    const marker: Marker = this._markerScene.get(id);
+                    const [groundCanvasX, groundCanvasY]: number[] =
+                        this._viewportCoords.projectToCanvas(
+                            marker.geometry.position.toArray(),
+                            this._container.element.offsetWidth,
+                            this._container.element.offsetHeight,
+                            r.perspective);
+
+                    const offset: number[] = [e.clientX - groundCanvasX, e.clientY - groundCanvasY];
+
+                    return [marker, offset, r];
+                })
+            .publishReplay(1)
+            .refCount();
+
+        this._container.mouseService
+            .filtered$(this._name, this._container.mouseService.mouseDrag$)
+            .withLatestFrom(
+                offset$,
+                this._navigator.stateService.reference$)
+            .subscribe(
+                ([event, [marker, offset, render], reference]: [MouseEvent, [Marker, number[], RenderCamera], ILatLonAlt]): void => {
+                    const groundX: number = event.clientX - offset[0];
+                    const groundY: number = event.clientY - offset[1];
+
+                    const [viewportX, viewportY]: number[] = this._viewportCoords.canvasToViewport(
+                        groundX,
+                        groundY,
+                        this._container.element.offsetWidth,
+                        this._container.element.offsetHeight);
+
+                    const direction: THREE.Vector3 = new THREE.Vector3(viewportX, viewportY, 1)
+                        .unproject(render.perspective)
+                        .sub(render.perspective.position)
+                        .normalize();
+
+                    let distance: number = -2 / direction.z;
+                    if (distance < 0) {
+                        return;
+                    }
+
+                    const intersection: THREE.Vector3 = direction
+                        .clone()
+                        .multiplyScalar(distance)
+                        .add(render.perspective.position);
+
+                    const [lat, lon]: number[] = this._geoCoords
+                        .enuToGeodetic(
+                            intersection.x,
+                            intersection.y,
+                            intersection.z,
+                            reference.lat,
+                            reference.lon,
+                            reference.alt);
+
+                    const markerEvent: IMarkerEvent = { marker: marker };
+
+                    this._markerScene.update(marker.id, intersection.toArray(), { lat: lat, lon: lon });
+                    this.fire(MarkerComponent.changed, markerEvent);
+                });
     }
 
     protected _deactivate(): void {
