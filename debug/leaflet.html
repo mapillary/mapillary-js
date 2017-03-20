@@ -95,17 +95,21 @@
             var mkc = mly.getComponent('marker');
             let newId = 0;
 
+            let mapMarkers = {};
+
             let createMarker = function(latLon) {
                 const id = (newId++).toString();
                 const marker = new Mapillary.MarkerComponent.SimpleMarker(
                     id,
                     { lat: latLon.lat, lon: latLon.lon },
-                    { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', opacity: 0.4 });
+                    { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', draggable: true, opacity: 0.4 });
                 mkc.add([marker]);
 
                 const newCircle = L.circleMarker(
                     [latLon.lat, latLon.lon],
                     { radius: 5, color: '#f00', draggable: 'true', customId: id }).addTo(map);
+
+                mapMarkers[id] = newCircle;
 
                 newCircle.on({
                     mousedown: function(event) {
@@ -147,6 +151,16 @@
                     },
                 });
             }
+
+            mkc.on(Mapillary.MarkerComponent.MarkerComponent.changed, (e) => {
+                let markerToUpdate = mapMarkers[e.marker.id];
+
+                if (!markerToUpdate) {
+                    return;
+                }
+
+                markerToUpdate.setLatLng([e.marker.latLon.lat, e.marker.latLon.lon]);
+            });
 
             mly.on("click", function(e) {
                 if (!e.latLon) { return;}
