@@ -123,6 +123,27 @@ export class MarkerSet {
                     return indexItem.marker;
                 });
     }
+
+    public update(marker: Marker): void {
+        const hash: { [id: string]: MarkerIndexItem } = this._hash;
+        const index: MarkerIndex = this._index;
+        const id: string = marker.id;
+
+        if (!(id in hash)) {
+            return;
+        }
+
+        index.remove(hash[id]);
+
+        const item: MarkerIndexItem = {
+            lat: marker.latLon.lat,
+            lon: marker.latLon.lon,
+            marker: marker,
+        };
+
+        hash[id] = item;
+        index.insert(item);
+    }
 }
 
 export default MarkerSet;

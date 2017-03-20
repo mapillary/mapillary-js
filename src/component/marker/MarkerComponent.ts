@@ -226,11 +226,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                                     reference.lon,
                                     reference.alt);
 
-                            if (exists) {
-                                markerScene.update(marker.id, point3d, marker.latLon);
-                            } else {
-                                markerScene.add(marker, point3d);
-                            }
+                            markerScene.add(marker, point3d);
                         } else if (!visible && exists) {
                             markerScene.remove(marker.id);
                         }
@@ -408,6 +404,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             .subscribe(
                 ([event, [marker, offset, render], reference, configuration]:
                     [MouseEvent, [Marker, number[], RenderCamera], ILatLonAlt, IMarkerConfiguration]): void => {
+                    if (!this._markerScene.has(marker.id)) {
+                        return;
+                    }
+
                     const groundX: number = event.clientX - offset[0];
                     const groundY: number = event.clientY - offset[1];
 
@@ -449,6 +449,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     const markerEvent: IMarkerEvent = { marker: marker };
 
                     this._markerScene.update(marker.id, intersection.toArray(), { lat: lat, lon: lon });
+                    this._markerSet.update(marker);
                     this.fire(MarkerComponent.changed, markerEvent);
                 });
     }
