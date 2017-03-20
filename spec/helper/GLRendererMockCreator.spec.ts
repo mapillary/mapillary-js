@@ -12,23 +12,8 @@ export class GLRendererMockCreator extends MockCreator {
     public createMock(): GLRenderer {
         let mock: GLRenderer = super.createMock(GLRenderer, "GLRenderer");
 
-        let webGLRenderer$: Subject<THREE.WebGLRenderer> = new Subject<THREE.WebGLRenderer>();
-        Object.defineProperty(
-            mock,
-            "webGLRenderer$",
-            {
-                get: (): Subject<THREE.WebGLRenderer> => { return webGLRenderer$; },
-                set: (value: Subject<THREE.WebGLRenderer>): void => { webGLRenderer$ = value; },
-            });
-
-        let render$: Subject<IGLRenderHash> = new Subject<IGLRenderHash>();
-        Object.defineProperty(
-            mock,
-            "render$",
-            {
-                get: (): Subject<IGLRenderHash> => { return render$; },
-                set: (value: Subject<IGLRenderHash>): void => { render$ = value; },
-            });
+        this._mockProperty(mock, "webGLRenderer$", new Subject<THREE.WebGLRenderer>());
+        this._mockProperty(mock, "render$", new Subject<IGLRenderHash>());
 
         return mock;
     }

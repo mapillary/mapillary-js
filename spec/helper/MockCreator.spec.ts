@@ -13,6 +13,16 @@ export class MockCreator {
 
         return <T>spy;
     }
+
+    protected _mockProperty<T, U>(object: T, propertyName: string, propertyValue: U): void {
+        Object.defineProperty(
+            object,
+            propertyName,
+            {
+                get: (): U => { return propertyValue; },
+                set: (value: U): void => { propertyValue = value; },
+            });
+    }
 }
 
 export default MockCreator;

@@ -1,10 +1,13 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import {Observable} from "rxjs/Observable";
+
 import {
     SimpleMarker,
     Marker,
     MarkerComponent,
 } from "../../src/Component";
+import {Container} from "../../src/Viewer";
 
 import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";
 import {NavigatorMockCreator} from "../helper/NavigatorMockCreator.spec";
@@ -13,10 +16,13 @@ describe("MarkerComponent", () => {
     let markerComponent: MarkerComponent;
 
     beforeEach(() => {
+        const containerMock: Container = new ContainerMockCreator().createMock();
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+
         markerComponent =
             new MarkerComponent(
                 MarkerComponent.componentName,
-                new ContainerMockCreator().createMock(),
+                containerMock,
                 new NavigatorMockCreator().createMock());
 
         markerComponent.activate();
