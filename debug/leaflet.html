@@ -23,15 +23,15 @@
 
         <script>
             // Setup map
-            var map = L.map('map').setView([56.04351888068181, 12.695600612967427], 18);
-            var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-            var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
-            var osm = new L.TileLayer(osmUrl, { maxZoom: 19, attribution: osmAttrib});
+            const map = L.map('map').setView([56.04351888068181, 12.695600612967427], 18);
+            const osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            const osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+            const osm = new L.TileLayer(osmUrl, { maxZoom: 19, attribution: osmAttrib});
             map.addLayer(osm);
             map.keyboard.disable();
 
             // Setup viewer
-            var mly = new Mapillary.Viewer(
+            const mly = new Mapillary.Viewer(
                 'mly',
                 'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzowODkzY2RjNjM1ZmEwYTVi',
                 null,
@@ -46,7 +46,7 @@
                     },
                 });
 
-            var key = !!window.location.hash ? window.location.hash.substring(1) : '6Zhtztzt67fWmdd4OYH44w';
+            const key = !!window.location.hash ? window.location.hash.substring(1) : '6Zhtztzt67fWmdd4OYH44w';
             mly.moveToKey(key);
 
             // Malmö OUyhTBETwY4ljRdPI4OFuw
@@ -56,12 +56,12 @@
 
             mly.moveToKey(key).then(() => {}, () => {});
 
-            var position;
-            var originalPosition;
-            var positionLine;
+            let position;
+            let originalPosition;
+            let positionLine;
             mly.on(Mapillary.Viewer.nodechanged, function (node) {
-                var latLon = [node.latLon.lat, node.latLon.lon];
-                var originalLatLon = [node.originalLatLon.lat, node.originalLatLon.lon];
+                const latLon = [node.latLon.lat, node.latLon.lon];
+                const originalLatLon = [node.originalLatLon.lat, node.originalLatLon.lon];
 
                 if (!originalPosition) {
                     originalPosition =
@@ -92,12 +92,12 @@
                 map.setView(latLon);
             });
 
-            var mkc = mly.getComponent('marker');
+            const mkc = mly.getComponent('marker');
             let newId = 0;
 
-            let mapMarkers = {};
+            const mapMarkers = {};
 
-            let createMarker = function(latLon) {
+            const createMarker = function(latLon) {
                 const id = (newId++).toString();
                 const marker = new Mapillary.MarkerComponent.SimpleMarker(
                     id,
@@ -114,12 +114,11 @@
                 newCircle.on({
                     mousedown: function(event) {
                         const onMouseMove = function(e) {
-                            console.log(event.originalEvent.type);
                             newCircle.setLatLng(e.latlng);
                             const marker = new Mapillary.MarkerComponent.SimpleMarker(
                                 id,
                                 { lat: e.latlng.lat, lon: e.latlng.lng },
-                                { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', opacity: 0.4 });
+                                { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', draggable: true, opacity: 0.4 });
                             mkc.add([marker]);
                         };
 
@@ -132,8 +131,6 @@
                         map.on('mouseup', onMouseUp);
                     },
                     mouseover: function(event) {
-                        console.log(event.originalEvent.type);
-
                         if (!!mapEventMarker) {
                             mkc.remove([mapEventMarker.id]);
                         }
@@ -143,8 +140,6 @@
                         map.off('click', mapOnClick);
                     },
                     mouseout: function(event) {
-                        console.log(event.originalEvent.type);
-
                         map.dragging.enable();
                         map.on('mousemove', onMapMouseEvent);
                         map.on('click', mapOnClick);
@@ -153,7 +148,7 @@
             }
 
             mkc.on(Mapillary.MarkerComponent.MarkerComponent.changed, (e) => {
-                let markerToUpdate = mapMarkers[e.marker.id];
+                const markerToUpdate = mapMarkers[e.marker.id];
 
                 if (!markerToUpdate) {
                     return;
@@ -168,7 +163,7 @@
                 createMarker(e.latLon);
             });
 
-            let mapOnClick = function(e) {
+            const mapOnClick = function(e) {
                 if (!e.latlng) { return; }
 
                 createMarker({ lat: e.latlng.lat, lon: e.latlng.lng });
@@ -176,13 +171,13 @@
 
             map.on("click", mapOnClick);
 
-            var markerId = 0;
-            var mapMarker;
-            var mlyMarker;
-            var mapLine;
-            var moving = false;
+            let markerId = 0;
+            let mapMarker;
+            let mlyMarker;
+            let mapLine;
+            let moving = false;
 
-            let removeMapIndicator = function() {
+            const removeMapIndicator = function() {
                 if (!!mapMarker) {
                     map.removeLayer(mapMarker);
                     mapMarker = null;
@@ -194,7 +189,7 @@
                 }
             }
 
-            let moveMarker = function(latLon) {
+            const moveMarker = function(latLon) {
                 if (latLon == null) {
                     removeMapIndicator();
 
@@ -221,8 +216,8 @@
 
                 mkc.add([mlyMarker]);
 
-                let posLatLng = position.getLatLng();
-                let lineString = [
+                const posLatLng = position.getLatLng();
+                const lineString = [
                     [posLatLng.lat, posLatLng.lng],
                     [latLon.lat, latLon.lon],
                     [
@@ -238,8 +233,8 @@
                 }
             }
 
-            var pos;
-            let onViewerMouseEvent = function(event) {
+            let pos;
+            const onViewerMouseEvent = function(event) {
                 pos = event.pixelPoint;
                 moveMarker(event.latLon);
             }
@@ -277,7 +272,7 @@
 
             let mapEventMarker;
 
-            let onMapMouseEvent = function(e) {
+            const onMapMouseEvent = function(e) {
                 mapEventMarker = new Mapillary.MarkerComponent.CircleMarker(
                     "mapEventMarker",
                     { lat: e.latlng.lat, lon: e.latlng.lng });
