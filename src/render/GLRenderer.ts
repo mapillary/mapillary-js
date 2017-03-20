@@ -253,7 +253,6 @@ export class GLRenderer {
                     webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
                     webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
                     webGLRenderer.autoClear = false;
-                    webGLRenderer.sortObjects = false;
                     webGLRenderer.domElement.style.position = "absolute";
 
                     canvasContainer.appendChild(webGLRenderer.domElement);
