@@ -50,19 +50,26 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
      */
     public static changed: string = "changed";
 
+    private _relativeGroundAltitude: number;
+
     private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
     private _markerScene: MarkerScene;
     private _markerSet: MarkerSet;
     private _viewportCoords: ViewportCoords;
 
+    private _adjustHeightSubscription: Subscription;
     private _markersUpdatedSubscription: Subscription;
+    private _mouseClaimSubscription: Subscription;
     private _referenceSubscription: Subscription;
     private _renderSubscription: Subscription;
     private _setChangedSubscription: Subscription;
+    private _updateMarkerSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._relativeGroundAltitude = -2;
 
         this._geoCoords = new GeoCoords();
         this._graphCalculator = new GraphCalculator();
@@ -95,7 +102,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         const groundAltitude$: Observable<number> = this._navigator.stateService.currentState$
             .map(
                 (frame: IFrame): number => {
-                    return frame.state.camera.position.z - 2;
+                    return frame.state.camera.position.z + this._relativeGroundAltitude;
                 })
             .distinctUntilChanged(
                 (a1: number, a2: number): boolean => {
@@ -252,7 +259,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     }
                 });
 
-        groundAltitude$
+        this._adjustHeightSubscription = groundAltitude$
             .skip(1)
             .withLatestFrom(
                 this._navigator.stateService.reference$,
@@ -351,7 +358,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 draggingStopped$)
             .startWith(false);
 
-        Observable
+        this._mouseClaimSubscription = Observable
             .combineLatest(
                 this._container.mouseService.active$,
                 hoveredMarkerId$,
@@ -392,13 +399,15 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             .publishReplay(1)
             .refCount();
 
-        this._container.mouseService
+        this._updateMarkerSubscription = this._container.mouseService
             .filtered$(this._name, this._container.mouseService.mouseDrag$)
             .withLatestFrom(
                 offset$,
-                this._navigator.stateService.reference$)
+                this._navigator.stateService.reference$,
+                clampedConfiguration$)
             .subscribe(
-                ([event, [marker, offset, render], reference]: [MouseEvent, [Marker, number[], RenderCamera], ILatLonAlt]): void => {
+                ([event, [marker, offset, render], reference, configuration]:
+                    [MouseEvent, [Marker, number[], RenderCamera], ILatLonAlt, IMarkerConfiguration]): void => {
                     const groundX: number = event.clientX - offset[0];
                     const groundY: number = event.clientY - offset[1];
 
@@ -413,7 +422,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         .sub(render.perspective.position)
                         .normalize();
 
-                    let distance: number = -2 / direction.z;
+                    const distance: number = Math.min(
+                        this._relativeGroundAltitude / direction.z,
+                        configuration.visibleBBoxSize / 2 - 0.1);
+
                     if (distance < 0) {
                         return;
                     }
@@ -422,6 +434,8 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         .clone()
                         .multiplyScalar(distance)
                         .add(render.perspective.position);
+
+                    intersection.z = render.perspective.position.z + this._relativeGroundAltitude;
 
                     const [lat, lon]: number[] = this._geoCoords
                         .enuToGeodetic(
@@ -440,10 +454,13 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     protected _deactivate(): void {
+        this._adjustHeightSubscription.unsubscribe();
         this._markersUpdatedSubscription.unsubscribe();
+        this._mouseClaimSubscription.unsubscribe();
         this._referenceSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
         this._setChangedSubscription.unsubscribe();
+        this._updateMarkerSubscription.unsubscribe();
 
         this._markerScene.clear();
     }
