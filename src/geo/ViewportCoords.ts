@@ -339,19 +339,11 @@ export class ViewportCoords {
         perspectiveCamera: THREE.PerspectiveCamera):
         number[] {
 
-        let projected: THREE.Vector3 =
+        let viewport: THREE.Vector3 =
             new THREE.Vector3(point3d[0], point3d[1], point3d[2])
                 .project(perspectiveCamera);
 
-        let z: number = Math.abs(projected.z) < 1e-9 ?
-            projected.z < 0 ?
-                -1e-9 : 1e-9 :
-            projected.z;
-
-        let viewportX: number = projected.x / z;
-        let viewportY: number = projected.y / z;
-
-        return [viewportX, viewportY];
+        return [viewport.x, viewport.y];
     }
 
     /**
