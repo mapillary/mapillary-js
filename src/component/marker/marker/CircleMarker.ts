@@ -12,15 +12,16 @@ export class CircleMarker extends Marker {
 
     protected _createGeometry(position: number[]): void {
         let radius: number = 1;
-        let geometry: THREE.CircleGeometry = new THREE.CircleGeometry(radius, 32);
-        let material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
-            color: "#0f0",
-            depthWrite: false,
-            opacity: 0.6,
-            transparent: true,
-        });
-        let circle: THREE.Mesh = new THREE.Mesh(geometry, material);
+        let circle: THREE.Mesh = new THREE.Mesh(
+            new THREE.CircleGeometry(radius, 16),
+            new THREE.MeshBasicMaterial({
+                color: "#0f0",
+                opacity: 0.6,
+                transparent: true,
+            }));
+
         circle.up.fromArray([0, 0, 1]);
+        circle.renderOrder = -1;
 
         let group: THREE.Object3D = new THREE.Object3D();
         group.add(circle);

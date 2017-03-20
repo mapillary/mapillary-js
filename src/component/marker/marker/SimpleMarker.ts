@@ -25,17 +25,17 @@ export class SimpleMarker extends Marker {
             this._markerGeometry(radius, 8, 8),
             new THREE.MeshBasicMaterial({
                 color: this._simpleMarkerOptions.ballColor,
-                depthWrite: false,
                 opacity: this._simpleMarkerOptions.opacity,
                 shading: THREE.SmoothShading,
                 transparent: true,
             }));
 
+        cone.renderOrder = 1;
+
         let ball: THREE.Mesh = new THREE.Mesh(
             new THREE.SphereGeometry(radius / 2, 8, 8),
             new THREE.MeshBasicMaterial({
                 color: this._simpleMarkerOptions.ballColor,
-                depthWrite: false,
                 opacity: this._simpleMarkerOptions.ballOpacity,
                 shading: THREE.SmoothShading,
                 transparent: true,
