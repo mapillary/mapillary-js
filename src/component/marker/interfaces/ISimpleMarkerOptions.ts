@@ -4,6 +4,7 @@ export interface ISimpleMarkerOptions {
     color?: number | string;
     interactive?: boolean;
     opacity?: number;
+    radius?: number;
 }
 
 export default ISimpleMarkerOptions;

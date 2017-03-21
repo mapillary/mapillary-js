@@ -15,6 +15,7 @@ export class SimpleMarker extends Marker {
     private _color: number | string;
     private _interactive: boolean;
     private _opacity: number;
+    private _radius: number;
 
     constructor(id: string, latLon: ILatLon, options?: ISimpleMarkerOptions) {
         super(id, latLon);
@@ -26,12 +27,12 @@ export class SimpleMarker extends Marker {
         this._color = options.color != null ? options.color : 0xff0000;
         this._interactive = !!options.interactive;
         this._opacity = options.opacity != null ? options.opacity : 0.4;
+        this._radius = options.radius != null ? options.radius : 1;
     }
 
     protected _createGeometry(position: number[]): void {
-        let radius: number = 1;
-
-        let cone: THREE.Mesh = new THREE.Mesh(
+        const radius: number = this._radius;
+        const cone: THREE.Mesh = new THREE.Mesh(
             this._markerGeometry(radius, 8, 8),
             new THREE.MeshBasicMaterial({
                 color: this._color,
@@ -42,7 +43,7 @@ export class SimpleMarker extends Marker {
 
         cone.renderOrder = 1;
 
-        let ball: THREE.Mesh = new THREE.Mesh(
+        const ball: THREE.Mesh = new THREE.Mesh(
             new THREE.SphereGeometry(radius / 2, 8, 8),
             new THREE.MeshBasicMaterial({
                 color: this._ballColor,
@@ -53,7 +54,7 @@ export class SimpleMarker extends Marker {
 
         ball.position.z = this._markerHeight(radius);
 
-        let group: THREE.Object3D = new THREE.Object3D();
+        const group: THREE.Object3D = new THREE.Object3D();
         group.add(ball);
         group.add(cone);
         group.position.fromArray(position);
