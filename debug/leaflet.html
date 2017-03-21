@@ -157,7 +157,7 @@
                 markerToUpdate.setLatLng([e.marker.latLon.lat, e.marker.latLon.lon]);
             });
 
-            mly.on("click", function(e) {
+            mly.on(Mapillary.Viewer.click, function(e) {
                 if (!e.latLon) { return;}
 
                 createMarker(e.latLon);
@@ -169,7 +169,7 @@
                 createMarker({ lat: e.latlng.lat, lon: e.latlng.lng });
             };
 
-            map.on("click", mapOnClick);
+            map.on('click', mapOnClick);
 
             let markerId = 0;
             let mapMarker;
@@ -189,14 +189,20 @@
                 }
             }
 
+            const removeMlyIndicator = function() {
+                if (!!mlyMarker) {
+                    mkc.remove([mlyMarker.id]);
+                }
+            }
+
             const moveMarker = function(latLon) {
+                if (dragging) {
+                    return;
+                }
+
                 if (latLon == null) {
                     removeMapIndicator();
-
-                    if (!!mlyMarker) {
-                        mkc.remove([mlyMarker.id]);
-                    }
-
+                    removeMlyIndicator();
                     return;
                 }
 
@@ -211,7 +217,7 @@
                 }
 
                 mlyMarker = new Mapillary.MarkerComponent.CircleMarker(
-                    "mouseMarker",
+                    'mouseMarker',
                     { lat: latLon.lat, lon: latLon.lon });
 
                 mkc.add([mlyMarker]);
@@ -239,30 +245,26 @@
                 moveMarker(event.latLon);
             }
 
-            mly.on("mouseup", onViewerMouseEvent);
-            mly.on("mouseover", onViewerMouseEvent);
-            mly.on("mousedown", onViewerMouseEvent);
+            mly.on(Mapillary.Viewer.mouseup, onViewerMouseEvent);
+            mly.on(Mapillary.Viewer.mouseover, onViewerMouseEvent);
+            mly.on(Mapillary.Viewer.mousedown, onViewerMouseEvent);
 
-            mly.on("mousemove", function(event) {
+            mly.on(Mapillary.Viewer.mousemove, function(event) {
                 pos = event.pixelPoint;
-                if (moving) { return; }
+                if (moving || dragging) { return; }
 
                 moveMarker(event.latLon);
             });
 
 
-            mly.on("mouseout", function(event) {
+            mly.on(Mapillary.Viewer.mouseout, function(event) {
                 pos = null;
-
-                if (!!mlyMarker) {
-                    mkc.remove([mlyMarker.id]);
-                }
-
+                removeMlyIndicator();
                 removeMapIndicator();
             });
 
-            mly.on("movestart", function(event) { moving = true; });
-            mly.on("moveend", function(event) {
+            mly.on(Mapillary.Viewer.movestart, function(event) { moving = true; });
+            mly.on(Mapillary.Viewer.moveend, function(event) {
                 moving = false;
 
                 if (!pos) { return; }
@@ -274,19 +276,34 @@
 
             const onMapMouseEvent = function(e) {
                 mapEventMarker = new Mapillary.MarkerComponent.CircleMarker(
-                    "mapEventMarker",
+                    'mapEventMarker',
                     { lat: e.latlng.lat, lon: e.latlng.lng });
 
                 mkc.add([mapEventMarker]);
             }
 
-            map.on("mousemove", onMapMouseEvent);
-            map.on("mouseover", onMapMouseEvent);
+            map.on('mousemove', onMapMouseEvent);
+            map.on('mouseover', onMapMouseEvent);
 
-            map.on("mouseout", function(e) {
+            map.on('mouseout', function(e) {
                 if (!!mapEventMarker) {
                     mkc.remove([mapEventMarker.id]);
                 }
+            });
+
+            let dragging = false;
+            mkc.on(Mapillary.MarkerComponent.MarkerComponent.dragstart, () => {
+                dragging = true;
+                removeMlyIndicator();
+                removeMapIndicator();
+            });
+
+            mkc.on(Mapillary.MarkerComponent.MarkerComponent.dragend, () => {
+                dragging = false;
+
+                if (!pos) { return; }
+
+                mly.unproject(pos).then(moveMarker);
             });
 
             window.addEventListener('resize', function() { mly.resize(); });
