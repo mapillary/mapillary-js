@@ -252,7 +252,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
     private _setKeysSubscription: Subscription;
     private _setSliderVisibleSubscription: Subscription;
-    private _elementSubscription: Subscription;
 
     private _stateSubscription: Subscription;
     private _glRenderSubscription: Subscription;
@@ -389,6 +388,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         {
                             max: 1000,
                             min: 0,
+                            oninput: (e: Event): void => {
+                                const curtain: number = Number((<HTMLInputElement>e.target).value) / 1000;
+                                this._navigator.stateService.moveTo(curtain);
+                            },
                             type: "range",
                             value: 1000 * sliderState.curtain,
                         },
@@ -408,32 +411,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     return hash;
                 })
             .subscribe(this._container.domRenderer.render$);
-
-        this._elementSubscription = this._container.domRenderer.element$
-            .map(
-                (e: Element): HTMLInputElement => {
-                    let nodeList: NodeListOf<Element> = e.getElementsByClassName("SliderControl");
-
-                    let slider: HTMLInputElement = nodeList.length > 0 ? <HTMLInputElement>nodeList[0] : null;
-
-                    return slider;
-                })
-            .filter(
-                (input: HTMLInputElement): boolean => {
-                    return input != null;
-                })
-            .switchMap(
-                (input: HTMLInputElement): Observable<Event> => {
-                    return Observable.fromEvent<Event>(input, "input");
-                })
-            .map(
-                (e: Event): number => {
-                    return Number((<HTMLInputElement>e.target).value) / 1000;
-                })
-            .subscribe(
-                (curtain: number): void => {
-                    this._navigator.stateService.moveTo(curtain);
-                });
 
         this._sliderStateCreator$.next(null);
 
@@ -585,7 +562,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._setKeysSubscription.unsubscribe();
         this._setSliderVisibleSubscription.unsubscribe();
-        this._elementSubscription.unsubscribe();
         this._stateSubscription.unsubscribe();
         this._glRenderSubscription.unsubscribe();
         this._domRenderSubscription.unsubscribe();
