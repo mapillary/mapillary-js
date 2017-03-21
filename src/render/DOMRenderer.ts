@@ -155,6 +155,7 @@ export class DOMRenderer {
                         style: {
                             bottom: offset.bottom + "px",
                             left: offset.left + "px",
+                            "pointer-events": "none",
                             position: "absolute",
                             right: offset.right + "px",
                             top: offset.top + "px",
