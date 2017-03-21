@@ -3,11 +3,21 @@
 import * as THREE from "three";
 
 import {ILatLon} from "../../../API";
-import {Marker} from "../../../Component";
+import {
+    ICircleMarkerOptions,
+    Marker,
+} from "../../../Component";
 
 export class CircleMarker extends Marker {
-    constructor(id: string, latLon: ILatLon) {
+    private _color: number | string;
+    private _opacity: number;
+
+    constructor(id: string, latLon: ILatLon, options?: ICircleMarkerOptions) {
         super(id, latLon);
+
+        options = !!options ? options : {};
+        this._color = options.color != null ? options.color : 0xffffff;
+        this._opacity = options.opacity != null ? options.opacity : 0.4;
     }
 
     protected _createGeometry(position: number[]): void {
@@ -15,8 +25,8 @@ export class CircleMarker extends Marker {
         let circle: THREE.Mesh = new THREE.Mesh(
             new THREE.CircleGeometry(radius, 16),
             new THREE.MeshBasicMaterial({
-                color: "#0f0",
-                opacity: 0.6,
+                color: this._color,
+                opacity: this._opacity,
                 transparent: true,
             }));
 

@@ -9,13 +9,23 @@ import {
 } from "../../../Component";
 
 export class SimpleMarker extends Marker {
-    private _circleToRayAngle: number = 2.0;
-    private _simpleMarkerOptions: ISimpleMarkerOptions;
+    private _ballColor: number | string;
+    private _ballOpacity: number;
+    private _circleToRayAngle: number;
+    private _color: number | string;
+    private _interactive: boolean;
+    private _opacity: number;
 
-    constructor(id: string, latLon: ILatLon, options: ISimpleMarkerOptions) {
+    constructor(id: string, latLon: ILatLon, options?: ISimpleMarkerOptions) {
         super(id, latLon);
 
-        this._simpleMarkerOptions = options;
+        options = !!options ? options : {};
+        this._ballColor = options.ballColor != null ? options.ballColor : 0xff0000;
+        this._ballOpacity = options.ballOpacity != null ? options.ballOpacity : 0.8;
+        this._circleToRayAngle = 2;
+        this._color = options.color != null ? options.color : 0xff0000;
+        this._interactive = !!options.interactive;
+        this._opacity = options.opacity != null ? options.opacity : 0.4;
     }
 
     protected _createGeometry(position: number[]): void {
@@ -24,8 +34,8 @@ export class SimpleMarker extends Marker {
         let cone: THREE.Mesh = new THREE.Mesh(
             this._markerGeometry(radius, 8, 8),
             new THREE.MeshBasicMaterial({
-                color: this._simpleMarkerOptions.ballColor,
-                opacity: this._simpleMarkerOptions.opacity,
+                color: this._color,
+                opacity: this._opacity,
                 shading: THREE.SmoothShading,
                 transparent: true,
             }));
@@ -35,8 +45,8 @@ export class SimpleMarker extends Marker {
         let ball: THREE.Mesh = new THREE.Mesh(
             new THREE.SphereGeometry(radius / 2, 8, 8),
             new THREE.MeshBasicMaterial({
-                color: this._simpleMarkerOptions.ballColor,
-                opacity: this._simpleMarkerOptions.ballOpacity,
+                color: this._ballColor,
+                opacity: this._ballOpacity,
                 shading: THREE.SmoothShading,
                 transparent: true,
             }));
@@ -59,8 +69,7 @@ export class SimpleMarker extends Marker {
     }
 
     protected _getInteractiveObjectIds(): string[] {
-        return !!this._simpleMarkerOptions.interactive ?
-            [this._geometry.children[0].uuid] : [];
+        return this._interactive ? [this._geometry.children[0].uuid] : [];
     }
 
     private _markerHeight(radius: number): number {

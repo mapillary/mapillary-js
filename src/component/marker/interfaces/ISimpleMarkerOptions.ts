@@ -1,7 +1,7 @@
 export interface ISimpleMarkerOptions {
-    ballColor?: string;
+    ballColor?: number | string;
     ballOpacity?: number;
-    color?: string;
+    color?: number | string;
     interactive?: boolean;
     opacity?: number;
 }
