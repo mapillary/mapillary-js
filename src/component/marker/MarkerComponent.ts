@@ -46,9 +46,23 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     /**
      * Fired when the position of a marker is changed.
      * @event
-     * @type {IMarkerEvent} markerEvent - Event with the marker.
+     * @type {IMarkerEvent} markerEvent - Marker event.
      */
     public static changed: string = "changed";
+
+    /**
+     * Fired when a marker drag interaction starts.
+     * @event
+     * @type {IMarkerEvent} markerEvent - Marker event.
+     */
+    public static dragstart: string = "dragstart";
+
+    /**
+     * Fired when a marker drag interaction ends.
+     * @event
+     * @type {IMarkerEvent} markerEvent - Marker event.
+     */
+    public static dragend: string = "dragend";
 
     private _relativeGroundAltitude: number;
 
@@ -59,6 +73,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     private _viewportCoords: ViewportCoords;
 
     private _adjustHeightSubscription: Subscription;
+    private _dragEventSubscription: Subscription;
     private _markersUpdatedSubscription: Subscription;
     private _mouseClaimSubscription: Subscription;
     private _referenceSubscription: Subscription;
@@ -354,6 +369,25 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 draggingStopped$)
             .startWith(false);
 
+        this._dragEventSubscription = draggingStarted$
+            .withLatestFrom(hoveredMarkerId$)
+            .merge(Observable
+                .combineLatest(
+                    draggingStopped$,
+                    Observable.of<string>(null)))
+            .startWith([false, null])
+            .pairwise()
+            .subscribe(
+                ([previous, current]: [boolean, string][]): void => {
+                    const dragging: boolean = current[0];
+                    const eventType: string = dragging ? MarkerComponent.dragstart : MarkerComponent.dragend;
+                    const id: string = dragging ? current[1] : previous[1];
+                    const marker: Marker = this._markerScene.get(id);
+                    const markerEvent: IMarkerEvent = { marker: marker, type: eventType };
+
+                    this.fire(eventType, markerEvent);
+                });
+
         this._mouseClaimSubscription = Observable
             .combineLatest(
                 this._container.mouseService.active$,
@@ -446,16 +480,17 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                             reference.lon,
                             reference.alt);
 
-                    const markerEvent: IMarkerEvent = { marker: marker };
-
                     this._markerScene.update(marker.id, intersection.toArray(), { lat: lat, lon: lon });
                     this._markerSet.update(marker);
+
+                    const markerEvent: IMarkerEvent = { marker: marker, type: MarkerComponent.changed };
                     this.fire(MarkerComponent.changed, markerEvent);
                 });
     }
 
     protected _deactivate(): void {
         this._adjustHeightSubscription.unsubscribe();
+        this._dragEventSubscription.unsubscribe();
         this._markersUpdatedSubscription.unsubscribe();
         this._mouseClaimSubscription.unsubscribe();
         this._referenceSubscription.unsubscribe();
