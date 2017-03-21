@@ -102,7 +102,7 @@
                 const marker = new Mapillary.MarkerComponent.SimpleMarker(
                     id,
                     { lat: latLon.lat, lon: latLon.lon },
-                    { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', draggable: true, opacity: 0.4 });
+                    { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', interactive: true, opacity: 0.4 });
                 mkc.add([marker]);
 
                 const newCircle = L.circleMarker(
@@ -118,7 +118,7 @@
                             const marker = new Mapillary.MarkerComponent.SimpleMarker(
                                 id,
                                 { lat: e.latlng.lat, lon: e.latlng.lng },
-                                { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', draggable: true, opacity: 0.4 });
+                                { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', interactive: true, opacity: 0.4 });
                             mkc.add([marker]);
                         };
 
@@ -158,9 +158,13 @@
             });
 
             mly.on(Mapillary.Viewer.click, function(e) {
-                if (!e.latLon) { return;}
+                if (!e.latLon) { return; }
 
-                createMarker(e.latLon);
+                mkc.getMarkerIdAt(e.pixelPoint).then((markerId) => {
+                    if (markerId != null) { return; }
+
+                    createMarker(e.latLon);
+                });
             });
 
             const mapOnClick = function(e) {
