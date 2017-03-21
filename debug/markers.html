@@ -16,7 +16,7 @@
 <body>
     <div id='viewer'></div>
     <script>
-        let mly = new Mapillary.Viewer(
+        const mly = new Mapillary.Viewer(
             'viewer',
             'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh',
             null,
@@ -27,10 +27,10 @@
                 },
             });
 
-        let key = !!window.location.hash ? window.location.hash.substring(1) : '6Zhtztzt67fWmdd4OYH44w';
+        const key = !!window.location.hash ? window.location.hash.substring(1) : '6Zhtztzt67fWmdd4OYH44w';
         mly.moveToKey(key)
             .then((n) => {
-                let markers = createRandomMarkers(250000, n.latLon);
+                const markers = createRandomMarkers(1000000, n.latLon);
                 addMarkers(markers);
             });
 
@@ -38,46 +38,39 @@
             return Math.random() * (max - min) + min;
         }
 
-        let createRandomMarkers = function(count, latLon) {
-            let t0 = window.performance.now();
-            let boxWidth = 0.06;
+        const createRandomMarkers = function(count, latLon) {
+            const t0 = window.performance.now();
+            const boxWidth = 0.06;
 
-            let minLat = latLon.lat - boxWidth / 2;
-            let maxLat = latLon.lat + boxWidth / 2;
-            let minLon = latLon.lon - boxWidth / 2;
-            let maxLon = latLon.lon + boxWidth / 2;
+            const minLat = latLon.lat - boxWidth / 2;
+            const maxLat = latLon.lat + boxWidth / 2;
+            const minLon = latLon.lon - boxWidth / 2;
+            const maxLon = latLon.lon + boxWidth / 2;
 
-            let markers = [];
+            const markers = [];
             for (let i = 0; i < count; i++) {
-                let lat = getRandomUniform(minLat, maxLat);
-                let lon = getRandomUniform(minLon, maxLon);
+                const lat = getRandomUniform(minLat, maxLat);
+                const lon = getRandomUniform(minLon, maxLon);
 
-                let marker = new Mapillary.MarkerComponent.SimpleMarker(
-                    i.toString(),
-                    { lat: lat, lon: lon },
-                    {
-                        ballColor: '#f00',
-                        ballOpacity: 0.8,
-                        color: '#f00',
-                        opacity: 0.4,
-                    });
+                const marker = new Mapillary.MarkerComponent.SimpleMarker(
+                    i.toString(), { lat: lat, lon: lon });
 
                 markers.push(marker);
             }
 
-            let t1 = window.performance.now();
+            const t1 = window.performance.now();
             console.log('create markers:', (t1 - t0).toFixed(2));
 
             return markers;
         }
 
-        let mc = mly.getComponent("marker");
+        const mc = mly.getComponent("marker");
 
         function addMarkers(markers) {
-            let t0 = window.performance.now();
+            const t0 = window.performance.now();
             mc.add(markers);
 
-            let t1 = window.performance.now();
+            const t1 = window.performance.now();
             console.log('add markers:', (t1 - t0).toFixed(2));
         }
 

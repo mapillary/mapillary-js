@@ -47,7 +47,6 @@
                 });
 
             const key = !!window.location.hash ? window.location.hash.substring(1) : '6Zhtztzt67fWmdd4OYH44w';
-            mly.moveToKey(key);
 
             // Malmö OUyhTBETwY4ljRdPI4OFuw
             // Catalina jDyvUA-rmwd7ePvhXrRxLQ
@@ -102,7 +101,7 @@
                 const marker = new Mapillary.MarkerComponent.SimpleMarker(
                     id,
                     { lat: latLon.lat, lon: latLon.lon },
-                    { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', interactive: true, opacity: 0.4 });
+                    { ballColor: '#f00', color: '#f00', interactive: true });
                 mkc.add([marker]);
 
                 const newCircle = L.circleMarker(
@@ -118,7 +117,7 @@
                             const marker = new Mapillary.MarkerComponent.SimpleMarker(
                                 id,
                                 { lat: e.latlng.lat, lon: e.latlng.lng },
-                                { ballColor: '#f00', ballOpacity: 0.8, color: '#f00', interactive: true, opacity: 0.4 });
+                                { ballColor: '#f00', color: '#f00', interactive: true });
                             mkc.add([marker]);
                         };
 
@@ -214,7 +213,7 @@
                     mapMarker =
                         L.circleMarker(
                             [latLon.lat, latLon.lon],
-                            { radius: 5, color: '#0a0' })
+                            { radius: 5, color: '#0f0' })
                         .addTo(map);
                 } else {
                     mapMarker.setLatLng([latLon.lat, latLon.lon]);
@@ -222,7 +221,8 @@
 
                 mlyMarker = new Mapillary.MarkerComponent.CircleMarker(
                     'mouseMarker',
-                    { lat: latLon.lat, lon: latLon.lon });
+                    { lat: latLon.lat, lon: latLon.lon },
+                    { color: '#0f0' });
 
                 mkc.add([mlyMarker]);
 
@@ -237,7 +237,7 @@
                 ];
 
                 if (!mapLine) {
-                    mapLine = L.polyline(lineString, {color: '#0a0', weight: 1}).addTo(map);
+                    mapLine = L.polyline(lineString, {color: '#0f0', weight: 1}).addTo(map);
                 } else {
                     mapLine.setLatLngs(lineString);
                 }
@@ -281,7 +281,8 @@
             const onMapMouseEvent = function(e) {
                 mapEventMarker = new Mapillary.MarkerComponent.CircleMarker(
                     'mapEventMarker',
-                    { lat: e.latlng.lat, lon: e.latlng.lng });
+                    { lat: e.latlng.lat, lon: e.latlng.lng },
+                    { color: '#0f0' });
 
                 mkc.add([mapEventMarker]);
             }
