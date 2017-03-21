@@ -37,7 +37,7 @@ export class CircleMarker extends Marker {
         }
     }
 
-    protected _getDraggableObjectIds(): string[] {
+    protected _getInteractiveObjectIds(): string[] {
         return [];
     }
 }

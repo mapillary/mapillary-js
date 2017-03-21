@@ -40,12 +40,12 @@ export abstract class Marker {
         this._geometry = null;
     }
 
-    public getDraggableObjectIds(): string[] {
+    public getInteractiveObjectIds(): string[] {
         if (!this._geometry) {
             return [];
         }
 
-        return this._getDraggableObjectIds();
+        return this._getInteractiveObjectIds();
     }
 
     public lerpAltitude(alt: number, alpha: number): void {
@@ -72,7 +72,7 @@ export abstract class Marker {
 
     protected abstract _disposeGeometry(): void;
 
-    protected abstract _getDraggableObjectIds(): string[];
+    protected abstract _getInteractiveObjectIds(): string[];
 }
 
 export default Marker;

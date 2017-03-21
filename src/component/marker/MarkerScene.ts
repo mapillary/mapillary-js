@@ -36,8 +36,8 @@ export class MarkerScene {
         marker.createGeometry(position);
         this._scene.add(marker.geometry);
         this._markers[marker.id] = marker;
-        for (let draggableId of marker.getDraggableObjectIds()) {
-            this._objectMarkers[draggableId] = marker.id;
+        for (let interactiveId of marker.getInteractiveObjectIds()) {
+            this._objectMarkers[interactiveId] = marker.id;
         }
 
         this._needsRender = true;
@@ -125,8 +125,8 @@ export class MarkerScene {
     private _dispose(id: string): void {
         const marker: Marker = this._markers[id];
         this._scene.remove(marker.geometry);
-        for (let draggableId of marker.getDraggableObjectIds()) {
-            delete this._objectMarkers[draggableId];
+        for (let interactiveId of marker.getInteractiveObjectIds()) {
+            delete this._objectMarkers[interactiveId];
         }
 
         marker.disposeGeometry();

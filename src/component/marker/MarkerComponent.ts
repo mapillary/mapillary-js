@@ -1,6 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import * as THREE from "three";
+import * as when from "when";
 
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
@@ -103,6 +104,33 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
     public getAll(): Marker[] {
         return this._markerSet.getAll();
+    }
+
+    public getMarkerIdAt(pixelPoint: number[]): when.Promise<string> {
+        return when.promise<string>((resolve: any, reject: any): void => {
+            this._container.renderService.renderCamera$
+                .first()
+                .map(
+                    (render: RenderCamera): string => {
+                        const viewport: number[] = this._viewportCoords
+                            .canvasToViewport(
+                                pixelPoint[0],
+                                pixelPoint[1],
+                                this._container.element.offsetWidth,
+                                this._container.element.offsetHeight);
+
+                        const id: string = this._markerScene.intersectObjects(viewport, render.perspective);
+
+                        return id;
+                    })
+                .subscribe(
+                    (id: string): void => {
+                        resolve(id);
+                    },
+                    (error: Error): void => {
+                        reject(error);
+                    });
+        });
     }
 
     public remove(markerIds: string[]): void {

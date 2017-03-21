@@ -58,8 +58,8 @@ export class SimpleMarker extends Marker {
         }
     }
 
-    protected _getDraggableObjectIds(): string[] {
-        return !!this._simpleMarkerOptions.draggable ?
+    protected _getInteractiveObjectIds(): string[] {
+        return !!this._simpleMarkerOptions.interactive ?
             [this._geometry.children[0].uuid] : [];
     }
 
