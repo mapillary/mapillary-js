@@ -67,8 +67,6 @@ export class TouchZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
                 ([pinch, render, transform]: [IPinch, RenderCamera, Transform]): void => {
                     let element: HTMLElement = this._container.element;
 
-                    let canvasWidth: number = element.offsetWidth;
-                    let canvasHeight: number = element.offsetHeight;
 
                     let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(pinch, element);
 
@@ -76,13 +74,13 @@ export class TouchZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX,
                             canvasY,
-                            canvasWidth,
-                            canvasHeight,
+                            element,
                             render.perspective);
 
                     let reference: number[] = transform.projectBasic(unprojected.toArray());
 
-                    let zoom: number = 3 * pinch.distanceChange / Math.min(canvasHeight, canvasWidth);
+                    const [canvasWidth, canvasHeight]: number[] = this._viewportCoords.containerToCanvas(element);
+                    let zoom: number = 3 * pinch.distanceChange / Math.min(canvasWidth, canvasHeight);
 
                     this._navigator.stateService.zoomIn(zoom, reference);
                 });

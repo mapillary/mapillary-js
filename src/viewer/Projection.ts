@@ -44,11 +44,7 @@ export class Projection {
         const canvasY: number = pixelPoint[1];
 
         const [viewportX, viewportY]: number[] =
-            this._viewportCoords.canvasToViewport(
-                canvasX,
-                canvasY,
-                container.offsetWidth,
-                container.offsetHeight);
+            this._viewportCoords.canvasToViewport(canvasX, canvasY, container);
 
         const point3d: THREE.Vector3 = new THREE.Vector3(viewportX, viewportY, 1)
             .unproject(render.perspective);

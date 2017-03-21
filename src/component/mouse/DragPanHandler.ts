@@ -165,18 +165,13 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
 
                     let element: HTMLElement = this._container.element;
 
-                    let canvasWidth: number = element.offsetWidth;
-                    let canvasHeight: number = element.offsetHeight;
-
-
                     let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 
                     let currentDirection: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX,
                             canvasY,
-                            canvasWidth,
-                            canvasHeight,
+                            element,
                             render.perspective)
                                 .sub(render.perspective.position);
 
@@ -184,8 +179,7 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX - movementX,
                             canvasY,
-                            canvasWidth,
-                            canvasHeight,
+                            element,
                             render.perspective)
                                 .sub(render.perspective.position);
 
@@ -193,8 +187,7 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX,
                             canvasY - movementY,
-                            canvasWidth,
-                            canvasHeight,
+                            element,
                             render.perspective)
                                 .sub(render.perspective.position);
 
@@ -248,8 +241,7 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
 
                     let pixelDistances: number[] =
                         this._viewportCoords.getPixelDistances(
-                            this._container.element.offsetWidth,
-                            this._container.element.offsetHeight,
+                            this._container.element,
                             transform,
                             render.perspective);
 

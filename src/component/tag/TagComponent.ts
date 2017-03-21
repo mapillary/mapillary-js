@@ -850,17 +850,12 @@ export class TagComponent extends Component<ITagConfiguration> {
         offsetX = offsetX != null ? offsetX : 0;
         offsetY = offsetY != null ? offsetY : 0;
 
-        let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
-
-        let canvasWidth: number = element.offsetWidth;
-        let canvasHeight: number = element.offsetHeight;
-
-        let basic: number[] =
+        const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
+        const basic: number[] =
             this._viewportCoords.canvasToBasic(
                 canvasX - offsetX,
                 canvasY - offsetY,
-                canvasWidth,
-                canvasHeight,
+                element,
                 transform,
                 camera.perspective);
 

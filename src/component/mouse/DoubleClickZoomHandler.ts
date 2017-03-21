@@ -24,17 +24,13 @@ export class DoubleClickZoomHandler extends MouseHandlerBase<IMouseConfiguration
                 ([event, render, transform]: [MouseEvent | Touch, RenderCamera, Transform]): void => {
                     const element: HTMLElement = this._container.element;
 
-                    const canvasWidth: number = element.offsetWidth;
-                    const canvasHeight: number = element.offsetHeight;
-
                     const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 
                     const unprojected: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
                             canvasX,
                             canvasY,
-                            canvasWidth,
-                            canvasHeight,
+                            element,
                             render.perspective);
 
                     const reference: number[] = transform.projectBasic(unprojected.toArray());

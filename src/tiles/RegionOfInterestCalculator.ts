@@ -32,17 +32,20 @@ export class RegionOfInterestCalculator {
      * @returns {IRegionOfInterest} A region of interest.
      */
     public computeRegionOfInterest(renderCamera: RenderCamera, size: ISize, transform: Transform): IRegionOfInterest {
-        let canvasPoints: number[][] = this._canvasBoundaryPoints(4);
-        let bbox: IBoundingBox = this._canvasPointsBoundingBox(canvasPoints, renderCamera, transform);
+        let viewportBoundaryPoints: number[][] = this._viewportBoundaryPoints(4);
+        let bbox: IBoundingBox = this._viewportPointsBoundingBox(viewportBoundaryPoints, renderCamera, transform);
         this._clipBoundingBox(bbox);
 
-        let centralPixel: number[][] = [
-            [0.5 - 0.5 / size.width, 0.5 - 0.5 / size.height],
-            [0.5 + 0.5 / size.width, 0.5 - 0.5 / size.height],
-            [0.5 + 0.5 / size.width, 0.5 + 0.5 / size.height],
-            [0.5 - 0.5 / size.width, 0.5 + 0.5 / size.height],
+        const viewportPixelWidth: number = 2 / size.width;
+        const viewportPixelHeight: number = 2 / size.height;
+        let centralViewportPixel: number[][] = [
+            [-0.5 * viewportPixelWidth,  0.5 * viewportPixelHeight],
+            [ 0.5 * viewportPixelWidth,  0.5 * viewportPixelHeight],
+            [ 0.5 * viewportPixelWidth, -0.5 * viewportPixelHeight],
+            [-0.5 * viewportPixelWidth, -0.5 * viewportPixelHeight],
         ];
-        let cpbox: IBoundingBox = this._canvasPointsBoundingBox(centralPixel, renderCamera, transform);
+
+        let cpbox: IBoundingBox = this._viewportPointsBoundingBox(centralViewportPixel, renderCamera, transform);
 
         return {
             bbox: bbox,
@@ -51,10 +54,10 @@ export class RegionOfInterestCalculator {
         };
     }
 
-    private _canvasBoundaryPoints(pointsPerSide: number): number[][] {
+    private _viewportBoundaryPoints(pointsPerSide: number): number[][] {
         let points: number[][] = [];
-        let os: number[][] = [[0, 0], [1, 0], [1, 1], [0, 1]];
-        let ds: number[][] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+        let os: number[][] = [[-1, 1], [1, 1], [1, -1], [-1, -1]];
+        let ds: number[][] = [[2, 0], [0, -2], [-2, 0], [0, 2]];
         for (let side: number = 0; side < 4; ++side) {
             let o: number[] = os[side];
             let d: number[] = ds[side];
@@ -66,11 +69,13 @@ export class RegionOfInterestCalculator {
         return points;
     }
 
-    private _canvasPointsBoundingBox(canvasPoints: number[][], renderCamera: RenderCamera, transform: Transform): IBoundingBox {
-        let basicPoints: number[][] = canvasPoints.map((point: number []): number[] => {
-            return this._viewportCoords
-                .canvasToBasic(point[0], point[1], 1, 1, transform, renderCamera.perspective);
-        });
+    private _viewportPointsBoundingBox(viewportPoints: number[][], renderCamera: RenderCamera, transform: Transform): IBoundingBox {
+        let basicPoints: number[][] = viewportPoints
+            .map(
+                (point: number []): number[] => {
+                    return this._viewportCoords
+                        .viewportToBasic(point[0], point[1], transform, renderCamera.perspective);
+                });
 
         if (transform.gpano != null) {
             return this._boundingBoxPano(basicPoints);
