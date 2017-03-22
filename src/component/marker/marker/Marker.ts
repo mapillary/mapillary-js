@@ -1,3 +1,7 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
+import * as THREE from "three";
+
 import {ILatLon} from "../../../API";
 
 export abstract class Marker {
@@ -37,7 +41,7 @@ export abstract class Marker {
 
         this._disposeGeometry();
 
-        this._geometry = null;
+        this._geometry = undefined;
     }
 
     public getInteractiveObjectIds(): string[] {
@@ -58,7 +62,8 @@ export abstract class Marker {
 
     public updatePosition(position: number[], latLon?: ILatLon): void {
         if (!!latLon) {
-            this._latLon = latLon;
+            this._latLon.lat = latLon.lat;
+            this._latLon.lon = latLon.lon;
         }
 
         if (!this._geometry) {
