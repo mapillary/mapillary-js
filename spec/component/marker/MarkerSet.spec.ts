@@ -345,6 +345,8 @@ describe("MarkerSet.updated$", () => {
         markerSet.add([marker1]);
 
         let marker2: TestMarker = new TestMarker("id2", { lat: 0, lon: 0 });
+
+        let firstDone: boolean = false;
         markerSet.updated$
             .first()
             .subscribe(
@@ -352,7 +354,11 @@ describe("MarkerSet.updated$", () => {
                     expect(ms.length).toBe(1);
                     expect(ms[0]).toBe(marker1);
                     expect(ms[0].id).toBe(marker1.id);
-                    done();
+                    if (firstDone) {
+                        done();
+                    } else {
+                        firstDone = true;
+                    }
                 });
 
         markerSet.changed$
@@ -361,7 +367,11 @@ describe("MarkerSet.updated$", () => {
                 (ms: MarkerSet): void => {
                     let result: Marker = ms.get(marker2.id);
                     expect(result).toBe(marker2);
-                    done();
+                    if (firstDone) {
+                        done();
+                    } else {
+                        firstDone = true;
+                    }
                 });
 
         markerSet.add([marker1, marker2]);
