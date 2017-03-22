@@ -26,6 +26,7 @@ import {
     Transform,
 } from "../../Geo";
 import {RenderCamera} from "../../Render";
+import {IFrame} from "../../State";
 import {
     Container,
     Navigator,
@@ -114,14 +115,21 @@ export class MouseComponent extends Component<IMouseConfiguration> {
                     }
                 });
 
+        const inTransition$: Observable<boolean> = this._navigator.stateService.currentState$
+            .map(
+                (frame: IFrame): boolean => {
+                    return frame.state.alpha < 1;
+                });
+
         this._bounceSubscription = Observable
             .combineLatest(
+                inTransition$,
                 this._navigator.stateService.inTranslation$,
                 this._container.mouseService.active$,
                 this._container.touchService.active$)
             .map(
                 (noForce: boolean[]): boolean => {
-                    return noForce[0] || noForce[1] || noForce[2];
+                    return noForce[0] || noForce[1] || noForce[2] || noForce[3];
                 })
             .distinctUntilChanged()
             .switchMap(
