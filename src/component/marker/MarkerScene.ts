@@ -12,12 +12,12 @@ export class MarkerScene {
     private _raycaster: THREE.Raycaster;
     private _scene: THREE.Scene;
 
-    constructor() {
+    constructor(scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._needsRender = false;
         this._markers = {};
         this._objectMarkers = {};
-        this._raycaster = new THREE.Raycaster();
-        this._scene = new THREE.Scene();
+        this._raycaster = !!raycaster ? raycaster : new THREE.Raycaster();
+        this._scene = !!scene ? scene : new THREE.Scene();
     }
 
     public get markers(): { [key: string]: Marker } {
