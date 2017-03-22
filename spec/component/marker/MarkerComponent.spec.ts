@@ -1,4 +1,4 @@
-/// <reference path="../../typings/index.d.ts" />
+/// <reference path="../../../typings/index.d.ts" />
 
 import {Observable} from "rxjs/Observable";
 
@@ -6,11 +6,11 @@ import {
     SimpleMarker,
     Marker,
     MarkerComponent,
-} from "../../src/Component";
-import {Container} from "../../src/Viewer";
+} from "../../../src/Component";
+import {Container} from "../../../src/Viewer";
 
-import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../helper/NavigatorMockCreator.spec";
+import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
+import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
 
 describe("MarkerComponent", () => {
     let markerComponent: MarkerComponent;
