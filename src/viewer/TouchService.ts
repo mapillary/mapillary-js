@@ -86,6 +86,12 @@ export class TouchService {
                 })
             .share();
 
+        this._doubleTap$
+            .subscribe(
+                (event: TouchEvent): void => {
+                    event.preventDefault();
+                });
+
         this._singleTouchMove$ = this._touchMove$
             .filter(
                 (te: TouchEvent): boolean => {
