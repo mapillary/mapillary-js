@@ -144,24 +144,28 @@ export class Viewer extends EventEmitter {
     public static spatialedgeschanged: string = "spatialedgeschanged";
 
     /**
-     * Private ComponentController object which manages component states.
+     * @ignore
+     * Private component controller object which manages component states.
      */
     private _componentController: ComponentController;
 
     /**
-     * Private Container object which maintains the DOM Element,
+     * @ignore
+     * Private container object which maintains the DOM Element,
      * renderers and relevant services.
      */
     private _container: Container;
 
     /**
-     * Private Observer object which observes the viewer state and
+     * @ignore
+     * Private observer object which observes the viewer state and
      * fires events on behalf of the viewer.
      */
     private _observer: Observer;
 
     /**
-     * Private Navigator object which controls navigation throught
+     * @ignore
+     * Private navigator object which controls navigation throught
      * the vast seas of Mapillary.
      */
     private _navigator: Navigator;
@@ -179,6 +183,11 @@ export class Viewer extends EventEmitter {
      * specifing Viewer's initial setup.
      * @param {string} [token] - Optional bearer token for API requests of
      * protected resources.
+     *
+     * @example
+     * ```
+     * var viewer = new Viewer("<element-id>", "<client-id>", "<my key>");
+     * ```
      */
     constructor (id: string, clientId: string, key?: string, options?: IViewerOptions, token?: string) {
         super();
@@ -197,6 +206,11 @@ export class Viewer extends EventEmitter {
      * Activate a component.
      *
      * @param {string} name - Name of the component which will become active.
+     *
+     * @example
+     * ```
+     * viewer.activateComponent("mouse");
+     * ```
      */
     public activateComponent(name: string): void {
         this._componentController.activate(name);
@@ -213,6 +227,11 @@ export class Viewer extends EventEmitter {
      * Deactivate a component.
      *
      * @param {string} name - Name of component which become inactive.
+     *
+     * @example
+     * ```
+     * viewer.deactivateComponent("mouse");
+     * ```
      */
     public deactivateComponent(name: string): void {
         this._componentController.deactivate(name);
@@ -238,6 +257,11 @@ export class Viewer extends EventEmitter {
      *
      * @returns {Promise<number>} Promise to the bearing
      * of the current viewer camera.
+     *
+     * @example
+     * ```
+     * viewer.getBearing().then((b) => { console.log(b); });
+     * ```
      */
     public getBearing(): when.Promise<number> {
         return when.promise<number>(
@@ -265,6 +289,11 @@ export class Viewer extends EventEmitter {
      *
      * @returns {Promise<number[]>} Promise to the basic coordinates
      * of the current photo at the center for the viewport.
+     *
+     * @example
+     * ```
+     * viewer.getCenter().then((c) => { console.log(c); });
+     * ```
      */
     public getCenter(): when.Promise<number[]> {
         return when.promise<number[]>(
@@ -285,6 +314,11 @@ export class Viewer extends EventEmitter {
      *
      * @param {string} name - Name of component.
      * @returns {Component} The requested component.
+     *
+     * @example
+     * ```
+     * var mouseComponent = viewer.getComponent("mouse");
+     * ```
      */
     public getComponent<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
         return this._componentController.get<TComponent>(name);
@@ -295,6 +329,11 @@ export class Viewer extends EventEmitter {
      *
      * @returns {Promise<number>} Promise to the viewers's current
      * zoom level.
+     *
+     * @example
+     * ```
+     * viewer.getZoom().then((z) => { console.log(z); });
+     * ```
      */
     public getZoom(): when.Promise<number> {
          return when.promise<number>(
@@ -313,12 +352,22 @@ export class Viewer extends EventEmitter {
     /**
      * Move close to given latitude and longitude.
      *
+     * @description Because the method propagates IO errors, these potential errors
+     * need to be handled by the method caller (see example).
+     *
      * @param {Number} lat - Latitude, in degrees.
      * @param {Number} lon - Longitude, in degrees.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} If no nodes exist close to provided latitude
      * longitude.
      * @throws {Error} Propagates any IO errors to the caller.
+     *
+     * @example
+     * ```
+     * viewer.moveCloseTo(0, 0).then(
+     *     (n) => { console.log(n); },
+     *     (e) => { console.error(e); });
+     * ```
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -343,7 +392,12 @@ export class Viewer extends EventEmitter {
      * or the edges has not yet been cached.
      * @throws {Error} Propagates any IO errors to the caller.
      *
-     * @example `viewer.moveDir(Mapillary.EdgeDirection.Next);`
+     * @example
+     * ```
+     * viewer.moveDir(Mapillary.EdgeDirection.Next).then(
+     *     (n) => { console.log(n); },
+     *     (e) => { console.error(e); });
+     * ```
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -363,6 +417,13 @@ export class Viewer extends EventEmitter {
      * @param {string} key - A valid Mapillary photo key.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
+     *
+     * @example
+     * ```
+     * viewer.moveToKey("<my key>").then(
+     *     (n) => { console.log(n); },
+     *     (e) => { console.error(e); });
+     * ```
      */
     public moveToKey(key: string): when.Promise<Node> {
         return when.promise<Node>((resolve: any, reject: any): void => {
@@ -381,6 +442,11 @@ export class Viewer extends EventEmitter {
      *
      * @description The components will also detect the viewer's
      * new size and resize their rendered elements if needed.
+     *
+     * @example
+     * ```
+     * viewer.resize();
+     * ```
      */
     public resize(): void {
         this._container.renderService.resize$.next(null);
@@ -402,6 +468,12 @@ export class Viewer extends EventEmitter {
      * @param {string} [token] token - Bearer token.
      * @returns {Promise<void>} Promise that resolves after token
      * is set.
+     *
+     * @example
+     * ```
+     * viewer.setAuthToken("<my token>")
+     *     .then(() => { console.log("token set"); });
+     * ```
      */
     public setAuthToken(token?: string): when.Promise<void> {
         return when.promise<void>(
@@ -428,6 +500,11 @@ export class Viewer extends EventEmitter {
      *
      * @param {number[]} The basic coordinates of the current
      * photo to be at the center for the viewport.
+     *
+     * @example
+     * ```
+     * viewer.setCenter([0.5, 0.5]);
+     * ```
      */
     public setCenter(center: number[]): void {
         this._navigator.stateService.setCenter(center);
@@ -472,7 +549,10 @@ export class Viewer extends EventEmitter {
      * @param {FilterExpression} filter - The filter expression.
      * @returns {Promise<void>} Promise that resolves after filter is applied.
      *
-     * @example `viewer.setFilter(["==", "sequenceKey", "<my sequence key>"]);`
+     * @example
+     * ```
+     * viewer.setFilter(["==", "sequenceKey", "<my sequence key>"]);
+     * ```
      */
     public setFilter(filter: FilterExpression): when.Promise<void> {
         return when.promise<void>(
@@ -493,7 +573,10 @@ export class Viewer extends EventEmitter {
      *
      * @param {RenderMode} renderMode - Render mode.
      *
-     * @example `viewer.setRenderMode(Mapillary.RenderMode.Letterbox);`
+     * @example
+     * ```
+     * viewer.setRenderMode(Mapillary.RenderMode.Letterbox);
+     * ```
      */
     public setRenderMode(renderMode: RenderMode): void {
         this._container.renderService.renderMode$.next(renderMode);
@@ -507,11 +590,34 @@ export class Viewer extends EventEmitter {
      * shows the highest level of detail.
      *
      * @param {number} The photo's current zoom level.
+     *
+     * @example
+     * ```
+     * viewer.setZoom(2);
+     * ```
      */
     public setZoom(zoom: number): void {
         this._navigator.stateService.setZoom(zoom);
     }
 
+    /**
+     *
+     * Returns an ILatLon representing geographical coordinates that correspond
+     * to the specified pixel coordinates.
+     *
+     * @description The pixel point may not always correspond to geographical
+     * coordinates. In the case of no correspondence the returned value will
+     * be `null`.
+     *
+     * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
+     * @returns {Promise<ILatLon>} Promise to the latLon corresponding to the pixel point.
+     *
+     * @example
+     * ```
+     * viewer.unproject([100, 100])
+     *     .then((latLon) => { console.log(latLon); });
+     * ```
+     */
     public unproject(pixelPoint: number[]): when.Promise<ILatLon> {
         return when.promise<ILatLon>(
             (resolve: any, reject: any): void => {
