@@ -11,6 +11,9 @@ import {
     IFrame,
 } from "../../State";
 
+/**
+ * The `ScrollZoomHandler` allows the user to zoom the viewer photo by scrolling.
+ */
 export class ScrollZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _preventDefaultSubscription: Subscription;
     private _zoomSubscription: Subscription;

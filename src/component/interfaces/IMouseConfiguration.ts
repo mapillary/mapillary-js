@@ -1,9 +1,32 @@
 import {IComponentConfiguration} from "../../Component";
 
 export interface IMouseConfiguration extends IComponentConfiguration {
+    /**
+     * Enable or disable the `DoubleClickZoomHandler`.
+     *
+     * @default true
+     */
     doubleClickZoom?: boolean;
+
+    /**
+     * Enable or disable the `DragPanHandler`.
+     *
+     * @default true
+     */
     dragPan?: boolean;
+
+    /**
+     * Enable or disable the `ScrollZoomHandler`.
+     *
+     * @default true
+     */
     scrollZoom?: boolean;
+
+    /**
+     * Enable or disable the `TouchZoomHandler`.
+     *
+     * @default true
+     */
     touchZoom?: boolean;
 }
 

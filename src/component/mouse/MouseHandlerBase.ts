@@ -25,10 +25,20 @@ export abstract class MouseHandlerBase<TConfiguration extends IComponentConfigur
         this._enabled = false;
     }
 
+    /**
+     * Returns a Boolean indicating whether the interaction is enabled.
+     *
+     * @returns {boolean} `true` if the interaction is enabled.
+     */
     public get isEnabled(): boolean {
         return this._enabled;
     }
 
+    /**
+     * Enables the interaction.
+     *
+     * @example ```mouseComponent.<handler-name>.enable();```
+     */
     public enable(): void {
         if (this._enabled || !this._component.activated) { return; }
 
@@ -38,6 +48,11 @@ export abstract class MouseHandlerBase<TConfiguration extends IComponentConfigur
         this._component.configure(this._getConfiguration(true));
     }
 
+    /**
+     * Disables the interaction.
+     *
+     * @example ```mouseComponent.<handler-name>.disable();```
+     */
     public disable(): void {
         if (!this._enabled) { return; }
 

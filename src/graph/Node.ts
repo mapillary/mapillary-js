@@ -32,6 +32,9 @@ export class Node {
     /**
      * Create a new node instance.
      *
+     * @description Nodes are always created internally by the library.
+     * Nodes can not be added to the library through any API method.
+     *
      * @param {ICoreNode} coreNode - Raw core node data.
      */
     constructor(core: ICoreNode) {

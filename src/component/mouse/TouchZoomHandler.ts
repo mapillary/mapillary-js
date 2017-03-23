@@ -17,6 +17,9 @@ import {
 } from "../../State";
 import {IPinch} from "../../Viewer";
 
+/**
+ * The `TouchZoomHandler` allows the user to zoom the viewer photo by pinching on a touchscreen.
+ */
 export class TouchZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _activeSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;

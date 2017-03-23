@@ -9,6 +9,7 @@ import {
     Component,
     IMouseConfiguration,
     MouseHandlerBase,
+    MouseTouchPair,
 } from "../../Component";
 import {
     Camera,
@@ -25,8 +26,9 @@ import {
     Navigator,
 } from "../../Viewer";
 
-type MouseTouchPair = [MouseEvent, MouseEvent] | [Touch, Touch];
-
+/**
+ * The `DragPanHandler` allows the user to pan the viewer photo by clicking and dragging the cursor.
+ */
 export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
 

@@ -34,6 +34,7 @@ import {
 
 /**
  * @class MouseComponent
+ *
  * @classdesc Component handling mouse and touch events for camera movement.
  */
 export class MouseComponent extends Component<IMouseConfiguration> {
@@ -74,14 +75,38 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._touchZoomHandler = new TouchZoomHandler(this, container, navigator, viewportCoords);
     }
 
+    /**
+     * Get double click zoom.
+     *
+     * @returns {DoubleClickZoomHandler} The double click zoom handler.
+     */
+    public get doubleClickZoom(): DoubleClickZoomHandler {
+        return this._doubleClickZoomHandler;
+    }
+
+    /**
+     * Get drag pan.
+     *
+     * @returns {DragPanHandler} The drag pan handler.
+     */
     public get dragPan(): DragPanHandler {
         return this._dragPanHandler;
     }
 
+    /**
+     * Get scroll zoom.
+     *
+     * @returns {ScrollZoomHandler} The scroll zoom handler.
+     */
     public get scrollZoom(): ScrollZoomHandler {
         return this._scrollZoomHandler;
     }
 
+    /**
+     * Get touch zoom.
+     *
+     * @returns {TouchZoomHandler} The touch zoom handler.
+     */
     public get touchZoom(): TouchZoomHandler {
         return this._touchZoomHandler;
     }

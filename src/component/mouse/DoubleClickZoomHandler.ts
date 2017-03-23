@@ -4,16 +4,14 @@ import {Subscription} from "rxjs/Subscription";
 import {
     IMouseConfiguration,
     MouseHandlerBase,
+    ClientTouch,
 } from "../../Component";
 import {Transform} from "../../Geo";
 import {RenderCamera} from "../../Render";
 
-type ClientTouch = {
-    clientX: number;
-    clientY: number;
-    shiftKey: boolean;
-}
-
+/**
+ * The `DoubleClickZoomHandler` allows the user to zoom the viewer photo at a point by double clicking.
+ */
 export class DoubleClickZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _zoomSubscription: Subscription;
 
