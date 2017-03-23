@@ -1,5 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 
+import {Subscription} from "rxjs/Subscription";
+
 import {ILatLon} from "../../../src/API";
 import {
     Marker,
@@ -145,6 +147,23 @@ describe("MarkerSet.getAll", () => {
 
         expect(marker1Found).toBe(true);
         expect(marker2Found).toBe(true);
+    });
+});
+
+describe("MarkerSet.has", () => {
+    it("should have an added marker", () => {
+        let markerSet: MarkerSet = new MarkerSet();
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+
+        markerSet.add([marker]);
+
+        expect(markerSet.has(marker.id)).toBe(true);
+    });
+
+    it("should not have a non existant marker", () => {
+        let markerSet: MarkerSet = new MarkerSet();
+
+        expect(markerSet.has("non-existant-id")).toBe(false);
     });
 });
 
@@ -315,6 +334,23 @@ describe("MarkerSet.changed$", () => {
                 });
 
         markerSet.remove([marker.id]);
+    });
+
+    it("should not emit when removing non existant marker", () => {
+        let markerSet: MarkerSet = new MarkerSet();
+
+        let hasEmitted: boolean = false;
+        let subscription: Subscription = markerSet.changed$
+            .subscribe(
+                (ms: MarkerSet): void => {
+                    hasEmitted = true;
+                });
+
+        markerSet.remove(["non-existant-id"]);
+
+        subscription.unsubscribe();
+
+        expect(hasEmitted).toBe(false);
     });
 });
 

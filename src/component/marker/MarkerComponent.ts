@@ -98,6 +98,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._markerSet.add(markers);
     }
 
+    public has(markerId: string): boolean {
+        return this._markerSet.has(markerId);
+    }
+
     public get(markerId: string): Marker {
         return this._markerSet.get(markerId);
     }

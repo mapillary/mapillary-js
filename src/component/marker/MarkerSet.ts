@@ -78,8 +78,12 @@ export class MarkerSet {
         }
     }
 
+    public has(id: string): boolean {
+        return id in this._hash;
+    }
+
     public get(id: string): Marker {
-        return id in this._hash ? this._hash[id].marker : undefined;
+        return this.has(id) ? this._hash[id].marker : undefined;
     }
 
     public getAll(): Marker[] {
@@ -95,6 +99,7 @@ export class MarkerSet {
         const hash: { [id: string]: MarkerIndexItem } = this._hash;
         const index: MarkerIndex = this._index;
 
+        let changed: boolean = false;
         for (const id of ids) {
             if (!(id in hash)) {
                 continue;
@@ -103,9 +108,12 @@ export class MarkerSet {
             const item: MarkerIndexItem = hash[id];
             index.remove(item);
             delete hash[id];
+            changed = true;
         }
 
-        this._indexChanged$.next(this);
+        if (changed) {
+            this._indexChanged$.next(this);
+        }
     }
 
     public removeAll(): void {
