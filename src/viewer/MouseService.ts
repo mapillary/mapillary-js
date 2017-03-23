@@ -232,22 +232,25 @@ export class MouseService {
                     return claims;
                 },
                 {})
-            .map((claims: {[key: string]: number}): string => {
-                let owner: string = null;
-                let curZ: number = -1;
+            .map(
+                (claims: {[key: string]: number}): string => {
+                    let owner: string = null;
+                    let curZ: number = -1;
 
-                for (let name in claims) {
-                    if (claims.hasOwnProperty(name)) {
-                        if (claims[name] > curZ) {
-                            curZ = claims[name];
-                            owner = name;
+                    for (let name in claims) {
+                        if (claims.hasOwnProperty(name)) {
+                            if (claims[name] > curZ) {
+                                curZ = claims[name];
+                                owner = name;
+                            }
                         }
                     }
-                }
-                return owner;
-            })
+                    return owner;
+                })
             .publishReplay(1)
             .refCount();
+
+        this._mouseOwner$.subscribe(() => { /* noop */ });
     }
 
     public get active$(): Observable<boolean> {
