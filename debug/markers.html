@@ -27,20 +27,39 @@
                 },
             });
 
-        const key = !!window.location.hash ? window.location.hash.substring(1) : '6Zhtztzt67fWmdd4OYH44w';
-        mly.moveToKey(key)
-            .then((n) => {
-                const markers = createRandomMarkers(1000000, n.latLon);
-                addMarkers(markers);
-            });
+        const createTimes = [];
+        const addTimes = [];
+        const batchSize = 1000;
+        let markerCount = 0;
 
-        function getRandomUniform(min, max) {
-            return Math.random() * (max - min) + min;
-        }
+        const markerComponent = mly.getComponent("marker");
 
-        const createRandomMarkers = function(count, latLon) {
+        // Log performance results
+        const logTimes = function() {
+            const totalCreateTime = createTimes
+                .reduce(function(acc, val) { return acc + val; }, 0);
+
+            const totalAddTime = addTimes
+                .reduce(function(acc, val) { return acc + val; }, 0);
+
+            console.log("Markers added:", markerCount);
+            console.log("Batch size:", batchSize);
+            console.log("Total create time:", totalCreateTime.toFixed(2));
+            console.log("Average batch create time:", (totalCreateTime / createTimes.length).toFixed(2));
+            console.log("Average marker create time:", (totalCreateTime / createTimes.length / batchSize).toFixed(4));
+            console.log("Total add time:", totalAddTime.toFixed(2));
+            console.log("Average batch add time:", (totalAddTime / addTimes.length).toFixed(2));
+            console.log("Average marker add time:", (totalAddTime / addTimes.length / batchSize).toFixed(4));
+        };
+
+        // Create markers in a bounding box with center at latLon
+        const createRandomMarkers = function(start, count, latLon) {
+            const getRandomUniform = function(min, max) {
+                return Math.random() * (max - min) + min;
+            };
+
             const t0 = window.performance.now();
-            const boxWidth = 0.06;
+            const boxWidth = 0.1;
 
             const minLat = latLon.lat - boxWidth / 2;
             const maxLat = latLon.lat + boxWidth / 2;
@@ -48,31 +67,46 @@
             const maxLon = latLon.lon + boxWidth / 2;
 
             const markers = [];
-            for (let i = 0; i < count; i++) {
+            for (let i = start; i < start + count; i++) {
                 const lat = getRandomUniform(minLat, maxLat);
                 const lon = getRandomUniform(minLon, maxLon);
 
                 const marker = new Mapillary.MarkerComponent.SimpleMarker(
-                    i.toString(), { lat: lat, lon: lon });
+                    i.toString(), { lat: lat, lon: lon, }, { interactive: true });
 
                 markers.push(marker);
             }
 
-            const t1 = window.performance.now();
-            console.log('create markers:', (t1 - t0).toFixed(2));
+            createTimes.push(window.performance.now() - t0);
 
             return markers;
-        }
+        };
 
-        const mc = mly.getComponent("marker");
-
-        function addMarkers(markers) {
+        // Add markers to component in batch
+        const addMarkers = function(markers) {
             const t0 = window.performance.now();
-            mc.add(markers);
+            markerComponent.add(markers);
+            addTimes.push(window.performance.now() - t0);
+        };
 
-            const t1 = window.performance.now();
-            console.log('add markers:', (t1 - t0).toFixed(2));
-        }
+        // Start creating and adding markers when node has been set
+        mly.moveToKey('6Zhtztzt67fWmdd4OYH44w')
+            .then(
+                function(n) {
+                    let intervalId = window.setInterval(function() {
+                        const markers = createRandomMarkers(markerCount, batchSize, n.latLon);
+                        addMarkers(markers);
+
+                        markerCount += batchSize;
+
+                        if (markerCount >= 1e6) {
+                            window.clearInterval(intervalId);
+                            logTimes();
+                        }
+                    },
+                    5);
+                },
+                function(e) { console.error(e); });
 
         window.addEventListener('resize', function() { mly.resize(); });
      </script>

@@ -47,11 +47,9 @@
                     },
                 });
 
-            const key = !!window.location.hash ?
-                window.encodeURIComponent(window.location.hash.substring(1)) :
-                '6Zhtztzt67fWmdd4OYH44w';
-
-            mly.moveToKey(key).then(() => { /* noop */ }, (e) => { console.error(e); });
+            mly.moveToKey('6Zhtztzt67fWmdd4OYH44w').then(
+                () => { /* noop */ },
+                (e) => { console.error(e); });
 
 
             // Show original latLon and latLon (if computed exist it will differ) of current
