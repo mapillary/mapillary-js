@@ -192,6 +192,11 @@ export class TextureProvider {
      * aborts all outstanding image tile requests.
      */
     public dispose(): void {
+        if (this._disposed) {
+            console.warn(`Texture already disposed (${this._key})`);
+            return;
+        }
+
         this.abort();
 
         if (this._renderTarget != null) {
