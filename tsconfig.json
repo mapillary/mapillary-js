@@ -8,6 +8,8 @@
     "files": [
       "./src/api/interfaces/IGPano.ts",
       "./src/api/interfaces/ILatLon.ts",
+      "./src/component/interfaces/IMarkerConfiguration.ts",
+      "./src/component/interfaces/IMouseConfiguration.ts",
       "./src/component/marker/MarkerComponent.ts",
       "./src/component/marker/marker/SimpleMarker.ts",
       "./src/component/marker/marker/CircleMarker.ts",

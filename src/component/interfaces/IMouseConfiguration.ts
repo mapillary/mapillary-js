@@ -1,5 +1,10 @@
 import {IComponentConfiguration} from "../../Component";
 
+/**
+ * Interface for configuration of mouse component.
+ *
+ * @interface
+ */
 export interface IMouseConfiguration extends IComponentConfiguration {
     /**
      * Enable or disable the `DoubleClickZoomHandler`.
