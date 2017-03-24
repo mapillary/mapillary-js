@@ -60,3 +60,12 @@ Open the debug page at [http://localhost:3000](http://localhost:3000).
 ```bash
 npm test
 ```
+
+## Building and serving the docs
+
+```bash
+npm run build-docs
+python -m SimpleHTTPServer
+````
+
+Open the docs page at [http://localhost:8000/docs](http://localhost:8000/docs).
