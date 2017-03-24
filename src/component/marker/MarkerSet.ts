@@ -44,7 +44,6 @@ export class MarkerSet {
     }
 
     public add(markers: Marker[]): void {
-        const items: MarkerIndexItem[] = [];
         const updated: Marker[] = [];
         const hash: { [id: string]: MarkerIndexItem } = this._hash;
         const index: MarkerIndex = this._index;
@@ -64,16 +63,14 @@ export class MarkerSet {
             };
 
             hash[id] = item;
-            items.push(item);
+            index.insert(item);
         }
-
-        index.load(items);
 
         if (updated.length > 0) {
             this._updated$.next(updated);
         }
 
-        if (items.length > updated.length) {
+        if (markers.length > updated.length) {
             this._indexChanged$.next(this);
         }
     }

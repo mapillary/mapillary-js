@@ -318,6 +318,26 @@ describe("MarkerSet.changed$", () => {
         markerSet.add([marker]);
     });
 
+    it("should not emit when all added markers already exist", () => {
+        let markerSet: MarkerSet = new MarkerSet();
+
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        markerSet.add([marker]);
+
+        let hasEmitted: boolean = false;
+        let subscription: Subscription = markerSet.changed$
+            .subscribe(
+                (ms: MarkerSet): void => {
+                    hasEmitted = true;
+                });
+
+        markerSet.add([marker]);
+
+        subscription.unsubscribe();
+
+        expect(hasEmitted).toBe(false);
+    });
+
     it("should emit when removing marker", (done: Function) => {
         let markerSet: MarkerSet = new MarkerSet();
 
@@ -355,6 +375,24 @@ describe("MarkerSet.changed$", () => {
 });
 
 describe("MarkerSet.updated$", () => {
+    it("should emit not when adding a new marker", () => {
+        let markerSet: MarkerSet = new MarkerSet();
+
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+
+        let hasEmitted: boolean = false;
+        markerSet.updated$
+            .first()
+            .subscribe(
+                (ms: Marker[]): void => {
+                    hasEmitted = true;
+                });
+
+        markerSet.add([marker]);
+
+        expect(hasEmitted).toBe(false);
+    });
+
     it("should emit when adding an existing marker", (done: Function) => {
         let markerSet: MarkerSet = new MarkerSet();
 
