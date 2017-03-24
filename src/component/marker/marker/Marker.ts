@@ -4,6 +4,12 @@ import * as THREE from "three";
 
 import {ILatLon} from "../../../API";
 
+/**
+ * @class Marker
+ *
+ * @classdesc Represents an abstract marker class that should be extended
+ * by marker implementations used in the marker component.
+ */
 export abstract class Marker {
     protected _id: string;
     protected _geometry: THREE.Object3D;
@@ -14,6 +20,10 @@ export abstract class Marker {
         this._latLon = latLon;
     }
 
+    /**
+     * Get id.
+     * @returns {string} The id of the marker.
+     */
     public get id(): string {
         return this._id;
     }
@@ -22,6 +32,10 @@ export abstract class Marker {
         return this._geometry;
     }
 
+    /**
+     * Get lat lon.
+     * @returns {ILatLon} The geographic coordinates of the marker.
+     */
     public get latLon(): ILatLon {
         return this._latLon;
     }

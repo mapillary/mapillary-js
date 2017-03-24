@@ -8,6 +8,38 @@ import {
     Marker,
 } from "../../../Component";
 
+/**
+ * @class SimpleMarker
+ *
+ * @classdesc Interactive marker with ice cream shape. The sphere
+ * inside the ice cream can be configured to be interactive.
+ *
+ * Simple marker properties can not be updated after creation.
+ *
+ * To create and add one `SimpleMarker` with default configuration
+ * (non-interactive) and one interactive with configuration use
+ *
+ * @example
+ * ```
+ * var defaultMarker = new Mapillary.MarkerComponent.SimpleMarker(
+ *     "id-1",
+ *     { lat: 0, lon: 0, });
+ *
+ * var interactiveMarker = new Mapillary.MarkerComponent.SimpleMarker(
+ *     "id-2",
+ *     { lat: 0, lon: 0, },
+ *     {
+ *         ballColor: "#00f",
+ *         ballOpacity: 0.5,
+ *         color: "#00f",
+ *         interactive: true,
+ *         opacity: 0.3,
+ *         radius: 0.7,
+ *     });
+ *
+ * markerComponent.add([defaultMarker, interactiveMarker]);
+ * ```
+ */
 export class SimpleMarker extends Marker {
     private _ballColor: number | string;
     private _ballOpacity: number;

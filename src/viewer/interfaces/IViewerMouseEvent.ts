@@ -4,7 +4,7 @@ import {Viewer} from "../../Viewer";
 /**
  * @interface IViewerMouseEvent
  *
- * Interface that represent a mouse event occuring in the viewer target element.
+ * Interface that represents a mouse event occuring in the viewer target element.
  */
 export interface IViewerMouseEvent {
     /**

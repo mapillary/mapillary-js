@@ -8,6 +8,12 @@
     "files": [
       "./src/api/interfaces/IGPano.ts",
       "./src/api/interfaces/ILatLon.ts",
+      "./src/component/marker/MarkerComponent.ts",
+      "./src/component/marker/marker/SimpleMarker.ts",
+      "./src/component/marker/marker/CircleMarker.ts",
+      "./src/component/marker/interfaces/ICircleMarkerOptions.ts",
+      "./src/component/marker/interfaces/IMarkerEvent.ts",
+      "./src/component/marker/interfaces/ISimpleMarkerOptions.ts",
       "./src/component/mouse/MouseComponent.ts",
       "./src/component/mouse/DoubleClickZoomHandler.ts",
       "./src/component/mouse/DragPanHandler.ts",

@@ -77,7 +77,7 @@ interface ITagGLRendererOperation extends Function {
 
 /**
  * @class TagComponent
- * @classdesc Component for showing and editing tags with different geometries.
+ * @classdesc Component for showing and editing 2D tags with different geometries.
  */
 export class TagComponent extends Component<ITagConfiguration> {
     /** @inheritdoc */

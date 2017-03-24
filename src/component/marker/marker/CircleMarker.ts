@@ -8,6 +8,35 @@ import {
     Marker,
 } from "../../../Component";
 
+/**
+ * @class CircleMarker
+ *
+ * @classdesc Non-interactive marker with a flat circle shape. The circle
+ * marker can not be configured to be interactive.
+ *
+ * Circle marker properties can not be updated after creation.
+ *
+ * To create and add one `CircleMarker` with default configuration
+ * and one with configuration use
+ *
+ * @example
+ * ```
+ * var defaultMarker = new Mapillary.MarkerComponent.CircleMarker(
+ *     "id-1",
+ *     { lat: 0, lon: 0, });
+ *
+ * var configuredMarker = new Mapillary.MarkerComponent.CircleMarker(
+ *     "id-2",
+ *     { lat: 0, lon: 0, },
+ *     {
+ *         color: "#0Ff",
+ *         opacity: 0.3,
+ *         radius: 0.7,
+ *     });
+ *
+ * markerComponent.add([defaultMarker, configuredMarker]);
+ * ```
+ */
 export class CircleMarker extends Marker {
     private _color: number | string;
     private _opacity: number;

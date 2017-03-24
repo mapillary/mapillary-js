@@ -41,27 +41,76 @@ import {
     ViewportCoords,
 } from "../../Geo";
 
+
+/**
+ * @class MarkerComponent
+ *
+ * @classdesc Component for showing and editing 3D marker objects.
+ *
+ * The `add` method is used for adding new markers or replacing
+ * markers already in the set.
+ *
+ * If a marker already in the set has the same
+ * id as one of the markers added, the old marker will be removed
+ * the added marker will take its place.
+ *
+ * It is not possible to update markers in the set by updating any properties
+ * directly on the marker object. Markers need to be replaced by
+ * re-adding them for updates to geographic position or configuration
+ * to be reflected.
+ *
+ * Markers added to the marker component can be either interactive
+ * or non-interactive. Different marker types define their behavior.
+ * Markers with interaction support can be configured with options
+ * to respond to dragging inside the viewer and be detected when
+ * retrieving markers from pixel points with the `getMarkerIdAt` method.
+ *
+ * To retrive and use the marker component
+ *
+ * @example
+ * ```
+ * var markerComponent = viewer.getComponent("marker");
+ * ```
+ */
 export class MarkerComponent extends Component<IMarkerConfiguration> {
     public static componentName: string = "marker";
 
     /**
      * Fired when the position of a marker is changed.
      * @event
-     * @type {IMarkerEvent} markerEvent - Marker event.
+     * @type {IMarkerEvent} markerEvent - Marker event data.
+     * @example
+     * ```
+     * markerComponent.on("changed", function(e) {
+     *     console.log(e.marker.id, e.marker.latLon);
+     * });
+     * ```
      */
     public static changed: string = "changed";
 
     /**
      * Fired when a marker drag interaction starts.
      * @event
-     * @type {IMarkerEvent} markerEvent - Marker event.
+     * @type {IMarkerEvent} markerEvent - Marker event data.
+     * @example
+     * ```
+     * markerComponent.on("dragstart", function(e) {
+     *     console.log(e.marker.id, e.marker.latLon);
+     * });
+     * ```
      */
     public static dragstart: string = "dragstart";
 
     /**
      * Fired when a marker drag interaction ends.
      * @event
-     * @type {IMarkerEvent} markerEvent - Marker event.
+     * @type {IMarkerEvent} markerEvent - Marker event data.
+     * @example
+     * ```
+     * markerComponent.on("dragend", function(e) {
+     *     console.log(e.marker.id, e.marker.latLon);
+     * });
+     * ```
      */
     public static dragend: string = "dragend";
 
@@ -94,22 +143,81 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._viewportCoords = new ViewportCoords();
     }
 
+    /**
+     * Add markers to the marker set or replace markers in the marker set.
+     *
+     * @description If a marker already in the set has the same
+     * id as one of the markers added, the old marker will be removed
+     * the added marker will take its place.
+     *
+     * Any marker inside the visible bounding bbox
+     * will be initialized and placed in the viewer.
+     *
+     * @param {Array<Marker>} markers - Markers to add.
+     *
+     * @example ```markerComponent.add([marker1, marker2]);```
+     */
     public add(markers: Marker[]): void {
         this._markerSet.add(markers);
     }
 
+    /**
+     * Check if a marker exist in the marker set.
+     *
+     * @param {string} markerId - Id of the marker.
+     *
+     * @example ```var markerExists = markerComponent.has("markerId");```
+     */
     public has(markerId: string): boolean {
         return this._markerSet.has(markerId);
     }
 
+    /**
+     * Returns the marker in the marker set with the specified id, or
+     * undefined if the id matches no marker.
+     *
+     * @param {string} markerId - Id of the marker.
+     *
+     * @example ```var marker = markerComponent.get("markerId");```
+     *
+     */
     public get(markerId: string): Marker {
         return this._markerSet.get(markerId);
     }
 
+
+    /**
+     * Returns an array of all markers.
+     *
+     * @example ```var markers = markerComponent.getAll();```
+     */
     public getAll(): Marker[] {
         return this._markerSet.getAll();
     }
 
+    /**
+     * Returns the id of the interactive marker closest to the current camera
+     * position ids for marker currently visible at the specified point.
+     *
+     * @description Notice that the pixelPoint argument requires x, y
+     * coordinates from pixel space.
+     *
+     * With this function, you can use the coordinates provided by mouse
+     * events to get information out of the marker component.
+     *
+     * If no interactive geometry of an interactive marker exist at the pixel
+     * point, null will be returned.
+     *
+     * @param {Array<number>} pixelPoint - Pixel coordinates on the viewer element.
+     * @returns {string} Id of the interactive marker closest to the camera. If no
+     * interactive marker exist at the pixel point, null will be returned.
+     *
+     * @example
+     * ```
+     * markerComponent.getMarkerIdAt([100, 100])
+     *     .then((markerId) => { console.log(markerId); });
+     * ```
+     */
     public getMarkerIdAt(pixelPoint: number[]): when.Promise<string> {
         return when.promise<string>((resolve: any, reject: any): void => {
             this._container.renderService.renderCamera$
@@ -136,10 +244,22 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         });
     }
 
+    /**
+     * Remove markers with the specified ids from the marker set.
+     *
+     * @param {Array<string>} markerIds - Ids for markers to remove.
+     *
+     * @example ```markerComponent.remove(["id-1", "id-2"]);```
+     */
     public remove(markerIds: string[]): void {
         this._markerSet.remove(markerIds);
     }
 
+    /**
+     * Remove all markers from the marker set.
+     *
+     * @example ```markerComponent.removeAll();```
+     */
     public removeAll(): void {
         this._markerSet.removeAll();
     }
@@ -413,7 +533,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     const eventType: string = dragging ? MarkerComponent.dragstart : MarkerComponent.dragend;
                     const id: string = dragging ? current[1] : previous[1];
                     const marker: Marker = this._markerScene.get(id);
-                    const markerEvent: IMarkerEvent = { marker: marker, type: eventType };
+                    const markerEvent: IMarkerEvent = { marker: marker, target: this, type: eventType };
 
                     this.fire(eventType, markerEvent);
                 });
@@ -512,7 +632,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     this._markerScene.update(marker.id, intersection.toArray(), { lat: lat, lon: lon });
                     this._markerSet.update(marker);
 
-                    const markerEvent: IMarkerEvent = { marker: marker, type: MarkerComponent.changed };
+                    const markerEvent: IMarkerEvent = { marker: marker, target: this, type: MarkerComponent.changed };
                     this.fire(MarkerComponent.changed, markerEvent);
                 });
     }
