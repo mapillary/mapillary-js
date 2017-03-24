@@ -134,7 +134,7 @@ export interface IComponentOptions {
     /**
      * Contribute viewing stats to Mapillary.
      *
-     * @default false
+     * @default true
      */
     stats?: boolean;
 
