@@ -101,8 +101,8 @@ export class SimpleMarker extends Marker {
         }
     }
 
-    protected _getInteractiveObjectIds(): string[] {
-        return this._interactive ? [this._geometry.children[0].uuid] : [];
+    protected _getInteractiveObjects(): THREE.Object3D[] {
+        return this._interactive ? [this._geometry.children[0]] : [];
     }
 
     private _markerHeight(radius: number): number {

@@ -77,7 +77,7 @@ export class CircleMarker extends Marker {
         }
     }
 
-    protected _getInteractiveObjectIds(): string[] {
+    protected _getInteractiveObjects(): THREE.Object3D[] {
         return [];
     }
 }

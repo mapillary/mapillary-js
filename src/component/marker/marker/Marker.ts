@@ -61,12 +61,12 @@ export abstract class Marker {
         this._geometry = undefined;
     }
 
-    public getInteractiveObjectIds(): string[] {
+    public getInteractiveObjects(): THREE.Object3D[] {
         if (!this._geometry) {
             return [];
         }
 
-        return this._getInteractiveObjectIds();
+        return this._getInteractiveObjects();
     }
 
     public lerpAltitude(alt: number, alpha: number): void {
@@ -95,7 +95,7 @@ export abstract class Marker {
 
     protected abstract _disposeGeometry(): void;
 
-    protected abstract _getInteractiveObjectIds(): string[];
+    protected abstract _getInteractiveObjects(): THREE.Object3D[];
 }
 
 export default Marker;

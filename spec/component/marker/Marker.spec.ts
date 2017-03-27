@@ -15,7 +15,7 @@ class TestMarker extends Marker {
     }
 
     protected _disposeGeometry(): void { /* noop */ }
-    protected _getInteractiveObjectIds(): string[] { return [this._geometry.uuid]; }
+    protected _getInteractiveObjects(): THREE.Object3D[] { return [this._geometry]; }
 }
 
 describe("Marker.ctor", () => {
@@ -62,18 +62,18 @@ describe("Marker.disposeGeometry", () => {
 describe("Marker.getInteractiveObjectIds", () => {
     it("should return empty array if geometry not defined", () => {
         let marker: Marker = new TestMarker("id", { lat: 1, lon: 2 });
-        let objectIds: string[] = marker.getInteractiveObjectIds();
+        let objects: THREE.Object3D[] = marker.getInteractiveObjects();
 
-        expect(objectIds.length).toBe(0);
+        expect(objects.length).toBe(0);
     });
 
     it("should return object ids when geometry created", () => {
         let marker: Marker = new TestMarker("id", { lat: 1, lon: 2 });
         marker.createGeometry([0, 0, 0]);
-        let objectIds: string[] = marker.getInteractiveObjectIds();
+        let objects: THREE.Object3D[] = marker.getInteractiveObjects();
 
-        expect(objectIds.length).toBe(1);
-        expect(objectIds[0]).toBe(marker.geometry.uuid);
+        expect(objects.length).toBe(1);
+        expect(objects[0].uuid).toBe(marker.geometry.uuid);
     });
 });
 

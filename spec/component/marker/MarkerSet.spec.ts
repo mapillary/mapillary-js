@@ -12,7 +12,7 @@ class TestMarker extends Marker {
     constructor(id: string, latLon: ILatLon) { super(id, latLon); }
     protected _createGeometry(position: number[]): void { /* noop */ }
     protected _disposeGeometry(): void { /* noop */ }
-    protected _getInteractiveObjectIds(): string[] { return []; }
+    protected _getInteractiveObjects(): THREE.Object3D[] { return []; }
 }
 
 describe("MarkerSet.ctor", () => {

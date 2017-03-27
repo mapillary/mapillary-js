@@ -7,6 +7,7 @@ import {Marker} from "../../Component";
 
 export class MarkerScene {
     private _needsRender: boolean;
+    private _interactiveObjects: THREE.Object3D[];
     private _markers: { [key: string]: Marker };
     private _objectMarkers: { [id: string]: string };
     private _raycaster: THREE.Raycaster;
@@ -14,6 +15,7 @@ export class MarkerScene {
 
     constructor(scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._needsRender = false;
+        this._interactiveObjects = [];
         this._markers = {};
         this._objectMarkers = {};
         this._raycaster = !!raycaster ? raycaster : new THREE.Raycaster();
@@ -36,8 +38,9 @@ export class MarkerScene {
         marker.createGeometry(position);
         this._scene.add(marker.geometry);
         this._markers[marker.id] = marker;
-        for (let interactiveId of marker.getInteractiveObjectIds()) {
-            this._objectMarkers[interactiveId] = marker.id;
+        for (let interactiveObject of marker.getInteractiveObjects()) {
+            this._interactiveObjects.push(interactiveObject);
+            this._objectMarkers[interactiveObject.uuid] = marker.id;
         }
 
         this._needsRender = true;
@@ -72,7 +75,7 @@ export class MarkerScene {
     public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string {
         this._raycaster.setFromCamera(new THREE.Vector2(viewportX, viewportY), camera);
 
-        const intersects: THREE.Intersection[] = this._raycaster.intersectObjects(this._scene.children, true);
+        const intersects: THREE.Intersection[] = this._raycaster.intersectObjects(this._interactiveObjects);
         for (const intersect of intersects) {
             if (intersect.object.uuid in this._objectMarkers) {
                 return this._objectMarkers[intersect.object.uuid];
@@ -125,8 +128,15 @@ export class MarkerScene {
     private _dispose(id: string): void {
         const marker: Marker = this._markers[id];
         this._scene.remove(marker.geometry);
-        for (let interactiveId of marker.getInteractiveObjectIds()) {
-            delete this._objectMarkers[interactiveId];
+        for (let interactiveObject of marker.getInteractiveObjects()) {
+            const index: number = this._interactiveObjects.indexOf(interactiveObject);
+            if (index !== -1) {
+                this._interactiveObjects.splice(index, 1);
+            } else {
+                console.warn(`Object does not exist (${interactiveObject.id}) for ${id}`);
+            }
+
+            delete this._objectMarkers[interactiveObject.uuid];
         }
 
         marker.disposeGeometry();
