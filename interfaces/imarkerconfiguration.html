@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IViewerOptions | MapillaryJS</title>
+	<title>IMarkerConfiguration | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="ivieweroptions.html">IViewerOptions</a>
+					<a href="imarkerconfiguration.html">IMarkerConfiguration</a>
 				</li>
 			</ul>
-			<h1>Interface IViewerOptions</h1>
+			<h1>Interface IMarkerConfiguration</h1>
 		</div>
 	</div>
 </header>
@@ -67,7 +67,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Interface for the options that can be provided to the viewer.</p>
+						<p>Interface for configuration of marker component.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
@@ -79,9 +79,23 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IViewerOptions</span>
+						<span class="tsd-signature-type">IComponentConfiguration</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">IMarkerConfiguration</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
+			</section>
+			<section class="tsd-panel tsd-kind-interface">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for configuration of marker component.</p>
+					</div>
+				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
@@ -90,12 +104,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#baseimagesize" class="tsd-kind-icon">base<wbr>Image<wbr>Size</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#basepanoramasize" class="tsd-kind-icon">base<wbr>Panorama<wbr>Size</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#component" class="tsd-kind-icon">component</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#maximagesize" class="tsd-kind-icon">max<wbr>Image<wbr>Size</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#rendermode" class="tsd-kind-icon">render<wbr>Mode</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#sprite" class="tsd-kind-icon">sprite</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imarkerconfiguration.html#visiblebboxsize" class="tsd-kind-icon">visibleBBox<wbr>Size</a></li>
 							</ul>
 						</section>
 					</div>
@@ -104,115 +113,27 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="baseimagesize" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> base<wbr>Image<wbr>Size</h3>
-					<div class="tsd-signature tsd-kind-icon">base<wbr>Image<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
+					<a name="visiblebboxsize" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> visibleBBox<wbr>Size</h3>
+					<div class="tsd-signature tsd-kind-icon">visibleBBox<wbr>Size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L14">viewer/interfaces/IViewerOptions.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/interfaces/IMarkerConfiguration.ts#L17">component/interfaces/IMarkerConfiguration.ts:17</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Default size of the thumbnail used in the viewer</p>
+							<p>The size of the bounding box for which markers will be visible.</p>
 						</div>
 						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Provided values will be clamped to the [1, 200]
+								interval.</p>
+							</dd>
 							<dt>default</dt>
-							<dd><p>{ImageSize.Size640}</p>
+							<dd><p>100</p>
 							</dd>
 						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="basepanoramasize" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> base<wbr>Panorama<wbr>Size</h3>
-					<div class="tsd-signature tsd-kind-icon">base<wbr>Panorama<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L20">viewer/interfaces/IViewerOptions.ts:20</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Default size of the thumbnail used for panoramas in the viewer</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>{ImageSize.Size2048}</p>
-							</dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="component" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> component</h3>
-					<div class="tsd-signature tsd-kind-icon">component<span class="tsd-signature-symbol">:</span> <a href="icomponentoptions.html" class="tsd-signature-type">IComponentOptions</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L25">viewer/interfaces/IViewerOptions.ts:25</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The component options.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="maximagesize" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> max<wbr>Image<wbr>Size</h3>
-					<div class="tsd-signature tsd-kind-icon">max<wbr>Image<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L32">viewer/interfaces/IViewerOptions.ts:32</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The max size of an image shown in the viewer
-							will be used when user pauses.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>{ImageSize.Size2048}</p>
-							</dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="rendermode" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> render<wbr>Mode</h3>
-					<div class="tsd-signature tsd-kind-icon">render<wbr>Mode<span class="tsd-signature-symbol">:</span> <a href="../enums/rendermode.html" class="tsd-signature-type">RenderMode</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L38">viewer/interfaces/IViewerOptions.ts:38</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The render mode in the viewer.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>{RenderMode.Fill}</p>
-							</dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="sprite" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> sprite</h3>
-					<div class="tsd-signature tsd-kind-icon">sprite<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L44">viewer/interfaces/IViewerOptions.ts:44</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>A base URL for retrieving a png sprite image and json metadata file.
-							File name extensions will be automatically appended.</p>
-						</div>
 					</div>
 				</section>
 			</section>
@@ -293,9 +214,18 @@
 					<li class=" tsd-kind-interface">
 						<a href="iloadstatus.html" class="tsd-kind-icon">ILoad<wbr>Status</a>
 					</li>
-					<li class=" tsd-kind-interface">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
 						<a href="imarkerconfiguration.html" class="tsd-kind-icon">IMarker<wbr>Configuration</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="imarkerconfiguration.html#visiblebboxsize" class="tsd-kind-icon">visibleBBox<wbr>Size</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="imarkerevent.html" class="tsd-kind-icon">IMarker<wbr>Event</a>
 					</li>
@@ -311,33 +241,9 @@
 					<li class=" tsd-kind-interface">
 						<a href="iviewermouseevent.html" class="tsd-kind-icon">IViewer<wbr>Mouse<wbr>Event</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class=" tsd-kind-interface">
 						<a href="ivieweroptions.html" class="tsd-kind-icon">IViewer<wbr>Options</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#baseimagesize" class="tsd-kind-icon">base<wbr>Image<wbr>Size</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#basepanoramasize" class="tsd-kind-icon">base<wbr>Panorama<wbr>Size</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#component" class="tsd-kind-icon">component</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#maximagesize" class="tsd-kind-icon">max<wbr>Image<wbr>Size</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#rendermode" class="tsd-kind-icon">render<wbr>Mode</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#sprite" class="tsd-kind-icon">sprite</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-type-alias">
 						<a href="../globals.html#filterexpression" class="tsd-kind-icon">Filter<wbr>Expression</a>
 					</li>

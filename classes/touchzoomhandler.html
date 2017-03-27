@@ -1,0 +1,589 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>TouchZoomHandler | MapillaryJS</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">MapillaryJS</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="touchzoomhandler.html">TouchZoomHandler</a>
+				</li>
+			</ul>
+			<h1>Class TouchZoomHandler</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The <code>TouchZoomHandler</code> allows the user to zoom the viewer photo by pinching on a touchscreen.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="tsd-signature-type">MouseHandlerBase</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">TouchZoomHandler</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section tsd-is-inherited">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><a href="touchzoomhandler.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-inherited tsd-is-private-protected">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="touchzoomhandler.html#_component" class="tsd-kind-icon">_component</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="touchzoomhandler.html#_container" class="tsd-kind-icon">_container</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="touchzoomhandler.html#_enabled" class="tsd-kind-icon">_enabled</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="touchzoomhandler.html#_navigator" class="tsd-kind-icon">_navigator</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="touchzoomhandler.html#_viewportcoords" class="tsd-kind-icon">_viewport<wbr>Coords</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-inherited">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="touchzoomhandler.html#isenabled" class="tsd-kind-icon">is<wbr>Enabled</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="touchzoomhandler.html#_disable" class="tsd-kind-icon">_disable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="touchzoomhandler.html#_enable" class="tsd-kind-icon">_enable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="touchzoomhandler.html#_getconfiguration" class="tsd-kind-icon">_get<wbr>Configuration</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="touchzoomhandler.html#disable" class="tsd-kind-icon">disable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="touchzoomhandler.html#enable" class="tsd-kind-icon">enable</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Touch<wbr>Zoom<wbr>Handler<span class="tsd-signature-symbol">(</span>component<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Container</span>, navigator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Navigator</span>, viewportCoords<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ViewportCoords</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="touchzoomhandler.html" class="tsd-signature-type">TouchZoomHandler</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from MouseHandlerBase.__constructor</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L17">component/mouse/MouseHandlerBase.ts:17</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>component: <span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+								<li>
+									<h5>container: <span class="tsd-signature-type">Container</span></h5>
+								</li>
+								<li>
+									<h5>navigator: <span class="tsd-signature-type">Navigator</span></h5>
+								</li>
+								<li>
+									<h5>viewportCoords: <span class="tsd-signature-type">ViewportCoords</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="touchzoomhandler.html" class="tsd-signature-type">TouchZoomHandler</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited tsd-is-private-protected">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="_component" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _component</h3>
+					<div class="tsd-signature tsd-kind-icon">_component<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from MouseHandlerBase._component</p>
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L12">component/mouse/MouseHandlerBase.ts:12</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="_container" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _container</h3>
+					<div class="tsd-signature tsd-kind-icon">_container<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Container</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from MouseHandlerBase._container</p>
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L13">component/mouse/MouseHandlerBase.ts:13</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="_enabled" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _enabled</h3>
+					<div class="tsd-signature tsd-kind-icon">_enabled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from MouseHandlerBase._enabled</p>
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L17">component/mouse/MouseHandlerBase.ts:17</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="_navigator" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _navigator</h3>
+					<div class="tsd-signature tsd-kind-icon">_navigator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Navigator</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from MouseHandlerBase._navigator</p>
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L14">component/mouse/MouseHandlerBase.ts:14</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="_viewportcoords" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _viewport<wbr>Coords</h3>
+					<div class="tsd-signature tsd-kind-icon">_viewport<wbr>Coords<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ViewportCoords</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from MouseHandlerBase._viewportCoords</p>
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L15">component/mouse/MouseHandlerBase.ts:15</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+					<a name="isenabled" class="tsd-anchor"></a>
+					<h3>is<wbr>Enabled</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> isEnabled<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from MouseHandlerBase.isEnabled</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L33">component/mouse/MouseHandlerBase.ts:33</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a Boolean indicating whether the interaction is enabled.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p><code>true</code> if the interaction is enabled.</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+					<a name="_disable" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _disable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">_disable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides MouseHandlerBase._disable</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/TouchZoomHandler.ts#L92">component/mouse/TouchZoomHandler.ts:92</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+					<a name="_enable" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _enable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">_enable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides MouseHandlerBase._enable</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/TouchZoomHandler.ts#L28">component/mouse/TouchZoomHandler.ts:28</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+					<a name="_getconfiguration" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _get<wbr>Configuration</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>Configuration<span class="tsd-signature-symbol">(</span>enable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides MouseHandlerBase._getConfiguration</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/TouchZoomHandler.ts#L101">component/mouse/TouchZoomHandler.ts:101</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>enable: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="disable" class="tsd-anchor"></a>
+					<h3>disable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">disable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from MouseHandlerBase.disable</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L56">component/mouse/MouseHandlerBase.ts:56</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Disables the interaction.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><p><code>mouseComponent.&lt;handler-name&gt;.disable();</code></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="enable" class="tsd-anchor"></a>
+					<h3>enable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">enable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from MouseHandlerBase.enable</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/mouse/MouseHandlerBase.ts#L42">component/mouse/MouseHandlerBase.ts:42</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Enables the interaction.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><p><code>mouseComponent.&lt;handler-name&gt;.enable();</code></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum">
+						<a href="../enums/edgedirection.html" class="tsd-kind-icon">Edge<wbr>Direction</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="../enums/imagesize.html" class="tsd-kind-icon">Image<wbr>Size</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="../enums/rendermode.html" class="tsd-kind-icon">Render<wbr>Mode</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="circlemarker.html" class="tsd-kind-icon">Circle<wbr>Marker</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="doubleclickzoomhandler.html" class="tsd-kind-icon">Double<wbr>Click<wbr>Zoom<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="dragpanhandler.html" class="tsd-kind-icon">Drag<wbr>Pan<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="markercomponent.html" class="tsd-kind-icon">Marker<wbr>Component</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="mousecomponent.html" class="tsd-kind-icon">Mouse<wbr>Component</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="node.html" class="tsd-kind-icon">Node</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="nodecache.html" class="tsd-kind-icon">Node<wbr>Cache</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="scrollzoomhandler.html" class="tsd-kind-icon">Scroll<wbr>Zoom<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="simplemarker.html" class="tsd-kind-icon">Simple<wbr>Marker</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class">
+						<a href="touchzoomhandler.html" class="tsd-kind-icon">Touch<wbr>Zoom<wbr>Handler</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+								<a href="touchzoomhandler.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="touchzoomhandler.html#_component" class="tsd-kind-icon">_component</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="touchzoomhandler.html#_container" class="tsd-kind-icon">_container</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="touchzoomhandler.html#_enabled" class="tsd-kind-icon">_enabled</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="touchzoomhandler.html#_navigator" class="tsd-kind-icon">_navigator</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="touchzoomhandler.html#_viewportcoords" class="tsd-kind-icon">_viewport<wbr>Coords</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+								<a href="touchzoomhandler.html#isenabled" class="tsd-kind-icon">is<wbr>Enabled</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+								<a href="touchzoomhandler.html#_disable" class="tsd-kind-icon">_disable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+								<a href="touchzoomhandler.html#_enable" class="tsd-kind-icon">_enable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+								<a href="touchzoomhandler.html#_getconfiguration" class="tsd-kind-icon">_get<wbr>Configuration</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="touchzoomhandler.html#disable" class="tsd-kind-icon">disable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="touchzoomhandler.html#enable" class="tsd-kind-icon">enable</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-class">
+						<a href="viewer.html" class="tsd-kind-icon">Viewer</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/icirclemarkeroptions.html" class="tsd-kind-icon">ICircle<wbr>Marker<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/icomponentoptions.html" class="tsd-kind-icon">IComponent<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/iedge.html" class="tsd-kind-icon">IEdge</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/iedgedata.html" class="tsd-kind-icon">IEdge<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/iedgestatus.html" class="tsd-kind-icon">IEdge<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/igpano.html" class="tsd-kind-icon">IGPano</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/ilatlon.html" class="tsd-kind-icon">ILat<wbr>Lon</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/iloadstatus.html" class="tsd-kind-icon">ILoad<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/imarkerconfiguration.html" class="tsd-kind-icon">IMarker<wbr>Configuration</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/imarkerevent.html" class="tsd-kind-icon">IMarker<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/imesh.html" class="tsd-kind-icon">IMesh</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/imouseconfiguration.html" class="tsd-kind-icon">IMouse<wbr>Configuration</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/isimplemarkeroptions.html" class="tsd-kind-icon">ISimple<wbr>Marker<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/iviewermouseevent.html" class="tsd-kind-icon">IViewer<wbr>Mouse<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/ivieweroptions.html" class="tsd-kind-icon">IViewer<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#filterexpression" class="tsd-kind-icon">Filter<wbr>Expression</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#filteroperation" class="tsd-kind-icon">Filter<wbr>Operation</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#filteroperator" class="tsd-kind-icon">Filter<wbr>Operator</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#filtervalue" class="tsd-kind-icon">Filter<wbr>Value</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

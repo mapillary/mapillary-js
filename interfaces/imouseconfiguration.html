@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IViewerOptions | MapillaryJS</title>
+	<title>IMouseConfiguration | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="ivieweroptions.html">IViewerOptions</a>
+					<a href="imouseconfiguration.html">IMouseConfiguration</a>
 				</li>
 			</ul>
-			<h1>Interface IViewerOptions</h1>
+			<h1>Interface IMouseConfiguration</h1>
 		</div>
 	</div>
 </header>
@@ -67,7 +67,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Interface for the options that can be provided to the viewer.</p>
+						<p>Interface for configuration of mouse component.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
@@ -79,9 +79,23 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IViewerOptions</span>
+						<span class="tsd-signature-type">IComponentConfiguration</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">IMouseConfiguration</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
+			</section>
+			<section class="tsd-panel tsd-kind-interface">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for configuration of mouse component.</p>
+					</div>
+				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
@@ -90,12 +104,10 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#baseimagesize" class="tsd-kind-icon">base<wbr>Image<wbr>Size</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#basepanoramasize" class="tsd-kind-icon">base<wbr>Panorama<wbr>Size</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#component" class="tsd-kind-icon">component</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#maximagesize" class="tsd-kind-icon">max<wbr>Image<wbr>Size</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#rendermode" class="tsd-kind-icon">render<wbr>Mode</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#sprite" class="tsd-kind-icon">sprite</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imouseconfiguration.html#doubleclickzoom" class="tsd-kind-icon">double<wbr>Click<wbr>Zoom</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imouseconfiguration.html#dragpan" class="tsd-kind-icon">drag<wbr>Pan</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imouseconfiguration.html#scrollzoom" class="tsd-kind-icon">scroll<wbr>Zoom</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imouseconfiguration.html#touchzoom" class="tsd-kind-icon">touch<wbr>Zoom</a></li>
 							</ul>
 						</section>
 					</div>
@@ -104,115 +116,83 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="baseimagesize" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> base<wbr>Image<wbr>Size</h3>
-					<div class="tsd-signature tsd-kind-icon">base<wbr>Image<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
+					<a name="doubleclickzoom" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> double<wbr>Click<wbr>Zoom</h3>
+					<div class="tsd-signature tsd-kind-icon">double<wbr>Click<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L14">viewer/interfaces/IViewerOptions.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/interfaces/IMouseConfiguration.ts#L14">component/interfaces/IMouseConfiguration.ts:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Default size of the thumbnail used in the viewer</p>
+							<p>Enable or disable the <code>DoubleClickZoomHandler</code>.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>{ImageSize.Size640}</p>
+							<dd><p>true</p>
 							</dd>
 						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="basepanoramasize" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> base<wbr>Panorama<wbr>Size</h3>
-					<div class="tsd-signature tsd-kind-icon">base<wbr>Panorama<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
+					<a name="dragpan" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> drag<wbr>Pan</h3>
+					<div class="tsd-signature tsd-kind-icon">drag<wbr>Pan<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L20">viewer/interfaces/IViewerOptions.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/interfaces/IMouseConfiguration.ts#L21">component/interfaces/IMouseConfiguration.ts:21</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Default size of the thumbnail used for panoramas in the viewer</p>
+							<p>Enable or disable the <code>DragPanHandler</code>.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>{ImageSize.Size2048}</p>
+							<dd><p>true</p>
 							</dd>
 						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="component" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> component</h3>
-					<div class="tsd-signature tsd-kind-icon">component<span class="tsd-signature-symbol">:</span> <a href="icomponentoptions.html" class="tsd-signature-type">IComponentOptions</a></div>
+					<a name="scrollzoom" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> scroll<wbr>Zoom</h3>
+					<div class="tsd-signature tsd-kind-icon">scroll<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L25">viewer/interfaces/IViewerOptions.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/interfaces/IMouseConfiguration.ts#L28">component/interfaces/IMouseConfiguration.ts:28</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The component options.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="maximagesize" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> max<wbr>Image<wbr>Size</h3>
-					<div class="tsd-signature tsd-kind-icon">max<wbr>Image<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L32">viewer/interfaces/IViewerOptions.ts:32</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The max size of an image shown in the viewer
-							will be used when user pauses.</p>
+							<p>Enable or disable the <code>ScrollZoomHandler</code>.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>{ImageSize.Size2048}</p>
+							<dd><p>true</p>
 							</dd>
 						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="rendermode" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> render<wbr>Mode</h3>
-					<div class="tsd-signature tsd-kind-icon">render<wbr>Mode<span class="tsd-signature-symbol">:</span> <a href="../enums/rendermode.html" class="tsd-signature-type">RenderMode</a></div>
+					<a name="touchzoom" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> touch<wbr>Zoom</h3>
+					<div class="tsd-signature tsd-kind-icon">touch<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L38">viewer/interfaces/IViewerOptions.ts:38</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/component/interfaces/IMouseConfiguration.ts#L35">component/interfaces/IMouseConfiguration.ts:35</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The render mode in the viewer.</p>
+							<p>Enable or disable the <code>TouchZoomHandler</code>.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>{RenderMode.Fill}</p>
+							<dd><p>true</p>
 							</dd>
 						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="sprite" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> sprite</h3>
-					<div class="tsd-signature tsd-kind-icon">sprite<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e1b6706/src/viewer/interfaces/IViewerOptions.ts#L44">viewer/interfaces/IViewerOptions.ts:44</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>A base URL for retrieving a png sprite image and json metadata file.
-							File name extensions will be automatically appended.</p>
-						</div>
 					</div>
 				</section>
 			</section>
@@ -302,42 +282,36 @@
 					<li class=" tsd-kind-interface">
 						<a href="imesh.html" class="tsd-kind-icon">IMesh</a>
 					</li>
-					<li class=" tsd-kind-interface">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
 						<a href="imouseconfiguration.html" class="tsd-kind-icon">IMouse<wbr>Configuration</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="imouseconfiguration.html#doubleclickzoom" class="tsd-kind-icon">double<wbr>Click<wbr>Zoom</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="imouseconfiguration.html#dragpan" class="tsd-kind-icon">drag<wbr>Pan</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="imouseconfiguration.html#scrollzoom" class="tsd-kind-icon">scroll<wbr>Zoom</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="imouseconfiguration.html#touchzoom" class="tsd-kind-icon">touch<wbr>Zoom</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="isimplemarkeroptions.html" class="tsd-kind-icon">ISimple<wbr>Marker<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="iviewermouseevent.html" class="tsd-kind-icon">IViewer<wbr>Mouse<wbr>Event</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class=" tsd-kind-interface">
 						<a href="ivieweroptions.html" class="tsd-kind-icon">IViewer<wbr>Options</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#baseimagesize" class="tsd-kind-icon">base<wbr>Image<wbr>Size</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#basepanoramasize" class="tsd-kind-icon">base<wbr>Panorama<wbr>Size</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#component" class="tsd-kind-icon">component</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#maximagesize" class="tsd-kind-icon">max<wbr>Image<wbr>Size</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#rendermode" class="tsd-kind-icon">render<wbr>Mode</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ivieweroptions.html#sprite" class="tsd-kind-icon">sprite</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-type-alias">
 						<a href="../globals.html#filterexpression" class="tsd-kind-icon">Filter<wbr>Expression</a>
 					</li>
