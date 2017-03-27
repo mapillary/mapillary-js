@@ -46,6 +46,9 @@ export abstract class Marker {
         }
 
         this._createGeometry(position);
+
+        // update matrix world if raycasting occurs before first render
+        this._geometry.updateMatrixWorld(true);
     }
 
     public disposeGeometry(): void {
@@ -85,6 +88,7 @@ export abstract class Marker {
         }
 
         this._geometry.position.fromArray(position);
+        this._geometry.updateMatrixWorld(true);
     }
 
     protected abstract _createGeometry(position: number[]): void;
