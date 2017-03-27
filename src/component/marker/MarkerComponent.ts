@@ -485,10 +485,12 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 this._container.mouseService.mouseMove$)
             .map(
                 ([render, event]: [RenderCamera, MouseEvent]): string => {
+                    const element: HTMLElement = this._container.element;
+                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
                     const viewport: number[] = this._viewportCoords.canvasToViewport(
-                        event.clientX,
-                        event.clientY,
-                        this._container.element);
+                        canvasX,
+                        canvasY,
+                        element);
 
                     const markerId: string = this._markerScene.intersectObjects(viewport, render.perspective);
 
@@ -565,13 +567,17 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             .map(
                 ([e, id, r]: [MouseEvent, string, RenderCamera]): [Marker, number[], RenderCamera] => {
                     const marker: Marker = this._markerScene.get(id);
+                    const element: HTMLElement = this._container.element;
+
                     const [groundCanvasX, groundCanvasY]: number[] =
                         this._viewportCoords.projectToCanvas(
                             marker.geometry.position.toArray(),
-                            this._container.element,
+                            element,
                             r.perspective);
 
-                    const offset: number[] = [e.clientX - groundCanvasX, e.clientY - groundCanvasY];
+                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(e, element);
+
+                    const offset: number[] = [canvasX - groundCanvasX, canvasY - groundCanvasY];
 
                     return [marker, offset, r];
                 })
@@ -591,14 +597,17 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         return;
                     }
 
-                    const groundX: number = event.clientX - offset[0];
-                    const groundY: number = event.clientY - offset[1];
+                    const element: HTMLElement = this._container.element;
+                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
+
+                    const groundX: number = canvasX - offset[0];
+                    const groundY: number = canvasY - offset[1];
 
                     const [viewportX, viewportY]: number[] = this._viewportCoords
                         .canvasToViewport(
                             groundX,
                             groundY,
-                            this._container.element);
+                            element);
 
                     const direction: THREE.Vector3 = new THREE.Vector3(viewportX, viewportY, 1)
                         .unproject(render.perspective)
