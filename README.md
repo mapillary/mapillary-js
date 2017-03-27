@@ -38,6 +38,8 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 
 ## Examples
 
+### Viewer
+
 - [Fixed size](https://bl.ocks.org/oscarlorentzon/63644e3b2392f2f2b7d000af9c506da6)
 - [Dynamic size](https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39)
 - [Load immediately](https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade)
@@ -51,14 +53,32 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [Get center and zoom](https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82)
 - [Set center and zoom](https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871)
 - [Get bearing](https://bl.ocks.org/oscarlorentzon/ca9cee671156c685aca3e1f0f52a230e)
-- [Slider](https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3)
-- [Storytelling with route component](https://bl.ocks.org/oscarlorentzon/2a4041c93fb3711dc8dc53d1a217defe)
+
+### Viewer and map
 - [MapillaryJS + ESRI JS API](https://bl.ocks.org/oscarlorentzon/a9bd5d6dadcc5df7e024a04a9600b043)
 - [MapillaryJS + Google Maps](https://bl.ocks.org/oscarlorentzon/fda7ce2bdae8499580b1f72d139103de)
 - [MapillaryJS + Leaflet](https://bl.ocks.org/oscarlorentzon/0a11029a5627028c445a38016c76fb3a)
 - [MapillaryJS + Leaflet ESRI](https://bl.ocks.org/oscarlorentzon/5a0b23ea8259db871bed2a724ee3afec)
 - [MapillaryJS + Leaflet Tangram](https://bl.ocks.org/oscarlorentzon/6f0d316fee85320c552a4ed6838566a2)
 - [MapillaryJS + Mapbox GL JS](https://bl.ocks.org/oscarlorentzon/0b7c5763225029268fce0324af2b2b3a)
+
+### Components
+
+#### Slider
+- [Compare photos](https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3)
+
+#### Route
+- [Storytelling](https://bl.ocks.org/oscarlorentzon/2a4041c93fb3711dc8dc53d1a217defe)
+
+#### Mouse
+- [Enable and disable mouse and touch handlers](https://bl.ocks.org/oscarlorentzon/37d28603212de2b8326bb65e49418368)
+
+#### Marker
+- [Configure marker style and behavior](https://bl.ocks.org/oscarlorentzon/e0806c8eebe0c67e681c20be95d546b9)
+- [Add and drag markers](https://bl.ocks.org/oscarlorentzon/b05a698c4a84c06c4af59ee1a2897a9f)
+- [Indicate hovered marker](https://bl.ocks.org/oscarlorentzon/d41678dd51e77ae909c0937ea6f6818d)
+- [Sync viewer and map markers](https://bl.ocks.org/oscarlorentzon/0ec42b32dd175ca4cc7518006b888d3a)
+- [Add one million interactive markers](https://bl.ocks.org/oscarlorentzon/999db12bc87c92d5c547b1e582989fc1)
 
 ## Documentation
 

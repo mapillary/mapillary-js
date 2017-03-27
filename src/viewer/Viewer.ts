@@ -81,6 +81,7 @@ export class Viewer extends EventEmitter {
 
     /**
      * Fired when a pointing device (usually a mouse) is moved within the viewer.
+     * @description Will not fire when the mouse is actively used, e.g. for drag pan.
      * @event
      * @type {IViewerMouseEvent} event - Viewer mouse event data.
      */
