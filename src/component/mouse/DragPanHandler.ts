@@ -28,6 +28,16 @@ import {
 
 /**
  * The `DragPanHandler` allows the user to pan the viewer photo by clicking and dragging the cursor.
+ *
+ * @example
+ * ```
+ * var markerComponent = viewer.getComponent("marker");
+ *
+ * markerComponent.dragPan.disable();
+ * markerComponent.dragPan.enable();
+ *
+ * var isEnabled = markerComponent.dragPan.isEnabled;
+ * ```
  */
 export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;

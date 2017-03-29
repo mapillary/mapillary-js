@@ -21,10 +21,27 @@ export interface ISliderKeys {
  * Interface for configuration of slider component.
  *
  * @interface
+ * ```
+ * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<photo-key>',
+ *     {
+ *         component: {
+ *             slider: {
+ *                 initialPosition: 0.5,
+ *                 keys: {
+ *                     background: '<background-key>',
+ *                     foreground: '<foreground-key>',
+ *                 },
+ *                 sliderVisible: true,
+ *             },
+ *         },
+ *     })
+ * ```
  */
 export interface ISliderConfiguration extends IComponentConfiguration {
     /**
      * Initial position of the slider on the interval [0, 1].
+     *
+     * @default 1
      */
     initialPosition?: number;
 
@@ -35,6 +52,8 @@ export interface ISliderConfiguration extends IComponentConfiguration {
 
     /**
      * Value indicating whether the slider should be visible.
+     *
+     * @default true
      */
     sliderVisible?: boolean;
 }

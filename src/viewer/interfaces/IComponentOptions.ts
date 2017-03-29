@@ -1,6 +1,7 @@
 import {
     ICacheConfiguration,
     IDirectionConfiguration,
+    IMarkerConfiguration,
     IMouseConfiguration,
     ISequenceConfiguration,
     ISliderConfiguration,
@@ -94,7 +95,7 @@ export interface IComponentOptions {
      *
      * @default false
      */
-    marker?: boolean;
+    marker?: boolean | IMarkerConfiguration;
 
     /**
      * Enable mouse and touch interaction for zoom and pan.

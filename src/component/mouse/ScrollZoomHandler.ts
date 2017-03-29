@@ -13,6 +13,16 @@ import {
 
 /**
  * The `ScrollZoomHandler` allows the user to zoom the viewer photo by scrolling.
+ *
+ * @example
+ * ```
+ * var markerComponent = viewer.getComponent("marker");
+ *
+ * markerComponent.scrollZoom.disable();
+ * markerComponent.scrollZoom.enable();
+ *
+ * var isEnabled = markerComponent.scrollZoom.isEnabled;
+ * ```
  */
 export class ScrollZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _preventDefaultSubscription: Subscription;

@@ -11,6 +11,16 @@ import {RenderCamera} from "../../Render";
 
 /**
  * The `DoubleClickZoomHandler` allows the user to zoom the viewer photo at a point by double clicking.
+ *
+ * @example
+ * ```
+ * var markerComponent = viewer.getComponent("marker");
+ *
+ * markerComponent.doubleClickZoom.disable();
+ * markerComponent.doubleClickZoom.enable();
+ *
+ * var isEnabled = markerComponent.doubleClickZoom.isEnabled;
+ * ```
  */
 export class DoubleClickZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _zoomSubscription: Subscription;

@@ -197,7 +197,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
     /**
      * Returns the id of the interactive marker closest to the current camera
-     * position ids for marker currently visible at the specified point.
+     * position at the specified point.
      *
      * @description Notice that the pixelPoint argument requires x, y
      * coordinates from pixel space.
@@ -206,11 +206,11 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
      * events to get information out of the marker component.
      *
      * If no interactive geometry of an interactive marker exist at the pixel
-     * point, null will be returned.
+     * point, `null` will be returned.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates on the viewer element.
      * @returns {string} Id of the interactive marker closest to the camera. If no
-     * interactive marker exist at the pixel point, null will be returned.
+     * interactive marker exist at the pixel point, `null` will be returned.
      *
      * @example
      * ```

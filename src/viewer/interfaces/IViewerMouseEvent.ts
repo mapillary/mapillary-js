@@ -14,6 +14,11 @@ export interface IViewerMouseEvent {
      * @description In some situations mouse events can occur outside of
      * the border of a photo. In that case the basic coordinates will be
      * `null`.
+     *
+     * Basic coordinates are 2D coordinates on the [0, 1] interval
+     * and has the origin point, (0, 0), at the top left corner and the
+     * maximum value, (1, 1), at the bottom right corner of the original
+     * photo.
      */
     basicPoint: number[];
 

@@ -4,6 +4,20 @@ import {IComponentConfiguration} from "../../Component";
  * Interface for configuration of mouse component.
  *
  * @interface
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<photo-key>',
+ *     {
+ *         component: {
+ *             mouse: {
+ *                 doubleClickZoom: false,
+ *                 dragPan: false,
+ *                 scrollZoom: false,
+ *                 touchZoom: false,
+ *             },
+ *         },
+ *     })
+ * ```
  */
 export interface IMouseConfiguration extends IComponentConfiguration {
     /**

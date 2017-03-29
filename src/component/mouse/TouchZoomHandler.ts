@@ -19,6 +19,16 @@ import {IPinch} from "../../Viewer";
 
 /**
  * The `TouchZoomHandler` allows the user to zoom the viewer photo by pinching on a touchscreen.
+ *
+ * @example
+ * ```
+ * var markerComponent = viewer.getComponent("marker");
+ *
+ * markerComponent.touchZoom.disable();
+ * markerComponent.touchZoom.enable();
+ *
+ * var isEnabled = markerComponent.touchZoom.isEnabled;
+ * ```
  */
 export class TouchZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
     private _activeSubscription: Subscription;
