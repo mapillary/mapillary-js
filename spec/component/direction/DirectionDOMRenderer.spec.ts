@@ -101,7 +101,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
 
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Fill);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
         renderCamera.camera.up.fromArray([0, 0, 1]);
         renderCamera.camera.lookat.fromArray([1, 1, 0]);
         renderer.setRenderCamera(renderCamera);
@@ -165,7 +165,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(false);
 
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Fill);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
         renderCamera.camera.up.fromArray([0, 0, 1]);
         renderCamera.camera.lookat.fromArray([1, 1, 0]);
         renderCamera.updateRotation(renderCamera.camera);

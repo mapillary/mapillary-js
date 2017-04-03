@@ -134,7 +134,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         handler.enable();
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
-            .next(new RenderCamera(1, RenderMode.Fill));
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
 
         let transform: Transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
@@ -169,7 +169,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         handler.enable();
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
-            .next(new RenderCamera(1, RenderMode.Fill));
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
 
         let transform: Transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
@@ -203,7 +203,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         handler.enable();
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
-            .next(new RenderCamera(1, RenderMode.Fill));
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
 
         let transform: Transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
@@ -236,7 +236,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         handler.enable();
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
-            .next(new RenderCamera(1, RenderMode.Fill));
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
 
         let transform: Transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);

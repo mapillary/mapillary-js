@@ -5,15 +5,55 @@ import {RenderCamera, RenderMode} from "../../src/Render";
 
 describe("RenderCamera.ctor", () => {
     it("should be defined", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         expect(renderCamera).toBeDefined();
+    });
+
+    it("should handle zero width and height", () => {
+        let renderCamera: RenderCamera = new RenderCamera(0, 0, RenderMode.Letterbox);
+
+        expect(renderCamera).toBeDefined();
+        expect(renderCamera.perspective.aspect).toBe(0);
+    });
+
+    it("should handle zero height", () => {
+        let renderCamera: RenderCamera = new RenderCamera(1, 0, RenderMode.Letterbox);
+
+        expect(renderCamera).toBeDefined();
+        expect(renderCamera.perspective.aspect).toBe(Number.POSITIVE_INFINITY);
+    });
+});
+
+describe("RenderCamera.updateAspect", () => {
+    it("should always be changed", () => {
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+
+        renderCamera.updateAspect(1, 1);
+
+        expect(renderCamera.changed).toBe(true);
+    });
+
+    it("should handle zero width and height", () => {
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+
+        renderCamera.updateAspect(0, 0);
+
+        expect(renderCamera.perspective.aspect).toBe(0);
+    });
+
+    it("should handle zero height", () => {
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+
+        renderCamera.updateAspect(1, 0);
+
+        expect(renderCamera.perspective.aspect).toBe(Number.POSITIVE_INFINITY);
     });
 });
 
 describe("RenderCamera.updateProjection", () => {
     it("should not be changed when not updated", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.frameId = 0;
 
@@ -21,7 +61,7 @@ describe("RenderCamera.updateProjection", () => {
     });
 
     it("should be changed when projection has been updated", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.updateProjection();
         renderCamera.frameId = 0;
@@ -30,7 +70,7 @@ describe("RenderCamera.updateProjection", () => {
     });
 
     it("should not be changed when multiple frame ids are set after projection has been updated", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.updateProjection();
         renderCamera.frameId = 0;
@@ -42,7 +82,7 @@ describe("RenderCamera.updateProjection", () => {
 
 describe("RenderCamera.updatePrespective", () => {
     it("should be changed when not updated", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.updatePerspective(new Camera());
         renderCamera.frameId = 0;
@@ -74,7 +114,7 @@ describe("RenderCamera.perspective.fov", () => {
         nodeAspect: number,
         renderMode: RenderMode): RenderCamera => {
 
-        let renderCamera: RenderCamera = new RenderCamera(1, renderMode);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, renderMode);
 
         renderCamera.zoom = zoom;
         renderCamera.alpha = 1;

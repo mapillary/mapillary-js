@@ -78,7 +78,7 @@ export class RenderService {
                 (rc: RenderCamera, operation: IRenderCameraOperation): RenderCamera => {
                     return operation(rc);
                 },
-                new RenderCamera(this._element.offsetWidth / this._element.offsetHeight, renderMode))
+                new RenderCamera(this._element.offsetWidth, this._element.offsetHeight, renderMode))
             .publishReplay(1)
             .refCount();
 
@@ -159,7 +159,7 @@ export class RenderService {
             .map(
                 (size: ISize) => {
                     return (rc: RenderCamera): RenderCamera => {
-                        rc.perspective.aspect = size.width / size.height;
+                        rc.updateAspect(size.width, size.height);
                         rc.updateProjection();
 
                         return rc;

@@ -84,7 +84,9 @@ export class BearingComponent extends Component<IComponentConfiguration> {
             .map(
                 (rc: RenderCamera): [number, number] => {
                     let vFov: number = this._spatial.degToRad(rc.perspective.fov);
-                    let hFov: number = Math.atan(rc.perspective.aspect * Math.tan(0.5 * vFov)) * 2;
+                    let hFov: number = rc.perspective.aspect === Number.POSITIVE_INFINITY ?
+                        Math.PI :
+                        Math.atan(rc.perspective.aspect * Math.tan(0.5 * vFov)) * 2;
 
                     return [this._spatial.azimuthalToBearing(rc.rotation.phi), hFov];
                 })

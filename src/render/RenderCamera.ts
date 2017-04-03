@@ -29,7 +29,7 @@ export class RenderCamera {
     private _changed: boolean;
     private _changedForFrame: number;
 
-    constructor(perspectiveCameraAspect: number, renderMode: RenderMode) {
+    constructor(elementWidth: number, elementHeight: number, renderMode: RenderMode) {
         this.alpha = -1;
         this.zoom = 0;
 
@@ -48,6 +48,8 @@ export class RenderCamera {
         this._spatial = new Spatial();
 
         this._camera = new Camera();
+
+        const perspectiveCameraAspect: number = elementWidth === 0 ? 0 : elementWidth / elementHeight;
         this._perspective = new THREE.PerspectiveCamera(
             50,
             perspectiveCameraAspect,
@@ -86,6 +88,13 @@ export class RenderCamera {
 
     public get rotation(): IRotation {
         return this._rotation;
+    }
+
+    public updateAspect(elementWidth: number, elementHeight: number): void {
+        const perspectiveCameraAspect: number = elementWidth === 0 ? 0 : elementWidth / elementHeight;
+        this._perspective.aspect = perspectiveCameraAspect;
+
+        this._changed = true;
     }
 
     public updateProjection(): void {

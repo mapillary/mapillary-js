@@ -167,7 +167,7 @@ describe("GLRenderer.renderer", () => {
         let renderHash: IGLRenderHash = createGLRenderHash(0, true);
         glRenderer.render$.next(renderHash);
 
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = 0;
         renderServiceMock.renderCameraFrame$.next(renderCamera);
 
@@ -185,7 +185,7 @@ describe("GLRenderer.renderer", () => {
         let renderHash: IGLRenderHash = createGLRenderHash(0, true);
         glRenderer.render$.next(renderHash);
 
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = 0;
         renderServiceMock.renderCameraFrame$.next(renderCamera);
 
@@ -202,7 +202,7 @@ describe("GLRenderer.renderer", () => {
         let frame$: BehaviorSubject<IFrame> = new BehaviorSubject<IFrame>(createFrame(1));
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = 1;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
@@ -234,7 +234,7 @@ describe("GLRenderer.renderer", () => {
         let frame$: BehaviorSubject<IFrame> = new BehaviorSubject<IFrame>(createFrame(1));
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = 1;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
@@ -265,7 +265,7 @@ describe("GLRenderer.renderer", () => {
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = 1;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
@@ -290,7 +290,7 @@ describe("GLRenderer.renderer", () => {
 
         let frameId: number = 1;
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
@@ -315,7 +315,7 @@ describe("GLRenderer.renderer", () => {
 
         let frameId: number = 1;
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
@@ -341,7 +341,7 @@ describe("GLRenderer.renderer", () => {
 
         let frameId: number = 1;
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
@@ -371,7 +371,7 @@ describe("GLRenderer.renderer", () => {
         let frameId: number = 1;
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
@@ -417,7 +417,7 @@ describe("GLRenderer.renderer", () => {
         let frameId: number = 1;
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let renderCamera: RenderCamera = new RenderCamera(1, RenderMode.Letterbox);
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
