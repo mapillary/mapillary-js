@@ -32,7 +32,6 @@ export class Observer {
 
     private _bearingSubscription: Subscription;
     private _currentNodeSubscription: Subscription;
-    private _loadingSubscription: Subscription;
     private _moveSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
@@ -50,6 +49,12 @@ export class Observer {
         this._projection = new Projection();
 
         this._started = false;
+
+        // loading should always emit, also when cover is activated
+        this._navigator.loadingService.loading$
+            .subscribe((loading: boolean): void => {
+                this._eventEmitter.fire(Viewer.loadingchanged, loading);
+            });
     }
 
     public get started(): boolean {
@@ -62,11 +67,6 @@ export class Observer {
         }
 
         this._started = true;
-
-        this._loadingSubscription = this._navigator.loadingService.loading$
-            .subscribe((loading: boolean): void => {
-                this._eventEmitter.fire(Viewer.loadingchanged, loading);
-            });
 
         this._currentNodeSubscription = this._navigator.stateService.currentNodeExternal$
             .subscribe((node: Node): void => {
@@ -179,7 +179,6 @@ export class Observer {
         this._started = false;
 
         this._bearingSubscription.unsubscribe();
-        this._loadingSubscription.unsubscribe();
         this._currentNodeSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
         this._sequenceEdgesSubscription.unsubscribe();
@@ -187,7 +186,6 @@ export class Observer {
         this._viewerMouseEventSubscription.unsubscribe();
 
         this._bearingSubscription = null;
-        this._loadingSubscription = null;
         this._currentNodeSubscription = null;
         this._moveSubscription = null;
         this._sequenceEdgesSubscription = null;
