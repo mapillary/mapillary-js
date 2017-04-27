@@ -171,8 +171,11 @@ export class MouseComponent extends Component<IMouseConfiguration> {
                     let perspectiveCamera: THREE.PerspectiveCamera = renderCamera.perspective;
                     let transform: Transform = args[1];
 
-                    let distanceThreshold: number = this._basicDistanceThreshold / Math.pow(2, renderCamera.zoom);
+                    if (!transform.hasValidScale) {
+                        return;
+                    }
 
+                    let distanceThreshold: number = this._basicDistanceThreshold / Math.pow(2, renderCamera.zoom);
                     let basicCenter: number[] = this._viewportCoords.viewportToBasic(0, 0, transform, perspectiveCamera);
 
                     if (Math.abs(basicCenter[0] - 0.5) < distanceThreshold && Math.abs(basicCenter[1] - 0.5) < distanceThreshold) {
@@ -180,7 +183,6 @@ export class MouseComponent extends Component<IMouseConfiguration> {
                     }
 
                     let basicDistances: number[] = this._viewportCoords.getBasicDistances(transform, perspectiveCamera);
-
                     let basicX: number = 0;
                     let basicY: number = 0;
 

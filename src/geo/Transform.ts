@@ -167,6 +167,14 @@ export class Transform {
     }
 
     /**
+     * Get has valid scale.
+     * @returns {boolean} Value indicating if the scale of the transform is valid.
+     */
+    public get hasValidScale(): boolean {
+        return this._scale > 1e-2 && this._scale < 50;
+    }
+
+    /**
      * Get width.
      *
      * @description Falls back to the node image width if

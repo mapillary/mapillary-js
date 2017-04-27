@@ -139,9 +139,7 @@ export class ImagePlaneFactory {
     }
 
     private _useMesh(transform: Transform, node: Node): boolean {
-        return node.mesh.vertices.length &&
-            transform.scale > 1e-2 &&
-            transform.scale < 50;
+        return node.mesh.vertices.length && transform.hasValidScale;
     }
 
     private _getImageSphereGeo(transform: Transform, node: Node): THREE.BufferGeometry {
