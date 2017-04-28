@@ -220,7 +220,7 @@ export class OutlineCreateTag {
 
         let projected: THREE.Vector3 =
             new THREE.Vector3(point.x, point.y, point.z)
-                .applyProjection(projectionMatrix);
+                .applyMatrix4(projectionMatrix);
 
         return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
     }

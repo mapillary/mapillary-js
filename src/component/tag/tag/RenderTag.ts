@@ -64,7 +64,7 @@ export abstract class RenderTag<T> {
 
         let projected: THREE.Vector3 =
             new THREE.Vector3(point3d.x, point3d.y, point3d.z)
-                .applyProjection(projectionMatrix);
+                .applyMatrix4(projectionMatrix);
 
         return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
     }

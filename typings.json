@@ -18,6 +18,6 @@
     "latlon-geohash": "file:typings/created/latlon-geohash/latlon-geohash.d.ts",
     "pbf": "file:typings/created/pbf/pbf.d.ts",
     "rbush": "file:typings/created/rbush/rbush.d.ts",
-    "unitbezier": "file:typings/created/unitbezier/unitbezier.d.ts"
+    "@mapbox/unitbezier": "file:typings/created/@mapbox/unitbezier/unitbezier.d.ts"
   }
 }

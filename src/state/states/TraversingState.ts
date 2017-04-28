@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import * as THREE from "three";
-import * as UnitBezier from "unitbezier";
+import * as UnitBezier from "@mapbox/unitbezier";
 
 import {IGPano} from "../../API";
 import {IState, StateBase, IRotation, WaitingState} from "../../State";

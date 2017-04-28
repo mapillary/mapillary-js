@@ -51,8 +51,9 @@ export class Spatial {
         let axis: THREE.Vector3 =
             new THREE.Vector3(angleAxis[0], angleAxis[1], angleAxis[2]);
         let angle: number = axis.length();
-
-        axis.normalize();
+        if (angle > 0) {
+            axis.normalize();
+        }
 
         return new THREE.Matrix4().makeRotationAxis(axis, angle);
     }

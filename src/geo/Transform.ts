@@ -486,7 +486,9 @@ export class Transform {
     private _getRt(rotation: number[], translation: number[]): THREE.Matrix4 {
         let axis: THREE.Vector3 = new THREE.Vector3(rotation[0], rotation[1], rotation[2]);
         let angle: number = axis.length();
-        axis.normalize();
+        if (angle > 0) {
+            axis.normalize();
+        }
 
         let rt: THREE.Matrix4 = new THREE.Matrix4();
         rt.makeRotationAxis(axis, angle);
