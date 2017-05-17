@@ -426,8 +426,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (error: Error): void => {
                     console.error(error);
                     this.stop();
-                }
-            );
+                });
 
         this._clearSubscription = this._navigator.stateService.currentNode$
             .bufferCount(1, 7)

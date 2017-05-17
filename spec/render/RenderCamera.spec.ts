@@ -444,7 +444,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Fill
+            RenderMode.Fill,
         );
 
         let d: number = 1;
@@ -464,7 +464,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Fill
+            RenderMode.Fill,
         );
 
         let d: number = 0.5;
@@ -484,7 +484,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Fill
+            RenderMode.Fill,
         );
 
         let d: number = 0.25;
@@ -504,7 +504,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Fill
+            RenderMode.Fill,
         );
 
         let d: number = 0.25;
@@ -524,7 +524,7 @@ describe("RenderCamera.perspective.fov", () => {
             zoom,
             perspectiveAspect,
             nodeAspect,
-            RenderMode.Fill
+            RenderMode.Fill,
         );
 
         let d: number = 1;

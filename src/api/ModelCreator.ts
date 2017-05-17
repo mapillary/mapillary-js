@@ -9,7 +9,7 @@ type HttpDataSourceConfiguration = {
     crossDomain: boolean;
     withCredentials: boolean;
     headers?: { [key: string]: string } ;
-}
+};
 
 /**
  * @class ModelCreator

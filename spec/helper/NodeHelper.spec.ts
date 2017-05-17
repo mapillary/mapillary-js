@@ -71,7 +71,7 @@ export class NodeHelper {
         node.makeFull(fullNode);
 
         return node;
-    };
+    }
 }
 
 export default NodeHelper;

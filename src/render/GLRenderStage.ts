@@ -1,6 +1,6 @@
 export enum GLRenderStage {
     Background,
-    Foreground
+    Foreground,
 }
 
 export default GLRenderStage;

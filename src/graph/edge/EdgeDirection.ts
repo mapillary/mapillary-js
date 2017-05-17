@@ -6,7 +6,6 @@
  * sequence, spatial and node type relations between nodes.
  */
 export enum EdgeDirection {
-
     /**
      * Next node in the sequence.
      */
@@ -61,4 +60,4 @@ export enum EdgeDirection {
      * Looking in roughly the same direction at rougly the same position.
      */
     Similar,
-};
+}

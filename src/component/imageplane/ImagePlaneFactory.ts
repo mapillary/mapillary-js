@@ -240,8 +240,7 @@ export class ImagePlaneFactory {
             phiStart - Math.PI / 2,
             phiLength,
             thetaStart,
-            thetaLength
-        );
+            thetaLength);
 
         geometry.applyMatrix(new THREE.Matrix4().getInverse(transform.rt));
 

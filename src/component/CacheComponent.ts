@@ -26,7 +26,7 @@ import {Container, Navigator} from "../Viewer";
 
 type NodeDepth = [Node, number];
 
-type EdgesDepth = [IEdge[], number]
+type EdgesDepth = [IEdge[], number];
 
 export class CacheComponent extends Component<ICacheConfiguration> {
     public static componentName: string = "cache";
@@ -177,8 +177,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                                                     (n: Node): Observable<IEdge[]> => {
                                                         return this._nodeToEdges$(n, direction);
                                                     }),
-                                            Observable.of<number>(d - 1)
-                                ));
+                                            Observable.of<number>(d - 1)));
                             }
                         }
                     }

@@ -223,8 +223,7 @@ export class Transform {
             f, 0, 0, 0,
             0, f, 0, 0,
             0, 0, 0, 0,
-            0, 0, 1, 0
-        );
+            0, 0, 1, 0);
 
         projector.multiply(projection);
         projector.multiply(this._rt);

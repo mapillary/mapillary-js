@@ -58,7 +58,7 @@ export class WaitingState extends StateBase {
 
     protected _getAlpha(): number {
         return this._motionless ? Math.round(this._alpha) : this._alpha;
-    };
+    }
 
     protected _setCurrentCamera(): void {
         super._setCurrentCamera();

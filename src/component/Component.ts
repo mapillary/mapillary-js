@@ -89,7 +89,7 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
         this._activated = true;
         this._activate();
         this._activated$.next(true);
-    };
+    }
 
     public configure(conf: TConfiguration): void {
         this._configurationSubject$.next(conf);
@@ -105,7 +105,7 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
         this._container.domRenderer.clear(this._name);
         this._container.glRenderer.clear(this._name);
         this._activated$.next(false);
-    };
+    }
 
     /**
      * Detect the viewer's new width and height and resize the component's

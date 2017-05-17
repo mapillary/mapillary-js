@@ -10,4 +10,4 @@ export type ClientTouch = {
     clientX: number;
     clientY: number;
     shiftKey: boolean;
-}
+};

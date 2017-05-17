@@ -224,7 +224,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
 
                     return descriptionState;
                 },
-                new DescriptionState()
+                new DescriptionState(),
             ).map((descriptionState: DescriptionState): IVNodeHash => {
                 if (descriptionState.showsLeft > 0 && descriptionState.description) {
                     return {name: this._name, vnode: this._getRouteAnnotationNode(descriptionState.description)};

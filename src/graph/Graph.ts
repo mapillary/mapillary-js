@@ -42,33 +42,33 @@ type NodeIndexItem = {
     lat: number;
     lon: number;
     node: Node;
-}
+};
 
 type NodeTiles = {
     cache: string[];
     caching: string[];
-}
+};
 
 type SpatialArea = {
     all: { [key: string]: Node };
     cacheKeys: string[];
     cacheNodes: { [key: string]: Node };
-}
+};
 
 type NodeAccess = {
     node: Node;
     accessed: number;
-}
+};
 
 type TileAccess = {
     nodes: Node[];
     accessed: number;
-}
+};
 
 type SequenceAccess = {
     sequence: Sequence;
     accessed: number;
-}
+};
 
 /**
  * @class Graph

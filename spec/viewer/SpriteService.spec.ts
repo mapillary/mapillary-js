@@ -12,9 +12,9 @@ class XMLHTTPRequestMock {
 
     public open(...args: any[]): void {
         this._extension = args[1].split(".").pop();
-    };
+    }
 
-    public send(...args: any[]): void { return; };
+    public send(...args: any[]): void { return; }
 
     public fireLoad(extension: string): void {
         if (extension === this._extension) {

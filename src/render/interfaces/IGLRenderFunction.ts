@@ -5,7 +5,7 @@ import * as THREE from "three";
 export interface IGLRenderFunction extends Function {
     (
         perspectiveCamera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer
+        renderer: THREE.WebGLRenderer,
     ): void;
 }
 

@@ -134,7 +134,7 @@ export class APIv3 {
         this._propertiesUser = [
             "username",
         ];
-    };
+    }
 
     public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
         return this._catchInvalidateGet$(
