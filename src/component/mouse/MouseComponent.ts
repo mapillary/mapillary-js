@@ -175,6 +175,10 @@ export class MouseComponent extends Component<IMouseConfiguration> {
                         return;
                     }
 
+                    if (renderCamera.perspective.aspect === 0 || renderCamera.perspective.aspect === Number.POSITIVE_INFINITY) {
+                        return;
+                    }
+
                     let distanceThreshold: number = this._basicDistanceThreshold / Math.pow(2, renderCamera.zoom);
                     let basicCenter: number[] = this._viewportCoords.viewportToBasic(0, 0, transform, perspectiveCamera);
 

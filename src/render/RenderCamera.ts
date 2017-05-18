@@ -49,7 +49,9 @@ export class RenderCamera {
 
         this._camera = new Camera();
 
-        const perspectiveCameraAspect: number = elementWidth === 0 ? 0 : elementWidth / elementHeight;
+        const perspectiveCameraAspect: number =
+            this._getPerspectiveCameraAspect(elementWidth, elementHeight);
+
         this._perspective = new THREE.PerspectiveCamera(
             50,
             perspectiveCameraAspect,
@@ -91,7 +93,9 @@ export class RenderCamera {
     }
 
     public updateAspect(elementWidth: number, elementHeight: number): void {
-        const perspectiveCameraAspect: number = elementWidth === 0 ? 0 : elementWidth / elementHeight;
+        const perspectiveCameraAspect: number =
+            this._getPerspectiveCameraAspect(elementWidth, elementHeight);
+
         this._perspective.aspect = perspectiveCameraAspect;
 
         this._changed = true;
@@ -157,6 +161,10 @@ export class RenderCamera {
             coeff * nodeAspect;
 
         return aspect;
+    }
+
+    private _getPerspectiveCameraAspect(elementWidth: number, elementHeight: number): number {
+        return elementWidth === 0 ? 0 : elementWidth / elementHeight;
     }
 
     private _getRotation(camera: Camera): IRotation {
