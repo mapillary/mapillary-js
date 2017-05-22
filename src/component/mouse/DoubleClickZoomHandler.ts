@@ -14,12 +14,12 @@ import {RenderCamera} from "../../Render";
  *
  * @example
  * ```
- * var markerComponent = viewer.getComponent("marker");
+ * var mouseComponent = viewer.getComponent("mouse");
  *
- * markerComponent.doubleClickZoom.disable();
- * markerComponent.doubleClickZoom.enable();
+ * mouseComponent.doubleClickZoom.disable();
+ * mouseComponent.doubleClickZoom.enable();
  *
- * var isEnabled = markerComponent.doubleClickZoom.isEnabled;
+ * var isEnabled = mouseComponent.doubleClickZoom.isEnabled;
  * ```
  */
 export class DoubleClickZoomHandler extends MouseHandlerBase<IMouseConfiguration> {

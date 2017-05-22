@@ -22,12 +22,12 @@ import {IPinch} from "../../Viewer";
  *
  * @example
  * ```
- * var markerComponent = viewer.getComponent("marker");
+ * var mouseComponent = viewer.getComponent("mouse");
  *
- * markerComponent.touchZoom.disable();
- * markerComponent.touchZoom.enable();
+ * mouseComponent.touchZoom.disable();
+ * mouseComponent.touchZoom.enable();
  *
- * var isEnabled = markerComponent.touchZoom.isEnabled;
+ * var isEnabled = mouseComponent.touchZoom.isEnabled;
  * ```
  */
 export class TouchZoomHandler extends MouseHandlerBase<IMouseConfiguration> {

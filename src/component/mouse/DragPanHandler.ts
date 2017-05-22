@@ -31,12 +31,12 @@ import {
  *
  * @example
  * ```
- * var markerComponent = viewer.getComponent("marker");
+ * var mouseComponent = viewer.getComponent("mouse");
  *
- * markerComponent.dragPan.disable();
- * markerComponent.dragPan.enable();
+ * mouseComponent.dragPan.disable();
+ * mouseComponent.dragPan.enable();
  *
- * var isEnabled = markerComponent.dragPan.isEnabled;
+ * var isEnabled = mouseComponent.dragPan.isEnabled;
  * ```
  */
 export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {

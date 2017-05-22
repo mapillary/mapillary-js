@@ -16,12 +16,12 @@ import {
  *
  * @example
  * ```
- * var markerComponent = viewer.getComponent("marker");
+ * var mouseComponent = viewer.getComponent("mouse");
  *
- * markerComponent.scrollZoom.disable();
- * markerComponent.scrollZoom.enable();
+ * mouseComponent.scrollZoom.disable();
+ * mouseComponent.scrollZoom.enable();
  *
- * var isEnabled = markerComponent.scrollZoom.isEnabled;
+ * var isEnabled = mouseComponent.scrollZoom.isEnabled;
  * ```
  */
 export class ScrollZoomHandler extends MouseHandlerBase<IMouseConfiguration> {

@@ -171,7 +171,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
                     let perspectiveCamera: THREE.PerspectiveCamera = renderCamera.perspective;
                     let transform: Transform = args[1];
 
-                    if (!transform.hasValidScale) {
+                    if (!transform.hasValidScale && renderCamera.camera.focal < 0.1) {
                         return;
                     }
 
