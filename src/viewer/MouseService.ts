@@ -112,12 +112,7 @@ export class MouseService {
                     event.preventDefault();
                 });
 
-        this._mouseWheel$ = Observable.fromEvent<WheelEvent>(document, "wheel")
-            .filter(
-                (event: WheelEvent): boolean => {
-                    return this._viewportCoords.insideElement(event, this._container);
-                })
-            .share();
+        this._mouseWheel$ = Observable.fromEvent<WheelEvent>(container, "wheel");
 
         this._consistentContextMenu$ = Observable
             .merge(
