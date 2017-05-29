@@ -33,10 +33,12 @@ describe("Observer.loading", () => {
         const eventEmitter: EventEmitter = new TestEventEmitter();
         const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
 
-        new Observer(
+        const observer: Observer = new Observer(
             eventEmitter,
             navigatorMock,
             new ContainerMockCreator().createMock());
+
+        expect(observer).toBeDefined();
 
         eventEmitter.on(
             Viewer.loadingchanged,
