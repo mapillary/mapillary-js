@@ -1,11 +1,5 @@
-declare module "falcor" {
-    interface IModel {
-        get(pathSet: any): any;
-        set(jsongEnv: any): any;
-        call(callPath: any, args?: any, pathSuffix?: any, paths?: any): any;
-    }
-
-    export class Model implements IModel {
+declare module Falcor {
+    class Model {
         constructor(...args: any[]);
         get(...args: any[]): any;
         set(jsongEnv: any): any;
@@ -14,6 +8,6 @@ declare module "falcor" {
         batch(milliseconds: number): Model;
         invalidate(...path: any[]): void;
     }
-
-    export default Model;
 }
+
+export = Falcor;

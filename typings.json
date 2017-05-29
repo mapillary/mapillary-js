@@ -5,8 +5,6 @@
   },
   "globalDependencies": {
     "es6-shim": "registry:dt/es6-shim#0.31.2+20160602141504",
-    "falcor": "file:typings/created/falcor/falcor.d.ts",
-    "falcor-http-datasource": "file:typings/created/falcor-http-datasource/falcor-http-datasource.d.ts",
     "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#aed176536a202b9a2475ce1989ea6d2d0226a185",
     "three": "github:DefinitelyTyped/DefinitelyTyped/three/index.d.ts#e31c49ce6e6c45c983d6cf05c4905f568d0abeb4",
     "underscore": "github:DefinitelyTyped/DefinitelyTyped/underscore/underscore.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e",
@@ -15,6 +13,8 @@
   },
   "dependencies": {
     "earcut": "file:typings/created/earcut/earcut.d.ts",
+    "falcor": "file:typings/created/falcor/falcor.d.ts",
+    "falcor-http-datasource": "file:typings/created/falcor-http-datasource/falcor-http-datasource.d.ts",
     "latlon-geohash": "file:typings/created/latlon-geohash/latlon-geohash.d.ts",
     "pbf": "file:typings/created/pbf/pbf.d.ts",
     "rbush": "file:typings/created/rbush/rbush.d.ts",

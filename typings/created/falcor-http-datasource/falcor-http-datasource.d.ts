@@ -5,9 +5,6 @@ declare class HttpDataSource {
     call(callPath: any, args?: any, pathSuffix?: any, paths?: any): any;
 }
 
-declare module HttpDataSource {
-}
+declare module HttpDataSource { }
 
-declare module "falcor-http-datasource" {
-    export = HttpDataSource;
-}
+export = HttpDataSource;
