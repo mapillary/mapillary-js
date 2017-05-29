@@ -1,7 +1,7 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
 import * as earcut from "earcut";
-import * as polylabel from "polylabel";
+import * as polylabel from "@mapbox/polylabel";
 
 import {Geometry} from "../../../Component";
 import {Transform} from "../../../Geo";

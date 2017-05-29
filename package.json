@@ -18,6 +18,7 @@
     "url": "https://github.com/mapillary/mapillary-js/issues"
   },
   "dependencies": {
+    "@mapbox/polylabel": "^1.0.2",
     "@mapbox/unitbezier": "0.0.0",
     "earcut": "^2.1.1",
     "falcor": "^0.1.17",
