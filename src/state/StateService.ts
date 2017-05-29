@@ -35,14 +35,6 @@ interface IContextOperation {
     (context: IStateContext): IStateContext;
 }
 
-interface IContextAction {
-    (context: IStateContext): void;
-}
-
-interface IMovingOperation {
-    (moving: boolean): boolean;
-}
-
 export class StateService {
     private _start$: Subject<void>;
 

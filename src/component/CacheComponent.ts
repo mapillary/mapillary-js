@@ -24,8 +24,6 @@ import {IEdgeStatus, Node} from "../Graph";
 import {ComponentService, Component, ICacheConfiguration, ICacheDepth} from "../Component";
 import {Container, Navigator} from "../Viewer";
 
-type NodeDepth = [Node, number];
-
 type EdgesDepth = [IEdge[], number];
 
 export class CacheComponent extends Component<ICacheConfiguration> {
