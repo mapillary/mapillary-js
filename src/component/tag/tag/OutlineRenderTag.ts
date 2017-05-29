@@ -114,69 +114,75 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
 
         let vNodes: vd.VNode[] = [];
 
-        if (this._tag.geometry instanceof RectGeometry) {
-            if (this._tag.icon != null) {
-                let iconVertex: number[] = this._tag.geometry.getVertex3d(this._tag.iconIndex, this._transform);
-                let iconCameraSpace: THREE.Vector3 = this._convertToCameraSpace(iconVertex, matrixWorldInverse);
-                if (iconCameraSpace.z < 0) {
-                    let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                        this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
+        if (this._tag.icon != null) {
+            let icon3d: number[] = this._tag.geometry instanceof RectGeometry ?
+                this._tag.geometry.getVertex3d(this._tag.iconIndex, this._transform) :
+                this._tag.geometry.getPoleOfAccessibility3d(this._transform);
+
+            let iconCameraSpace: THREE.Vector3 = this._convertToCameraSpace(icon3d, matrixWorldInverse);
+            if (iconCameraSpace.z < 0) {
+                let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                    this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
+                };
+
+                if (atlas.loaded) {
+                    let spriteAlignments: [SpriteAlignment, SpriteAlignment] = this.tag.geometry instanceof RectGeometry ?
+                        this._getSpriteAlignment(this._tag.iconIndex, this._tag.iconAlignment) :
+                        [SpriteAlignment.Center, SpriteAlignment.Center];
+
+                    let sprite: vd.VNode =
+                        atlas.getDOMSprite(this._tag.icon, spriteAlignments[0], spriteAlignments[1]);
+
+                    let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                        e.stopPropagation();
+                        this._tag.click$.next(this._tag);
                     };
 
-                    if (atlas.loaded) {
-                        let spriteAlignments: [SpriteAlignment, SpriteAlignment] =
-                            this._getSpriteAlignment(this._tag.iconIndex, this._tag.iconAlignment);
-
-                        let sprite: vd.VNode =
-                            atlas.getDOMSprite(this._tag.icon, spriteAlignments[0], spriteAlignments[1]);
-
-                        let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                            e.stopPropagation();
-                            this._tag.click$.next(this._tag);
-                        };
-
-                        let iconCanvas: number[] = this._projectToCanvas(iconCameraSpace, projectionMatrix);
-                        let iconCss: string[] = iconCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                        let properties: vd.createProperties = {
-                            onclick: click,
-                            onmousedown: interact,
-                            style: {
-                                left: iconCss[0],
-                                pointerEvents: "all",
-                                position: "absolute",
-                                top: iconCss[1],
-                            },
-                        };
-
-                        vNodes.push(vd.h("div.TagSymbol", properties, [sprite]));
-                    }
-                }
-            } else if (this._tag.text != null) {
-                let textVertex: number[] = this._tag.geometry.getVertex3d(3, this._transform);
-                let textCameraSpace: THREE.Vector3 = this._convertToCameraSpace(textVertex, matrixWorldInverse);
-                if (textCameraSpace.z < 0) {
-                    let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                        this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
-                    };
-
-                    let labelCanvas: number[] = this._projectToCanvas(textCameraSpace, projectionMatrix);
-                    let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+                    let iconCanvas: number[] = this._projectToCanvas(iconCameraSpace, projectionMatrix);
+                    let iconCss: string[] = iconCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
 
                     let properties: vd.createProperties = {
+                        onclick: click,
                         onmousedown: interact,
                         style: {
-                            color: "#" + ("000000" + this._tag.textColor.toString(16)).substr(-6),
-                            left: labelCss[0],
+                            left: iconCss[0],
                             pointerEvents: "all",
                             position: "absolute",
-                            top: labelCss[1],
+                            top: iconCss[1],
                         },
-                        textContent: this._tag.text,
                     };
 
-                    vNodes.push(vd.h("span.TagSymbol", properties, []));
+                    vNodes.push(vd.h("div.TagSymbol", properties, [sprite]));
                 }
+            }
+        } else if (this._tag.text != null) {
+            let text3d: number[] = this._tag.geometry instanceof RectGeometry ?
+                this._tag.geometry.getVertex3d(3, this._transform) :
+                this._tag.geometry.getPoleOfAccessibility3d(this._transform);
+
+            let textCameraSpace: THREE.Vector3 = this._convertToCameraSpace(text3d, matrixWorldInverse);
+            if (textCameraSpace.z < 0) {
+                let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                    this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
+                };
+
+                let labelCanvas: number[] = this._projectToCanvas(textCameraSpace, projectionMatrix);
+                let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+
+                let properties: vd.createProperties = {
+                    onmousedown: interact,
+                    style: {
+                        color: "#" + ("000000" + this._tag.textColor.toString(16)).substr(-6),
+                        left: labelCss[0],
+                        pointerEvents: "all",
+                        position: "absolute",
+                        top: labelCss[1],
+                        transform: this._tag.geometry instanceof RectGeometry ? undefined : "translate(-50%, -50%)",
+                    },
+                    textContent: this._tag.text,
+                };
+
+                vNodes.push(vd.h("span.TagSymbol", properties, []));
             }
         }
 

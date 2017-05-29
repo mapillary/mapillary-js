@@ -34,6 +34,16 @@ export abstract class VertexGeometry extends Geometry {
     public abstract getPoints3d(transform: Transform): number[][];
 
     /**
+     * Get the polygon pole of inaccessibility, the most
+     * distant internal point from the polygon outline.
+     *
+     * @param transform - The transform of the node related to
+     * the geometry.
+     * @returns {Array<number>} 3D coordinates for the pole of inaccessibility.
+     */
+    public abstract getPoleOfAccessibility3d(transform: Transform): number[];
+
+    /**
      * Get a vertex from the polygon representation of the 3D coordinates for the
      * vertices of the geometry.
      *
