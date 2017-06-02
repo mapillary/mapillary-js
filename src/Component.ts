@@ -23,6 +23,8 @@ export {DragPanHandler} from "./component/mouse/DragPanHandler";
 export {DoubleClickZoomHandler} from "./component/mouse/DoubleClickZoomHandler";
 export {ScrollZoomHandler} from "./component/mouse/ScrollZoomHandler";
 export {TouchZoomHandler} from "./component/mouse/TouchZoomHandler";
+export {Popup} from "./component/popup/Popup";
+export {PopupComponent} from "./component/popup/PopupComponent";
 export {NavigationComponent} from "./component/NavigationComponent";
 export {RouteComponent} from "./component/RouteComponent";
 export {SequenceComponent} from "./component/sequence/SequenceComponent";

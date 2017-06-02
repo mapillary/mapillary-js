@@ -12,3 +12,6 @@ export {TagComponent};
 
 import * as MarkerComponent from "./component/marker/Marker";
 export {MarkerComponent};
+
+import * as PopupComponent from "./component/popup/Popup";
+export {PopupComponent};

@@ -112,6 +112,13 @@ export interface IComponentOptions {
     navigation?: boolean;
 
     /**
+     * Show HTML popups over images.
+     *
+     * @default false
+     */
+    popup?: boolean;
+
+    /**
      * Create a route with a story.
      *
      * @default false

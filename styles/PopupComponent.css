@@ -1,0 +1,11 @@
+.Popup {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+}
+
+.PopupContent {
+    position: relative;
+    pointer-events: auto;
+}
