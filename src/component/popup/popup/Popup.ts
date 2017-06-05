@@ -2,6 +2,10 @@
 
 import * as THREE from "three";
 
+import {
+    IPopupOptions,
+    PopupAlignment,
+} from "../../../Component";
 import {Transform} from "../../../Geo";
 import {
     ISize,
@@ -9,10 +13,19 @@ import {
 } from "../../../Render";
 
 export class Popup {
-    private _positionBasic: number[];
     private _container: HTMLDivElement;
     private _content: HTMLDivElement;
     private _parentContainer: HTMLElement;
+    private _options: IPopupOptions;
+    private _positionBasic: number[];
+
+    constructor(options?: IPopupOptions) {
+        this._options = {};
+
+        if (!!options) {
+            this._options.anchor = options.anchor;
+        }
+    }
 
     public remove(): void {
         if (this._content && this._content.parentNode) {
@@ -62,9 +75,47 @@ export class Popup {
         const matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(renderCamera.perspective.matrixWorld);
         const positionCameraSpace: THREE.Vector3 = this._convertToCameraSpace(position3d, matrixWorldInverse);
         const positionCanvas: number[] = this._projectToCanvas(positionCameraSpace, renderCamera.perspective.projectionMatrix);
-        const positionPixel: number[] = [positionCanvas[0] * size.width, positionCanvas[1] * size.height];
+        const positionPixel: number[] = [Math.round(positionCanvas[0] * size.width), Math.round(positionCanvas[1] * size.height)];
 
-        this._container.style.transform = `translate(-50%, -50%) translate(${positionPixel[0]}px, ${positionPixel[1]}px)`;
+        let anchor: PopupAlignment = this._options.anchor;
+
+        if (!anchor) {
+            const width: number = this._container.offsetWidth;
+            const height: number = this._container.offsetHeight;
+            const anchors: PopupAlignment[] = [];
+
+            if (positionPixel[1] < height) {
+                anchors.push("top");
+            } else if (positionPixel[1] > size.height - height) {
+                anchors.push("bottom");
+            }
+
+            if (positionPixel[0] < width / 2) {
+                anchors.push("left");
+            } else if (positionPixel[0] > size.width - width / 2) {
+                anchors.push("right");
+            }
+
+            if (anchors.length === 0) {
+                anchor = "top";
+            } else {
+                anchor = <PopupAlignment>anchors.join("-");
+            }
+        }
+
+        const anchorTranslate: {[key in PopupAlignment]: string } = {
+            "bottom": "translate(-50%,-100%)",
+            "bottom-left": "translate(0,-100%)",
+            "bottom-right": "translate(-100%,-100%)",
+            "center": "translate(-50%,-50%)",
+            "left": "translate(0,-50%)",
+            "right": "translate(-100%,-50%)",
+            "top": "translate(-50%,0)",
+            "top-left": "translate(0,0)",
+            "top-right": "translate(-100%,0)",
+        };
+
+        this._container.style.transform = `${anchorTranslate[anchor]} translate(${positionPixel[0]}px,${positionPixel[1]}px)`;
     }
 
     private _createElement(tagName: string, className: string, container: HTMLElement): HTMLElement {
