@@ -1,7 +1,7 @@
 import {PopupAlignment} from "../../../Component";
 
 export interface IPopupOptions {
-    anchor?: PopupAlignment;
+    float?: PopupAlignment;
     position?: PopupAlignment;
 }
 

@@ -25,7 +25,7 @@ export class Popup {
         this._options = {};
 
         if (!!options) {
-            this._options.anchor = options.anchor;
+            this._options.float = options.float;
             this._options.position = options.position;
         }
     }
@@ -86,15 +86,15 @@ export class Popup {
 
         let pointPixel: number[] = null;
         let position: PopupAlignment = this._options.position;
-        let anchor: PopupAlignment = this._options.anchor;
+        let float: PopupAlignment = this._options.float;
 
         if (this._point != null) {
             pointPixel = this._basicToPixel(this._point, renderCamera, size, transform);
         } else {
             [pointPixel, position] = this._rectToPixel(this._rect, position, renderCamera, size, transform);
 
-            if (!anchor) {
-                anchor = position;
+            if (!float) {
+                float = position;
             }
         }
 
@@ -102,43 +102,43 @@ export class Popup {
             return;
         }
 
-        if (!anchor) {
+        if (!float) {
             const width: number = this._container.offsetWidth;
             const height: number = this._container.offsetHeight;
-            const anchors: PopupAlignment[] = [];
+            const floats: PopupAlignment[] = [];
 
             if (pointPixel[1] < height) {
-                anchors.push("top");
+                floats.push("bottom");
             } else if (pointPixel[1] > size.height - height) {
-                anchors.push("bottom");
+                floats.push("top");
             }
 
             if (pointPixel[0] < width / 2) {
-                anchors.push("left");
+                floats.push("right");
             } else if (pointPixel[0] > size.width - width / 2) {
-                anchors.push("right");
+                floats.push("left");
             }
 
-            if (anchors.length === 0) {
-                anchor = "top";
+            if (floats.length === 0) {
+                float = "bottom";
             } else {
-                anchor = <PopupAlignment>anchors.join("-");
+                float = <PopupAlignment>floats.join("-");
             }
         }
 
-        const anchorTranslate: {[key in PopupAlignment]: string } = {
-            "bottom": "translate(-50%,-100%)",
-            "bottom-left": "translate(0,-100%)",
-            "bottom-right": "translate(-100%,-100%)",
+        const floatTranslate: {[key in PopupAlignment]: string } = {
+            "bottom": "translate(-50%,0)",
+            "bottom-left": "translate(-100%,0)",
+            "bottom-right": "translate(0,0)",
             "center": "translate(-50%,-50%)",
-            "left": "translate(0,-50%)",
-            "right": "translate(-100%,-50%)",
-            "top": "translate(-50%,0)",
-            "top-left": "translate(0,0)",
-            "top-right": "translate(-100%,0)",
+            "left": "translate(-100%,-50%)",
+            "right": "translate(0,-50%)",
+            "top": "translate(-50%,-100%)",
+            "top-left": "translate(-100%,-100%)",
+            "top-right": "translate(0,-100%)",
         };
 
-        this._container.style.transform = `${anchorTranslate[anchor]} translate(${pointPixel[0]}px,${pointPixel[1]}px)`;
+        this._container.style.transform = `${floatTranslate[float]} translate(${pointPixel[0]}px,${pointPixel[1]}px)`;
     }
 
     private _createElement(tagName: string, className: string, container: HTMLElement): HTMLElement {
