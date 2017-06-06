@@ -17,13 +17,16 @@ export class Popup {
     private _content: HTMLDivElement;
     private _parentContainer: HTMLElement;
     private _options: IPopupOptions;
-    private _positionBasic: number[];
+
+    private _point: number[];
+    private _rect: number[];
 
     constructor(options?: IPopupOptions) {
         this._options = {};
 
         if (!!options) {
             this._options.anchor = options.anchor;
+            this._options.position = options.position;
         }
     }
 
@@ -42,8 +45,14 @@ export class Popup {
         }
     }
 
-    public setBasicPosition(basic: number[]): void {
-        this._positionBasic = basic;
+    public setBasicPoint(basicPoint: number[]): void {
+        this._point = basicPoint;
+        this._rect = null;
+    }
+
+    public setBasicRect(basicRect: number[]): void {
+        this._rect = basicRect;
+        this._point = null;
     }
 
     public setDOMContent(htmlNode: Node): void {
@@ -61,7 +70,11 @@ export class Popup {
     }
 
     public update(renderCamera: RenderCamera, size: ISize, transform: Transform): void {
-        if (!this._parentContainer || !this._content || !this._positionBasic) {
+        if (!this._parentContainer || !this._content) {
+            return;
+        }
+
+        if (!this._point && !this._rect) {
             return;
         }
 
@@ -71,28 +84,38 @@ export class Popup {
             this._parentContainer.appendChild(this._container);
         }
 
-        const position3d: number[] = transform.unprojectBasic(this._positionBasic, 200);
-        const matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(renderCamera.perspective.matrixWorld);
-        const positionCameraSpace: THREE.Vector3 = this._convertToCameraSpace(position3d, matrixWorldInverse);
-        const positionCanvas: number[] = this._projectToCanvas(positionCameraSpace, renderCamera.perspective.projectionMatrix);
-        const positionPixel: number[] = [Math.round(positionCanvas[0] * size.width), Math.round(positionCanvas[1] * size.height)];
-
+        let pointPixel: number[] = null;
+        let position: PopupAlignment = this._options.position;
         let anchor: PopupAlignment = this._options.anchor;
+
+        if (this._point != null) {
+            pointPixel = this._basicToPixel(this._point, renderCamera, size, transform);
+        } else {
+            [pointPixel, position] = this._rectToPixel(this._rect, position, renderCamera, size, transform);
+
+            if (!anchor) {
+                anchor = position;
+            }
+        }
+
+        if (pointPixel == null) {
+            return;
+        }
 
         if (!anchor) {
             const width: number = this._container.offsetWidth;
             const height: number = this._container.offsetHeight;
             const anchors: PopupAlignment[] = [];
 
-            if (positionPixel[1] < height) {
+            if (pointPixel[1] < height) {
                 anchors.push("top");
-            } else if (positionPixel[1] > size.height - height) {
+            } else if (pointPixel[1] > size.height - height) {
                 anchors.push("bottom");
             }
 
-            if (positionPixel[0] < width / 2) {
+            if (pointPixel[0] < width / 2) {
                 anchors.push("left");
-            } else if (positionPixel[0] > size.width - width / 2) {
+            } else if (pointPixel[0] > size.width - width / 2) {
                 anchors.push("right");
             }
 
@@ -115,7 +138,7 @@ export class Popup {
             "top-right": "translate(-100%,0)",
         };
 
-        this._container.style.transform = `${anchorTranslate[anchor]} translate(${positionPixel[0]}px,${positionPixel[1]}px)`;
+        this._container.style.transform = `${anchorTranslate[anchor]} translate(${pointPixel[0]}px,${pointPixel[1]}px)`;
     }
 
     private _createElement(tagName: string, className: string, container: HTMLElement): HTMLElement {
@@ -130,6 +153,75 @@ export class Popup {
         }
 
         return element;
+    }
+
+    private _rectToPixel(
+        rect: number[],
+        position: PopupAlignment,
+        renderCamera: RenderCamera,
+        size: ISize, transform:
+        Transform): [number[], PopupAlignment] {
+        if (!position) {
+            const automaticPositions: PopupAlignment[] =
+                ["bottom", "top", "left", "right", "bottom-left", "bottom-right", "top-left", "top-right"];
+
+            for (const automaticPosition of automaticPositions) {
+                const pointBasic: number[] = this._pointFromRectPosition(rect, automaticPosition);
+                const pointPixel: number[] = this._basicToPixel(pointBasic, renderCamera, size, transform);
+
+                if (pointPixel[0] > 0 &&
+                    pointPixel[0] < size.width &&
+                    pointPixel[1] > 0 &&
+                    pointPixel[1] < size.height) {
+
+                    return [pointPixel, automaticPosition];
+                }
+            }
+        }
+
+        const pointBasic: number[] = this._pointFromRectPosition(rect, position);
+
+        return [this._basicToPixel(pointBasic, renderCamera, size, transform), position != null ? position : "bottom"];
+    }
+
+    private _pointFromRectPosition(rect: number[], position: PopupAlignment): number[] {
+        switch (position) {
+            case "bottom":
+                return [(rect[0] + rect[2]) / 2, rect[3]];
+            case "bottom-left":
+                return [rect[0], rect[3]];
+            case "bottom-right":
+                return [rect[2], rect[3]];
+            case "center":
+                return [(rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2];
+            case "left":
+                return [rect[0], (rect[1] + rect[3]) / 2];
+            case "right":
+                return [rect[2], (rect[1] + rect[3]) / 2];
+            case "top":
+                return [(rect[0] + rect[2]) / 2, rect[1]];
+            case "top-left":
+                return [rect[0], rect[1]];
+            case "top-right":
+                return [rect[2], rect[1]];
+            default:
+                return [(rect[0] + rect[2]) / 2, rect[3]];
+        }
+    }
+
+    private _basicToPixel(pointBasic: number[], renderCamera: RenderCamera, size: ISize, transform: Transform): number[] {
+        const point3d: number[] = transform.unprojectBasic(pointBasic, 200);
+        const matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(renderCamera.perspective.matrixWorld);
+        const pointCameraSpace: THREE.Vector3 = this._convertToCameraSpace(point3d, matrixWorldInverse);
+
+        if (pointCameraSpace.z > 0) {
+            return null;
+        }
+
+        const pointCanvas: number[] = this._projectToCanvas(pointCameraSpace, renderCamera.perspective.projectionMatrix);
+        const pointPixel: number[] = [Math.round(pointCanvas[0] * size.width), Math.round(pointCanvas[1] * size.height)];
+
+        return pointPixel;
     }
 
     private _projectToCanvas(
