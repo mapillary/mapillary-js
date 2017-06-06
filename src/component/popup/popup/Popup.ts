@@ -108,25 +108,9 @@ export class Popup {
         if (!float) {
             const width: number = this._container.offsetWidth;
             const height: number = this._container.offsetHeight;
-            const floats: PopupAlignment[] = [];
+            const floats: PopupAlignment[] = this._pixelToFloats(pointPixel, size, width, height);
 
-            if (pointPixel[1] < height) {
-                floats.push("bottom");
-            } else if (pointPixel[1] > size.height - height) {
-                floats.push("top");
-            }
-
-            if (pointPixel[0] < width / 2) {
-                floats.push("right");
-            } else if (pointPixel[0] > size.width - width / 2) {
-                floats.push("left");
-            }
-
-            if (floats.length === 0) {
-                float = "bottom";
-            } else {
-                float = <PopupAlignment>floats.join("-");
-            }
+            float = floats.length === 0 ? "bottom" : <PopupAlignment>floats.join("-");
         }
 
         const floatTranslate: {[key in PopupAlignment]: string } = {
@@ -164,15 +148,40 @@ export class Popup {
         renderCamera: RenderCamera,
         size: ISize, transform:
         Transform): [number[], PopupAlignment] {
+
         if (!position) {
+            const width: number = this._container.offsetWidth;
+            const height: number = this._container.offsetHeight;
+
+            const floatOffsets: { [key: string]: number[] } = {
+                "bottom": [0, height / 2],
+                "bottom-left": [-width / 2, height / 2],
+                "bottom-right": [width / 2, height / 2],
+                "left": [-width / 2, 0],
+                "right": [width / 2, 0],
+                "top": [0, -height / 2],
+                "top-left": [-width / 2, -height / 2],
+                "top-right": [width / 2, -height / 2],
+            };
+
             const automaticPositions: PopupAlignment[] =
                 ["bottom", "top", "left", "right", "bottom-left", "bottom-right", "top-left", "top-right"];
+
+            let largestVisibleArea: [number, number[], PopupAlignment] = [0, null, null];
 
             for (const automaticPosition of automaticPositions) {
                 const pointBasic: number[] = this._pointFromRectPosition(rect, automaticPosition);
                 const pointPixel: number[] = this._basicToPixel(pointBasic, renderCamera, size, transform);
 
-                if (pointPixel != null &&
+                if (pointPixel == null) {
+                    continue;
+                }
+
+                const floatOffset: number[] = floatOffsets[automaticPosition];
+                const offsetedPosition: number[] = [pointPixel[0] + floatOffset[0], pointPixel[1] + floatOffset[1]];
+                const floats: PopupAlignment[] = this._pixelToFloats(offsetedPosition, size, width, height / 2);
+
+                if (floats.length === 0 &&
                     pointPixel[0] > 0 &&
                     pointPixel[0] < size.width &&
                     pointPixel[1] > 0 &&
@@ -180,12 +189,49 @@ export class Popup {
 
                     return [pointPixel, automaticPosition];
                 }
+
+                const minX: number = Math.max(offsetedPosition[0] - width / 2, 0);
+                const maxX: number = Math.min(offsetedPosition[0] + width / 2, size.width);
+                const minY: number = Math.max(offsetedPosition[1] - height / 2, 0);
+                const maxY: number = Math.min(offsetedPosition[1] + height / 2, size.height);
+
+                const visibleX: number = Math.max(0, maxX - minX);
+                const visibleY: number = Math.max(0, maxY - minY);
+                const visibleArea: number = visibleX * visibleY;
+
+                if (visibleArea > largestVisibleArea[0]) {
+                    largestVisibleArea[0] = visibleArea;
+                    largestVisibleArea[1] = pointPixel;
+                    largestVisibleArea[2] = automaticPosition;
+                }
+            }
+
+            if (largestVisibleArea[0] > 0) {
+                return [largestVisibleArea[1], largestVisibleArea[2]];
             }
         }
 
         const pointBasic: number[] = this._pointFromRectPosition(rect, position);
 
         return [this._basicToPixel(pointBasic, renderCamera, size, transform), position != null ? position : "bottom"];
+    }
+
+    private _pixelToFloats(pointPixel: number[], size: ISize, width: number, height: number): PopupAlignment[] {
+        const floats: PopupAlignment[] = [];
+
+        if (pointPixel[1] < height) {
+            floats.push("bottom");
+        } else if (pointPixel[1] > size.height - height) {
+            floats.push("top");
+        }
+
+        if (pointPixel[0] < width / 2) {
+            floats.push("right");
+        } else if (pointPixel[0] > size.width - width / 2) {
+            floats.push("left");
+        }
+
+        return floats;
     }
 
     private _pointFromRectPosition(rect: number[], position: PopupAlignment): number[] {
