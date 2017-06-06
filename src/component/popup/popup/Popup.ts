@@ -46,12 +46,12 @@ export class Popup {
     }
 
     public setBasicPoint(basicPoint: number[]): void {
-        this._point = basicPoint;
+        this._point = basicPoint.slice();
         this._rect = null;
     }
 
     public setBasicRect(basicRect: number[]): void {
-        this._rect = basicRect;
+        this._rect = basicRect.slice();
         this._point = null;
     }
 
@@ -99,8 +99,11 @@ export class Popup {
         }
 
         if (pointPixel == null) {
+            this._container.style.visibility = "hidden";
             return;
         }
+
+        this._container.style.visibility = "visible";
 
         if (!float) {
             const width: number = this._container.offsetWidth;
@@ -169,7 +172,8 @@ export class Popup {
                 const pointBasic: number[] = this._pointFromRectPosition(rect, automaticPosition);
                 const pointPixel: number[] = this._basicToPixel(pointBasic, renderCamera, size, transform);
 
-                if (pointPixel[0] > 0 &&
+                if (pointPixel != null &&
+                    pointPixel[0] > 0 &&
                     pointPixel[0] < size.width &&
                     pointPixel[1] > 0 &&
                     pointPixel[1] < size.height) {
