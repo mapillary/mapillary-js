@@ -2,6 +2,9 @@
 
 import * as THREE from "three";
 
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+
 import {
     IPopupOptions,
     PopupAlignment,
@@ -13,6 +16,8 @@ import {
 } from "../../../Render";
 
 export class Popup {
+    protected _notifyChanged$: Subject<Popup>;
+
     private _container: HTMLDivElement;
     private _content: HTMLDivElement;
     private _parentContainer: HTMLElement;
@@ -30,6 +35,12 @@ export class Popup {
             this._options.position = options.position;
             this._options.visuals = options.visuals;
         }
+
+        this._notifyChanged$ = new Subject<Popup>();
+    }
+
+    public get changed$(): Observable<Popup> {
+        return this._notifyChanged$;
     }
 
     public remove(): void {
@@ -50,11 +61,15 @@ export class Popup {
     public setBasicPoint(basicPoint: number[]): void {
         this._point = basicPoint.slice();
         this._rect = null;
+
+        this._notifyChanged$.next(this);
     }
 
     public setBasicRect(basicRect: number[]): void {
         this._rect = basicRect.slice();
         this._point = null;
+
+        this._notifyChanged$.next(this);
     }
 
     public setDOMContent(htmlNode: Node): void {
@@ -66,6 +81,8 @@ export class Popup {
         this._content = <HTMLDivElement>this._createElement("div", className, this._container);
 
         this._content.appendChild(htmlNode);
+
+        this._notifyChanged$.next(this);
     }
 
     public setParentContainer(parentContainer: HTMLElement): void {

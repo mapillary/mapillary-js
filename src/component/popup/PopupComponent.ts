@@ -25,9 +25,10 @@ export class PopupComponent extends Component<IComponentConfiguration> {
     private _popups: Popup[];
 
     private _added$: Subject<Popup[]>;
+    private _popups$: Subject<Popup[]>;
 
-    private _updateSubscription: Subscription;
-    private _updateAddedSubscription: Subscription;
+    private _updateAllSubscription: Subscription;
+    private _updateAddedChangedSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -35,6 +36,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         this._popups = [];
 
         this._added$ = new Subject<Popup[]>();
+        this._popups$ = new Subject<Popup[]>();
     }
 
     public add(popups: Popup[]): void {
@@ -47,12 +49,15 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         }
 
         this._added$.next(popups);
+        this._popups$.next(this._popups);
     }
 
     public remove(popups: Popup[]): void {
         for (const popup of popups) {
             this._remove(popup);
         }
+
+        this._popups$.next(this._popups);
     }
 
     public removeAll(): void {
@@ -69,7 +74,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
             popup.setParentContainer(this._popupContainer);
         }
 
-        this._updateSubscription = Observable
+        this._updateAllSubscription = Observable
                 .combineLatest(
                     this._container.renderService.renderCamera$,
                     this._container.renderService.size$,
@@ -81,9 +86,25 @@ export class PopupComponent extends Component<IComponentConfiguration> {
                     }
                 });
 
-        this._updateAddedSubscription = Observable
+        const changed$: Observable<Popup[]> = this._popups$
+            .startWith(this._popups)
+            .switchMap(
+                (popups: Popup[]): Observable<Popup> => {
+                    return Observable
+                        .from(popups)
+                        .mergeMap(
+                            (popup: Popup): Observable<Popup> => {
+                                return popup.changed$;
+                            });
+                })
+            .map(
+                (popup: Popup): Popup[] => {
+                    return [popup];
+                });
+
+        this._updateAddedChangedSubscription = Observable
             .combineLatest(
-                this._added$,
+                this._added$.merge(changed$),
                 this._container.renderService.renderCamera$,
                 this._container.renderService.size$,
                 this._navigator.stateService.currentTransform$)
@@ -96,8 +117,8 @@ export class PopupComponent extends Component<IComponentConfiguration> {
     }
 
     protected _deactivate(): void {
-        this._updateSubscription.unsubscribe();
-        this._updateAddedSubscription.unsubscribe();
+        this._updateAllSubscription.unsubscribe();
+        this._updateAddedChangedSubscription.unsubscribe();
 
         for (const popup of this._popups) {
             popup.remove();
