@@ -32,6 +32,7 @@ export class Popup {
 
         if (!!options) {
             this._options.float = options.float;
+            this._options.opacity = options.opacity;
             this._options.position = options.position;
             this._options.visuals = options.visuals;
         }
@@ -129,6 +130,10 @@ export class Popup {
 
             this._container.appendChild(this._content);
             this._parentContainer.appendChild(this._container);
+
+            if (this._options.opacity != null) {
+                this._container.style.opacity = this._options.opacity.toString();
+            }
         }
 
         let pointPixel: number[] = null;
