@@ -85,6 +85,28 @@ export class Popup {
         this._notifyChanged$.next(this);
     }
 
+    public setHTML(html: string): void {
+        const frag: DocumentFragment = document.createDocumentFragment();
+        const temp: HTMLBodyElement = document.createElement("body");
+        let child: Node;
+        temp.innerHTML = html;
+
+        while (true) {
+            child = temp.firstChild;
+            if (!child) {
+                break;
+            }
+
+            frag.appendChild(child);
+        }
+
+        this.setDOMContent(frag);
+    }
+
+    public setText(text: string): void {
+        this.setDOMContent(document.createTextNode(text));
+    }
+
     public setParentContainer(parentContainer: HTMLElement): void {
         this._parentContainer = parentContainer;
     }
