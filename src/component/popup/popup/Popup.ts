@@ -32,6 +32,7 @@ export class Popup {
 
         if (!!options) {
             this._options.float = options.float;
+            this._options.offset = options.offset;
             this._options.opacity = options.opacity;
             this._options.position = options.position;
             this._options.visuals = options.visuals;
@@ -163,6 +164,23 @@ export class Popup {
             const floats: PopupAlignment[] = this._pixelToFloats(pointPixel, size, width, height);
 
             float = floats.length === 0 ? "bottom" : <PopupAlignment>floats.join("-");
+        }
+
+        if (!!this._options.offset) {
+            const cornerOffset: number = Math.round(Math.sqrt(0.5 * Math.pow(this._options.offset, 2)));
+            const offset: { [key in PopupAlignment]: number[] } = {
+                "bottom": [0, this._options.offset],
+                "bottom-left": [-cornerOffset, cornerOffset],
+                "bottom-right": [cornerOffset, cornerOffset],
+                "center": [0, 0],
+                "left": [-this._options.offset, 0],
+                "right": [this._options.offset, 0],
+                "top": [0, -this._options.offset],
+                "top-left": [-cornerOffset, -cornerOffset],
+                "top-right": [cornerOffset, -cornerOffset],
+            };
+
+            pointPixel = [pointPixel[0] + offset[float][0], pointPixel[1] + offset[float][1]];
         }
 
         const floatTranslate: {[key in PopupAlignment]: string } = {
