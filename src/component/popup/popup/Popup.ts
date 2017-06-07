@@ -17,6 +17,7 @@ export class Popup {
     private _content: HTMLDivElement;
     private _parentContainer: HTMLElement;
     private _options: IPopupOptions;
+    private _tip: HTMLDivElement;
 
     private _point: number[];
     private _rect: number[];
@@ -27,6 +28,7 @@ export class Popup {
         if (!!options) {
             this._options.float = options.float;
             this._options.position = options.position;
+            this._options.visuals = options.visuals;
         }
     }
 
@@ -60,7 +62,8 @@ export class Popup {
             this._content.parentNode.removeChild(this._content);
         }
 
-        this._content = <HTMLDivElement>this._createElement("div", "PopupContent", this._container);
+        const className: string = this._options.visuals === true ? "mapillaryjs-popup-content" : "mapillaryjs-clean-popup-content";
+        this._content = <HTMLDivElement>this._createElement("div", className, this._container);
 
         this._content.appendChild(htmlNode);
     }
@@ -79,7 +82,12 @@ export class Popup {
         }
 
         if (!this._container) {
-            this._container = <HTMLDivElement>this._createElement("div", "Popup", this._parentContainer);
+            this._container = <HTMLDivElement>this._createElement("div", "mapillaryjs-popup", this._parentContainer);
+            if (this._options.visuals === true) {
+                this._tip = <HTMLDivElement>this._createElement("div", "mapillaryjs-popup-tip", this._container);
+                this._createElement("div", "mapillaryjs-popup-tip-inner", this._tip);
+            }
+
             this._container.appendChild(this._content);
             this._parentContainer.appendChild(this._container);
         }
@@ -125,6 +133,17 @@ export class Popup {
             "top-right": "translate(0,-100%)",
         };
 
+        const classList: DOMTokenList = this._container.classList;
+        for (const key in floatTranslate) {
+            if (!floatTranslate.hasOwnProperty(key)) {
+                continue;
+            }
+
+            classList.remove(`mapillaryjs-popup-float-${key}`);
+        }
+
+        classList.add(`mapillaryjs-popup-float-${float}`);
+
         this._container.style.transform = `${floatTranslate[float]} translate(${pointPixel[0]}px,${pointPixel[1]}px)`;
     }
 
@@ -165,7 +184,7 @@ export class Popup {
             };
 
             const automaticPositions: PopupAlignment[] =
-                ["bottom", "top", "left", "right", "bottom-left", "bottom-right", "top-left", "top-right"];
+                ["bottom", "top", "left", "right"];
 
             let largestVisibleArea: [number, number[], PopupAlignment] = [0, null, null];
 

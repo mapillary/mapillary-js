@@ -1,11 +1,185 @@
-.Popup {
+.mapillaryjs-popup {
     position: absolute;
     left: 0;
     top: 0;
     pointer-events: none;
+    display: flex;
 }
 
-.PopupContent {
+.mapillaryjs-popup-content,
+.mapillaryjs-clean-popup-content {
     position: relative;
     pointer-events: auto;
+}
+
+.mapillaryjs-popup-content {
+    padding: 5px 10px;
+    background: white;
+    border: 1px solid black;
+    border-radius: 2px;
+}
+
+.mapillaryjs-popup-float-bottom,
+.mapillaryjs-popup-float-bottom-left,
+.mapillaryjs-popup-float-bottom-right {
+    flex-direction: column;
+}
+
+.mapillaryjs-popup-float-top,
+.mapillaryjs-popup-float-top-left,
+.mapillaryjs-popup-float-top-right {
+    flex-direction: column-reverse;
+}
+
+.mapillaryjs-popup-float-left {
+    flex-direction: row-reverse;
+}
+
+.mapillaryjs-popup-float-right {
+    flex-direction: row;
+}
+
+.mapillaryjs-popup-tip,
+.mapillaryjs-popup-tip-inner {
+    position: relative;
+    z-index: 1;
+    width: 0;
+    height: 0;
+    border: 7px solid transparent;
+}
+
+.mapillaryjs-popup-float-top .mapillaryjs-popup-tip {
+    align-self: center;
+    border-top-color:black;
+    border-bottom: none;
+}
+
+.mapillaryjs-popup-float-top .mapillaryjs-popup-tip-inner {
+    position: relative;
+    top: -8px;
+    left: -7px;
+    border-top-color: white;
+    border-bottom: none;
+}
+
+.mapillaryjs-popup-float-top-right .mapillaryjs-popup-tip {
+    align-self: flex-start;
+    border-top-color:black;
+    border-bottom: none;
+    border-left: none;
+}
+
+.mapillaryjs-popup-float-top-right .mapillaryjs-popup-tip-inner {
+    position: relative;
+    top: -9px;
+    left: 1px;
+    border-top-color: white;
+    border-bottom: none;
+    border-left: none;
+}
+
+.mapillaryjs-popup-float-top-left .mapillaryjs-popup-tip {
+    align-self: flex-end;
+    border-top-color:black;
+    border-bottom: none;
+    border-right: none;
+}
+
+.mapillaryjs-popup-float-top-left .mapillaryjs-popup-tip-inner {
+    position: relative;
+    top: -9px;
+    left: -8px;
+    border-top-color: white;
+    border-bottom: none;
+    border-right: none;
+}
+
+.mapillaryjs-popup-float-bottom .mapillaryjs-popup-tip {
+    align-self: center;
+    border-top: none;
+    border-bottom-color: black;
+}
+
+.mapillaryjs-popup-float-bottom .mapillaryjs-popup-tip-inner {
+    position: relative;
+    bottom: -1px;
+    left: -7px;
+    border-top: none;
+    border-bottom-color: white;
+}
+
+.mapillaryjs-popup-float-bottom-right .mapillaryjs-popup-tip {
+    align-self: flex-start;
+    border-bottom-color:black;
+    border-top: none;
+    border-left: none;
+}
+
+.mapillaryjs-popup-float-bottom-right .mapillaryjs-popup-tip-inner {
+    position: relative;
+    bottom: -2px;
+    left: 1px;
+    border-bottom-color: white;
+    border-top: none;
+    border-left: none;
+}
+
+.mapillaryjs-popup-float-bottom-left .mapillaryjs-popup-tip {
+    align-self: flex-end;
+    border-bottom-color:black;
+    border-top: none;
+    border-right: none;
+}
+
+.mapillaryjs-popup-float-bottom-left .mapillaryjs-popup-tip-inner {
+    position: relative;
+    bottom: -2px;
+    left: -8px;
+    border-bottom-color: white;
+    border-top: none;
+    border-right: none;
+}
+
+.mapillaryjs-popup-float-left .mapillaryjs-popup-tip {
+    align-self: center;
+    border-left-color: black;
+    border-right: none;
+}
+
+.mapillaryjs-popup-float-left .mapillaryjs-popup-tip-inner {
+    position: relative;
+    top: -7px;
+    left: -8px;
+    border-left-color: white;
+    border-right: none;
+}
+
+.mapillaryjs-popup-float-right .mapillaryjs-popup-tip {
+    align-self: center;
+    border-right-color: black;
+    border-left: none;
+}
+
+.mapillaryjs-popup-float-right .mapillaryjs-popup-tip-inner {
+    position: relative;
+    top: -7px;
+    left: 1px;
+    border-right-color: white;
+    border-left: none;
+}
+
+.mapillaryjs-popup-float-top-left .mapillaryjs-popup-content {
+    border-bottom-right-radius: 0;
+}
+
+.mapillaryjs-popup-float-top-right .mapillaryjs-popup-content {
+    border-bottom-left-radius: 0;
+}
+
+.mapillaryjs-popup-float-bottom-left .mapillaryjs-popup-content {
+    border-top-right-radius: 0;
+}
+
+.mapillaryjs-popup-float-bottom-right .mapillaryjs-popup-content {
+    border-top-left-radius: 0;
 }
