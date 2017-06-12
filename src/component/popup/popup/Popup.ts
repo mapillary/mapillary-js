@@ -167,21 +167,25 @@ export class Popup {
         }
 
         if (!!this._options.offset) {
-            const cornerOffset: number = Math.round(Math.sqrt(0.5 * Math.pow(this._options.offset, 2)));
-            const offset: { [key in PopupAlignment]: number[] } = {
-                "bottom": [0, this._options.offset],
+            const offset: number = this._options.offset;
+            const sign: number = offset >= 0 ? 1 : -1;
+            const cornerOffset: number = sign * Math.round(Math.sqrt(0.5 * Math.pow(offset, 2)));
+            const floatOffset: { [key in PopupAlignment]: number[] } = {
+                "bottom": [0, offset],
                 "bottom-left": [-cornerOffset, cornerOffset],
                 "bottom-right": [cornerOffset, cornerOffset],
                 "center": [0, 0],
-                "left": [-this._options.offset, 0],
-                "right": [this._options.offset, 0],
-                "top": [0, -this._options.offset],
+                "left": [-offset, 0],
+                "right": [offset, 0],
+                "top": [0, -offset],
                 "top-left": [-cornerOffset, -cornerOffset],
                 "top-right": [cornerOffset, -cornerOffset],
             };
 
-            pointPixel = [pointPixel[0] + offset[float][0], pointPixel[1] + offset[float][1]];
+            pointPixel = [pointPixel[0] + floatOffset[float][0], pointPixel[1] + floatOffset[float][1]];
         }
+
+        pointPixel = [Math.round(pointPixel[0]), Math.round(pointPixel[1])];
 
         const floatTranslate: {[key in PopupAlignment]: string } = {
             "bottom": "translate(-50%,0)",
@@ -350,7 +354,7 @@ export class Popup {
         }
 
         const pointCanvas: number[] = this._projectToCanvas(pointCameraSpace, renderCamera.perspective.projectionMatrix);
-        const pointPixel: number[] = [Math.round(pointCanvas[0] * size.width), Math.round(pointCanvas[1] * size.height)];
+        const pointPixel: number[] = [pointCanvas[0] * size.width, pointCanvas[1] * size.height];
 
         return pointPixel;
     }
