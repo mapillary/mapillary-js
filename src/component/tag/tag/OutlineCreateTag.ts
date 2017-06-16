@@ -5,6 +5,7 @@ import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
+import {Subscription} from "rxjs/Subscription";
 
 import {
     IOutlineCreateTagOptions,
@@ -16,29 +17,57 @@ import {Transform} from "../../../Geo";
 
 export class OutlineCreateTag {
     private _geometry: VertexGeometry;
+    private _outline: THREE.Line;
+    private _glObjects: THREE.Object3D[];
     private _options: IOutlineCreateTagOptions;
+    private _transform: Transform;
 
-    private _created$: Subject<OutlineCreateTag>;
     private _aborted$: Subject<OutlineCreateTag>;
+    private _created$: Subject<OutlineCreateTag>;
+    private _glObjectsChanged$: Subject<OutlineCreateTag>;
 
-    constructor(geometry: VertexGeometry, options: IOutlineCreateTagOptions) {
+    private _geometryChangedSubscription: Subscription;
+
+    constructor(geometry: VertexGeometry, options: IOutlineCreateTagOptions, transform: Transform) {
         this._geometry = geometry;
         this._options = { color: options.color == null ? 0xFFFFFF : options.color };
+        this._transform = transform;
+        this._outline = this._createOutine();
+        this._glObjects = [this._outline];
 
-        this._created$ = new Subject<OutlineCreateTag>();
         this._aborted$ = new Subject<OutlineCreateTag>();
+        this._created$ = new Subject<OutlineCreateTag>();
+        this._glObjectsChanged$ = new Subject<OutlineCreateTag>();
+
+        this._geometryChangedSubscription = this._geometry.changed$
+            .subscribe(
+                (vertexGeometry: VertexGeometry): void => {
+                    this._disposeOutline();
+                    this._outline = this._createOutine();
+                    this._glObjects = [this._outline];
+
+                    this._glObjectsChanged$.next(this);
+                });
     }
 
     public get geometry(): VertexGeometry {
         return this._geometry;
     }
 
-    public get created$(): Observable<OutlineCreateTag> {
-        return this._created$;
+    public get glObjects(): THREE.Object3D[] {
+        return this._glObjects;
     }
 
     public get aborted$(): Observable<OutlineCreateTag> {
         return this._aborted$;
+    }
+
+    public get created$(): Observable<OutlineCreateTag> {
+        return this._created$;
+    }
+
+    public get glObjectsChanged$(): Observable<OutlineCreateTag> {
+        return this._glObjectsChanged$;
     }
 
     public get geometryChanged$(): Observable<OutlineCreateTag> {
@@ -49,25 +78,12 @@ export class OutlineCreateTag {
                 });
     }
 
-    public getGLObject(transform: Transform): THREE.Object3D {
-        let polygon3d: number[][] = this._geometry.getPoints3d(transform);
-        let positions: Float32Array = this._getPositions(polygon3d);
-
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-        let material: THREE.LineBasicMaterial =
-            new THREE.LineBasicMaterial(
-                {
-                    color: this._options.color,
-                    linewidth: 1,
-                });
-
-        return new THREE.Line(geometry, material);
+    public dispose(): void {
+        this._disposeOutline();
+        this._geometryChangedSubscription.unsubscribe();
     }
 
     public getDOMObjects(
-        transform: Transform,
         matrixWorldInverse: THREE.Matrix4,
         projectionMatrix: THREE.Matrix4):
         vd.VNode[] {
@@ -79,7 +95,7 @@ export class OutlineCreateTag {
         };
 
         if (this._geometry instanceof RectGeometry) {
-            let topLeftPoint3d: number[] = this._geometry.getVertex3d(1, transform);
+            let topLeftPoint3d: number[] = this._geometry.getVertex3d(1, this._transform);
 
             let topLeftCameraSpace: THREE.Vector3 = this._convertToCameraSpace(topLeftPoint3d, matrixWorldInverse);
             if (topLeftCameraSpace.z < 0) {
@@ -106,7 +122,7 @@ export class OutlineCreateTag {
         } else if (this._geometry instanceof PolygonGeometry) {
             let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
 
-            let firstVertex3d: number[] = this._geometry.getVertex3d(0, transform);
+            let firstVertex3d: number[] = this._geometry.getVertex3d(0, this._transform);
             let firstCameraSpace: THREE.Vector3 = this._convertToCameraSpace(firstVertex3d, matrixWorldInverse);
             if (firstCameraSpace.z < 0) {
                 let centerCanvas: number[] = this._projectToCanvas(firstCameraSpace, projectionMatrix);
@@ -133,7 +149,7 @@ export class OutlineCreateTag {
             }
 
             if (polygonGeometry.polygon.length > 3) {
-                let lastVertex3d: number[] = this._geometry.getVertex3d(polygonGeometry.polygon.length - 3, transform);
+                let lastVertex3d: number[] = this._geometry.getVertex3d(polygonGeometry.polygon.length - 3, this._transform);
 
                 let lastCameraSpace: THREE.Vector3 = this._convertToCameraSpace(lastVertex3d, matrixWorldInverse);
                 if (lastCameraSpace.z < 0) {
@@ -154,7 +170,7 @@ export class OutlineCreateTag {
                 }
             }
 
-            let vertices3d: number[][] = this._geometry.getVertices3d(transform);
+            let vertices3d: number[][] = this._geometry.getVertices3d(this._transform);
             vertices3d.splice(-2, 2);
 
             for (let vertex of vertices3d) {
@@ -196,7 +212,36 @@ export class OutlineCreateTag {
         }
     }
 
-    private _getPositions(polygon3d: number[][]): Float32Array {
+    private _createOutine(): THREE.Line {
+        let polygon3d: number[][] = this._geometry.getPoints3d(this._transform);
+        let positions: Float32Array = this._getLinePositions(polygon3d);
+
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        let material: THREE.LineBasicMaterial =
+            new THREE.LineBasicMaterial(
+                {
+                    color: this._options.color,
+                    linewidth: 1,
+                });
+
+        return new THREE.Line(geometry, material);
+    }
+
+    private _disposeOutline(): void {
+        if (this._outline == null) {
+            return;
+        }
+
+        const line: THREE.Line = this._outline;
+        line.geometry.dispose();
+        line.material.dispose();
+        this._outline = null;
+        this._glObjects = [];
+    }
+
+    private _getLinePositions(polygon3d: number[][]): Float32Array {
         let length: number = polygon3d.length;
         let positions: Float32Array = new Float32Array(length * 3);
 

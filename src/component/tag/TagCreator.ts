@@ -7,31 +7,36 @@ import "rxjs/add/operator/share";
 import "rxjs/add/operator/withLatestFrom";
 
 import {
+    Component,
     ITagConfiguration,
     OutlineCreateTag,
     PolygonGeometry,
     RectGeometry,
 } from "../../Component";
+import {Transform} from "../../Geo";
+import {Navigator} from "../../Viewer";
 
 interface ICreateTagOperation {
     (tag: OutlineCreateTag): OutlineCreateTag;
 }
 
 export class TagCreator {
+    private _component: Component<ITagConfiguration>;
+    private _navigator: Navigator;
+
     private _tagOperation$: Subject<ICreateTagOperation>;
     private _tag$: Observable<OutlineCreateTag>;
 
     private _create$: Subject<number[]>;
     private _delete$: Subject<void>;
 
-    private _configuration$: Subject<ITagConfiguration>;
+    constructor(component: Component<ITagConfiguration>, navigator: Navigator) {
+        this._component = component;
+        this._navigator = navigator;
 
-    constructor() {
         this._tagOperation$ = new Subject<ICreateTagOperation>();
         this._create$ = new Subject<number[]>();
         this._delete$ = new Subject<void>();
-
-        this._configuration$ = new Subject<ITagConfiguration>();
 
         this._tag$ = this._tagOperation$
             .scan(
@@ -43,33 +48,28 @@ export class TagCreator {
 
         this._create$
             .withLatestFrom(
-                this._configuration$,
-                (coordinate: number[], type: ITagConfiguration): [number[], ITagConfiguration] => {
-                    return [coordinate, type];
-                })
+                this._component.configuration$,
+                this._navigator.stateService.currentTransform$)
             .map(
-                (ct: [number[], ITagConfiguration]): ICreateTagOperation => {
+                ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
-                        let coordinate: number[] = ct[0];
-                        let configuration: ITagConfiguration = ct[1];
-
-                        if (configuration.createType === "rect") {
+                        if (conf.createType === "rect") {
                             let geometry: RectGeometry = new RectGeometry([
-                                coordinate[0],
-                                coordinate[1],
-                                coordinate[0],
-                                coordinate[1],
+                                coord[0],
+                                coord[1],
+                                coord[0],
+                                coord[1],
                             ]);
 
-                            return new OutlineCreateTag(geometry, { color: configuration.createColor });
-                        } else if (configuration.createType === "polygon") {
+                            return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
+                        } else if (conf.createType === "polygon") {
                             let geometry: PolygonGeometry = new PolygonGeometry([
-                                [coordinate[0], coordinate[1]],
-                                [coordinate[0], coordinate[1]],
-                                [coordinate[0], coordinate[1]],
+                                [coord[0], coord[1]],
+                                [coord[0], coord[1]],
+                                [coord[0], coord[1]],
                             ]);
 
-                            return new OutlineCreateTag(geometry, { color: configuration.createColor });
+                            return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
                         }
 
                         return null;
@@ -93,10 +93,6 @@ export class TagCreator {
 
     public get delete$(): Subject<void> {
         return this._delete$;
-    }
-
-    public get configuration$(): Subject<ITagConfiguration> {
-        return this._configuration$;
     }
 
     public get tag$(): Observable<OutlineCreateTag> {

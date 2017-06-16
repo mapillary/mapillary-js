@@ -44,7 +44,6 @@
 
         function activate() {
             viewer.activateComponent("tag");
-            setTags();
         }
 
         var tagComponent = viewer.getComponent("tag");
@@ -58,18 +57,6 @@
         }
 
         var createdTags = {};
-
-        function setTags() {
-            var tags = [];
-
-            for (var t in createdTags) {
-                if (createdTags.hasOwnProperty(t)) {
-                    tags.push(createdTags[t]);
-                }
-            }
-
-            tagComponent.setTags(tags);
-        }
 
         function onTagGeometryChanged(tag) {
             return;
@@ -92,7 +79,7 @@
             var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, options);
             tag.on(Mapillary.TagComponent.OutlineTag.geometrychanged, onTagGeometryChanged);
 
-            createdTags[tag.id] = tag;
+            return tag;
         }
 
         function createSpotTag(geometry) {
@@ -107,24 +94,26 @@
             var tag = new Mapillary.TagComponent.SpotTag(id, geometry, options);
             tag.on(Mapillary.TagComponent.SpotTag.geometrychanged, onTagGeometryChanged);
 
-            createdTags[tag.id] = tag;
+            return tag;
         }
 
         tagComponent.on(Mapillary.TagComponent.TagComponent.geometrycreated, function(geometry) {
+            var tag;
             if (geometry instanceof Mapillary.TagComponent.RectGeometry) {
-                createOutlineTag(geometry, "Rectangle");
+                tag = createOutlineTag(geometry, "Rectangle");
             } else if (geometry instanceof Mapillary.TagComponent.PolygonGeometry) {
-                createOutlineTag(geometry, "Polygon");
+                tag = createOutlineTag(geometry, "Polygon");
             } else if (geometry instanceof Mapillary.TagComponent.PointGeometry) {
-                createSpotTag(geometry);
+                tag = createSpotTag(geometry);
             }
 
-            setTags();
+            createdTags[tag.id] = tag;
+            tagComponent.add([tag]);
         });
 
         viewer.on(Mapillary.Viewer.nodechanged, function(node) {
             createdTags = {};
-            setTags();
+            tagComponent.removeAll();
         });
     </script>
 </body>

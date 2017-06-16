@@ -3,6 +3,8 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
+import {Subscription} from "rxjs/Subscription";
+
 import {
     Alignment,
     Geometry,
@@ -27,6 +29,9 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     private _holes: THREE.Line[];
     private _outline: THREE.Line;
 
+    private _changedSubscription: Subscription;
+    private _geometryChangedSubscription: Subscription;
+
     constructor(tag: OutlineTag, transform: Transform) {
         super(tag, transform);
 
@@ -44,7 +49,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
 
         this._glObjects = this._createGLObjects();
 
-        this._tag.geometry.changed$
+        this._geometryChangedSubscription = this._tag.geometry.changed$
             .subscribe(
                 (geometry: Geometry): void => {
                     if (this._fill != null) {
@@ -60,7 +65,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                     }
                 });
 
-        this._tag.changed$
+        this._changedSubscription = this._tag.changed$
             .subscribe(
                 (changedTag: OutlineTag): void => {
                     let glObjectsChanged: boolean = false;
@@ -96,6 +101,9 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         this._disposeFill();
         this._disposeHoles();
         this._disposeOutline();
+
+        this._changedSubscription.unsubscribe();
+        this._geometryChangedSubscription.unsubscribe();
     }
 
     public getDOMObjects(
