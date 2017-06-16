@@ -1,13 +1,28 @@
-import {IComponentConfiguration} from "../../Component";
+import {
+    IComponentConfiguration,
+    TagMode,
+} from "../../Component";
 
 /**
  * Interface for configuration of tag component.
  *
  * @interface
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<photo-key>',
+ *     {
+ *         component: {
+ *             tag: {
+ *                 createColor: 0xFF0000,
+ *                 mode: Mapillary.TagComponent.TagMode.Rect,
+ *             },
+ *         },
+ *     })
+ * ```
  */
 export interface ITagConfiguration extends IComponentConfiguration {
     /**
-     * Value indicating the color of vertices and edges for tags that
+     * The color of vertices and edges for tags that
      * are being created.
      *
      * @default 0xFFFFFF
@@ -15,19 +30,11 @@ export interface ITagConfiguration extends IComponentConfiguration {
     createColor?: number;
 
     /**
-     * String literal determining the geometry type the component
-     * will create in create mode.
+     * The interaction mode of the tag component.
      *
-     * @description Possible values are 'point', 'polygon' and 'rect'.
+     * @default TagMode.Default
      */
-    createType?: "point" | "polygon" | "rect";
-
-    /**
-     * Value indicating whether the component is in create mode.
-     *
-     * @default false
-     */
-    creating?: boolean;
+    mode?: TagMode;
 }
 
 export default ITagConfiguration;

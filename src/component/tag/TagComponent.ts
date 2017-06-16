@@ -33,7 +33,6 @@ import {
     ComponentService,
     Component,
     Geometry,
-    GeometryType,
     IInteraction,
     ITagConfiguration,
     PointGeometry,
@@ -44,6 +43,7 @@ import {
     Tag,
     TagCreator,
     TagDOMRenderer,
+    TagMode,
     TagOperation,
     TagScene,
     TagSet,
@@ -53,7 +53,6 @@ import {
     Transform,
     ViewportCoords,
 } from "../../Geo";
-import {Node} from "../../Graph";
 import {
     GLRenderStage,
     IGLRenderHash,
@@ -78,10 +77,10 @@ export class TagComponent extends Component<ITagConfiguration> {
     /**
      * Event fired when creation starts and stops.
      *
-     * @event TagComponent#creatingchanged
+     * @event TagComponent#modechanged
      * @type {boolean} Indicates whether the component is creating a tag.
      */
-    public static creatingchanged: string = "creatingchanged";
+    public static modechanged: string = "modechanged";
 
     /**
      * Event fired when a geometry has been created.
@@ -132,6 +131,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _updateTagSceneSubscription: Subscription;
 
     private _stopCreateSubscription: Subscription;
+    private _deleteCreatingSubscription: Subscription;
     private _createSubscription: Subscription;
     private _createPointSubscription: Subscription;
     private _setCreateVertexSubscription: Subscription;
@@ -332,13 +332,12 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._creatingConfiguration$ = this._configuration$
             .distinctUntilChanged(
                 (c1: ITagConfiguration, c2: ITagConfiguration): boolean => {
-                    return c1.creating === c2.creating && c1.createType === c2.createType;
+                    return c1.mode === c2.mode;
                 },
                 (configuration: ITagConfiguration): ITagConfiguration => {
                     return {
                         createColor: configuration.createColor,
-                        createType: configuration.createType,
-                        creating: configuration.creating,
+                        mode: configuration.mode,
                     };
                 })
             .publishReplay(1)
@@ -347,49 +346,16 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._creating$ = this._creatingConfiguration$
             .map(
                 (configuration: ITagConfiguration): boolean => {
-                    return configuration.creating;
+                    return configuration.mode !== TagMode.Default;
                 })
             .publishReplay(1)
             .refCount();
 
-        this._creating$
+        this._creatingConfiguration$
             .subscribe(
-                (creating: boolean): void => {
-                    this.fire(TagComponent.creatingchanged, creating);
+                (configuration: ITagConfiguration): void => {
+                    this.fire(TagComponent.modechanged, configuration.mode);
                 });
-    }
-
-    /**
-     * Get geometry created observable.
-     *
-     * @description An observable emitting every time a geometry
-     * has been created.
-     *
-     * @returns {Observable<Geometry>}
-     */
-    public get geometryCreated$(): Observable<Geometry> {
-        return this._geometryCreated$;
-    }
-
-    /**
-     * Configure the component to enter create mode for
-     * creating a geometry of a certain type.
-     *
-     * @description Supported geometry types are: rect
-     *
-     * @param {string} geometryType - String specifying the geometry type.
-     */
-    public startCreate(geometryType: GeometryType): void {
-        this.configure({ createType: geometryType, creating: true });
-    }
-
-    /**
-     * Configure the component to leave create mode.
-     *
-     * @description A non completed geometry will be removed.
-     */
-    public stopCreate(): void {
-        this.configure({ createType: null, creating: false });
     }
 
     public add(tags: Tag[]): void {
@@ -407,6 +373,10 @@ export class TagComponent extends Component<ITagConfiguration> {
 
                     this._tagScene.add(renderTags);
                 });
+    }
+
+    public changeMode(mode: TagMode): void {
+        this.configure({ mode: mode });
     }
 
     public get(tagId: string): Tag {
@@ -459,15 +429,22 @@ export class TagComponent extends Component<ITagConfiguration> {
                     this.fire(TagComponent.tagschanged, this);
                 });
 
-        let nodeChanged$: Observable<void> = this.configuration$
+        const transformChanged$: Observable<void> = this.configuration$
             .switchMap(
                 (configuration: ITagConfiguration): Observable<void> => {
-                    return configuration.creating ?
-                        this._navigator.stateService.currentNode$
-                            .skip(1)
-                            .take(1)
-                            .map((n: Node): void => { return null; }) :
+                    return configuration.mode !== TagMode.Default ?
+                        this._navigator.stateService.currentTransform$
+                            .map((n: Transform): void => { return null; }) :
                         Observable.empty<void>();
+                })
+            .publishReplay(1)
+            .refCount();
+
+        this._deleteCreatingSubscription = transformChanged$
+            .skip(1)
+            .subscribe(
+                (): void => {
+                    this._tagCreator.delete$.next(null);
                 });
 
         let tagAborted$: Observable<void> = this._tagCreator.tag$
@@ -487,28 +464,36 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._stopCreateSubscription = Observable
             .merge(
-                nodeChanged$,
                 tagAborted$,
                 tagCreated$,
                 pointGeometryCreated$)
-            .subscribe((): void => { this.stopCreate(); });
+            .subscribe((): void => { this.changeMode(TagMode.Default); });
 
-        this._createSubscription = this._creatingConfiguration$
+        const creatingStarted$: Observable<ITagConfiguration> = Observable
+            .combineLatest(
+                this._creatingConfiguration$,
+                transformChanged$)
+            .map(
+                ([configuration]: [ITagConfiguration, void]): ITagConfiguration => {
+                    return configuration;
+                })
+            .publishReplay(1)
+            .refCount();
+
+        this._createSubscription = creatingStarted$
             .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
-                    return configuration.creating &&
-                        configuration.createType === "rect" ||
-                        configuration.createType === "polygon" ?
+                    return configuration.mode === TagMode.Rect ||
+                        configuration.mode === TagMode.Polygon ?
                         this._validBasicClick$.take(1) :
                         Observable.empty<number[]>();
                 })
             .subscribe(this._tagCreator.create$);
 
-        this._createPointSubscription = this._creatingConfiguration$
+        this._createPointSubscription = creatingStarted$
             .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
-                    return configuration.creating &&
-                        configuration.createType === "point" ?
+                    return configuration.mode === TagMode.Point ?
                         this._validBasicClick$.take(1) :
                         Observable.empty<number[]>();
                 })
@@ -553,13 +538,10 @@ export class TagComponent extends Component<ITagConfiguration> {
                     }
                 });
 
-        this._addPointSubscription = this._creatingConfiguration$
+        this._addPointSubscription = creatingStarted$
             .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
-                    let createType: GeometryType = configuration.createType;
-
-                    return configuration.creating &&
-                        (createType === "rect" || createType === "polygon") ?
+                    return configuration.mode === TagMode.Rect || configuration.mode === TagMode.Polygon ?
                         this._basicClick$.skipUntil(this._validBasicClick$).skip(1) :
                         Observable.empty<number[]>();
                 })
@@ -772,6 +754,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._updateTagSceneSubscription.unsubscribe();
 
         this._stopCreateSubscription.unsubscribe();
+        this._deleteCreatingSubscription.unsubscribe();
         this._createSubscription.unsubscribe();
         this._createPointSubscription.unsubscribe();
         this._setCreateVertexSubscription.unsubscribe();
@@ -792,7 +775,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     protected _getDefaultConfiguration(): ITagConfiguration {
         return {
             createColor: 0xFFFFFF,
-            creating: false,
+            mode: TagMode.Default,
         };
     }
 

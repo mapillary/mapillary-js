@@ -14,9 +14,9 @@
 </head>
 <body>
     <div id='viewer'></div>
-    <button onclick="createGeometry('polygon')">Create polygon</button>
-    <button onclick="createGeometry('rect')">Create rectangle</button>
-    <button onclick="createGeometry('point')">Create point</button>
+    <button onclick="createGeometry(Mapillary.TagComponent.TagMode.Polygon)">Create polygon</button>
+    <button onclick="createGeometry(Mapillary.TagComponent.TagMode.Rect)">Create rectangle</button>
+    <button onclick="createGeometry(Mapillary.TagComponent.TagMode.Point)">Create point</button>
     <button onclick="stopCreate()">Stop create</button>
     <button onclick="deactivate()">Deactivate</button>
     <button onclick="activate()">Activate</button>
@@ -48,12 +48,12 @@
 
         var tagComponent = viewer.getComponent("tag");
 
-        function createGeometry(geometryType) {
-            tagComponent.startCreate(geometryType);
+        function createGeometry(tagMode) {
+            tagComponent.changeMode(tagMode);
         }
 
         function stopCreate() {
-            tagComponent.stopCreate();
+            tagComponent.changeMode(Mapillary.TagComponent.TagMode.Default);
         }
 
         var createdTags = {};

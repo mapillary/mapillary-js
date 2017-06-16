@@ -12,6 +12,7 @@ import {
     OutlineCreateTag,
     PolygonGeometry,
     RectGeometry,
+    TagMode,
 } from "../../Component";
 import {Transform} from "../../Geo";
 import {Navigator} from "../../Viewer";
@@ -53,7 +54,7 @@ export class TagCreator {
             .map(
                 ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
-                        if (conf.createType === "rect") {
+                        if (conf.mode === TagMode.Rect) {
                             let geometry: RectGeometry = new RectGeometry([
                                 coord[0],
                                 coord[1],
@@ -62,7 +63,7 @@ export class TagCreator {
                             ]);
 
                             return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
-                        } else if (conf.createType === "polygon") {
+                        } else if (conf.mode === TagMode.Polygon) {
                             let geometry: PolygonGeometry = new PolygonGeometry([
                                 [coord[0], coord[1]],
                                 [coord[0], coord[1]],
