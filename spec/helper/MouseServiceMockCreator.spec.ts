@@ -15,6 +15,10 @@ export class MouseServiceMockCreator extends MockCreator {
         this._mockProperty(mock, "click$", new Subject<MouseEvent>());
         this._mockProperty(mock, "contextMenu$", new Subject<MouseEvent>());
         this._mockProperty(mock, "dblClick$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "documentCanvasMouseDown$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "documentCanvasMouseDrag$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "documentCanvasMouseMove$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "documentMouseUp$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseDown$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseMove$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseOut$", new Subject<MouseEvent>());
