@@ -7,7 +7,7 @@
 }
 
 .mapillaryjs-popup-content,
-.mapillaryjs-clean-popup-content {
+.mapillaryjs-popup-content-clean {
     position: relative;
     pointer-events: auto;
 }

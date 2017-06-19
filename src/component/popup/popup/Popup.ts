@@ -31,11 +31,11 @@ export class Popup {
         this._options = {};
 
         if (!!options) {
+            this._options.clean = options.clean;
             this._options.float = options.float;
             this._options.offset = options.offset;
             this._options.opacity = options.opacity;
             this._options.position = options.position;
-            this._options.visuals = options.visuals;
         }
 
         this._notifyChanged$ = new Subject<Popup>();
@@ -79,7 +79,7 @@ export class Popup {
             this._content.parentNode.removeChild(this._content);
         }
 
-        const className: string = this._options.visuals === true ? "mapillaryjs-popup-content" : "mapillaryjs-clean-popup-content";
+        const className: string = "mapillaryjs-popup-content" + (this._options.clean === true ? "-clean" : "");
         this._content = <HTMLDivElement>this._createElement("div", className, this._container);
 
         this._content.appendChild(htmlNode);
@@ -124,7 +124,7 @@ export class Popup {
 
         if (!this._container) {
             this._container = <HTMLDivElement>this._createElement("div", "mapillaryjs-popup", this._parentContainer);
-            if (this._options.visuals === true) {
+            if (this._options.clean !== true) {
                 this._tip = <HTMLDivElement>this._createElement("div", "mapillaryjs-popup-tip", this._container);
                 this._createElement("div", "mapillaryjs-popup-tip-inner", this._tip);
             }
