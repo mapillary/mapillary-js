@@ -2,7 +2,6 @@
     background-color: #202020;
     position: relative;
     overflow: hidden;
-    user-select: none;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
@@ -12,4 +11,8 @@
 
 .mapillary-js-interactive:active {
      cursor: grabbing;
+}
+
+.mapillary-js .domRenderer {
+    user-select: none;
 }

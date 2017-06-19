@@ -65,15 +65,6 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
     }
 
     protected _enable(): void {
-        this._preventDefaultSubscription = Observable.merge(
-            this._container.mouseService.mouseDragStart$,
-            this._container.mouseService.mouseDrag$,
-            this._container.touchService.touchMove$)
-            .subscribe(
-                (event: MouseEvent | TouchEvent): void => {
-                    event.preventDefault(); // prevent selection of content outside the viewer
-                });
-
         let draggingStarted$: Observable<boolean> =
              this._container.mouseService
                 .filtered$(this._component.name, this._container.mouseService.mouseDragStart$)
@@ -95,6 +86,23 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
                 draggingStarted$,
                 draggingStopped$)
             .subscribe(this._container.mouseService.activate$);
+
+        this._preventDefaultSubscription = Observable
+            .merge(
+                draggingStarted$,
+                draggingStopped$)
+            .switchMap(
+                (dragging: boolean): Observable<MouseEvent> => {
+                    return dragging ?
+                        Observable.merge(
+                            this._container.mouseService.documentMouseMove$,
+                            this._container.touchService.touchMove$) :
+                        Observable.empty<MouseEvent>();
+                })
+            .subscribe(
+                (event: MouseEvent | TouchEvent): void => {
+                    event.preventDefault(); // prevent selection of content outside the viewer
+                });
 
         let touchMovingStarted$: Observable<boolean> =
             this._container.touchService.singleTouchDragStart$
