@@ -73,7 +73,7 @@ export abstract class Tag extends EventEmitter {
 
     /**
      * Get geometry property.
-     * @returns {Geometry}
+     * @returns {Geometry} The geometry of the tag.
      */
     public get geometry(): Geometry {
         return this._geometry;

@@ -322,14 +322,13 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
         geometry.computeBoundingSphere();
 
-        let material: THREE.LineBasicMaterial =
-            new THREE.LineBasicMaterial(
-                {
-                    color: this._tag.lineColor,
-                    linewidth: this._tag.lineWidth,
-                });
+        let material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial();
+        this._updateLineBasicMaterial(material);
 
-        return new THREE.Line(geometry, material);
+        const line: THREE.Line = new THREE.Line(geometry, material);
+        line.renderOrder = 1;
+
+        return line;
     }
 
     private _createOutline(): THREE.Line {
@@ -504,8 +503,8 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     private _updateLineBasicMaterial(material: THREE.LineBasicMaterial): void {
         material.color = new THREE.Color(this._tag.lineColor);
         material.linewidth = Math.max(this._tag.lineWidth, 1);
-        material.opacity = this._tag.lineWidth >= 1 ? 1 : 0;
-        material.transparent = this._tag.lineWidth <= 0;
+        material.opacity = this._tag.lineWidth >= 1 ? this._tag.lineOpacity : 0;
+        material.transparent = this._tag.lineWidth <= 0 || this._tag.lineOpacity < 1;
         material.needsUpdate = true;
     }
 }

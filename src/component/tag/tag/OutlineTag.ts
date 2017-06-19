@@ -28,6 +28,7 @@ export class OutlineTag extends Tag {
     private _iconIndex: number;
     private _indicateVertices: boolean;
     private _lineColor: number;
+    private _lineOpacity: number;
     private _lineWidth: number;
     private _fillColor: number;
     private _fillOpacity: number;
@@ -57,6 +58,7 @@ export class OutlineTag extends Tag {
         this._iconIndex = options.iconIndex == null ? 3 : options.iconIndex;
         this._indicateVertices = options.indicateVertices == null ? true : options.indicateVertices;
         this._lineColor = options.lineColor == null ? 0xFFFFFF : options.lineColor;
+        this._lineOpacity = options.lineOpacity == null ? 1 : options.lineOpacity;
         this._lineWidth = options.lineWidth == null ? 1 : options.lineWidth;
         this._text = options.text === undefined ? null : options.text;
         this._textColor = options.textColor == null ? 0xFFFFFF : options.textColor;
@@ -139,6 +141,7 @@ export class OutlineTag extends Tag {
         this._notifyChanged$.next(this);
     }
 
+    /** @inheritdoc */
     public get geometry(): VertexGeometry {
         return this._geometry;
     }
@@ -236,6 +239,25 @@ export class OutlineTag extends Tag {
      */
     public set lineColor(value: number) {
         this._lineColor = value;
+        this._notifyChanged$.next(this);
+    }
+
+    /**
+     * Get line opacity property.
+     * @returns {number}
+     */
+    public get lineOpacity(): number {
+        return this._lineOpacity;
+    }
+
+    /**
+     * Set line opacity property.
+     * @param {number}
+     *
+     * @fires Tag#changed
+     */
+    public set lineOpacity(value: number) {
+        this._lineOpacity = value;
         this._notifyChanged$.next(this);
     }
 

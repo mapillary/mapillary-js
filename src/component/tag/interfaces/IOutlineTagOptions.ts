@@ -62,6 +62,12 @@ export interface IOutlineTagOptions {
     lineColor?: number;
 
     /**
+     * Opacity of the edge lines on [0, 1].
+     * @default 1
+     */
+    lineOpacity?: number;
+
+    /**
      * Line width in pixels.
      * @default 1
      */
