@@ -126,10 +126,12 @@ export class MouseService {
 
         const dragStop$: Observable<MouseEvent> = Observable
             .merge<MouseEvent>(
-                this._documentMouseUp$.filter(
-                    (e: MouseEvent): boolean => {
-                        return e.button === 0;
-                    }))
+                Observable.fromEvent<WheelEvent>(window, "blur"),
+                this._documentMouseUp$
+                    .filter(
+                        (e: MouseEvent): boolean => {
+                            return e.button === 0;
+                        }))
             .share();
 
         const leftButtonDown$: Observable<MouseEvent> = this._mouseDown$
