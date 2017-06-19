@@ -1,7 +1,3 @@
-.TagContainer {
-    z-index: 3;
-}
-
 .mapillary-js.component-tag-create .mapillary-js-interactive {
     cursor: crosshair;
 }
