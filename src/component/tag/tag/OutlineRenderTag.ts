@@ -112,9 +112,11 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         projectionMatrix: THREE.Matrix4):
         vd.VNode[] {
 
-        let vNodes: vd.VNode[] = [];
+        const vNodes: vd.VNode[] = [];
+        const isRect: boolean = this._tag.geometry instanceof RectGeometry;
+        const isPerspective: boolean = !this._transform.gpano;
 
-        if (this._tag.icon != null) {
+        if (this._tag.icon != null && (isRect || isPerspective)) {
             let icon3d: number[] = this._tag.geometry instanceof RectGeometry ?
                 this._tag.geometry.getVertex3d(this._tag.iconIndex, this._transform) :
                 this._tag.geometry.getPoleOfAccessibility3d(this._transform);
@@ -155,7 +157,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                     vNodes.push(vd.h("div.TagSymbol", properties, [sprite]));
                 }
             }
-        } else if (this._tag.text != null) {
+        } else if (this._tag.text != null && (isRect || isPerspective)) {
             let text3d: number[] = this._tag.geometry instanceof RectGeometry ?
                 this._tag.geometry.getVertex3d(3, this._transform) :
                 this._tag.geometry.getPoleOfAccessibility3d(this._transform);
