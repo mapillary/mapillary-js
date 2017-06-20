@@ -785,6 +785,8 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._geometryCreatedEventSubscription.unsubscribe();
         this._tagsChangedEventSubscription.unsubscribe();
+
+        this._container.element.classList.remove("component-tag-create");
     }
 
     protected _getDefaultConfiguration(): ITagConfiguration {
