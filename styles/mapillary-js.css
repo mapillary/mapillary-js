@@ -15,4 +15,12 @@
 
 .mapillary-js .mapillary-js-dom {
     user-select: none;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.mapillary-js-dom .domRenderer {
+    pointer-events: auto;
 }
