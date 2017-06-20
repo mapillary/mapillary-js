@@ -94,11 +94,10 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
             .switchMap(
                 (dragging: boolean): Observable<MouseEvent> => {
                     return dragging ?
-                        Observable.merge(
-                            this._container.mouseService.documentMouseMove$,
-                            this._container.touchService.touchMove$) :
+                        this._container.mouseService.documentMouseMove$ :
                         Observable.empty<MouseEvent>();
                 })
+            .merge(this._container.touchService.touchMove$)
             .subscribe(
                 (event: MouseEvent | TouchEvent): void => {
                     event.preventDefault(); // prevent selection of content outside the viewer

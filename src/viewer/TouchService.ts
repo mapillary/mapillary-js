@@ -18,7 +18,8 @@ interface IPinchOperation {
 }
 
 export class TouchService {
-    private _element: HTMLElement;
+    private _canvasContainer: HTMLElement;
+    private _domContainer: HTMLElement;
 
     private _activeSubject$: BehaviorSubject<boolean>;
     private _active$: Observable<boolean>;
@@ -41,8 +42,9 @@ export class TouchService {
 
     private _doubleTap$: Observable<TouchEvent>;
 
-    constructor(element: HTMLElement) {
-        this._element = element;
+    constructor(canvasContainer: HTMLElement, domContainer: HTMLElement) {
+        this._canvasContainer = canvasContainer;
+        this._domContainer = domContainer;
 
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
 
@@ -51,10 +53,16 @@ export class TouchService {
             .publishReplay(1)
             .refCount();
 
-        this._touchStart$ = Observable.fromEvent<TouchEvent>(element, "touchstart");
-        this._touchMove$ = Observable.fromEvent<TouchEvent>(element, "touchmove");
-        this._touchEnd$ = Observable.fromEvent<TouchEvent>(element, "touchend");
-        this._touchCancel$ = Observable.fromEvent<TouchEvent>(element, "touchcancel");
+        Observable.fromEvent<TouchEvent>(domContainer, "touchmove")
+            .subscribe(
+                (event: TouchEvent): void => {
+                    event.preventDefault();
+                });
+
+        this._touchStart$ = Observable.fromEvent<TouchEvent>(canvasContainer, "touchstart");
+        this._touchMove$ = Observable.fromEvent<TouchEvent>(canvasContainer, "touchmove");
+        this._touchEnd$ = Observable.fromEvent<TouchEvent>(canvasContainer, "touchend");
+        this._touchCancel$ = Observable.fromEvent<TouchEvent>(canvasContainer, "touchcancel");
 
         const tapStart$: Observable<TouchEvent> = this._touchStart$
             .filter(

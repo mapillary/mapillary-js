@@ -507,9 +507,15 @@ export class TagComponent extends Component<ITagConfiguration> {
                 })
             .subscribe(this._pointGeometryCreated$);
 
+        const containerMouseMove$: Observable<MouseEvent> = Observable
+            .merge(
+                this._container.mouseService.mouseMove$,
+                this._container.mouseService.domMouseMove$)
+            .share();
+
         this._setCreateVertexSubscription = Observable
             .combineLatest<MouseEvent, OutlineCreateTag, RenderCamera>(
-                this._container.mouseService.containerMouseMove$,
+                containerMouseMove$,
                 this._tagCreator.tag$,
                 this._container.renderService.renderCamera$)
             .filter(
@@ -599,7 +605,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._claimMouseSubscription = this._tagInterationInitiated$
             .switchMap(
                 (id: string): Observable<MouseEvent> => {
-                    return this._container.mouseService.containerMouseMove$
+                    return containerMouseMove$
                         .takeUntil(this._tagInteractionAbort$)
                         .take(1);
                 })
@@ -610,7 +616,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._mouseDragSubscription = this._activeTag$
             .withLatestFrom(
-                this._container.mouseService.containerMouseMove$,
+                containerMouseMove$,
                 (a: IInteraction, e: MouseEvent): [IInteraction, MouseEvent] => {
                     return [a, e];
                 })
@@ -629,7 +635,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                             this._container.mouseService
                                 .filtered$(
                                     this._name,
-                                    this._container.mouseService.containerMouseDrag$)
+                                    this._container.mouseService.domMouseDrag$)
                                 .filter(
                                     (event: MouseEvent): boolean => {
                                         return this._viewportCoords.insideElement(event, this._container.element);
@@ -678,7 +684,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 });
 
         this._unclaimMouseSubscription = this._container.mouseService
-            .filtered$(this._name, this._container.mouseService.containerMouseDragEnd$)
+            .filtered$(this._name, this._container.mouseService.domMouseDragEnd$)
             .subscribe((e: MouseEvent): void => {
                 this._container.mouseService.unclaimMouse(this._name);
              });

@@ -66,7 +66,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._popupContainer = document.createElement("div");
-        this._popupContainer.className = "PopupContainer";
+        this._popupContainer.className = "mapillary-js-popup-container";
 
         this._container.element.appendChild(this._popupContainer);
 

@@ -18,19 +18,19 @@ import {ViewportCoords} from "../Geo";
 import {IMouseClaim} from "../Viewer";
 
 export class MouseService {
-    private _container: HTMLElement;
+    private _domContainer: HTMLElement;
     private _canvasContainer: HTMLElement;
     private _viewportCoords: ViewportCoords;
 
     private _activeSubject$: BehaviorSubject<boolean>;
     private _active$: Observable<boolean>;
 
-    private _containerMouseDown$: Observable<MouseEvent>;
-    private _containerMouseMove$: Observable<MouseEvent>;
+    private _domMouseDown$: Observable<MouseEvent>;
+    private _domMouseMove$: Observable<MouseEvent>;
 
-    private _containerMouseDragStart$: Observable<MouseEvent>;
-    private _containerMouseDrag$: Observable<MouseEvent>;
-    private _containerMouseDragEnd$: Observable<MouseEvent>;
+    private _domMouseDragStart$: Observable<MouseEvent>;
+    private _domMouseDrag$: Observable<MouseEvent>;
+    private _domMouseDragEnd$: Observable<MouseEvent>;
 
     private _documentMouseMove$: Observable<MouseEvent>;
     private _documentMouseUp$: Observable<MouseEvent>;
@@ -58,9 +58,9 @@ export class MouseService {
     private _claimMouse$: Subject<IMouseClaim>;
     private _mouseOwner$: Observable<string>;
 
-    constructor(canvasContainer: HTMLElement, container: HTMLElement, viewportCoords?: ViewportCoords) {
+    constructor(canvasContainer: HTMLElement, domContainer: HTMLElement, viewportCoords?: ViewportCoords) {
         this._canvasContainer = canvasContainer;
-        this._container = container;
+        this._domContainer = domContainer;
         this._viewportCoords = viewportCoords != null ? viewportCoords : new ViewportCoords();
 
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
@@ -82,8 +82,17 @@ export class MouseService {
         this._mouseOut$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseout");
         this._mouseOver$ = Observable.fromEvent<MouseEvent>(canvasContainer, "mouseover");
 
-        this._containerMouseDown$ = Observable.fromEvent<MouseEvent>(container, "mousedown");
-        this._containerMouseMove$ = Observable.fromEvent<MouseEvent>(container, "mousemove");
+        this._domMouseDown$ = Observable.fromEvent<MouseEvent>(domContainer, "mousedown");
+        this._domMouseMove$ = Observable.fromEvent<MouseEvent>(domContainer, "mousemove");
+
+        Observable
+            .merge(
+                this._domMouseDown$,
+                this._domMouseMove$)
+            .subscribe(
+                (event: MouseEvent): void => {
+                    event.preventDefault();
+                });
 
         this._click$ = Observable.fromEvent<MouseEvent>(canvasContainer, "click");
 
@@ -101,7 +110,10 @@ export class MouseService {
                     event.preventDefault();
                 });
 
-        this._mouseWheel$ = Observable.fromEvent<WheelEvent>(container, "wheel");
+        this._mouseWheel$ = Observable
+            .merge(
+                Observable.fromEvent<WheelEvent>(canvasContainer, "wheel"),
+                Observable.fromEvent<WheelEvent>(domContainer, "wheel"));
 
         this._consistentContextMenu$ = Observable
             .merge(
@@ -163,14 +175,14 @@ export class MouseService {
                     return dragStop$.first();
                 });
 
-        const containerLeftButtonDown$: Observable<MouseEvent> = this._containerMouseDown$
+        const containerLeftButtonDown$: Observable<MouseEvent> = this._domMouseDown$
             .filter(
                 (e: MouseEvent): boolean => {
                     return e.button === 0;
                 })
             .share();
 
-        this._containerMouseDragStart$ = containerLeftButtonDown$
+        this._domMouseDragStart$ = containerLeftButtonDown$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._documentMouseMove$
@@ -178,7 +190,7 @@ export class MouseService {
                         .take(1);
                 });
 
-        this._containerMouseDrag$ = containerLeftButtonDown$
+        this._domMouseDrag$ = containerLeftButtonDown$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._documentMouseMove$
@@ -186,7 +198,7 @@ export class MouseService {
                         .takeUntil(dragStop$);
                 });
 
-        this._containerMouseDragEnd$ = this._containerMouseDragStart$
+        this._domMouseDragEnd$ = this._domMouseDragStart$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return dragStop$.first();
@@ -240,28 +252,32 @@ export class MouseService {
         return this._activeSubject$;
     }
 
-    public get containerMouseDragStart$(): Observable<MouseEvent> {
-        return this._containerMouseDragStart$;
-    }
-
-    public get containerMouseDrag$(): Observable<MouseEvent> {
-        return this._containerMouseDrag$;
-    }
-
-    public get containerMouseDragEnd$(): Observable<MouseEvent> {
-        return this._containerMouseDragEnd$;
-    }
-
-    public get containerMouseMove$(): Observable<MouseEvent> {
-        return this._containerMouseMove$;
-    }
-
     public get documentMouseMove$(): Observable<MouseEvent> {
         return this._documentMouseMove$;
     }
 
     public get documentMouseUp$(): Observable<MouseEvent> {
         return this._documentMouseUp$;
+    }
+
+    public get domMouseDragStart$(): Observable<MouseEvent> {
+        return this._domMouseDragStart$;
+    }
+
+    public get domMouseDrag$(): Observable<MouseEvent> {
+        return this._domMouseDrag$;
+    }
+
+    public get domMouseDragEnd$(): Observable<MouseEvent> {
+        return this._domMouseDragEnd$;
+    }
+
+    public get domMouseDown$(): Observable<MouseEvent> {
+        return this._domMouseDown$;
+    }
+
+    public get domMouseMove$(): Observable<MouseEvent> {
+        return this._domMouseMove$;
     }
 
     public get mouseOwner$(): Observable<string> {

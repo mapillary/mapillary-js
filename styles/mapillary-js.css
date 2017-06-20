@@ -13,6 +13,6 @@
      cursor: grabbing;
 }
 
-.mapillary-js .domRenderer {
+.mapillary-js .mapillary-js-dom {
     user-select: none;
 }
