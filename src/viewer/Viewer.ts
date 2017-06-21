@@ -32,6 +32,47 @@ import {RenderMode} from "../Render";
  * Create a Viewer by specifying a container, client ID, photo key and
  * other options. The viewer exposes methods and events for programmatic
  * interaction.
+ *
+ * The viewer works with a few different coordinate systems.
+ *
+ * Container pixel coordinates
+ *
+ * Pixel coordinates are coordinates on the viewer container. The origin is
+ * in the top left corner of the container. The axes are
+ * directed according to the following for a viewer container with a width
+ * of 640 pixels and height of 480 pixels.
+ *
+ * ```
+ * (0,0)                          (640, 0)
+ *      +------------------------>
+ *      |
+ *      |
+ *      |
+ *      v                        +
+ * (0, 480)                       (640, 480)
+ * ```
+ *
+ * Basic image coordinates
+ *
+ * Basic image coordinates represents points in the original image adjusted for
+ * orientation. They range from 0 to 1 on both axes. The origin is in the top left
+ * corner of the image and the axes are directed
+ * according to the following for all image types.
+ *
+ * ```
+ * (0,0)                          (1, 0)
+ *      +------------------------>
+ *      |
+ *      |
+ *      |
+ *      v                        +
+ * (0, 1)                         (1, 1)
+ * ```
+ *
+ * For every camera viewing direction it is possible to convert between these
+ * two coordinate systems for the current node. The image can be panned and
+ * zoomed independently of the size of the viewer container resulting in
+ * different conversion results for different viewing directions.
  */
 export class Viewer extends EventEmitter {
     /**
@@ -210,7 +251,7 @@ export class Viewer extends EventEmitter {
      *
      * @example
      * ```
-     * viewer.activateComponent("mouse");
+     * viewer.activateComponent("marker");
      * ```
      */
     public activateComponent(name: string): void {
@@ -439,6 +480,37 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Project basic image coordinates for the current node to canvas pixel
+     * coordinates.
+     *
+     * @description The basic image coordinates may not always correspond to a
+     * pixel point that lies in the visible area of the viewer container.
+     *
+     * @param {Array<number>} basicPoint - Basic images coordinates to project.
+     * @returns {Promise<ILatLon>} Promise to the pixel coordinates corresponding
+     * to the basic image point.
+     *
+     * @example
+     * ```
+     * viewer.projectFromBasic([0.3, 0.7])
+     *     .then((pixelPoint) => { console.log(pixelPoint); });
+     * ```
+     */
+    public projectFromBasic(basicPoint: number[]): when.Promise<number[]> {
+        return when.promise<number[]>(
+            (resolve: any, reject: any): void => {
+                this._observer.projectBasic$(basicPoint)
+                    .subscribe(
+                        (pixelPoint: number[]): void => {
+                            resolve(pixelPoint);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
      * Detect the viewer's new width and height and resize it.
      *
      * @description The components will also detect the viewer's
@@ -602,9 +674,8 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     *
-     * Returns an ILatLon representing geographical coordinates that correspond
-     * to the specified pixel coordinates.
+     * Unproject canvas pixel coordinates to an ILatLon representing geographical
+     * coordinates.
      *
      * @description The pixel point may not always correspond to geographical
      * coordinates. In the case of no correspondence the returned value will
@@ -626,6 +697,38 @@ export class Viewer extends EventEmitter {
                     .subscribe(
                         (latLon: ILatLon): void => {
                             resolve(latLon);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
+     * Unproject canvas pixel coordinates to basic image coordinates for the
+     * current node.
+     *
+     * @description The pixel point may not always correspond to basic image
+     * coordinates. In the case of no correspondence the returned value will
+     * be `null`.
+     *
+     * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
+     * @returns {Promise<ILatLon>} Promise to the basic coordinates corresponding
+     * to the pixel point.
+     *
+     * @example
+     * ```
+     * viewer.unprojectToBasic([100, 100])
+     *     .then((basicPoint) => { console.log(basicPoint); });
+     * ```
+     */
+    public unprojectToBasic(pixelPoint: number[]): when.Promise<number[]> {
+        return when.promise<number[]>(
+            (resolve: any, reject: any): void => {
+                this._observer.unprojectBasic$(pixelPoint)
+                    .subscribe(
+                        (basicPoint: number[]): void => {
+                            resolve(basicPoint);
                         },
                         (error: Error): void => {
                             reject(error);

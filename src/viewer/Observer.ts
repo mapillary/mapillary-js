@@ -61,6 +61,24 @@ export class Observer {
         return this._started;
     }
 
+    public projectBasic$(basicPoint: number[]): Observable<number[]> {
+        return Observable
+            .combineLatest(
+                this._container.renderService.renderCamera$,
+                this._navigator.stateService.currentTransform$)
+            .first()
+            .map(
+                ([render, transform]: [RenderCamera, Transform]): number[] => {
+                    const canvasPoint: number[] = this._projection.basicToCanvas(
+                        basicPoint,
+                        this._container.element,
+                        render,
+                        transform);
+
+                    return [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])];
+                });
+    }
+
     public startEmit(): void {
         if (this._started) {
             return;
@@ -149,7 +167,7 @@ export class Observer {
                 ([[type, event], render, reference, transform]:
                 [[string, MouseEvent], RenderCamera, ILatLonAlt, Transform]): IViewerMouseEvent => {
                     const unprojection: IUnprojection =
-                        this._projection.unprojectFromEvent(
+                        this._projection.eventToUnprojection(
                             event,
                             this._container.element,
                             render,
@@ -193,7 +211,7 @@ export class Observer {
         this._viewerMouseEventSubscription = null;
     }
 
-    public unproject$(pixelPoint: number[]): Observable<ILatLon> {
+    public unproject$(canvasPoint: number[]): Observable<ILatLon> {
         return Observable
             .combineLatest(
                 this._container.renderService.renderCamera$,
@@ -203,14 +221,30 @@ export class Observer {
             .map(
                 ([render, reference, transform]: [RenderCamera, ILatLonAlt, Transform]): ILatLon => {
                     const unprojection: IUnprojection =
-                        this._projection.unprojectFromCanvas(
-                            pixelPoint,
+                        this._projection.canvasToUnprojection(
+                            canvasPoint,
                             this._container.element,
                             render,
                             reference,
                             transform);
 
                     return unprojection.latLon;
+                });
+    }
+
+    public unprojectBasic$(canvasPoint: number[]): Observable<number[]> {
+        return Observable
+            .combineLatest(
+                this._container.renderService.renderCamera$,
+                this._navigator.stateService.currentTransform$)
+            .first()
+            .map(
+                ([render, transform]: [RenderCamera, Transform]): number[] => {
+                    return this._projection.canvasToBasic(
+                        canvasPoint,
+                        this._container.element,
+                        render,
+                        transform);
                 });
     }
 

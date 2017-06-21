@@ -21,27 +21,53 @@ export class Projection {
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
     }
 
-    public unprojectFromEvent(
-        event: MouseEvent | Touch,
+    public basicToCanvas(
+        basicPoint: number[],
         container: HTMLElement,
-        renderCamera: RenderCamera,
-        reference: ILatLonAlt,
-        transform: Transform): IUnprojection {
+        render: RenderCamera,
+        transform: Transform): number[] {
 
-        const pixelPoint: number[] = this._viewportCoords.canvasPosition(event, container);
-
-        return this.unprojectFromCanvas(pixelPoint, container, renderCamera, reference, transform);
+        return this._viewportCoords
+            .basicToCanvas(basicPoint[0], basicPoint[1], container, transform, render.perspective);
     }
 
-    public unprojectFromCanvas(
-        pixelPoint: number[],
+    public canvasToBasic(
+        canvasPoint: number[],
+        container: HTMLElement,
+        render: RenderCamera,
+        transform: Transform): number[] {
+
+        let basicPoint: number[] = this._viewportCoords
+            .canvasToBasic(canvasPoint[0], canvasPoint[1], container, transform, render.perspective);
+
+        if (basicPoint[0] < 0 || basicPoint[0] > 1 || basicPoint[1] < 0 || basicPoint[1] > 1) {
+            basicPoint = null;
+        }
+
+        return basicPoint;
+    }
+
+    public eventToUnprojection(
+        event: MouseEvent | Touch,
         container: HTMLElement,
         render: RenderCamera,
         reference: ILatLonAlt,
         transform: Transform): IUnprojection {
 
-        const canvasX: number = pixelPoint[0];
-        const canvasY: number = pixelPoint[1];
+        const pixelPoint: number[] = this._viewportCoords.canvasPosition(event, container);
+
+        return this.canvasToUnprojection(pixelPoint, container, render, reference, transform);
+    }
+
+    public canvasToUnprojection(
+        canvasPoint: number[],
+        container: HTMLElement,
+        render: RenderCamera,
+        reference: ILatLonAlt,
+        transform: Transform): IUnprojection {
+
+        const canvasX: number = canvasPoint[0];
+        const canvasY: number = canvasPoint[1];
 
         const [viewportX, viewportY]: number[] =
             this._viewportCoords.canvasToViewport(canvasX, canvasY, container);
