@@ -14,6 +14,7 @@ import {
     ISize,
     RenderCamera,
 } from "../../../Render";
+import {Float} from "../../../Viewer";
 
 export class Popup {
     protected _notifyChanged$: Subject<Popup>;
@@ -138,8 +139,8 @@ export class Popup {
         }
 
         let pointPixel: number[] = null;
-        let position: PopupAlignment = this._options.position;
-        let float: PopupAlignment = this._options.float;
+        let position: PopupAlignment = this._floatToPopupAligment(this._options.position);
+        let float: PopupAlignment = this._floatToPopupAligment(this._options.float);
 
         if (this._point != null) {
             pointPixel = this._basicToPixel(this._point, renderCamera, size, transform);
@@ -299,6 +300,31 @@ export class Popup {
         const pointBasic: number[] = this._pointFromRectPosition(rect, position);
 
         return [this._basicToPixel(pointBasic, renderCamera, size, transform), position != null ? position : "bottom"];
+    }
+
+    private _floatToPopupAligment(float: Float): PopupAlignment {
+        switch (float) {
+            case Float.Bottom:
+                return "bottom";
+            case Float.BottomLeft:
+                return "bottom-left";
+            case Float.BottomRight:
+                return "bottom-right";
+            case Float.Center:
+                return "center";
+            case Float.Left:
+                return "left";
+            case Float.Right:
+                return "right";
+            case Float.Top:
+                return "top";
+            case Float.TopLeft:
+                return "top-left";
+            case Float.TopRight:
+                return "top-right";
+            default:
+                return null;
+        }
     }
 
     private _pixelToFloats(pointPixel: number[], size: ISize, width: number, height: number): PopupAlignment[] {

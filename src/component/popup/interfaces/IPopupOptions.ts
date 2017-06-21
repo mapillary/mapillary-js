@@ -1,11 +1,11 @@
-import {PopupAlignment} from "../../../Component";
+import {Float} from "../../../Viewer";
 
 export interface IPopupOptions {
     clean?: boolean;
-    float?: PopupAlignment;
+    float?: Float;
     offset?: number;
     opacity?: number;
-    position?: PopupAlignment;
+    position?: Float;
 }
 
 export default IPopupOptions;
