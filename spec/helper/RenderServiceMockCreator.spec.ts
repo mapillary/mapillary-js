@@ -14,6 +14,7 @@ export class RenderServiceMockCreator extends MockCreator {
 
         this._mockProperty(mock, "bearing$", new Subject<RenderCamera>());
         this._mockProperty(mock, "renderCamera$", new Subject<RenderCamera>());
+        this._mockProperty(mock, "size$", new Subject<RenderCamera>());
 
         return mock;
     }

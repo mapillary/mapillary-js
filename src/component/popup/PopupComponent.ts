@@ -52,6 +52,10 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         this._popups$.next(this._popups);
     }
 
+    public getAll(): Popup[] {
+        return this._popups.slice();
+    }
+
     public remove(popups: Popup[]): void {
         for (const popup of popups) {
             this._remove(popup);
@@ -61,7 +65,11 @@ export class PopupComponent extends Component<IComponentConfiguration> {
     }
 
     public removeAll(): void {
-        this.remove(this._popups);
+        for (const popup of this._popups.slice()) {
+            this._remove(popup);
+        }
+
+        this._popups$.next(this._popups);
     }
 
     protected _activate(): void {
@@ -75,10 +83,10 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         }
 
         this._updateAllSubscription = Observable
-                .combineLatest(
-                    this._container.renderService.renderCamera$,
-                    this._container.renderService.size$,
-                    this._navigator.stateService.currentTransform$)
+            .combineLatest(
+                this._container.renderService.renderCamera$,
+                this._container.renderService.size$,
+                this._navigator.stateService.currentTransform$)
             .subscribe(
                 ([renderCamera, size, transform]: [RenderCamera, ISize, Transform]): void => {
                     for (const popup of this._popups) {
@@ -102,9 +110,9 @@ export class PopupComponent extends Component<IComponentConfiguration> {
                     return [popup];
                 });
 
-        this._updateAddedChangedSubscription = Observable
-            .combineLatest(
-                this._added$.merge(changed$),
+        this._updateAddedChangedSubscription = this._added$
+            .merge(changed$)
+            .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._container.renderService.size$,
                 this._navigator.stateService.currentTransform$)
