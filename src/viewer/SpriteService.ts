@@ -10,7 +10,7 @@ import "rxjs/add/operator/publishReplay";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/startWith";
 
-import {Float, ISpriteAtlas} from "../Viewer";
+import {Alignment, ISpriteAtlas} from "../Viewer";
 
 class SpriteAtlas implements ISpriteAtlas {
     private _image: HTMLImageElement;
@@ -63,14 +63,14 @@ class SpriteAtlas implements ISpriteAtlas {
 
     public getDOMSprite(
         name: string,
-        float?: Float): vd.VNode {
+        float?: Alignment): vd.VNode {
 
         if (!this.loaded) {
             throw new Error("Sprites cannot be retrieved before the atlas is loaded.");
         }
 
         if (float == null) {
-            float = Float.Center;
+            float = Alignment.Center;
         }
 
         let definition: ISprite = this._json[name];
@@ -93,37 +93,37 @@ class SpriteAtlas implements ISpriteAtlas {
         let width: number = this._image.width;
 
         switch (float) {
-            case Float.Bottom:
-            case Float.Center:
-            case Float.Top:
+            case Alignment.Bottom:
+            case Alignment.Center:
+            case Alignment.Top:
                 left -= definition.width / 2;
                 break;
-            case Float.BottomLeft:
-            case Float.Left:
-            case Float.TopLeft:
+            case Alignment.BottomLeft:
+            case Alignment.Left:
+            case Alignment.TopLeft:
                 left -= definition.width;
                 break;
-            case Float.BottomRight:
-            case Float.Right:
-            case Float.BottomRight:
+            case Alignment.BottomRight:
+            case Alignment.Right:
+            case Alignment.BottomRight:
             default:
                 break;
         }
 
         switch (float) {
-            case Float.Center:
-            case Float.Left:
-            case Float.Right:
+            case Alignment.Center:
+            case Alignment.Left:
+            case Alignment.Right:
                 top -= definition.height / 2;
                 break;
-            case Float.Top:
-            case Float.TopLeft:
-            case Float.TopRight:
+            case Alignment.Top:
+            case Alignment.TopLeft:
+            case Alignment.TopRight:
                 top -= definition.height;
                 break;
-            case Float.Bottom:
-            case Float.BottomLeft:
-            case Float.BottomRight:
+            case Alignment.Bottom:
+            case Alignment.BottomLeft:
+            case Alignment.BottomRight:
             default:
                 break;
         }

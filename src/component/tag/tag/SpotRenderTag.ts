@@ -9,7 +9,7 @@ import {
     TagOperation,
 } from "../../../Component";
 import {
-    Float,
+    Alignment,
     ISpriteAtlas,
 } from "../../../Viewer";
 
@@ -40,7 +40,7 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
 
             if (this._tag.icon != null) {
                 if (atlas.loaded) {
-                    let sprite: vd.VNode = atlas.getDOMSprite(this._tag.icon, Float.Bottom);
+                    let sprite: vd.VNode = atlas.getDOMSprite(this._tag.icon, Alignment.Bottom);
 
                     let properties: vd.createProperties = {
                         onmousedown: interactNone,

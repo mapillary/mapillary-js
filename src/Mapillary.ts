@@ -6,7 +6,7 @@
 export {EdgeDirection} from "./Edge";
 export {RenderMode} from "./Render";
 export {
-    Float,
+    Alignment,
     ImageSize,
     Viewer,
 } from "./Viewer";

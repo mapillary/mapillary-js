@@ -1,4 +1,4 @@
-export enum Float {
+export enum Alignment {
     Bottom,
     BottomLeft,
     BottomRight,
@@ -10,4 +10,4 @@ export enum Float {
     TopRight,
 }
 
-export default Float;
+export default Alignment;

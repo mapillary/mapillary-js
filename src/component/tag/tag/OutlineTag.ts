@@ -5,7 +5,7 @@ import {
     Tag,
     VertexGeometry,
 } from "../../../Component";
-import {Float} from "../../../Viewer";
+import {Alignment} from "../../../Viewer";
 
 /**
  * @class OutlineTag
@@ -24,7 +24,7 @@ export class OutlineTag extends Tag {
 
     private _editable: boolean;
     private _icon: string;
-    private _iconFloat: Float;
+    private _iconFloat: Alignment;
     private _iconIndex: number;
     private _indicateVertices: boolean;
     private _lineColor: number;
@@ -54,7 +54,7 @@ export class OutlineTag extends Tag {
         this._fillColor = options.fillColor == null ? 0xFFFFFF : options.fillColor;
         this._fillOpacity = options.fillOpacity == null ? 0.0 : options.fillOpacity;
         this._icon = options.icon === undefined ? null : options.icon;
-        this._iconFloat = options.iconFloat == null ? Float.Center : options.iconFloat;
+        this._iconFloat = options.iconFloat == null ? Alignment.Center : options.iconFloat;
         this._iconIndex = options.iconIndex == null ? 3 : options.iconIndex;
         this._indicateVertices = options.indicateVertices == null ? true : options.indicateVertices;
         this._lineColor = options.lineColor == null ? 0xFFFFFF : options.lineColor;
@@ -167,19 +167,19 @@ export class OutlineTag extends Tag {
 
     /**
      * Get icon float property.
-     * @returns {Float}
+     * @returns {Alignment}
      */
-    public get iconFloat(): Float {
+    public get iconFloat(): Alignment {
         return this._iconFloat;
     }
 
     /**
      * Set icon float property.
-     * @param {Float}
+     * @param {Alignment}
      *
      * @fires Tag#changed
      */
-    public set iconFloat(value: Float) {
+    public set iconFloat(value: Alignment) {
         this._iconFloat = value;
         this._notifyChanged$.next(this);
     }
