@@ -1,10 +1,20 @@
 /// <reference path="../../../typings/index.d.ts" />
 
+import {Subject} from "rxjs/Subject";
+
 import {
     Popup,
     PopupComponent,
 } from "../../../src/Component";
-import {Container} from "../../../src/Viewer";
+import {Transform} from "../../../src/Geo";
+import {
+    ISize,
+    RenderCamera,
+} from "../../../src/Render";
+import {
+    Container,
+    Navigator,
+} from "../../../src/Viewer";
 
 import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
 import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
@@ -226,5 +236,142 @@ describe("PopupComponent.removeAll", () => {
         const result: Popup[] = popupComponent.getAll();
 
         expect(result.length).toBe(0);
+    });
+});
+
+describe("PopupComponent.updateAdded", () => {
+    it("should update a popup once when added", () => {
+        const containerMock: Container = new ContainerMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+
+        const popupComponent: PopupComponent =
+            new PopupComponent(
+                PopupComponent.componentName,
+                containerMock,
+                navigatorMock);
+
+        const popup: Popup = new Popup();
+        popup.setDOMContent(document.createElement("div"));
+
+        const updateSpy: jasmine.Spy = spyOn(popup, "update").and.stub();
+
+        popupComponent.activate();
+
+        (<Subject<RenderCamera>>containerMock.renderService.renderCamera$).next(null);
+        (<Subject<ISize>>containerMock.renderService.size$).next(null);
+        (<Subject<Transform>>navigatorMock.stateService.currentTransform$).next(null);
+
+        popupComponent.add([popup]);
+
+        expect(updateSpy.calls.count()).toBe(1);
+    });
+
+    it("should update a popup when changed", () => {
+        const containerMock: Container = new ContainerMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+
+        const popupComponent: PopupComponent =
+            new PopupComponent(
+                PopupComponent.componentName,
+                containerMock,
+                navigatorMock);
+
+        const popup: Popup = new Popup();
+        popup.setDOMContent(document.createElement("div"));
+
+        const updateSpy: jasmine.Spy = spyOn(popup, "update").and.stub();
+
+        popupComponent.activate();
+
+        (<Subject<RenderCamera>>containerMock.renderService.renderCamera$).next(null);
+        (<Subject<ISize>>containerMock.renderService.size$).next(null);
+        (<Subject<Transform>>navigatorMock.stateService.currentTransform$).next(null);
+
+        popupComponent.add([popup]);
+
+        popup.setBasicPoint([0.5, 0.5]);
+
+        expect(updateSpy.calls.count()).toBe(2);
+    });
+});
+
+describe("PopupComponent.updateAll", () => {
+    it("should update a popup once when activated", () => {
+        const containerMock: Container = new ContainerMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+
+        const popupComponent: PopupComponent =
+            new PopupComponent(
+                PopupComponent.componentName,
+                containerMock,
+                navigatorMock);
+
+        const popup: Popup = new Popup();
+        popup.setDOMContent(document.createElement("div"));
+
+        const updateSpy: jasmine.Spy = spyOn(popup, "update").and.stub();
+
+        popupComponent.add([popup]);
+
+        popupComponent.activate();
+
+        (<Subject<RenderCamera>>containerMock.renderService.renderCamera$).next(null);
+        (<Subject<ISize>>containerMock.renderService.size$).next(null);
+        (<Subject<Transform>>navigatorMock.stateService.currentTransform$).next(null);
+
+        expect(updateSpy.calls.count()).toBe(1);
+    });
+
+    it("should not update a popup  when deactivated", () => {
+        const containerMock: Container = new ContainerMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+
+        const popupComponent: PopupComponent =
+            new PopupComponent(
+                PopupComponent.componentName,
+                containerMock,
+                navigatorMock);
+
+        const popup: Popup = new Popup();
+        popup.setDOMContent(document.createElement("div"));
+
+        const updateSpy: jasmine.Spy = spyOn(popup, "update").and.stub();
+        spyOn(popup, "remove").and.stub();
+
+        popupComponent.add([popup]);
+
+        popupComponent.activate();
+        popupComponent.deactivate();
+
+        (<Subject<RenderCamera>>containerMock.renderService.renderCamera$).next(null);
+        (<Subject<ISize>>containerMock.renderService.size$).next(null);
+        (<Subject<Transform>>navigatorMock.stateService.currentTransform$).next(null);
+
+        expect(updateSpy.calls.count()).toBe(0);
+    });
+});
+
+describe("PopupComponent.deactivate", () => {
+    it("should remove a popup once when deactivated", () => {
+        const containerMock: Container = new ContainerMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+
+        const popupComponent: PopupComponent =
+            new PopupComponent(
+                PopupComponent.componentName,
+                containerMock,
+                navigatorMock);
+
+        const popup: Popup = new Popup();
+        popup.setDOMContent(document.createElement("div"));
+
+        const removeSpy: jasmine.Spy = spyOn(popup, "remove").and.stub();
+
+        popupComponent.add([popup]);
+
+        popupComponent.activate();
+        popupComponent.deactivate();
+
+        expect(removeSpy.calls.count()).toBe(1);
     });
 });
