@@ -367,6 +367,15 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Returns the viewer's containing HTML element.
+     *
+     * @returns {HTMLElement} The viewer's container.
+     */
+    public getContainer(): HTMLElement {
+        return this._container.element;
+    }
+
+    /**
      * Get the photo's current zoom level.
      *
      * @returns {Promise<number>} Promise to the viewers's current

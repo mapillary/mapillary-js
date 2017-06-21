@@ -32,6 +32,11 @@ export class Container {
         this.id = id;
 
         this._container = document.getElementById(id);
+
+        if (!this._container) {
+            throw new Error(`Container '${id}' not found.`);
+        }
+
         this._container.classList.add("mapillary-js");
 
         this._canvasContainer = document.createElement("div");
