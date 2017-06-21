@@ -1,4 +1,4 @@
-import {Alignment} from "../../../Component";
+import {Float} from "../../../Viewer";
 
 /**
  * Interface for the options that define the behavior and
@@ -31,11 +31,12 @@ export interface IOutlineTagOptions {
     icon?: string;
 
     /**
-     * Alignment value determining how to align the icon when rendering
+     * Value determining how the icon will float with respect to its anchor
+     * position when rendering.
      *
-     * @default {Alignment.Outer}
+     * @default {Float.Center}
      */
-    iconAlignment: Alignment;
+    iconFloat: Float;
 
     /**
      * Number representing the index for where to show the icon or

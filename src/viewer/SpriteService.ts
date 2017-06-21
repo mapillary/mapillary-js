@@ -10,7 +10,7 @@ import "rxjs/add/operator/publishReplay";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/startWith";
 
-import {ISpriteAtlas, SpriteAlignment} from "../Viewer";
+import {Float, ISpriteAtlas} from "../Viewer";
 
 class SpriteAtlas implements ISpriteAtlas {
     private _image: HTMLImageElement;
@@ -63,19 +63,14 @@ class SpriteAtlas implements ISpriteAtlas {
 
     public getDOMSprite(
         name: string,
-        horizontalAlign?: SpriteAlignment,
-        verticalAlign?: SpriteAlignment): vd.VNode {
+        float?: Float): vd.VNode {
 
         if (!this.loaded) {
             throw new Error("Sprites cannot be retrieved before the atlas is loaded.");
         }
 
-        if (horizontalAlign == null) {
-            horizontalAlign = SpriteAlignment.Start;
-        }
-
-        if (verticalAlign == null) {
-            verticalAlign = SpriteAlignment.Start;
+        if (float == null) {
+            float = Float.Center;
         }
 
         let definition: ISprite = this._json[name];
@@ -97,28 +92,38 @@ class SpriteAtlas implements ISpriteAtlas {
         let height: number = this._image.height;
         let width: number = this._image.width;
 
-        switch (horizontalAlign) {
-            case SpriteAlignment.Center:
+        switch (float) {
+            case Float.Bottom:
+            case Float.Center:
+            case Float.Top:
                 left -= definition.width / 2;
                 break;
-            case SpriteAlignment.End:
+            case Float.BottomLeft:
+            case Float.Left:
+            case Float.TopLeft:
                 left -= definition.width;
                 break;
-            case SpriteAlignment.Start:
-                break;
+            case Float.BottomRight:
+            case Float.Right:
+            case Float.BottomRight:
             default:
                 break;
         }
 
-        switch (verticalAlign) {
-            case SpriteAlignment.Center:
+        switch (float) {
+            case Float.Center:
+            case Float.Left:
+            case Float.Right:
                 top -= definition.height / 2;
                 break;
-            case SpriteAlignment.End:
+            case Float.Top:
+            case Float.TopLeft:
+            case Float.TopRight:
                 top -= definition.height;
                 break;
-            case SpriteAlignment.Start:
-                break;
+            case Float.Bottom:
+            case Float.BottomLeft:
+            case Float.BottomRight:
             default:
                 break;
         }

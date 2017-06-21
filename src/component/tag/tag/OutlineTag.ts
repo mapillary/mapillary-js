@@ -1,11 +1,11 @@
 import {Subject} from "rxjs/Subject";
 
 import {
-    Alignment,
     IOutlineTagOptions,
     Tag,
     VertexGeometry,
 } from "../../../Component";
+import {Float} from "../../../Viewer";
 
 /**
  * @class OutlineTag
@@ -24,7 +24,7 @@ export class OutlineTag extends Tag {
 
     private _editable: boolean;
     private _icon: string;
-    private _iconAlignment: Alignment;
+    private _iconFloat: Float;
     private _iconIndex: number;
     private _indicateVertices: boolean;
     private _lineColor: number;
@@ -42,8 +42,8 @@ export class OutlineTag extends Tag {
      *
      * @override
      * @constructor
-     * @param {string} id
-     * @param {Geometry} geometry
+     * @param {string} id - Unique identifier of the tag.
+     * @param {VertexGeometry} geometry - Geometry defining vertices of tag.
      * @param {IOutlineTagOptions} options - Options defining the visual appearance and
      * behavior of the outline tag.
      */
@@ -54,7 +54,7 @@ export class OutlineTag extends Tag {
         this._fillColor = options.fillColor == null ? 0xFFFFFF : options.fillColor;
         this._fillOpacity = options.fillOpacity == null ? 0.0 : options.fillOpacity;
         this._icon = options.icon === undefined ? null : options.icon;
-        this._iconAlignment = options.iconAlignment == null ? Alignment.Outer : options.iconAlignment;
+        this._iconFloat = options.iconFloat == null ? Float.Center : options.iconFloat;
         this._iconIndex = options.iconIndex == null ? 3 : options.iconIndex;
         this._indicateVertices = options.indicateVertices == null ? true : options.indicateVertices;
         this._lineColor = options.lineColor == null ? 0xFFFFFF : options.lineColor;
@@ -166,21 +166,21 @@ export class OutlineTag extends Tag {
     }
 
     /**
-     * Get icon alignment property.
-     * @returns {Alignment}
+     * Get icon float property.
+     * @returns {Float}
      */
-    public get iconAlignment(): Alignment {
-        return this._iconAlignment;
+    public get iconFloat(): Float {
+        return this._iconFloat;
     }
 
     /**
-     * Set icon alignment property.
-     * @param {Alignment}
+     * Set icon float property.
+     * @param {Float}
      *
      * @fires Tag#changed
      */
-    public set iconAlignment(value: Alignment) {
-        this._iconAlignment = value;
+    public set iconFloat(value: Float) {
+        this._iconFloat = value;
         this._notifyChanged$.next(this);
     }
 
@@ -331,7 +331,7 @@ export class OutlineTag extends Tag {
     public setOptions(options: IOutlineTagOptions): void {
         this._editable = options.editable == null ? this._editable : options.editable;
         this._icon = options.icon === undefined ? this._icon : options.icon;
-        this._iconAlignment = options.iconAlignment == null ? this._iconAlignment : options.iconAlignment;
+        this._iconFloat = options.iconFloat == null ? this._iconFloat : options.iconFloat;
         this._iconIndex = options.iconIndex == null ? this._iconIndex : options.iconIndex;
         this._indicateVertices = options.indicateVertices == null ? this._indicateVertices : options.indicateVertices;
         this._lineColor = options.lineColor == null ? this._lineColor : options.lineColor;

@@ -5,7 +5,11 @@
 
 export {EdgeDirection} from "./Edge";
 export {RenderMode} from "./Render";
-export {ImageSize, Viewer} from "./Viewer";
+export {
+    Float,
+    ImageSize,
+    Viewer,
+} from "./Viewer";
 
 import * as TagComponent from "./component/tag/Tag";
 export {TagComponent};

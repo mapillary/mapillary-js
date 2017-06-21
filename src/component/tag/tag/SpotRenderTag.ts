@@ -9,8 +9,8 @@ import {
     TagOperation,
 } from "../../../Component";
 import {
+    Float,
     ISpriteAtlas,
-    SpriteAlignment,
 } from "../../../Viewer";
 
 /**
@@ -40,16 +40,16 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
 
             if (this._tag.icon != null) {
                 if (atlas.loaded) {
-                    let sprite: vd.VNode = atlas.getDOMSprite(this._tag.icon, SpriteAlignment.Center, SpriteAlignment.End);
+                    let sprite: vd.VNode = atlas.getDOMSprite(this._tag.icon, Float.Bottom);
 
                     let properties: vd.createProperties = {
                         onmousedown: interactNone,
                         style: {
-                            bottom: 100 * (1 - centroidCanvas[1]) + "%",
                             left: centroidCss[0],
                             pointerEvents: "all",
                             position: "absolute",
-                            transform: "translate(0px, -8px)",
+                            top: centroidCss[1],
+                            transform: "translate(0, 8px)",
                         },
                     };
 
@@ -59,12 +59,12 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
                 let properties: vd.createProperties = {
                     onmousedown: interactNone,
                     style: {
-                        bottom: 100 * (1 - centroidCanvas[1]) + "%",
                         color: "#" + ("000000" + this._tag.textColor.toString(16)).substr(-6),
                         left: centroidCss[0],
                         pointerEvents: "all",
                         position: "absolute",
-                        transform: "translate(-50%, -7px)",
+                        top: centroidCss[1],
+                        transform: "translate(-50%, 8px)",
                     },
                     textContent: this._tag.text,
                 };

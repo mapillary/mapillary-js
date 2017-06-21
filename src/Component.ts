@@ -42,7 +42,6 @@ export {CircleMarker} from "./component/marker/marker/CircleMarker";
 export {SliderComponent} from "./component/imageplane/SliderComponent";
 export {StatsComponent} from "./component/StatsComponent";
 export {Tag} from "./component/tag/tag/Tag";
-export {Alignment} from "./component/tag/tag/Alignment";
 export {OutlineTag} from "./component/tag/tag/OutlineTag";
 export {RenderTag} from "./component/tag/tag/RenderTag";
 export {OutlineRenderTag} from "./component/tag/tag/OutlineRenderTag";

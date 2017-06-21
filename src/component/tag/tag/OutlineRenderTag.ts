@@ -6,7 +6,6 @@ import * as vd from "virtual-dom";
 import {Subscription} from "rxjs/Subscription";
 
 import {
-    Alignment,
     Geometry,
     OutlineTag,
     PolygonGeometry,
@@ -15,10 +14,7 @@ import {
     TagOperation,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
-import {
-    ISpriteAtlas,
-    SpriteAlignment,
-} from "../../../Viewer";
+import {ISpriteAtlas} from "../../../Viewer";
 
 /**
  * @class OutlineRenderTag
@@ -128,12 +124,8 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                 };
 
                 if (atlas.loaded) {
-                    let spriteAlignments: [SpriteAlignment, SpriteAlignment] = this.tag.geometry instanceof RectGeometry ?
-                        this._getSpriteAlignment(this._tag.iconIndex, this._tag.iconAlignment) :
-                        [SpriteAlignment.Center, SpriteAlignment.Center];
-
                     let sprite: vd.VNode =
-                        atlas.getDOMSprite(this._tag.icon, spriteAlignments[0], spriteAlignments[1]);
+                        atlas.getDOMSprite(this._tag.icon, this._tag.iconFloat);
 
                     let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
                         e.stopPropagation();
@@ -387,36 +379,6 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         }
 
         return positions;
-    }
-
-    private _getSpriteAlignment(index: number, alignment: Alignment): [SpriteAlignment, SpriteAlignment] {
-        let horizontalAlignment: SpriteAlignment = SpriteAlignment.Center;
-        let verticalAlignment: SpriteAlignment = SpriteAlignment.Center;
-
-        if (alignment === Alignment.Outer) {
-            switch (index) {
-                case 0:
-                    horizontalAlignment = SpriteAlignment.End;
-                    verticalAlignment = SpriteAlignment.Start;
-                    break;
-                case 1:
-                    horizontalAlignment = SpriteAlignment.End;
-                    verticalAlignment = SpriteAlignment.End;
-                    break;
-                case 2:
-                    horizontalAlignment = SpriteAlignment.Start;
-                    verticalAlignment = SpriteAlignment.End;
-                    break;
-                case 3:
-                    horizontalAlignment = SpriteAlignment.Start;
-                    verticalAlignment = SpriteAlignment.Start;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return [horizontalAlignment, verticalAlignment];
     }
 
     private _interact(operation: TagOperation, vertexIndex?: number): (e: MouseEvent) => void {
