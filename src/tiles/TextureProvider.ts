@@ -240,7 +240,7 @@ export class TextureProvider {
         let height: number = 1 / this._roi.pixelHeight;
         let size: number = Math.max(height, width);
 
-        let currentLevel: number = Math.max(0, Math.min(this._maxLevel, Math.round(Math.log(size) / Math.log(2))));
+        let currentLevel: number = Math.max(0, Math.min(this._maxLevel, Math.round(Math.log(size) / Math.log(2) + 0.25)));
         if (currentLevel !== this._currentLevel) {
             this.abort();
 
