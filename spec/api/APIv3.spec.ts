@@ -2,6 +2,8 @@
 
 import * as falcor from "falcor";
 
+import {Observable} from "rxjs/Observable";
+
 import "rxjs/add/operator/retry";
 
 import {
@@ -54,6 +56,39 @@ describe("APIv3.imageByKeyFill$", () => {
 
                     done();
                 });
+    });
+
+    it("should throw when result is undefined", (done: Function) => {
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
+
+        let model: falcor.Model = new falcor.Model();
+        let modelSpy: jasmine.Spy = spyOn(model, "get");
+        modelSpy.and.returnValue(promise);
+
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
+
+        let key: string = "key";
+
+        apiV3.imageByKeyFill$([key])
+            .catch(
+                (err: Error): Observable<{}> => {
+                    expect(err).toBeDefined();
+                    expect(err instanceof Error).toBe(true);
+
+                    return Observable.empty<{}>();
+                })
+            .subscribe(
+                undefined,
+                undefined,
+                (): void => { done(); });
     });
 
     it("should invalidate model correctly when error is thrown", (done: Function) => {
@@ -166,6 +201,39 @@ describe("APIv3.imageByKeyFull$", () => {
 
                     done();
                 });
+    });
+
+    it("should throw when result is undefined", (done: Function) => {
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
+
+        let model: falcor.Model = new falcor.Model();
+        let modelSpy: jasmine.Spy = spyOn(model, "get");
+        modelSpy.and.returnValue(promise);
+
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
+
+        let key: string = "key";
+
+        apiV3.imageByKeyFull$([key])
+            .catch(
+                (err: Error): Observable<{}> => {
+                    expect(err).toBeDefined();
+                    expect(err instanceof Error).toBe(true);
+
+                    return Observable.empty<{}>();
+                })
+            .subscribe(
+                undefined,
+                undefined,
+                (): void => { done(); });
     });
 
     it("should invalidate model correctly when error is thrown", (done: Function) => {

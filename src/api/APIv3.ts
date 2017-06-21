@@ -148,6 +148,10 @@ export class APIv3 {
                     .concat(this._propertiesUser)]))
             .map(
                 (value: IFalcorResult<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
+                    if (!value) {
+                        throw new Error(`Images (${keys.join(", ")}) could not be found.`);
+                    }
+
                     return value.json.imageByKey;
                 }),
             this._pathImageByKey,
@@ -167,6 +171,10 @@ export class APIv3 {
                     .concat(this._propertiesUser)]))
             .map(
                 (value: IFalcorResult<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
+                    if (!value) {
+                        throw new Error(`Images (${keys.join(", ")}) could not be found.`);
+                    }
+
                     return value.json.imageByKey;
                 }),
             this._pathImageByKey,
