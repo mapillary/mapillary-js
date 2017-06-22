@@ -125,7 +125,12 @@ export class Popup {
 
         if (!this._container) {
             this._container = <HTMLDivElement>this._createElement("div", "mapillaryjs-popup", this._parentContainer);
-            if (this._options.clean !== true) {
+
+            let showTip: boolean =
+                this._options.clean !== true &&
+                this._options.float !== Alignment.Center;
+
+            if (showTip) {
                 this._tip = <HTMLDivElement>this._createElement("div", "mapillaryjs-popup-tip", this._container);
                 this._createElement("div", "mapillaryjs-popup-tip-inner", this._tip);
             }
