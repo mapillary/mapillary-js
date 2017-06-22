@@ -1,7 +1,5 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-import * as THREE from "three";
-
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
@@ -9,7 +7,10 @@ import {
     IPopupOptions,
     PopupAlignment,
 } from "../../../Component";
-import {Transform} from "../../../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../../../Geo";
 import {
     ISize,
     RenderCamera,
@@ -28,7 +29,9 @@ export class Popup {
     private _point: number[];
     private _rect: number[];
 
-    constructor(options?: IPopupOptions) {
+    private _viewportCoords: ViewportCoords;
+
+    constructor(options?: IPopupOptions, viewportCoords?: ViewportCoords) {
         this._options = {};
 
         if (!!options) {
@@ -38,6 +41,8 @@ export class Popup {
             this._options.opacity = options.opacity;
             this._options.position = options.position;
         }
+
+        this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
 
         this._notifyChanged$ = new Subject<Popup>();
     }
@@ -148,7 +153,13 @@ export class Popup {
         let float: PopupAlignment = this._alignmentToPopupAligment(this._options.float);
 
         if (this._point != null) {
-            pointPixel = this._basicToPixel(this._point, renderCamera, size, transform);
+            pointPixel =
+                this._viewportCoords.basicToCanvasSafe(
+                    this._point[0],
+                    this._point[1],
+                    { offsetHeight: size.height, offsetWidth: size.width },
+                    transform,
+                    renderCamera.perspective);
         } else {
             [pointPixel, position] = this._rectToPixel(this._rect, position, renderCamera, size, transform);
 
@@ -262,7 +273,13 @@ export class Popup {
 
             for (const automaticPosition of automaticPositions) {
                 const pointBasic: number[] = this._pointFromRectPosition(rect, automaticPosition);
-                const pointPixel: number[] = this._basicToPixel(pointBasic, renderCamera, size, transform);
+                const pointPixel: number[] =
+                    this._viewportCoords.basicToCanvasSafe(
+                        pointBasic[0],
+                        pointBasic[1],
+                        { offsetHeight: size.height, offsetWidth: size.width },
+                        transform,
+                        renderCamera.perspective);
 
                 if (pointPixel == null) {
                     continue;
@@ -303,8 +320,15 @@ export class Popup {
         }
 
         const pointBasic: number[] = this._pointFromRectPosition(rect, position);
+        const pointCanvas: number[] =
+            this._viewportCoords.basicToCanvasSafe(
+                pointBasic[0],
+                pointBasic[1],
+                { offsetHeight: size.height, offsetWidth: size.width },
+                transform,
+                renderCamera.perspective);
 
-        return [this._basicToPixel(pointBasic, renderCamera, size, transform), position != null ? position : "bottom"];
+        return [pointCanvas, position != null ? position : "bottom"];
     }
 
     private _alignmentToPopupAligment(float: Alignment): PopupAlignment {
@@ -373,41 +397,6 @@ export class Popup {
             default:
                 return [(rect[0] + rect[2]) / 2, rect[3]];
         }
-    }
-
-    private _basicToPixel(pointBasic: number[], renderCamera: RenderCamera, size: ISize, transform: Transform): number[] {
-        const point3d: number[] = transform.unprojectBasic(pointBasic, 200);
-        const matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(renderCamera.perspective.matrixWorld);
-        const pointCameraSpace: THREE.Vector3 = this._convertToCameraSpace(point3d, matrixWorldInverse);
-
-        if (pointCameraSpace.z > 0) {
-            return null;
-        }
-
-        const pointCanvas: number[] = this._projectToCanvas(pointCameraSpace, renderCamera.perspective.projectionMatrix);
-        const pointPixel: number[] = [pointCanvas[0] * size.width, pointCanvas[1] * size.height];
-
-        return pointPixel;
-    }
-
-    private _projectToCanvas(
-        point3d: THREE.Vector3,
-        projectionMatrix: THREE.Matrix4):
-        number[] {
-
-        let projected: THREE.Vector3 =
-            new THREE.Vector3(point3d.x, point3d.y, point3d.z)
-                .applyMatrix4(projectionMatrix);
-
-        return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
-    }
-
-    private _convertToCameraSpace(
-        point3d: number[],
-        matrixWorldInverse: THREE.Matrix4):
-        THREE.Vector3 {
-
-        return new THREE.Vector3(point3d[0], point3d[1], point3d[2]).applyMatrix4(matrixWorldInverse);
     }
 }
 
