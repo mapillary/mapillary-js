@@ -45,13 +45,49 @@ export class ViewportCoords {
     public basicToCanvas(
         basicX: number,
         basicY: number,
-        container: HTMLElement,
+        container: { offsetHeight: number, offsetWidth: number },
         transform: Transform,
         perspectiveCamera: THREE.PerspectiveCamera):
         number[] {
 
         const point3d: number[] = transform.unprojectBasic([basicX, basicY], this._unprojectDepth);
         const canvas: number[] = this.projectToCanvas(point3d, container, perspectiveCamera);
+
+        return canvas;
+    }
+
+    /**
+     * Convert basic coordinates to canvas coordinates safely. If 3D point is
+     * behind camera null will be returned.
+     *
+     * @description Transform origin and perspective camera position needs to be the
+     * equal for reliable return value.
+     *
+     * @param {number} basicX - Basic X coordinate.
+     * @param {number} basicY - Basic Y coordinate.
+     * @param {HTMLElement} container - The viewer container.
+     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 2D canvas coordinates if the basic point represents a 3D point
+     * in front of the camera, otherwise null.
+     */
+    public basicToCanvasSafe(
+        basicX: number,
+        basicY: number,
+        container: { offsetHeight: number, offsetWidth: number },
+        transform: Transform,
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
+
+        const point3d: number[] = transform.unprojectBasic([basicX, basicY], this._unprojectDepth);
+        const pointCamera: number[] = this.worldToCamera(point3d, perspectiveCamera);
+
+        if (pointCamera[2] > 0) {
+            return null;
+        }
+
+        const [viewportX, viewportY]: number[] = this.cameraToViewport(pointCamera, perspectiveCamera);
+        const canvas: number[] = this.viewportToCanvas(viewportX, viewportY, container);
 
         return canvas;
     }
@@ -79,6 +115,25 @@ export class ViewportCoords {
         const viewport: number[] = this.projectToViewport(point3d, perspectiveCamera);
 
         return viewport;
+    }
+
+    /**
+     * Convert camera 3D coordinates to viewport coordinates.
+     *
+     * @param {number} pointCamera - 3D point in camera coordinate system.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 2D viewport coordinates.
+     */
+    public cameraToViewport(
+        pointCamera: number[],
+        perspectiveCamera: THREE.PerspectiveCamera):
+        number[] {
+
+        const viewport: THREE.Vector3 =
+            new THREE.Vector3().fromArray(pointCamera)
+                .applyMatrix4(perspectiveCamera.projectionMatrix);
+
+        return [viewport.x, viewport.y];
     }
 
     /**
@@ -113,7 +168,7 @@ export class ViewportCoords {
     public canvasToBasic(
         canvasX: number,
         canvasY: number,
-        container: HTMLElement,
+        container: { offsetHeight: number, offsetWidth: number },
         transform: Transform,
         perspectiveCamera: THREE.PerspectiveCamera):
         number[] {
@@ -138,7 +193,7 @@ export class ViewportCoords {
     public canvasToViewport(
         canvasX: number,
         canvasY: number,
-        container: HTMLElement):
+        container: { offsetHeight: number, offsetWidth: number }):
         number[] {
 
         const [canvasWidth, canvasHeight]: number[] = this.containerToCanvas(container);
@@ -154,7 +209,7 @@ export class ViewportCoords {
      * @param {HTMLElement} container - The viewer container.
      * @returns {Array<number>} 2D canvas coordinates.
      */
-    public containerToCanvas(container: HTMLElement): number[] {
+    public containerToCanvas(container: { offsetHeight: number, offsetWidth: number }): number[] {
         return [container.offsetWidth, container.offsetHeight];
     }
 
@@ -226,7 +281,7 @@ export class ViewportCoords {
      * @returns {Array<number>} Array of pixel distances as [top, right, bottom, left].
      */
     public getPixelDistances(
-        container: HTMLElement,
+        container: { offsetHeight: number, offsetWidth: number },
         transform: Transform,
         perspectiveCamera: THREE.PerspectiveCamera):
         number[] {
@@ -317,7 +372,7 @@ export class ViewportCoords {
      */
     public projectToCanvas(
         point3d: number[],
-        container: HTMLElement,
+        container: { offsetHeight: number, offsetWidth: number },
         perspectiveCamera: THREE.PerspectiveCamera):
         number[] {
 
@@ -359,7 +414,7 @@ export class ViewportCoords {
     public unprojectFromCanvas(
         canvasX: number,
         canvasY: number,
-        container: HTMLElement,
+        container: { offsetHeight: number, offsetWidth: number },
         perspectiveCamera: THREE.PerspectiveCamera):
         THREE.Vector3 {
 
@@ -433,7 +488,7 @@ export class ViewportCoords {
     public viewportToCanvas(
         viewportX: number,
         viewportY: number,
-        container: HTMLElement):
+        container: { offsetHeight: number, offsetWidth: number }):
         number[] {
 
         const [canvasWidth, canvasHeight]: number[] = this.containerToCanvas(container);
@@ -441,6 +496,26 @@ export class ViewportCoords {
         const canvasY: number = -canvasHeight * (viewportY - 1) / 2;
 
         return [canvasX, canvasY];
+    }
+
+    /**
+     * Convert 3D world coordinates to 3D camera coordinates.
+     *
+     * @param {number} point3D - 3D point in world coordinate system.
+     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @returns {Array<number>} 3D camera coordinates.
+     */
+    public worldToCamera(
+        point3d: number[],
+        perspectiveCamera: THREE.PerspectiveCamera): number[] {
+
+        const matrixWorldInverse: THREE.Matrix4 =
+            new THREE.Matrix4().getInverse(perspectiveCamera.matrixWorld);
+
+        const pointCamera: THREE.Vector3 =
+            new THREE.Vector3(point3d[0], point3d[1], point3d[2]).applyMatrix4(matrixWorldInverse);
+
+        return pointCamera.toArray();
     }
 }
 
