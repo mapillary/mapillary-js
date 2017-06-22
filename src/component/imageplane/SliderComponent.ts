@@ -1,7 +1,6 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import * as THREE from "three";
-import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
@@ -37,7 +36,6 @@ import {
 import {
     IGLRenderHash,
     GLRenderStage,
-    IVNodeHash,
 } from "../../Render";
 import {Settings} from "../../Utils";
 import {
@@ -245,6 +243,12 @@ class SliderState {
 export class SliderComponent extends Component<ISliderConfiguration> {
     public static componentName: string = "slider";
 
+    private _sliderContainer: HTMLDivElement;
+    private _sliderWrapper: HTMLDivElement;
+    private _sliderControl: HTMLInputElement;
+
+    private _moveToHandler: (event: Event) => void;
+
     private _sliderStateOperation$: Subject<ISliderStateOperation>;
     private _sliderState$: Observable<SliderState>;
     private _sliderStateCreator$: Subject<void>;
@@ -342,6 +346,22 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     }
 
     protected _activate(): void {
+        this._sliderContainer = <HTMLDivElement>this._createElement("div", "mapillary-js-slider-container", this._container.element);
+        this._sliderWrapper = <HTMLDivElement>this._createElement("div", "SliderWrapper", this._sliderContainer);
+        this._sliderControl = <HTMLInputElement>this._createElement("input", "SliderControl", this._sliderWrapper);
+        this._sliderControl.setAttribute("type", "range");
+        this._sliderControl.setAttribute("min", "0");
+        this._sliderControl.setAttribute("max", "1000");
+        this._sliderControl.style.visibility = "hidden";
+
+        this._moveToHandler = (e: Event): void => {
+            const curtain: number = Number((<HTMLInputElement>e.target).value) / 1000;
+            this._navigator.stateService.moveTo(curtain);
+        };
+
+        this._sliderControl.addEventListener("input", this._moveToHandler);
+        this._sliderControl.addEventListener("change", this._moveToHandler);
+
         Observable
             .combineLatest<State, ISliderConfiguration>(
                 this._navigator.stateService.state$,
@@ -352,8 +372,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     if (state === State.Traversing) {
                         this._navigator.stateService.wait();
 
-                        let position: number = configuration.initialPosition;
-                        this._navigator.stateService.moveTo(position != null ? position : 1);
+                        let position: number = configuration.initialPosition != null ? configuration.initialPosition : 1;
+
+                        this._sliderControl.value = (1000 * position).toString();
+                        this._navigator.stateService.moveTo(position);
                     }
                 });
 
@@ -381,36 +403,15 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 (sliderState: SliderState): boolean => {
                     return sliderState.domNeedsRender;
                 })
-            .map(
-                (sliderState: SliderState): IVNodeHash => {
-                    let sliderInput: vd.VNode = vd.h(
-                        "input.SliderControl",
-                        {
-                            max: 1000,
-                            min: 0,
-                            oninput: (e: Event): void => {
-                                const curtain: number = Number((<HTMLInputElement>e.target).value) / 1000;
-                                this._navigator.stateService.moveTo(curtain);
-                            },
-                            type: "range",
-                            value: 1000 * sliderState.curtain,
-                        },
-                        []);
+            .subscribe(
+                (sliderState: SliderState): void => {
+                    this._sliderControl.value = (1000 * sliderState.curtain).toString();
 
-                    let vNode: vd.VNode = sliderState.disabled || !sliderState.sliderVisible ?
-                        null :
-                        vd.h("div.SliderWrapper", {}, [sliderInput]);
-
-                    let hash: IVNodeHash = {
-                        name: this._name,
-                        vnode: vNode,
-                    };
+                    const visibility: string = sliderState.disabled || !sliderState.sliderVisible ? "hidden" : "visible";
+                    this._sliderControl.style.visibility = visibility;
 
                     sliderState.clearDomNeedsRender();
-
-                    return hash;
-                })
-            .subscribe(this._container.domRenderer.render$);
+                });
 
         this._sliderStateCreator$.next(null);
 
@@ -568,6 +569,16 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._nodeSubscription.unsubscribe();
 
         this.configure({ keys: null });
+
+        this._sliderControl.removeEventListener("input", this._moveToHandler);
+        this._sliderControl.removeEventListener("change", this._moveToHandler);
+
+        this._container.element.removeChild(this._sliderContainer);
+
+        this._moveToHandler = null;
+        this._sliderControl = null;
+        this._sliderWrapper = null;
+        this._sliderContainer = null;
     }
 
     protected _getDefaultConfiguration(): ISliderConfiguration {
@@ -582,6 +593,20 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
                     return Observable.empty<Node>();
                 });
+    }
+
+    private _createElement(tagName: string, className: string, container: HTMLElement): HTMLElement {
+        const element: HTMLElement = document.createElement(tagName);
+
+        if (!!className) {
+            element.className = className;
+        }
+
+        if (!!container) {
+            container.appendChild(element);
+        }
+
+        return element;
     }
 }
 
