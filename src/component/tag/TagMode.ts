@@ -1,9 +1,8 @@
-
 export enum TagMode {
     Default,
-    Point,
-    Polygon,
-    Rect,
+    CreatePoint,
+    CreatePolygon,
+    CreateRect,
 }
 
 export default TagMode;

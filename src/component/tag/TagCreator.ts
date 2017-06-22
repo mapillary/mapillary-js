@@ -54,7 +54,7 @@ export class TagCreator {
             .map(
                 ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
-                        if (conf.mode === TagMode.Rect) {
+                        if (conf.mode === TagMode.CreateRect) {
                             let geometry: RectGeometry = new RectGeometry([
                                 coord[0],
                                 coord[1],
@@ -63,7 +63,7 @@ export class TagCreator {
                             ]);
 
                             return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
-                        } else if (conf.mode === TagMode.Polygon) {
+                        } else if (conf.mode === TagMode.CreatePolygon) {
                             let geometry: PolygonGeometry = new PolygonGeometry([
                                 [coord[0], coord[1]],
                                 [coord[0], coord[1]],

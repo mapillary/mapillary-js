@@ -487,8 +487,8 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._createSubscription = creatingStarted$
             .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
-                    return configuration.mode === TagMode.Rect ||
-                        configuration.mode === TagMode.Polygon ?
+                    return configuration.mode === TagMode.CreateRect ||
+                        configuration.mode === TagMode.CreatePolygon ?
                         this._validBasicClick$.take(1) :
                         Observable.empty<number[]>();
                 })
@@ -497,7 +497,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._createPointSubscription = creatingStarted$
             .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
-                    return configuration.mode === TagMode.Point ?
+                    return configuration.mode === TagMode.CreatePoint ?
                         this._validBasicClick$.take(1) :
                         Observable.empty<number[]>();
                 })
@@ -551,7 +551,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._addPointSubscription = creatingStarted$
             .switchMap(
                 (configuration: ITagConfiguration): Observable<number[]> => {
-                    return configuration.mode === TagMode.Rect || configuration.mode === TagMode.Polygon ?
+                    return configuration.mode === TagMode.CreateRect || configuration.mode === TagMode.CreatePolygon ?
                         this._basicClick$.skipUntil(this._validBasicClick$).skip(1) :
                         Observable.empty<number[]>();
                 })
