@@ -17,6 +17,53 @@ import {
 } from "../../../Render";
 import {Alignment} from "../../../Viewer";
 
+/**
+ * @class Popup
+ *
+ * @classdesc Popup instance for rendering custom HTML content
+ * on top of images. Popups are based on 2D basic image coordinates
+ * (see the {Viewer} class documentation for more information about coordinate
+ * systems) and a certain popup is therefore only relevant to a single image.
+ * Popups related to a certain image should be removed when moving
+ * to another image.
+ *
+ * A popup must have both its content and its point or rect set to be
+ * rendered. Popup options can not be updated after creation but the
+ * basic point or rect as well as its content can be changed by calling
+ * the appropriate methods.
+ *
+ * To create and add one `Popup` with default configuration
+ * (tooltip visuals and automatic float) and one with specific options
+ * use
+ *
+ * @example
+ * ```
+ * var defaultSpan = document.createElement('span');
+ * defaultSpan.innerHTML = 'hello default';
+ *
+ * var defaultPopup = new Mapillary.PopupComponent.Popup();
+ * defaultPopup.setDOMContent(defaultSpan);
+ * defaultPopup.setBasicPoint([0.3, 0.3]);
+ *
+ * var cleanSpan = document.createElement('span');
+ * cleanSpan.innerHTML = 'hello clean';
+ *
+ * var cleanPopup = new Mapillary.PopupComponent.Popup({
+ *     clean: true,
+ *     float: Mapillary.Alignment.Top,
+ *     offset: 10,
+ *     opacity: 0.7,
+ * });
+ *
+ * cleanPopup.setDOMContent(cleanSpan);
+ * cleanPopup.setBasicPoint([0.6, 0.6]);
+ *
+ * popupComponent.add([defaultPopup, cleanPopup]);
+ * ```
+ *
+ * @description Implementation of API methods and API documentation inspired
+ * by/used from https://github.com/mapbox/mapbox-gl-js/blob/v0.38.0/src/ui/popup.js
+ */
 export class Popup {
     protected _notifyChanged$: Subject<Popup>;
 
@@ -47,10 +94,22 @@ export class Popup {
         this._notifyChanged$ = new Subject<Popup>();
     }
 
+    /**
+     * @ignore
+     *
+     * @description Internal observable used by the component to
+     * render the popup when its position or content has changed.
+     */
     public get changed$(): Observable<Popup> {
         return this._notifyChanged$;
     }
 
+    /**
+     * @ignore
+     *
+     * @description Internal method used by the component to
+     * remove all references to the popup.
+     */
     public remove(): void {
         if (this._content && this._content.parentNode) {
             this._content.parentNode.removeChild(this._content);
@@ -66,6 +125,23 @@ export class Popup {
         }
     }
 
+    /**
+     * Sets a 2D basic image coordinates point to the popup's anchor, and
+     * moves the popup to it.
+     *
+     * @description Overwrites any previously set point or rect.
+     *
+     * @param {Array<number>} basicPoint - Point in 2D basic image coordinates.
+     *
+     * @example
+     * ```
+     * var popup = new Mapillary.PopupComponent.Popup();
+     * popup.setText('hello image');
+     * popup.setBasicPoint([0.3, 0.3]);
+     *
+     * popupComponent.add([popup]);
+     * ```
+     */
     public setBasicPoint(basicPoint: number[]): void {
         this._point = basicPoint.slice();
         this._rect = null;
@@ -73,6 +149,24 @@ export class Popup {
         this._notifyChanged$.next(this);
     }
 
+    /**
+     * Sets a 2D basic image coordinates rect to the popup's anchor, and
+     * moves the popup to it.
+     *
+     * @description Overwrites any previously set point or rect.
+     *
+     * @param {Array<number>} basicRect - Rect in 2D basic image
+     * coordinates ([topLeftX, topLeftY, bottomRightX, bottomRightY]) .
+     *
+     * @example
+     * ```
+     * var popup = new Mapillary.PopupComponent.Popup();
+     * popup.setText('hello image');
+     * popup.setBasicRect([0.3, 0.3, 0.5, 0.6]);
+     *
+     * popupComponent.add([popup]);
+     * ```
+     */
     public setBasicRect(basicRect: number[]): void {
         this._rect = basicRect.slice();
         this._point = null;
@@ -80,6 +174,23 @@ export class Popup {
         this._notifyChanged$.next(this);
     }
 
+    /**
+     * Sets the popup's content to the element provided as a DOM node.
+     *
+     * @param {Node} htmlNode - A DOM node to be used as content for the popup.
+     *
+     * @example
+     * ```
+     * var div = document.createElement('div');
+     * div.innerHTML = 'hello image';
+     *
+     * var popup = new Mapillary.PopupComponent.Popup();
+     * popup.setDOMContent(div);
+     * popup.setBasicPoint([0.3, 0.3]);
+     *
+     * popupComponent.add([popup]);
+     * ```
+     */
     public setDOMContent(htmlNode: Node): void {
         if (this._content && this._content.parentNode) {
             this._content.parentNode.removeChild(this._content);
@@ -93,6 +204,24 @@ export class Popup {
         this._notifyChanged$.next(this);
     }
 
+    /**
+     * Sets the popup's content to the HTML provided as a string.
+     *
+     * @description This method does not perform HTML filtering or sanitization,
+     * and must be used only with trusted content. Consider Popup#setText if the
+     * content is an untrusted text string.
+     *
+     * @param {string} html - A string representing HTML content for the popup.
+     *
+     * @example
+     * ```
+     * var popup = new Mapillary.PopupComponent.Popup();
+     * popup.setHTML('<div>hello image</div>');
+     * popup.setBasicPoint([0.3, 0.3]);
+     *
+     * popupComponent.add([popup]);
+     * ```
+     */
     public setHTML(html: string): void {
         const frag: DocumentFragment = document.createDocumentFragment();
         const temp: HTMLBodyElement = document.createElement("body");
@@ -111,14 +240,43 @@ export class Popup {
         this.setDOMContent(frag);
     }
 
+    /**
+     * Sets the popup's content to a string of text.
+     *
+     * @description This function creates a Text node in the DOM, so it cannot insert raw HTML.
+     * Use this method for security against XSS if the popup content is user-provided.
+     *
+     * @param {string} text - Textual content for the popup.
+     *
+     * @example
+     * ```
+     * var popup = new Mapillary.PopupComponent.Popup();
+     * popup.setText('hello image');
+     * popup.setBasicPoint([0.3, 0.3]);
+     *
+     * popupComponent.add([popup]);
+     * ```
+     */
     public setText(text: string): void {
         this.setDOMContent(document.createTextNode(text));
     }
 
+    /**
+     * @ignore
+     *
+     * @description Internal method for attaching the popup to
+     * its parent container so that it is rendered in the DOM tree.
+     */
     public setParentContainer(parentContainer: HTMLElement): void {
         this._parentContainer = parentContainer;
     }
 
+    /**
+     * @ignore
+     *
+     * @description Internal method for updating the rendered
+     * position of the popup called by the popup component.
+     */
     public update(renderCamera: RenderCamera, size: ISize, transform: Transform): void {
         if (!this._parentContainer || !this._content) {
             return;

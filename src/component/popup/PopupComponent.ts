@@ -18,6 +18,29 @@ import {
     Navigator,
 } from "../../Viewer";
 
+/**
+ * @class PopupComponent
+ *
+ * @classdesc Component for showing HTML popup objects.
+ *
+ * The `add` method is used for adding new popups. Popups are removed by reference.
+ *
+ * It is not possible to update popups in the set by updating any properties
+ * directly on the popup object. Popups need to be replaced by
+ * removing them and creating new ones with relevant changed properties and
+ * adding those instead.
+ *
+ * Popups are only relevant to a single image because they are based on
+ * 2D basic image coordinates. Popups related to a certain image should
+ * be removed when the viewer is moved to another node.
+ *
+ * To retrive and use the popup component
+ *
+ * @example
+ * ```
+ * var popupComponent = viewer.getComponent("popup");
+ * ```
+ */
 export class PopupComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "popup";
 
@@ -39,6 +62,17 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         this._popups$ = new Subject<Popup[]>();
     }
 
+    /**
+     * Add popups to the popups set.
+     *
+     * @description Adding a new popup never replaces an old one
+     * because they are stored by reference. Adding an already
+     * existing popup has no effect.
+     *
+     * @param {Array<Popup>} popups - Popups to add.
+     *
+     * @example ```popupComponent.add([popup1, popup2]);```
+     */
     public add(popups: Popup[]): void {
         for (const popup of popups) {
             this._popups.push(popup);
@@ -52,10 +86,22 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         this._popups$.next(this._popups);
     }
 
+    /**
+     * Returns an array of all popups.
+     *
+     * @example ```var popups = popupComponent.getAll();```
+     */
     public getAll(): Popup[] {
         return this._popups.slice();
     }
 
+    /**
+     * Remove popups based on reference from the popup set.
+     *
+     * @param {Array<Popup>} popups - Popups to remove.
+     *
+     * @example ```popupComponent.remove([popup1, popup2]);```
+     */
     public remove(popups: Popup[]): void {
         for (const popup of popups) {
             this._remove(popup);
@@ -64,6 +110,11 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         this._popups$.next(this._popups);
     }
 
+    /**
+     * Remove all popups from the popup set.
+     *
+     * @example ```popupComponent.removeAll();```
+     */
     public removeAll(): void {
         for (const popup of this._popups.slice()) {
             this._remove(popup);
