@@ -459,7 +459,7 @@ describe("ViewportCoords.worldToCamera", () => {
         const point3d: number[] = [10, 20, 30];
 
         let perspectiveCamera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();
-        perspectiveCamera.matrixWorld = new THREE.Matrix4().identity();
+        perspectiveCamera.matrixWorldInverse = new THREE.Matrix4().identity();
 
         const pointCamera: number[] = viewportCoords.worldToCamera(point3d, perspectiveCamera);
 
@@ -472,7 +472,7 @@ describe("ViewportCoords.worldToCamera", () => {
         const point3d: number[] = [10, 20, 30];
 
         let perspectiveCamera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();
-        perspectiveCamera.matrixWorld = new THREE.Matrix4().makeScale(-1, -1, -1);
+        perspectiveCamera.matrixWorldInverse = new THREE.Matrix4().makeScale(-1, -1, -1);
 
         const pointCamera: number[] = viewportCoords.worldToCamera(point3d, perspectiveCamera);
 
@@ -491,7 +491,7 @@ describe("ViewportCoords.basicToCanvasSafe", () => {
 
     it("should be null when behind camera", () => {
         const perspectiveCamera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();
-        perspectiveCamera.matrixWorld = new THREE.Matrix4().identity();
+        perspectiveCamera.matrixWorldInverse = new THREE.Matrix4().identity();
 
         const transform: Transform = transformHelper.createTransform();
         spyOn(transform, "unprojectBasic").and.returnValue([1, 1, 1]);
@@ -512,7 +512,7 @@ describe("ViewportCoords.basicToCanvasSafe", () => {
 
     it("should not be null when in front of camera", () => {
         const perspectiveCamera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();
-        perspectiveCamera.matrixWorld = new THREE.Matrix4().makeScale(-1, -1, -1);
+        perspectiveCamera.matrixWorldInverse = new THREE.Matrix4().makeScale(-1, -1, -1);
 
         const transform: Transform = transformHelper.createTransform();
         spyOn(transform, "unprojectBasic").and.returnValue([1, 1, 1]);

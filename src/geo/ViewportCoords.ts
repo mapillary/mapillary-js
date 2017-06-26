@@ -502,18 +502,16 @@ export class ViewportCoords {
      * Convert 3D world coordinates to 3D camera coordinates.
      *
      * @param {number} point3D - 3D point in world coordinate system.
-     * @param {THREE.PerspectiveCamera} perspectiveCamera - Perspective camera used in rendering.
+     * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} 3D camera coordinates.
      */
     public worldToCamera(
         point3d: number[],
-        perspectiveCamera: THREE.PerspectiveCamera): number[] {
-
-        const matrixWorldInverse: THREE.Matrix4 =
-            new THREE.Matrix4().getInverse(perspectiveCamera.matrixWorld);
+        camera: THREE.Camera): number[] {
 
         const pointCamera: THREE.Vector3 =
-            new THREE.Vector3(point3d[0], point3d[1], point3d[2]).applyMatrix4(matrixWorldInverse);
+            new THREE.Vector3(point3d[0], point3d[1], point3d[2])
+                .applyMatrix4(camera.matrixWorldInverse);
 
         return pointCamera.toArray();
     }
