@@ -3,7 +3,14 @@ import {Transform} from "../../../Geo";
 
 /**
  * @class RectGeometry
- * @classdesc Represents a rectangle geometry in the basic coordinate system.
+ *
+ * @classdesc Represents a rectangle geometry in the 2D basic image coordinate system.
+ *
+ * @example
+ * ```
+ * var basicRect = [0.5, 0.3, 0.7, 0.4];
+ * var rectGeometry = new Mapillary.TagComponent.RectGeometry(basicRect);
+ * ```
  */
 export class RectGeometry extends VertexGeometry {
     private _rect: number[];

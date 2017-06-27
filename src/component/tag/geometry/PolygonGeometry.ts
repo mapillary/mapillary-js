@@ -3,7 +3,15 @@ import {Transform} from "../../../Geo";
 
 /**
  * @class PolygonGeometry
- * @classdesc Represents a polygon geometry in the basic coordinate system.
+ *
+ * @classdesc Represents a polygon geometry in the 2D basic image coordinate system.
+ * All polygons and holes provided to the constructor needs to be closed.
+ *
+ * @example
+ * ```
+ * var basicPolygon = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5], [0.5, 0.3]];
+ * var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
+ * ```
  */
 export class PolygonGeometry extends VertexGeometry {
     private _polygon: number[][];

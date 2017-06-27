@@ -68,17 +68,57 @@ import {
 
 /**
  * @class TagComponent
- * @classdesc Component for showing and editing 2D tags with different geometries.
+ *
+ * @classdesc Component for showing and editing tags with different
+ * geometries composed from 2D basic image coordinates (see the
+ * {@link Viewer} class documentation for more information about coordinate
+ * systems).
+ *
+ * The `add` method is used for adding new tags or replacing
+ * tags already in the set. Tags are removed by id.
+ *
+ * If a tag already in the set has the same
+ * id as one of the tags added, the old tag will be removed and
+ * the added tag will take its place.
+ *
+ * The tag component mode can be set to either be non interactive or
+ * to be in creating mode of a certain geometry type.
+ *
+ * The tag properties can be updated at any time and the change will
+ * be visibile immediately.
+ *
+ * Tags are only relevant to a single image because they are based on
+ * 2D basic image coordinates. Tags related to a certain image should
+ * be removed when the viewer is moved to another node.
+ *
+ * To retrive and use the tag component
+ *
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer(
+ *     "<element-id>",
+ *     "<client-id>",
+ *     "<my key>",
+ *     { component: { tag: true } });
+ *
+ * var tagComponent = viewer.getComponent("tag");
+ * ```
  */
 export class TagComponent extends Component<ITagConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "tag";
 
     /**
-     * Event fired when creation starts and stops.
+     * Event fired when the create mode is changed.
      *
      * @event TagComponent#modechanged
-     * @type {boolean} Indicates whether the component is creating a tag.
+     * @type {TagMode} Tag mode
+     * @example
+     * ```
+     * tagComponent.on("modechanged", function(mode) {
+     *     console.log(mode);
+     * });
+     * ```
      */
     public static modechanged: string = "modechanged";
 
@@ -87,6 +127,12 @@ export class TagComponent extends Component<ITagConfiguration> {
      *
      * @event TagComponent#geometrycreated
      * @type {Geometry} Created geometry.
+     * @example
+     * ```
+     * tagComponent.on("geometrycreated", function(geometry) {
+     *     console.log(geometry);
+     * });
+     * ```
      */
     public static geometrycreated: string = "geometrycreated";
 
@@ -95,6 +141,12 @@ export class TagComponent extends Component<ITagConfiguration> {
      *
      * @event TagComponent#tagschanged
      * @type {TagComponent} Tag component.
+     * @example
+     * ```
+     * tagComponent.on("tagschanged", function(component) {
+     *     console.log(component.getAll());
+     * });
+     * ```
      */
     public static tagschanged: string = "tagschanged";
 
@@ -358,6 +410,17 @@ export class TagComponent extends Component<ITagConfiguration> {
                 });
     }
 
+    /**
+     * Add tags to the tag set or replace tags in the tag set.
+     *
+     * @description If a tag already in the set has the same
+     * id as one of the tags added, the old tag will be removed
+     * the added tag will take its place.
+     *
+     * @param {Array<Tag>} tags - Tags to add.
+     *
+     * @example ```tagComponent.add([tag1, tag2]);```
+     */
     public add(tags: Tag[]): void {
         if (this._activated) {
             this._navigator.stateService.currentTransform$
@@ -379,10 +442,29 @@ export class TagComponent extends Component<ITagConfiguration> {
         }
     }
 
+    /**
+     * Change the current tag mode.
+     *
+     * @description Change the tag mode to one of the create modes for creating new geometries.
+     *
+     * @param {TagMode} mode - New tag mode.
+     *
+     * @fires TagComponent#modechanged
+     *
+     * @example ```tagComponent.changeMode(Mapillary.TagComponent.TagMode.CreateRect);```
+     */
     public changeMode(mode: TagMode): void {
         this.configure({ mode: mode });
     }
 
+    /**
+     * Returns the tag in the tag set with the specified id, or
+     * undefined if the id matches no tag.
+     *
+     * @param {string} tagId - Id of the tag.
+     *
+     * @example ```var tag = tagComponent.get("tagId");```
+     */
     public get(tagId: string): Tag {
         if (this._activated) {
             const renderTag: RenderTag<Tag> = this._tagSet.get(tagId);
@@ -392,6 +474,11 @@ export class TagComponent extends Component<ITagConfiguration> {
         }
     }
 
+    /**
+     * Returns an array of all tags.
+     *
+     * @example ```var tags = tagComponent.getAll();```
+     */
     public getAll(): Tag[] {
         if (this.activated) {
             return this._tagSet
@@ -405,10 +492,24 @@ export class TagComponent extends Component<ITagConfiguration> {
         }
     }
 
+    /**
+     * Check if a tag exist in the tag set.
+     *
+     * @param {string} tagId - Id of the tag.
+     *
+     * @example ```var tagExists = tagComponent.has("tagId");```
+     */
     public has(tagId: string): boolean {
         return this._activated ? this._tagSet.has(tagId) : this._tagSet.hasDeactivated(tagId);
     }
 
+    /**
+     * Remove tags with the specified ids from the tag set.
+     *
+     * @param {Array<string>} tagIds - Ids for tags to remove.
+     *
+     * @example ```tagComponent.remove(["id-1", "id-2"]);```
+     */
     public remove(tagIds: string[]): void {
         if (this._activated) {
             this._tagSet.remove(tagIds);
@@ -418,6 +519,11 @@ export class TagComponent extends Component<ITagConfiguration> {
         }
     }
 
+    /**
+     * Remove all tags from the tag set.
+     *
+     * @example ```tagComponent.removeAll();```
+     */
     public removeAll(): void {
         if (this._activated) {
             this._tagSet.removeAll();

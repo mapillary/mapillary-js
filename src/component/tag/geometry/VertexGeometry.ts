@@ -30,6 +30,7 @@ export abstract class VertexGeometry extends Geometry {
      * the geometry.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates
      * representing the geometry.
+     * @ignore
      */
     public abstract getPoints3d(transform: Transform): number[][];
 
@@ -40,6 +41,7 @@ export abstract class VertexGeometry extends Geometry {
      * @param transform - The transform of the node related to
      * the geometry.
      * @returns {Array<number>} 3D coordinates for the pole of inaccessibility.
+     * @ignore
      */
     public abstract getPoleOfAccessibility3d(transform: Transform): number[];
 
@@ -51,6 +53,7 @@ export abstract class VertexGeometry extends Geometry {
      * @param {Transform} transform - The transform of the node related to the geometry.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
      * the vertices of the geometry.
+     * @ignore
      */
     public abstract getVertex3d(index: number, transform: Transform): number[];
 
@@ -60,6 +63,7 @@ export abstract class VertexGeometry extends Geometry {
      * @param {Transform} transform - The transform of the node related to the geometry.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
      * the vertices of the geometry.
+     * @ignore
      */
     public abstract getVertices3d(transform: Transform): number[][];
 
@@ -69,6 +73,7 @@ export abstract class VertexGeometry extends Geometry {
      *
      * @param {Transform} transform - The transform of the node related to the geometry.
      * @returns {Array<number>} Flattened array of 3D world coordinates of the triangles.
+     * @ignore
      */
     public abstract getTriangles3d(transform: Transform): number[];
 
@@ -81,6 +86,7 @@ export abstract class VertexGeometry extends Geometry {
      * @param {number} index - The index of the vertex to be set.
      * @param {Array<number>} value - The new value of the vertex.
      * @param {Transform} transform - The transform of the node related to the geometry.
+     * @ignore
      */
     public abstract setVertex2d(index: number, value: number[], transform: Transform): void;
 
@@ -90,6 +96,7 @@ export abstract class VertexGeometry extends Geometry {
      *
      * @param {Array<Array<number>>} points2d - 2d points of outline to triangulate.
      * @returns {Array<number>} Point of inaccessibility.
+     * @ignore
      */
     protected _getPoleOfInaccessibility2d(points2d: number[][]): number[] {
         let pole2d: number[] = polylabel([points2d], 3e-2);
@@ -106,6 +113,7 @@ export abstract class VertexGeometry extends Geometry {
      * @param {Array<Array<Array<number>>>} [holes2d] - 2d points of holes to triangulate.
      * @param {Array<Array<Array<number>>>} [holes3d] - 3d points of holes corresponding to the 2d points.
      * @returns {Array<number>} Flattened array of 3d points ordered based on the triangles.
+     * @ignore
      */
     protected _triangulate(
         points2d: number[][],

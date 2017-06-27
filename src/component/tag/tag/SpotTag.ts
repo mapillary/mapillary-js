@@ -6,7 +6,19 @@ import {
 
 /**
  * @class SpotTag
+ *
  * @classdesc Tag holding properties for visualizing the centroid of a geometry.
+ *
+ * @example
+ * ```
+ * var geometry = new Mapillary.TagComponent.PointGeometry([0.3, 0.3]);
+ * var tag = new Mapillary.TagComponent.SpotTag(
+ *     "id-1",
+ *     geometry
+ *     { editable: true, color: 0xff0000 });
+ *
+ * tagComponent.add([tag]);
+ * ```
  */
 export class SpotTag extends Tag {
     protected _geometry: Geometry;

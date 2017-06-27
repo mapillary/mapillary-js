@@ -22,7 +22,7 @@ import {Alignment} from "../../../Viewer";
  *
  * @classdesc Popup instance for rendering custom HTML content
  * on top of images. Popups are based on 2D basic image coordinates
- * (see the {Viewer} class documentation for more information about coordinate
+ * (see the {@link Viewer} class documentation for more information about coordinate
  * systems) and a certain popup is therefore only relevant to a single image.
  * Popups related to a certain image should be removed when moving
  * to another image.

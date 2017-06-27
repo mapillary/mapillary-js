@@ -82,6 +82,7 @@ export abstract class Tag extends EventEmitter {
     /**
      * Get changed observable.
      * @returns {Observable<Tag>}
+     * @ignore
      */
     public get changed$(): Observable<Tag> {
         return this._notifyChanged$;
@@ -90,6 +91,7 @@ export abstract class Tag extends EventEmitter {
     /**
      * Get geometry changed observable.
      * @returns {Observable<Tag>}
+     * @ignore
      */
     public get geometryChanged$(): Observable<Tag> {
         return this._geometry.changed$

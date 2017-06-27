@@ -9,7 +9,19 @@ import {Alignment} from "../../../Viewer";
 
 /**
  * @class OutlineTag
+ *
  * @classdesc Tag holding properties for visualizing a geometry outline.
+ *
+ * @example
+ * ```
+ * var geometry = new Mapillary.TagComponent.RectGeometry([0.3, 0.3, 0.5, 0.4]);
+ * var tag = new Mapillary.TagComponent.OutlineTag(
+ *     "id-1",
+ *     geometry
+ *     { editable: true, lineColor: 0xff0000 });
+ *
+ * tagComponent.add([tag]);
+ * ```
  */
 export class OutlineTag extends Tag {
     /**
@@ -321,7 +333,7 @@ export class OutlineTag extends Tag {
     /**
      * Set options for tag.
      *
-     * @description Sets all the option properties provided and keps
+     * @description Sets all the option properties provided and keeps
      * the rest of the values as is.
      *
      * @param {IOutlineTagOptions} options - Outline tag options

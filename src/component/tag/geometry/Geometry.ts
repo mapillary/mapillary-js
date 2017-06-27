@@ -27,6 +27,7 @@ export abstract class Geometry {
      * has changed.
      *
      * @returns {Observable<Geometry>} Observable emitting the geometry instance.
+     * @ignore
      */
     public get changed$(): Observable<Geometry> {
         return this._notifyChanged$;
@@ -37,6 +38,7 @@ export abstract class Geometry {
      *
      * @param {Transform} transform - The transform of the node related to the geometry.
      * @returns {Array<number>} 3D world coordinates representing the centroid.
+     * @ignore
      */
     public abstract getCentroid3d(transform: Transform): number[];
 
@@ -45,6 +47,7 @@ export abstract class Geometry {
      *
      * @param {Array<number>} value - The new value of the centroid in basic coordinates.
      * @param {Transform} transform - The transform of the node related to the geometry.
+     * @ignore
      */
     public abstract setCentroid2d(value: number[], transform: Transform): void;
 }

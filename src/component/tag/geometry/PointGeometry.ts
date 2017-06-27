@@ -3,7 +3,14 @@ import {Transform} from "../../../Geo";
 
 /**
  * @class PointGeometry
- * @classdesc Represents a point geometry in the basic coordinate system.
+ *
+ * @classdesc Represents a point geometry in the 2D basic image coordinate system.
+ *
+ * @example
+ * ```
+ * var basicPoint = [0.5, 0.7];
+ * var pointGeometry = new Mapillary.TagComponent.PointGeometry(basicPoint);
+ * ```
  */
 export class PointGeometry extends Geometry {
     private _point: number[];

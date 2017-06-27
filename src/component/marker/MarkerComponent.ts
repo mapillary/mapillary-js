@@ -51,7 +51,7 @@ import {
  * markers already in the set.
  *
  * If a marker already in the set has the same
- * id as one of the markers added, the old marker will be removed
+ * id as one of the markers added, the old marker will be removed and
  * the added marker will take its place.
  *
  * It is not possible to update markers in the set by updating any properties
@@ -168,17 +168,6 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     }
 
     /**
-     * Check if a marker exist in the marker set.
-     *
-     * @param {string} markerId - Id of the marker.
-     *
-     * @example ```var markerExists = markerComponent.has("markerId");```
-     */
-    public has(markerId: string): boolean {
-        return this._markerSet.has(markerId);
-    }
-
-    /**
      * Returns the marker in the marker set with the specified id, or
      * undefined if the id matches no marker.
      *
@@ -248,6 +237,17 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         reject(error);
                     });
         });
+    }
+
+    /**
+     * Check if a marker exist in the marker set.
+     *
+     * @param {string} markerId - Id of the marker.
+     *
+     * @example ```var markerExists = markerComponent.has("markerId");```
+     */
+    public has(markerId: string): boolean {
+        return this._markerSet.has(markerId);
     }
 
     /**
