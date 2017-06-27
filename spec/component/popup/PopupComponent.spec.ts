@@ -105,6 +105,43 @@ describe("PopupComponent.add", () => {
         expect(result.indexOf(popup1)).not.toBe(-1);
         expect(result.indexOf(popup2)).not.toBe(-1);
     });
+
+    it("should not add popup if already existing", () => {
+        const popupComponent: PopupComponent =
+            new PopupComponent(
+                PopupComponent.componentName,
+                new ContainerMockCreator().createMock(),
+                new NavigatorMockCreator().createMock());
+
+        const popup: Popup = new Popup();
+        popup.setDOMContent(document.createElement("div"));
+
+        popupComponent.add([popup]);
+        popupComponent.add([popup]);
+
+        const result: Popup[] = popupComponent.getAll();
+
+        expect(result.length).toBe(1);
+        expect(result[0]).toEqual(popup);
+    });
+
+    it("should not add the same popup twice", () => {
+        const popupComponent: PopupComponent =
+            new PopupComponent(
+                PopupComponent.componentName,
+                new ContainerMockCreator().createMock(),
+                new NavigatorMockCreator().createMock());
+
+        const popup: Popup = new Popup();
+        popup.setDOMContent(document.createElement("div"));
+
+        popupComponent.add([popup, popup]);
+
+        const result: Popup[] = popupComponent.getAll();
+
+        expect(result.length).toBe(1);
+        expect(result[0]).toEqual(popup);
+    });
 });
 
 describe("PopupComponent.remove", () => {

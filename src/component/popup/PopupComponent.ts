@@ -81,6 +81,10 @@ export class PopupComponent extends Component<IComponentConfiguration> {
      */
     public add(popups: Popup[]): void {
         for (const popup of popups) {
+            if (this._popups.indexOf(popup) !== -1) {
+                continue;
+            }
+
             this._popups.push(popup);
 
             if (this._activated) {
