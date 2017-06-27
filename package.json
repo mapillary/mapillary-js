@@ -60,8 +60,13 @@
     "falcor": "./node_modules/falcor/dist/falcor.browser.min.js",
     "three": "./node_modules/three/build/three.min.js"
   },
+  "browserlist": [
+    "last 2 versions",
+    "safari 7",
+    "ie 11"
+  ],
   "scripts": {
-    "build-css": "cat styles/*.css | postcss --use autoprefixer --autoprefixer.browsers 'last 2 versions, safari 7, ie 11' --use cssnano -o dist/mapillary.min.css",
+    "build-css": "cat styles/*.css | postcss --use autoprefixer --use cssnano -o dist/mapillary.min.css",
     "build-dev": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug | exorcist dist/mapillary.js.map > dist/mapillary.js",
     "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary.js.map > dist/mapillary.js'",
     "build-docs": "typedoc --tsconfig tsconfig.docs.json --mode file --theme default --excludePrivate --excludeExternals --name MapillaryJS --out docs/",
