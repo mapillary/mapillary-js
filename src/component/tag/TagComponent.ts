@@ -359,20 +359,24 @@ export class TagComponent extends Component<ITagConfiguration> {
     }
 
     public add(tags: Tag[]): void {
-        this._navigator.stateService.currentTransform$
-            .first()
-            .subscribe(
-                (transform: Transform): void => {
-                    this._tagSet.add(tags, transform);
+        if (this._activated) {
+            this._navigator.stateService.currentTransform$
+                .first()
+                .subscribe(
+                    (transform: Transform): void => {
+                        this._tagSet.add(tags, transform);
 
-                    const renderTags: RenderTag<Tag>[] = tags
-                        .map(
-                            (tag: Tag): RenderTag<Tag> => {
-                                return this._tagSet.get(tag.id);
-                            });
+                        const renderTags: RenderTag<Tag>[] = tags
+                            .map(
+                                (tag: Tag): RenderTag<Tag> => {
+                                    return this._tagSet.get(tag.id);
+                                });
 
-                    this._tagScene.add(renderTags);
-                });
+                        this._tagScene.add(renderTags);
+                    });
+        } else {
+            this._tagSet.addDeactivated(tags);
+        }
     }
 
     public changeMode(mode: TagMode): void {
@@ -380,32 +384,47 @@ export class TagComponent extends Component<ITagConfiguration> {
     }
 
     public get(tagId: string): Tag {
-        const renderTag: RenderTag<Tag> = this._tagSet.get(tagId);
-
-        return renderTag !== undefined ? renderTag.tag : undefined;
+        if (this._activated) {
+            const renderTag: RenderTag<Tag> = this._tagSet.get(tagId);
+            return renderTag !== undefined ? renderTag.tag : undefined;
+        } else {
+            return this._tagSet.getDeactivated(tagId);
+        }
     }
 
     public getAll(): Tag[] {
-        return this._tagSet
-            .getAll()
-            .map(
-                (renderTag: RenderTag<Tag>): Tag => {
-                    return renderTag.tag;
-                });
+        if (this.activated) {
+            return this._tagSet
+                .getAll()
+                .map(
+                    (renderTag: RenderTag<Tag>): Tag => {
+                        return renderTag.tag;
+                    });
+        } else {
+            return this._tagSet.getAllDeactivated();
+        }
     }
 
     public has(tagId: string): boolean {
-        return this._tagSet.has(tagId);
+        return this._activated ? this._tagSet.has(tagId) : this._tagSet.hasDeactivated(tagId);
     }
 
     public remove(tagIds: string[]): void {
-        this._tagSet.remove(tagIds);
-        this._tagScene.remove(tagIds);
+        if (this._activated) {
+            this._tagSet.remove(tagIds);
+            this._tagScene.remove(tagIds);
+        } else {
+            this._tagSet.removeDeactivated(tagIds);
+        }
     }
 
     public removeAll(): void {
-        this._tagSet.removeAll();
-        this._tagScene.removeAll();
+        if (this._activated) {
+            this._tagSet.removeAll();
+            this._tagScene.removeAll();
+        } else {
+            this._tagSet.removeAllDeactivated();
+        }
     }
 
     protected _activate(): void {

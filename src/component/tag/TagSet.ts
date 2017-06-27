@@ -16,13 +16,14 @@ import {
 import {Transform} from "../../Geo";
 
 export class TagSet {
-    private _deactivatedHash: { [id: string]: Tag };
     private _hash: { [id: string]: RenderTag<Tag> };
+    private _hashDeactivated: { [id: string]: Tag };
+
     private _notifyChanged$: Subject<TagSet>;
 
     constructor() {
-        this._deactivatedHash = {};
         this._hash = {};
+        this._hashDeactivated = {};
         this._notifyChanged$ = new Subject<TagSet>();
     }
 
@@ -31,16 +32,16 @@ export class TagSet {
     }
 
     public activate(transform: Transform): void {
-        for (const id in this._deactivatedHash) {
-            if (!this._deactivatedHash.hasOwnProperty(id)) {
+        for (const id in this._hashDeactivated) {
+            if (!this._hashDeactivated.hasOwnProperty(id)) {
                 continue;
             }
 
-            const tag: Tag = this._deactivatedHash[id];
+            const tag: Tag = this._hashDeactivated[id];
             this._add(tag, transform);
         }
 
-        this._deactivatedHash = {};
+        this._hashDeactivated = {};
 
         this._notifyChanged$.next(this);
     }
@@ -51,7 +52,7 @@ export class TagSet {
                 continue;
             }
 
-            this._deactivatedHash[id] = this._hash[id].tag;
+            this._hashDeactivated[id] = this._hash[id].tag;
         }
 
         this._hash = {};
@@ -63,6 +64,12 @@ export class TagSet {
         }
 
         this._notifyChanged$.next(this);
+    }
+
+    public addDeactivated(tags: Tag[]): void {
+        for (const tag of tags) {
+            this._hashDeactivated[tag.id] = tag;
+        }
     }
 
     public get(id: string): RenderTag<Tag> {
@@ -79,8 +86,26 @@ export class TagSet {
                 });
     }
 
+    public getAllDeactivated(): Tag[] {
+        const hashDeactivated: { [id: string]: Tag } = this._hashDeactivated;
+
+        return Object.keys(hashDeactivated)
+            .map(
+                (id: string): Tag => {
+                    return hashDeactivated[id];
+                });
+    }
+
+    public getDeactivated(id: string): Tag {
+        return this.hasDeactivated(id) ? this._hashDeactivated[id] : undefined;
+    }
+
     public has(id: string): boolean {
         return id in this._hash;
+    }
+
+    public hasDeactivated(id: string): boolean {
+        return id in this._hashDeactivated;
     }
 
     public remove(ids: string[]): void {
@@ -100,6 +125,21 @@ export class TagSet {
         this._hash = {};
 
         this._notifyChanged$.next(this);
+    }
+
+    public removeAllDeactivated(): void {
+        this._hashDeactivated = {};
+    }
+
+    public removeDeactivated(ids: string[]): void {
+        const hashDeactivated: { [id: string]: Tag } = this._hashDeactivated;
+        for (const id of ids) {
+            if (!(id in hashDeactivated)) {
+                continue;
+            }
+
+            delete hashDeactivated[id];
+        }
     }
 
     private _add(tag: Tag, transform: Transform): void {
