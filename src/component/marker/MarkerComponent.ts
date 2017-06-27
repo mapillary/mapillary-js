@@ -69,6 +69,12 @@ import {
  *
  * @example
  * ```
+ * var viewer = new Mapillary.Viewer(
+ *     "<element-id>",
+ *     "<client-id>",
+ *     "<my key>",
+ *     { component: { marker: true } });
+ *
  * var markerComponent = viewer.getComponent("marker");
  * ```
  */

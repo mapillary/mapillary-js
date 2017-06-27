@@ -187,7 +187,7 @@ export class Viewer extends EventEmitter {
      *
      * @example
      * ```
-     * var viewer = new Viewer("<element-id>", "<client-id>", "<my key>");
+     * var viewer = new Mapillary.Viewer("<element-id>", "<client-id>", "<my key>");
      * ```
      */
     constructor (id: string, clientId: string, key?: string, options?: IViewerOptions, token?: string) {

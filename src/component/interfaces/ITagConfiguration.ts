@@ -14,7 +14,7 @@ import {
  *         component: {
  *             tag: {
  *                 createColor: 0xFF0000,
- *                 mode: Mapillary.TagComponent.TagMode.Rect,
+ *                 mode: Mapillary.TagComponent.TagMode.CreateRect,
  *             },
  *         },
  *     })
