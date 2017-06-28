@@ -3,6 +3,7 @@
 import {Popup} from "../../../src/Component";
 import {ViewportCoords} from "../../../src/Geo";
 import {RenderCamera} from "../../../src/Render";
+import {Alignment} from "../../../src/Viewer";
 
 describe("Popup.ctor", () => {
     it("should be defined", () => {
@@ -147,5 +148,81 @@ describe("Popup.setDOMContent", () => {
         popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
         expect(parentContainer.querySelector(".mapillaryjs-popup-content").textContent)
             .toBe("Test 3");
+    });
+});
+
+describe("Popup.float", () => {
+    it("should float as specified by the float option", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ float: Alignment.TopLeft }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-top-left").length)
+            .toBe(1);
+    });
+});
+
+describe("Popup.opacity", () => {
+    it("should have opacity as specified by the opacity option", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ opacity: 0.5 }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        const opacity: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup"))
+            .style.opacity;
+
+        expect(opacity).toBe("0.5");
+    });
+});
+
+describe("Popup.clean", () => {
+    it("should be clean if specified by clean option", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ clean: true }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content-clean").length).toBe(1);
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content").length).toBe(0);
+    });
+
+    it("should not be clean if not specified by clean option", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({}, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content-clean").length).toBe(0);
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content").length).toBe(1);
     });
 });
