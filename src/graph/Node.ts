@@ -23,6 +23,30 @@ import {ImageSize} from "../Viewer";
  * @class Node
  *
  * @classdesc Represents a node in the navigation graph.
+ *
+ * Explanation of position and bearing properties:
+ *
+ * When images are uploaded they will have GPS information in the EXIF, this is what
+ * is called `originalLatLon`(@link Node#originalLatLon).
+ *
+ * When Structure from Motions has been run for a node a `computedLatLon` that
+ * differs from the `originalLatLon` will be created. It is different because
+ * GPS positions are not very exact and SfM aligns the camera positions according
+ * to the 3D reconstruction (@link Node#computedLatLon).
+ *
+ * At last there exist a `latLon` property which evaluates to
+ * the `computedLatLon` from SfM if it exists but falls back
+ * to the `originalLatLon` from the EXIF GPS otherwise (@link Node#latlon).
+ *
+ * Everything that is done in in the Viewer is based on the SfM positions,
+ * i.e. `computedLatLon`. That is why the smooth transitions go in the right
+ * direction (nd not in strange directions because of bad GPS).
+ *
+ * E.g. when placing a marker in the Viewer it is relative to the SfM
+ * position i.e. the `computedLatLon`.
+ *
+ * The same concept as above also applies to the compass angle (or bearing) properties
+ * `originalCa`, `computedCa` and `ca`.
  */
 export class Node {
     private _cache: NodeCache;
