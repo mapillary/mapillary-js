@@ -50,13 +50,16 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [Viewer options](https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a)
 - [Subscribe to node changed](https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820)
 - [Set filter](https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c)
+- [Change filters](https://bl.ocks.org/oscarlorentzon/10dad7582268312b1adac2c3a869c5c5)
 - [Get center and zoom](https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82)
 - [Set center and zoom](https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871)
+- [LatLon, computedLatLon and originalLatLon explained](https://bl.ocks.org/oscarlorentzon/16946cb9eedfad2a64669cb1121e6c75)
 - [Get bearing](https://bl.ocks.org/oscarlorentzon/ca9cee671156c685aca3e1f0f52a230e)
 
 ### Viewer and map
 - [MapillaryJS + ESRI JS API](https://bl.ocks.org/oscarlorentzon/a9bd5d6dadcc5df7e024a04a9600b043)
 - [MapillaryJS + Google Maps](https://bl.ocks.org/oscarlorentzon/fda7ce2bdae8499580b1f72d139103de)
+- [MapillaryJS + HERE Maps](https://bl.ocks.org/oscarlorentzon/520548974a5b184059553b75d3af8eb3)
 - [MapillaryJS + Leaflet](https://bl.ocks.org/oscarlorentzon/0a11029a5627028c445a38016c76fb3a)
 - [MapillaryJS + Leaflet ESRI](https://bl.ocks.org/oscarlorentzon/5a0b23ea8259db871bed2a724ee3afec)
 - [MapillaryJS + Leaflet Tangram](https://bl.ocks.org/oscarlorentzon/6f0d316fee85320c552a4ed6838566a2)
@@ -64,21 +67,32 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 
 ### Components
 
-#### Slider
-- [Compare photos](https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3)
-
-#### Route
-- [Storytelling](https://bl.ocks.org/oscarlorentzon/2a4041c93fb3711dc8dc53d1a217defe)
-
-#### Mouse
-- [Enable and disable mouse and touch handlers](https://bl.ocks.org/oscarlorentzon/37d28603212de2b8326bb65e49418368)
-
 #### Marker
 - [Configure marker style and behavior](https://bl.ocks.org/oscarlorentzon/e0806c8eebe0c67e681c20be95d546b9)
 - [Add and drag markers](https://bl.ocks.org/oscarlorentzon/b05a698c4a84c06c4af59ee1a2897a9f)
 - [Indicate hovered marker](https://bl.ocks.org/oscarlorentzon/d41678dd51e77ae909c0937ea6f6818d)
 - [Sync viewer and map markers](https://bl.ocks.org/oscarlorentzon/0ec42b32dd175ca4cc7518006b888d3a)
 - [Add one million interactive markers](https://bl.ocks.org/oscarlorentzon/999db12bc87c92d5c547b1e582989fc1)
+
+#### Mouse
+- [Enable and disable mouse and touch handlers](https://bl.ocks.org/oscarlorentzon/37d28603212de2b8326bb65e49418368)
+
+#### Popup
+- [Display a popup](https://bl.ocks.org/oscarlorentzon/54182e3f3624cdeb7ca960d96ebfa5fb)
+- [Display a configured popup](https://bl.ocks.org/oscarlorentzon/9e31ccdcf39b4b5fe1b739871c4d7b86)
+- [Relate popups to tags](https://bl.ocks.org/oscarlorentzon/84fc2d87f4aab1b8a434c96161e13509)
+
+#### Route
+- [Storytelling](https://bl.ocks.org/oscarlorentzon/2a4041c93fb3711dc8dc53d1a217defe)
+
+#### Slider
+- [Compare photos](https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3)
+
+#### Tag
+- [Show point, polygon and rect tags](https://bl.ocks.org/oscarlorentzon/04f46dcc3c1c08b8887ed681db0127c4)
+- [Configure point, polygon and rect tags](https://bl.ocks.org/oscarlorentzon/a9ad92a720d2f175c9ce7f3f982ac59f)
+- [Create tags](https://bl.ocks.org/oscarlorentzon/94539cefc33296ab6f28e3a83ecdccf1)
+- [Listen to geometry changes](https://bl.ocks.org/oscarlorentzon/d19b3387b7671be59f4add09f67c3b63)
 
 ## Documentation
 
