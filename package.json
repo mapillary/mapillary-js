@@ -60,7 +60,7 @@
     "falcor": "./node_modules/falcor/dist/falcor.browser.min.js",
     "three": "./node_modules/three/build/three.min.js"
   },
-  "browserlist": [
+  "browserslist": [
     "last 2 versions",
     "safari 7",
     "ie 11"
