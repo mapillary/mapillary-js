@@ -1,3 +1,5 @@
+Thanks in advance for contributing to MapillaryJS. Please follow the conventions below when submitting an issue or pull request.
+
 ## Preparing your Development Environment
 
 ### Linux
@@ -69,3 +71,8 @@ python -m SimpleHTTPServer
 ````
 
 Open the docs page at [http://localhost:8000/docs](http://localhost:8000/docs).
+
+## Commit conventions
+
+We use the standardized commit messages according to [Conventional Commits](https://conventionalcommits.org/) with the additional types in the Angular convention.
+
