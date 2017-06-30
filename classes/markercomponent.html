@@ -75,7 +75,7 @@
 							<p>The <code>add</code> method is used for adding new markers or replacing
 							markers already in the set.</p>
 							<p>If a marker already in the set has the same
-								id as one of the markers added, the old marker will be removed
+								id as one of the markers added, the old marker will be removed and
 							the added marker will take its place.</p>
 							<p>It is not possible to update markers in the set by updating any properties
 								directly on the marker object. Markers need to be replaced by
@@ -89,7 +89,13 @@
 							<p>To retrive and use the marker component</p>
 						</dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-attribute">var markerComponent</span> = viewer.getComponent(<span class="hljs-string">"marker"</span>);
+						<dd><pre><code><span class="hljs-keyword">var</span> viewer = <span class="hljs-keyword">new</span> Mapillary.Viewer(
+    <span class="hljs-string">"&lt;element-id&gt;"</span>,
+    <span class="hljs-string">"&lt;client-id&gt;"</span>,
+    <span class="hljs-string">"&lt;my key&gt;"</span>,
+    { component: { marker: <span class="hljs-literal">true</span> } });
+
+<span class="hljs-keyword">var</span> markerComponent = viewer.getComponent(<span class="hljs-string">"marker"</span>);
 </code></pre></dd>
 					</dl>
 				</div>
@@ -186,7 +192,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Component.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L132">component/marker/MarkerComponent.ts:132</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L138">component/marker/MarkerComponent.ts:138</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -214,7 +220,7 @@
 					<div class="tsd-signature tsd-kind-icon">changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;changed&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L89">component/marker/MarkerComponent.ts:89</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L95">component/marker/MarkerComponent.ts:95</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -239,7 +245,7 @@
 					<div class="tsd-signature tsd-kind-icon">dragend<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;dragend&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L115">component/marker/MarkerComponent.ts:115</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L121">component/marker/MarkerComponent.ts:121</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -264,7 +270,7 @@
 					<div class="tsd-signature tsd-kind-icon">dragstart<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;dragstart&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L102">component/marker/MarkerComponent.ts:102</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L108">component/marker/MarkerComponent.ts:108</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -293,7 +299,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from Component._activated</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L19">component/Component.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L19">component/Component.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -304,7 +310,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from Component._activated$</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L24">component/Component.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L24">component/Component.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -315,7 +321,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from Component._configuration$</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L25">component/Component.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L25">component/Component.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -326,7 +332,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from Component._configurationSubject$</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L26">component/Component.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L26">component/Component.ts:26</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -337,7 +343,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from Component._container</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L20">component/Component.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L20">component/Component.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -348,7 +354,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from Component._name</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L21">component/Component.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L21">component/Component.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -359,7 +365,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from Component._navigator</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L22">component/Component.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L22">component/Component.ts:22</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -370,7 +376,7 @@
 					<aside class="tsd-sources">
 						<p>Overrides Component.componentName</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L76">component/marker/MarkerComponent.ts:76</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L82">component/marker/MarkerComponent.ts:82</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -388,7 +394,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.activated</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L55">component/Component.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L55">component/Component.ts:55</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -406,7 +412,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.activated$</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L59">component/Component.ts:59</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L59">component/Component.ts:59</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -424,7 +430,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.configuration$</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L72">component/Component.ts:72</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L72">component/Component.ts:72</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imarkerconfiguration.html" class="tsd-signature-type">IMarkerConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -442,7 +448,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.defaultConfiguration</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L68">component/Component.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L68">component/Component.ts:68</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -466,7 +472,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.name</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L76">component/Component.ts:76</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L76">component/Component.ts:76</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -487,7 +493,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Component._activate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L267">component/marker/MarkerComponent.ts:267</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L273">component/marker/MarkerComponent.ts:273</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -505,7 +511,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Component._deactivate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L649">component/marker/MarkerComponent.ts:649</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L655">component/marker/MarkerComponent.ts:655</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -523,7 +529,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Component._getDefaultConfiguration</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L662">component/marker/MarkerComponent.ts:662</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L668">component/marker/MarkerComponent.ts:668</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/imarkerconfiguration.html" class="tsd-signature-type">IMarkerConfiguration</a></h4>
@@ -541,7 +547,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.activate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L80">component/Component.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L80">component/Component.ts:80</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -564,7 +570,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L160">component/marker/MarkerComponent.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L166">component/marker/MarkerComponent.ts:166</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -608,7 +614,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.configure</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L94">component/Component.ts:94</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L94">component/Component.ts:94</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -632,7 +638,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.deactivate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L98">component/Component.ts:98</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L98">component/Component.ts:98</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -650,7 +656,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.fire</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/utils/EventEmitter.ts#L45">utils/EventEmitter.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/utils/EventEmitter.ts#L45">utils/EventEmitter.ts:45</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -676,7 +682,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L184">component/marker/MarkerComponent.ts:184</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L179">component/marker/MarkerComponent.ts:179</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -713,7 +719,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L194">component/marker/MarkerComponent.ts:194</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L189">component/marker/MarkerComponent.ts:189</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -740,7 +746,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L221">component/marker/MarkerComponent.ts:221</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L216">component/marker/MarkerComponent.ts:216</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -788,7 +794,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L171">component/marker/MarkerComponent.ts:171</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L249">component/marker/MarkerComponent.ts:249</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -825,7 +831,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.off</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/utils/EventEmitter.ts#L24">utils/EventEmitter.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/utils/EventEmitter.ts#L24">utils/EventEmitter.ts:24</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -863,7 +869,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.on</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/utils/EventEmitter.ts#L13">utils/EventEmitter.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/utils/EventEmitter.ts#L13">utils/EventEmitter.ts:13</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -900,7 +906,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L254">component/marker/MarkerComponent.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L260">component/marker/MarkerComponent.ts:260</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -936,7 +942,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/marker/MarkerComponent.ts#L263">component/marker/MarkerComponent.ts:263</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/MarkerComponent.ts#L269">component/marker/MarkerComponent.ts:269</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -964,7 +970,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Component.resize</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/31c4d21/src/component/Component.ts#L114">component/Component.ts:114</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L114">component/Component.ts:114</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -989,24 +995,6 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-enum">
-						<a href="../enums/edgedirection.html" class="tsd-kind-icon">Edge<wbr>Direction</a>
-					</li>
-					<li class=" tsd-kind-enum">
-						<a href="../enums/imagesize.html" class="tsd-kind-icon">Image<wbr>Size</a>
-					</li>
-					<li class=" tsd-kind-enum">
-						<a href="../enums/rendermode.html" class="tsd-kind-icon">Render<wbr>Mode</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="circlemarker.html" class="tsd-kind-icon">Circle<wbr>Marker</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="doubleclickzoomhandler.html" class="tsd-kind-icon">Double<wbr>Click<wbr>Zoom<wbr>Handler</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="dragpanhandler.html" class="tsd-kind-icon">Drag<wbr>Pan<wbr>Handler</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
@@ -1118,84 +1106,6 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-class">
-						<a href="mousecomponent.html" class="tsd-kind-icon">Mouse<wbr>Component</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="node.html" class="tsd-kind-icon">Node</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="nodecache.html" class="tsd-kind-icon">Node<wbr>Cache</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="scrollzoomhandler.html" class="tsd-kind-icon">Scroll<wbr>Zoom<wbr>Handler</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="simplemarker.html" class="tsd-kind-icon">Simple<wbr>Marker</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="touchzoomhandler.html" class="tsd-kind-icon">Touch<wbr>Zoom<wbr>Handler</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="viewer.html" class="tsd-kind-icon">Viewer</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/icirclemarkeroptions.html" class="tsd-kind-icon">ICircle<wbr>Marker<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/icomponentoptions.html" class="tsd-kind-icon">IComponent<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iedge.html" class="tsd-kind-icon">IEdge</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iedgedata.html" class="tsd-kind-icon">IEdge<wbr>Data</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iedgestatus.html" class="tsd-kind-icon">IEdge<wbr>Status</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/igpano.html" class="tsd-kind-icon">IGPano</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/ilatlon.html" class="tsd-kind-icon">ILat<wbr>Lon</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iloadstatus.html" class="tsd-kind-icon">ILoad<wbr>Status</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/imarkerconfiguration.html" class="tsd-kind-icon">IMarker<wbr>Configuration</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/imarkerevent.html" class="tsd-kind-icon">IMarker<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/imesh.html" class="tsd-kind-icon">IMesh</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/imouseconfiguration.html" class="tsd-kind-icon">IMouse<wbr>Configuration</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/isimplemarkeroptions.html" class="tsd-kind-icon">ISimple<wbr>Marker<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/iviewermouseevent.html" class="tsd-kind-icon">IViewer<wbr>Mouse<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/ivieweroptions.html" class="tsd-kind-icon">IViewer<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#filterexpression" class="tsd-kind-icon">Filter<wbr>Expression</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#filteroperation" class="tsd-kind-icon">Filter<wbr>Operation</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#filteroperator" class="tsd-kind-icon">Filter<wbr>Operator</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#filtervalue" class="tsd-kind-icon">Filter<wbr>Value</a>
-					</li>
 				</ul>
 			</nav>
 		</div>

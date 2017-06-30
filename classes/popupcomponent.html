@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>MouseComponent | MapillaryJS</title>
+	<title>PopupComponent | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="mousecomponent.html">MouseComponent</a>
+					<a href="popupcomponent.html">PopupComponent</a>
 				</li>
 			</ul>
-			<h1>Class MouseComponent</h1>
+			<h1>Class PopupComponent</h1>
 		</div>
 	</div>
 </header>
@@ -68,11 +68,29 @@
 				<div class="tsd-comment tsd-typography">
 					<dl class="tsd-comment-tags">
 						<dt>class</dt>
-						<dd><p>MouseComponent</p>
+						<dd><p>PopupComponent</p>
 						</dd>
 						<dt>classdesc</dt>
-						<dd><p>Component handling mouse and touch events for camera movement.</p>
+						<dd><p>Component for showing HTML popup objects.</p>
+							<p>The <code>add</code> method is used for adding new popups. Popups are removed by reference.</p>
+							<p>It is not possible to update popups in the set by updating any properties
+								directly on the popup object. Popups need to be replaced by
+								removing them and creating new ones with relevant changed properties and
+							adding those instead.</p>
+							<p>Popups are only relevant to a single image because they are based on
+								2D basic image coordinates. Popups related to a certain image should
+							be removed when the viewer is moved to another node.</p>
+							<p>To retrive and use the popup component</p>
 						</dd>
+						<dt>example</dt>
+						<dd><pre><code><span class="hljs-keyword">var</span> viewer = <span class="hljs-keyword">new</span> Mapillary.Viewer(
+    <span class="hljs-string">"&lt;element-id&gt;"</span>,
+    <span class="hljs-string">"&lt;client-id&gt;"</span>,
+    <span class="hljs-string">"&lt;my key&gt;"</span>,
+    { component: { popup: <span class="hljs-literal">true</span> } });
+
+<span class="hljs-keyword">var</span> popupComponent = viewer.getComponent(<span class="hljs-string">"popup"</span>);
+</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -80,10 +98,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span>
+						<span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IComponentConfiguration</span><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">MouseComponent</span>
+								<span class="target">PopupComponent</span>
 							</li>
 						</ul>
 					</li>
@@ -96,49 +114,49 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="mousecomponent.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="popupcomponent.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="mousecomponent.html#_activated" class="tsd-kind-icon">_activated</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="mousecomponent.html#_activated_" class="tsd-kind-icon">_activated$</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="mousecomponent.html#_configuration_" class="tsd-kind-icon">_configuration$</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="mousecomponent.html#_configurationsubject_" class="tsd-kind-icon">_configuration<wbr>Subject$</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="mousecomponent.html#_container" class="tsd-kind-icon">_container</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="mousecomponent.html#_name" class="tsd-kind-icon">_name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="mousecomponent.html#_navigator" class="tsd-kind-icon">_navigator</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static"><a href="mousecomponent.html#componentname" class="tsd-kind-icon">component<wbr>Name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="popupcomponent.html#_activated" class="tsd-kind-icon">_activated</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="popupcomponent.html#_activated_" class="tsd-kind-icon">_activated$</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="popupcomponent.html#_configuration_" class="tsd-kind-icon">_configuration$</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="popupcomponent.html#_configurationsubject_" class="tsd-kind-icon">_configuration<wbr>Subject$</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="popupcomponent.html#_container" class="tsd-kind-icon">_container</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="popupcomponent.html#_name" class="tsd-kind-icon">_name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="popupcomponent.html#_navigator" class="tsd-kind-icon">_navigator</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static"><a href="popupcomponent.html#componentname" class="tsd-kind-icon">component<wbr>Name</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#activated" class="tsd-kind-icon">activated</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#activated_" class="tsd-kind-icon">activated$</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#configuration_" class="tsd-kind-icon">configuration$</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#defaultconfiguration" class="tsd-kind-icon">default<wbr>Configuration</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="mousecomponent.html#doubleclickzoom" class="tsd-kind-icon">double<wbr>Click<wbr>Zoom</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="mousecomponent.html#dragpan" class="tsd-kind-icon">drag<wbr>Pan</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="mousecomponent.html#scrollzoom" class="tsd-kind-icon">scroll<wbr>Zoom</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="mousecomponent.html#touchzoom" class="tsd-kind-icon">touch<wbr>Zoom</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#activated" class="tsd-kind-icon">activated</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#activated_" class="tsd-kind-icon">activated$</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#configuration_" class="tsd-kind-icon">configuration$</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#defaultconfiguration" class="tsd-kind-icon">default<wbr>Configuration</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#name" class="tsd-kind-icon">name</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="mousecomponent.html#_activate" class="tsd-kind-icon">_activate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="mousecomponent.html#_deactivate" class="tsd-kind-icon">_deactivate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="mousecomponent.html#_getdefaultconfiguration" class="tsd-kind-icon">_get<wbr>Default<wbr>Configuration</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#activate" class="tsd-kind-icon">activate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#configure" class="tsd-kind-icon">configure</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#deactivate" class="tsd-kind-icon">deactivate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#fire" class="tsd-kind-icon">fire</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#off" class="tsd-kind-icon">off</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#on" class="tsd-kind-icon">on</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="mousecomponent.html#resize" class="tsd-kind-icon">resize</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="popupcomponent.html#_activate" class="tsd-kind-icon">_activate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="popupcomponent.html#_deactivate" class="tsd-kind-icon">_deactivate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="popupcomponent.html#_getdefaultconfiguration" class="tsd-kind-icon">_get<wbr>Default<wbr>Configuration</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#activate" class="tsd-kind-icon">activate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="popupcomponent.html#add" class="tsd-kind-icon">add</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#configure" class="tsd-kind-icon">configure</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#deactivate" class="tsd-kind-icon">deactivate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#fire" class="tsd-kind-icon">fire</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="popupcomponent.html#getall" class="tsd-kind-icon">get<wbr>All</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#off" class="tsd-kind-icon">off</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="popupcomponent.html#remove" class="tsd-kind-icon">remove</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="popupcomponent.html#removeall" class="tsd-kind-icon">remove<wbr>All</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="popupcomponent.html#resize" class="tsd-kind-icon">resize</a></li>
 							</ul>
 						</section>
 					</div>
@@ -150,14 +168,14 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Mouse<wbr>Component<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Container</span>, navigator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Navigator</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mousecomponent.html" class="tsd-signature-type">MouseComponent</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Popup<wbr>Component<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Container</span>, navigator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Navigator</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="popupcomponent.html" class="tsd-signature-type">PopupComponent</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides Component.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L57">component/mouse/MouseComponent.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L60">component/popup/PopupComponent.ts:60</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -172,7 +190,7 @@
 									<h5>navigator: <span class="tsd-signature-type">Navigator</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mousecomponent.html" class="tsd-signature-type">MouseComponent</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="popupcomponent.html" class="tsd-signature-type">PopupComponent</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -204,7 +222,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="_configuration_" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _configuration$</h3>
-					<div class="tsd-signature tsd-kind-icon">_configuration$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">_configuration$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IComponentConfiguration</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from Component._configuration$</p>
 						<ul>
@@ -215,7 +233,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="_configurationsubject_" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _configuration<wbr>Subject$</h3>
-					<div class="tsd-signature tsd-kind-icon">_configuration<wbr>Subject$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Subject&lt;TConfiguration&gt;()</span></div>
+					<div class="tsd-signature tsd-kind-icon">_configuration<wbr>Subject$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IComponentConfiguration</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Subject&lt;TConfiguration&gt;()</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from Component._configurationSubject$</p>
 						<ul>
@@ -259,22 +277,16 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static">
 					<a name="componentname" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> component<wbr>Name</h3>
-					<div class="tsd-signature tsd-kind-icon">component<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;mouse&quot;</span></div>
+					<div class="tsd-signature tsd-kind-icon">component<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;popup&quot;</span></div>
 					<aside class="tsd-sources">
 						<p>Overrides Component.componentName</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L42">component/mouse/MouseComponent.ts:42</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L51">component/popup/PopupComponent.ts:51</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>inheritdoc</dt>
-							<dd></dd>
-						</dl>
-					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Accessors</h2>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 					<a name="activated" class="tsd-anchor"></a>
@@ -316,7 +328,7 @@
 					<a name="configuration_" class="tsd-anchor"></a>
 					<h3>configuration$</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> configuration$<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> configuration$<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IComponentConfiguration</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -326,7 +338,7 @@
 									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/Component.ts#L72">component/Component.ts:72</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IComponentConfiguration</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -334,7 +346,7 @@
 					<a name="defaultconfiguration" class="tsd-anchor"></a>
 					<h3>default<wbr>Configuration</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> defaultConfiguration<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> defaultConfiguration<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IComponentConfiguration</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -349,54 +361,8 @@
 									<p>Get default configuration.</p>
 								</div>
 							</div>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IComponentConfiguration</span></h4>
 							<p>Default configuration for component.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="doubleclickzoom" class="tsd-anchor"></a>
-					<h3>double<wbr>Click<wbr>Zoom</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> doubleClickZoom<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="doubleclickzoomhandler.html" class="tsd-signature-type">DoubleClickZoomHandler</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L83">component/mouse/MouseComponent.ts:83</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get double click zoom.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="doubleclickzoomhandler.html" class="tsd-signature-type">DoubleClickZoomHandler</a></h4>
-							<p>The double click zoom handler.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="dragpan" class="tsd-anchor"></a>
-					<h3>drag<wbr>Pan</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> dragPan<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="dragpanhandler.html" class="tsd-signature-type">DragPanHandler</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L92">component/mouse/MouseComponent.ts:92</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get drag pan.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="dragpanhandler.html" class="tsd-signature-type">DragPanHandler</a></h4>
-							<p>The drag pan handler.</p>
 						</li>
 					</ul>
 				</section>
@@ -418,52 +384,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="scrollzoom" class="tsd-anchor"></a>
-					<h3>scroll<wbr>Zoom</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> scrollZoom<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="scrollzoomhandler.html" class="tsd-signature-type">ScrollZoomHandler</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L101">component/mouse/MouseComponent.ts:101</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get scroll zoom.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="scrollzoomhandler.html" class="tsd-signature-type">ScrollZoomHandler</a></h4>
-							<p>The scroll zoom handler.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="touchzoom" class="tsd-anchor"></a>
-					<h3>touch<wbr>Zoom</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> touchZoom<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="touchzoomhandler.html" class="tsd-signature-type">TouchZoomHandler</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L110">component/mouse/MouseComponent.ts:110</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get touch zoom.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="touchzoomhandler.html" class="tsd-signature-type">TouchZoomHandler</a></h4>
-							<p>The touch zoom handler.</p>
-						</li>
-					</ul>
-				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
@@ -478,7 +398,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Component._activate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L114">component/mouse/MouseComponent.ts:114</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L136">component/popup/PopupComponent.ts:136</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -496,7 +416,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Component._deactivate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L232">component/mouse/MouseComponent.ts:232</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L188">component/popup/PopupComponent.ts:188</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -507,17 +427,17 @@
 					<a name="_getdefaultconfiguration" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _get<wbr>Default<wbr>Configuration</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">_get<wbr>Default<wbr>Configuration<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></li>
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>Default<wbr>Configuration<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IComponentConfiguration</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides Component._getDefaultConfiguration</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/mouse/MouseComponent.ts#L244">component/mouse/MouseComponent.ts:244</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L200">component/popup/PopupComponent.ts:200</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IComponentConfiguration</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -525,7 +445,7 @@
 					<a name="activate" class="tsd-anchor"></a>
 					<h3>activate</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">activate<span class="tsd-signature-symbol">(</span>conf<span class="tsd-signature-symbol">?: </span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">activate<span class="tsd-signature-symbol">(</span>conf<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IComponentConfiguration</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -538,7 +458,48 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> conf: <a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> conf: <span class="tsd-signature-type">IComponentConfiguration</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="add" class="tsd-anchor"></a>
+					<h3>add</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">add<span class="tsd-signature-symbol">(</span>popups<span class="tsd-signature-symbol">: </span><a href="popup.html" class="tsd-signature-type">Popup</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L82">component/popup/PopupComponent.ts:82</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Add popups to the popups set.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>Adding a new popup never replaces an old one
+											because they are stored by reference. Adding an already
+										existing popup has no effect.</p>
+									</dd>
+									<dt>example</dt>
+									<dd><p><code>popupComponent.add([popup1, popup2]);</code></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>popups: <a href="popup.html" class="tsd-signature-type">Popup</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Popups to add.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -549,7 +510,7 @@
 					<a name="configure" class="tsd-anchor"></a>
 					<h3>configure</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">configure<span class="tsd-signature-symbol">(</span>conf<span class="tsd-signature-symbol">: </span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">configure<span class="tsd-signature-symbol">(</span>conf<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IComponentConfiguration</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -562,7 +523,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>conf: <a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></h5>
+									<h5>conf: <span class="tsd-signature-type">IComponentConfiguration</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -611,6 +572,33 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getall" class="tsd-anchor"></a>
+					<h3>get<wbr>All</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>All<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="popup.html" class="tsd-signature-type">Popup</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L104">component/popup/PopupComponent.ts:104</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns an array of all popups.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><p><code>var popups = popupComponent.getAll();</code></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="popup.html" class="tsd-signature-type">Popup</a><span class="tsd-signature-symbol">[]</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -690,6 +678,69 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="remove" class="tsd-anchor"></a>
+					<h3>remove</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">remove<span class="tsd-signature-symbol">(</span>popups<span class="tsd-signature-symbol">: </span><a href="popup.html" class="tsd-signature-type">Popup</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L115">component/popup/PopupComponent.ts:115</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Remove popups based on reference from the popup set.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><p><code>popupComponent.remove([popup1, popup2]);</code></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>popups: <a href="popup.html" class="tsd-signature-type">Popup</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Popups to remove.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="removeall" class="tsd-anchor"></a>
+					<h3>remove<wbr>All</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">remove<wbr>All<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/PopupComponent.ts#L128">component/popup/PopupComponent.ts:128</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Remove all popups from the popup set.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><p><code>popupComponent.removeAll();</code></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="resize" class="tsd-anchor"></a>
 					<h3>resize</h3>
@@ -729,91 +780,91 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
-						<a href="mousecomponent.html" class="tsd-kind-icon">Mouse<wbr>Component</a>
+						<a href="popupcomponent.html" class="tsd-kind-icon">Popup<wbr>Component</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-								<a href="mousecomponent.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="popupcomponent.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="mousecomponent.html#_activated" class="tsd-kind-icon">_activated</a>
+								<a href="popupcomponent.html#_activated" class="tsd-kind-icon">_activated</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="mousecomponent.html#_activated_" class="tsd-kind-icon">_activated$</a>
+								<a href="popupcomponent.html#_activated_" class="tsd-kind-icon">_activated$</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="mousecomponent.html#_configuration_" class="tsd-kind-icon">_configuration$</a>
+								<a href="popupcomponent.html#_configuration_" class="tsd-kind-icon">_configuration$</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="mousecomponent.html#_configurationsubject_" class="tsd-kind-icon">_configuration<wbr>Subject$</a>
+								<a href="popupcomponent.html#_configurationsubject_" class="tsd-kind-icon">_configuration<wbr>Subject$</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="mousecomponent.html#_container" class="tsd-kind-icon">_container</a>
+								<a href="popupcomponent.html#_container" class="tsd-kind-icon">_container</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="mousecomponent.html#_name" class="tsd-kind-icon">_name</a>
+								<a href="popupcomponent.html#_name" class="tsd-kind-icon">_name</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="mousecomponent.html#_navigator" class="tsd-kind-icon">_navigator</a>
+								<a href="popupcomponent.html#_navigator" class="tsd-kind-icon">_navigator</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static">
-								<a href="mousecomponent.html#componentname" class="tsd-kind-icon">component<wbr>Name</a>
+								<a href="popupcomponent.html#componentname" class="tsd-kind-icon">component<wbr>Name</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#activated" class="tsd-kind-icon">activated</a>
+								<a href="popupcomponent.html#activated" class="tsd-kind-icon">activated</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#activated_" class="tsd-kind-icon">activated$</a>
+								<a href="popupcomponent.html#activated_" class="tsd-kind-icon">activated$</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#configuration_" class="tsd-kind-icon">configuration$</a>
+								<a href="popupcomponent.html#configuration_" class="tsd-kind-icon">configuration$</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#defaultconfiguration" class="tsd-kind-icon">default<wbr>Configuration</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="mousecomponent.html#doubleclickzoom" class="tsd-kind-icon">double<wbr>Click<wbr>Zoom</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="mousecomponent.html#dragpan" class="tsd-kind-icon">drag<wbr>Pan</a>
+								<a href="popupcomponent.html#defaultconfiguration" class="tsd-kind-icon">default<wbr>Configuration</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#name" class="tsd-kind-icon">name</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="mousecomponent.html#scrollzoom" class="tsd-kind-icon">scroll<wbr>Zoom</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="mousecomponent.html#touchzoom" class="tsd-kind-icon">touch<wbr>Zoom</a>
+								<a href="popupcomponent.html#name" class="tsd-kind-icon">name</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="mousecomponent.html#_activate" class="tsd-kind-icon">_activate</a>
+								<a href="popupcomponent.html#_activate" class="tsd-kind-icon">_activate</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="mousecomponent.html#_deactivate" class="tsd-kind-icon">_deactivate</a>
+								<a href="popupcomponent.html#_deactivate" class="tsd-kind-icon">_deactivate</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="mousecomponent.html#_getdefaultconfiguration" class="tsd-kind-icon">_get<wbr>Default<wbr>Configuration</a>
+								<a href="popupcomponent.html#_getdefaultconfiguration" class="tsd-kind-icon">_get<wbr>Default<wbr>Configuration</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#activate" class="tsd-kind-icon">activate</a>
+								<a href="popupcomponent.html#activate" class="tsd-kind-icon">activate</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="popupcomponent.html#add" class="tsd-kind-icon">add</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#configure" class="tsd-kind-icon">configure</a>
+								<a href="popupcomponent.html#configure" class="tsd-kind-icon">configure</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#deactivate" class="tsd-kind-icon">deactivate</a>
+								<a href="popupcomponent.html#deactivate" class="tsd-kind-icon">deactivate</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#fire" class="tsd-kind-icon">fire</a>
+								<a href="popupcomponent.html#fire" class="tsd-kind-icon">fire</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="popupcomponent.html#getall" class="tsd-kind-icon">get<wbr>All</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#off" class="tsd-kind-icon">off</a>
+								<a href="popupcomponent.html#off" class="tsd-kind-icon">off</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#on" class="tsd-kind-icon">on</a>
+								<a href="popupcomponent.html#on" class="tsd-kind-icon">on</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="popupcomponent.html#remove" class="tsd-kind-icon">remove</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="popupcomponent.html#removeall" class="tsd-kind-icon">remove<wbr>All</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="mousecomponent.html#resize" class="tsd-kind-icon">resize</a>
+								<a href="popupcomponent.html#resize" class="tsd-kind-icon">resize</a>
 							</li>
 						</ul>
 					</li>

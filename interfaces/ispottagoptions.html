@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ICircleMarkerOptions | MapillaryJS</title>
+	<title>ISpotTagOptions | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="icirclemarkeroptions.html">ICircleMarkerOptions</a>
+					<a href="ispottagoptions.html">ISpotTagOptions</a>
 				</li>
 			</ul>
-			<h1>Interface ICircleMarkerOptions</h1>
+			<h1>Interface ISpotTagOptions</h1>
 		</div>
 	</div>
 </header>
@@ -66,11 +66,13 @@
 		<div class="col-8 col-content">
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for the options that define the behavior and
+						appearance of the spot tag.</p>
+					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
-						<dd><p>ICircleMarkerOptions</p>
-							<p>Interface that represents the options for configuring a <code>CircleMarker</code>.</p>
-						</dd>
+						<dd></dd>
 					</dl>
 				</div>
 			</section>
@@ -78,7 +80,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ICircleMarkerOptions</span>
+						<span class="target">ISpotTagOptions</span>
 					</li>
 				</ul>
 			</section>
@@ -89,9 +91,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#color" class="tsd-kind-icon">color</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#opacity" class="tsd-kind-icon">opacity</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#radius" class="tsd-kind-icon">radius</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispottagoptions.html#color" class="tsd-kind-icon">color</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispottagoptions.html#editable" class="tsd-kind-icon">editable</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispottagoptions.html#icon" class="tsd-kind-icon">icon</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispottagoptions.html#text" class="tsd-kind-icon">text</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispottagoptions.html#textcolor" class="tsd-kind-icon">text<wbr>Color</a></li>
 							</ul>
 						</section>
 					</div>
@@ -102,59 +106,89 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="color" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> color</h3>
-					<div class="tsd-signature tsd-kind-icon">color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<div class="tsd-signature tsd-kind-icon">color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L13">component/marker/interfaces/ICircleMarkerOptions.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/interfaces/ISpotTagOptions.ts#L12">component/tag/interfaces/ISpotTagOptions.ts:12</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The color of the marker.</p>
+							<p>Color for the spot specified as a hexadecimal number.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>&quot;#fff&quot;</p>
+							<dd><p>0xFFFFFF</p>
 							</dd>
 						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="opacity" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> opacity</h3>
-					<div class="tsd-signature tsd-kind-icon">opacity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="editable" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> editable</h3>
+					<div class="tsd-signature tsd-kind-icon">editable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L20">component/marker/interfaces/ICircleMarkerOptions.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/interfaces/ISpotTagOptions.ts#L18">component/tag/interfaces/ISpotTagOptions.ts:18</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The opacity of the marker.</p>
+							<p>Indicate whether the tag geometry should be editable.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>0.4</p>
+							<dd><p>false</p>
 							</dd>
 						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="radius" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> radius</h3>
-					<div class="tsd-signature tsd-kind-icon">radius<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="icon" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> icon</h3>
+					<div class="tsd-signature tsd-kind-icon">icon<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L27">component/marker/interfaces/ICircleMarkerOptions.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/interfaces/ISpotTagOptions.ts#L23">component/tag/interfaces/ISpotTagOptions.ts:23</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The radius of the circle in meters.</p>
+							<p>A string referencing the sprite data property to pull from.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="text" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> text</h3>
+					<div class="tsd-signature tsd-kind-icon">text<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/interfaces/ISpotTagOptions.ts#L28">component/tag/interfaces/ISpotTagOptions.ts:28</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Text shown as label if no icon is provided.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="textcolor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> text<wbr>Color</h3>
+					<div class="tsd-signature tsd-kind-icon">text<wbr>Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/interfaces/ISpotTagOptions.ts#L34">component/tag/interfaces/ISpotTagOptions.ts:34</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Text color as hexadecimal number.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>1</p>
+							<dd><p>0xFFFFFF</p>
 							</dd>
 						</dl>
 					</div>
@@ -174,16 +208,22 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="icirclemarkeroptions.html" class="tsd-kind-icon">ICircle<wbr>Marker<wbr>Options</a>
+						<a href="ispottagoptions.html" class="tsd-kind-icon">ISpot<wbr>Tag<wbr>Options</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#color" class="tsd-kind-icon">color</a>
+								<a href="ispottagoptions.html#color" class="tsd-kind-icon">color</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#opacity" class="tsd-kind-icon">opacity</a>
+								<a href="ispottagoptions.html#editable" class="tsd-kind-icon">editable</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#radius" class="tsd-kind-icon">radius</a>
+								<a href="ispottagoptions.html#icon" class="tsd-kind-icon">icon</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ispottagoptions.html#text" class="tsd-kind-icon">text</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ispottagoptions.html#textcolor" class="tsd-kind-icon">text<wbr>Color</a>
 							</li>
 						</ul>
 					</li>

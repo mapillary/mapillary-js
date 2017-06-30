@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>EdgeDirection | MapillaryJS</title>
+	<title>TagMode | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="edgedirection.html">EdgeDirection</a>
+					<a href="tagmode.html">TagMode</a>
 				</li>
 			</ul>
-			<h1>Enumeration EdgeDirection</h1>
+			<h1>Enumeration TagMode</h1>
 		</div>
 	</div>
 </header>
@@ -67,7 +67,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Enumeration for edge directions</p>
+						<p>Enumeration for tag modes</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>enum</dt>
@@ -76,8 +76,7 @@
 						<dt>readonly</dt>
 						<dd></dd>
 						<dt>description</dt>
-						<dd><p>Directions for edges in node graph describing
-							sequence, spatial and node type relations between nodes.</p>
+						<dd><p>Modes for the interaction in the tag component.</p>
 						</dd>
 					</dl>
 				</div>
@@ -89,17 +88,10 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#next" class="tsd-kind-icon">Next</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#pano" class="tsd-kind-icon">Pano</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#prev" class="tsd-kind-icon">Prev</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#similar" class="tsd-kind-icon">Similar</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#stepbackward" class="tsd-kind-icon">Step<wbr>Backward</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#stepforward" class="tsd-kind-icon">Step<wbr>Forward</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#stepleft" class="tsd-kind-icon">Step<wbr>Left</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#stepright" class="tsd-kind-icon">Step<wbr>Right</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#turnleft" class="tsd-kind-icon">Turn<wbr>Left</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#turnright" class="tsd-kind-icon">Turn<wbr>Right</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="edgedirection.html#turnu" class="tsd-kind-icon">TurnU</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="tagmode.html#createpoint" class="tsd-kind-icon">Create<wbr>Point</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="tagmode.html#createpolygon" class="tsd-kind-icon">Create<wbr>Polygon</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="tagmode.html#createrect" class="tsd-kind-icon">Create<wbr>Rect</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="tagmode.html#default" class="tsd-kind-icon">Default</a></li>
 							</ul>
 						</section>
 					</div>
@@ -108,167 +100,62 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="next" class="tsd-anchor"></a>
-					<h3>Next</h3>
-					<div class="tsd-signature tsd-kind-icon">Next<span class="tsd-signature-symbol">:</span> </div>
+					<a name="createpoint" class="tsd-anchor"></a>
+					<h3>Create<wbr>Point</h3>
+					<div class="tsd-signature tsd-kind-icon">Create<wbr>Point<span class="tsd-signature-symbol">:</span> </div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L12">graph/edge/EdgeDirection.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/TagMode.ts#L16">component/tag/TagMode.ts:16</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Next node in the sequence.</p>
+							<p>Create a point geometry through a click.</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="pano" class="tsd-anchor"></a>
-					<h3>Pano</h3>
-					<div class="tsd-signature tsd-kind-icon">Pano<span class="tsd-signature-symbol">:</span> </div>
+					<a name="createpolygon" class="tsd-anchor"></a>
+					<h3>Create<wbr>Polygon</h3>
+					<div class="tsd-signature tsd-kind-icon">Create<wbr>Polygon<span class="tsd-signature-symbol">:</span> </div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L57">graph/edge/EdgeDirection.ts:57</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/TagMode.ts#L21">component/tag/TagMode.ts:21</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Panorama in general direction.</p>
+							<p>Create a polygon geometry through clicks.</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="prev" class="tsd-anchor"></a>
-					<h3>Prev</h3>
-					<div class="tsd-signature tsd-kind-icon">Prev<span class="tsd-signature-symbol">:</span> </div>
+					<a name="createrect" class="tsd-anchor"></a>
+					<h3>Create<wbr>Rect</h3>
+					<div class="tsd-signature tsd-kind-icon">Create<wbr>Rect<span class="tsd-signature-symbol">:</span> </div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L17">graph/edge/EdgeDirection.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/TagMode.ts#L26">component/tag/TagMode.ts:26</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Previous node in the sequence.</p>
+							<p>Create a rect geometry through clicks.</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="similar" class="tsd-anchor"></a>
-					<h3>Similar</h3>
-					<div class="tsd-signature tsd-kind-icon">Similar<span class="tsd-signature-symbol">:</span> </div>
+					<a name="default" class="tsd-anchor"></a>
+					<h3>Default</h3>
+					<div class="tsd-signature tsd-kind-icon">Default<span class="tsd-signature-symbol">:</span> </div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L62">graph/edge/EdgeDirection.ts:62</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/TagMode.ts#L11">component/tag/TagMode.ts:11</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Looking in roughly the same direction at rougly the same position.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="stepbackward" class="tsd-anchor"></a>
-					<h3>Step<wbr>Backward</h3>
-					<div class="tsd-signature tsd-kind-icon">Step<wbr>Backward<span class="tsd-signature-symbol">:</span> </div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L37">graph/edge/EdgeDirection.ts:37</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Step backward keeping viewing direction.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="stepforward" class="tsd-anchor"></a>
-					<h3>Step<wbr>Forward</h3>
-					<div class="tsd-signature tsd-kind-icon">Step<wbr>Forward<span class="tsd-signature-symbol">:</span> </div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L32">graph/edge/EdgeDirection.ts:32</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Step forward keeping viewing direction.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="stepleft" class="tsd-anchor"></a>
-					<h3>Step<wbr>Left</h3>
-					<div class="tsd-signature tsd-kind-icon">Step<wbr>Left<span class="tsd-signature-symbol">:</span> </div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L22">graph/edge/EdgeDirection.ts:22</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Step to the left keeping viewing direction.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="stepright" class="tsd-anchor"></a>
-					<h3>Step<wbr>Right</h3>
-					<div class="tsd-signature tsd-kind-icon">Step<wbr>Right<span class="tsd-signature-symbol">:</span> </div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L27">graph/edge/EdgeDirection.ts:27</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Step to the right keeping viewing direction.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="turnleft" class="tsd-anchor"></a>
-					<h3>Turn<wbr>Left</h3>
-					<div class="tsd-signature tsd-kind-icon">Turn<wbr>Left<span class="tsd-signature-symbol">:</span> </div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L42">graph/edge/EdgeDirection.ts:42</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Turn 90 degrees counter clockwise.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="turnright" class="tsd-anchor"></a>
-					<h3>Turn<wbr>Right</h3>
-					<div class="tsd-signature tsd-kind-icon">Turn<wbr>Right<span class="tsd-signature-symbol">:</span> </div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L47">graph/edge/EdgeDirection.ts:47</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Turn 90 degrees clockwise.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="turnu" class="tsd-anchor"></a>
-					<h3>TurnU</h3>
-					<div class="tsd-signature tsd-kind-icon">TurnU<span class="tsd-signature-symbol">:</span> </div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/graph/edge/EdgeDirection.ts#L52">graph/edge/EdgeDirection.ts:52</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Turn 180 degrees.</p>
+							<p>Disables creating tags.</p>
 						</div>
 					</div>
 				</section>
@@ -287,40 +174,19 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-enum">
-						<a href="edgedirection.html" class="tsd-kind-icon">Edge<wbr>Direction</a>
+						<a href="tagmode.html" class="tsd-kind-icon">Tag<wbr>Mode</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#next" class="tsd-kind-icon">Next</a>
+								<a href="tagmode.html#createpoint" class="tsd-kind-icon">Create<wbr>Point</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#pano" class="tsd-kind-icon">Pano</a>
+								<a href="tagmode.html#createpolygon" class="tsd-kind-icon">Create<wbr>Polygon</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#prev" class="tsd-kind-icon">Prev</a>
+								<a href="tagmode.html#createrect" class="tsd-kind-icon">Create<wbr>Rect</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#similar" class="tsd-kind-icon">Similar</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#stepbackward" class="tsd-kind-icon">Step<wbr>Backward</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#stepforward" class="tsd-kind-icon">Step<wbr>Forward</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#stepleft" class="tsd-kind-icon">Step<wbr>Left</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#stepright" class="tsd-kind-icon">Step<wbr>Right</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#turnleft" class="tsd-kind-icon">Turn<wbr>Left</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#turnright" class="tsd-kind-icon">Turn<wbr>Right</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="edgedirection.html#turnu" class="tsd-kind-icon">TurnU</a>
+								<a href="tagmode.html#default" class="tsd-kind-icon">Default</a>
 							</li>
 						</ul>
 					</li>

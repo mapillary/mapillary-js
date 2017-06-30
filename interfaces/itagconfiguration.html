@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ICircleMarkerOptions | MapillaryJS</title>
+	<title>ITagConfiguration | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="icirclemarkeroptions.html">ICircleMarkerOptions</a>
+					<a href="itagconfiguration.html">ITagConfiguration</a>
 				</li>
 			</ul>
-			<h1>Interface ICircleMarkerOptions</h1>
+			<h1>Interface ITagConfiguration</h1>
 		</div>
 	</div>
 </header>
@@ -66,11 +66,23 @@
 		<div class="col-8 col-content">
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for configuration of tag component.</p>
+					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
-						<dd><p>ICircleMarkerOptions</p>
-							<p>Interface that represents the options for configuring a <code>CircleMarker</code>.</p>
-						</dd>
+						<dd></dd>
+						<dt>example</dt>
+						<dd><pre><code><span class="hljs-selector-tag">var</span> viewer = new Mapillary.Viewer(<span class="hljs-string">'&lt;element-id&gt;'</span>, <span class="hljs-string">'&lt;client-id&gt;'</span>, <span class="hljs-string">'&lt;photo-key&gt;'</span>,
+    {
+        component: {
+            tag: {
+                createColor: <span class="hljs-number">0</span>xFF0000,
+                mode: Mapillary<span class="hljs-selector-class">.TagComponent</span><span class="hljs-selector-class">.TagMode</span><span class="hljs-selector-class">.CreateRect</span>,
+            },
+        },
+    })
+</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -78,9 +90,23 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ICircleMarkerOptions</span>
+						<span class="tsd-signature-type">IComponentConfiguration</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">ITagConfiguration</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
+			</section>
+			<section class="tsd-panel tsd-kind-interface">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for configuration of tag component.</p>
+					</div>
+				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
@@ -89,9 +115,8 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#color" class="tsd-kind-icon">color</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#opacity" class="tsd-kind-icon">opacity</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#radius" class="tsd-kind-icon">radius</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="itagconfiguration.html#createcolor" class="tsd-kind-icon">create<wbr>Color</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="itagconfiguration.html#mode" class="tsd-kind-icon">mode</a></li>
 							</ul>
 						</section>
 					</div>
@@ -100,61 +125,42 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="color" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> color</h3>
-					<div class="tsd-signature tsd-kind-icon">color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<a name="createcolor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> create<wbr>Color</h3>
+					<div class="tsd-signature tsd-kind-icon">create<wbr>Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L13">component/marker/interfaces/ICircleMarkerOptions.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/interfaces/ITagConfiguration.ts#L30">component/interfaces/ITagConfiguration.ts:30</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The color of the marker.</p>
+							<p>The color of vertices and edges for tags that
+							are being created.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>&quot;#fff&quot;</p>
+							<dd><p>0xFFFFFF</p>
 							</dd>
 						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="opacity" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> opacity</h3>
-					<div class="tsd-signature tsd-kind-icon">opacity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="mode" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> mode</h3>
+					<div class="tsd-signature tsd-kind-icon">mode<span class="tsd-signature-symbol">:</span> <a href="../enums/tagmode.html" class="tsd-signature-type">TagMode</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L20">component/marker/interfaces/ICircleMarkerOptions.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/interfaces/ITagConfiguration.ts#L37">component/interfaces/ITagConfiguration.ts:37</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The opacity of the marker.</p>
+							<p>The interaction mode of the tag component.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>0.4</p>
-							</dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="radius" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> radius</h3>
-					<div class="tsd-signature tsd-kind-icon">radius<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L27">component/marker/interfaces/ICircleMarkerOptions.ts:27</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The radius of the circle in meters.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>1</p>
+							<dd><p>TagMode.Default</p>
 							</dd>
 						</dl>
 					</div>
@@ -174,16 +180,13 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="icirclemarkeroptions.html" class="tsd-kind-icon">ICircle<wbr>Marker<wbr>Options</a>
+						<a href="itagconfiguration.html" class="tsd-kind-icon">ITag<wbr>Configuration</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#color" class="tsd-kind-icon">color</a>
+								<a href="itagconfiguration.html#createcolor" class="tsd-kind-icon">create<wbr>Color</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#opacity" class="tsd-kind-icon">opacity</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#radius" class="tsd-kind-icon">radius</a>
+								<a href="itagconfiguration.html#mode" class="tsd-kind-icon">mode</a>
 							</li>
 						</ul>
 					</li>

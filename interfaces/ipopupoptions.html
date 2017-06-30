@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ICircleMarkerOptions | MapillaryJS</title>
+	<title>IPopupOptions | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="icirclemarkeroptions.html">ICircleMarkerOptions</a>
+					<a href="ipopupoptions.html">IPopupOptions</a>
 				</li>
 			</ul>
-			<h1>Interface ICircleMarkerOptions</h1>
+			<h1>Interface IPopupOptions</h1>
 		</div>
 	</div>
 </header>
@@ -66,11 +66,13 @@
 		<div class="col-8 col-content">
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for the options that define behavior and
+						appearance of a popup.</p>
+					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
-						<dd><p>ICircleMarkerOptions</p>
-							<p>Interface that represents the options for configuring a <code>CircleMarker</code>.</p>
-						</dd>
+						<dd></dd>
 					</dl>
 				</div>
 			</section>
@@ -78,7 +80,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ICircleMarkerOptions</span>
+						<span class="target">IPopupOptions</span>
 					</li>
 				</ul>
 			</section>
@@ -89,9 +91,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#color" class="tsd-kind-icon">color</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#opacity" class="tsd-kind-icon">opacity</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icirclemarkeroptions.html#radius" class="tsd-kind-icon">radius</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#clean" class="tsd-kind-icon">clean</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#float" class="tsd-kind-icon">float</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#offset" class="tsd-kind-icon">offset</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#opacity" class="tsd-kind-icon">opacity</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#position" class="tsd-kind-icon">position</a></li>
 							</ul>
 						</section>
 					</div>
@@ -100,21 +104,76 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="color" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> color</h3>
-					<div class="tsd-signature tsd-kind-icon">color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<a name="clean" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> clean</h3>
+					<div class="tsd-signature tsd-kind-icon">clean<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L13">component/marker/interfaces/ICircleMarkerOptions.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/interfaces/IPopupOptions.ts#L16">component/popup/interfaces/IPopupOptions.ts:16</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The color of the marker.</p>
+							<p>Specify that the popup should not have any tooltip
+							like visuals around the provided content.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>&quot;#fff&quot;</p>
+							<dd><p>false</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="float" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> float</h3>
+					<div class="tsd-signature tsd-kind-icon">float<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Alignment</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/interfaces/IPopupOptions.ts#L35">component/popup/interfaces/IPopupOptions.ts:35</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The direction in which the popup floats with respect to the
+								anchor point or points. If no value is supplied the popup
+								will change float automatically based on the its position
+								in the viewport so that as much of its area as possible is
+							visible.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>For automatic floating (undefined) the popup
+									will float in eight directions around a point or a position
+									in a rect. When a rectangle is set without a position option
+									specified, the popup will float outward from the rectangle
+									center based on the side it is currently rendered in. The
+									default floating direction is to the bottom for both points
+								and rectangles.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>undefined</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="offset" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> offset</h3>
+					<div class="tsd-signature tsd-kind-icon">offset<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/interfaces/IPopupOptions.ts#L43">component/popup/interfaces/IPopupOptions.ts:43</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Offset in pixels in the float direction that the popup
+							will be translated with respect to the current anchor point.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>0</p>
 							</dd>
 						</dl>
 					</div>
@@ -125,36 +184,39 @@
 					<div class="tsd-signature tsd-kind-icon">opacity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L20">component/marker/interfaces/ICircleMarkerOptions.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/interfaces/IPopupOptions.ts#L50">component/popup/interfaces/IPopupOptions.ts:50</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The opacity of the marker.</p>
+							<p>Opacity of the popup visuals.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>0.4</p>
+							<dd><p>1</p>
 							</dd>
 						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="radius" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> radius</h3>
-					<div class="tsd-signature tsd-kind-icon">radius<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="position" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> position</h3>
+					<div class="tsd-signature tsd-kind-icon">position<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Alignment</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/marker/interfaces/ICircleMarkerOptions.ts#L27">component/marker/interfaces/ICircleMarkerOptions.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/popup/interfaces/IPopupOptions.ts#L60">component/popup/interfaces/IPopupOptions.ts:60</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The radius of the circle in meters.</p>
+							<p>The popup position in a rectangle (does not apply to points).
+								When not set the popup will change position automatically
+								based on the viewport so that as much of it as possible is
+							visible.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>1</p>
+							<dd><p>undefined</p>
 							</dd>
 						</dl>
 					</div>
@@ -174,16 +236,22 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="icirclemarkeroptions.html" class="tsd-kind-icon">ICircle<wbr>Marker<wbr>Options</a>
+						<a href="ipopupoptions.html" class="tsd-kind-icon">IPopup<wbr>Options</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#color" class="tsd-kind-icon">color</a>
+								<a href="ipopupoptions.html#clean" class="tsd-kind-icon">clean</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#opacity" class="tsd-kind-icon">opacity</a>
+								<a href="ipopupoptions.html#float" class="tsd-kind-icon">float</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="icirclemarkeroptions.html#radius" class="tsd-kind-icon">radius</a>
+								<a href="ipopupoptions.html#offset" class="tsd-kind-icon">offset</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ipopupoptions.html#opacity" class="tsd-kind-icon">opacity</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ipopupoptions.html#position" class="tsd-kind-icon">position</a>
 							</li>
 						</ul>
 					</li>
