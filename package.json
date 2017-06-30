@@ -81,7 +81,7 @@
     "lint-spec": "tslint -c tslint.json -p tsconfig.json --type-check spec/**/*.ts spec/**/**/*.ts",
     "lint-src": "tslint -c tslint.json -p tsconfig.json --type-check src/*.ts src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts",
     "precommit": "npm run lint -q",
-    "prepublish": "npm run clean && typings install && npm run lint-src && npm run build-min && npm run build-dev && npm run build-css && npm run copy-assets",
+    "prepare": "npm run clean && typings install && npm run lint-src && npm run build-min && npm run build-dev && npm run build-css && npm run copy-assets",
     "prepush": "npm test -q",
     "start": "node server.js",
     "test": "karma start --single-run",
