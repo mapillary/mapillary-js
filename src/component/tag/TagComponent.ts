@@ -56,6 +56,7 @@ import {
 import {
     GLRenderStage,
     IGLRenderHash,
+    ISize,
     IVNodeHash,
     RenderCamera,
 } from "../../Render";
@@ -838,18 +839,19 @@ export class TagComponent extends Component<ITagConfiguration> {
             .combineLatest(
                 this._container.renderService.renderCamera$,
                 this._container.spriteService.spriteAtlas$,
+                this._container.renderService.size$,
                 this._tagChanged$.startWith(null),
                 this._tagCreator.tag$.merge(this._createGeometryChanged$).startWith(null),
-                (renderTags: RenderTag<Tag>[], rc: RenderCamera, atlas: ISpriteAtlas, tag: Tag, ct: OutlineCreateTag):
-                [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag] => {
-                    return [rc, atlas, renderTags, tag, ct];
+                (renderTags: RenderTag<Tag>[], rc: RenderCamera, atlas: ISpriteAtlas, size: ISize, tag: Tag, ct: OutlineCreateTag):
+                [RenderCamera, ISpriteAtlas, ISize, RenderTag<Tag>[], Tag, OutlineCreateTag] => {
+                    return [rc, atlas, size, renderTags, tag, ct];
                 })
             .map(
-                (args: [RenderCamera, ISpriteAtlas, RenderTag<Tag>[], Tag, OutlineCreateTag]):
+                (args: [RenderCamera, ISpriteAtlas, ISize, RenderTag<Tag>[], Tag, OutlineCreateTag]):
                     IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._tagDomRenderer.render(args[2], args[4], args[1], args[0].perspective),
+                        vnode: this._tagDomRenderer.render(args[3], args[5], args[1], args[0].perspective, args[2]),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);

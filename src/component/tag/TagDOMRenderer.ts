@@ -8,6 +8,7 @@ import {
     RenderTag,
     Tag,
 } from "../../Component";
+import {ISize} from "../../Render";
 import {ISpriteAtlas} from "../../Viewer";
 
 export class TagDOMRenderer {
@@ -15,19 +16,20 @@ export class TagDOMRenderer {
         tags: RenderTag<Tag>[],
         createTag: OutlineCreateTag,
         atlas: ISpriteAtlas,
-        camera: THREE.PerspectiveCamera): vd.VNode {
+        camera: THREE.PerspectiveCamera,
+        size: ISize): vd.VNode {
 
-        let matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
-        let projectionMatrix: THREE.Matrix4 = camera.projectionMatrix;
+        const matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
+        const projectionMatrix: THREE.Matrix4 = camera.projectionMatrix;
 
         let vNodes: vd.VNode[] = [];
 
-        for (let tag of tags) {
+        for (const tag of tags) {
             vNodes = vNodes.concat(tag.getDOMObjects(atlas, matrixWorldInverse, projectionMatrix));
         }
 
         if (createTag != null) {
-            vNodes = vNodes.concat(createTag.getDOMObjects(matrixWorldInverse, projectionMatrix));
+            vNodes = vNodes.concat(createTag.getDOMObjects(camera, size));
         }
 
         return vd.h("div.TagContainer", {}, vNodes);

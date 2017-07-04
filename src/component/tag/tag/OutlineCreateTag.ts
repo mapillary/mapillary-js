@@ -13,7 +13,11 @@ import {
     RectGeometry,
     VertexGeometry,
 } from "../../../Component";
-import {Transform} from "../../../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../../../Geo";
+import {ISize} from "../../../Render";
 
 export class OutlineCreateTag {
     private _geometry: VertexGeometry;
@@ -21,6 +25,7 @@ export class OutlineCreateTag {
     private _glObjects: THREE.Object3D[];
     private _options: IOutlineCreateTagOptions;
     private _transform: Transform;
+    private _viewportCoords: ViewportCoords;
 
     private _aborted$: Subject<OutlineCreateTag>;
     private _created$: Subject<OutlineCreateTag>;
@@ -28,10 +33,12 @@ export class OutlineCreateTag {
 
     private _geometryChangedSubscription: Subscription;
 
-    constructor(geometry: VertexGeometry, options: IOutlineCreateTagOptions, transform: Transform) {
+    constructor(geometry: VertexGeometry, options: IOutlineCreateTagOptions, transform: Transform, viewportCoords?: ViewportCoords) {
         this._geometry = geometry;
         this._options = { color: options.color == null ? 0xFFFFFF : options.color };
         this._transform = transform;
+        this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
+
         this._outline = this._createOutine();
         this._glObjects = [this._outline];
 
@@ -83,52 +90,56 @@ export class OutlineCreateTag {
         this._geometryChangedSubscription.unsubscribe();
     }
 
-    public getDOMObjects(
-        matrixWorldInverse: THREE.Matrix4,
-        projectionMatrix: THREE.Matrix4):
-        vd.VNode[] {
+    public getDOMObjects(camera: THREE.Camera, size: ISize): vd.VNode[] {
+        const vNodes: vd.VNode[] = [];
+        const container: { offsetHeight: number, offsetWidth: number } = {
+            offsetHeight: size.height, offsetWidth: size.width,
+        };
 
-        let vNodes: vd.VNode[] = [];
-        let abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
+        const abort: (e: MouseEvent) => void = (e: MouseEvent): void => {
             e.stopPropagation();
             this._aborted$.next(this);
         };
 
         if (this._geometry instanceof RectGeometry) {
-            let topLeftPoint3d: number[] = this._geometry.getVertex3d(1, this._transform);
+            const [basicX, basicY]: number[] = this._geometry.getVertex2d(1);
+            const canvasPoint: number[] =
+                this._viewportCoords.basicToCanvasSafe(
+                    basicX,
+                    basicY,
+                    container,
+                    this._transform,
+                    camera);
 
-            let topLeftCameraSpace: THREE.Vector3 = this._convertToCameraSpace(topLeftPoint3d, matrixWorldInverse);
-            if (topLeftCameraSpace.z < 0) {
-                let centerCanvas: number[] = this._projectToCanvas(topLeftCameraSpace, projectionMatrix);
-                let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                let pointProperties: vd.createProperties = {
-                    style: {
-                        background: "#" + ("000000" + this._options.color.toString(16)).substr(-6),
-                        left: centerCss[0],
-                        position: "absolute",
-                        top: centerCss[1],
-                    },
+            if (canvasPoint != null) {
+                const background: string = this._colorToBackground(this._options.color);
+                const transform: string = this._canvasToTransform(canvasPoint);
+                const pointProperties: vd.createProperties = {
+                    style: { background: background, transform: transform },
                 };
 
-                let completerProperties: vd.createProperties = {
+                const completerProperties: vd.createProperties = {
                     onclick: abort,
-                    style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
+                    style: { transform: transform },
                 };
 
                 vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
                 vNodes.push(vd.h("div.TagVertex", pointProperties, []));
             }
         } else if (this._geometry instanceof PolygonGeometry) {
-            let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
+            const polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
 
-            let firstVertex3d: number[] = this._geometry.getVertex3d(0, this._transform);
-            let firstCameraSpace: THREE.Vector3 = this._convertToCameraSpace(firstVertex3d, matrixWorldInverse);
-            if (firstCameraSpace.z < 0) {
-                let centerCanvas: number[] = this._projectToCanvas(firstCameraSpace, projectionMatrix);
-                let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+            const [firstVertexBasicX, firstVertexBasicY]: number[] = polygonGeometry.getVertex2d(0);
+            const firstVertexCanvas: number[] =
+                this._viewportCoords.basicToCanvasSafe(
+                    firstVertexBasicX,
+                    firstVertexBasicY,
+                    container,
+                    this._transform,
+                    camera);
 
-                let firstOnclick: (e: MouseEvent) => void = polygonGeometry.polygon.length > 4 ?
+            if (firstVertexCanvas != null) {
+                const firstOnclick: (e: MouseEvent) => void = polygonGeometry.polygon.length > 4 ?
                     (e: MouseEvent): void => {
                         e.stopPropagation();
                         polygonGeometry.removeVertex2d(polygonGeometry.polygon.length - 2);
@@ -136,12 +147,13 @@ export class OutlineCreateTag {
                     } :
                     abort;
 
-                let completerProperties: vd.createProperties = {
+                const transform: string = this._canvasToTransform(firstVertexCanvas);
+                const completerProperties: vd.createProperties = {
                     onclick: firstOnclick,
-                    style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
+                    style: { transform: transform },
                 };
 
-                let firstClass: string = polygonGeometry.polygon.length > 4 ?
+                const firstClass: string = polygonGeometry.polygon.length > 4 ?
                     "TagCompleter" :
                     "TagInteractor";
 
@@ -149,42 +161,49 @@ export class OutlineCreateTag {
             }
 
             if (polygonGeometry.polygon.length > 3) {
-                let lastVertex3d: number[] = this._geometry.getVertex3d(polygonGeometry.polygon.length - 3, this._transform);
+                const [lastVertexBasicX, lastVertexBasicY]: number[] = polygonGeometry.getVertex2d(polygonGeometry.polygon.length - 3);
+                const lastVertexCanvas: number[] =
+                    this._viewportCoords.basicToCanvasSafe(
+                        lastVertexBasicX,
+                        lastVertexBasicY,
+                        container,
+                        this._transform,
+                        camera);
 
-                let lastCameraSpace: THREE.Vector3 = this._convertToCameraSpace(lastVertex3d, matrixWorldInverse);
-                if (lastCameraSpace.z < 0) {
-                    let centerCanvas: number[] = this._projectToCanvas(lastCameraSpace, projectionMatrix);
-                    let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                    let remove: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                if (lastVertexCanvas != null) {
+                    const remove: (e: MouseEvent) => void = (e: MouseEvent): void => {
                         e.stopPropagation();
                         polygonGeometry.removeVertex2d(polygonGeometry.polygon.length - 3);
                     };
 
-                    let completerProperties: vd.createProperties = {
+                    const transform: string = this._canvasToTransform(lastVertexCanvas);
+                    const completerProperties: vd.createProperties = {
                         onclick: remove,
-                        style: { left: centerCss[0], position: "absolute", top: centerCss[1] },
+                        style: { transform: transform },
                     };
 
                     vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
                 }
             }
 
-            let vertices3d: number[][] = this._geometry.getVertices3d(this._transform);
-            vertices3d.splice(-2, 2);
+            const verticesBasic: number[][] = polygonGeometry.polygon.slice();
+            verticesBasic.splice(-2, 2);
+            for (const vertexBasic of verticesBasic) {
+                const vertexCanvas: number[] =
+                    this._viewportCoords.basicToCanvasSafe(
+                        vertexBasic[0],
+                        vertexBasic[1],
+                        container,
+                        this._transform,
+                        camera);
 
-            for (let vertex of vertices3d) {
-                let vertexCameraSpace: THREE.Vector3 = this._convertToCameraSpace(vertex, matrixWorldInverse);
-                if (vertexCameraSpace.z < 0) {
-                    let centerCanvas: number[] = this._projectToCanvas(vertexCameraSpace, projectionMatrix);
-                    let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                    let pointProperties: vd.createProperties = {
+                if (vertexCanvas != null) {
+                    const background: string = this._colorToBackground(this._options.color);
+                    const transform: string = this._canvasToTransform(vertexCanvas);
+                    const pointProperties: vd.createProperties = {
                         style: {
-                            background: "#" + ("000000" + this._options.color.toString(16)).substr(-6),
-                            left: centerCss[0],
-                            position: "absolute",
-                            top: centerCss[1],
+                            background: background,
+                            transform: transform,
                         },
                     };
 
@@ -198,7 +217,7 @@ export class OutlineCreateTag {
 
     public addPoint(point: number[]): void {
         if (this._geometry instanceof RectGeometry) {
-            let rectGeometry: RectGeometry = <RectGeometry>this._geometry;
+            const rectGeometry: RectGeometry = <RectGeometry>this._geometry;
 
             if (!rectGeometry.validate(point)) {
                 return;
@@ -206,20 +225,32 @@ export class OutlineCreateTag {
 
             this._created$.next(this);
         } else if (this._geometry instanceof PolygonGeometry) {
-            let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
+            const polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
 
             polygonGeometry.addVertex2d(point);
         }
     }
 
-    private _createOutine(): THREE.Line {
-        let polygon3d: number[][] = this._geometry.getPoints3d(this._transform);
-        let positions: Float32Array = this._getLinePositions(polygon3d);
+    private _canvasToTransform(canvas: number[]): string {
+        const canvasX: number = Math.round(canvas[0]);
+        const canvasY: number = Math.round(canvas[1]);
+        const transform: string = `translate(-50%,-50%) translate(${canvasX}px,${canvasY}px)`;
 
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        return transform;
+    }
+
+    private _colorToBackground(color: number): string {
+        return "#" + ("000000" + color.toString(16)).substr(-6);
+    }
+
+    private _createOutine(): THREE.Line {
+        const polygon3d: number[][] = this._geometry.getPoints3d(this._transform);
+        const positions: Float32Array = this._getLinePositions(polygon3d);
+
+        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
         geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
 
-        let material: THREE.LineBasicMaterial =
+        const material: THREE.LineBasicMaterial =
             new THREE.LineBasicMaterial(
                 {
                     color: this._options.color,
@@ -242,13 +273,13 @@ export class OutlineCreateTag {
     }
 
     private _getLinePositions(polygon3d: number[][]): Float32Array {
-        let length: number = polygon3d.length;
-        let positions: Float32Array = new Float32Array(length * 3);
+        const length: number = polygon3d.length;
+        const positions: Float32Array = new Float32Array(length * 3);
 
         for (let i: number = 0; i < length; ++i) {
-            let index: number = 3 * i;
+            const index: number = 3 * i;
 
-            let position: number[] = polygon3d[i];
+            const position: number[] = polygon3d[i];
 
             positions[index] = position[0];
             positions[index + 1] = position[1];
@@ -256,26 +287,6 @@ export class OutlineCreateTag {
         }
 
         return positions;
-    }
-
-    private _projectToCanvas(
-        point: THREE.Vector3,
-        projectionMatrix: THREE.Matrix4):
-        number[] {
-
-        let projected: THREE.Vector3 =
-            new THREE.Vector3(point.x, point.y, point.z)
-                .applyMatrix4(projectionMatrix);
-
-        return [(projected.x + 1) / 2, (-projected.y + 1) / 2];
-    }
-
-    private _convertToCameraSpace(
-        point: number[],
-        matrixWorldInverse: THREE.Matrix4):
-        THREE.Vector3 {
-
-        return new THREE.Vector3(point[0], point[1], point[2]).applyMatrix4(matrixWorldInverse);
     }
 }
 
