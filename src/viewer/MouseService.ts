@@ -85,26 +85,16 @@ export class MouseService {
         this._domMouseDown$ = Observable.fromEvent<MouseEvent>(domContainer, "mousedown");
         this._domMouseMove$ = Observable.fromEvent<MouseEvent>(domContainer, "mousemove");
 
+        this._click$ = Observable.fromEvent<MouseEvent>(canvasContainer, "click");
+        this._contextMenu$ = Observable.fromEvent<MouseEvent>(canvasContainer, "contextmenu");
+        this._dblClick$ = Observable.fromEvent<MouseEvent>(canvasContainer, "dblclick");
+
         Observable
             .merge(
                 this._domMouseDown$,
-                this._domMouseMove$)
-            .subscribe(
-                (event: MouseEvent): void => {
-                    event.preventDefault();
-                });
-
-        this._click$ = Observable.fromEvent<MouseEvent>(canvasContainer, "click");
-
-        this._dblClick$ = Observable.fromEvent<MouseEvent>(canvasContainer, "dblclick");
-        this._dblClick$
-            .subscribe(
-                (event: MouseEvent): void => {
-                    event.preventDefault();
-                });
-
-        this._contextMenu$ = Observable.fromEvent<MouseEvent>(canvasContainer, "contextmenu");
-        this._contextMenu$
+                this._domMouseMove$,
+                this._dblClick$,
+                this._contextMenu$)
             .subscribe(
                 (event: MouseEvent): void => {
                     event.preventDefault();
