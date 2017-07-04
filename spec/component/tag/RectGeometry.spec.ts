@@ -42,6 +42,19 @@ describe("RectGeometry.ctor", () => {
     });
 });
 
+describe("RectGeometry.getVertex2d", () => {
+    it("should return the polygon vertices", () => {
+        const rect: number[] = [0.2, 0.3, 0.4, 0.5];
+        const geometry: RectGeometry = new RectGeometry(rect);
+
+        expect(geometry.getVertex2d(0)).toEqual([0.2, 0.5]);
+        expect(geometry.getVertex2d(1)).toEqual([0.2, 0.3]);
+        expect(geometry.getVertex2d(2)).toEqual([0.4, 0.3]);
+        expect(geometry.getVertex2d(3)).toEqual([0.4, 0.5]);
+        expect(geometry.getVertex2d(4)).toEqual([0.2, 0.5]);
+    });
+});
+
 describe("RectGeometry.setVertex2d", () => {
     let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
         let node: Node = new Node({

@@ -116,6 +116,19 @@ export class PolygonGeometry extends VertexGeometry {
     }
 
     /**
+     * Get the coordinates of a vertex from the polygon representation of the geometry.
+     *
+     * @description The first vertex represents the bottom-left corner with the rest of
+     * the vertices following in clockwise order.
+     *
+     * @param {number} index - Vertex index.
+     * @returns {Array<number>} Array representing the 2D basic coordinates of the vertex.
+     */
+    public getVertex2d(index: number): number[] {
+        return this._polygon[index].slice();
+    }
+
+    /**
      * Remove a vertex from the polygon.
      *
      * @param {number} index - The index of the vertex to remove.

@@ -46,13 +46,21 @@ export abstract class VertexGeometry extends Geometry {
     public abstract getPoleOfAccessibility3d(transform: Transform): number[];
 
     /**
+     * Get the coordinates of a vertex from the polygon representation of the geometry.
+     *
+     * @param {number} index - Vertex index.
+     * @returns {Array<number>} Array representing the 2D basic coordinates of the vertex.
+     * @ignore
+     */
+    public abstract getVertex2d(index: number): number[];
+
+    /**
      * Get a vertex from the polygon representation of the 3D coordinates for the
      * vertices of the geometry.
      *
      * @param {number} index - Vertex index.
      * @param {Transform} transform - The transform of the node related to the geometry.
-     * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
-     * the vertices of the geometry.
+     * @returns {Array<number>} Array representing the 3D world coordinates of the vertex.
      * @ignore
      */
     public abstract getVertex3d(index: number, transform: Transform): number[];

@@ -91,6 +91,18 @@ describe("PolygonGeometry.ctor", () => {
     });
 });
 
+describe("PolygonGeometry.getVertex2d", () => {
+    it("should return the polygon vertices", () => {
+        const polygon: number[][] = [[0.2, 0.3], [0.4, 0.5], [0.1, 0.7], [0.2, 0.3]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        expect(geometry.getVertex2d(0)).toEqual([0.2, 0.3]);
+        expect(geometry.getVertex2d(1)).toEqual([0.4, 0.5]);
+        expect(geometry.getVertex2d(2)).toEqual([0.1, 0.7]);
+        expect(geometry.getVertex2d(3)).toEqual([0.2, 0.3]);
+    });
+});
+
 describe("PolygonGeometry.addVertex2d", () => {
     it("should add a vertex before closing vertex", () => {
         let original: number[][] = [[0, 0], [0, 0], [0, 0]];
