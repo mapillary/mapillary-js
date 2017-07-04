@@ -129,7 +129,6 @@ export class RenderCamera {
 
         this._perspective.updateMatrix();
         this._perspective.updateMatrixWorld(false);
-        this._perspective.matrixWorldInverse.getInverse(this._perspective.matrixWorld);
 
         this._changed = true;
     }
