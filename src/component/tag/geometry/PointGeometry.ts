@@ -46,6 +46,16 @@ export class PointGeometry extends Geometry {
     }
 
     /**
+     * Get the 2D basic coordinates for the centroid of the point, i.e. the 2D
+     * basic coordinates of the point itself.
+     *
+     * @returns {Array<number>} 2D basic coordinates representing the centroid.
+     */
+    public getCentroid2d(): number[] {
+        return this._point.slice();
+    }
+
+    /**
      * Get the 3D world coordinates for the centroid of the point, i.e. the 3D
      * world coordinates of the point itself.
      *

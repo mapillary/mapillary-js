@@ -103,6 +103,39 @@ describe("PolygonGeometry.getVertex2d", () => {
     });
 });
 
+describe("RectGeometry.getCentroid2d", () => {
+    let precision: number = 1e-8;
+
+    it("should return the centroid", () => {
+        const polygon: number[][] = [[0.1, 0.2], [0.3, 0.2], [0.3, 0.5], [0.1, 0.5], [0.1, 0.2]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const result: number[] = geometry.getCentroid2d();
+
+        expect(result[0]).toBeCloseTo(0.2, precision);
+        expect(result[1]).toBeCloseTo(0.35, precision);
+    });
+});
+
+describe("RectGeometry.getCentroid2d", () => {
+    it("should return the centroid", () => {
+        const polygon: number[][] = [[0.1, 0.2], [0.3, 0.2], [0.3, 0.5], [0.1, 0.5], [0.1, 0.2]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const result: number[][] = geometry.getVertices2d();
+
+        expect(result).not.toBe(geometry.polygon);
+        expect(result).not.toBe(polygon);
+
+        expect(result.length).toBe(5);
+        expect(result[0]).toEqual(polygon[0]);
+        expect(result[1]).toEqual(polygon[1]);
+        expect(result[2]).toEqual(polygon[2]);
+        expect(result[3]).toEqual(polygon[3]);
+        expect(result[4]).toEqual(polygon[4]);
+    });
+});
+
 describe("PolygonGeometry.addVertex2d", () => {
     it("should add a vertex before closing vertex", () => {
         let original: number[][] = [[0, 0], [0, 0], [0, 0]];

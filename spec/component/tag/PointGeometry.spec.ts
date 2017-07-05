@@ -30,6 +30,8 @@ describe("PointGeometry.ctor", () => {
     });
 });
 
+
+
 describe("PointGeometry.setVertex2d", () => {
     let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
         let node: Node = new Node({
@@ -113,5 +115,19 @@ describe("PointGeometry.setVertex2d", () => {
 
         expect(pointGeometry.point[0]).toBe(1);
         expect(pointGeometry.point[1]).toBe(1);
+    });
+});
+
+describe("PointGeometry.getCentroid2d", () => {
+    it("should get an array that is equal to the point", () => {
+        const point: number[] = [0.5, 0.6];
+        const pointGeometry: PointGeometry = new PointGeometry(point);
+
+        const result: number[] = pointGeometry.getCentroid2d();
+
+        expect(result).not.toBe(pointGeometry.point);
+        expect(result).not.toBe(point);
+
+        expect(result).toEqual(point);
     });
 });

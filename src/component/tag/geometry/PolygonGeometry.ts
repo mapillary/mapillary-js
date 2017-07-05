@@ -180,7 +180,7 @@ export class PolygonGeometry extends VertexGeometry {
         let minY: number = Math.min.apply(Math, ys);
         let maxY: number = Math.max.apply(Math, ys);
 
-        let centroid: number[] = this._getCentroid2d();
+        let centroid: number[] = this.getCentroid2d();
 
         let minTranslationX: number = -minX;
         let maxTranslationX: number = 1 - maxX;
@@ -206,6 +206,11 @@ export class PolygonGeometry extends VertexGeometry {
     /** @inheritdoc */
     public getVertex3d(index: number, transform: Transform): number[] {
         return transform.unprojectBasic(this._polygon[index], 200);
+    }
+
+    /** @inheritdoc */
+    public getVertices2d(): number[][] {
+        return this._polygon.slice();
     }
 
     /** @inheritdoc */
@@ -242,29 +247,7 @@ export class PolygonGeometry extends VertexGeometry {
     }
 
     /** @inheritdoc */
-    public getCentroid3d(transform: Transform): number[] {
-        let centroid2d: number[] = this._getCentroid2d();
-
-        return transform.unprojectBasic(centroid2d, 200);
-    }
-
-    /** @inheritdoc */
-    public getTriangles3d(transform: Transform): number[] {
-        return this._triangulate(
-            this._polygon,
-            this.getPoints3d(transform),
-            this._holes,
-            this.getHoleVertices3d(transform));
-    }
-
-    /** @inheritdoc */
-    public getPoleOfAccessibility3d(transform: Transform): number[] {
-        let pole2d: number[] = this._getPoleOfInaccessibility2d(this._polygon.slice());
-
-        return transform.unprojectBasic(pole2d, 200);
-    }
-
-    private _getCentroid2d(): number[] {
+    public getCentroid2d(): number[] {
         let polygon: number[][] = this._polygon;
 
         let area: number = 0;
@@ -290,6 +273,34 @@ export class PolygonGeometry extends VertexGeometry {
         centroidY /= 6 * area;
 
         return [centroidX, centroidY];
+    }
+
+    /** @inheritdoc */
+    public getCentroid3d(transform: Transform): number[] {
+        let centroid2d: number[] = this.getCentroid2d();
+
+        return transform.unprojectBasic(centroid2d, 200);
+    }
+
+    /** @inheritdoc */
+    public getTriangles3d(transform: Transform): number[] {
+        return this._triangulate(
+            this._polygon,
+            this.getPoints3d(transform),
+            this._holes,
+            this.getHoleVertices3d(transform));
+    }
+
+    /** @inheritdoc */
+    public getPoleOfAccessibility2d(): number[] {
+        return this._getPoleOfInaccessibility2d(this._polygon.slice());
+    }
+
+    /** @inheritdoc */
+    public getPoleOfAccessibility3d(transform: Transform): number[] {
+        let pole2d: number[] = this._getPoleOfInaccessibility2d(this._polygon.slice());
+
+        return transform.unprojectBasic(pole2d, 200);
     }
 }
 

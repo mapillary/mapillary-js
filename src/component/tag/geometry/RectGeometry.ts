@@ -243,6 +243,19 @@ export class RectGeometry extends VertexGeometry {
     }
 
     /**
+     * Get a polygon representation of the 2D basic coordinates for the vertices of the rectangle.
+     *
+     * @description The first vertex represents the bottom-left corner with the rest of
+     * the vertices following in clockwise order.
+     *
+     * @returns {Array<Array<number>>} Polygon array of 2D basic coordinates representing
+     * the rectangle vertices.
+     */
+    public getVertices2d(): number[][] {
+        return this._rectToVertices2d(this._rect);
+    }
+
+    /**
      * Get a polygon representation of the 3D coordinates for the vertices of the rectangle.
      *
      * @description The first vertex represents the bottom-left corner with the rest of
@@ -261,19 +274,31 @@ export class RectGeometry extends VertexGeometry {
     }
 
     /** @inheritdoc */
+    public getCentroid2d(): number[] {
+        const rect: number[] = this._rect;
+
+        const x0: number = rect[0];
+        const x1: number = this._inverted ? rect[2] + 1 : rect[2];
+
+        const y0: number = rect[1];
+        const y1: number = rect[3];
+
+        const centroidX: number = x0 + (x1 - x0) / 2;
+        const centroidY: number = y0 + (y1 - y0) / 2;
+
+        return [centroidX, centroidY];
+    }
+
+    /** @inheritdoc */
     public getCentroid3d(transform: Transform): number[] {
-        let rect: number[] = this._rect;
+        const centroid2d: number[] = this.getCentroid2d();
 
-        let x0: number = rect[0];
-        let x1: number = this._inverted ? rect[2] + 1 : rect[2];
+        return transform.unprojectBasic(centroid2d, 200);
+    }
 
-        let y0: number = rect[1];
-        let y1: number = rect[3];
-
-        let centroidX: number = x0 + (x1 - x0) / 2;
-        let centroidY: number = y0 + (y1 - y0) / 2;
-
-        return transform.unprojectBasic([centroidX, centroidY], 200);
+    /** @inheritdoc */
+    public getPoleOfAccessibility2d(): number[] {
+        return this._getPoleOfInaccessibility2d(this._rectToVertices2d(this._rect));
     }
 
     /** @inheritdoc */

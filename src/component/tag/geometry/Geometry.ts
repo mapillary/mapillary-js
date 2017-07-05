@@ -34,6 +34,14 @@ export abstract class Geometry {
     }
 
     /**
+     * Get the 2D basic coordinates for the centroid of the geometry.
+     *
+     * @returns {Array<number>} 2D basic coordinates representing the centroid.
+     * @ignore
+     */
+    public abstract getCentroid2d(): number[];
+
+    /**
      * Get the 3D world coordinates for the centroid of the geometry.
      *
      * @param {Transform} transform - The transform of the node related to the geometry.
