@@ -2,13 +2,25 @@
     cursor: crosshair;
 }
 
+.TagCompleter,
+.TagInteractor,
+.TagMover,
+.TagResizer,
+.TagSpotInteractor,
+.TagSymbol,
+.TagVertex {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
 .TagSymbol {
     cursor: pointer;
+    pointer-events: auto;
 }
 
 .TagMover,
 .TagResizer {
-    transform: translate(-50%, -50%);
     pointer-events: auto;
 }
 
@@ -37,10 +49,6 @@
 }
 
 .TagVertex {
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform: translate(-50%, -50%);
     pointer-events: none;
     border-radius: 3px;
     width: 6px;
@@ -50,10 +58,6 @@
 .TagInteractor,
 .TagCompleter,
 .TagSpotInteractor {
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform: translate(-50%, -50%);
     pointer-events: auto;
     border-radius: 7px;
     width: 14px;

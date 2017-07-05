@@ -6,8 +6,10 @@ import * as vd from "virtual-dom";
 import {
     RenderTag,
     SpotTag,
+    Tag,
     TagOperation,
 } from "../../../Component";
+import {ISize} from "../../../Render";
 import {
     Alignment,
     ISpriteAtlas,
@@ -18,85 +20,80 @@ import {
  * @classdesc Tag visualizing the properties of a SpotTag.
  */
 export class SpotRenderTag extends RenderTag<SpotTag> {
-    public dispose(): void { return; }
+    public dispose(): void { /* noop */ }
 
-    public getDOMObjects(
-        atlas: ISpriteAtlas,
-        matrixWorldInverse: THREE.Matrix4,
-        projectionMatrix: THREE.Matrix4):
-        vd.VNode[] {
+    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[] {
+        const tag: SpotTag = this._tag;
+        const container: { offsetHeight: number, offsetWidth: number } = {
+            offsetHeight: size.height, offsetWidth: size.width,
+        };
 
-        let vNodes: vd.VNode[] = [];
+        const vNodes: vd.VNode[] = [];
+        const [centroidBasicX, centroidBasicY]: number[] = tag.geometry.getCentroid2d();
+        const centroidCanvas: number[] =
+            this._viewportCoords.basicToCanvasSafe(
+                centroidBasicX,
+                centroidBasicY,
+                container,
+                this._transform,
+                camera);
 
-        let centroid3d: number[] = this._tag.geometry.getCentroid3d(this._transform);
-        let centroidCameraSpace: THREE.Vector3 = this._convertToCameraSpace(centroid3d, matrixWorldInverse);
-        if (centroidCameraSpace.z < 0) {
-            let centroidCanvas: number[] = this._projectToCanvas(centroidCameraSpace, projectionMatrix);
-            let centroidCss: string[] = centroidCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-            let interactNone: (e: MouseEvent) => void = (e: MouseEvent): void => {
-                this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
+        if (centroidCanvas != null) {
+            const interactNone: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: tag });
             };
 
-            if (this._tag.icon != null) {
-                if (atlas.loaded) {
-                    let sprite: vd.VNode = atlas.getDOMSprite(this._tag.icon, Alignment.Bottom);
+            const canvasX: number = Math.round(centroidCanvas[0]);
+            const canvasY: number = Math.round(centroidCanvas[1]);
 
-                    let properties: vd.createProperties = {
+            if (tag.icon != null) {
+                if (atlas.loaded) {
+                    const sprite: vd.VNode = atlas.getDOMSprite(tag.icon, Alignment.Bottom);
+                    const transform: string = `translate(${canvasX}px,${canvasY + 8}px)`;
+                    const properties: vd.createProperties = {
                         onmousedown: interactNone,
                         style: {
-                            left: centroidCss[0],
                             pointerEvents: "all",
-                            position: "absolute",
-                            top: centroidCss[1],
-                            transform: "translate(0, 8px)",
+                            transform: transform,
                         },
                     };
 
                     vNodes.push(vd.h("div", properties, [sprite]));
                 }
-            } else if (this._tag.text != null) {
-                let properties: vd.createProperties = {
+            } else if (tag.text != null) {
+                const transform: string = `translate(-50%,0%) translate(${canvasX}px,${canvasY + 8}px)`;
+                const properties: vd.createProperties = {
                     onmousedown: interactNone,
                     style: {
-                        color: "#" + ("000000" + this._tag.textColor.toString(16)).substr(-6),
-                        left: centroidCss[0],
-                        pointerEvents: "all",
-                        position: "absolute",
-                        top: centroidCss[1],
-                        transform: "translate(-50%, 8px)",
+                        color: this._colorToCss(tag.textColor),
+                        transform: transform,
                     },
-                    textContent: this._tag.text,
+                    textContent: tag.text,
                 };
 
                 vNodes.push(vd.h("span.TagSymbol", properties, []));
             }
 
-            let interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid);
+            const interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid, tag);
+            const background: string = this._colorToCss(tag.color);
+            const transform: string = `translate(-50%,-50%) translate(${canvasX}px,${canvasY}px)`;
 
-            let background: string = "#" + ("000000" + this._tag.color.toString(16)).substr(-6);
-
-            if (this._tag.editable) {
+            if (tag.editable) {
                 let interactorProperties: vd.createProperties = {
                     onmousedown: interact,
                     style: {
                         background: background,
-                        left: centroidCss[0],
-                        pointerEvents: "all",
-                        position: "absolute",
-                        top: centroidCss[1],
+                        transform: transform,
                     },
                 };
 
                 vNodes.push(vd.h("div.TagSpotInteractor", interactorProperties, []));
             }
 
-            let pointProperties: vd.createProperties = {
+            const pointProperties: vd.createProperties = {
                 style: {
                     background: background,
-                    left: centroidCss[0],
-                    position: "absolute",
-                    top: centroidCss[1],
+                    transform: transform,
                 },
             };
 
@@ -106,16 +103,20 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
         return vNodes;
     }
 
-    private _interact(operation: TagOperation, vertexIndex?: number): (e: MouseEvent) => void {
+    private _colorToCss(color: number): string {
+        return "#" + ("000000" + color.toString(16)).substr(-6);
+    }
+
+    private _interact(operation: TagOperation, tag: Tag, vertexIndex?: number): (e: MouseEvent) => void {
         return (e: MouseEvent): void => {
-            let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
-            let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
+            const offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
+            const offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
 
             this._interact$.next({
                 offsetX: offsetX,
                 offsetY: offsetY,
                 operation: operation,
-                tag: this._tag,
+                tag: tag,
                 vertexIndex: vertexIndex,
             });
         };

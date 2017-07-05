@@ -19,13 +19,10 @@ export class TagDOMRenderer {
         camera: THREE.PerspectiveCamera,
         size: ISize): vd.VNode {
 
-        const matrixWorldInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(camera.matrixWorld);
-        const projectionMatrix: THREE.Matrix4 = camera.projectionMatrix;
-
         let vNodes: vd.VNode[] = [];
 
         for (const tag of tags) {
-            vNodes = vNodes.concat(tag.getDOMObjects(atlas, matrixWorldInverse, projectionMatrix));
+            vNodes = vNodes.concat(tag.getDOMObjects(atlas, camera, size));
         }
 
         if (createTag != null) {

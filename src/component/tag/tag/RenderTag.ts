@@ -7,21 +7,27 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {IInteraction} from "../../../Component";
-import {Transform} from "../../../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../../../Geo";
+import {ISize} from "../../../Render";
 import {ISpriteAtlas} from "../../../Viewer";
 
 export abstract class RenderTag<T> {
     protected _tag: T;
     protected _transform: Transform;
+    protected _viewportCoords: ViewportCoords;
 
     protected _glObjects: THREE.Object3D[];
 
     protected _glObjectsChanged$: Subject<RenderTag<T>>;
     protected _interact$: Subject<IInteraction>;
 
-    constructor(tag: T, transform: Transform) {
+    constructor(tag: T, transform: Transform, viewportCoords?: ViewportCoords) {
         this._tag = tag;
         this._transform = transform;
+        this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
 
         this._glObjects = [];
 
@@ -51,11 +57,7 @@ export abstract class RenderTag<T> {
 
     public abstract dispose(): void;
 
-    public abstract getDOMObjects(
-        atlas: ISpriteAtlas,
-        matrixWorldInverse: THREE.Matrix4,
-        projectionMatrix: THREE.Matrix4):
-        vd.VNode[];
+    public abstract getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[];
 
     protected _projectToCanvas(
         point3d: THREE.Vector3,

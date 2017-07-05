@@ -14,6 +14,7 @@ import {
     TagOperation,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
+import {ISize} from "../../../Render";
 import {ISpriteAtlas} from "../../../Viewer";
 
 /**
@@ -102,76 +103,81 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         this._geometryChangedSubscription.unsubscribe();
     }
 
-    public getDOMObjects(
-        atlas: ISpriteAtlas,
-        matrixWorldInverse: THREE.Matrix4,
-        projectionMatrix: THREE.Matrix4):
-        vd.VNode[] {
-
+    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[] {
         const vNodes: vd.VNode[] = [];
         const isRect: boolean = this._tag.geometry instanceof RectGeometry;
         const isPerspective: boolean = !this._transform.gpano;
+        const container: { offsetHeight: number, offsetWidth: number } = {
+            offsetHeight: size.height, offsetWidth: size.width,
+        };
 
         if (this._tag.icon != null && (isRect || isPerspective)) {
-            let icon3d: number[] = this._tag.geometry instanceof RectGeometry ?
-                this._tag.geometry.getVertex3d(this._tag.iconIndex, this._transform) :
-                this._tag.geometry.getPoleOfAccessibility3d(this._transform);
+            const [iconBasicX, iconBasicY]: number[] = this._tag.geometry instanceof RectGeometry ?
+                this._tag.geometry.getVertex2d(this._tag.iconIndex) :
+                this._tag.geometry.getPoleOfAccessibility2d();
 
-            let iconCameraSpace: THREE.Vector3 = this._convertToCameraSpace(icon3d, matrixWorldInverse);
-            if (iconCameraSpace.z < 0) {
-                let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+            const iconCanvas: number[] =
+                this._viewportCoords.basicToCanvasSafe(
+                    iconBasicX,
+                    iconBasicY,
+                    container,
+                    this._transform,
+                    camera);
+
+            if (iconCanvas != null) {
+                const interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
                     this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
                 };
 
                 if (atlas.loaded) {
-                    let sprite: vd.VNode =
-                        atlas.getDOMSprite(this._tag.icon, this._tag.iconFloat);
+                    const sprite: vd.VNode = atlas.getDOMSprite(this._tag.icon, this._tag.iconFloat);
+                    const iconCanvasX: number = Math.round(iconCanvas[0]);
+                    const iconCanvasY: number = Math.round(iconCanvas[1]);
+                    const transform: string = `translate(${iconCanvasX}px,${iconCanvasY}px)`;
 
-                    let click: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                    const click: (e: MouseEvent) => void = (e: MouseEvent): void => {
                         e.stopPropagation();
                         this._tag.click$.next(this._tag);
                     };
 
-                    let iconCanvas: number[] = this._projectToCanvas(iconCameraSpace, projectionMatrix);
-                    let iconCss: string[] = iconCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                    let properties: vd.createProperties = {
+                    const properties: vd.createProperties = {
                         onclick: click,
                         onmousedown: interact,
-                        style: {
-                            left: iconCss[0],
-                            pointerEvents: "all",
-                            position: "absolute",
-                            top: iconCss[1],
-                        },
+                        style: { transform: transform },
                     };
 
                     vNodes.push(vd.h("div.TagSymbol", properties, [sprite]));
                 }
             }
         } else if (this._tag.text != null && (isRect || isPerspective)) {
-            let text3d: number[] = this._tag.geometry instanceof RectGeometry ?
-                this._tag.geometry.getVertex3d(3, this._transform) :
-                this._tag.geometry.getPoleOfAccessibility3d(this._transform);
+            const [textBasicX, textBasicY]: number[] = this._tag.geometry instanceof RectGeometry ?
+                this._tag.geometry.getVertex2d(3) :
+                this._tag.geometry.getPoleOfAccessibility2d();
 
-            let textCameraSpace: THREE.Vector3 = this._convertToCameraSpace(text3d, matrixWorldInverse);
-            if (textCameraSpace.z < 0) {
-                let interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+            const textCanvas: number[] =
+                this._viewportCoords.basicToCanvasSafe(
+                    textBasicX,
+                    textBasicY,
+                    container,
+                    this._transform,
+                    camera);
+
+            if (textCanvas != null) {
+                const textCanvasX: number = Math.round(textCanvas[0]);
+                const textCanvasY: number = Math.round(textCanvas[1]);
+                const transform: string = this._tag.geometry instanceof RectGeometry ?
+                    `translate(${textCanvasX}px,${textCanvasY}px)` :
+                    `translate(-50%, -50%) translate(${textCanvasX}px,${textCanvasY}px)`;
+
+                const interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
                     this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
                 };
 
-                let labelCanvas: number[] = this._projectToCanvas(textCameraSpace, projectionMatrix);
-                let labelCss: string[] = labelCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-                let properties: vd.createProperties = {
+                const properties: vd.createProperties = {
                     onmousedown: interact,
                     style: {
-                        color: "#" + ("000000" + this._tag.textColor.toString(16)).substr(-6),
-                        left: labelCss[0],
-                        pointerEvents: "all",
-                        position: "absolute",
-                        top: labelCss[1],
-                        transform: this._tag.geometry instanceof RectGeometry ? undefined : "translate(-50%, -50%)",
+                        color: this._colorToCss(this._tag.textColor),
+                        transform: transform,
                     },
                     textContent: this._tag.text,
                 };
@@ -184,59 +190,66 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
             return vNodes;
         }
 
-        let lineColor: string = "#" + ("000000" + this._tag.lineColor.toString(16)).substr(-6);
+        const lineColor: string = this._colorToCss(this._tag.lineColor);
 
         if (this._tag.geometry instanceof RectGeometry) {
-            let centroid3d: number[] = this._tag.geometry.getCentroid3d(this._transform);
-            let centroidCameraSpace: THREE.Vector3 = this._convertToCameraSpace(centroid3d, matrixWorldInverse);
-            if (centroidCameraSpace.z < 0) {
-                let interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid);
+            const [centroidBasicX, centroidBasicY]: number[] = this._tag.geometry.getCentroid2d();
+            const centroidCanvas: number[] =
+                this._viewportCoords.basicToCanvasSafe(
+                    centroidBasicX,
+                    centroidBasicY,
+                    container,
+                    this._transform,
+                    camera);
 
-                let centerCanvas: number[] = this._projectToCanvas(centroidCameraSpace, projectionMatrix);
-                let centerCss: string[] = centerCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
+            if (centroidCanvas != null) {
+                const interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid);
+                const centroidCanvasX: number = Math.round(centroidCanvas[0]);
+                const centroidCanvasY: number = Math.round(centroidCanvas[1]);
+                const transform: string = `translate(-50%, -50%) translate(${centroidCanvasX}px,${centroidCanvasY}px)`;
 
-                let properties: vd.createProperties = {
+                const properties: vd.createProperties = {
                     onmousedown: interact,
-                    style: { background: lineColor, left: centerCss[0], position: "absolute", top: centerCss[1] },
+                    style: { background: lineColor, transform: transform },
                 };
 
                 vNodes.push(vd.h("div.TagMover", properties, []));
             }
         }
 
-        let vertices3d: number[][] = this._tag.geometry.getVertices3d(this._transform);
+        const vertices2d: number[][] = this._tag.geometry.getVertices2d();
 
-        for (let i: number = 0; i < vertices3d.length - 1; i++) {
-            let isRectGeometry: boolean = this._tag.geometry instanceof RectGeometry;
-
-            if (isRectGeometry &&
+        for (let i: number = 0; i < vertices2d.length - 1; i++) {
+            if (isRect &&
                 ((this._tag.icon != null && i === this._tag.iconIndex) ||
                 (this._tag.icon == null && this._tag.text != null && i === 3))) {
                 continue;
             }
 
-            let vertexCameraSpace: THREE.Vector3 = this._convertToCameraSpace(vertices3d[i], matrixWorldInverse);
+            const [vertexBasicX, vertexBasicY]: number[] = vertices2d[i];
+            const vertexCanvas: number[] =
+                this._viewportCoords.basicToCanvasSafe(
+                    vertexBasicX,
+                    vertexBasicY,
+                    container,
+                    this._transform,
+                    camera);
 
-            if (vertexCameraSpace.z > 0) {
+            if (vertexCanvas == null) {
                 continue;
             }
 
-            let interact: (e: MouseEvent) => void = this._interact(TagOperation.Vertex, i);
+            const interact: (e: MouseEvent) => void = this._interact(TagOperation.Vertex, i);
+            const vertexCanvasX: number = Math.round(vertexCanvas[0]);
+            const vertexCanvasY: number = Math.round(vertexCanvas[1]);
+            const transform: string = `translate(-50%, -50%) translate(${vertexCanvasX}px,${vertexCanvasY}px)`;
 
-            let vertexCanvas: number[] = this._projectToCanvas(vertexCameraSpace, projectionMatrix);
-            let vertexCss: string[] = vertexCanvas.map((coord: number): string => { return (100 * coord) + "%"; });
-
-            let properties: vd.createProperties = {
+            const properties: vd.createProperties = {
                 onmousedown: interact,
-                style: {
-                    background: lineColor,
-                    left: vertexCss[0],
-                    position: "absolute",
-                    top: vertexCss[1],
-                },
+                style: { background: lineColor, transform: transform },
             };
 
-            if (isRectGeometry) {
+            if (isRect) {
                 properties.style.cursor = i % 2 === 0 ? "nesw-resize" : "nwse-resize";
             }
 
@@ -246,19 +259,18 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                 continue;
             }
 
-            let pointProperties: vd.createProperties = {
-                style: {
-                    background: lineColor,
-                    left: vertexCss[0],
-                    position: "absolute",
-                    top: vertexCss[1],
-                },
+            const pointProperties: vd.createProperties = {
+                style: { background: lineColor, transform: transform },
             };
 
             vNodes.push(vd.h("div.TagVertex", pointProperties, []));
         }
 
         return vNodes;
+    }
+
+    private _colorToCss(color: number): string {
+        return "#" + ("000000" + color.toString(16)).substr(-6);
     }
 
     private _createFill(): THREE.Mesh {
