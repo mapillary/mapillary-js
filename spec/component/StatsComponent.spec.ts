@@ -17,8 +17,8 @@ import {
 describe("StatsComponent", () => {
     it("should be defined", () => {
         let mockCreator: MockCreator = new MockCreator();
-        let containerMock: Container = mockCreator.createMock(Container, "Container");
-        let navigatorMock: Navigator = mockCreator.createMock(Navigator, "Navigator");
+        let containerMock: Container = mockCreator.create(Container, "Container");
+        let navigatorMock: Navigator = mockCreator.create(Navigator, "Navigator");
 
         let statsComponent: StatsComponent =
             new StatsComponent(
@@ -33,9 +33,9 @@ describe("StatsComponent", () => {
 describe("StatsComponent.activate", () => {
     it("should activate properly", () => {
         let mockCreator: MockCreator = new MockCreator();
-        let containerMock: Container = mockCreator.createMock(Container, "Container");
+        let containerMock: Container = mockCreator.create(Container, "Container");
         let navigatorMockCreator: NavigatorMockCreator = new NavigatorMockCreator();
-        let navigatorMock: Navigator = navigatorMockCreator.createMock();
+        let navigatorMock: Navigator = navigatorMockCreator.create();
 
         let statsComponent: StatsComponent =
             new StatsComponent(
@@ -48,9 +48,9 @@ describe("StatsComponent.activate", () => {
 
     it("should send sequence stats for current node", () => {
         let containerMockCreator: ContainerMockCreator = new ContainerMockCreator();
-        let containerMock: Container = containerMockCreator.createMock();
+        let containerMock: Container = containerMockCreator.create();
         let navigatorMockCreator: NavigatorMockCreator = new NavigatorMockCreator();
-        let navigatorMock: Navigator = navigatorMockCreator.createMock();
+        let navigatorMock: Navigator = navigatorMockCreator.create();
 
         let statsComponent: StatsComponent =
             new StatsComponent(
@@ -83,9 +83,9 @@ describe("StatsComponent.activate", () => {
 
     it("should only send the same sequence key once", () => {
         let containerMockCreator: ContainerMockCreator = new ContainerMockCreator();
-        let containerMock: Container = containerMockCreator.createMock();
+        let containerMock: Container = containerMockCreator.create();
         let navigatorMockCreator: NavigatorMockCreator = new NavigatorMockCreator();
-        let navigatorMock: Navigator = navigatorMockCreator.createMock();
+        let navigatorMock: Navigator = navigatorMockCreator.create();
 
         let statsComponent: StatsComponent =
             new StatsComponent(
@@ -117,9 +117,9 @@ describe("StatsComponent.activate", () => {
 
     it("should send node stats for current node", () => {
         let containerMockCreator: ContainerMockCreator = new ContainerMockCreator();
-        let containerMock: Container = containerMockCreator.createMock();
+        let containerMock: Container = containerMockCreator.create();
         let navigatorMockCreator: NavigatorMockCreator = new NavigatorMockCreator();
-        let navigatorMock: Navigator = navigatorMockCreator.createMock();
+        let navigatorMock: Navigator = navigatorMockCreator.create();
 
         let statsComponent: StatsComponent =
             new StatsComponent(
@@ -158,9 +158,9 @@ describe("StatsComponent.activate", () => {
 describe("StatsComponent.deactivate", () => {
     it("should deactivate properly", () => {
         let containerMockCreator: ContainerMockCreator = new ContainerMockCreator();
-        let containerMock: Container = containerMockCreator.createMock();
+        let containerMock: Container = containerMockCreator.create();
         let navigatorMockCreator: NavigatorMockCreator = new NavigatorMockCreator();
-        let navigatorMock: Navigator = navigatorMockCreator.createMock();
+        let navigatorMock: Navigator = navigatorMockCreator.create();
 
         let statsComponent: StatsComponent =
             new StatsComponent(

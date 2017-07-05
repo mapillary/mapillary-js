@@ -88,10 +88,10 @@ const createTouchEvent: (eventType: string, shiftKey: boolean) => TouchEvent =
 describe("DoubleClickZoomHandler.ctor", () => {
     it("should be defined", () => {
         let mockCreator: MockCreator = new MockCreator();
-        let containerMock: Container = mockCreator.createMock(Container, "Container");
-        let navigatorMock: Navigator = mockCreator.createMock(Navigator, "Navigator");
+        let containerMock: Container = mockCreator.create(Container, "Container");
+        let navigatorMock: Navigator = mockCreator.create(Navigator, "Navigator");
         let viewportCoordsMock: ViewportCoords =
-            mockCreator.createMock(ViewportCoords, "ViewportCoords");
+            mockCreator.create(ViewportCoords, "ViewportCoords");
 
         let handler: DoubleClickZoomHandler = new DoubleClickZoomHandler(
             new TestComponent("test", containerMock, navigatorMock),
@@ -110,9 +110,9 @@ describe("DoubleClickZoomHandler.enable", () => {
     let testComponent: TestComponent;
 
     beforeEach(() => {
-        containerMock = new ContainerMockCreator().createMock();
-        navigatorMock = new NavigatorMockCreator().createMock();
-        viewportCoordsMock = new MockCreator().createMock(ViewportCoords, "ViewportCoords");
+        containerMock = new ContainerMockCreator().create();
+        navigatorMock = new NavigatorMockCreator().create();
+        viewportCoordsMock = new MockCreator().create(ViewportCoords, "ViewportCoords");
         testComponent = new TestComponent("test", containerMock, navigatorMock);
     });
 

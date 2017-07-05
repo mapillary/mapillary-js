@@ -24,8 +24,8 @@ describe("PopupComponent.ctor", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         expect(popupComponent).toBeDefined();
     });
@@ -36,8 +36,8 @@ describe("PopupComponent.deactivate", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         popupComponent.activate();
         popupComponent.deactivate();
@@ -49,8 +49,8 @@ describe("PopupComponent.add", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup: Popup = new Popup();
         popup.setDOMContent(document.createElement("div"));
@@ -66,8 +66,8 @@ describe("PopupComponent.add", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup1: Popup = new Popup();
         popup1.setDOMContent(document.createElement("div"));
@@ -88,8 +88,8 @@ describe("PopupComponent.add", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup1: Popup = new Popup();
         popup1.setDOMContent(document.createElement("div"));
@@ -110,8 +110,8 @@ describe("PopupComponent.add", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup: Popup = new Popup();
         popup.setDOMContent(document.createElement("div"));
@@ -129,8 +129,8 @@ describe("PopupComponent.add", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup: Popup = new Popup();
         popup.setDOMContent(document.createElement("div"));
@@ -149,8 +149,8 @@ describe("PopupComponent.remove", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup: Popup = new Popup();
         popup.setDOMContent(document.createElement("div"));
@@ -167,8 +167,8 @@ describe("PopupComponent.remove", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup1: Popup = new Popup();
         popup1.setDOMContent(document.createElement("div"));
@@ -190,8 +190,8 @@ describe("PopupComponent.remove", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup1: Popup = new Popup();
         popup1.setDOMContent(document.createElement("div"));
@@ -211,8 +211,8 @@ describe("PopupComponent.remove", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup1: Popup = new Popup();
         popup1.setDOMContent(document.createElement("div"));
@@ -240,8 +240,8 @@ describe("PopupComponent.removeAll", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup: Popup = new Popup();
         popup.setDOMContent(document.createElement("div"));
@@ -258,8 +258,8 @@ describe("PopupComponent.removeAll", () => {
         const popupComponent: PopupComponent =
             new PopupComponent(
                 PopupComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const popup1: Popup = new Popup();
         popup1.setDOMContent(document.createElement("div"));
@@ -278,8 +278,8 @@ describe("PopupComponent.removeAll", () => {
 
 describe("PopupComponent.updateAdded", () => {
     it("should update a popup once when added", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const popupComponent: PopupComponent =
             new PopupComponent(
@@ -304,8 +304,8 @@ describe("PopupComponent.updateAdded", () => {
     });
 
     it("should update a popup when changed", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const popupComponent: PopupComponent =
             new PopupComponent(
@@ -334,8 +334,8 @@ describe("PopupComponent.updateAdded", () => {
 
 describe("PopupComponent.updateAll", () => {
     it("should update a popup once when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const popupComponent: PopupComponent =
             new PopupComponent(
@@ -360,8 +360,8 @@ describe("PopupComponent.updateAll", () => {
     });
 
     it("should not update a popup  when deactivated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const popupComponent: PopupComponent =
             new PopupComponent(
@@ -390,8 +390,8 @@ describe("PopupComponent.updateAll", () => {
 
 describe("PopupComponent.deactivate", () => {
     it("should remove a popup once when deactivated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const popupComponent: PopupComponent =
             new PopupComponent(

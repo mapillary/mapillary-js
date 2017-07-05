@@ -21,8 +21,8 @@ describe("Observer.ctor", () => {
         const observer: Observer =
             new Observer(
                 eventEmitter,
-                new NavigatorMockCreator().createMock(),
-                new ContainerMockCreator().createMock());
+                new NavigatorMockCreator().create(),
+                new ContainerMockCreator().create());
 
         expect(observer).toBeDefined();
     });
@@ -31,12 +31,12 @@ describe("Observer.ctor", () => {
 describe("Observer.loading", () => {
     it("should emit loading when not started", (done: Function) => {
         const eventEmitter: EventEmitter = new TestEventEmitter();
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const observer: Observer = new Observer(
             eventEmitter,
             navigatorMock,
-            new ContainerMockCreator().createMock());
+            new ContainerMockCreator().create());
 
         expect(observer).toBeDefined();
 
@@ -52,13 +52,13 @@ describe("Observer.loading", () => {
 
     it("should emit loading when started", (done: Function) => {
         const eventEmitter: EventEmitter = new TestEventEmitter();
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const observer: Observer =
             new Observer(
                 eventEmitter,
                 navigatorMock,
-                new ContainerMockCreator().createMock());
+                new ContainerMockCreator().create());
 
         eventEmitter.on(
             Viewer.loadingchanged,
@@ -75,13 +75,13 @@ describe("Observer.loading", () => {
 
     it("should emit loading when started and stopped", (done: Function) => {
         const eventEmitter: EventEmitter = new TestEventEmitter();
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const observer: Observer =
             new Observer(
                 eventEmitter,
                 navigatorMock,
-                new ContainerMockCreator().createMock());
+                new ContainerMockCreator().create());
 
         eventEmitter.on(
             Viewer.loadingchanged,

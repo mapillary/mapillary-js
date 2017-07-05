@@ -13,7 +13,7 @@ interface IActiveComponent {
 
 export class ComponentService {
     public static registeredCoverComponent: typeof CoverComponent;
-    public static registeredComponents: {[key: string]: typeof Component} = {};
+    public static registeredComponents: {[key: string]: { new (...args: any[]): Component<IComponentConfiguration>; }} = {};
 
     private _container: Container;
     private _coverActivated: boolean;
@@ -21,7 +21,8 @@ export class ComponentService {
     private _navigator: Navigator;
     private _components: {[key: string]: IActiveComponent} = {};
 
-    public static register(component: typeof Component): void {
+    public static register<T extends Component<IComponentConfiguration>>(
+        component: { componentName: string, new (...args: any[]): T; }): void {
         if (ComponentService.registeredComponents[component.componentName] === undefined) {
             ComponentService.registeredComponents[component.componentName] = component;
         }

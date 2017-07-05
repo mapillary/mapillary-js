@@ -26,10 +26,10 @@ describe("TextureProvider.ctor", () => {
     it("should be contructed", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         (<jasmine.Spy>imageTileLoader.getTile).and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
@@ -53,11 +53,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request one tile for the whole image with original size when resolution is the same as the image size", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -106,11 +106,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request one tile for the whole image with original size when resolution higher than image size", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -159,11 +159,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request one tile for the whole image with scaled size when resolution is lower than image size", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -212,11 +212,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request one tile for the whole image with scaled size 1 x 1 when image is contained in one screen pixel", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -265,11 +265,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request one tile with correct size when image width is larger than tile size", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -318,11 +318,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request one tile with correct size when image width is larger than tile size", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -371,11 +371,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request one tile with correct size when image width is larger than tile size", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -424,11 +424,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request correct width and height and not scale image when image aspect ratio is not square", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -477,11 +477,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request correct width and height and scale image when image aspect ratio is not square", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -530,11 +530,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request multiple tiles in x direction", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({
@@ -592,11 +592,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
     it("should request multiple tiles in y direction", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().createMock(ImageTileLoader, "ImageTileLoader");
+        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
         getTileSpy.and.returnValue([Observable.empty<HTMLImageElement>(), (): void => { return; }]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().createMock(ImageTileStore, "ImageTileStore");
+        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue({

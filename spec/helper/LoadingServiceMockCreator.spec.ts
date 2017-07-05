@@ -3,13 +3,14 @@
 import {Subject} from "rxjs/Subject";
 
 import {MockCreator} from "./MockCreator.spec";
+import {MockCreatorBase} from "./MockCreatorBase.spec";
 import {
     LoadingService,
 } from "../../src/Viewer";
 
-export class LoadingServiceMockCreator extends MockCreator {
-    public createMock(): LoadingService {
-        let mock: LoadingService = super.createMock(LoadingService, "LoadingService");
+export class LoadingServiceMockCreator extends MockCreatorBase<LoadingService> {
+    public create(): LoadingService {
+        const mock: LoadingService = new MockCreator().create(LoadingService, "LoadingService");
 
         this._mockProperty(mock, "loading$", new Subject<boolean>());
 

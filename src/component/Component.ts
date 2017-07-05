@@ -7,7 +7,10 @@ import "rxjs/add/operator/scan";
 import "rxjs/add/operator/startWith";
 
 import {IComponentConfiguration} from "../Component";
-import {Container, Navigator} from "../Viewer";
+import {
+    Container,
+    Navigator,
+} from "../Viewer";
 import {EventEmitter} from "../Utils";
 
 export abstract class Component<TConfiguration extends IComponentConfiguration> extends EventEmitter {

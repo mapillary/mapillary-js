@@ -3,13 +3,14 @@
 import {Subject} from "rxjs/Subject";
 
 import {MockCreator} from "./MockCreator.spec";
+import {MockCreatorBase} from "./MockCreatorBase.spec";
 import {
     MouseService,
 } from "../../src/Viewer";
 
-export class MouseServiceMockCreator extends MockCreator {
-    public createMock(): MouseService {
-        let mock: MouseService = super.createMock(MouseService, "MouseService");
+export class MouseServiceMockCreator extends MockCreatorBase<MouseService> {
+    public create(): MouseService {
+        const mock: MouseService = new MockCreator().create(MouseService, "MouseService");
 
         this._mockProperty(mock, "active$", new Subject<boolean>());
         this._mockProperty(mock, "click$", new Subject<MouseEvent>());

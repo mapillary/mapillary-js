@@ -3,14 +3,15 @@
 import {Subject} from "rxjs/Subject";
 
 import {MockCreator} from "./MockCreator.spec";
+import {MockCreatorBase} from "./MockCreatorBase.spec";
 import {
     GLRenderer,
     IGLRenderHash,
 } from "../../src/Render";
 
-export class GLRendererMockCreator extends MockCreator {
-    public createMock(): GLRenderer {
-        let mock: GLRenderer = super.createMock(GLRenderer, "GLRenderer");
+export class GLRendererMockCreator extends MockCreatorBase<GLRenderer> {
+    public create(): GLRenderer {
+        const mock: GLRenderer = new MockCreator().create(GLRenderer, "GLRenderer");
 
         this._mockProperty(mock, "webGLRenderer$", new Subject<THREE.WebGLRenderer>());
         this._mockProperty(mock, "render$", new Subject<IGLRenderHash>());

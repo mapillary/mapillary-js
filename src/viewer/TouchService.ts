@@ -73,7 +73,7 @@ export class TouchService {
 
         this._doubleTap$ = tapStart$
             .bufferWhen(
-                (): Observable<number> => {
+                (): Observable<number | TouchEvent> => {
                     return tapStart$
                         .first()
                         .switchMap(

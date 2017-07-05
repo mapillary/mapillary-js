@@ -24,8 +24,8 @@ describe("TagComponent.ctor", () => {
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         expect(tagComponent).toBeDefined();
     });
@@ -33,14 +33,14 @@ describe("TagComponent.ctor", () => {
 
 describe("TagComponent.deactivate", () => {
     it("should deactivate properly", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
 
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
                 containerMock,
-                new NavigatorMockCreator().createMock());
+                new NavigatorMockCreator().create());
 
         tagComponent.activate();
         tagComponent.deactivate();
@@ -52,8 +52,8 @@ describe("TagComponent.add", () => {
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const geometry: PointGeometry = new PointGeometry([0.5, 0.5]);
         const tag: SpotTag = new SpotTag("id", geometry, {});
@@ -67,14 +67,14 @@ describe("TagComponent.add", () => {
     });
 
     it("should add multiple tags when deactivated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
 
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const geometry1: PointGeometry = new PointGeometry([0.5, 0.5]);
         const tag1: SpotTag = new SpotTag("id1", geometry1, {});
@@ -96,9 +96,9 @@ describe("TagComponent.add", () => {
     });
 
     it("should add a single tag when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -123,9 +123,9 @@ describe("TagComponent.add", () => {
     });
 
     it("should add multiple tags when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -163,8 +163,8 @@ describe("TagComponent.getAll", () => {
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const geometry: PointGeometry = new PointGeometry([0.5, 0.5]);
         const tag: SpotTag = new SpotTag("id", geometry, {});
@@ -178,14 +178,14 @@ describe("TagComponent.getAll", () => {
     });
 
     it("should get multiple tags when deactivated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
 
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const geometry1: PointGeometry = new PointGeometry([0.5, 0.5]);
         const tag1: SpotTag = new SpotTag("id1", geometry1, {});
@@ -205,9 +205,9 @@ describe("TagComponent.getAll", () => {
     });
 
     it("should get a single tag when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -232,9 +232,9 @@ describe("TagComponent.getAll", () => {
     });
 
     it("should add multiple tags when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -270,8 +270,8 @@ describe("TagComponent.remove", () => {
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const geometry: PointGeometry = new PointGeometry([0.5, 0.5]);
         const tag: SpotTag = new SpotTag("id", geometry, {});
@@ -285,14 +285,14 @@ describe("TagComponent.remove", () => {
     });
 
     it("should remove multiple tags when deactivated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
 
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const geometry1: PointGeometry = new PointGeometry([0.5, 0.5]);
         const tag1: SpotTag = new SpotTag("id1", geometry1, {});
@@ -311,14 +311,14 @@ describe("TagComponent.remove", () => {
     });
 
     it("should remove one of multiple tags when deactivated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
 
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const geometry1: PointGeometry = new PointGeometry([0.5, 0.5]);
         const tag1: SpotTag = new SpotTag("id1", geometry1, {});
@@ -337,9 +337,9 @@ describe("TagComponent.remove", () => {
     });
 
     it("should remove a single tag when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -367,9 +367,9 @@ describe("TagComponent.remove", () => {
     });
 
     it("should remove multiple tags when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -406,9 +406,9 @@ describe("TagComponent.remove", () => {
     });
 
     it("should remove one of multiple tags when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -447,14 +447,14 @@ describe("TagComponent.remove", () => {
 
 describe("TagComponent.removeAll", () => {
     it("should remove multiple tags when deactivated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
 
         const tagComponent: TagComponent =
             new TagComponent(
                 TagComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         const geometry1: PointGeometry = new PointGeometry([0.5, 0.5]);
         const tag1: SpotTag = new SpotTag("id1", geometry1, {});
@@ -473,9 +473,9 @@ describe("TagComponent.removeAll", () => {
     });
 
     it("should remove multiple tags when activated", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
-        const navigatorMock: Navigator = new NavigatorMockCreator().createMock();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
             new TagComponent(

@@ -17,8 +17,8 @@ describe("MarkerComponent.ctor", () => {
         const markerComponent: MarkerComponent =
             new MarkerComponent(
                 MarkerComponent.componentName,
-                new ContainerMockCreator().createMock(),
-                new NavigatorMockCreator().createMock());
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create());
 
         expect(markerComponent).toBeDefined();
     });
@@ -28,14 +28,14 @@ describe("MarkerComponent.add", () => {
     let markerComponent: MarkerComponent;
 
     beforeEach(() => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
 
         markerComponent =
             new MarkerComponent(
                 MarkerComponent.componentName,
                 containerMock,
-                new NavigatorMockCreator().createMock());
+                new NavigatorMockCreator().create());
 
         markerComponent.activate();
     });
@@ -73,14 +73,14 @@ describe("MarkerComponent.add", () => {
 
 describe("MarkerComponent.deactivate", () => {
     it("should deactivate properly", () => {
-        const containerMock: Container = new ContainerMockCreator().createMock();
+        const containerMock: Container = new ContainerMockCreator().create();
         (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
 
         const markerComponent: MarkerComponent =
             new MarkerComponent(
                 MarkerComponent.componentName,
                 containerMock,
-                new NavigatorMockCreator().createMock());
+                new NavigatorMockCreator().create());
 
         markerComponent.activate();
         markerComponent.deactivate();

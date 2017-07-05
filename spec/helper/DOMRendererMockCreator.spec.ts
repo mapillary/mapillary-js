@@ -3,14 +3,15 @@
 import {Subject} from "rxjs/Subject";
 
 import {MockCreator} from "./MockCreator.spec";
+import {MockCreatorBase} from "./MockCreatorBase.spec";
 import {
     DOMRenderer,
     IVNodeHash,
 } from "../../src/Render";
 
-export class DOMRendererMockCreator extends MockCreator {
-    public createMock(): DOMRenderer {
-        let mock: DOMRenderer = super.createMock(DOMRenderer, "DOMRenderer");
+export class DOMRendererMockCreator extends MockCreatorBase<DOMRenderer> {
+    public create(): DOMRenderer {
+        const mock: DOMRenderer = new MockCreator().create(DOMRenderer, "DOMRenderer");
 
         this._mockProperty(mock, "render$", new Subject<IVNodeHash>());
 
