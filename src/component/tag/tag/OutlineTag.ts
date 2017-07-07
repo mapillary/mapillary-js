@@ -59,8 +59,10 @@ export class OutlineTag extends Tag {
      * @param {IOutlineTagOptions} options - Options defining the visual appearance and
      * behavior of the outline tag.
      */
-    constructor(id: string, geometry: VertexGeometry, options: IOutlineTagOptions) {
+    constructor(id: string, geometry: VertexGeometry, options?: IOutlineTagOptions) {
         super(id, geometry);
+
+        options = !!options ? options : {};
 
         this._editable = options.editable == null ? false : options.editable;
         this._fillColor = options.fillColor == null ? 0xFFFFFF : options.fillColor;

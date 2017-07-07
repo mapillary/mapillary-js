@@ -16,15 +16,22 @@ import {
 import {Transform} from "../../Geo";
 
 export class TagSet {
+    private _active: boolean;
+
     private _hash: { [id: string]: RenderTag<Tag> };
     private _hashDeactivated: { [id: string]: Tag };
 
     private _notifyChanged$: Subject<TagSet>;
 
     constructor() {
+        this._active = false;
         this._hash = {};
         this._hashDeactivated = {};
         this._notifyChanged$ = new Subject<TagSet>();
+    }
+
+    public get active(): boolean {
+        return this._active;
     }
 
     public get changed$(): Observable<TagSet> {
@@ -32,6 +39,10 @@ export class TagSet {
     }
 
     public activate(transform: Transform): void {
+        if (this._active) {
+            return;
+        }
+
         for (const id in this._hashDeactivated) {
             if (!this._hashDeactivated.hasOwnProperty(id)) {
                 continue;
@@ -42,11 +53,16 @@ export class TagSet {
         }
 
         this._hashDeactivated = {};
+        this._active = true;
 
         this._notifyChanged$.next(this);
     }
 
     public deactivate(): void {
+        if (!this._active) {
+            return;
+        }
+
         for (const id in this._hash) {
             if (!this._hash.hasOwnProperty(id)) {
                 continue;
@@ -56,9 +72,12 @@ export class TagSet {
         }
 
         this._hash = {};
+        this._active = false;
     }
 
     public add(tags: Tag[], transform: Transform): void {
+        this._assertActivationState(true);
+
         for (const tag of tags) {
             this._add(tag, transform);
         }
@@ -67,7 +86,13 @@ export class TagSet {
     }
 
     public addDeactivated(tags: Tag[]): void {
+        this._assertActivationState(false);
+
         for (const tag of tags) {
+            if (!(tag instanceof OutlineTag || tag instanceof SpotTag)) {
+                throw new Error("Tag type not supported");
+            }
+
             this._hashDeactivated[tag.id] = tag;
         }
     }
@@ -109,6 +134,8 @@ export class TagSet {
     }
 
     public remove(ids: string[]): void {
+        this._assertActivationState(true);
+
         const hash: { [id: string]: RenderTag<Tag> } = this._hash;
         for (const id of ids) {
             if (!(id in hash)) {
@@ -122,16 +149,22 @@ export class TagSet {
     }
 
     public removeAll(): void {
+        this._assertActivationState(true);
+
         this._hash = {};
 
         this._notifyChanged$.next(this);
     }
 
     public removeAllDeactivated(): void {
+        this._assertActivationState(false);
+
         this._hashDeactivated = {};
     }
 
     public removeDeactivated(ids: string[]): void {
+        this._assertActivationState(false);
+
         const hashDeactivated: { [id: string]: Tag } = this._hashDeactivated;
         for (const id of ids) {
             if (!(id in hashDeactivated)) {
@@ -149,6 +182,12 @@ export class TagSet {
             this._hash[tag.id] = new SpotRenderTag(<SpotTag>tag, transform);
         } else {
             throw new Error("Tag type not supported");
+        }
+    }
+
+    private _assertActivationState(should: boolean): void {
+        if (should !== this._active) {
+            throw new Error("Tag set not in correct state for operation.");
         }
     }
 }

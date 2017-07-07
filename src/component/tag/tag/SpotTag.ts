@@ -39,8 +39,10 @@ export class SpotTag extends Tag {
      * @param {IOutlineTagOptions} options - Options defining the visual appearance and
      * behavior of the spot tag.
      */
-    constructor(id: string, geometry: Geometry, options: ISpotTagOptions) {
+    constructor(id: string, geometry: Geometry, options?: ISpotTagOptions) {
         super(id, geometry);
+
+        options = !!options ? options : {};
 
         this._color = options.color == null ? 0xFFFFFF : options.color;
         this._editable = options.editable == null ? false : options.editable;

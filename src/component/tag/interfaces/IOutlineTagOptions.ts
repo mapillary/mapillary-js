@@ -36,7 +36,7 @@ export interface IOutlineTagOptions {
      *
      * @default {Alignment.Center}
      */
-    iconFloat: Alignment;
+    iconFloat?: Alignment;
 
     /**
      * Number representing the index for where to show the icon or
