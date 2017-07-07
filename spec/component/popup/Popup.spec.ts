@@ -48,6 +48,95 @@ describe("Popup.update", () => {
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup").length).toBe(1);
     });
+
+    it("should translate to pixel value calculated from basic value", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);
+
+        const popup: Popup = new Popup({ float: Alignment.Center }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.4, 0.6]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
+
+        expect(/translate\(40px,\s?60px\)/.test(transform)).toBe(true);
+    });
+
+    it("should translate to pixel value calculated from basic when position is center for rect", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);
+
+        const popup: Popup = new Popup({ position: Alignment.Center }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicRect([0.3, 0.5, 0.5, 0.7]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
+
+        expect(/translate\(40px,\s?60px\)/.test(transform)).toBe(true);
+    });
+
+    it("should be visible if in front of camera", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);
+
+        const popup: Popup = new Popup({ float: Alignment.Center }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.4, 0.6]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        const visibility: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.visibility;
+
+        expect(visibility).toBe("visible");
+    });
+
+    it("should not be visible if behind camera", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue(null);
+
+        const popup: Popup = new Popup({ float: Alignment.Center }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.4, 0.6]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        const visibility: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.visibility;
+
+        expect(visibility).toBe("hidden");
+    });
+
+    it("should float to bottom when float is automatic", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup(undefined, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-bottom").length)
+            .toBe(1);
+    });
 });
 
 describe("Popup.setText", () => {
@@ -168,6 +257,55 @@ describe("Popup.float", () => {
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-top-left").length)
             .toBe(1);
     });
+
+    it("should not have a tip if floating to center", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ float: Alignment.Center }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-tip").length).toBe(0);
+    });
+
+    it("should have a tip if not floating to center", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ float: Alignment.Bottom }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-tip").length).toBe(1);
+    });
+
+    it("should float in direction of position for rect", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ position: Alignment.BottomRight }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicRect([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-bottom-right").length)
+            .toBe(1);
+    });
 });
 
 describe("Popup.opacity", () => {
@@ -188,6 +326,26 @@ describe("Popup.opacity", () => {
             .style.opacity;
 
         expect(opacity).toBe("0.5");
+    });
+});
+
+describe("Popup.offset", () => {
+    it("should offset in the float direction", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);
+
+        const popup: Popup = new Popup({ offset: 12, float: Alignment.Right }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.4, 0.6]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
+
+        expect(/translate\(52px,\s?60px\)/.test(transform)).toBe(true);
     });
 });
 
@@ -224,5 +382,37 @@ describe("Popup.clean", () => {
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content-clean").length).toBe(0);
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content").length).toBe(1);
+    });
+
+    it("should not have a tip if clean", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ clean: true }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-tip").length).toBe(0);
+    });
+
+    it("should have a tip if not clean", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ clean: false }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-tip").length).toBe(1);
     });
 });
