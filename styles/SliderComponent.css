@@ -46,6 +46,37 @@
     appearance: none;
 }
 
+.SliderControl::-ms-track {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: 999px;
+    box-sizing: border-box;
+    color: transparent;    
+    cursor: pointer;
+    display: block;
+    height: 30px;
+    margin: 0 auto;
+    max-width: 60%;
+    padding: 4px;
+    pointer-events: auto;    
+    width: 100%;
+}
+
+.SliderControl::-ms-thumb {
+    background: #474A4E;
+    border: 2px solid white;
+    border-radius: 999px;
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+    height: 22px;
+    width: 22px;
+}
+
+.SliderControl::-ms-fill-lower,
+.SliderControl::-ms-fill-upper,
+.SliderControl::-ms-tooltip {
+    display: none;
+}
+
 .SliderControl:focus {
     outline: none;
 }
