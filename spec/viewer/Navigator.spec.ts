@@ -271,7 +271,7 @@ describe("Navigator.moveCloseTo$", () => {
         expect(startLoadingSpy.calls.first().args[0]).toBe("navigator");
     });
 
-    it("should call moveToKey$ when succeding", () => {
+    it("should call cacheNode$ when succeding", () => {
         let clientId: string = "clientId";
         let apiV3: APIv3 = new APIv3(clientId);
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
@@ -296,16 +296,16 @@ describe("Navigator.moveCloseTo$", () => {
                 stateService,
                 cacheService);
 
-        let moveSpy: jasmine.Spy = spyOn(navigator, "moveToKey$");
-        moveSpy.and.returnValue(Observable.empty<Node>());
+        let cacheSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        cacheSpy.and.returnValue(Observable.empty<Node>());
 
         let lat: number = 0;
         let lon: number = 0;
 
         navigator.moveCloseTo$(lat, lon).subscribe(() => { /*noop*/ });
 
-        expect(moveSpy.calls.count()).toBe(1);
-        expect(moveSpy.calls.first().args[0]).toBe(key);
+        expect(cacheSpy.calls.count()).toBe(1);
+        expect(cacheSpy.calls.first().args[0]).toBe(key);
     });
 
     it("should stop loading and throw when failing", () => {

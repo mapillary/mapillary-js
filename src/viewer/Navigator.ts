@@ -2,6 +2,7 @@
 
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/throw";
 
@@ -14,7 +15,6 @@ import "rxjs/add/operator/mergeMap";
 import {
     APIv3,
     IFullNode,
-    ILatLon,
 } from "../API";
 import {
     FilterExpression,
@@ -46,8 +46,9 @@ export class Navigator {
 
     private _keyRequested$: BehaviorSubject<string>;
     private _movedToKey$: BehaviorSubject<string>;
-    private _dirRequested$: BehaviorSubject<EdgeDirection>;
-    private _latLonRequested$: BehaviorSubject<ILatLon>;
+
+    private _request$: BehaviorSubject<Node>;
+    private _requestSubscription: Subscription;
 
     constructor (
         clientId: string,
@@ -80,8 +81,9 @@ export class Navigator {
 
         this._keyRequested$ = new BehaviorSubject<string>(null);
         this._movedToKey$ = new BehaviorSubject<string>(null);
-        this._dirRequested$ = new BehaviorSubject<EdgeDirection>(null);
-        this._latLonRequested$ = new BehaviorSubject<ILatLon>(null);
+
+        this._request$ = null;
+        this._requestSubscription = null;
     }
 
     public get apiV3(): APIv3 {
@@ -94,10 +96,6 @@ export class Navigator {
 
     public get imageLoadingService(): ImageLoadingService {
         return this._imageLoadingService;
-    }
-
-    public get keyRequested$(): Observable<string> {
-        return this._keyRequested$;
     }
 
     public get loadingService(): LoadingService {
@@ -113,24 +111,28 @@ export class Navigator {
     }
 
     public moveToKey$(key: string): Observable<Node> {
-        this.loadingService.startLoading(this._loadingName);
-        this._keyRequested$.next(key);
+        this._abortRequest(`to key ${key}`);
 
-        return this._graphService.cacheNode$(key)
-            .do(
-                (node: Node) => {
-                    this.stateService.setNodes([node]);
-                    this._movedToKey$.next(node.key);
-                })
-            .finally(
-                (): void => {
-                    this.loadingService.stopLoading(this._loadingName);
+        this._loadingService.startLoading(this._loadingName);
+
+        this._request$ = new BehaviorSubject<Node>(null);
+        this._requestSubscription = this._moveToKey$(key)
+            .subscribe(
+                (node: Node): void => {
+                    this._request$.next(node);
+                    this._request$.complete();
+                },
+                (error: Error): void => {
+                    this._request$.error(error);
                 });
+
+        return !this._request$.hasError && this._request$.value === null ?
+            this._request$.skip(1) :
+            this._request$;
     }
 
     public moveDir$(direction: EdgeDirection): Observable<Node> {
-        this.loadingService.startLoading(this._loadingName);
-        this._dirRequested$.next(direction);
+        this._loadingService.startLoading(this._loadingName);
 
         return this.stateService.currentNode$
             .first()
@@ -154,31 +156,30 @@ export class Navigator {
             .mergeMap(
                 (directionKey: string) => {
                     if (directionKey == null) {
-                        this.loadingService.stopLoading(this._loadingName);
+                        this._loadingService.stopLoading(this._loadingName);
 
                         return Observable
                             .throw(new Error(`Direction (${direction}) does not exist for current node.`));
                     }
 
-                    return this.moveToKey$(directionKey);
+                    return this._moveToKey$(directionKey);
                 });
     }
 
     public moveCloseTo$(lat: number, lon: number): Observable<Node> {
-        this.loadingService.startLoading(this._loadingName);
-        this._latLonRequested$.next({lat: lat, lon: lon});
+        this._loadingService.startLoading(this._loadingName);
 
         return this.apiV3.imageCloseTo$(lat, lon)
             .mergeMap(
                 (fullNode: IFullNode): Observable<Node> => {
                     if (fullNode == null) {
-                        this.loadingService.stopLoading(this._loadingName);
+                        this._loadingService.stopLoading(this._loadingName);
 
                         return Observable
                             .throw(new Error(`No image found close to lat ${lat}, lon ${lon}.`));
                     }
 
-                    return this.moveToKey$(fullNode.key);
+                    return this._moveToKey$(fullNode.key);
                 });
     }
 
@@ -270,6 +271,33 @@ export class Navigator {
         return Observable
             .from<Observable<Node>>(cacheNodes$)
             .mergeAll();
+    }
+
+    private _abortRequest(reason: string): void {
+        if (this._requestSubscription != null) {
+            this._requestSubscription.unsubscribe();
+            this._requestSubscription = null;
+        }
+
+        if (this._request$ != null) {
+            this._request$.error(new Error(`Request aborted by a subsequent request ${reason}.`));
+            this._request$ = null;
+        }
+    }
+
+    private _moveToKey$(key: string): Observable<Node> {
+        this._keyRequested$.next(key);
+
+        return this._graphService.cacheNode$(key)
+            .do(
+                (node: Node) => {
+                    this._stateService.setNodes([node]);
+                    this._movedToKey$.next(node.key);
+                })
+            .finally(
+                (): void => {
+                    this._loadingService.stopLoading(this._loadingName);
+                });
     }
 
     private _trajectoryKeys$(): Observable<string[]> {
