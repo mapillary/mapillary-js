@@ -1,5 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 
+import * as when from "when";
+
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
@@ -491,6 +493,32 @@ export class TagComponent extends Component<ITagConfiguration> {
         } else {
             return this._tagSet.getAllDeactivated();
         }
+    }
+
+    public getTagIdAt(pixelPoint: number[]): when.Promise<string> {
+        return when.promise<string>((resolve: (value: string) => void, reject: (reason: Error) => void): void => {
+            this._container.renderService.renderCamera$
+                .first()
+                .map(
+                    (render: RenderCamera): string => {
+                        const viewport: number[] = this._viewportCoords
+                            .canvasToViewport(
+                                pixelPoint[0],
+                                pixelPoint[1],
+                                this._container.element);
+
+                        const id: string = this._tagScene.intersectObjects(viewport, render.perspective);
+
+                        return id;
+                    })
+                .subscribe(
+                    (id: string): void => {
+                        resolve(id);
+                    },
+                    (error: Error): void => {
+                        reject(error);
+                    });
+        });
     }
 
     /**

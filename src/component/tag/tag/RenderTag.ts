@@ -59,6 +59,8 @@ export abstract class RenderTag<T> {
 
     public abstract getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[];
 
+    public getRetrievableObjects(): THREE.Object3D[] { return []; }
+
     protected _projectToCanvas(
         point3d: THREE.Vector3,
         projectionMatrix: THREE.Matrix4):

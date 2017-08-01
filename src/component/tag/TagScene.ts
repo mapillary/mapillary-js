@@ -7,6 +7,7 @@ import {OutlineCreateTag, RenderTag, Tag} from "../../Component";
 type TagObjects = {
     tag: RenderTag<Tag>;
     objects: THREE.Object3D[];
+    retrievableObjects: THREE.Object3D[];
 };
 
 type CreateTagObjects = {
@@ -17,13 +18,20 @@ type CreateTagObjects = {
 export class TagScene {
     private _createTag: CreateTagObjects;
     private _needsRender: boolean;
+    private _objectTags: { [uuid: string]: string };
+    private _raycaster: THREE.Raycaster;
+    private _retrievableObjects: THREE.Object3D[];
     private _scene: THREE.Scene;
-    private _tags: { [key: string]: TagObjects };
+    private _tags: { [id: string]: TagObjects };
 
-    constructor() {
+    constructor(scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._createTag = null;
         this._needsRender = false;
-        this._scene = new THREE.Scene();
+        this._raycaster = !!raycaster ? raycaster : new THREE.Raycaster();
+        this._scene = !!scene ? scene : new THREE.Scene();
+
+        this._objectTags = {};
+        this._retrievableObjects = [];
         this._tags = {};
     }
 
@@ -61,8 +69,29 @@ export class TagScene {
         this._needsRender = false;
     }
 
+    public get(id: string): RenderTag<Tag> {
+        return this.has(id) ? this._tags[id].tag : undefined;
+    }
+
+    public has(id: string): boolean {
+        return id in this._tags;
+    }
+
     public hasCreateTag(): boolean {
         return this._createTag != null;
+    }
+
+    public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string {
+        this._raycaster.setFromCamera(new THREE.Vector2(viewportX, viewportY), camera);
+
+        const intersects: THREE.Intersection[] = this._raycaster.intersectObjects(this._retrievableObjects);
+        for (const intersect of intersects) {
+            if (intersect.object.uuid in this._objectTags) {
+                return this._objectTags[intersect.object.uuid];
+            }
+        }
+
+        return null;
     }
 
     public remove(ids: string[]): void {
@@ -129,38 +158,56 @@ export class TagScene {
 
     public updateObjects(tag: RenderTag<Tag>): void {
         const id: string = tag.tag.id;
+        const tagObjects: TagObjects = this._tags[id];
 
-        for (let object of this._tags[id].objects) {
-            this._scene.remove(object);
-        }
+        this._removeObjects(tagObjects);
 
         delete this._tags[id];
 
         this._add(tag);
-
         this._needsRender = true;
     }
 
     private _add(tag: RenderTag<Tag>): void {
         const id: string = tag.tag.id;
         const objects: THREE.Object3D[] = tag.glObjects;
+        const tagObjects: TagObjects = { tag: tag, objects: [], retrievableObjects: [] };
 
-        this._tags[id] = { tag: tag, objects: [] };
+        this._tags[id] = tagObjects;
 
-        for (let object of objects) {
-            this._tags[id].objects.push(object);
+        for (const object of objects) {
+            tagObjects.objects.push(object);
             this._scene.add(object);
+        }
+
+        for (const retrievableObject of tag.getRetrievableObjects()) {
+            tagObjects.retrievableObjects.push(retrievableObject);
+            this._retrievableObjects.push(retrievableObject);
+            this._objectTags[retrievableObject.uuid] = tag.tag.id;
         }
     }
 
     private _remove(id: string): void {
-        for (const object of this._tags[id].objects) {
+        const tagObjects: TagObjects = this._tags[id];
+
+        this._removeObjects(tagObjects);
+
+        tagObjects.tag.dispose();
+
+        delete this._tags[id];
+    }
+
+    private _removeObjects(tagObjects: TagObjects): void {
+        for (const object of tagObjects.objects) {
             this._scene.remove(object);
         }
 
-        this._tags[id].tag.dispose();
-
-        delete this._tags[id];
+        for (const retrievableObject of tagObjects.retrievableObjects) {
+            const index: number = this._retrievableObjects.indexOf(retrievableObject);
+            if (index !== -1) {
+                this._retrievableObjects.splice(index, 1);
+            }
+        }
     }
 }
 
