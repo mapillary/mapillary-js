@@ -4,12 +4,14 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
+import {StateServiceMockCreator} from "../helper/StateServiceMockCreator.spec";
 
 import {
     APIv3,
     ICoreNode,
     IKey,
 } from "../../src/API";
+import {EdgeDirection} from "../../src/graph/edge/EdgeDirection";
 import {
     Graph,
     GraphService,
@@ -183,6 +185,112 @@ describe("Navigator.moveToKey$", () => {
         expect(stopLoadingSpy.calls.count()).toBe(1);
         expect(stopLoadingSpy.calls.first().args[0]).toBe("navigator");
     });
+
+    it("should abort previous request when new request is done", (done: () => void) => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        let loadingService: LoadingService = new LoadingService();
+        let stateService: StateService = new StateService();
+        let cacheService: CacheService = new CacheService(graphService, stateService);
+
+        spyOn(loadingService, "startLoading").and.stub();
+        spyOn(loadingService, "stopLoading").and.stub();
+        spyOn(graphService, "cacheNode$").and.returnValue(new Subject<Node>());
+
+        let navigator: Navigator =
+            new Navigator(
+                clientId,
+                undefined,
+                apiV3,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService,
+                cacheService);
+
+        navigator.moveToKey$("key1")
+            .subscribe(
+                undefined,
+                (e: Error): void => {
+                    expect(e).toBeDefined();
+                    done();
+                });
+
+        navigator.moveToKey$("key2");
+    });
+
+    it("should succeed when node is cached", (done: () => void) => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        let loadingService: LoadingService = new LoadingService();
+        let stateService: StateService = new StateService();
+
+        spyOn(loadingService, "startLoading").and.stub();
+        spyOn(loadingService, "stopLoading").and.stub();
+
+        let key: string = "key";
+        let sequenceKey: string = "sequenceKey";
+        let node: Node = new Node({
+            cl: { lat: 0, lon: 0 },
+            key: key,
+            l: { lat: 0, lon: 0 },
+            sequence: { key: sequenceKey },
+        });
+
+        spyOn(graphService, "cacheNode$").and.returnValue(Observable.of<Node>(node));
+        spyOn(stateService, "setNodes").and.stub();
+
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
+
+        navigator.moveToKey$(key)
+            .subscribe(
+                (n: Node) => {
+                    expect(n.key).toBe(node.key);
+                    done();
+                });
+    });
+
+    it("should succeed when node is not cached prior to call", (done: () => void) => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        let loadingService: LoadingService = new LoadingService();
+        let stateService: StateService = new StateService();
+
+        spyOn(loadingService, "startLoading").and.stub();
+        spyOn(loadingService, "stopLoading").and.stub();
+
+        let key: string = "key";
+        let sequenceKey: string = "sequenceKey";
+        let cacheNodeSubject$: Subject<Node> = new Subject<Node>();
+        let node: Node = new Node({
+            cl: { lat: 0, lon: 0 },
+            key: key,
+            l: { lat: 0, lon: 0 },
+            sequence: { key: sequenceKey },
+        });
+
+        spyOn(graphService, "cacheNode$").and.returnValue(cacheNodeSubject$);
+        spyOn(stateService, "setNodes").and.stub();
+
+        let navigator: Navigator =
+            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
+
+        navigator.moveToKey$(key)
+            .subscribe(
+                (n: Node) => {
+                    expect(n.key).toBe(node.key);
+                    done();
+                });
+
+        cacheNodeSubject$.next(node);
+    });
 });
 
 describe("Navigator.movedToKey$", () => {
@@ -348,6 +456,43 @@ describe("Navigator.moveCloseTo$", () => {
         expect(stopLoadingSpy.calls.first().args[0]).toBe("navigator");
 
         expect(moveSpy.calls.count()).toBe(0);
+    });
+
+    it("should abort previous request when new request is done", (done: () => void) => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        let loadingService: LoadingService = new LoadingService();
+        let stateService: StateService = new StateService();
+        let cacheService: CacheService = new CacheService(graphService, stateService);
+
+        spyOn(loadingService, "startLoading").and.stub();
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IKey>());
+
+        let navigator: Navigator =
+            new Navigator(
+                clientId,
+                undefined,
+                apiV3,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService,
+                cacheService);
+
+        let lat: number = 0;
+        let lon: number = 0;
+
+        navigator.moveCloseTo$(lat, lon)
+            .subscribe(
+                undefined,
+                (e: Error): void => {
+                    expect(e).toBeDefined();
+                    done();
+                });
+
+        navigator.moveCloseTo$(lat, lon);
     });
 });
 
@@ -578,7 +723,7 @@ describe("Navigator.setFilter$", () => {
     });
 });
 
-describe("Navigator.reset$", () => {
+describe("Navigator.setToken$", () => {
     let helper: NodeHelper;
 
     beforeEach(() => {
@@ -732,5 +877,114 @@ describe("Navigator.reset$", () => {
         cacheNodeSubject2$.next(node1);
         cacheNodeSubject2$.next(node2);
         cacheNodeSubject2$.complete();
+    });
+
+    it("should abort outstanding move to key request", (done: () => void) => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        let loadingService: LoadingService = new LoadingService();
+        let stateService: StateService = new StateService();
+        let cacheService: CacheService = new CacheService(graphService, stateService);
+
+        spyOn(loadingService, "startLoading").and.stub();
+        spyOn(loadingService, "stopLoading").and.stub();
+
+        spyOn(graphService, "cacheNode$").and.returnValue(new Subject<Node>());
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IKey>());
+
+        spyOn(stateService, "clearNodes").and.stub();
+
+        let navigator: Navigator =
+            new Navigator(
+                clientId,
+                undefined,
+                apiV3,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService,
+                cacheService);
+
+        navigator.moveToKey$("key1")
+            .subscribe(
+                undefined,
+                (e: Error): void => {
+                    expect(e).toBeDefined();
+                    done();
+                });
+
+        navigator.setToken$(undefined);
+    });
+
+    it("should abort outstanding move close to request", (done: () => void) => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        let loadingService: LoadingService = new LoadingService();
+        let stateService: StateService = new StateService();
+        let cacheService: CacheService = new CacheService(graphService, stateService);
+
+        spyOn(loadingService, "startLoading").and.stub();
+        spyOn(loadingService, "stopLoading").and.stub();
+
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IKey>());
+
+        let navigator: Navigator =
+            new Navigator(
+                clientId,
+                undefined,
+                apiV3,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService,
+                cacheService);
+
+        navigator.moveCloseTo$(0, 0)
+            .subscribe(
+                undefined,
+                (e: Error): void => {
+                    expect(e).toBeDefined();
+                    done();
+                });
+
+        navigator.setToken$(undefined);
+    });
+
+    it("should abort outstanding move dir request", (done: () => void) => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        let loadingService: LoadingService = new LoadingService();
+        let stateService: StateService = new StateServiceMockCreator().create();
+        let cacheService: CacheService = new CacheService(graphService, stateService);
+
+        spyOn(loadingService, "startLoading").and.stub();
+        spyOn(loadingService, "stopLoading").and.stub();
+
+        let navigator: Navigator =
+            new Navigator(
+                clientId,
+                undefined,
+                apiV3,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService,
+                cacheService);
+
+        navigator.moveDir$(EdgeDirection.Next)
+            .subscribe(
+                undefined,
+                (e: Error): void => {
+                    expect(e).toBeDefined();
+                    done();
+                });
+
+        navigator.setToken$(undefined);
     });
 });
