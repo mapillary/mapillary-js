@@ -2,6 +2,7 @@
 
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
+import {ReplaySubject} from "rxjs/ReplaySubject";
 import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/throw";
@@ -47,8 +48,9 @@ export class Navigator {
     private _keyRequested$: BehaviorSubject<string>;
     private _movedToKey$: BehaviorSubject<string>;
 
-    private _request$: BehaviorSubject<Node>;
+    private _request$: ReplaySubject<Node>;
     private _requestSubscription: Subscription;
+    private _nodeRequestSubscription: Subscription;
 
     constructor (
         clientId: string,
@@ -84,6 +86,7 @@ export class Navigator {
 
         this._request$ = null;
         this._requestSubscription = null;
+        this._nodeRequestSubscription = null;
     }
 
     public get apiV3(): APIv3 {
@@ -278,6 +281,11 @@ export class Navigator {
             this._requestSubscription = null;
         }
 
+        if (this._nodeRequestSubscription != null) {
+            this._nodeRequestSubscription.unsubscribe();
+            this._nodeRequestSubscription = null;
+        }
+
         if (this._request$ != null) {
             this._request$.error(new Error(`Request aborted by a subsequent request ${reason}.`));
             this._request$ = null;
@@ -285,8 +293,11 @@ export class Navigator {
     }
 
     private _makeRequest$(node$: Observable<Node>): Observable<Node> {
-        this._request$ = new BehaviorSubject<Node>(null);
-        this._requestSubscription = node$
+        this._request$ = new ReplaySubject<Node>(1);
+        this._requestSubscription = this._request$
+            .subscribe(undefined, (e: Error): void => { /*noop*/ });
+
+        this._nodeRequestSubscription = node$
             .subscribe(
                 (node: Node): void => {
                     this._request$.next(node);
@@ -296,9 +307,7 @@ export class Navigator {
                     this._request$.error(error);
                 });
 
-        return !this._request$.hasError && this._request$.value === null ?
-            this._request$.skip(1) :
-            this._request$;
+        return this._request$;
     }
 
     private _moveToKey$(key: string): Observable<Node> {
