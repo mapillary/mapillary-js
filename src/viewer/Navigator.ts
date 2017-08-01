@@ -115,20 +115,9 @@ export class Navigator {
 
         this._loadingService.startLoading(this._loadingName);
 
-        this._request$ = new BehaviorSubject<Node>(null);
-        this._requestSubscription = this._moveToKey$(key)
-            .subscribe(
-                (node: Node): void => {
-                    this._request$.next(node);
-                    this._request$.complete();
-                },
-                (error: Error): void => {
-                    this._request$.error(error);
-                });
+        const node$: Observable<Node> = this._moveToKey$(key);
 
-        return !this._request$.hasError && this._request$.value === null ?
-            this._request$.skip(1) :
-            this._request$;
+        return this._makeRequest$(node$);
     }
 
     public moveDir$(direction: EdgeDirection): Observable<Node> {
@@ -136,8 +125,7 @@ export class Navigator {
 
         this._loadingService.startLoading(this._loadingName);
 
-        this._request$ = new BehaviorSubject<Node>(null);
-        this._requestSubscription = this.stateService.currentNode$
+        const node$: Observable<Node> = this.stateService.currentNode$
             .first()
             .mergeMap(
                 (node: Node): Observable<string> => {
@@ -176,8 +164,7 @@ export class Navigator {
 
         this._loadingService.startLoading(this._loadingName);
 
-        this._request$ = new BehaviorSubject<Node>(null);
-        this._requestSubscription = this.apiV3.imageCloseTo$(lat, lon)
+        const node$: Observable<Node> = this.apiV3.imageCloseTo$(lat, lon)
             .mergeMap(
                 (fullNode: IFullNode): Observable<Node> => {
                     if (fullNode == null) {
@@ -295,6 +282,23 @@ export class Navigator {
             this._request$.error(new Error(`Request aborted by a subsequent request ${reason}.`));
             this._request$ = null;
         }
+    }
+
+    private _makeRequest$(node$: Observable<Node>): Observable<Node> {
+        this._request$ = new BehaviorSubject<Node>(null);
+        this._requestSubscription = node$
+            .subscribe(
+                (node: Node): void => {
+                    this._request$.next(node);
+                    this._request$.complete();
+                },
+                (error: Error): void => {
+                    this._request$.error(error);
+                });
+
+        return !this._request$.hasError && this._request$.value === null ?
+            this._request$.skip(1) :
+            this._request$;
     }
 
     private _moveToKey$(key: string): Observable<Node> {
