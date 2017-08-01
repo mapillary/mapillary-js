@@ -132,9 +132,12 @@ export class Navigator {
     }
 
     public moveDir$(direction: EdgeDirection): Observable<Node> {
+        this._abortRequest(`in dir ${EdgeDirection[direction]}`);
+
         this._loadingService.startLoading(this._loadingName);
 
-        return this.stateService.currentNode$
+        this._request$ = new BehaviorSubject<Node>(null);
+        this._requestSubscription = this.stateService.currentNode$
             .first()
             .mergeMap(
                 (node: Node): Observable<string> => {
@@ -164,12 +167,17 @@ export class Navigator {
 
                     return this._moveToKey$(directionKey);
                 });
+
+        return this._makeRequest$(node$);
     }
 
     public moveCloseTo$(lat: number, lon: number): Observable<Node> {
+        this._abortRequest(`to lat ${lat}, lon ${lon}`);
+
         this._loadingService.startLoading(this._loadingName);
 
-        return this.apiV3.imageCloseTo$(lat, lon)
+        this._request$ = new BehaviorSubject<Node>(null);
+        this._requestSubscription = this.apiV3.imageCloseTo$(lat, lon)
             .mergeMap(
                 (fullNode: IFullNode): Observable<Node> => {
                     if (fullNode == null) {
@@ -181,6 +189,8 @@ export class Navigator {
 
                     return this._moveToKey$(fullNode.key);
                 });
+
+        return this._makeRequest$(node$);
     }
 
     public setFilter$(filter: FilterExpression): Observable<void> {
@@ -228,6 +238,8 @@ export class Navigator {
     }
 
     public setToken$(token?: string): Observable<void> {
+        this._abortRequest("to set token");
+
         this._stateService.clearNodes();
 
         return this._movedToKey$
