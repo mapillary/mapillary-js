@@ -170,12 +170,11 @@ export class TagScene {
 
     private _add(tag: RenderTag<Tag>): void {
         const id: string = tag.tag.id;
-        const objects: THREE.Object3D[] = tag.glObjects;
         const tagObjects: TagObjects = { tag: tag, objects: [], retrievableObjects: [] };
 
         this._tags[id] = tagObjects;
 
-        for (const object of objects) {
+        for (const object of tag.getGLObjects()) {
             tagObjects.objects.push(object);
             this._scene.add(object);
         }

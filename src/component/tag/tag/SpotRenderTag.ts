@@ -103,6 +103,10 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
         return vNodes;
     }
 
+    public getGLObjects(): THREE.Object3D[] { return []; }
+
+    public getRetrievableObjects(): THREE.Object3D[] { return []; }
+
     private _colorToCss(color: number): string {
         return "#" + ("000000" + color.toString(16)).substr(-6);
     }

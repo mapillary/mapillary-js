@@ -44,8 +44,6 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
             this._createOutline() :
             null;
 
-        this._glObjects = this._createGLObjects();
-
         this._geometryChangedSubscription = this._tag.geometry.changed$
             .subscribe(
                 (geometry: Geometry): void => {
@@ -88,7 +86,6 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                     }
 
                     if (glObjectsChanged) {
-                        this._glObjects = this._createGLObjects();
                         this._glObjectsChanged$.next(this);
                     }
                 });
@@ -269,6 +266,28 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         return vNodes;
     }
 
+    public getGLObjects(): THREE.Object3D[] {
+        const glObjects: THREE.Object3D[] = [];
+
+        if (this._fill != null) {
+            glObjects.push(this._fill);
+        }
+
+        for (const hole of this._holes) {
+            glObjects.push(hole);
+        }
+
+        if (this._outline != null) {
+            glObjects.push(this._outline);
+        }
+
+        return glObjects;
+    }
+
+    public getRetrievableObjects(): THREE.Object3D[] {
+        return this._fill != null ? [this._fill] : [];
+    }
+
     private _colorToCss(color: number): string {
         return "#" + ("000000" + color.toString(16)).substr(-6);
     }
@@ -291,24 +310,6 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                 });
 
         return new THREE.Mesh(geometry, material);
-    }
-
-    private _createGLObjects(): THREE.Object3D[] {
-        let glObjects: THREE.Object3D[] = [];
-
-        if (this._fill != null) {
-            glObjects.push(this._fill);
-        }
-
-        for (let hole of this._holes) {
-            glObjects.push(hole);
-        }
-
-        if (this._outline != null) {
-            glObjects.push(this._outline);
-        }
-
-        return glObjects;
     }
 
     private _createHoles(): THREE.Line[] {
