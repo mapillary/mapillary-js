@@ -81,17 +81,18 @@ export class TagScene {
         return this._createTag != null;
     }
 
-    public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string {
+    public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string[] {
         this._raycaster.setFromCamera(new THREE.Vector2(viewportX, viewportY), camera);
 
         const intersects: THREE.Intersection[] = this._raycaster.intersectObjects(this._retrievableObjects);
+        const intersectedIds: string[] = [];
         for (const intersect of intersects) {
             if (intersect.object.uuid in this._objectTags) {
-                return this._objectTags[intersect.object.uuid];
+                intersectedIds.push(this._objectTags[intersect.object.uuid]);
             }
         }
 
-        return null;
+        return intersectedIds;
     }
 
     public remove(ids: string[]): void {

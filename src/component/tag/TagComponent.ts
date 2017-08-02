@@ -495,25 +495,25 @@ export class TagComponent extends Component<ITagConfiguration> {
         }
     }
 
-    public getTagIdAt(pixelPoint: number[]): when.Promise<string> {
-        return when.promise<string>((resolve: (value: string) => void, reject: (reason: Error) => void): void => {
+    public getTagIdsAt(pixelPoint: number[]): when.Promise<string[]> {
+        return when.promise<string[]>((resolve: (value: string[]) => void, reject: (reason: Error) => void): void => {
             this._container.renderService.renderCamera$
                 .first()
                 .map(
-                    (render: RenderCamera): string => {
+                    (render: RenderCamera): string[] => {
                         const viewport: number[] = this._viewportCoords
                             .canvasToViewport(
                                 pixelPoint[0],
                                 pixelPoint[1],
                                 this._container.element);
 
-                        const id: string = this._tagScene.intersectObjects(viewport, render.perspective);
+                        const ids: string[] = this._tagScene.intersectObjects(viewport, render.perspective);
 
-                        return id;
+                        return ids;
                     })
                 .subscribe(
-                    (id: string): void => {
-                        resolve(id);
+                    (ids: string[]): void => {
+                        resolve(ids);
                     },
                     (error: Error): void => {
                         reject(error);
