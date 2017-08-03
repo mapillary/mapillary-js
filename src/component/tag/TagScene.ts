@@ -128,7 +128,7 @@ export class TagScene {
 
     public render(
         perspectiveCamera: THREE.PerspectiveCamera,
-        renderer: THREE.WebGLRenderer): void {
+        renderer: THREE.Renderer): void {
 
         renderer.render(this._scene, perspectiveCamera);
 
