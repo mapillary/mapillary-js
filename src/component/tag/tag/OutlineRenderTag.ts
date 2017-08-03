@@ -32,7 +32,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     constructor(tag: OutlineTag, transform: Transform) {
         super(tag, transform);
 
-        this._fill = this._tag.fillOpacity > 0 && !transform.gpano ?
+        this._fill = !transform.gpano ?
             this._createFill() :
             null;
 
@@ -65,17 +65,12 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                 (changedTag: OutlineTag): void => {
                     let glObjectsChanged: boolean = false;
 
-                    if (this._fill == null) {
-                        if (this._tag.fillOpacity > 0 && !this._transform.gpano) {
-                            this._fill = this._createFill();
-                            glObjectsChanged = true;
-                        }
-                    } else {
-                        this._updateFillMaterial();
+                    if (this._fill != null) {
+                        this._updateFillMaterial(<THREE.MeshBasicMaterial>this._fill.material);
                     }
 
                     if (this._outline == null) {
-                        if (this._tag.lineWidth > 0) {
+                        if (this._tag.lineWidth >= 1) {
                             this._holes = this._createHoles();
                             this._outline = this._createOutline();
                             glObjectsChanged = true;
@@ -301,13 +296,9 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         geometry.computeBoundingSphere();
 
         let material: THREE.MeshBasicMaterial =
-            new THREE.MeshBasicMaterial(
-                {
-                    color: this._tag.fillColor,
-                    opacity: this._tag.fillOpacity,
-                    side: THREE.DoubleSide,
-                    transparent: true,
-                });
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+
+        this._updateFillMaterial(material);
 
         return new THREE.Mesh(geometry, material);
     }
@@ -427,9 +418,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         geometry.computeBoundingSphere();
     }
 
-    private _updateFillMaterial(): void {
-        let material: THREE.MeshBasicMaterial = <THREE.MeshBasicMaterial>this._fill.material;
-
+    private _updateFillMaterial(material: THREE.MeshBasicMaterial): void {
         material.color = new THREE.Color(this._tag.fillColor);
         material.opacity = this._tag.fillOpacity;
         material.needsUpdate = true;
@@ -486,8 +475,9 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     private _updateLineBasicMaterial(material: THREE.LineBasicMaterial): void {
         material.color = new THREE.Color(this._tag.lineColor);
         material.linewidth = Math.max(this._tag.lineWidth, 1);
-        material.opacity = this._tag.lineWidth >= 1 ? this._tag.lineOpacity : 0;
-        material.transparent = this._tag.lineWidth <= 0 || this._tag.lineOpacity < 1;
+        material.visible = this._tag.lineWidth >= 1 && this._tag.lineOpacity > 0;
+        material.opacity = this._tag.lineOpacity;
+        material.transparent = this._tag.lineOpacity < 1;
         material.needsUpdate = true;
     }
 }

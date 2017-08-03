@@ -159,6 +159,11 @@ export class TagScene {
 
     public updateObjects(tag: RenderTag<Tag>): void {
         const id: string = tag.tag.id;
+
+        if (this._tags[id].tag !== tag) {
+            throw new Error("Tags do not have the same reference.");
+        }
+
         const tagObjects: TagObjects = this._tags[id];
 
         this._removeObjects(tagObjects);
