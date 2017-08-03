@@ -53,7 +53,7 @@ export class Container {
         this.glRenderer = new GLRenderer(this._canvasContainer, this.renderService);
         this.domRenderer = new DOMRenderer(this._domContainer, this.renderService, stateService.currentState$);
 
-        this.mouseService = new MouseService(this._canvasContainer, this._domContainer);
+        this.mouseService = new MouseService(this._container, this._canvasContainer, this._domContainer);
         this.touchService = new TouchService(this._canvasContainer, this._domContainer);
 
         this.spriteService = new SpriteService(options.sprite);

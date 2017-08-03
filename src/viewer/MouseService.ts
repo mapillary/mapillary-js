@@ -58,7 +58,7 @@ export class MouseService {
     private _claimMouse$: Subject<IMouseClaim>;
     private _mouseOwner$: Observable<string>;
 
-    constructor(canvasContainer: HTMLElement, domContainer: HTMLElement, viewportCoords?: ViewportCoords) {
+    constructor(container: HTMLElement, canvasContainer: HTMLElement, domContainer: HTMLElement, viewportCoords?: ViewportCoords) {
         this._canvasContainer = canvasContainer;
         this._domContainer = domContainer;
         this._viewportCoords = viewportCoords != null ? viewportCoords : new ViewportCoords();
@@ -87,7 +87,29 @@ export class MouseService {
 
         this._click$ = Observable.fromEvent<MouseEvent>(canvasContainer, "click");
         this._contextMenu$ = Observable.fromEvent<MouseEvent>(canvasContainer, "contextmenu");
-        this._dblClick$ = Observable.fromEvent<MouseEvent>(canvasContainer, "dblclick");
+
+        this._dblClick$ = Observable
+            .merge(
+                Observable.fromEvent<MouseEvent>(container, "click"),
+                Observable.fromEvent<MouseEvent>(canvasContainer, "dblclick"))
+            .bufferCount(3, 1)
+            .filter(
+                (events: MouseEvent[]): boolean => {
+                    const event1: MouseEvent = events[0];
+                    const event2: MouseEvent = events[1];
+                    const event3: MouseEvent = events[2];
+
+                    return event1.type === "click" &&
+                        event2.type === "click" &&
+                        event3.type === "dblclick" &&
+                        (<HTMLElement>event1.target).parentNode === canvasContainer &&
+                        (<HTMLElement>event2.target).parentNode === canvasContainer;
+                })
+            .map(
+                (events: MouseEvent[]): MouseEvent => {
+                    return events[2];
+                })
+            .share();
 
         Observable
             .merge(
