@@ -495,6 +495,32 @@ export class TagComponent extends Component<ITagConfiguration> {
         }
     }
 
+    /**
+     * Returns an array of tag ids for tags that contain the specified point.
+     *
+     * @description The pixel point must lie inside the polygon or rectangle
+     * of an added tag for the tag id to be returned. Tag ids for
+     * tags that do not have a fill will also be returned if the point is inside
+     * the geometry of the tag. Tags with point geometries can not be retrieved.
+     *
+     * No tag ids will be returned for panoramas.
+     *
+     * Notice that the pixelPoint argument requires x, y coordinates from pixel space.
+     *
+     * With this function, you can use the coordinates provided by mouse
+     * events to get information out of the tag component.
+     *
+     * If no tag at exist the pixel point, an empty array will be returned.
+     *
+     * @param {Array<number>} pixelPoint - Pixel coordinates on the viewer element.
+     * @returns {Array<string>} Ids of the tags that contain the specified pixel point.
+     *
+     * @example
+     * ```
+     * tagComponent.getTagIdsAt([100, 100])
+     *     .then((tagIds) => { console.log(tagIds); });
+     * ```
+     */
     public getTagIdsAt(pixelPoint: number[]): when.Promise<string[]> {
         return when.promise<string[]>((resolve: (value: string[]) => void, reject: (reason: Error) => void): void => {
             this._container.renderService.renderCamera$
