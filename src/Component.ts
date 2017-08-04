@@ -19,6 +19,7 @@ export {MarkerSet} from "./component/marker/MarkerSet";
 export {MouseComponent} from "./component/mouse/MouseComponent";
 export * from "./component/mouse/HandlerTypes";
 export {MouseHandlerBase} from "./component/mouse/MouseHandlerBase";
+export {BounceHandler} from "./component/mouse/BounceHandler";
 export {DragPanHandler} from "./component/mouse/DragPanHandler";
 export {DoubleClickZoomHandler} from "./component/mouse/DoubleClickZoomHandler";
 export {ScrollZoomHandler} from "./component/mouse/ScrollZoomHandler";

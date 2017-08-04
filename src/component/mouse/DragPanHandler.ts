@@ -298,6 +298,7 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
 
         this._activeMouseSubscription = null;
         this._activeTouchSubscription = null;
+        this._preventDefaultSubscription = null;
         this._rotateBasicSubscription = null;
     }
 
