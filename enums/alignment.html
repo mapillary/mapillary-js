@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RenderMode | MapillaryJS</title>
+	<title>Alignment | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="rendermode.html">RenderMode</a>
+					<a href="alignment.html">Alignment</a>
 				</li>
 			</ul>
-			<h1>Enumeration RenderMode</h1>
+			<h1>Enumeration Alignment</h1>
 		</div>
 	</div>
 </header>
@@ -67,7 +67,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Enumeration for render mode</p>
+						<p>Enumeration for alignments</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>enum</dt>
@@ -75,11 +75,6 @@
 						</dd>
 						<dt>readonly</dt>
 						<dd></dd>
-						<dt>description</dt>
-						<dd><p>Modes for specifying how rendering is done
-								in the viewer. All modes preserves the original aspect
-							ratio of the images.</p>
-						</dd>
 					</dl>
 				</div>
 			</section>
@@ -90,8 +85,15 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="rendermode.html#fill" class="tsd-kind-icon">Fill</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="rendermode.html#letterbox" class="tsd-kind-icon">Letterbox</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#bottom" class="tsd-kind-icon">Bottom</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#bottomleft" class="tsd-kind-icon">Bottom<wbr>Left</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#bottomright" class="tsd-kind-icon">Bottom<wbr>Right</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#center" class="tsd-kind-icon">Center</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#left" class="tsd-kind-icon">Left</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#right" class="tsd-kind-icon">Right</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#top" class="tsd-kind-icon">Top</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#topleft" class="tsd-kind-icon">Top<wbr>Left</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="alignment.html#topright" class="tsd-kind-icon">Top<wbr>Right</a></li>
 							</ul>
 						</section>
 					</div>
@@ -100,51 +102,138 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="fill" class="tsd-anchor"></a>
-					<h3>Fill</h3>
-					<div class="tsd-signature tsd-kind-icon">Fill<span class="tsd-signature-symbol">:</span> </div>
+					<a name="bottom" class="tsd-anchor"></a>
+					<h3>Bottom</h3>
+					<div class="tsd-signature tsd-kind-icon">Bottom<span class="tsd-signature-symbol">:</span> </div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/render/RenderMode.ts#L31">render/RenderMode.ts:31</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L10">viewer/Alignment.ts:10</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Fills the viewer by cropping content.</p>
+							<p>Align to bottom</p>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>description</dt>
-							<dd><p>Cropping is done either
-									in horizontal or vertical direction
-									depending on the aspect ratio relation
-								between the image and the viewer.</p>
-							</dd>
-						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="letterbox" class="tsd-anchor"></a>
-					<h3>Letterbox</h3>
-					<div class="tsd-signature tsd-kind-icon">Letterbox<span class="tsd-signature-symbol">:</span> </div>
+					<a name="bottomleft" class="tsd-anchor"></a>
+					<h3>Bottom<wbr>Left</h3>
+					<div class="tsd-signature tsd-kind-icon">Bottom<wbr>Left<span class="tsd-signature-symbol">:</span> </div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/render/RenderMode.ts#L21">render/RenderMode.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L15">viewer/Alignment.ts:15</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Displays all content within the viewer.</p>
+							<p>Align to bottom left</p>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>description</dt>
-							<dd><p>Black bars shown on both
-									sides of the content. Bars are shown
-									either below and above or to the left
-									and right of the content depending on
-									the aspect ratio relation between the
-								image and the viewer.</p>
-							</dd>
-						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="bottomright" class="tsd-anchor"></a>
+					<h3>Bottom<wbr>Right</h3>
+					<div class="tsd-signature tsd-kind-icon">Bottom<wbr>Right<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L20">viewer/Alignment.ts:20</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Align to bottom right</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="center" class="tsd-anchor"></a>
+					<h3>Center</h3>
+					<div class="tsd-signature tsd-kind-icon">Center<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L25">viewer/Alignment.ts:25</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Align to center</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="left" class="tsd-anchor"></a>
+					<h3>Left</h3>
+					<div class="tsd-signature tsd-kind-icon">Left<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L30">viewer/Alignment.ts:30</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Align to left</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="right" class="tsd-anchor"></a>
+					<h3>Right</h3>
+					<div class="tsd-signature tsd-kind-icon">Right<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L35">viewer/Alignment.ts:35</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Align to right</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="top" class="tsd-anchor"></a>
+					<h3>Top</h3>
+					<div class="tsd-signature tsd-kind-icon">Top<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L40">viewer/Alignment.ts:40</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Align to top</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="topleft" class="tsd-anchor"></a>
+					<h3>Top<wbr>Left</h3>
+					<div class="tsd-signature tsd-kind-icon">Top<wbr>Left<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L45">viewer/Alignment.ts:45</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Align to top left</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="topright" class="tsd-anchor"></a>
+					<h3>Top<wbr>Right</h3>
+					<div class="tsd-signature tsd-kind-icon">Top<wbr>Right<span class="tsd-signature-symbol">:</span> </div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/viewer/Alignment.ts#L50">viewer/Alignment.ts:50</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Align to top right</p>
+						</div>
 					</div>
 				</section>
 			</section>
@@ -162,13 +251,34 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-enum">
-						<a href="rendermode.html" class="tsd-kind-icon">Render<wbr>Mode</a>
+						<a href="alignment.html" class="tsd-kind-icon">Alignment</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="rendermode.html#fill" class="tsd-kind-icon">Fill</a>
+								<a href="alignment.html#bottom" class="tsd-kind-icon">Bottom</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="rendermode.html#letterbox" class="tsd-kind-icon">Letterbox</a>
+								<a href="alignment.html#bottomleft" class="tsd-kind-icon">Bottom<wbr>Left</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="alignment.html#bottomright" class="tsd-kind-icon">Bottom<wbr>Right</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="alignment.html#center" class="tsd-kind-icon">Center</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="alignment.html#left" class="tsd-kind-icon">Left</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="alignment.html#right" class="tsd-kind-icon">Right</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="alignment.html#top" class="tsd-kind-icon">Top</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="alignment.html#topleft" class="tsd-kind-icon">Top<wbr>Left</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="alignment.html#topright" class="tsd-kind-icon">Top<wbr>Right</a>
 							</li>
 						</ul>
 					</li>

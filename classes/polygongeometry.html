@@ -124,12 +124,16 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="polygongeometry.html#_getpoleofinaccessibility2d" class="tsd-kind-icon">_get<wbr>Pole<wbr>OfInaccessibility2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="polygongeometry.html#_triangulate" class="tsd-kind-icon">_triangulate</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="polygongeometry.html#addvertex2d" class="tsd-kind-icon">add<wbr>Vertex2d</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getcentroid2d" class="tsd-kind-icon">get<wbr>Centroid2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getcentroid3d" class="tsd-kind-icon">get<wbr>Centroid3d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="polygongeometry.html#getholevertices3d" class="tsd-kind-icon">get<wbr>Hole<wbr>Vertices3d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getpoints3d" class="tsd-kind-icon">get<wbr>Points3d</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getpoleofaccessibility2d" class="tsd-kind-icon">get<wbr>Pole<wbr>OfAccessibility2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getpoleofaccessibility3d" class="tsd-kind-icon">get<wbr>Pole<wbr>OfAccessibility3d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#gettriangles3d" class="tsd-kind-icon">get<wbr>Triangles3d</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getvertex2d" class="tsd-kind-icon">get<wbr>Vertex2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getvertex3d" class="tsd-kind-icon">get<wbr>Vertex3d</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getvertices2d" class="tsd-kind-icon">get<wbr>Vertices2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#getvertices3d" class="tsd-kind-icon">get<wbr>Vertices3d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="polygongeometry.html#removevertex2d" class="tsd-kind-icon">remove<wbr>Vertex2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="polygongeometry.html#setcentroid2d" class="tsd-kind-icon">set<wbr>Centroid2d</a></li>
@@ -152,7 +156,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L18">component/tag/geometry/PolygonGeometry.ts:18</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L18">component/tag/geometry/PolygonGeometry.ts:18</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -195,7 +199,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 					<aside class="tsd-sources">
 						<p>Inherited from Geometry._notifyChanged$</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/Geometry.ts#L12">component/tag/geometry/Geometry.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/Geometry.ts#L12">component/tag/geometry/Geometry.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -213,7 +217,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Inherited from Geometry.changed$</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/Geometry.ts#L32">component/tag/geometry/Geometry.ts:32</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/Geometry.ts#L32">component/tag/geometry/Geometry.ts:32</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -244,7 +248,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L98">component/tag/geometry/PolygonGeometry.ts:98</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L98">component/tag/geometry/PolygonGeometry.ts:98</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -267,7 +271,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L90">component/tag/geometry/PolygonGeometry.ts:90</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L90">component/tag/geometry/PolygonGeometry.ts:90</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -294,7 +298,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Inherited from VertexGeometry._getPoleOfInaccessibility2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/VertexGeometry.ts#L101">component/tag/geometry/VertexGeometry.ts:101</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/VertexGeometry.ts#L127">component/tag/geometry/VertexGeometry.ts:127</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -332,7 +336,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Inherited from VertexGeometry._triangulate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/VertexGeometry.ts#L118">component/tag/geometry/VertexGeometry.ts:118</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/VertexGeometry.ts#L144">component/tag/geometry/VertexGeometry.ts:144</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -381,7 +385,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L107">component/tag/geometry/PolygonGeometry.ts:107</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L107">component/tag/geometry/PolygonGeometry.ts:107</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -403,6 +407,30 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+					<a name="getcentroid2d" class="tsd-anchor"></a>
+					<h3>get<wbr>Centroid2d</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Centroid2d<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides Geometry.getCentroid2d</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L250">component/tag/geometry/PolygonGeometry.ts:250</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>inheritdoc</dt>
+									<dd></dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getcentroid3d" class="tsd-anchor"></a>
 					<h3>get<wbr>Centroid3d</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
@@ -413,7 +441,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides Geometry.getCentroid3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L232">component/tag/geometry/PolygonGeometry.ts:232</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L279">component/tag/geometry/PolygonGeometry.ts:279</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -442,7 +470,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L215">component/tag/geometry/PolygonGeometry.ts:215</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L233">component/tag/geometry/PolygonGeometry.ts:233</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -477,7 +505,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getPoints3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L189">component/tag/geometry/PolygonGeometry.ts:189</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L202">component/tag/geometry/PolygonGeometry.ts:202</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -497,6 +525,30 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+					<a name="getpoleofaccessibility2d" class="tsd-anchor"></a>
+					<h3>get<wbr>Pole<wbr>OfAccessibility2d</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Pole<wbr>OfAccessibility2d<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides VertexGeometry.getPoleOfAccessibility2d</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L295">component/tag/geometry/PolygonGeometry.ts:295</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>inheritdoc</dt>
+									<dd></dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getpoleofaccessibility3d" class="tsd-anchor"></a>
 					<h3>get<wbr>Pole<wbr>OfAccessibility3d</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
@@ -507,7 +559,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getPoleOfAccessibility3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L248">component/tag/geometry/PolygonGeometry.ts:248</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L300">component/tag/geometry/PolygonGeometry.ts:300</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -537,7 +589,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getTriangles3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L239">component/tag/geometry/PolygonGeometry.ts:239</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L286">component/tag/geometry/PolygonGeometry.ts:286</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -557,6 +609,45 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+					<a name="getvertex2d" class="tsd-anchor"></a>
+					<h3>get<wbr>Vertex2d</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Vertex2d<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides VertexGeometry.getVertex2d</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L127">component/tag/geometry/PolygonGeometry.ts:127</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the coordinates of a vertex from the polygon representation of the geometry.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>The first vertex represents the bottom-left corner with the rest of
+										the vertices following in clockwise order.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>index: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Vertex index.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>Array representing the 2D basic coordinates of the vertex.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getvertex3d" class="tsd-anchor"></a>
 					<h3>get<wbr>Vertex3d</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
@@ -567,7 +658,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getVertex3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L194">component/tag/geometry/PolygonGeometry.ts:194</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L207">component/tag/geometry/PolygonGeometry.ts:207</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -590,6 +681,30 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+					<a name="getvertices2d" class="tsd-anchor"></a>
+					<h3>get<wbr>Vertices2d</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Vertices2d<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides VertexGeometry.getVertices2d</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L212">component/tag/geometry/PolygonGeometry.ts:212</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>inheritdoc</dt>
+									<dd></dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getvertices3d" class="tsd-anchor"></a>
 					<h3>get<wbr>Vertices3d</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
@@ -600,7 +715,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getVertices3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L199">component/tag/geometry/PolygonGeometry.ts:199</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L217">component/tag/geometry/PolygonGeometry.ts:217</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -629,7 +744,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L123">component/tag/geometry/PolygonGeometry.ts:123</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L136">component/tag/geometry/PolygonGeometry.ts:136</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -661,7 +776,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides Geometry.setCentroid2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L161">component/tag/geometry/PolygonGeometry.ts:161</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L174">component/tag/geometry/PolygonGeometry.ts:174</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -694,7 +809,7 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.setVertex2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/fa08af7/src/component/tag/geometry/PolygonGeometry.ts#L144">component/tag/geometry/PolygonGeometry.ts:144</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/tag/geometry/PolygonGeometry.ts#L157">component/tag/geometry/PolygonGeometry.ts:157</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -761,6 +876,9 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 								<a href="polygongeometry.html#addvertex2d" class="tsd-kind-icon">add<wbr>Vertex2d</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="polygongeometry.html#getcentroid2d" class="tsd-kind-icon">get<wbr>Centroid2d</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="polygongeometry.html#getcentroid3d" class="tsd-kind-icon">get<wbr>Centroid3d</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -770,13 +888,22 @@ var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
 								<a href="polygongeometry.html#getpoints3d" class="tsd-kind-icon">get<wbr>Points3d</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="polygongeometry.html#getpoleofaccessibility2d" class="tsd-kind-icon">get<wbr>Pole<wbr>OfAccessibility2d</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="polygongeometry.html#getpoleofaccessibility3d" class="tsd-kind-icon">get<wbr>Pole<wbr>OfAccessibility3d</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="polygongeometry.html#gettriangles3d" class="tsd-kind-icon">get<wbr>Triangles3d</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="polygongeometry.html#getvertex2d" class="tsd-kind-icon">get<wbr>Vertex2d</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="polygongeometry.html#getvertex3d" class="tsd-kind-icon">get<wbr>Vertex3d</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="polygongeometry.html#getvertices2d" class="tsd-kind-icon">get<wbr>Vertices2d</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="polygongeometry.html#getvertices3d" class="tsd-kind-icon">get<wbr>Vertices3d</a>
