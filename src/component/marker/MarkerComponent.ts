@@ -214,7 +214,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
      * ```
      */
     public getMarkerIdAt(pixelPoint: number[]): when.Promise<string> {
-        return when.promise<string>((resolve: any, reject: any): void => {
+        return when.promise<string>((resolve: (value: string) => void, reject: (reason: Error) => void): void => {
             this._container.renderService.renderCamera$
                 .first()
                 .map(

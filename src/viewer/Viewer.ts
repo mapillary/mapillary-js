@@ -307,7 +307,7 @@ export class Viewer extends EventEmitter {
      */
     public getBearing(): when.Promise<number> {
         return when.promise<number>(
-            (resolve: any, reject: any): void => {
+            (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
                 this._container.renderService.bearing$
                     .first()
                     .subscribe(
@@ -339,7 +339,7 @@ export class Viewer extends EventEmitter {
      */
     public getCenter(): when.Promise<number[]> {
         return when.promise<number[]>(
-            (resolve: any, reject: any): void => {
+            (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._navigator.stateService.getCenter()
                     .subscribe(
                         (center: number[]): void => {
@@ -388,7 +388,7 @@ export class Viewer extends EventEmitter {
      */
     public getZoom(): when.Promise<number> {
          return when.promise<number>(
-            (resolve: any, reject: any): void => {
+            (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
                 this._navigator.stateService.getZoom()
                     .subscribe(
                         (zoom: number): void => {
@@ -421,15 +421,16 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveCloseTo$(lat, lon).subscribe(
-                (node: Node): void => {
-                    resolve(node);
-                },
-                (error: Error): void => {
-                    reject(error);
-                });
-        });
+        return when.promise<Node>(
+            (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
+                this._navigator.moveCloseTo$(lat, lon).subscribe(
+                    (node: Node): void => {
+                        resolve(node);
+                    },
+                    (error: Error): void => {
+                        reject(error);
+                    });
+            });
     }
 
     /**
@@ -451,15 +452,16 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveDir$(dir).subscribe(
-                (node: Node): void => {
-                    resolve(node);
-                },
-                (error: Error): void => {
-                    reject(error);
-                });
-        });
+        return when.promise<Node>(
+            (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
+                this._navigator.moveDir$(dir).subscribe(
+                    (node: Node): void => {
+                        resolve(node);
+                    },
+                    (error: Error): void => {
+                        reject(error);
+                    });
+            });
     }
 
     /**
@@ -477,15 +479,16 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveToKey(key: string): when.Promise<Node> {
-        return when.promise<Node>((resolve: any, reject: any): void => {
-            this._navigator.moveToKey$(key).subscribe(
-                (node: Node): void => {
-                    resolve(node);
-                },
-                (error: Error): void => {
-                    reject(error);
-                });
-        });
+        return when.promise<Node>(
+            (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
+                this._navigator.moveToKey$(key).subscribe(
+                    (node: Node): void => {
+                        resolve(node);
+                    },
+                    (error: Error): void => {
+                        reject(error);
+                    });
+            });
     }
 
     /**
@@ -507,7 +510,7 @@ export class Viewer extends EventEmitter {
      */
     public projectFromBasic(basicPoint: number[]): when.Promise<number[]> {
         return when.promise<number[]>(
-            (resolve: any, reject: any): void => {
+            (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._observer.projectBasic$(basicPoint)
                     .subscribe(
                         (pixelPoint: number[]): void => {
@@ -559,7 +562,7 @@ export class Viewer extends EventEmitter {
      */
     public setAuthToken(token?: string): when.Promise<void> {
         return when.promise<void>(
-            (resolve: any, reject: any): void => {
+            (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
                 this._navigator.setToken$(token)
                     .subscribe(
                         (): void => {
@@ -638,7 +641,7 @@ export class Viewer extends EventEmitter {
      */
     public setFilter(filter: FilterExpression): when.Promise<void> {
         return when.promise<void>(
-            (resolve: any, reject: any): void => {
+            (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
                 this._navigator.setFilter$(filter)
                     .subscribe(
                         (): void => {
@@ -701,7 +704,7 @@ export class Viewer extends EventEmitter {
      */
     public unproject(pixelPoint: number[]): when.Promise<ILatLon> {
         return when.promise<ILatLon>(
-            (resolve: any, reject: any): void => {
+            (resolve: (value: ILatLon) => void, reject: (reason: Error) => void): void => {
                 this._observer.unproject$(pixelPoint)
                     .subscribe(
                         (latLon: ILatLon): void => {
@@ -733,7 +736,7 @@ export class Viewer extends EventEmitter {
      */
     public unprojectToBasic(pixelPoint: number[]): when.Promise<number[]> {
         return when.promise<number[]>(
-            (resolve: any, reject: any): void => {
+            (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._observer.unprojectBasic$(pixelPoint)
                     .subscribe(
                         (basicPoint: number[]): void => {
