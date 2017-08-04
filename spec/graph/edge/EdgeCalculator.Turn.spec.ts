@@ -47,8 +47,18 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         expect(() => { edgeCalculator.computeTurnEdges(node, []); }).toThrowError(Error);
     });
 
-    it("should not have any edges because potential is pano", () => {
+    it("should not have any edges because potential is full pano", () => {
+        potentialEdge.directionChange = Math.PI / 2;
         potentialEdge.fullPano = true;
+
+        let stepEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge]);
+
+        expect(stepEdges.length).toBe(0);
+    });
+
+    it("should not have any edges because potential is cropped pano", () => {
+        potentialEdge.directionChange = Math.PI / 2;
+        potentialEdge.croppedPano = true;
 
         let stepEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge]);
 
@@ -96,6 +106,17 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
     it("should not have a u-turn edge when node is full pano", () => {
         node = helper.createDefaultNode(true);
+
+        potentialEdge.directionChange = Math.PI;
+
+        let turnEdges: IEdge[] = edgeCalculator.computeTurnEdges(node, [potentialEdge]);
+
+        expect(turnEdges.length).toBe(0);
+    });
+
+    it("should not have a u-turn edge when node is cropped pano", () => {
+        node = helper.createDefaultNode(true);
+        node.gpano.CroppedAreaImageHeightPixels = 0.5;
 
         potentialEdge.directionChange = Math.PI;
 

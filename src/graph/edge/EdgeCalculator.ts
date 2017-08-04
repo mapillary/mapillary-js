@@ -143,6 +143,7 @@ export class EdgeCalculator {
 
             let potentialEdge: IPotentialEdge = {
                 capturedAt: potential.capturedAt,
+                croppedPano: potential.pano && !potential.fullPano,
                 directionChange: directionChange,
                 distance: distance,
                 fullPano: potential.fullPano,
@@ -320,6 +321,9 @@ export class EdgeCalculator {
     /**
      * Computes the step edges for a perspective node.
      *
+     * @description Step edge targets can only be other perspective nodes.
+     * Returns an empty array for cropped and full panoramas.
+     *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
      * @param {string} prevKey - Key of previous node in sequence.
@@ -338,7 +342,7 @@ export class EdgeCalculator {
 
         let edges: IEdge[] = [];
 
-        if (node.fullPano) {
+        if (node.pano) {
             return edges;
         }
 
@@ -354,7 +358,7 @@ export class EdgeCalculator {
             let fallback: IPotentialEdge = null;
 
             for (let potential of potentialEdges) {
-                if (potential.fullPano) {
+                if (potential.croppedPano || potential.fullPano) {
                     continue;
                 }
 
@@ -420,6 +424,9 @@ export class EdgeCalculator {
     /**
      * Computes the turn edges for a perspective node.
      *
+     * @description Turn edge targets can only be other perspective images.
+     * Returns an empty array for cropped and full panoramas.
+     *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
@@ -431,7 +438,7 @@ export class EdgeCalculator {
 
         let edges: IEdge[] = [];
 
-        if (node.fullPano) {
+        if (node.pano) {
             return edges;
         }
 
@@ -446,7 +453,7 @@ export class EdgeCalculator {
             let edge: IPotentialEdge = null;
 
             for (let potential of potentialEdges) {
-                if (potential.fullPano) {
+                if (potential.croppedPano || potential.fullPano) {
                     continue;
                 }
 
@@ -513,6 +520,9 @@ export class EdgeCalculator {
     /**
      * Computes the pano edges for a perspective node.
      *
+     * @description Perspective to pano edge targets can only be
+     * full pano nodes. Returns an empty array for cropped and full panoramas.
+     *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
@@ -522,7 +532,7 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
-        if (node.fullPano) {
+        if (node.pano) {
             return [];
         }
 
@@ -564,7 +574,12 @@ export class EdgeCalculator {
     }
 
     /**
-     * Computes the pano and step edges for a pano node.
+     * Computes the full pano and step edges for a full pano node.
+     *
+     * @description Pano to pano edge targets can only be
+     * full pano nodes. Pano to step edge targets can only be perspective
+     * nodes.
+     * Returns an empty array for cropped panoramas and perspective nodes.
      *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
@@ -595,6 +610,10 @@ export class EdgeCalculator {
 
                 potentialPanos.push(potential);
             } else {
+                if (potential.croppedPano) {
+                    continue;
+                }
+
                 for (let k in this._directions.panos) {
                     if (!this._directions.panos.hasOwnProperty(k)) {
                         continue;

@@ -66,6 +66,14 @@ describe("EdgeCalculator.computePanoEdges", () => {
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
     });
 
+    it("should not have a pano edge for potential cropped pano ", () => {
+        potentialEdge1.croppedPano = true;
+        potentialEdge1.fullPano = false;
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
+    });
+
     it("should have a pano edge irrespective of rotation", () => {
         potentialEdge1.directionChange = Math.PI;
 
@@ -426,6 +434,16 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
+    });
+
+    it("should not have a step forward edge for potential cropped pano", () => {
+        potentialEdge1.motionChange = 0;
+        potentialEdge1.directionChange = 0;
+        potentialEdge1.croppedPano = true;
+
+        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
     });
 
     it("should have a step left edge", () => {
@@ -877,6 +895,14 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
         expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
+    });
+
+    it("should not return a pano edge for potential cropped pano", () => {
+        potentialEdge1.croppedPano = true;
+        potentialEdge1.fullPano = false;
+        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1]);
+
+        expect(panoEdges.length).toBe(0);
     });
 
     it("should not return a pano edge when node is pano", () => {

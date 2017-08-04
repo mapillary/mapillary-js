@@ -7,6 +7,7 @@ export class EdgeCalculatorHelper {
     public createPotentialEdge(key: string = "pkey"): IPotentialEdge {
         return {
             capturedAt: 0,
+            croppedPano: false,
             directionChange: 0,
             distance: 0,
             fullPano: false,
