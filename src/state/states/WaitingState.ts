@@ -5,6 +5,8 @@ export class WaitingState extends StateBase {
     constructor(state: IState) {
         super(state);
 
+        this._zoom = 0;
+
         this._adjustCameras();
 
         this._motionless = this._motionlessTransition();
