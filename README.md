@@ -14,8 +14,8 @@ To use MapillaryJS you must [create an account](https://www.mapillary.com/signup
 <!DOCTYPE html>
 <html>
 <head>
-    <script src='https://unpkg.com/mapillary-js@2.6.0/dist/mapillary.min.js'></script>
-    <link href='https://unpkg.com/mapillary-js@2.6.0/dist/mapillary.min.css' rel='stylesheet' />
+    <script src='https://unpkg.com/mapillary-js@2.7.0/dist/mapillary.min.js'></script>
+    <link href='https://unpkg.com/mapillary-js@2.7.0/dist/mapillary.min.css' rel='stylesheet' />
 </head>
 
 <body>
