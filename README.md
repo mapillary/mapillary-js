@@ -93,6 +93,7 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [Configure point, polygon and rect tags](https://bl.ocks.org/oscarlorentzon/a9ad92a720d2f175c9ce7f3f982ac59f)
 - [Create tags](https://bl.ocks.org/oscarlorentzon/94539cefc33296ab6f28e3a83ecdccf1)
 - [Listen to geometry changes](https://bl.ocks.org/oscarlorentzon/d19b3387b7671be59f4add09f67c3b63)
+- [Indicate hovered tag](https://bl.ocks.org/oscarlorentzon/d99e59952f64a3692c0ae660b4252c60)
 
 ## Documentation
 

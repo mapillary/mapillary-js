@@ -88,7 +88,7 @@ Open the docs page at [http://localhost:8000/docs](http://localhost:8000/docs).
 
 We use the standardized commit messages according to [Conventional Commits](https://conventionalcommits.org/) with the additional types in the Angular convention.
 
-Version Control Conventions
+## Version Control Conventions
 
 We use [rebase merging](https://git-scm.com/book/en/v2/Git-Branching-Rebasing) (as opposed to [basic merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#Basic-Merging)) to merge branches.
 
