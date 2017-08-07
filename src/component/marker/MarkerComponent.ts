@@ -521,7 +521,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         return false;
                     });
 
-        const dragging$: Observable<boolean> = Observable
+        const filteredDragging$: Observable<boolean> = Observable
             .merge(
                 draggingStarted$,
                 draggingStopped$)
@@ -546,19 +546,28 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     this.fire(eventType, markerEvent);
                 });
 
+        const mouseDown$: Observable<boolean> = Observable
+            .merge(
+                this._container.mouseService.mouseDown$
+                    .map((event: MouseEvent): boolean => { return true; }),
+                this._container.mouseService.documentMouseUp$
+                    .map((event: MouseEvent): boolean => { return false; }))
+            .startWith(false);
+
         this._mouseClaimSubscription = Observable
             .combineLatest(
                 this._container.mouseService.active$,
-                hoveredMarkerId$,
-                dragging$)
+                hoveredMarkerId$.distinctUntilChanged(),
+                mouseDown$,
+                filteredDragging$)
             .map(
-                ([active, markerId, dragging]: [boolean, string, boolean]): boolean => {
-                    return (!active && markerId != null) || dragging;
+                ([active, markerId, mouseDown, filteredDragging]: [boolean, string, boolean, boolean]): boolean => {
+                    return (!active && markerId != null && mouseDown) || filteredDragging;
                 })
             .distinctUntilChanged()
             .subscribe(
-                (hovered: boolean): void => {
-                    if (hovered) {
+                (claim: boolean): void => {
+                    if (claim) {
                         this._container.mouseService.claimMouse(this._name, 1);
                     } else {
                         this._container.mouseService.unclaimMouse(this._name);
