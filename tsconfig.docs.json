@@ -54,6 +54,7 @@
         "./src/viewer/interfaces/IViewerOptions.ts",
         "./src/viewer/Alignment.ts",
         "./src/viewer/ImageSize.ts",
-        "./src/viewer/Viewer.ts"
+        "./src/viewer/Viewer.ts",
+        "./src/Support.ts"
     ]
 }
