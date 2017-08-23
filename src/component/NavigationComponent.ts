@@ -11,7 +11,7 @@ import "rxjs/add/operator/first";
 import {EdgeDirection, IEdge} from "../Edge";
 import {IEdgeStatus, Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
-import {ComponentService, Component, IComponentConfiguration} from "../Component";
+import {ComponentService, Component, IComponentConfiguration, INavigationConfiguration} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
@@ -47,21 +47,25 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._renderSubscription = this._navigator.stateService.currentNode$
+        this._renderSubscription = Observable
+            .combineLatest(
+                this._navigator.stateService.currentNode$,
+                this._configuration$)
             .switchMap(
-                (node: Node): Observable<EdgeDirection[]> => {
-                    const sequenceEdges$: Observable<EdgeDirection[]> = node.sequenceEdges$
-                        .map(
-                            (status: IEdgeStatus): EdgeDirection[] => {
-                                return status.edges
-                                    .map(
-                                        (edge: IEdge): EdgeDirection => {
-                                            return edge.data.direction;
-                                        });
-                            });
+                ([node, configuration]: [Node, INavigationConfiguration]): Observable<EdgeDirection[]> => {
+                    const sequenceEdges$: Observable<EdgeDirection[]> = configuration.sequenceVisible ?
+                        node.sequenceEdges$
+                            .map(
+                                (status: IEdgeStatus): EdgeDirection[] => {
+                                    return status.edges
+                                        .map(
+                                            (edge: IEdge): EdgeDirection => {
+                                                return edge.data.direction;
+                                            });
+                                }) :
+                        Observable.of<EdgeDirection[]>([]);
 
-                    const spatialEdges$: Observable<EdgeDirection[]> = node.pano ?
-                        Observable.of<EdgeDirection[]>([]) :
+                    const spatialEdges$: Observable<EdgeDirection[]> = !node.pano && configuration.spatialVisible ?
                         node.spatialEdges$
                             .map(
                                 (status: IEdgeStatus): EdgeDirection[] => {
@@ -70,7 +74,8 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
                                             (edge: IEdge): EdgeDirection => {
                                                 return edge.data.direction;
                                             });
-                                });
+                                }) :
+                        Observable.of<EdgeDirection[]>([]);
 
                     return Observable
                         .combineLatest(
@@ -103,8 +108,8 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
         this._renderSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IComponentConfiguration {
-        return {};
+    protected _getDefaultConfiguration(): INavigationConfiguration {
+        return { sequenceVisible: true, spatialVisible: true };
     }
 
     private _createArrowRow(arrowNames: { [dir: string]: string }, edgeDirections: EdgeDirection[]): vd.VNode[] {
