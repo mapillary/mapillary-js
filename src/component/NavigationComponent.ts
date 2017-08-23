@@ -15,6 +15,13 @@ import {ComponentService, Component, IComponentConfiguration, INavigationConfigu
 
 import {IVNodeHash} from "../Render";
 
+/**
+ * @class NavigationComponent
+ *
+ * @classdesc Fallback navigation component for environments without WebGL support.
+ *
+ * Replaces the functionality in the Direction and Sequence components.
+ */
 export class NavigationComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "navigation";
 
