@@ -29,7 +29,6 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
 
     private _seqNames: { [dir: string]: string };
     private _spaTopNames: { [dir: string]: string };
-    private _spaMiddleNames: { [dir: string]: string };
     private _spaBottomNames: { [dir: string]: string };
 
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -41,12 +40,10 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
 
         this._spaTopNames = {};
         this._spaTopNames[EdgeDirection[EdgeDirection.TurnLeft]] = "Turnleft";
+        this._spaTopNames[EdgeDirection[EdgeDirection.StepLeft]] = "Left";
         this._spaTopNames[EdgeDirection[EdgeDirection.StepForward]] = "Forward";
+        this._spaTopNames[EdgeDirection[EdgeDirection.StepRight]] = "Right";
         this._spaTopNames[EdgeDirection[EdgeDirection.TurnRight]] = "Turnright";
-
-        this._spaMiddleNames = {};
-        this._spaMiddleNames[EdgeDirection[EdgeDirection.StepLeft]] = "Left";
-        this._spaMiddleNames[EdgeDirection[EdgeDirection.StepRight]] = "Right";
 
         this._spaBottomNames = {};
         this._spaBottomNames[EdgeDirection[EdgeDirection.TurnU]] = "Turnaround";
@@ -97,14 +94,12 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
                 (edgeDirections: EdgeDirection[]): IVNodeHash => {
                     const seqs: vd.VNode[] = this._createArrowRow(this._seqNames, edgeDirections);
                     const spaTops: vd.VNode[] = this._createArrowRow(this._spaTopNames, edgeDirections);
-                    const spaMiddles: vd.VNode[] = this._createArrowRow(this._spaMiddleNames, edgeDirections);
                     const spaBottoms: vd.VNode[] = this._createArrowRow(this._spaBottomNames, edgeDirections);
 
                     const seqContainer: vd.VNode = vd.h(`div.NavigationSequence`, seqs);
                     const spaTopContainer: vd.VNode = vd.h(`div.NavigationSpatialTop`, spaTops);
-                    const spaMiddleContainer: vd.VNode = vd.h(`div.NavigationSpatialMiddle`, spaMiddles);
                     const spaBottomContainer: vd.VNode = vd.h(`div.NavigationSpatialBottom`, spaBottoms);
-                    const spaContainer: vd.VNode = vd.h(`div.NavigationSpatial`, [spaTopContainer, spaMiddleContainer, spaBottomContainer]);
+                    const spaContainer: vd.VNode = vd.h(`div.NavigationSpatial`, [spaTopContainer, spaBottomContainer]);
 
                     return { name: this._name, vnode: vd.h(`div.NavigationContainer`, [seqContainer, spaContainer]) };
                 })

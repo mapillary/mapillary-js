@@ -2,7 +2,7 @@
     position: absolute;
     top: 12px;
     left: 50%;
-    margin-left: -36px;
+    margin-left: -40px;
     pointer-events: none;
     z-index: 10;
 }
@@ -11,14 +11,18 @@
     position: absolute;
     bottom: 18px;
     left: 50%;
-    margin-left: -52px;
+    margin-left: -100px;
     pointer-events: none;
     z-index: 10;
 }
 
+.NavigationSpatialBottom {
+    margin-left: 40px;
+}
+
 .Direction {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     background-size: contain;
     background-repeat: no-repeat;
     pointer-events: auto;
@@ -26,10 +30,6 @@
     cursor: pointer;
     display: inline-block;
     filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 1));
-}
-
-.DirectionRight {
-    margin-left: 38px;
 }
 
 .DirectionPrev,
