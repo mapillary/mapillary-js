@@ -7,9 +7,8 @@ import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
 import {
     Component,
     IComponentConfiguration,
-    MouseHandlerBase,
+    HandlerBase,
 } from "../../../src/Component";
-import {ViewportCoords} from "../../../src/Geo";
 import {
     Container,
     Navigator,
@@ -28,41 +27,36 @@ class TestComponent extends Component<ITestConfiguration> {
     protected _getDefaultConfiguration(): ITestConfiguration { return { test: false }; }
 }
 
-class TestHandler extends MouseHandlerBase<ITestConfiguration> {
+class TestHandler extends HandlerBase<ITestConfiguration> {
     protected _disable(): void { /* noop */ }
     protected _enable(): void { /* noop */ }
     protected _getConfiguration(enable: boolean): ITestConfiguration { return { test: enable }; }
 }
 
-describe("MouseHandlerBase.ctor", () => {
+describe("HandlerBase.ctor", () => {
     it("should be defined", () => {
         let mockCreator: MockCreator = new MockCreator();
         let containerMock: Container = mockCreator.create(Container, "Container");
         let navigatorMock: Navigator = mockCreator.create(Navigator, "Navigator");
-        let viewportCoordsMock: ViewportCoords =
-            mockCreator.create(ViewportCoords, "ViewportCoords");
 
         let handler: TestHandler = new TestHandler(
             new TestComponent("test", containerMock, navigatorMock),
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         expect(handler).toBeDefined();
         expect(handler.isEnabled).toBe(false);
     });
 });
 
-describe("MouseHandlerBase.enable", () => {
+describe("HandlerBase.enable", () => {
     let containerMock: Container;
     let navigatorMock: Navigator;
-    let viewportCoordsMock: ViewportCoords;
     let testComponent: TestComponent;
 
     beforeEach(() => {
         containerMock = new ContainerMockCreator().create();
         navigatorMock = new NavigatorMockCreator().create();
-        viewportCoordsMock = new MockCreator().create(ViewportCoords, "ViewportCoords");
         testComponent = new TestComponent("test", containerMock, navigatorMock);
     });
 
@@ -70,8 +64,7 @@ describe("MouseHandlerBase.enable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.activate();
         handler.enable();
@@ -83,8 +76,7 @@ describe("MouseHandlerBase.enable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.deactivate();
         handler.enable();
@@ -98,8 +90,7 @@ describe("MouseHandlerBase.enable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.activate();
         handler.enable();
@@ -114,8 +105,7 @@ describe("MouseHandlerBase.enable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.deactivate();
         handler.enable();
@@ -124,16 +114,14 @@ describe("MouseHandlerBase.enable", () => {
     });
 });
 
-describe("MouseHandlerBase.disable", () => {
+describe("HandlerBase.disable", () => {
     let containerMock: Container;
     let navigatorMock: Navigator;
-    let viewportCoordsMock: ViewportCoords;
     let testComponent: TestComponent;
 
     beforeEach(() => {
         containerMock = new ContainerMockCreator().create();
         navigatorMock = new NavigatorMockCreator().create();
-        viewportCoordsMock = new MockCreator().create(ViewportCoords, "ViewportCoords");
         testComponent = new TestComponent("test", containerMock, navigatorMock);
     });
 
@@ -141,8 +129,7 @@ describe("MouseHandlerBase.disable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.activate();
         handler.enable();
@@ -155,8 +142,7 @@ describe("MouseHandlerBase.disable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.activate();
         handler.enable();
@@ -171,8 +157,7 @@ describe("MouseHandlerBase.disable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.activate();
         handler.enable();
@@ -189,8 +174,7 @@ describe("MouseHandlerBase.disable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.activate();
         handler.enable();
@@ -207,8 +191,7 @@ describe("MouseHandlerBase.disable", () => {
         let handler: TestHandler = new TestHandler(
             testComponent,
             containerMock,
-            navigatorMock,
-            viewportCoordsMock);
+            navigatorMock);
 
         testComponent.activate();
 

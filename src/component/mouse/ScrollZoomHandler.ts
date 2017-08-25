@@ -1,15 +1,23 @@
 import {Subscription} from "rxjs/Subscription";
 
 import {
+    Component,
     IMouseConfiguration,
-    MouseHandlerBase,
+    HandlerBase,
 } from "../../Component";
-import {Transform} from "../../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../../Geo";
 import {RenderCamera} from "../../Render";
 import {
     ICurrentState,
     IFrame,
 } from "../../State";
+import {
+    Container,
+    Navigator,
+} from "../../Viewer";
 
 /**
  * The `ScrollZoomHandler` allows the user to zoom the viewer photo by scrolling.
@@ -24,9 +32,21 @@ import {
  * var isEnabled = mouseComponent.scrollZoom.isEnabled;
  * ```
  */
-export class ScrollZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
+export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
+    private _viewportCoords: ViewportCoords;
+
     private _preventDefaultSubscription: Subscription;
     private _zoomSubscription: Subscription;
+
+    constructor(
+        component: Component<IMouseConfiguration>,
+        container: Container,
+        navigator: Navigator,
+        viewportCoords: ViewportCoords) {
+        super(component, container, navigator);
+
+        this._viewportCoords = viewportCoords;
+    }
 
     protected _enable(): void {
         this._preventDefaultSubscription = this._container.mouseService.mouseWheel$

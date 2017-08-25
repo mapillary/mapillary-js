@@ -1,5 +1,6 @@
 export {Component} from "./component/Component";
 export {ComponentService} from "./component/ComponentService";
+export {HandlerBase} from "./component/utils/HandlerBase";
 export {AttributionComponent} from "./component/AttributionComponent";
 export {BackgroundComponent} from "./component/BackgroundComponent";
 export {BearingComponent} from "./component/BearingComponent";
@@ -18,7 +19,6 @@ export {MarkerScene} from "./component/marker/MarkerScene";
 export {MarkerSet} from "./component/marker/MarkerSet";
 export {MouseComponent} from "./component/mouse/MouseComponent";
 export * from "./component/mouse/HandlerTypes";
-export {MouseHandlerBase} from "./component/mouse/MouseHandlerBase";
 export {BounceHandler} from "./component/mouse/BounceHandler";
 export {DragPanHandler} from "./component/mouse/DragPanHandler";
 export {DoubleClickZoomHandler} from "./component/mouse/DoubleClickZoomHandler";

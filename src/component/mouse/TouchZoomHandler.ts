@@ -6,16 +6,24 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import {
+    Component,
     IMouseConfiguration,
-    MouseHandlerBase,
+    HandlerBase,
 } from "../../Component";
-import {Transform} from "../../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../../Geo";
 import {RenderCamera} from "../../Render";
 import {
     ICurrentState,
     IFrame,
 } from "../../State";
-import {IPinch} from "../../Viewer";
+import {
+    Container,
+    IPinch,
+    Navigator,
+} from "../../Viewer";
 
 /**
  * The `TouchZoomHandler` allows the user to zoom the viewer photo by pinching on a touchscreen.
@@ -30,10 +38,22 @@ import {IPinch} from "../../Viewer";
  * var isEnabled = mouseComponent.touchZoom.isEnabled;
  * ```
  */
-export class TouchZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
+export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
+    private _viewportCoords: ViewportCoords;
+
     private _activeSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
     private _zoomSubscription: Subscription;
+
+    constructor(
+        component: Component<IMouseConfiguration>,
+        container: Container,
+        navigator: Navigator,
+        viewportCoords: ViewportCoords) {
+        super(component, container, navigator);
+
+        this._viewportCoords = viewportCoords;
+    }
 
     protected _enable(): void {
         this._preventDefaultSubscription = this._container.touchService.pinch$

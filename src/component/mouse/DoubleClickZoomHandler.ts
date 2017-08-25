@@ -2,12 +2,20 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import {
+    Component,
     IMouseConfiguration,
-    MouseHandlerBase,
+    HandlerBase,
     ClientTouch,
 } from "../../Component";
-import {Transform} from "../../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../../Geo";
 import {RenderCamera} from "../../Render";
+import {
+    Container,
+    Navigator,
+} from "../../Viewer";
 
 /**
  * The `DoubleClickZoomHandler` allows the user to zoom the viewer photo at a point by double clicking.
@@ -22,8 +30,20 @@ import {RenderCamera} from "../../Render";
  * var isEnabled = mouseComponent.doubleClickZoom.isEnabled;
  * ```
  */
-export class DoubleClickZoomHandler extends MouseHandlerBase<IMouseConfiguration> {
+export class DoubleClickZoomHandler extends HandlerBase<IMouseConfiguration> {
+    private _viewportCoords: ViewportCoords;
+
     private _zoomSubscription: Subscription;
+
+    constructor(
+        component: Component<IMouseConfiguration>,
+        container: Container,
+        navigator: Navigator,
+        viewportCoords: ViewportCoords) {
+        super(component, container, navigator);
+
+        this._viewportCoords = viewportCoords;
+    }
 
     protected _enable(): void {
         this._zoomSubscription = Observable

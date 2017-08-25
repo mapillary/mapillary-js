@@ -6,7 +6,7 @@ import {Subscription} from "rxjs/Subscription";
 import {
     Component,
     IMouseConfiguration,
-    MouseHandlerBase,
+    HandlerBase,
 } from "../../Component";
 import {
     Spatial,
@@ -26,8 +26,9 @@ import {
  * The `BounceHandler` ensures that the viewer bounces back to the image
  * when drag panning outside of the image edge.
  */
-export class BounceHandler extends MouseHandlerBase<IMouseConfiguration> {
+export class BounceHandler extends HandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
+    private _viewportCoords: ViewportCoords;
 
     private _basicDistanceThreshold: number;
     private _basicRotationThreshold: number;
@@ -41,9 +42,10 @@ export class BounceHandler extends MouseHandlerBase<IMouseConfiguration> {
         navigator: Navigator,
         viewportCoords: ViewportCoords,
         spatial: Spatial) {
-        super(component, container, navigator, viewportCoords);
+        super(component, container, navigator);
 
         this._spatial = spatial;
+        this._viewportCoords = viewportCoords;
 
         this._basicDistanceThreshold = 1e-3;
         this._basicRotationThreshold = 5e-2;

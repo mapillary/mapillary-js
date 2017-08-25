@@ -8,7 +8,7 @@ import {Subscription} from "rxjs/Subscription";
 import {
     Component,
     IMouseConfiguration,
-    MouseHandlerBase,
+    HandlerBase,
     MouseTouchPair,
 } from "../../Component";
 import {
@@ -39,8 +39,9 @@ import {
  * var isEnabled = mouseComponent.dragPan.isEnabled;
  * ```
  */
-export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
+export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
+    private _viewportCoords: ViewportCoords;
 
     private _basicRotationThreshold: number;
     private _forceCoeff: number;
@@ -56,9 +57,10 @@ export class DragPanHandler extends MouseHandlerBase<IMouseConfiguration> {
         navigator: Navigator,
         viewportCoords: ViewportCoords,
         spatial: Spatial) {
-        super(component, container, navigator, viewportCoords);
+        super(component, container, navigator);
 
         this._spatial = spatial;
+        this._viewportCoords = viewportCoords;
 
         this._basicRotationThreshold = 5e-2;
         this._forceCoeff = 2e-1;

@@ -2,25 +2,22 @@ import {
     Component,
     IComponentConfiguration,
 } from "../../Component";
-import {ViewportCoords} from "../../Geo";
 import {
     Container,
     Navigator,
 } from "../../Viewer";
 
-export abstract class MouseHandlerBase<TConfiguration extends IComponentConfiguration> {
+export abstract class HandlerBase<TConfiguration extends IComponentConfiguration> {
     protected _component: Component<TConfiguration>;
     protected _container: Container;
     protected _navigator: Navigator;
-    protected _viewportCoords: ViewportCoords;
 
     protected _enabled: boolean;
 
-    constructor(component: Component<TConfiguration>, container: Container, navigator: Navigator, viewportCoords: ViewportCoords) {
+    constructor(component: Component<TConfiguration>, container: Container, navigator: Navigator) {
         this._component = component;
         this._container = container;
         this._navigator = navigator;
-        this._viewportCoords = viewportCoords;
 
         this._enabled = false;
     }
@@ -37,7 +34,7 @@ export abstract class MouseHandlerBase<TConfiguration extends IComponentConfigur
     /**
      * Enables the interaction.
      *
-     * @example ```mouseComponent.<handler-name>.enable();```
+     * @example ```<component-name>.<handler-name>.enable();```
      */
     public enable(): void {
         if (this._enabled || !this._component.activated) { return; }
@@ -51,7 +48,7 @@ export abstract class MouseHandlerBase<TConfiguration extends IComponentConfigur
     /**
      * Disables the interaction.
      *
-     * @example ```mouseComponent.<handler-name>.disable();```
+     * @example ```<component-name>.<handler-name>.disable();```
      */
     public disable(): void {
         if (!this._enabled) { return; }
@@ -71,4 +68,4 @@ export abstract class MouseHandlerBase<TConfiguration extends IComponentConfigur
     protected abstract _getConfiguration(enable: boolean): TConfiguration;
 }
 
-export default MouseHandlerBase;
+export default HandlerBase;
