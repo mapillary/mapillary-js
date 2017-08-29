@@ -13,6 +13,7 @@ export class ComponentController {
     private _componentService: ComponentService;
     private _options: IComponentOptions;
     private _key: string;
+    private _moveable: boolean;
 
     constructor(
         container: Container,
@@ -25,6 +26,7 @@ export class ComponentController {
         this._navigator = navigator;
         this._options = options != null ? options : {};
         this._key = key;
+        this._moveable = key == null;
         this._componentService = new ComponentService(this._container, this._navigator);
         this._coverComponent = this._componentService.getCover();
 
@@ -49,6 +51,10 @@ export class ComponentController {
                         this._observer.startEmit();
                     });
         }
+    }
+
+    public get moveable(): boolean {
+        return this._moveable;
     }
 
     public get<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
@@ -111,6 +117,15 @@ export class ComponentController {
         }
     }
 
+    private _setMoveable(moveable: boolean): void {
+        if (this._moveable === moveable) {
+            return;
+        }
+
+        this._moveable = moveable;
+        this._observer.moveable$.next(moveable);
+    }
+
     private _subscribeCoverComponent(): void {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.loading) {
@@ -118,7 +133,13 @@ export class ComponentController {
                     .first()
                     .switchMap(
                         (key: string): Observable<Node> => {
-                            return key == null || key !== conf.key ?
+                            const keyChanged: boolean = key == null || key !== conf.key;
+
+                            if (keyChanged) {
+                                this._setMoveable(false);
+                            }
+
+                            return keyChanged ?
                                 this._navigator.moveToKey$(conf.key) :
                                 this._navigator.stateService.currentNode$
                                     .first();
@@ -129,6 +150,7 @@ export class ComponentController {
                             this._observer.startEmit();
                             this._coverComponent.configure({ loading: false, visible: false });
                             this._componentService.deactivateCover();
+                            this._setMoveable(true);
                         },
                         (error: Error): void => {
                             console.error("Failed to deactivate cover.", error);
@@ -139,6 +161,7 @@ export class ComponentController {
                 this._observer.stopEmit();
                 this._navigator.stateService.stop();
                 this._componentService.activateCover();
+                this._setMoveable(conf.key == null);
             }
         });
     }

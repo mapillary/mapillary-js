@@ -1,4 +1,5 @@
 import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/combineLatest";
@@ -30,6 +31,8 @@ import {
 export class Observer {
     private _started: boolean;
 
+    private _moveable$: Subject<boolean>;
+
     private _bearingSubscription: Subscription;
     private _currentNodeSubscription: Subscription;
     private _moveSubscription: Subscription;
@@ -50,15 +53,28 @@ export class Observer {
 
         this._started = false;
 
-        // loading should always emit, also when cover is activated
+        this._moveable$ = new Subject<boolean>();
+
+        // moveable and loading should always emit, also when cover is activated.
+        this._moveable$
+            .subscribe(
+                (moveable: boolean): void => {
+                    this._eventEmitter.fire(Viewer.moveablechanged, moveable);
+                });
+
         this._navigator.loadingService.loading$
-            .subscribe((loading: boolean): void => {
-                this._eventEmitter.fire(Viewer.loadingchanged, loading);
-            });
+            .subscribe(
+                (loading: boolean): void => {
+                    this._eventEmitter.fire(Viewer.loadingchanged, loading);
+                });
     }
 
     public get started(): boolean {
         return this._started;
+    }
+
+    public get moveable$(): Subject<boolean> {
+        return this._moveable$;
     }
 
     public projectBasic$(basicPoint: number[]): Observable<number[]> {

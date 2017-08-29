@@ -109,7 +109,7 @@ export class Viewer extends EventEmitter {
     /**
      * Fired when the viewer is loading more data.
      * @event
-     * @type {boolean} loading - Value indicating whether the viewer is loading.
+     * @type {boolean} loading - Boolean indicating whether the viewer is loading.
      */
     public static loadingchanged: string = "loadingchanged";
 
@@ -163,6 +163,21 @@ export class Viewer extends EventEmitter {
      * @event
      */
     public static movestart: string = "movestart";
+
+    /**
+     * Fired when the moveable state of the viewer changes.
+     *
+     * @description The moveable state indicates if the viewer supports
+     * moving, i.e. calling the `moveToKey`, `moveDir` and `moveCloseTo`
+     * methods. The viewer will not be in a moveable state if the cover
+     * is activated and the viewer has been supplied a key. When the cover
+     * is deactivated or activated without being supplied a key it will
+     * be moveable.
+     *
+     * @event
+     * @type {boolean} moveable - Boolean indicating whether the viewer is moveable.
+     */
+    public static moveablechanged: string = "moveablechanged";
 
     /**
      * Fired every time the viewer navigates to a new node.
@@ -242,6 +257,23 @@ export class Viewer extends EventEmitter {
         this._container = new Container(id, this._navigator.stateService, options);
         this._observer = new Observer(this, this._navigator, this._container);
         this._componentController = new ComponentController(this._container, this._navigator, this._observer, key, options.component);
+    }
+
+    /**
+     * Return a boolean indicating if the viewer is in a moveable state.
+     *
+     * @description The moveable state indicates if the viewer supports
+     * moving, i.e. calling the `moveToKey`, `moveDir` and `moveCloseTo`
+     * methods. The viewer will not be in a moveable state if the cover
+     * is activated and the viewer has been supplied a key. When the cover
+     * is deactivated or activated without being supplied a key it will
+     * be moveable.
+     *
+     * @event
+     * @returns {boolean} Boolean indicating whether the viewer is moveable.
+     */
+    public get isMoveable(): boolean {
+        return this._componentController.moveable;
     }
 
     /**
