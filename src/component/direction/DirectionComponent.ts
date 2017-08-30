@@ -42,10 +42,12 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
     private _renderCameraSubscription: Subscription;
     private _hoveredKeySubscription: Subscription;
 
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(name: string, container: Container, navigator: Navigator, directionDOMRenderer?: DirectionDOMRenderer) {
         super(name, container, navigator);
 
-        this._renderer = new DirectionDOMRenderer(this.defaultConfiguration, container.element);
+        this._renderer = !!directionDOMRenderer ?
+            directionDOMRenderer :
+            new DirectionDOMRenderer(this.defaultConfiguration, container.element);
 
         this._hoveredKeySubject$ = new Subject<string>();
 
@@ -141,7 +143,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                                         (error: Error, caught: Observable<Sequence>): Observable<Sequence> => {
                                             console.error(`Failed to cache sequence (${node.sequenceKey})`, error);
 
-                                            return Observable.empty<Sequence>();
+                                            return Observable.of<Sequence>(null);
                                         }) :
                                 Observable.of<Sequence>(null));
                 })
