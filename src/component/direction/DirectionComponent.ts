@@ -130,12 +130,10 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                 })
             .withLatestFrom(this._configuration$)
             .switchMap(
-                (nc: [Node, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
-                    let node: Node = nc[0];
-                    let configuration: IDirectionConfiguration = nc[1];
-
-                    return node.spatialEdges$
-                        .withLatestFrom(
+                ([node, configuration]: [Node, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
+                    return Observable
+                        .combineLatest(
+                            node.spatialEdges$,
                             configuration.distinguishSequence ?
                                 this._navigator.graphService
                                     .cacheSequence$(node.sequenceKey)
@@ -148,8 +146,8 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                                 Observable.of<Sequence>(null));
                 })
             .subscribe(
-                (es: [IEdgeStatus, Sequence]): void => {
-                    this._renderer.setEdges(es[0], es[1]);
+                ([edgeStatus, sequence]: [IEdgeStatus, Sequence]): void => {
+                    this._renderer.setEdges(edgeStatus, sequence);
                 });
 
         this._renderCameraSubscription = this._container.renderService.renderCameraFrame$
