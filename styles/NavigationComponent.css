@@ -1,19 +1,20 @@
-.NavigationSequence {
+.NavigationSequence,
+.NavigationSpatial {
     position: absolute;
-    top: 12px;
-    left: 50%;
-    margin-left: -40px;
     pointer-events: none;
     z-index: 10;
 }
 
+.NavigationSequence {
+    top: 12px;
+    left: 50%;
+    margin-left: -40px;
+}
+
 .NavigationSpatial {
-    position: absolute;
     bottom: 18px;
     left: 50%;
     margin-left: -100px;
-    pointer-events: none;
-    z-index: 10;
 }
 
 .NavigationSpatialBottom {

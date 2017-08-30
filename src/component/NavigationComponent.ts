@@ -57,7 +57,7 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
                 this._configuration$)
             .switchMap(
                 ([node, configuration]: [Node, INavigationConfiguration]): Observable<EdgeDirection[]> => {
-                    const sequenceEdges$: Observable<EdgeDirection[]> = configuration.sequenceVisible ?
+                    const sequenceEdges$: Observable<EdgeDirection[]> = configuration.sequence ?
                         node.sequenceEdges$
                             .map(
                                 (status: IEdgeStatus): EdgeDirection[] => {
@@ -69,7 +69,7 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
                                 }) :
                         Observable.of<EdgeDirection[]>([]);
 
-                    const spatialEdges$: Observable<EdgeDirection[]> = !node.pano && configuration.spatialVisible ?
+                    const spatialEdges$: Observable<EdgeDirection[]> = !node.pano && configuration.spatial ?
                         node.spatialEdges$
                             .map(
                                 (status: IEdgeStatus): EdgeDirection[] => {
@@ -111,7 +111,7 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
     }
 
     protected _getDefaultConfiguration(): INavigationConfiguration {
-        return { sequenceVisible: true, spatialVisible: true };
+        return { sequence: true, spatial: true };
     }
 
     private _createArrowRow(arrowNames: { [dir: string]: string }, edgeDirections: EdgeDirection[]): vd.VNode[] {

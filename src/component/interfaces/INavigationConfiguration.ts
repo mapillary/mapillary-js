@@ -18,18 +18,18 @@ import {IComponentConfiguration} from "../../Component";
  */
 export interface INavigationConfiguration extends IComponentConfiguration {
     /**
-     * Determines if the sequence arrows should be visibile.
+     * Enable or disable the sequence arrows.
      *
      * @default true
      */
-    sequenceVisible?: boolean;
+    sequence?: boolean;
 
     /**
-     * Determines if the spatial arrows should be visibile.
+     * Enable or disable the spatial arrows.
      *
      * @default true
      */
-    spatialVisible?: boolean;
+    spatial?: boolean;
 }
 
 export default INavigationConfiguration;
