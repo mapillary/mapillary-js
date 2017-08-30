@@ -204,6 +204,7 @@ export class Navigator {
                     }
 
                     return this._keyRequested$
+                        .first()
                         .mergeMap(
                             (requestedKey: string): Observable<Node> => {
                                 if (requestedKey != null) {
