@@ -2,6 +2,8 @@
 
 import * as when from "when";
 
+import {Observable} from "rxjs/Observable";
+
 import {ILatLon} from "../API";
 import {EdgeDirection} from "../Edge";
 import {
@@ -453,9 +455,13 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
+        const moveCloseTo$: Observable<Node> = this.isMoveable ?
+            this._navigator.moveCloseTo$(lat, lon) :
+            Observable.throw(new Error("Calling moveCloseTo is not supported when viewer is not moveable."));
+
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
-                this._navigator.moveCloseTo$(lat, lon).subscribe(
+                moveCloseTo$.subscribe(
                     (node: Node): void => {
                         resolve(node);
                     },
@@ -484,9 +490,13 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
+        const moveDir$: Observable<Node> = this.isMoveable ?
+            this._navigator.moveDir$(dir) :
+            Observable.throw(new Error("Calling moveDir is not supported when viewer is not moveable."));
+
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
-                this._navigator.moveDir$(dir).subscribe(
+                moveDir$.subscribe(
                     (node: Node): void => {
                         resolve(node);
                     },
@@ -511,9 +521,13 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveToKey(key: string): when.Promise<Node> {
+        const moveToKey$: Observable<Node> = this.isMoveable ?
+            this._navigator.moveToKey$(key) :
+            Observable.throw(new Error("Calling moveToKey is not supported when viewer is not moveable."));
+
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
-                this._navigator.moveToKey$(key).subscribe(
+                moveToKey$.subscribe(
                     (node: Node): void => {
                         resolve(node);
                     },
