@@ -2,18 +2,15 @@
 
 import * as vd from "virtual-dom";
 
+import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/operator/combineLatest";
 
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
+import {ISize} from "../Render";
 import {Container, Navigator} from "../Viewer";
-
-interface ICanvasNode {
-    canvas: HTMLCanvasElement;
-    node: Node;
-}
 
 export class ImageComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "image";
@@ -27,32 +24,42 @@ export class ImageComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this.drawSubscription = this._container.domRenderer.element$
-            .combineLatest(
-                this._navigator.stateService.currentNode$,
-                (element: Element, node: Node): ICanvasNode => {
-                    let canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById(this._canvasId);
-                    return {canvas: canvas, node: node};
+        const canvasSize$: Observable<[HTMLCanvasElement, ISize]> = this._container.domRenderer.element$
+            .map(
+                (element: HTMLElement): HTMLCanvasElement => {
+                    return <HTMLCanvasElement>document.getElementById(this._canvasId);
                 })
+            .filter(
+                (canvas: HTMLCanvasElement): boolean => {
+                    return !!canvas;
+                })
+            .map(
+                (canvas: HTMLCanvasElement): [HTMLCanvasElement, ISize] => {
+                    const adaptableDomRenderer: HTMLElement = canvas.parentElement;
+                    const width: number = adaptableDomRenderer.offsetWidth;
+                    const height: number = adaptableDomRenderer.offsetHeight;
+
+                    return [canvas, { height: height, width: width }];
+                })
+            .distinctUntilChanged(
+                (s1: ISize, s2: ISize): boolean => {
+                    return s1.height === s2.height && s1.width === s2.width;
+                },
+                ([canvas, size]: [HTMLCanvasElement, ISize]): ISize => {
+                    return size;
+                });
+
+        this.drawSubscription = Observable
+            .combineLatest(
+                canvasSize$,
+                this._navigator.stateService.currentNode$)
             .subscribe(
-                (canvasNode: ICanvasNode): void => {
-                    let canvas: HTMLCanvasElement = canvasNode.canvas;
-                    let node: Node = canvasNode.node;
-
-                    if (!node || !canvas) {
-                        return null;
-                    }
-
-                    let adaptableDomRenderer: HTMLElement = canvas.parentElement;
-
-                    let width: number = adaptableDomRenderer.offsetWidth;
-                    let height: number = adaptableDomRenderer.offsetHeight;
-
-                    canvas.width = width;
-                    canvas.height = height;
-
-                    let ctx: any = canvas.getContext("2d");
-                    ctx.drawImage(node.image, 0, 0, width, height);
+                ([[canvas, size], node]: [[HTMLCanvasElement, ISize], Node]): void => {
+                    canvas.width = size.width;
+                    canvas.height = size.height;
+                    canvas
+                        .getContext("2d")
+                        .drawImage(node.image, 0, 0, size.width, size.height);
                 });
 
         this._container.domRenderer.renderAdaptive$.next({name: this._name, vnode: vd.h(`canvas#${this._canvasId}`, [])});
