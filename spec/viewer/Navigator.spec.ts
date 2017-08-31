@@ -563,6 +563,42 @@ describe("Navigator.setFilter$", () => {
         setFilterSubject$.complete();
     });
 
+    it("should only set filter once when no key requested initially and key requested later", () => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graph: Graph = new Graph(apiV3);
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        let loadingService: LoadingService = new LoadingService();
+        let stateService: StateService = new StateService();
+        let cacheService: CacheService = new CacheService(graphService, stateService);
+
+        let setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
+        setFilterSpy.and.returnValue(new Subject<Graph>());
+
+        spyOn(stateService, "clearNodes").and.stub();
+        spyOn(loadingService, "startLoading").and.stub();
+        spyOn(graphService, "cacheNode$").and.returnValue(new Subject<Node>());
+
+        let navigator: Navigator =
+            new Navigator(
+                clientId,
+                undefined,
+                apiV3,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService,
+                cacheService);
+
+        navigator.setFilter$(["==", "key", "value"]).subscribe();
+
+        // trigger key requested
+        navigator.moveToKey$("key").subscribe();
+
+        expect(setFilterSpy.calls.count()).toBe(1);
+    });
+
     it("should set filter and cache requested when key requested but not moved to", (done: Function) => {
         let clientId: string = "clientId";
         let apiV3: APIv3 = new APIv3(clientId);
