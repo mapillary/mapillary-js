@@ -31,7 +31,7 @@ import {
 export class Observer {
     private _started: boolean;
 
-    private _moveable$: Subject<boolean>;
+    private _navigable$: Subject<boolean>;
 
     private _bearingSubscription: Subscription;
     private _currentNodeSubscription: Subscription;
@@ -53,13 +53,13 @@ export class Observer {
 
         this._started = false;
 
-        this._moveable$ = new Subject<boolean>();
+        this._navigable$ = new Subject<boolean>();
 
-        // moveable and loading should always emit, also when cover is activated.
-        this._moveable$
+        // navigable and loading should always emit, also when cover is activated.
+        this._navigable$
             .subscribe(
-                (moveable: boolean): void => {
-                    this._eventEmitter.fire(Viewer.moveablechanged, moveable);
+                (navigable: boolean): void => {
+                    this._eventEmitter.fire(Viewer.navigablechanged, navigable);
                 });
 
         this._navigator.loadingService.loading$
@@ -73,8 +73,8 @@ export class Observer {
         return this._started;
     }
 
-    public get moveable$(): Subject<boolean> {
-        return this._moveable$;
+    public get navigable$(): Subject<boolean> {
+        return this._navigable$;
     }
 
     public projectBasic$(basicPoint: number[]): Observable<number[]> {

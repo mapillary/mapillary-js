@@ -167,19 +167,19 @@ export class Viewer extends EventEmitter {
     public static movestart: string = "movestart";
 
     /**
-     * Fired when the moveable state of the viewer changes.
+     * Fired when the navigable state of the viewer changes.
      *
-     * @description The moveable state indicates if the viewer supports
+     * @description The navigable state indicates if the viewer supports
      * moving, i.e. calling the `moveToKey`, `moveDir` and `moveCloseTo`
-     * methods. The viewer will not be in a moveable state if the cover
+     * methods. The viewer will not be in a navigable state if the cover
      * is activated and the viewer has been supplied a key. When the cover
      * is deactivated or activated without being supplied a key it will
-     * be moveable.
+     * be navigable.
      *
      * @event
-     * @type {boolean} moveable - Boolean indicating whether the viewer is moveable.
+     * @type {boolean} navigable - Boolean indicating whether the viewer is navigable.
      */
-    public static moveablechanged: string = "moveablechanged";
+    public static navigablechanged: string = "navigablechanged";
 
     /**
      * Fired every time the viewer navigates to a new node.
@@ -262,20 +262,20 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Return a boolean indicating if the viewer is in a moveable state.
+     * Return a boolean indicating if the viewer is in a navigable state.
      *
-     * @description The moveable state indicates if the viewer supports
+     * @description The navigable state indicates if the viewer supports
      * moving, i.e. calling the `moveToKey`, `moveDir` and `moveCloseTo`
-     * methods. The viewer will not be in a moveable state if the cover
+     * methods. The viewer will not be in a navigable state if the cover
      * is activated and the viewer has been supplied a key. When the cover
      * is deactivated or activated without being supplied a key it will
-     * be moveable.
+     * be navigable.
      *
      * @event
-     * @returns {boolean} Boolean indicating whether the viewer is moveable.
+     * @returns {boolean} Boolean indicating whether the viewer is navigable.
      */
-    public get isMoveable(): boolean {
-        return this._componentController.moveable;
+    public get isNavigable(): boolean {
+        return this._componentController.navigable;
     }
 
     /**
@@ -455,9 +455,9 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
-        const moveCloseTo$: Observable<Node> = this.isMoveable ?
+        const moveCloseTo$: Observable<Node> = this.isNavigable ?
             this._navigator.moveCloseTo$(lat, lon) :
-            Observable.throw(new Error("Calling moveCloseTo is not supported when viewer is not moveable."));
+            Observable.throw(new Error("Calling moveCloseTo is not supported when viewer is not navigable."));
 
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
@@ -490,9 +490,9 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
-        const moveDir$: Observable<Node> = this.isMoveable ?
+        const moveDir$: Observable<Node> = this.isNavigable ?
             this._navigator.moveDir$(dir) :
-            Observable.throw(new Error("Calling moveDir is not supported when viewer is not moveable."));
+            Observable.throw(new Error("Calling moveDir is not supported when viewer is not navigable."));
 
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
@@ -521,9 +521,9 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public moveToKey(key: string): when.Promise<Node> {
-        const moveToKey$: Observable<Node> = this.isMoveable ?
+        const moveToKey$: Observable<Node> = this.isNavigable ?
             this._navigator.moveToKey$(key) :
-            Observable.throw(new Error("Calling moveToKey is not supported when viewer is not moveable."));
+            Observable.throw(new Error("Calling moveToKey is not supported when viewer is not navigable."));
 
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
