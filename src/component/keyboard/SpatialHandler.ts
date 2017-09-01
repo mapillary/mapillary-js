@@ -1,0 +1,189 @@
+/// <reference path="../../../typings/index.d.ts" />
+
+import * as THREE from "three";
+
+import "rxjs/add/observable/fromEvent";
+import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/withLatestFrom";
+
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
+
+import {
+    Component,
+    IKeyboardConfiguration,
+    HandlerBase,
+} from "../../Component";
+import {
+    EdgeDirection,
+    IEdge,
+} from "../../Edge";
+import {
+    Camera,
+    Spatial,
+} from "../../Geo";
+import {
+    IEdgeStatus,
+    Node,
+} from "../../Graph";
+import {
+    IFrame,
+    IRotation,
+} from "../../State";
+import {
+    Container,
+    Navigator,
+} from "../../Viewer";
+
+/**
+ * The `SpatialHandler` allows the user navigate through a sequence using the
+ * following key commands:
+ *
+ * `Up Arrow`: Step forward.
+ * `Down Arrow`: Step backward.
+ * `Left Arrow`: Step to the left.
+ * `Rigth Arrow`: Step to the right.
+ * `SHIFT` + `Down Arrow`: Turn around.
+ * `SHIFT` + `Left Arrow`: Turn to the left.
+ * `SHIFT` + `Rigth Arrow`: Turn to the right.
+ *
+ * @example
+ * ```
+ * var keyboardComponent = viewer.getComponent("keyboard");
+ *
+ * keyboardComponent.spatial.disable();
+ * keyboardComponent.spatial.enable();
+ *
+ * var isEnabled = keyboardComponent.spatial.isEnabled;
+ * ```
+ */
+export class SpatialHandler extends HandlerBase<IKeyboardConfiguration> {
+    private _spatial: Spatial;
+
+    private _keyDownSubscription: Subscription;
+
+    constructor(
+        component: Component<IKeyboardConfiguration>,
+        container: Container,
+        navigator: Navigator,
+        spatial: Spatial) {
+        super(component, container, navigator);
+
+        this._spatial = spatial;
+    }
+
+    protected _enable(): void {
+        const spatialEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
+            .switchMap(
+                (node: Node): Observable<IEdgeStatus> => {
+                    return node.spatialEdges$;
+                });
+
+        this._keyDownSubscription = Observable
+            .fromEvent(document, "keydown")
+            .withLatestFrom(
+                spatialEdges$,
+                this._navigator.stateService.currentState$)
+            .subscribe(([event, edgeStatus, frame]: [KeyboardEvent, IEdgeStatus, IFrame]): void => {
+                let pano: boolean = frame.state.currentNode.pano;
+                let direction: EdgeDirection = null;
+                switch (event.keyCode) {
+                    case 37: // left
+                        direction = event.shiftKey && !pano ? EdgeDirection.TurnLeft : EdgeDirection.StepLeft;
+                        break;
+                    case 38: // up
+                        direction = event.shiftKey && !pano ? EdgeDirection.Pano : EdgeDirection.StepForward;
+                        break;
+                    case 39: // right
+                        direction = event.shiftKey && !pano ? EdgeDirection.TurnRight : EdgeDirection.StepRight;
+                        break;
+                    case 40: // down
+                        direction = event.shiftKey && !pano ? EdgeDirection.TurnU : EdgeDirection.StepBackward;
+                        break;
+                    default:
+                        return;
+                }
+
+                event.preventDefault();
+
+                if (event.altKey || !edgeStatus.cached ||
+                    (event.shiftKey && pano)) {
+                    return;
+                }
+
+                if (!pano) {
+                    this._moveDir(direction, edgeStatus);
+                } else {
+                    const shifts: { [dir: number]: number } = {};
+
+                    shifts[EdgeDirection.StepBackward] = Math.PI;
+                    shifts[EdgeDirection.StepForward] = 0;
+                    shifts[EdgeDirection.StepLeft] = Math.PI / 2;
+                    shifts[EdgeDirection.StepRight] = -Math.PI / 2;
+
+                    const phi: number = this._rotationFromCamera(frame.state.camera).phi;
+                    const navigationAngle: number = this._spatial.wrapAngle(phi + shifts[direction]);
+                    const threshold: number = Math.PI / 4;
+                    const edges: IEdge[] = edgeStatus.edges.filter(
+                        (e: IEdge): boolean => {
+                            return e.data.direction === EdgeDirection.Pano || e.data.direction === direction;
+                        });
+
+                    let smallestAngle: number = Number.MAX_VALUE;
+                    let toKey: string = null;
+                    for (const edge of edges) {
+                        const angle: number = Math.abs(this._spatial.wrapAngle(edge.data.worldMotionAzimuth - navigationAngle));
+
+                        if (angle < Math.min(smallestAngle, threshold)) {
+                            smallestAngle = angle;
+                            toKey = edge.to;
+                        }
+                    }
+
+                    if (toKey == null) {
+                        return;
+                    }
+
+                    this._moveToKey(toKey);
+                }
+            });
+    }
+
+    protected _disable(): void {
+        this._keyDownSubscription.unsubscribe();
+    }
+
+    protected _getConfiguration(enable: boolean): IKeyboardConfiguration {
+        return { spatial: enable };
+    }
+
+    private _moveDir(direction: EdgeDirection, edgeStatus: IEdgeStatus): void {
+        for (const edge of edgeStatus.edges) {
+            if (edge.data.direction === direction) {
+                this._moveToKey(edge.to);
+                return;
+            }
+        }
+    }
+
+    private _moveToKey(key: string): void {
+        this._navigator.moveToKey$(key)
+            .subscribe(
+                (n: Node): void => { /* noop */ },
+                (e: Error): void => { console.error(e); });
+    }
+
+    private _rotationFromCamera(camera: Camera): IRotation {
+        let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
+
+        let upProjection: number = direction.clone().dot(camera.up);
+        let planeProjection: THREE.Vector3 = direction.clone().sub(camera.up.clone().multiplyScalar(upProjection));
+
+        let phi: number = Math.atan2(planeProjection.y, planeProjection.x);
+        let theta: number = Math.PI / 2 - this._spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
+
+        return { phi: phi, theta: theta };
+    }
+}
+
+export default SpatialHandler;
