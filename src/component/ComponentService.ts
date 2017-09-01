@@ -48,6 +48,10 @@ export class ComponentService {
         this._coverActivated = true;
     }
 
+    public get coverActivated(): boolean {
+        return this._coverActivated;
+    }
+
     public activateCover(): void {
         if (this._coverActivated) {
             return;

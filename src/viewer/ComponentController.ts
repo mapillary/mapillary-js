@@ -19,15 +19,19 @@ export class ComponentController {
         container: Container,
         navigator: Navigator,
         observer: Observer,
-        key: string, options:
-        IComponentOptions) {
+        key: string,
+        options: IComponentOptions,
+        componentService?: ComponentService) {
         this._container = container;
         this._observer = observer;
         this._navigator = navigator;
         this._options = options != null ? options : {};
         this._key = key;
         this._navigable = key == null;
-        this._componentService = new ComponentService(this._container, this._navigator);
+        this._componentService = !!componentService ?
+            componentService :
+            new ComponentService(this._container, this._navigator);
+
         this._coverComponent = this._componentService.getCover();
 
         this._initializeComponents();

@@ -12,11 +12,9 @@ import {
 import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";
 import {NavigatorMockCreator} from "../helper/NavigatorMockCreator.spec";
 
-class TestEventEmitter extends EventEmitter { }
-
 describe("Observer.ctor", () => {
     it("should be defined", () => {
-        const eventEmitter: EventEmitter = new TestEventEmitter();
+        const eventEmitter: EventEmitter = new EventEmitter();
 
         const observer: Observer =
             new Observer(
@@ -30,7 +28,7 @@ describe("Observer.ctor", () => {
 
 describe("Observer.loading", () => {
     it("should emit loading when not started", (done: Function) => {
-        const eventEmitter: EventEmitter = new TestEventEmitter();
+        const eventEmitter: EventEmitter = new EventEmitter();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const observer: Observer = new Observer(
@@ -51,7 +49,7 @@ describe("Observer.loading", () => {
     });
 
     it("should emit loading when started", (done: Function) => {
-        const eventEmitter: EventEmitter = new TestEventEmitter();
+        const eventEmitter: EventEmitter = new EventEmitter();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const observer: Observer =
@@ -74,7 +72,7 @@ describe("Observer.loading", () => {
 
 
     it("should emit loading when started and stopped", (done: Function) => {
-        const eventEmitter: EventEmitter = new TestEventEmitter();
+        const eventEmitter: EventEmitter = new EventEmitter();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const observer: Observer =

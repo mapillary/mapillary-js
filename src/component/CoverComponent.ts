@@ -32,10 +32,10 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                     return [node, configuration];
                 })
             .filter(
-                (nc: [Node, ICoverConfiguration]): boolean => {
-                    return nc[0].key !== nc[1].key;
+                ([node, configuration]: [Node, ICoverConfiguration]): boolean => {
+                    return node.key !== configuration.key;
                 })
-            .map((nc: [Node, ICoverConfiguration]): Node => { return nc[0]; })
+            .map(([node, configuration]: [Node, ICoverConfiguration]): Node => { return node; })
             .map(
                 (node: Node): ICoverConfiguration => {
                     return { key: node.key, src: node.image.src };
@@ -64,7 +64,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     }
 
     protected _getDefaultConfiguration(): ICoverConfiguration {
-        return { "loading": false, "visible": true };
+        return { loading: false, visible: true };
     }
 
     private _getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
