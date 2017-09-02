@@ -254,6 +254,7 @@ export class GLRenderer {
                     webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
                     webGLRenderer.autoClear = false;
                     webGLRenderer.domElement.style.position = "absolute";
+                    webGLRenderer.domElement.setAttribute("tabindex", "0");
 
                     canvasContainer.appendChild(webGLRenderer.domElement);
 

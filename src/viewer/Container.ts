@@ -43,7 +43,6 @@ export class Container {
 
         this._canvasContainer = document.createElement("div");
         this._canvasContainer.className = "mapillary-js-interactive";
-        this._canvasContainer.setAttribute("tabindex", "0");
 
         this._domContainer = document.createElement("div");
         this._domContainer.className = "mapillary-js-dom";
