@@ -6,6 +6,7 @@ import {
 import {StateService} from "../State";
 import {
     IViewerOptions,
+    KeyboardService,
     MouseService,
     TouchService,
     SpriteService,
@@ -19,6 +20,7 @@ export class Container {
     public glRenderer: GLRenderer;
     public domRenderer: DOMRenderer;
 
+    public keyboardService: KeyboardService;
     public mouseService: MouseService;
     public touchService: TouchService;
 
@@ -41,6 +43,7 @@ export class Container {
 
         this._canvasContainer = document.createElement("div");
         this._canvasContainer.className = "mapillary-js-interactive";
+        this._canvasContainer.setAttribute("tabindex", "0");
 
         this._domContainer = document.createElement("div");
         this._domContainer.className = "mapillary-js-dom";
@@ -53,6 +56,7 @@ export class Container {
         this.glRenderer = new GLRenderer(this._canvasContainer, this.renderService);
         this.domRenderer = new DOMRenderer(this._domContainer, this.renderService, stateService.currentState$);
 
+        this.keyboardService = new KeyboardService(this._canvasContainer);
         this.mouseService = new MouseService(this._container, this._canvasContainer, this._domContainer);
         this.touchService = new TouchService(this._canvasContainer, this._domContainer);
 
@@ -64,7 +68,7 @@ export class Container {
     }
 
     public get canvasContainer(): HTMLElement {
-        return this.canvasContainer;
+        return this._canvasContainer;
     }
 }
 

@@ -4,6 +4,7 @@ export {ComponentController} from "./viewer/ComponentController";
 export {Container} from "./viewer/Container";
 export {Observer} from "./viewer/Observer";
 export {ImageSize} from "./viewer/ImageSize";
+export {KeyboardService} from "./viewer/KeyboardService";
 export {LoadingService} from "./viewer/LoadingService";
 export {MouseService} from "./viewer/MouseService";
 export {Navigator} from "./viewer/Navigator";

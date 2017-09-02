@@ -44,8 +44,7 @@ export class SequenceHandler extends HandlerBase<IKeyboardConfiguration> {
                     return node.sequenceEdges$;
                 });
 
-        this._keyDownSubscription = Observable
-            .fromEvent(document, "keydown")
+        this._keyDownSubscription = this._container.keyboardService.keyDown$
             .withLatestFrom(sequenceEdges$)
             .subscribe(
                 ([event, edgeStatus]: [KeyboardEvent, IEdgeStatus]): void => {

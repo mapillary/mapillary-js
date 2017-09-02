@@ -79,8 +79,7 @@ export class SpatialHandler extends HandlerBase<IKeyboardConfiguration> {
                     return node.spatialEdges$;
                 });
 
-        this._keyDownSubscription = Observable
-            .fromEvent(document, "keydown")
+        this._keyDownSubscription = this._container.keyboardService.keyDown$
             .withLatestFrom(
                 spatialEdges$,
                 this._navigator.stateService.currentState$)
