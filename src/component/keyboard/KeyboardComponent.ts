@@ -4,15 +4,18 @@ import {
     ComponentService,
     Component,
     IKeyboardConfiguration,
+    KeyZoomHandler,
     SequenceHandler,
     SpatialHandler,
 } from "../../Component";
-import {Spatial} from "../../Geo";
+import {
+    Spatial,
+    ViewportCoords,
+} from "../../Geo";
 import {
     Container,
     Navigator,
 } from "../../Viewer";
-
 
 /**
  * @class KeyboardComponent
@@ -34,6 +37,7 @@ import {
 export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     public static componentName: string = "keyboard";
 
+    private _keyZoomHandler: KeyZoomHandler;
     private _sequenceHandler: SequenceHandler;
     private _spatialHandler: SpatialHandler;
 
@@ -42,8 +46,18 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
+        this._keyZoomHandler = new KeyZoomHandler(this, container, navigator, new ViewportCoords());
         this._sequenceHandler = new SequenceHandler(this, container, navigator);
         this._spatialHandler = new SpatialHandler(this, container, navigator, new Spatial());
+    }
+
+    /**
+     * Get key zoom.
+     *
+     * @returns {KeyZoomHandler} The key zoom handler.
+     */
+    public get keyZoom(): KeyZoomHandler {
+        return this._keyZoomHandler;
     }
 
     /**
@@ -68,6 +82,12 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
         this._configurationSubscription = this._configuration$
             .subscribe(
                 (configuration: IKeyboardConfiguration): void => {
+                    if (configuration.keyZoom) {
+                        this._keyZoomHandler.enable();
+                    } else {
+                        this._keyZoomHandler.disable();
+                    }
+
                     if (configuration.sequence) {
                         this._sequenceHandler.enable();
                     } else {
@@ -87,7 +107,7 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IKeyboardConfiguration {
-        return { sequence: true, spatial: true };
+        return { keyZoom: true, sequence: true, spatial: true };
     }
 }
 

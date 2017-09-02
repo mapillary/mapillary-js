@@ -10,6 +10,7 @@ import {IComponentConfiguration} from "../../Component";
  *     {
  *         component: {
  *             keyboard: {
+ *                 keyZoom: false,
  *                 sequence: false,
  *                 spatial: false,
  *             },
@@ -18,6 +19,13 @@ import {IComponentConfiguration} from "../../Component";
  * ```
  */
 export interface IKeyboardConfiguration extends IComponentConfiguration {
+    /**
+     * Enable or disable the `KeyHandler`.
+     *
+     * @default true
+     */
+    keyZoom?: boolean;
+
     /**
      * Enable or disable the `SequenceHandler`.
      *

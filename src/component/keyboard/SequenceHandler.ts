@@ -1,6 +1,5 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import "rxjs/add/observable/fromEvent";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 

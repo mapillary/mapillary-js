@@ -2,7 +2,6 @@
 
 import * as THREE from "three";
 
-import "rxjs/add/observable/fromEvent";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 
