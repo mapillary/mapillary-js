@@ -58,6 +58,10 @@ export class KeyZoomHandler extends HandlerBase<IKeyboardConfiguration> {
                 this._navigator.stateService.currentTransform$)
             .subscribe(
                 ([event, render, transform]: [KeyboardEvent, RenderCamera, Transform]): void => {
+                    if (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) {
+                        return;
+                    }
+
                     let delta: number = 0;
                     switch (event.key) {
                         case "+":
@@ -71,10 +75,6 @@ export class KeyZoomHandler extends HandlerBase<IKeyboardConfiguration> {
                     }
 
                     event.preventDefault();
-
-                    if (event.altKey || event.shiftKey || event.ctrlKey) {
-                        return;
-                    }
 
                     const unprojected: THREE.Vector3 = this._viewportCoords.unprojectFromViewport(0, 0, render.perspective);
                     const reference: number[] = transform.projectBasic(unprojected.toArray());
