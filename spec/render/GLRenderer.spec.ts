@@ -73,9 +73,9 @@ class RenderServiceMock extends RenderService {
 describe("GLRenderer.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");
-        let canvasContainer: HTMLDivElement = document.createElement("div");
+        let canvas: HTMLCanvasElement = document.createElement("canvas");
         let renderService: RenderService = new RenderServiceMock(element);
-        let glRenderer: GLRenderer = new GLRenderer(canvasContainer, renderService);
+        let glRenderer: GLRenderer = new GLRenderer(canvas, renderService);
 
         expect(glRenderer).toBeDefined();
     });
@@ -84,9 +84,9 @@ describe("GLRenderer.ctor", () => {
         spyOn(THREE, "WebGLRenderer");
 
         let element: HTMLDivElement = document.createElement("div");
-        let canvasContainer: HTMLDivElement = document.createElement("div");
+        let canvas: HTMLCanvasElement = document.createElement("canvas");
         let renderService: RenderService = new RenderServiceMock(element);
-        let glRenderer: GLRenderer = new GLRenderer(canvasContainer, renderService);
+        let glRenderer: GLRenderer = new GLRenderer(canvas, renderService);
 
         expect(glRenderer).toBeDefined();
 
@@ -148,7 +148,7 @@ describe("GLRenderer.renderer", () => {
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
         let renderHash: IGLRenderHash = createGLRenderHash(0, true);
 
         glRenderer.render$.next(renderHash);
@@ -162,7 +162,7 @@ describe("GLRenderer.renderer", () => {
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         let renderHash: IGLRenderHash = createGLRenderHash(0, true);
         glRenderer.render$.next(renderHash);
@@ -180,7 +180,7 @@ describe("GLRenderer.renderer", () => {
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         let renderHash: IGLRenderHash = createGLRenderHash(0, true);
         glRenderer.render$.next(renderHash);
@@ -206,7 +206,7 @@ describe("GLRenderer.renderer", () => {
         renderCamera.frameId = 1;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         frame$
             .map(
@@ -238,7 +238,7 @@ describe("GLRenderer.renderer", () => {
         renderCamera.frameId = 1;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         let frameSubscription: Subscription = frame$
             .map(
@@ -269,7 +269,7 @@ describe("GLRenderer.renderer", () => {
         renderCamera.frameId = 1;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         expect(glRenderer).toBeDefined();
 
@@ -294,7 +294,7 @@ describe("GLRenderer.renderer", () => {
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         glRenderer.render$.next(createGLRenderHash(frameId, true));
 
@@ -319,7 +319,7 @@ describe("GLRenderer.renderer", () => {
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         glRenderer.render$.next(createGLRenderHash(frameId, true));
 
@@ -345,7 +345,7 @@ describe("GLRenderer.renderer", () => {
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         glRenderer.render$.next(createGLRenderHash(frameId, true));
 
@@ -375,7 +375,7 @@ describe("GLRenderer.renderer", () => {
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         let renderHash1: IGLRenderHash = createGLRenderHash(frameId, true, hash1);
         let renderHash2: IGLRenderHash = createGLRenderHash(frameId, true, hash2);
@@ -421,7 +421,7 @@ describe("GLRenderer.renderer", () => {
         renderCamera.frameId = frameId;
         renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
 
-        let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
+        let glRenderer: GLRenderer = new GLRenderer(document.createElement("canvas"), renderServiceMock);
 
         let renderHash1: IGLRenderHash = createGLRenderHash(frameId, true, hash1);
         let renderHash2: IGLRenderHash = createGLRenderHash(frameId, true, hash2);

@@ -93,7 +93,7 @@ export class GLRenderer {
 
     private _renderFrameSubscription: Subscription;
 
-    constructor (canvasContainer: HTMLElement, renderService: RenderService) {
+    constructor (canvas: HTMLCanvasElement, renderService: RenderService) {
         this._renderService = renderService;
 
         this._renderer$ = this._rendererOperation$
@@ -246,17 +246,13 @@ export class GLRenderer {
             .first()
             .map(
                 (hash: IGLRenderHash): THREE.WebGLRenderer => {
-                    let element: HTMLElement = renderService.element;
+                    const element: HTMLElement = renderService.element;
 
-                    let webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+                    const webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: canvas });
                     webGLRenderer.setPixelRatio(window.devicePixelRatio);
                     webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
                     webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
                     webGLRenderer.autoClear = false;
-                    webGLRenderer.domElement.style.position = "absolute";
-                    webGLRenderer.domElement.setAttribute("tabindex", "0");
-
-                    canvasContainer.appendChild(webGLRenderer.domElement);
 
                     return webGLRenderer;
                 })
