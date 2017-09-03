@@ -9,8 +9,16 @@ import "rxjs/add/operator/map";
 import "rxjs/add/operator/withLatestFrom";
 
 import {Node} from "../Graph";
-import {Container, Navigator} from "../Viewer";
-import {ICoverConfiguration, ComponentService, Component} from "../Component";
+import {
+    Container,
+    Navigator,
+} from "../Viewer";
+import {
+    CoverState,
+    ICoverConfiguration,
+    ComponentService,
+    Component,
+} from "../Component";
 
 import {IVNodeHash} from "../Render";
 
@@ -49,7 +57,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                         return { name: this._name, vnode: vd.h("div", []) };
                     }
 
-                    if (!conf.visible) {
+                    if (conf.state === CoverState.Hidden) {
                         return {name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this._getCoverBackgroundVNode(conf) ])};
                     }
 
@@ -64,15 +72,15 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     }
 
     protected _getDefaultConfiguration(): ICoverConfiguration {
-        return { loading: false, visible: true };
+        return { state: CoverState.Visible };
     }
 
     private _getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
-        const cover: string = conf.loading ? "div.Cover.CoverLoading" : "div.Cover";
+        const cover: string = conf.state === CoverState.Loading ? "div.Cover.CoverLoading" : "div.Cover";
 
         return vd.h(cover, [
             this._getCoverBackgroundVNode(conf),
-            vd.h("button.CoverButton", { onclick: (): void => { this.configure({ loading: true }); } }, ["Explore"]),
+            vd.h("button.CoverButton", { onclick: (): void => { this.configure({ state: CoverState.Loading }); } }, ["Explore"]),
             vd.h("a.CoverLogo", {href: `https://www.mapillary.com`, target: "_blank"}, []),
         ]);
     }
@@ -85,7 +93,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
         let properties: vd.createProperties = { style: { backgroundImage: url } };
 
         let children: vd.VNode[] = [];
-        if (conf.loading) {
+        if (conf.state === CoverState.Loading) {
             children.push(vd.h("div.Spinner", {}, []));
         }
 

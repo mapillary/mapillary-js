@@ -1,5 +1,5 @@
 export {ICacheConfiguration, ICacheDepth} from "./ICacheConfiguration";
-export {ICoverConfiguration} from "./ICoverConfiguration";
+export {CoverState, ICoverConfiguration} from "./ICoverConfiguration";
 export {IDirectionConfiguration} from "./IDirectionConfiguration";
 export {IImagePlaneConfiguration} from "./IImagePlaneConfiguration";
 export {IMarkerConfiguration} from "./IMarkerConfiguration";

@@ -5,6 +5,7 @@ import {Subject} from "rxjs/Subject";
 import {
     ComponentService,
     CoverComponent,
+    CoverState,
     ICoverConfiguration,
 } from "../../src/Component";
 import {Node} from "../../src/Graph";
@@ -196,7 +197,7 @@ describe("ComponentController.navigable", () => {
         coverComponent.configuration$
             .first(
                 (c: ICoverConfiguration): boolean => {
-                    return c.loading === false && c.visible === false;
+                    return c.state === CoverState.Hidden;
                 })
             .subscribe(
                 (c: ICoverConfiguration): void => {

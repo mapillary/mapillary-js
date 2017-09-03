@@ -1,10 +1,15 @@
 import {IComponentConfiguration} from "../../Component";
 
+export enum CoverState {
+    Hidden,
+    Loading,
+    Visible,
+}
+
 export interface ICoverConfiguration extends IComponentConfiguration {
     key?: string;
     src?: string;
-    loading?: boolean;
-    visible?: boolean;
+    state?: CoverState;
 }
 
 export default ICoverConfiguration;

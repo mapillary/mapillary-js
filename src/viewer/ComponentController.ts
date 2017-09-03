@@ -1,9 +1,22 @@
 import {Observable} from "rxjs/Observable";
 
 import {Node} from "../Graph";
-import {Container, Navigator} from "../Viewer";
-import {CoverComponent, ComponentService, ICoverConfiguration, Component, IComponentConfiguration} from "../Component";
-import {IComponentOptions, Observer} from "../Viewer";
+import {
+    Container,
+    Navigator,
+} from "../Viewer";
+import {
+    Component,
+    ComponentService,
+    CoverComponent,
+    CoverState,
+    IComponentConfiguration,
+    ICoverConfiguration,
+} from "../Component";
+import {
+    IComponentOptions,
+    Observer,
+} from "../Viewer";
 
 export class ComponentController {
     private _container: Container;
@@ -49,7 +62,7 @@ export class ComponentController {
                     (k: string): void => {
                         this._key = k;
                         this._componentService.deactivateCover();
-                        this._coverComponent.configure({ key: this._key, loading: false, visible: false });
+                        this._coverComponent.configure({ key: this._key, state: CoverState.Hidden });
                         this._subscribeCoverComponent();
                         this._navigator.stateService.start();
                         this._observer.startEmit();
@@ -70,7 +83,7 @@ export class ComponentController {
     }
 
     public activateCover(): void {
-        this._coverComponent.configure({ loading: false, visible: true });
+        this._coverComponent.configure({ state: CoverState.Visible });
     }
 
     public deactivate(name: string): void {
@@ -78,7 +91,7 @@ export class ComponentController {
     }
 
     public deactivateCover(): void {
-        this._coverComponent.configure({ loading: true, visible: true });
+        this._coverComponent.configure({ state: CoverState.Loading });
     }
 
     public resize(): void {
@@ -132,7 +145,7 @@ export class ComponentController {
 
     private _subscribeCoverComponent(): void {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
-            if (conf.loading) {
+            if (conf.state === CoverState.Loading) {
                 this._navigator.stateService.currentKey$
                     .first()
                     .switchMap(
@@ -152,16 +165,16 @@ export class ComponentController {
                         (node: Node): void => {
                             this._navigator.stateService.start();
                             this._observer.startEmit();
-                            this._coverComponent.configure({ loading: false, visible: false });
+                            this._coverComponent.configure({ state: CoverState.Hidden });
                             this._componentService.deactivateCover();
                             this._setNavigable(true);
                         },
                         (error: Error): void => {
                             console.error("Failed to deactivate cover.", error);
 
-                            this._coverComponent.configure({ loading: false, visible: true });
+                            this._coverComponent.configure({ state: CoverState.Visible });
                         });
-            } else if (conf.visible) {
+            } else if (conf.state === CoverState.Visible) {
                 this._observer.stopEmit();
                 this._navigator.stateService.stop();
                 this._componentService.activateCover();
