@@ -1,6 +1,7 @@
 import {
     ICacheConfiguration,
     IDirectionConfiguration,
+    IKeyboardConfiguration,
     IMarkerConfiguration,
     IMouseConfiguration,
     ISequenceConfiguration,
@@ -81,7 +82,7 @@ export interface IComponentOptions {
      *
      * @default true
      */
-    keyboard?: boolean;
+    keyboard?: boolean | IKeyboardConfiguration;
 
     /**
      * Show indication of loading.
