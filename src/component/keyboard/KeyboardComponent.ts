@@ -5,8 +5,8 @@ import {
     Component,
     IKeyboardConfiguration,
     KeyZoomHandler,
-    SequenceHandler,
-    SpatialHandler,
+    KeySequenceNavigationHandler,
+    KeySpatialNavigationHandler,
 } from "../../Component";
 import {
     Spatial,
@@ -38,8 +38,8 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     public static componentName: string = "keyboard";
 
     private _keyZoomHandler: KeyZoomHandler;
-    private _sequenceHandler: SequenceHandler;
-    private _spatialHandler: SpatialHandler;
+    private _keySequenceNavigationHandler: KeySequenceNavigationHandler;
+    private _keySpatialNavigationHandler: KeySpatialNavigationHandler;
 
     private _configurationSubscription: Subscription;
 
@@ -47,8 +47,8 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
         super(name, container, navigator);
 
         this._keyZoomHandler = new KeyZoomHandler(this, container, navigator, new ViewportCoords());
-        this._sequenceHandler = new SequenceHandler(this, container, navigator);
-        this._spatialHandler = new SpatialHandler(this, container, navigator, new Spatial());
+        this._keySequenceNavigationHandler = new KeySequenceNavigationHandler(this, container, navigator);
+        this._keySpatialNavigationHandler = new KeySpatialNavigationHandler(this, container, navigator, new Spatial());
     }
 
     /**
@@ -61,21 +61,21 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     }
 
     /**
-     * Get sequence.
+     * Get key sequence navigation.
      *
-     * @returns {SequenceHandler} The sequence handler.
+     * @returns {KeySequenceNavigationHandler} The key sequence navigation handler.
      */
-    public get sequence(): SequenceHandler {
-        return this._sequenceHandler;
+    public get keySequenceNavigation(): KeySequenceNavigationHandler {
+        return this._keySequenceNavigationHandler;
     }
 
     /**
      * Get spatial.
      *
-     * @returns {SpatialHandler} The spatial handler.
+     * @returns {KeySpatialNavigationHandler} The spatial handler.
      */
-    public get spatial(): SpatialHandler {
-        return this._spatialHandler;
+    public get keySpatialNavigation(): KeySpatialNavigationHandler {
+        return this._keySpatialNavigationHandler;
     }
 
     protected _activate(): void {
@@ -88,16 +88,16 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
                         this._keyZoomHandler.disable();
                     }
 
-                    if (configuration.sequence) {
-                        this._sequenceHandler.enable();
+                    if (configuration.keySequenceNavigation) {
+                        this._keySequenceNavigationHandler.enable();
                     } else {
-                        this._sequenceHandler.disable();
+                        this._keySequenceNavigationHandler.disable();
                     }
 
-                    if (configuration.spatial) {
-                        this._spatialHandler.enable();
+                    if (configuration.keySpatialNavigation) {
+                        this._keySpatialNavigationHandler.enable();
                     } else {
-                        this._spatialHandler.disable();
+                        this._keySpatialNavigationHandler.disable();
                     }
                 });
     }
@@ -107,7 +107,7 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IKeyboardConfiguration {
-        return { keyZoom: true, sequence: true, spatial: true };
+        return { keySequenceNavigation: true, keySpatialNavigation: true, keyZoom: true };
     }
 }
 

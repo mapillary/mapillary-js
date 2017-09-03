@@ -11,8 +11,8 @@ import {IComponentConfiguration} from "../../Component";
  *         component: {
  *             keyboard: {
  *                 keyZoom: false,
- *                 sequence: false,
- *                 spatial: false,
+ *                 keySequenceNavigation: false,
+ *                 keySpatialNavigation: false,
  *             },
  *         },
  *     })
@@ -27,18 +27,18 @@ export interface IKeyboardConfiguration extends IComponentConfiguration {
     keyZoom?: boolean;
 
     /**
-     * Enable or disable the `SequenceHandler`.
+     * Enable or disable the `KeySequenceNavigationHandler`.
      *
      * @default true
      */
-    sequence?: boolean;
+    keySequenceNavigation?: boolean;
 
     /**
-     * Enable or disable the `SpatialHandler`.
+     * Enable or disable the `KeySpatialNavigationHandler`.
      *
      * @default true
      */
-    spatial?: boolean;
+    keySpatialNavigation?: boolean;
 }
 
 export default IKeyboardConfiguration;

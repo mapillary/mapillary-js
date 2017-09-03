@@ -17,7 +17,7 @@ import {
 } from "../../Graph";
 
 /**
- * The `SequenceHandler` allows the user navigate through a sequence using the
+ * The `KeySequenceNavigationHandler` allows the user navigate through a sequence using the
  * following key commands:
  *
  * `ALT` + `Up Arrow`: Navigate to next image in the sequence.
@@ -27,13 +27,13 @@ import {
  * ```
  * var keyboardComponent = viewer.getComponent("keyboard");
  *
- * keyboardComponent.sequence.disable();
- * keyboardComponent.sequence.enable();
+ * keyboardComponent.keySequenceNavigation.disable();
+ * keyboardComponent.keySequenceNavigation.enable();
  *
- * var isEnabled = keyboardComponent.sequence.isEnabled;
+ * var isEnabled = keyboardComponent.keySequenceNavigation.isEnabled;
  * ```
  */
-export class SequenceHandler extends HandlerBase<IKeyboardConfiguration> {
+export class KeySequenceNavigationHandler extends HandlerBase<IKeyboardConfiguration> {
     private _keyDownSubscription: Subscription;
 
     protected _enable(): void {
@@ -83,8 +83,8 @@ export class SequenceHandler extends HandlerBase<IKeyboardConfiguration> {
     }
 
     protected _getConfiguration(enable: boolean): IKeyboardConfiguration {
-        return { sequence: enable };
+        return { keySequenceNavigation: enable };
     }
 }
 
-export default SequenceHandler;
+export default KeySequenceNavigationHandler;

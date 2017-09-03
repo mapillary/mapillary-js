@@ -35,7 +35,7 @@ import {
 } from "../../Viewer";
 
 /**
- * The `SpatialHandler` allows the user navigate through a sequence using the
+ * The `KeySpatialNavigationHandler` allows the user navigate through a sequence using the
  * following key commands:
  *
  * `Up Arrow`: Step forward.
@@ -50,13 +50,13 @@ import {
  * ```
  * var keyboardComponent = viewer.getComponent("keyboard");
  *
- * keyboardComponent.spatial.disable();
- * keyboardComponent.spatial.enable();
+ * keyboardComponent.keySpatialNavigation.disable();
+ * keyboardComponent.keySpatialNavigation.enable();
  *
- * var isEnabled = keyboardComponent.spatial.isEnabled;
+ * var isEnabled = keyboardComponent.keySpatialNavigation.isEnabled;
  * ```
  */
-export class SpatialHandler extends HandlerBase<IKeyboardConfiguration> {
+export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfiguration> {
     private _spatial: Spatial;
 
     private _keyDownSubscription: Subscription;
@@ -152,7 +152,7 @@ export class SpatialHandler extends HandlerBase<IKeyboardConfiguration> {
     }
 
     protected _getConfiguration(enable: boolean): IKeyboardConfiguration {
-        return { spatial: enable };
+        return { keySpatialNavigation: enable };
     }
 
     private _moveDir(direction: EdgeDirection, edgeStatus: IEdgeStatus): void {
@@ -184,4 +184,4 @@ export class SpatialHandler extends HandlerBase<IKeyboardConfiguration> {
     }
 }
 
-export default SpatialHandler;
+export default KeySpatialNavigationHandler;
