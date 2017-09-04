@@ -27,7 +27,6 @@ export class Container {
     public spriteService: SpriteService;
 
     private _canvasContainer: HTMLElement;
-    private _canvas: HTMLCanvasElement;
     private _container: HTMLElement;
     private _domContainer: HTMLElement;
 
@@ -45,12 +44,6 @@ export class Container {
         this._canvasContainer = document.createElement("div");
         this._canvasContainer.className = "mapillary-js-interactive";
 
-        this._canvas = document.createElement("canvas");
-        this._canvas.className = "mapillary-js-canvas";
-        this._canvas.style.position = "absolute";
-        this._canvas.setAttribute("tabindex", "0");
-        this._canvasContainer.appendChild(this._canvas);
-
         this._domContainer = document.createElement("div");
         this._domContainer.className = "mapillary-js-dom";
 
@@ -59,7 +52,7 @@ export class Container {
 
         this.renderService = new RenderService(this._container, stateService.currentState$, options.renderMode);
 
-        this.glRenderer = new GLRenderer(this._canvas, this.renderService);
+        this.glRenderer = new GLRenderer(this._canvasContainer, this.renderService);
         this.domRenderer = new DOMRenderer(this._domContainer, this.renderService, stateService.currentState$);
 
         this.keyboardService = new KeyboardService(this._canvasContainer);

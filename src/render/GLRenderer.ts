@@ -93,7 +93,7 @@ export class GLRenderer {
 
     private _renderFrameSubscription: Subscription;
 
-    constructor (canvas: HTMLCanvasElement, renderService: RenderService) {
+    constructor (canvasContainer: HTMLElement, renderService: RenderService) {
         this._renderService = renderService;
 
         this._renderer$ = this._rendererOperation$
@@ -247,6 +247,12 @@ export class GLRenderer {
             .map(
                 (hash: IGLRenderHash): THREE.WebGLRenderer => {
                     const element: HTMLElement = renderService.element;
+                    const canvas: HTMLCanvasElement = document.createElement("canvas");
+                    canvas.className = "mapillary-js-canvas";
+                    canvas.style.position = "absolute";
+                    canvas.setAttribute("tabindex", "0");
+                    canvasContainer.appendChild(canvas);
+
 
                     const webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: canvas });
                     webGLRenderer.setPixelRatio(window.devicePixelRatio);
