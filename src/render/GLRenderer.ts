@@ -246,14 +246,13 @@ export class GLRenderer {
             .first()
             .map(
                 (hash: IGLRenderHash): THREE.WebGLRenderer => {
-                    const element: HTMLElement = renderService.element;
                     const canvas: HTMLCanvasElement = document.createElement("canvas");
                     canvas.className = "mapillary-js-canvas";
                     canvas.style.position = "absolute";
                     canvas.setAttribute("tabindex", "0");
                     canvasContainer.appendChild(canvas);
 
-
+                    const element: HTMLElement = renderService.element;
                     const webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: canvas });
                     webGLRenderer.setPixelRatio(window.devicePixelRatio);
                     webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);

@@ -4,6 +4,7 @@ import {
     IKeyboardConfiguration,
     IMarkerConfiguration,
     IMouseConfiguration,
+    INavigationConfiguration,
     ISequenceConfiguration,
     ISliderConfiguration,
     ITagConfiguration,
@@ -60,6 +61,7 @@ export interface IComponentOptions {
      * Show spatial direction arrows for navigation.
      *
      * @description Default spatial navigation when there is WebGL support.
+     * Requires WebGL support.
      *
      * @default true
      */
@@ -85,6 +87,8 @@ export interface IComponentOptions {
 
     /**
      * Enable use of keyboard commands.
+     *
+     * @description Requires WebGL support.
      *
      * @default true
      */
@@ -122,10 +126,12 @@ export interface IComponentOptions {
      *
      * @default false
      */
-    navigation?: boolean;
+    navigation?: boolean | INavigationConfiguration;
 
     /**
      * Show HTML popups over images.
+     *
+     * @description Requires WebGL support.
      *
      * @default false
      */

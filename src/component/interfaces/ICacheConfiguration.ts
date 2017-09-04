@@ -4,6 +4,20 @@ import {IComponentConfiguration} from "../../Component";
  * Interface for configuration of cache depth.
  *
  * @interface
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<photo-key>',
+ *     {
+ *         component: {
+ *             cache: {
+ *                 depth: {
+ *                     pano: 2,
+ *                     sequence: 3,
+ *                 }
+ *             },
+ *         },
+ *     })
+ * ```
  */
 export interface ICacheDepth {
     /**

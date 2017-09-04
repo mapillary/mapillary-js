@@ -4,6 +4,18 @@ import {IComponentConfiguration} from "../../Component";
  * Interface for configuration of direction component.
  *
  * @interface
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<photo-key>',
+ *     {
+ *         component: {
+ *             direction: {
+ *                 minWidth: 140,
+ *                 maxWidth: 340,
+ *             },
+ *         },
+ *     })
+ * ```
  */
 export interface IDirectionConfiguration extends IComponentConfiguration {
     /**
