@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IMesh | MapillaryJS</title>
+	<title>IKeyboardConfiguration | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="imesh.html">IMesh</a>
+					<a href="ikeyboardconfiguration.html">IKeyboardConfiguration</a>
 				</li>
 			</ul>
-			<h1>Interface IMesh</h1>
+			<h1>Interface IKeyboardConfiguration</h1>
 		</div>
 	</div>
 </header>
@@ -67,12 +67,23 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Interface that describes SfM triangulated meshes.</p>
+						<p>Interface for configuration of keyboard component.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
-						<dd><p>IMesh</p>
-						</dd>
+						<dd></dd>
+						<dt>example</dt>
+						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer('&lt;element-id&gt;',</span> <span class="hljs-string">'&lt;client-id&gt;'</span><span class="hljs-string">,</span> <span class="hljs-string">'&lt;photo-key&gt;'</span><span class="hljs-string">,</span>
+    <span class="hljs-string">{</span>
+<span class="hljs-attr">        component:</span> <span class="hljs-string">{</span>
+<span class="hljs-attr">            keyboard:</span> <span class="hljs-string">{</span>
+<span class="hljs-attr">                keyZoom:</span> <span class="hljs-literal">false</span><span class="hljs-string">,</span>
+<span class="hljs-attr">                keySequenceNavigation:</span> <span class="hljs-literal">false</span><span class="hljs-string">,</span>
+<span class="hljs-attr">                keySpatialNavigation:</span> <span class="hljs-literal">false</span><span class="hljs-string">,</span>
+            <span class="hljs-string">},</span>
+        <span class="hljs-string">},</span>
+    <span class="hljs-string">})</span>
+</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -80,9 +91,23 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IMesh</span>
+						<span class="tsd-signature-type">IComponentConfiguration</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">IKeyboardConfiguration</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
+			</section>
+			<section class="tsd-panel tsd-kind-interface">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for configuration of keyboard component.</p>
+					</div>
+				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
@@ -91,8 +116,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imesh.html#faces" class="tsd-kind-icon">faces</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imesh.html#vertices" class="tsd-kind-icon">vertices</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ikeyboardconfiguration.html#keysequencenavigation" class="tsd-kind-icon">key<wbr>Sequence<wbr>Navigation</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ikeyboardconfiguration.html#keyspatialnavigation" class="tsd-kind-icon">key<wbr>Spatial<wbr>Navigation</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ikeyboardconfiguration.html#keyzoom" class="tsd-kind-icon">key<wbr>Zoom</a></li>
 							</ul>
 						</section>
 					</div>
@@ -101,35 +127,63 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="faces" class="tsd-anchor"></a>
-					<h3>faces</h3>
-					<div class="tsd-signature tsd-kind-icon">faces<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<a name="keysequencenavigation" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> key<wbr>Sequence<wbr>Navigation</h3>
+					<div class="tsd-signature tsd-kind-icon">key<wbr>Sequence<wbr>Navigation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/graph/interfaces/IMesh.ts#L11">graph/interfaces/IMesh.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/IKeyboardConfiguration.ts#L34">component/interfaces/IKeyboardConfiguration.ts:34</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Flattened array of faces for the mesh. Each face consist
-							three vertex indices.</p>
+							<p>Enable or disable the <code>KeySequenceNavigationHandler</code>.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>true</p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="vertices" class="tsd-anchor"></a>
-					<h3>vertices</h3>
-					<div class="tsd-signature tsd-kind-icon">vertices<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<a name="keyspatialnavigation" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> key<wbr>Spatial<wbr>Navigation</h3>
+					<div class="tsd-signature tsd-kind-icon">key<wbr>Spatial<wbr>Navigation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/graph/interfaces/IMesh.ts#L17">graph/interfaces/IMesh.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/IKeyboardConfiguration.ts#L41">component/interfaces/IKeyboardConfiguration.ts:41</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Flattened array of vertices for the mesh. Each vertex
-							consists of X, Y and Z coordinates in the camera frame.</p>
+							<p>Enable or disable the <code>KeySpatialNavigationHandler</code>.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>true</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="keyzoom" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> key<wbr>Zoom</h3>
+					<div class="tsd-signature tsd-kind-icon">key<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/IKeyboardConfiguration.ts#L27">component/interfaces/IKeyboardConfiguration.ts:27</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Enable or disable the <code>KeyHandler</code>.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>true</p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 			</section>
@@ -147,13 +201,16 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="imesh.html" class="tsd-kind-icon">IMesh</a>
+						<a href="ikeyboardconfiguration.html" class="tsd-kind-icon">IKeyboard<wbr>Configuration</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imesh.html#faces" class="tsd-kind-icon">faces</a>
+								<a href="ikeyboardconfiguration.html#keysequencenavigation" class="tsd-kind-icon">key<wbr>Sequence<wbr>Navigation</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imesh.html#vertices" class="tsd-kind-icon">vertices</a>
+								<a href="ikeyboardconfiguration.html#keyspatialnavigation" class="tsd-kind-icon">key<wbr>Spatial<wbr>Navigation</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ikeyboardconfiguration.html#keyzoom" class="tsd-kind-icon">key<wbr>Zoom</a>
 							</li>
 						</ul>
 					</li>

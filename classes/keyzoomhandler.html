@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>DragPanHandler | MapillaryJS</title>
+	<title>KeyZoomHandler | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="dragpanhandler.html">DragPanHandler</a>
+					<a href="keyzoomhandler.html">KeyZoomHandler</a>
 				</li>
 			</ul>
-			<h1>Class DragPanHandler</h1>
+			<h1>Class KeyZoomHandler</h1>
 		</div>
 	</div>
 </header>
@@ -67,16 +67,19 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>The <code>DragPanHandler</code> allows the user to pan the viewer photo by clicking and dragging the cursor.</p>
+						<p>The <code>KeyZoomHandler</code> allows the user zoom in and out using the
+						following key commands:</p>
 					</div>
+					<p><code>+</code>: Zoom in.
+					<code>-</code>: Zoom out.</p>
 					<dl class="tsd-comment-tags">
 						<dt>example</dt>
-						<dd><pre><code>var mouseComponent = viewer.getComponent(<span class="hljs-string">"mouse"</span>)<span class="hljs-comment">;</span>
+						<dd><pre><code>var keyboardComponent = viewer.getComponent(<span class="hljs-string">"keyboard"</span>)<span class="hljs-comment">;</span>
 
-mouseComponent.dragPan.disable()<span class="hljs-comment">;</span>
-mouseComponent.dragPan.enable()<span class="hljs-comment">;</span>
+keyboardComponent.keyZoom.disable()<span class="hljs-comment">;</span>
+keyboardComponent.keyZoom.enable()<span class="hljs-comment">;</span>
 
-var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</span>
+var isEnabled = keyboardComponent.keyZoom.isEnabled<span class="hljs-comment">;</span>
 </code></pre></dd>
 					</dl>
 				</div>
@@ -85,10 +88,10 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">HandlerBase</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span>
+						<span class="tsd-signature-type">HandlerBase</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">DragPanHandler</span>
+								<span class="target">KeyZoomHandler</span>
 							</li>
 						</ul>
 					</li>
@@ -101,32 +104,32 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="dragpanhandler.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="keyzoomhandler.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-inherited tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="dragpanhandler.html#_component" class="tsd-kind-icon">_component</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="dragpanhandler.html#_container" class="tsd-kind-icon">_container</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="dragpanhandler.html#_enabled" class="tsd-kind-icon">_enabled</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="dragpanhandler.html#_navigator" class="tsd-kind-icon">_navigator</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyzoomhandler.html#_component" class="tsd-kind-icon">_component</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyzoomhandler.html#_container" class="tsd-kind-icon">_container</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyzoomhandler.html#_enabled" class="tsd-kind-icon">_enabled</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyzoomhandler.html#_navigator" class="tsd-kind-icon">_navigator</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="dragpanhandler.html#isenabled" class="tsd-kind-icon">is<wbr>Enabled</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="keyzoomhandler.html#isenabled" class="tsd-kind-icon">is<wbr>Enabled</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="dragpanhandler.html#_disable" class="tsd-kind-icon">_disable</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="dragpanhandler.html#_enable" class="tsd-kind-icon">_enable</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="dragpanhandler.html#_getconfiguration" class="tsd-kind-icon">_get<wbr>Configuration</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="dragpanhandler.html#disable" class="tsd-kind-icon">disable</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="dragpanhandler.html#enable" class="tsd-kind-icon">enable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="keyzoomhandler.html#_disable" class="tsd-kind-icon">_disable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="keyzoomhandler.html#_enable" class="tsd-kind-icon">_enable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="keyzoomhandler.html#_getconfiguration" class="tsd-kind-icon">_get<wbr>Configuration</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyzoomhandler.html#disable" class="tsd-kind-icon">disable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyzoomhandler.html#enable" class="tsd-kind-icon">enable</a></li>
 							</ul>
 						</section>
 					</div>
@@ -138,20 +141,20 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Drag<wbr>Pan<wbr>Handler<span class="tsd-signature-symbol">(</span>component<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Container</span>, navigator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Navigator</span>, viewportCoords<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ViewportCoords</span>, spatial<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Spatial</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="dragpanhandler.html" class="tsd-signature-type">DragPanHandler</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Key<wbr>Zoom<wbr>Handler<span class="tsd-signature-symbol">(</span>component<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Container</span>, navigator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Navigator</span>, viewportCoords<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ViewportCoords</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="keyzoomhandler.html" class="tsd-signature-type">KeyZoomHandler</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides HandlerBase.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/mouse/DragPanHandler.ts#L52">component/mouse/DragPanHandler.ts:52</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/keyboard/KeyZoomHandler.ts#L42">component/keyboard/KeyZoomHandler.ts:42</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>component: <span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>component: <span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 								<li>
 									<h5>container: <span class="tsd-signature-type">Container</span></h5>
@@ -162,11 +165,8 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 								<li>
 									<h5>viewportCoords: <span class="tsd-signature-type">ViewportCoords</span></h5>
 								</li>
-								<li>
-									<h5>spatial: <span class="tsd-signature-type">Spatial</span></h5>
-								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="dragpanhandler.html" class="tsd-signature-type">DragPanHandler</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="keyzoomhandler.html" class="tsd-signature-type">KeyZoomHandler</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -176,7 +176,7 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="_component" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _component</h3>
-					<div class="tsd-signature tsd-kind-icon">_component<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">_component<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from HandlerBase._component</p>
 						<ul>
@@ -258,7 +258,7 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 							<aside class="tsd-sources">
 								<p>Overrides HandlerBase._disable</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/mouse/DragPanHandler.ts#L295">component/mouse/DragPanHandler.ts:295</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/keyboard/KeyZoomHandler.ts#L86">component/keyboard/KeyZoomHandler.ts:86</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -276,7 +276,7 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 							<aside class="tsd-sources">
 								<p>Overrides HandlerBase._enable</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/mouse/DragPanHandler.ts#L69">component/mouse/DragPanHandler.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/keyboard/KeyZoomHandler.ts#L54">component/keyboard/KeyZoomHandler.ts:54</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -287,14 +287,14 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 					<a name="_getconfiguration" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _get<wbr>Configuration</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">_get<wbr>Configuration<span class="tsd-signature-symbol">(</span>enable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></li>
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>Configuration<span class="tsd-signature-symbol">(</span>enable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides HandlerBase._getConfiguration</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/mouse/DragPanHandler.ts#L307">component/mouse/DragPanHandler.ts:307</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/keyboard/KeyZoomHandler.ts#L90">component/keyboard/KeyZoomHandler.ts:90</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -303,7 +303,7 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 									<h5>enable: <span class="tsd-signature-type">boolean</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -378,40 +378,40 @@ var isEnabled = mouseComponent.dragPan.isEnabled<span class="hljs-comment">;</sp
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
-						<a href="dragpanhandler.html" class="tsd-kind-icon">Drag<wbr>Pan<wbr>Handler</a>
+						<a href="keyzoomhandler.html" class="tsd-kind-icon">Key<wbr>Zoom<wbr>Handler</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-								<a href="dragpanhandler.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="keyzoomhandler.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="dragpanhandler.html#_component" class="tsd-kind-icon">_component</a>
+								<a href="keyzoomhandler.html#_component" class="tsd-kind-icon">_component</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="dragpanhandler.html#_container" class="tsd-kind-icon">_container</a>
+								<a href="keyzoomhandler.html#_container" class="tsd-kind-icon">_container</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="dragpanhandler.html#_enabled" class="tsd-kind-icon">_enabled</a>
+								<a href="keyzoomhandler.html#_enabled" class="tsd-kind-icon">_enabled</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="dragpanhandler.html#_navigator" class="tsd-kind-icon">_navigator</a>
+								<a href="keyzoomhandler.html#_navigator" class="tsd-kind-icon">_navigator</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="dragpanhandler.html#isenabled" class="tsd-kind-icon">is<wbr>Enabled</a>
+								<a href="keyzoomhandler.html#isenabled" class="tsd-kind-icon">is<wbr>Enabled</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="dragpanhandler.html#_disable" class="tsd-kind-icon">_disable</a>
+								<a href="keyzoomhandler.html#_disable" class="tsd-kind-icon">_disable</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="dragpanhandler.html#_enable" class="tsd-kind-icon">_enable</a>
+								<a href="keyzoomhandler.html#_enable" class="tsd-kind-icon">_enable</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="dragpanhandler.html#_getconfiguration" class="tsd-kind-icon">_get<wbr>Configuration</a>
+								<a href="keyzoomhandler.html#_getconfiguration" class="tsd-kind-icon">_get<wbr>Configuration</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="dragpanhandler.html#disable" class="tsd-kind-icon">disable</a>
+								<a href="keyzoomhandler.html#disable" class="tsd-kind-icon">disable</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="dragpanhandler.html#enable" class="tsd-kind-icon">enable</a>
+								<a href="keyzoomhandler.html#enable" class="tsd-kind-icon">enable</a>
 							</li>
 						</ul>
 					</li>

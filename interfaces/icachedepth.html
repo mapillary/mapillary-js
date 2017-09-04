@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IMesh | MapillaryJS</title>
+	<title>ICacheDepth | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="imesh.html">IMesh</a>
+					<a href="icachedepth.html">ICacheDepth</a>
 				</li>
 			</ul>
-			<h1>Interface IMesh</h1>
+			<h1>Interface ICacheDepth</h1>
 		</div>
 	</div>
 </header>
@@ -67,12 +67,24 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Interface that describes SfM triangulated meshes.</p>
+						<p>Interface for configuration of cache depth.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
-						<dd><p>IMesh</p>
-						</dd>
+						<dd></dd>
+						<dt>example</dt>
+						<dd><pre><code>var viewer = new Mapillary.Viewer(<span class="hljs-string">'&lt;element-id&gt;'</span>, <span class="hljs-string">'&lt;client-id&gt;'</span>, <span class="hljs-string">'&lt;photo-key&gt;'</span>,
+    {
+        component: {
+            cache: {
+                depth: {
+                    pano: <span class="hljs-number">2</span>,
+                    sequence: <span class="hljs-number">3</span>,
+                }
+            },
+        },
+    })
+</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -80,7 +92,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IMesh</span>
+						<span class="target">ICacheDepth</span>
 					</li>
 				</ul>
 			</section>
@@ -91,8 +103,10 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imesh.html#faces" class="tsd-kind-icon">faces</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imesh.html#vertices" class="tsd-kind-icon">vertices</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icachedepth.html#pano" class="tsd-kind-icon">pano</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icachedepth.html#sequence" class="tsd-kind-icon">sequence</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icachedepth.html#step" class="tsd-kind-icon">step</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="icachedepth.html#turn" class="tsd-kind-icon">turn</a></li>
 							</ul>
 						</section>
 					</div>
@@ -101,35 +115,99 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="faces" class="tsd-anchor"></a>
-					<h3>faces</h3>
-					<div class="tsd-signature tsd-kind-icon">faces<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<a name="pano" class="tsd-anchor"></a>
+					<h3>pano</h3>
+					<div class="tsd-signature tsd-kind-icon">pano<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/graph/interfaces/IMesh.ts#L11">graph/interfaces/IMesh.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/ICacheConfiguration.ts#L39">component/interfaces/ICacheConfiguration.ts:39</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Flattened array of faces for the mesh. Each face consist
-							three vertex indices.</p>
+							<p>Cache depth in the pano direction.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Max value is 2. Value will be coerced
+								to the interval [0, 2].</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>1</p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="vertices" class="tsd-anchor"></a>
-					<h3>vertices</h3>
-					<div class="tsd-signature tsd-kind-icon">vertices<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<a name="sequence" class="tsd-anchor"></a>
+					<h3>sequence</h3>
+					<div class="tsd-signature tsd-kind-icon">sequence<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/graph/interfaces/IMesh.ts#L17">graph/interfaces/IMesh.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/ICacheConfiguration.ts#L30">component/interfaces/ICacheConfiguration.ts:30</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Flattened array of vertices for the mesh. Each vertex
-							consists of X, Y and Z coordinates in the camera frame.</p>
+							<p>Cache depth in the sequence directions.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Max value is 4. Value will be coerced
+								to the interval [0, 4].</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>2</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="step" class="tsd-anchor"></a>
+					<h3>step</h3>
+					<div class="tsd-signature tsd-kind-icon">step<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/ICacheConfiguration.ts#L48">component/interfaces/ICacheConfiguration.ts:48</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Cache depth in the step directions.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Max value is 3. Value will be coerced
+								to the interval [0, 3].</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>1</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="turn" class="tsd-anchor"></a>
+					<h3>turn</h3>
+					<div class="tsd-signature tsd-kind-icon">turn<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/ICacheConfiguration.ts#L57">component/interfaces/ICacheConfiguration.ts:57</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Cache depth in the turn directions.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Max value is 1. Value will be coerced
+								to the interval [0, 1].</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>0</p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 			</section>
@@ -147,13 +225,19 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="imesh.html" class="tsd-kind-icon">IMesh</a>
+						<a href="icachedepth.html" class="tsd-kind-icon">ICache<wbr>Depth</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imesh.html#faces" class="tsd-kind-icon">faces</a>
+								<a href="icachedepth.html#pano" class="tsd-kind-icon">pano</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imesh.html#vertices" class="tsd-kind-icon">vertices</a>
+								<a href="icachedepth.html#sequence" class="tsd-kind-icon">sequence</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="icachedepth.html#step" class="tsd-kind-icon">step</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="icachedepth.html#turn" class="tsd-kind-icon">turn</a>
 							</li>
 						</ul>
 					</li>

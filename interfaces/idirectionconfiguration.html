@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IMesh | MapillaryJS</title>
+	<title>IDirectionConfiguration | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="imesh.html">IMesh</a>
+					<a href="idirectionconfiguration.html">IDirectionConfiguration</a>
 				</li>
 			</ul>
-			<h1>Interface IMesh</h1>
+			<h1>Interface IDirectionConfiguration</h1>
 		</div>
 	</div>
 </header>
@@ -67,12 +67,22 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Interface that describes SfM triangulated meshes.</p>
+						<p>Interface for configuration of direction component.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
-						<dd><p>IMesh</p>
-						</dd>
+						<dd></dd>
+						<dt>example</dt>
+						<dd><pre><code><span class="hljs-keyword">var</span> viewer = <span class="hljs-keyword">new</span> <span class="hljs-type">Mapillary</span>.Viewer(<span class="hljs-string">'&lt;element-id&gt;'</span>, <span class="hljs-string">'&lt;client-id&gt;'</span>, <span class="hljs-string">'&lt;photo-key&gt;'</span>,
+    {
+        component: <span class="hljs-type"></span>{
+            direction: <span class="hljs-type"></span>{
+                minWidth: <span class="hljs-type">140</span>,
+                maxWidth: <span class="hljs-type">340</span>,
+            },
+        },
+    })
+</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -80,9 +90,23 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IMesh</span>
+						<span class="tsd-signature-type">IComponentConfiguration</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">IDirectionConfiguration</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
+			</section>
+			<section class="tsd-panel tsd-kind-interface">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for configuration of direction component.</p>
+					</div>
+				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
@@ -91,8 +115,10 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imesh.html#faces" class="tsd-kind-icon">faces</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imesh.html#vertices" class="tsd-kind-icon">vertices</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="idirectionconfiguration.html#distinguishsequence" class="tsd-kind-icon">distinguish<wbr>Sequence</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="idirectionconfiguration.html#highlightkey" class="tsd-kind-icon">highlight<wbr>Key</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="idirectionconfiguration.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="idirectionconfiguration.html#minwidth" class="tsd-kind-icon">min<wbr>Width</a></li>
 							</ul>
 						</section>
 					</div>
@@ -101,35 +127,99 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="faces" class="tsd-anchor"></a>
-					<h3>faces</h3>
-					<div class="tsd-signature tsd-kind-icon">faces<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<a name="distinguishsequence" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> distinguish<wbr>Sequence</h3>
+					<div class="tsd-signature tsd-kind-icon">distinguish<wbr>Sequence<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/graph/interfaces/IMesh.ts#L11">graph/interfaces/IMesh.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/IDirectionConfiguration.ts#L31">component/interfaces/IDirectionConfiguration.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Flattened array of faces for the mesh. Each face consist
-							three vertex indices.</p>
+							<p>Determines if the sequence arrow appearance should be different from
+							the non sequence arrows.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Needs to be set to true for the sequence suffixed classes
+									to be applied to the navigation elements. Additional calculations will be
+								performed resulting in a performance cost.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>false</p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="vertices" class="tsd-anchor"></a>
-					<h3>vertices</h3>
-					<div class="tsd-signature tsd-kind-icon">vertices<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<a name="highlightkey" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> highlight<wbr>Key</h3>
+					<div class="tsd-signature tsd-kind-icon">highlight<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/graph/interfaces/IMesh.ts#L17">graph/interfaces/IMesh.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/IDirectionConfiguration.ts#L38">component/interfaces/IDirectionConfiguration.ts:38</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Flattened array of vertices for the mesh. Each vertex
-							consists of X, Y and Z coordinates in the camera frame.</p>
+							<p>The node key representing the direction arrow to be highlighted.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>undefined</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="maxwidth" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> max<wbr>Width</h3>
+					<div class="tsd-signature tsd-kind-icon">max<wbr>Width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/IDirectionConfiguration.ts#L60">component/interfaces/IDirectionConfiguration.ts:60</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The max width of the non transformed container element holding
+							the navigation arrows.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>If the min width is larger than the max width the
+								min width value will be used.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>460</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="minwidth" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> min<wbr>Width</h3>
+					<div class="tsd-signature tsd-kind-icon">min<wbr>Width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/IDirectionConfiguration.ts#L49">component/interfaces/IDirectionConfiguration.ts:49</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The min width of the non transformed container element holding
+							the navigation arrows.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>If the min width is larger than the max width the
+								min width value will be used.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>260</p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 			</section>
@@ -147,13 +237,19 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="imesh.html" class="tsd-kind-icon">IMesh</a>
+						<a href="idirectionconfiguration.html" class="tsd-kind-icon">IDirection<wbr>Configuration</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imesh.html#faces" class="tsd-kind-icon">faces</a>
+								<a href="idirectionconfiguration.html#distinguishsequence" class="tsd-kind-icon">distinguish<wbr>Sequence</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imesh.html#vertices" class="tsd-kind-icon">vertices</a>
+								<a href="idirectionconfiguration.html#highlightkey" class="tsd-kind-icon">highlight<wbr>Key</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="idirectionconfiguration.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="idirectionconfiguration.html#minwidth" class="tsd-kind-icon">min<wbr>Width</a>
 							</li>
 						</ul>
 					</li>

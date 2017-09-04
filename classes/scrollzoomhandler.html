@@ -85,7 +85,7 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">MouseHandlerBase</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span>
+						<span class="tsd-signature-type">HandlerBase</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">ScrollZoomHandler</span>
@@ -98,10 +98,10 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section tsd-is-inherited">
+						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><a href="scrollzoomhandler.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="scrollzoomhandler.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-inherited tsd-is-private-protected">
@@ -111,7 +111,6 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scrollzoomhandler.html#_container" class="tsd-kind-icon">_container</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scrollzoomhandler.html#_enabled" class="tsd-kind-icon">_enabled</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scrollzoomhandler.html#_navigator" class="tsd-kind-icon">_navigator</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scrollzoomhandler.html#_viewportcoords" class="tsd-kind-icon">_viewport<wbr>Coords</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-inherited">
@@ -133,20 +132,20 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">new <wbr>Scroll<wbr>Zoom<wbr>Handler<span class="tsd-signature-symbol">(</span>component<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Container</span>, navigator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Navigator</span>, viewportCoords<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ViewportCoords</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="scrollzoomhandler.html" class="tsd-signature-type">ScrollZoomHandler</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from MouseHandlerBase.__constructor</p>
+								<p>Overrides HandlerBase.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L17">component/mouse/MouseHandlerBase.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/mouse/ScrollZoomHandler.ts#L39">component/mouse/ScrollZoomHandler.ts:39</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -176,9 +175,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _component</h3>
 					<div class="tsd-signature tsd-kind-icon">_component<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/imouseconfiguration.html" class="tsd-signature-type">IMouseConfiguration</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from MouseHandlerBase._component</p>
+						<p>Inherited from HandlerBase._component</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L12">component/mouse/MouseHandlerBase.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/utils/HandlerBase.ts#L11">component/utils/HandlerBase.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -187,9 +186,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _container</h3>
 					<div class="tsd-signature tsd-kind-icon">_container<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Container</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from MouseHandlerBase._container</p>
+						<p>Inherited from HandlerBase._container</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L13">component/mouse/MouseHandlerBase.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/utils/HandlerBase.ts#L12">component/utils/HandlerBase.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -198,9 +197,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _enabled</h3>
 					<div class="tsd-signature tsd-kind-icon">_enabled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from MouseHandlerBase._enabled</p>
+						<p>Inherited from HandlerBase._enabled</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L17">component/mouse/MouseHandlerBase.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/utils/HandlerBase.ts#L15">component/utils/HandlerBase.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -209,20 +208,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _navigator</h3>
 					<div class="tsd-signature tsd-kind-icon">_navigator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Navigator</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from MouseHandlerBase._navigator</p>
+						<p>Inherited from HandlerBase._navigator</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L14">component/mouse/MouseHandlerBase.ts:14</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-					<a name="_viewportcoords" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _viewport<wbr>Coords</h3>
-					<div class="tsd-signature tsd-kind-icon">_viewport<wbr>Coords<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ViewportCoords</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from MouseHandlerBase._viewportCoords</p>
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L15">component/mouse/MouseHandlerBase.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/utils/HandlerBase.ts#L13">component/utils/HandlerBase.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -238,9 +226,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from MouseHandlerBase.isEnabled</p>
+								<p>Inherited from HandlerBase.isEnabled</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L33">component/mouse/MouseHandlerBase.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/utils/HandlerBase.ts#L30">component/utils/HandlerBase.ts:30</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -265,9 +253,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides MouseHandlerBase._disable</p>
+								<p>Overrides HandlerBase._disable</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/ScrollZoomHandler.ts#L94">component/mouse/ScrollZoomHandler.ts:94</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/mouse/ScrollZoomHandler.ts#L114">component/mouse/ScrollZoomHandler.ts:114</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -283,9 +271,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides MouseHandlerBase._enable</p>
+								<p>Overrides HandlerBase._enable</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/ScrollZoomHandler.ts#L31">component/mouse/ScrollZoomHandler.ts:31</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/mouse/ScrollZoomHandler.ts#L51">component/mouse/ScrollZoomHandler.ts:51</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -301,9 +289,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides MouseHandlerBase._getConfiguration</p>
+								<p>Overrides HandlerBase._getConfiguration</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/ScrollZoomHandler.ts#L102">component/mouse/ScrollZoomHandler.ts:102</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/mouse/ScrollZoomHandler.ts#L122">component/mouse/ScrollZoomHandler.ts:122</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -325,9 +313,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from MouseHandlerBase.disable</p>
+								<p>Inherited from HandlerBase.disable</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L56">component/mouse/MouseHandlerBase.ts:56</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/utils/HandlerBase.ts#L53">component/utils/HandlerBase.ts:53</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -336,7 +324,7 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
-									<dd><p><code>mouseComponent.&lt;handler-name&gt;.disable();</code></p>
+									<dd><p><code>&lt;component-name&gt;.&lt;handler-name&gt;.disable();</code></p>
 									</dd>
 								</dl>
 							</div>
@@ -353,9 +341,9 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from MouseHandlerBase.enable</p>
+								<p>Inherited from HandlerBase.enable</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/027bd92/src/component/mouse/MouseHandlerBase.ts#L42">component/mouse/MouseHandlerBase.ts:42</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/utils/HandlerBase.ts#L39">component/utils/HandlerBase.ts:39</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -364,7 +352,7 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
-									<dd><p><code>mouseComponent.&lt;handler-name&gt;.enable();</code></p>
+									<dd><p><code>&lt;component-name&gt;.&lt;handler-name&gt;.enable();</code></p>
 									</dd>
 								</dl>
 							</div>
@@ -389,7 +377,7 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 					<li class="current tsd-kind-class">
 						<a href="scrollzoomhandler.html" class="tsd-kind-icon">Scroll<wbr>Zoom<wbr>Handler</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 								<a href="scrollzoomhandler.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
@@ -403,9 +391,6 @@ var isEnabled = mouseComponent.scrollZoom.isEnabled<span class="hljs-comment">;<
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 								<a href="scrollzoomhandler.html#_navigator" class="tsd-kind-icon">_navigator</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scrollzoomhandler.html#_viewportcoords" class="tsd-kind-icon">_viewport<wbr>Coords</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 								<a href="scrollzoomhandler.html#isenabled" class="tsd-kind-icon">is<wbr>Enabled</a>

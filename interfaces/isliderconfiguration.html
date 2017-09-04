@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IMesh | MapillaryJS</title>
+	<title>ISliderConfiguration | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="imesh.html">IMesh</a>
+					<a href="isliderconfiguration.html">ISliderConfiguration</a>
 				</li>
 			</ul>
-			<h1>Interface IMesh</h1>
+			<h1>Interface ISliderConfiguration</h1>
 		</div>
 	</div>
 </header>
@@ -67,12 +67,24 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Interface that describes SfM triangulated meshes.</p>
+						<p>Interface for configuration of slider component.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>interface</dt>
-						<dd><p>IMesh</p>
-						</dd>
+						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer('&lt;element-id&gt;',</span> <span class="hljs-string">'&lt;client-id&gt;'</span><span class="hljs-string">,</span> <span class="hljs-string">'&lt;photo-key&gt;'</span><span class="hljs-string">,</span>
+    <span class="hljs-string">{</span>
+<span class="hljs-attr">        component:</span> <span class="hljs-string">{</span>
+<span class="hljs-attr">            slider:</span> <span class="hljs-string">{</span>
+<span class="hljs-attr">                initialPosition:</span> <span class="hljs-number">0.5</span><span class="hljs-string">,</span>
+<span class="hljs-attr">                keys:</span> <span class="hljs-string">{</span>
+<span class="hljs-attr">                    background:</span> <span class="hljs-string">'&lt;background-key&gt;'</span><span class="hljs-string">,</span>
+<span class="hljs-attr">                    foreground:</span> <span class="hljs-string">'&lt;foreground-key&gt;'</span><span class="hljs-string">,</span>
+                <span class="hljs-string">},</span>
+<span class="hljs-attr">                sliderVisible:</span> <span class="hljs-literal">true</span><span class="hljs-string">,</span>
+            <span class="hljs-string">},</span>
+        <span class="hljs-string">},</span>
+    <span class="hljs-string">})</span>
+</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -80,9 +92,23 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IMesh</span>
+						<span class="tsd-signature-type">IComponentConfiguration</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">ISliderConfiguration</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
+			</section>
+			<section class="tsd-panel tsd-kind-interface">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Interface for configuration of slider component.</p>
+					</div>
+				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
@@ -91,8 +117,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imesh.html#faces" class="tsd-kind-icon">faces</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imesh.html#vertices" class="tsd-kind-icon">vertices</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="isliderconfiguration.html#initialposition" class="tsd-kind-icon">initial<wbr>Position</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="isliderconfiguration.html#keys" class="tsd-kind-icon">keys</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="isliderconfiguration.html#slidervisible" class="tsd-kind-icon">slider<wbr>Visible</a></li>
 							</ul>
 						</section>
 					</div>
@@ -101,35 +128,58 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="faces" class="tsd-anchor"></a>
-					<h3>faces</h3>
-					<div class="tsd-signature tsd-kind-icon">faces<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<a name="initialposition" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> initial<wbr>Position</h3>
+					<div class="tsd-signature tsd-kind-icon">initial<wbr>Position<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/graph/interfaces/IMesh.ts#L11">graph/interfaces/IMesh.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/ISliderConfiguration.ts#L46">component/interfaces/ISliderConfiguration.ts:46</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Flattened array of faces for the mesh. Each face consist
-							three vertex indices.</p>
+							<p>Initial position of the slider on the interval [0, 1].</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>1</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="keys" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> keys</h3>
+					<div class="tsd-signature tsd-kind-icon">keys<span class="tsd-signature-symbol">:</span> <a href="isliderkeys.html" class="tsd-signature-type">ISliderKeys</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/ISliderConfiguration.ts#L51">component/interfaces/ISliderConfiguration.ts:51</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Slider keys.</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="vertices" class="tsd-anchor"></a>
-					<h3>vertices</h3>
-					<div class="tsd-signature tsd-kind-icon">vertices<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<a name="slidervisible" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> slider<wbr>Visible</h3>
+					<div class="tsd-signature tsd-kind-icon">slider<wbr>Visible<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/graph/interfaces/IMesh.ts#L17">graph/interfaces/IMesh.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/interfaces/ISliderConfiguration.ts#L58">component/interfaces/ISliderConfiguration.ts:58</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Flattened array of vertices for the mesh. Each vertex
-							consists of X, Y and Z coordinates in the camera frame.</p>
+							<p>Value indicating whether the slider should be visible.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>true</p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 			</section>
@@ -147,13 +197,16 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="imesh.html" class="tsd-kind-icon">IMesh</a>
+						<a href="isliderconfiguration.html" class="tsd-kind-icon">ISlider<wbr>Configuration</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imesh.html#faces" class="tsd-kind-icon">faces</a>
+								<a href="isliderconfiguration.html#initialposition" class="tsd-kind-icon">initial<wbr>Position</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imesh.html#vertices" class="tsd-kind-icon">vertices</a>
+								<a href="isliderconfiguration.html#keys" class="tsd-kind-icon">keys</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="isliderconfiguration.html#slidervisible" class="tsd-kind-icon">slider<wbr>Visible</a>
 							</li>
 						</ul>
 					</li>
