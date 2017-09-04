@@ -38,17 +38,21 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 
 ## Examples
 
-### Viewer
+### Support
+- [Check if MapillaryJS is supported](https://bl.ocks.org/oscarlorentzon/c737167e64d52668bb4991167501bb84)
 
+### Viewer
 - [Fixed size](https://bl.ocks.org/oscarlorentzon/63644e3b2392f2f2b7d000af9c506da6)
 - [Dynamic size](https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39)
 - [Load immediately](https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade)
 - [No cover](https://bl.ocks.org/oscarlorentzon/4f6f7ae5e86db7446f78ccea1eb6c2a7)
+- [Determine if viewer is navigable](https://bl.ocks.org/oscarlorentzon/898c55ef06917b07f165b7707d9f3a9e)
 - [Move to key](https://bl.ocks.org/oscarlorentzon/317da436accbcf2ff04c642f86cefaf8)
 - [Move in direction](https://bl.ocks.org/oscarlorentzon/63ac2aa3f0998f0c2d2b01a42c8babe4)
 - [Move close to latitude and longitude](https://bl.ocks.org/oscarlorentzon/a60f3dad3f3accfe67ea1048be88df26)
 - [Viewer options](https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a)
 - [Subscribe to node changed](https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820)
+- [Edges changed events](https://bl.ocks.org/oscarlorentzon/74f7da7d957c9bb7b3088dcc7350d82f)
 - [Set filter](https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c)
 - [Change filters](https://bl.ocks.org/oscarlorentzon/10dad7582268312b1adac2c3a869c5c5)
 - [Get center and zoom](https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82)
@@ -76,6 +80,9 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 
 #### Mouse
 - [Enable and disable mouse and touch handlers](https://bl.ocks.org/oscarlorentzon/37d28603212de2b8326bb65e49418368)
+
+#### Keyboard
+- [Enable and disable keyboard handlers](https://bl.ocks.org/oscarlorentzon/c92bbefbd4c74d4a490a8b37c85a1a7b)
 
 #### Popup
 - [Display a popup](https://bl.ocks.org/oscarlorentzon/54182e3f3624cdeb7ca960d96ebfa5fb)
