@@ -446,6 +446,7 @@ export class Viewer extends EventEmitter {
      * @throws {Error} If no nodes exist close to provided latitude
      * longitude.
      * @throws {Error} Propagates any IO errors to the caller.
+     * @throws {Error} When viewer is not navigable.
      *
      * @example
      * ```
@@ -481,6 +482,7 @@ export class Viewer extends EventEmitter {
      * @throws {Error} If the current node does not have the edge direction
      * or the edges has not yet been cached.
      * @throws {Error} Propagates any IO errors to the caller.
+     * @throws {Error} When viewer is not navigable.
      *
      * @example
      * ```
@@ -512,6 +514,7 @@ export class Viewer extends EventEmitter {
      * @param {string} key - A valid Mapillary photo key.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
+     * @throws {Error} When viewer is not navigable.
      *
      * @example
      * ```
@@ -600,6 +603,8 @@ export class Viewer extends EventEmitter {
      * @returns {Promise<void>} Promise that resolves after token
      * is set.
      *
+     * @throws {Error} When viewer is not navigable.
+     *
      * @example
      * ```
      * viewer.setAuthToken("<my token>")
@@ -607,9 +612,13 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public setAuthToken(token?: string): when.Promise<void> {
+        const setToken$: Observable<void> = this.isNavigable ?
+            this._navigator.setToken$(token) :
+            Observable.throw(new Error("Calling setAuthToken is not supported when viewer is not navigable."));
+
         return when.promise<void>(
             (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
-                this._navigator.setToken$(token)
+                setToken$
                     .subscribe(
                         (): void => {
                             resolve(undefined);
