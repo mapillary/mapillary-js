@@ -37,7 +37,10 @@ import {
     IGLRenderHash,
     GLRenderStage,
 } from "../../Render";
-import {Settings} from "../../Utils";
+import {
+    DOM,
+    Settings,
+} from "../../Utils";
 import {
     IBBoxShaderMaterial,
     Component,
@@ -243,6 +246,8 @@ class SliderState {
 export class SliderComponent extends Component<ISliderConfiguration> {
     public static componentName: string = "slider";
 
+    private _dom: DOM;
+
     private _sliderContainer: HTMLDivElement;
     private _sliderWrapper: HTMLDivElement;
     private _sliderControl: HTMLInputElement;
@@ -266,8 +271,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
      * Create a new slider component instance.
      * @class SliderComponent
      */
-    constructor (name: string, container: Container, navigator: Navigator) {
+    constructor (name: string, container: Container, navigator: Navigator, dom?: DOM) {
         super(name, container, navigator);
+
+        this._dom = !!dom ? dom : new DOM();
 
         this._sliderStateOperation$ = new Subject<ISliderStateOperation>();
         this._sliderStateCreator$ = new Subject<void>();
@@ -346,9 +353,9 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     }
 
     protected _activate(): void {
-        this._sliderContainer = <HTMLDivElement>this._createElement("div", "mapillary-js-slider-container", this._container.element);
-        this._sliderWrapper = <HTMLDivElement>this._createElement("div", "SliderWrapper", this._sliderContainer);
-        this._sliderControl = <HTMLInputElement>this._createElement("input", "SliderControl", this._sliderWrapper);
+        this._sliderContainer = this._dom.createElement("div", "mapillary-js-slider-container", this._container.element);
+        this._sliderWrapper = this._dom.createElement("div", "SliderWrapper", this._sliderContainer);
+        this._sliderControl = this._dom.createElement("input", "SliderControl", this._sliderWrapper);
         this._sliderControl.setAttribute("type", "range");
         this._sliderControl.setAttribute("min", "0");
         this._sliderControl.setAttribute("max", "1000");
@@ -593,20 +600,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
                     return Observable.empty<Node>();
                 });
-    }
-
-    private _createElement(tagName: string, className: string, container: HTMLElement): HTMLElement {
-        const element: HTMLElement = document.createElement(tagName);
-
-        if (!!className) {
-            element.className = className;
-        }
-
-        if (!!container) {
-            container.appendChild(element);
-        }
-
-        return element;
     }
 }
 

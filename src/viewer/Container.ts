@@ -4,6 +4,7 @@ import {
     RenderService,
 } from "../Render";
 import {StateService} from "../State";
+import {DOM} from "../Utils";
 import {
     IViewerOptions,
     KeyboardService,
@@ -30,7 +31,9 @@ export class Container {
     private _container: HTMLElement;
     private _domContainer: HTMLElement;
 
-    constructor (id: string, stateService: StateService, options: IViewerOptions) {
+    private _dom: DOM;
+
+    constructor (id: string, stateService: StateService, options: IViewerOptions, dom?: DOM) {
         this.id = id;
 
         this._container = document.getElementById(id);
@@ -41,18 +44,14 @@ export class Container {
 
         this._container.classList.add("mapillary-js");
 
-        this._canvasContainer = document.createElement("div");
-        this._canvasContainer.className = "mapillary-js-interactive";
+        this._dom = !!dom ? dom : new DOM();
 
-        this._domContainer = document.createElement("div");
-        this._domContainer.className = "mapillary-js-dom";
-
-        this._container.appendChild(this._canvasContainer);
-        this._container.appendChild(this._domContainer);
+        this._canvasContainer = this._dom.createElement("div", "mapillary-js-interactive", this._container);
+        this._domContainer = this._dom.createElement("div", "mapillary-js-dom", this._container);
 
         this.renderService = new RenderService(this._container, stateService.currentState$, options.renderMode);
 
-        this.glRenderer = new GLRenderer(this._canvasContainer, this.renderService);
+        this.glRenderer = new GLRenderer(this._canvasContainer, this.renderService, this._dom);
         this.domRenderer = new DOMRenderer(this._domContainer, this.renderService, stateService.currentState$);
 
         this.keyboardService = new KeyboardService(this._canvasContainer);

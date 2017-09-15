@@ -15,6 +15,7 @@ import {
     ISize,
     RenderCamera,
 } from "../../../Render";
+import {DOM} from "../../../Utils";
 import {Alignment} from "../../../Viewer";
 
 /**
@@ -76,9 +77,10 @@ export class Popup {
     private _point: number[];
     private _rect: number[];
 
+    private _dom: DOM;
     private _viewportCoords: ViewportCoords;
 
-    constructor(options?: IPopupOptions, viewportCoords?: ViewportCoords) {
+    constructor(options?: IPopupOptions, viewportCoords?: ViewportCoords, dom?: DOM) {
         this._options = {};
 
         if (!!options) {
@@ -89,6 +91,7 @@ export class Popup {
             this._options.position = options.position;
         }
 
+        this._dom = !!dom ? dom : new DOM();
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
 
         this._notifyChanged$ = new Subject<Popup>();
@@ -197,7 +200,7 @@ export class Popup {
         }
 
         const className: string = "mapillaryjs-popup-content" + (this._options.clean === true ? "-clean" : "");
-        this._content = <HTMLDivElement>this._createElement("div", className, this._container);
+        this._content = this._dom.createElement("div", className, this._container);
 
         this._content.appendChild(htmlNode);
 
@@ -224,7 +227,7 @@ export class Popup {
      */
     public setHTML(html: string): void {
         const frag: DocumentFragment = document.createDocumentFragment();
-        const temp: HTMLBodyElement = document.createElement("body");
+        const temp: HTMLBodyElement = this._dom.createElement("body");
         let child: Node;
         temp.innerHTML = html;
 
@@ -287,15 +290,15 @@ export class Popup {
         }
 
         if (!this._container) {
-            this._container = <HTMLDivElement>this._createElement("div", "mapillaryjs-popup", this._parentContainer);
+            this._container = this._dom.createElement("div", "mapillaryjs-popup", this._parentContainer);
 
             let showTip: boolean =
                 this._options.clean !== true &&
                 this._options.float !== Alignment.Center;
 
             if (showTip) {
-                this._tip = <HTMLDivElement>this._createElement("div", "mapillaryjs-popup-tip", this._container);
-                this._createElement("div", "mapillaryjs-popup-tip-inner", this._tip);
+                this._tip = this._dom.createElement("div", "mapillaryjs-popup-tip", this._container);
+                this._dom.createElement("div", "mapillaryjs-popup-tip-inner", this._tip);
             }
 
             this._container.appendChild(this._content);
@@ -386,20 +389,6 @@ export class Popup {
         classList.add(`mapillaryjs-popup-float-${float}`);
 
         this._container.style.transform = `${floatTranslate[float]} translate(${pointPixel[0]}px,${pointPixel[1]}px)`;
-    }
-
-    private _createElement(tagName: string, className: string, container: HTMLElement): HTMLElement {
-        const element: HTMLElement = document.createElement(tagName);
-
-        if (!!className) {
-            element.className = className;
-        }
-
-        if (!!container) {
-            container.appendChild(element);
-        }
-
-        return element;
     }
 
     private _rectToPixel(

@@ -27,6 +27,7 @@ import {
     RenderService,
     ISize,
 } from "../Render";
+import {DOM} from "../Utils";
 
 interface IGLRenderer {
     needsRender: boolean;
@@ -72,6 +73,7 @@ interface ICombination {
 
 export class GLRenderer {
     private _renderService: RenderService;
+    private _dom: DOM;
 
     private _renderFrame$: Subject<RenderCamera> = new Subject<RenderCamera>();
 
@@ -93,8 +95,9 @@ export class GLRenderer {
 
     private _renderFrameSubscription: Subscription;
 
-    constructor (canvasContainer: HTMLElement, renderService: RenderService) {
+    constructor (canvasContainer: HTMLElement, renderService: RenderService, dom?: DOM) {
         this._renderService = renderService;
+        this._dom = !!dom ? dom : new DOM();
 
         this._renderer$ = this._rendererOperation$
             .scan(
@@ -246,8 +249,7 @@ export class GLRenderer {
             .first()
             .map(
                 (hash: IGLRenderHash): THREE.WebGLRenderer => {
-                    const canvas: HTMLCanvasElement = document.createElement("canvas");
-                    canvas.className = "mapillary-js-canvas";
+                    const canvas: HTMLCanvasElement = this._dom.createElement("canvas", "mapillary-js-canvas");
                     canvas.style.position = "absolute";
                     canvas.setAttribute("tabindex", "0");
                     canvasContainer.appendChild(canvas);

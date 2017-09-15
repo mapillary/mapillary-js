@@ -13,6 +13,7 @@ import {
     ISize,
     RenderCamera,
 } from "../../Render";
+import {DOM} from "../../Utils";
 import {
     Container,
     Navigator,
@@ -50,6 +51,8 @@ import {
 export class PopupComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "popup";
 
+    private _dom: DOM;
+
     private _popupContainer: HTMLDivElement;
     private _popups: Popup[];
 
@@ -59,8 +62,10 @@ export class PopupComponent extends Component<IComponentConfiguration> {
     private _updateAllSubscription: Subscription;
     private _updateAddedChangedSubscription: Subscription;
 
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(name: string, container: Container, navigator: Navigator, dom?: DOM) {
         super(name, container, navigator);
+
+        this._dom = !!dom ? dom : new DOM();
 
         this._popups = [];
 
@@ -134,10 +139,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._popupContainer = document.createElement("div");
-        this._popupContainer.className = "mapillary-js-popup-container";
-
-        this._container.element.appendChild(this._popupContainer);
+        this._popupContainer = this._dom.createElement("div", "mapillary-js-popup-container", this._container.element) ;
 
         for (const popup of this._popups) {
             popup.setParentContainer(this._popupContainer);
