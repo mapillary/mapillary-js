@@ -37,8 +37,8 @@ import {
     CreatePointHandler,
     CreatePolygonHandler,
     CreateRectHandler,
+    EditVertexHandler,
     Geometry,
-    IInteraction,
     ITagConfiguration,
     OutlineCreateTag,
     RenderTag,
@@ -46,10 +46,8 @@ import {
     TagCreator,
     TagDOMRenderer,
     TagMode,
-    TagOperation,
     TagScene,
     TagSet,
-    VertexGeometry,
 } from "../../Component";
 import {
     Transform,
@@ -162,25 +160,17 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _renderTags$: Observable<RenderTag<Tag>[]>;
     private _tagChanged$: Observable<Tag>;
     private _renderTagGLChanged$: Observable<RenderTag<Tag>>;
-    private _tagInterationInitiated$: Observable<string>;
-    private _tagInteractionAbort$: Observable<void>;
-    private _activeTag$: Observable<IInteraction>;
-
     private _createGeometryChanged$: Observable<OutlineCreateTag>;
     private _createGLObjectsChanged$: Observable<OutlineCreateTag>;
 
     private _creatingConfiguration$: Observable<ITagConfiguration>;
 
-    private _claimMouseSubscription: Subscription;
-    private _mouseDragSubscription: Subscription;
-    private _unclaimMouseSubscription: Subscription;
     private _updateGLObjectsSubscription: Subscription;
     private _updateTagSceneSubscription: Subscription;
 
     private _stopCreateSubscription: Subscription;
     private _setGLCreateTagSubscription: Subscription;
     private _createGLObjectsChangedSubscription: Subscription;
-    private _preventDefaultSubscription: Subscription;
     private _containerClassListSubscription: Subscription;
     private _handlerGeometryCreatedSubscription: Subscription;
     private _handlerStopCreateSubscription: Subscription;
@@ -192,6 +182,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _tagsChangedEventSubscription: Subscription;
 
     private _createHandlers: { [K in keyof typeof TagMode]: CreateHandlerBase };
+    private _editVertexHandler: EditVertexHandler;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -256,45 +247,6 @@ export class TagComponent extends Component<ITagConfiguration> {
                 })
             .share();
 
-        this._tagInterationInitiated$ = this._renderTags$
-            .switchMap(
-                (tags: RenderTag<Tag>[]): Observable<string> => {
-                    return Observable
-                        .from(tags)
-                        .mergeMap(
-                            (tag: RenderTag<Tag>): Observable<string> => {
-                                return tag.interact$
-                                    .map(
-                                        (interaction: IInteraction): string => {
-                                            return interaction.tag.id;
-                                        });
-                            });
-                })
-            .share();
-
-        this._tagInteractionAbort$ = Observable
-            .merge(this._container.mouseService.documentMouseUp$)
-            .map((e: MouseEvent): void => { /* noop */ })
-            .share();
-
-        this._activeTag$ = this._renderTags$
-            .switchMap(
-                (tags: RenderTag<Tag>[]): Observable<IInteraction> => {
-                    return Observable
-                        .from(tags)
-                        .mergeMap(
-                            (tag: RenderTag<Tag>): Observable<IInteraction> => {
-                                return tag.interact$;
-                            });
-                })
-            .merge<IInteraction>(
-                this._tagInteractionAbort$
-                    .map(
-                        (): IInteraction => {
-                            return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
-                        }))
-            .share();
-
         this._createGeometryChanged$ = this._tagCreator.tag$
             .switchMap(
                 (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
@@ -339,6 +291,8 @@ export class TagComponent extends Component<ITagConfiguration> {
             "CreateRect": new CreateRectHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
             "Default": undefined,
         };
+
+        this._editVertexHandler = new EditVertexHandler(this, container, navigator, this._tagCreator, this._viewportCoords, this._tagSet);
     }
 
     /**
@@ -517,6 +471,8 @@ export class TagComponent extends Component<ITagConfiguration> {
     }
 
     protected _activate(): void {
+        this._editVertexHandler.enable();
+
         const handlerGeometryCreated$: Observable<Geometry> = Observable
             .from<keyof typeof TagMode>(<(keyof typeof TagMode)[]>Object.keys(this._createHandlers))
             .map(
@@ -548,25 +504,13 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._handlerEnablerSubscription = this._creatingConfiguration$
             .subscribe(
                 (configuration: ITagConfiguration): void => {
-                    this._disableHandlers();
+                    this._disableCreateHandlers();
 
                     const mode: keyof typeof TagMode = <keyof typeof TagMode>TagMode[configuration.mode];
                     const handler: CreateHandlerBase = this._createHandlers[mode];
                     if (!!handler) {
                         handler.enable();
                     }
-                });
-
-        this._preventDefaultSubscription = this._activeTag$
-            .switchMap(
-                (interaction: IInteraction): Observable<MouseEvent> => {
-                    return interaction.tag != null ?
-                        this._container.mouseService.documentMouseMove$ :
-                        Observable.empty<MouseEvent>();
-                })
-            .subscribe(
-                (event: MouseEvent): void => {
-                    event.preventDefault(); // prevent selection of content outside the viewer
                 });
 
         this._tagsChangedEventSubscription = this._renderTags$
@@ -584,12 +528,6 @@ export class TagComponent extends Component<ITagConfiguration> {
                         Observable.empty<void>();
                 })
             .subscribe((): void => { this.changeMode(TagMode.Default); });
-
-        const containerMouseMove$: Observable<MouseEvent> = Observable
-            .merge(
-                this._container.mouseService.mouseMove$,
-                this._container.mouseService.domMouseMove$)
-            .share();
 
         this._containerClassListSubscription = this._creatingConfiguration$
             .map(
@@ -622,93 +560,6 @@ export class TagComponent extends Component<ITagConfiguration> {
                 (tag: OutlineCreateTag): void => {
                     this._tagScene.updateCreateTagObjects(tag);
                 });
-
-        this._claimMouseSubscription = this._tagInterationInitiated$
-            .switchMap(
-                (id: string): Observable<MouseEvent> => {
-                    return containerMouseMove$
-                        .takeUntil(this._tagInteractionAbort$)
-                        .take(1);
-                })
-            .subscribe(
-                (e: MouseEvent): void => {
-                    this._container.mouseService.claimMouse(this._name, 1);
-                });
-
-        this._mouseDragSubscription = this._activeTag$
-            .withLatestFrom(
-                containerMouseMove$,
-                (a: IInteraction, e: MouseEvent): [IInteraction, MouseEvent] => {
-                    return [a, e];
-                })
-            .switchMap(
-                (args: [IInteraction, MouseEvent]): Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
-                    let activeTag: IInteraction = args[0];
-                    let mouseMove: MouseEvent = args[1];
-
-                    if (activeTag.operation === TagOperation.None) {
-                        return Observable.empty<[MouseEvent, RenderCamera, IInteraction, Transform]>();
-                    }
-
-                    let mouseDrag$: Observable<MouseEvent> = Observable
-                        .of<MouseEvent>(mouseMove)
-                        .concat<MouseEvent>(
-                            this._container.mouseService
-                                .filtered$(
-                                    this._name,
-                                    this._container.mouseService.domMouseDrag$)
-                                .filter(
-                                    (event: MouseEvent): boolean => {
-                                        return this._viewportCoords.insideElement(event, this._container.element);
-                                    }));
-
-                    return Observable
-                        .combineLatest<MouseEvent, RenderCamera>(
-                            mouseDrag$,
-                            this._container.renderService.renderCamera$)
-                        .withLatestFrom(
-                            Observable.of(activeTag),
-                            this._navigator.stateService.currentTransform$,
-                            (
-                                ec: [MouseEvent, RenderCamera],
-                                a: IInteraction,
-                                t: Transform):
-                                [MouseEvent, RenderCamera, IInteraction, Transform] => {
-                                return [ec[0], ec[1], a, t];
-                            });
-                })
-            .subscribe(
-                (args: [MouseEvent, RenderCamera, IInteraction, Transform]): void => {
-                    let mouseEvent: MouseEvent = args[0];
-                    let renderCamera: RenderCamera = args[1];
-                    let activeTag: IInteraction = args[2];
-                    let transform: Transform = args[3];
-
-                    if (activeTag.operation === TagOperation.None) {
-                        return;
-                    }
-
-                    let basic: number[] = this._mouseEventToBasic(
-                        mouseEvent,
-                        this._container.element,
-                        renderCamera,
-                        transform,
-                        activeTag.offsetX,
-                        activeTag.offsetY);
-
-                    if (activeTag.operation === TagOperation.Centroid) {
-                        activeTag.tag.geometry.setCentroid2d(basic, transform);
-                    } else if (activeTag.operation === TagOperation.Vertex) {
-                        let vertexGeometry: VertexGeometry = <VertexGeometry>activeTag.tag.geometry;
-                        vertexGeometry.setVertex2d(activeTag.vertexIndex, basic, transform);
-                    }
-                });
-
-        this._unclaimMouseSubscription = this._container.mouseService
-            .filtered$(this._name, this._container.mouseService.domMouseDragEnd$)
-            .subscribe((e: MouseEvent): void => {
-                this._container.mouseService.unclaimMouse(this._name);
-             });
 
         this._updateGLObjectsSubscription = this._renderTagGLChanged$
             .subscribe(
@@ -779,22 +630,20 @@ export class TagComponent extends Component<ITagConfiguration> {
     }
 
     protected _deactivate(): void {
-        this._disableHandlers();
+        this._editVertexHandler.disable();
+        this._disableCreateHandlers();
+
         this._tagScene.clear();
         this._tagSet.deactivate();
 
         this._tagCreator.delete$.next(null);
 
-        this._claimMouseSubscription.unsubscribe();
-        this._mouseDragSubscription.unsubscribe();
-        this._unclaimMouseSubscription.unsubscribe();
         this._updateGLObjectsSubscription.unsubscribe();
         this._updateTagSceneSubscription.unsubscribe();
 
         this._stopCreateSubscription.unsubscribe();
         this._setGLCreateTagSubscription.unsubscribe();
         this._createGLObjectsChangedSubscription.unsubscribe();
-        this._preventDefaultSubscription.unsubscribe();
         this._containerClassListSubscription.unsubscribe();
 
         this._domSubscription.unsubscribe();
@@ -816,7 +665,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         };
     }
 
-    private _disableHandlers(): void {
+    private _disableCreateHandlers(): void {
         const createHandlers: { [K in keyof typeof TagMode]: CreateHandlerBase } = this._createHandlers;
         for (const key in createHandlers) {
             if (!createHandlers.hasOwnProperty(key)) {
@@ -828,30 +677,6 @@ export class TagComponent extends Component<ITagConfiguration> {
                 handler.disable();
             }
         }
-    }
-
-    private _mouseEventToBasic(
-        event: MouseEvent,
-        element: HTMLElement,
-        camera: RenderCamera,
-        transform: Transform,
-        offsetX?: number,
-        offsetY?: number):
-        number[] {
-
-        offsetX = offsetX != null ? offsetX : 0;
-        offsetY = offsetY != null ? offsetY : 0;
-
-        const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
-        const basic: number[] =
-            this._viewportCoords.canvasToBasic(
-                canvasX - offsetX,
-                canvasY - offsetY,
-                element,
-                transform,
-                camera.perspective);
-
-        return basic;
     }
 }
 

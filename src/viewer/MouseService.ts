@@ -187,14 +187,14 @@ export class MouseService {
                     return dragStop$.first();
                 });
 
-        const containerLeftButtonDown$: Observable<MouseEvent> = this._domMouseDown$
+        const domLeftButtonDown$: Observable<MouseEvent> = this._domMouseDown$
             .filter(
                 (e: MouseEvent): boolean => {
                     return e.button === 0;
                 })
             .share();
 
-        this._domMouseDragStart$ = containerLeftButtonDown$
+        this._domMouseDragStart$ = domLeftButtonDown$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._documentMouseMove$
@@ -202,7 +202,7 @@ export class MouseService {
                         .take(1);
                 });
 
-        this._domMouseDrag$ = containerLeftButtonDown$
+        this._domMouseDrag$ = domLeftButtonDown$
             .mergeMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._documentMouseMove$
