@@ -62,7 +62,6 @@
 
 .mapillaryjs-popup-float-top-right .mapillaryjs-popup-tip {
     align-self: flex-start;
-    border-top-color:black;
     border-bottom: none;
     border-left: none;
 }
@@ -78,7 +77,6 @@
 
 .mapillaryjs-popup-float-top-left .mapillaryjs-popup-tip {
     align-self: flex-end;
-    border-top-color:black;
     border-bottom: none;
     border-right: none;
 }
@@ -95,7 +93,6 @@
 .mapillaryjs-popup-float-bottom .mapillaryjs-popup-tip {
     align-self: center;
     border-top: none;
-    border-bottom-color: black;
 }
 
 .mapillaryjs-popup-float-bottom .mapillaryjs-popup-tip-inner {
@@ -108,7 +105,6 @@
 
 .mapillaryjs-popup-float-bottom-right .mapillaryjs-popup-tip {
     align-self: flex-start;
-    border-bottom-color:black;
     border-top: none;
     border-left: none;
 }
@@ -124,7 +120,6 @@
 
 .mapillaryjs-popup-float-bottom-left .mapillaryjs-popup-tip {
     align-self: flex-end;
-    border-bottom-color:black;
     border-top: none;
     border-right: none;
 }
@@ -140,7 +135,6 @@
 
 .mapillaryjs-popup-float-left .mapillaryjs-popup-tip {
     align-self: center;
-    border-left-color: black;
     border-right: none;
 }
 
@@ -154,7 +148,6 @@
 
 .mapillaryjs-popup-float-right .mapillaryjs-popup-tip {
     align-self: center;
-    border-right-color: black;
     border-left: none;
 }
 
