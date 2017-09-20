@@ -13,10 +13,9 @@
 }
 
 .mapillaryjs-popup-content {
-    padding: 5px 10px;
+    padding: 8px;
     background: white;
-    border: 1px solid black;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .mapillaryjs-popup-float-bottom,
@@ -45,12 +44,11 @@
     z-index: 1;
     width: 0;
     height: 0;
-    border: 7px solid transparent;
+    border: 8px solid transparent;
 }
 
 .mapillaryjs-popup-float-top .mapillaryjs-popup-tip {
     align-self: center;
-    border-top-color:black;
     border-bottom: none;
 }
 
