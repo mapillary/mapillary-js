@@ -1,18 +1,15 @@
 export class EventHelper {
-    public static createUIEvent(eventType: string, canBubbleArg?: boolean, cancelableArg?: boolean, detailArg?: number): UIEvent {
-        const uiEvent: UIEvent = document.createEvent("UIEvent");
-
-        uiEvent.initUIEvent(
-            eventType,
-            canBubbleArg,
-            cancelableArg,
-            window,
-            detailArg);
-
-        return uiEvent;
+    public static createKeyboardEvent(typeArg: string, eventInitDict?: KeyboardEventInit): KeyboardEvent {
+        return Object.assign(
+            {},
+            eventInitDict,
+            {
+                preventDefault: (): void => { /* noop */ },
+                type: typeArg,
+            });
     }
 
-    public static createMouseEvent(eventType: string, params: MouseEventInit, target: EventTarget): MouseEvent {
+    public static createMouseEvent(eventType: string, params: MouseEventInit, target?: EventTarget): MouseEvent {
         const mouseEvent: MouseEvent = document.createEvent("MouseEvent");
 
         mouseEvent.initMouseEvent(
@@ -30,9 +27,42 @@ export class EventHelper {
             !!params.shiftKey,
             !!params.metaKey,
             params.button !== undefined ? params.button : 0,
-            target);
+            !!target ? target : document.createElement("div"));
 
         return mouseEvent;
+    }
+
+    public static createTouchEvent(eventType: string, shiftKey: boolean): TouchEvent {
+        const event: UIEvent = document.createEvent("UIEvent");
+
+        Object.defineProperty(
+            event,
+            "touches",
+            {
+                get: (): Touch[] => { return [<Touch>{ clientX: 0, clientY: 0 }]; },
+            });
+
+        Object.defineProperty(
+            event,
+            "shiftKey",
+            {
+                get: (): boolean => { return shiftKey; },
+            });
+
+        return <TouchEvent>event;
+    }
+
+    public static createUIEvent(eventType: string, canBubbleArg?: boolean, cancelableArg?: boolean, detailArg?: number): UIEvent {
+        const uiEvent: UIEvent = document.createEvent("UIEvent");
+
+        uiEvent.initUIEvent(
+            eventType,
+            canBubbleArg,
+            cancelableArg,
+            window,
+            detailArg);
+
+        return uiEvent;
     }
 }
 

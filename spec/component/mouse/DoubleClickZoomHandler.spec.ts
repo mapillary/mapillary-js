@@ -6,6 +6,7 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
+import {EventHelper} from "../../helper/EventHelper.spec";
 import {MockCreator} from "../../helper/MockCreator.spec";
 import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
 import {TransformHelper} from "../../helper/TransformHelper.spec";
@@ -40,50 +41,6 @@ class TestComponent extends Component<ITestConfiguration> {
     protected _deactivate(): void { /* noop */ }
     protected _getDefaultConfiguration(): ITestConfiguration { return { test: false }; }
 }
-
-const createMouseEvent: (eventType: string, params: MouseEventInit) => MouseEvent =
-    (eventType: string, params: MouseEventInit): MouseEvent => {
-    const mouseEvent: MouseEvent = document.createEvent("MouseEvent");
-    mouseEvent.initMouseEvent(
-        eventType,
-        params.bubbles !== undefined ? params.bubbles : false,
-        params.cancelable !== undefined ? params.cancelable : false,
-        window,
-        params.detail !== undefined ? params.detail : 0,
-        params.screenX !== undefined ? params.screenX : 0,
-        params.screenY !== undefined ? params.screenY : 0,
-        params.clientX !== undefined ? params.clientX : 0,
-        params.clientY !== undefined ? params.clientY : 0,
-        !!params.ctrlKey,
-        !!params.altKey,
-        !!params.shiftKey,
-        !!params.metaKey,
-        params.button !== undefined ? params.button : 0,
-        null);
-
-    return mouseEvent;
-};
-
-const createTouchEvent: (eventType: string, shiftKey: boolean) => TouchEvent =
-    (eventType: string, shiftKey: boolean): TouchEvent => {
-    const event: UIEvent = document.createEvent("UIEvent");
-
-    Object.defineProperty(
-        event,
-        "touches",
-        {
-            get: (): Touch[] => { return [<Touch>{ clientX: 0, clientY: 0 }]; },
-        });
-
-    Object.defineProperty(
-        event,
-        "shiftKey",
-        {
-            get: (): boolean => { return shiftKey; },
-        });
-
-    return <TouchEvent>event;
-};
 
 describe("DoubleClickZoomHandler.ctor", () => {
     it("should be defined", () => {
@@ -142,7 +99,7 @@ describe("DoubleClickZoomHandler.enable", () => {
             .next(transform);
 
         const mouseEvent: MouseEvent =
-            createMouseEvent("dblclick", { clientX: 0, clientY: 0, shiftKey: false });
+            EventHelper.createMouseEvent("dblclick", { clientX: 0, clientY: 0, shiftKey: false });
         filteredSubject$.next(mouseEvent);
 
         const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
@@ -177,7 +134,7 @@ describe("DoubleClickZoomHandler.enable", () => {
             .next(transform);
 
         const mouseEvent: MouseEvent =
-            createMouseEvent("dblclick", { clientX: 0, clientY: 0, shiftKey: true });
+            EventHelper.createMouseEvent("dblclick", { clientX: 0, clientY: 0, shiftKey: true });
         filteredSubject$.next(mouseEvent);
 
         const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
@@ -210,7 +167,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        const touchEvent: TouchEvent = createTouchEvent("touchstart", false);
+        const touchEvent: TouchEvent = EventHelper.createTouchEvent("touchstart", false);
         (<Subject<TouchEvent>>containerMock.touchService.doubleTap$).next(touchEvent);
 
         const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
@@ -243,7 +200,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        const touchEvent: TouchEvent = createTouchEvent("touchstart", true);
+        const touchEvent: TouchEvent = EventHelper.createTouchEvent("touchstart", true);
         (<Subject<TouchEvent>>containerMock.touchService.doubleTap$).next(touchEvent);
 
         const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
