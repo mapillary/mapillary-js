@@ -5,6 +5,9 @@ import * as THREE from "three";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
+import "rxjs/add/operator/concat";
+import "rxjs/add/operator/takeWhile";
+
 import {
     Component,
     IMouseConfiguration,
@@ -137,19 +140,35 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                         return Observable.empty<MouseTouchPair>();
                     }
 
-                    let mouseDrag$: Observable<[MouseEvent, MouseEvent]> = Observable
-                        .merge(
-                            this._container.mouseService.filtered$(this._component.name, this._container.mouseService.mouseDragStart$),
-                            this._container.mouseService.filtered$(this._component.name, this._container.mouseService.mouseDrag$),
-                            this._container.mouseService.filtered$(this._component.name, this._container.mouseService.mouseDragEnd$)
-                                .map((e: MouseEvent): MouseEvent => { return null; }))
+                    const mouseDrag$: Observable<[MouseEvent, MouseEvent]> = this._container.mouseService
+                        .filtered$(this._component.name, this._container.mouseService.mouseDragStart$)
+                        .switchMap(
+                            (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
+                                return Observable
+                                    .of(mouseDragStart)
+                                    .concat(
+                                        this._container.mouseService
+                                            .filtered$(this._component.name, this._container.mouseService.mouseDrag$))
+                                    .merge(
+                                        this._container.mouseService
+                                            .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$)
+                                            .map(
+                                                (e: MouseEvent): MouseEvent => {
+                                                    return null;
+                                                }))
+                                    .takeWhile(
+                                        (e: MouseEvent): boolean => {
+                                            return !!e;
+                                        })
+                                    .startWith(null);
+                            })
                         .pairwise()
                         .filter(
                             (pair: [MouseEvent, MouseEvent]): boolean => {
                                 return pair[0] != null && pair[1] != null;
                             });
 
-                    let singleTouchDrag$: Observable<[Touch, Touch]> = Observable
+                    const singleTouchDrag$: Observable<[Touch, Touch]> = Observable
                         .merge(
                             this._container.touchService.singleTouchDragStart$,
                             this._container.touchService.singleTouchDrag$,
