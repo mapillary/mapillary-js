@@ -50,6 +50,7 @@ export {CreatePointHandler} from "./component/tag/handlers/CreatePointHandler";
 export {CreateVertexHandler} from "./component/tag/handlers/CreateVertexHandler";
 export {CreatePolygonHandler} from "./component/tag/handlers/CreatePolygonHandler";
 export {CreateRectHandler} from "./component/tag/handlers/CreateRectHandler";
+export {CreateRectDragHandler} from "./component/tag/handlers/CreateRectDragHandler";
 export {EditVertexHandler} from "./component/tag/handlers/EditVertexHandler";
 export {Tag} from "./component/tag/tag/Tag";
 export {OutlineTag} from "./component/tag/tag/OutlineTag";

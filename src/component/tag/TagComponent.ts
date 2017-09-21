@@ -37,6 +37,7 @@ import {
     CreatePointHandler,
     CreatePolygonHandler,
     CreateRectHandler,
+    CreateRectDragHandler,
     EditVertexHandler,
     Geometry,
     ITagConfiguration,
@@ -193,6 +194,16 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._tagCreator = new TagCreator(this, navigator);
         this._viewportCoords = new ViewportCoords();
 
+        this._createHandlers = {
+            "CreatePoint": new CreatePointHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
+            "CreatePolygon": new CreatePolygonHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
+            "CreateRect": new CreateRectHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
+            "CreateRectDrag": new CreateRectDragHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
+            "Default": undefined,
+        };
+
+        this._editVertexHandler = new EditVertexHandler(this, container, navigator, this._tagCreator, this._viewportCoords, this._tagSet);
+
         this._renderTags$ = this._tagSet.changed$
             .map(
                 (tagSet: TagSet): RenderTag<Tag>[] => {
@@ -284,15 +295,6 @@ export class TagComponent extends Component<ITagConfiguration> {
                 (configuration: ITagConfiguration): void => {
                     this.fire(TagComponent.modechanged, configuration.mode);
                 });
-
-        this._createHandlers = {
-            "CreatePoint": new CreatePointHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
-            "CreatePolygon": new CreatePolygonHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
-            "CreateRect": new CreateRectHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
-            "Default": undefined,
-        };
-
-        this._editVertexHandler = new EditVertexHandler(this, container, navigator, this._tagCreator, this._viewportCoords, this._tagSet);
     }
 
     /**

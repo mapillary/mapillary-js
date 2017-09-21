@@ -54,7 +54,7 @@ export class TagCreator {
             .map(
                 ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
-                        if (conf.mode === TagMode.CreateRect) {
+                        if (conf.mode === TagMode.CreateRect || conf.mode === TagMode.CreateRectDrag) {
                             let geometry: RectGeometry = new RectGeometry([
                                 coord[0],
                                 coord[1],
