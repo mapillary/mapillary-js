@@ -131,7 +131,8 @@ export class MouseService {
         this._mouseWheel$ = Observable
             .merge(
                 Observable.fromEvent<WheelEvent>(canvasContainer, "wheel"),
-                Observable.fromEvent<WheelEvent>(domContainer, "wheel"));
+                Observable.fromEvent<WheelEvent>(domContainer, "wheel"))
+            .share();
 
         this._consistentContextMenu$ = Observable
             .merge(
@@ -164,14 +165,11 @@ export class MouseService {
                         }))
             .share();
 
-        const leftButtonDown$: Observable<MouseEvent> = this._mouseDown$
+        this._mouseDragStart$ = this._mouseDown$
             .filter(
                 (e: MouseEvent): boolean => {
                     return e.button === 0;
                 })
-            .share();
-
-        this._mouseDragStart$ = leftButtonDown$
             .switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._documentMouseMove$
@@ -180,11 +178,10 @@ export class MouseService {
                 })
             .share();
 
-        this._mouseDrag$ = leftButtonDown$
+        this._mouseDrag$ = this._mouseDragStart$
             .switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._documentMouseMove$
-                        .skip(1)
                         .takeUntil(dragStop$);
                 })
             .share();
@@ -196,34 +193,33 @@ export class MouseService {
                 })
             .share();
 
-        const domLeftButtonDown$: Observable<MouseEvent> = this._domMouseDown$
+        this._domMouseDragStart$ = this._domMouseDown$
             .filter(
                 (e: MouseEvent): boolean => {
                     return e.button === 0;
                 })
-            .share();
-
-        this._domMouseDragStart$ = domLeftButtonDown$
             .switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._documentMouseMove$
                         .takeUntil(dragStop$)
                         .take(1);
-                });
+                })
+            .share();
 
-        this._domMouseDrag$ = domLeftButtonDown$
+        this._domMouseDrag$ = this._domMouseDragStart$
             .switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._documentMouseMove$
-                        .skip(1)
                         .takeUntil(dragStop$);
-                });
+                })
+            .share();
 
         this._domMouseDragEnd$ = this._domMouseDragStart$
             .switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return dragStop$.first();
-                });
+                })
+            .share();
 
         this._staticClick$ = this._mouseDown$
             .switchMap(
@@ -231,7 +227,8 @@ export class MouseService {
                     return this._click$
                         .takeUntil(this._mouseMove$)
                         .take(1);
-                });
+                })
+            .share();
 
         this._mouseDragStart$.subscribe();
         this._mouseDrag$.subscribe();

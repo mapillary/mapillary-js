@@ -104,7 +104,7 @@ describe("MouseService.mouseDrag$", () => {
         expect(mouseDragEmitCount).toBe(1);
     });
 
-    it("should emit mouse drag after switch mappping from mouse drag start", () => {
+    it("should emit mouse drag after switch mapping from mouse drag start", () => {
         const container: HTMLElement = document.createElement("div");
         const canvasContainer: HTMLElement = document.createElement("div");
         const domContainer: HTMLElement = document.createElement("div");
@@ -139,7 +139,7 @@ describe("MouseService.mouseDrag$", () => {
         expect(emitCount).toBe(2);
     });
 
-    it("should emit filtered mouse drag after switch mappping from filtered mouse drag start", () => {
+    it("should emit filtered mouse drag after switch mapping from filtered mouse drag start", () => {
         const container: HTMLElement = document.createElement("div");
         const canvasContainer: HTMLElement = document.createElement("div");
         const domContainer: HTMLElement = document.createElement("div");
@@ -221,6 +221,213 @@ describe("MouseService.mouseDragEnd$", () => {
         const blurEvent: UIEvent = EventHelper.createUIEvent("blur");
 
         canvasContainer.dispatchEvent(mouseDownEvent);
+        doc.dispatchEvent(mouseMoveEvent);
+        window.dispatchEvent(blurEvent);
+    });
+});
+
+describe("MouseService.domMouseDragStart$", () => {
+    it("should emit DOM mouse drag start", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let domMouseDragStartEmitCount: number = 0;
+        mouseService.domMouseDragStart$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    domMouseDragStartEmitCount++;
+                    expect(event.button === 0);
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, document);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(domMouseDragStartEmitCount).toBe(0);
+
+        domContainer.dispatchEvent(mouseDownEvent);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(domMouseDragStartEmitCount).toBe(1);
+    });
+
+    it("should not emit DOM mouse drag start when not left button", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let domMouseDragStartEmitCount: number = 0;
+        mouseService.domMouseDragStart$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    domMouseDragStartEmitCount++;
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 1 }, domContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, document);
+
+        domContainer.dispatchEvent(mouseDownEvent);
+        doc.dispatchEvent(mouseMoveEvent);
+
+        expect(domMouseDragStartEmitCount).toBe(0);
+    });
+});
+
+describe("MouseService.domMouseDrag$", () => {
+    it("should emit DOM mouse drag", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let domMouseDragEmitCount: number = 0;
+        mouseService.domMouseDrag$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    domMouseDragEmitCount++;
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, document);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(domMouseDragEmitCount).toBe(0);
+
+        domContainer.dispatchEvent(mouseDownEvent);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(domMouseDragEmitCount).toBe(0);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(domMouseDragEmitCount).toBe(1);
+    });
+
+    it("should emit DOM mouse drag after switch mapping from DOM mouse drag start", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let emitCount: number = 0;
+        mouseService.domMouseDragStart$
+            .switchMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return mouseService.domMouseDrag$;
+                })
+            .subscribe(
+                (event: MouseEvent): void => {
+                    emitCount++;
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, doc);
+
+        domContainer.dispatchEvent(mouseDownEvent);
+        expect(emitCount).toBe(0);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(0);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(1);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(2);
+    });
+
+    it("should emit filtered DOM ouse drag after switch mapping from DOM filtered mouse drag start", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        mouseService.claimMouse("test", 1);
+
+        let emitCount: number = 0;
+        mouseService
+            .filtered$("test", mouseService.domMouseDragStart$)
+            .switchMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return mouseService.filtered$("test", mouseService.domMouseDrag$);
+                })
+            .subscribe(
+                (event: MouseEvent): void => {
+                    emitCount++;
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, document);
+
+        domContainer.dispatchEvent(mouseDownEvent);
+        expect(emitCount).toBe(0);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(0);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(1);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(2);
+    });
+});
+
+describe("MouseService.domMouseDragEnd$", () => {
+    it("should emit DOM mouse drag end on DOM mouse up", (done: Function) => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        mouseService.domMouseDragEnd$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    done();
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, document);
+        const mouseUpEvent: MouseEvent = EventHelper.createMouseEvent("mouseup", {}, document);
+
+        domContainer.dispatchEvent(mouseDownEvent);
+        doc.dispatchEvent(mouseMoveEvent);
+        doc.dispatchEvent(mouseUpEvent);
+    });
+
+    it("should emit DOM mouse drag end on window blur", (done: Function) => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        mouseService.domMouseDragEnd$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    done();
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, document);
+        const blurEvent: UIEvent = EventHelper.createUIEvent("blur");
+
+        domContainer.dispatchEvent(mouseDownEvent);
         doc.dispatchEvent(mouseMoveEvent);
         window.dispatchEvent(blurEvent);
     });
