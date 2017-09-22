@@ -165,93 +165,19 @@ export class MouseService {
                         }))
             .share();
 
-        const mouseDragStart$: Observable<[MouseEvent, MouseEvent]> = this._mouseDown$
-            .filter(
-                (mouseDown: MouseEvent): boolean => {
-                    return mouseDown.button === 0;
-                })
-            .switchMap(
-                (mouseDown: MouseEvent): Observable<[MouseEvent, MouseEvent]> => {
-                    return Observable
-                        .combineLatest(
-                            Observable.of(mouseDown),
-                            this._documentMouseMove$)
-                        .takeUntil(dragStop$)
-                        .take(1);
-                })
-            .share();
+        const mouseDragInitiate$: Observable<[MouseEvent, MouseEvent]> =
+            this._createMouseDragInitiate$(this._mouseDown$, dragStop$).share();
 
-        this._mouseDragStart$ = mouseDragStart$
-            .map(
-                ([mouseDown, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
-                    return mouseDown;
-                })
-            .share();
+        this._mouseDragStart$ = this._createMouseDragStart$(mouseDragInitiate$).share();
+        this._mouseDrag$ = this._createMouseDrag$(mouseDragInitiate$, dragStop$).share();
+        this._mouseDragEnd$ = this._createMouseDragEnd$(this._mouseDragStart$, dragStop$).share();
 
-        this._mouseDrag$ = mouseDragStart$
-            .map(
-                ([mouseDown, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
-                    return mouseMove;
-                })
-            .switchMap(
-                (mouseMove: MouseEvent): Observable<MouseEvent> => {
-                    return Observable
-                        .of(mouseMove)
-                        .concat(this._documentMouseMove$)
-                        .takeUntil(dragStop$);
-                })
-            .share();
+        const domMouseDragInitiate$: Observable<[MouseEvent, MouseEvent]> =
+            this._createMouseDragInitiate$(this._domMouseDown$, dragStop$).share();
 
-        this._mouseDragEnd$ = this._mouseDragStart$
-            .switchMap(
-                (e: MouseEvent): Observable<MouseEvent> => {
-                    return dragStop$.first();
-                })
-            .share();
-
-        const domMouseDragStart$: Observable<[MouseEvent, MouseEvent]> = this._domMouseDown$
-            .filter(
-                (mouseDown: MouseEvent): boolean => {
-                    return mouseDown.button === 0;
-                })
-            .switchMap(
-                (mouseDown: MouseEvent): Observable<[MouseEvent, MouseEvent]> => {
-                    return Observable
-                        .combineLatest(
-                            Observable.of(mouseDown),
-                            this._documentMouseMove$)
-                        .takeUntil(dragStop$)
-                        .take(1);
-                })
-            .share();
-
-        this._domMouseDragStart$ = domMouseDragStart$
-            .map(
-                ([mouseDown, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
-                    return mouseDown;
-                })
-            .share();
-
-        this._domMouseDrag$ = domMouseDragStart$
-            .map(
-                ([mouseDown, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
-                    return mouseMove;
-                })
-            .switchMap(
-                (mouseMove: MouseEvent): Observable<MouseEvent> => {
-                    return Observable
-                        .of(mouseMove)
-                        .concat(this._documentMouseMove$)
-                        .takeUntil(dragStop$);
-                })
-            .share();
-
-        this._domMouseDragEnd$ = this._domMouseDragStart$
-            .switchMap(
-                (e: MouseEvent): Observable<MouseEvent> => {
-                    return dragStop$.first();
-                })
-            .share();
+        this._domMouseDragStart$ = this._createMouseDragStart$(domMouseDragInitiate$).share();
+        this._domMouseDrag$ = this._createMouseDrag$(domMouseDragInitiate$, dragStop$).share();
+        this._domMouseDragEnd$ = this._createMouseDragEnd$(this._domMouseDragStart$, dragStop$).share();
 
         this._staticClick$ = this._mouseDown$
             .switchMap(
@@ -422,6 +348,60 @@ export class MouseService {
             .map(
                 (eo: [T, string]): T => {
                     return eo[0];
+                });
+    }
+
+    private _createMouseDrag$(
+        mouseDragStartInitiate$: Observable<[MouseEvent, MouseEvent]>,
+        stop$: Observable<Event>): Observable<MouseEvent> {
+
+        return mouseDragStartInitiate$
+            .map(
+                ([mouseDown, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
+                    return mouseMove;
+                })
+            .switchMap(
+                (mouseMove: MouseEvent): Observable<MouseEvent> => {
+                    return Observable
+                        .of(mouseMove)
+                        .concat(this._documentMouseMove$)
+                        .takeUntil(stop$);
+                });
+    }
+
+    private _createMouseDragEnd$(mouseDragStart$: Observable<MouseEvent>, stop$: Observable<MouseEvent>): Observable<MouseEvent> {
+        return mouseDragStart$
+            .switchMap(
+                (e: MouseEvent): Observable<MouseEvent> => {
+                    return stop$.first();
+                });
+    }
+
+    private _createMouseDragStart$(mouseDragStartInitiate$: Observable<[MouseEvent, MouseEvent]>): Observable<MouseEvent> {
+        return mouseDragStartInitiate$
+            .map(
+                ([mouseDown, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
+                    return mouseDown;
+                });
+    }
+
+    private _createMouseDragInitiate$(
+        mouseDown$: Observable<MouseEvent>,
+        stop$: Observable<Event>): Observable<[MouseEvent, MouseEvent]> {
+
+        return mouseDown$
+            .filter(
+                (mouseDown: MouseEvent): boolean => {
+                    return mouseDown.button === 0;
+                })
+            .switchMap(
+                (mouseDown: MouseEvent): Observable<[MouseEvent, MouseEvent]> => {
+                    return Observable
+                        .combineLatest(
+                            Observable.of(mouseDown),
+                            this._documentMouseMove$)
+                        .takeUntil(stop$)
+                        .take(1);
                 });
     }
 }
