@@ -5,6 +5,7 @@ import {
     CreateHandlerBase,
     Geometry,
     OutlineCreateTag,
+    RectGeometry,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
 import {RenderCamera} from "../../../Render";
@@ -19,17 +20,13 @@ export class CreateRectDragHandler extends CreateHandlerBase {
     protected _enable(): void {
         this._container.mouseService.claimMouse(this._component.name, 1);
 
-        const transformChanged$: Observable<void> = this._navigator.stateService.currentTransform$
-            .map((transform: Transform): void => { /*noop*/ })
-            .publishReplay(1)
-            .refCount();
-
-        this._deleteSubscription = transformChanged$
+        this._deleteSubscription = this._navigator.stateService.currentTransform$
+            .map((transform: Transform): void => { return null; })
             .skip(1)
             .subscribe(this._tagCreator.delete$);
 
-        const basicMouseDown$: Observable<number[]> = this._container.mouseService
-            .filtered$(this._component.name, this._container.mouseService.mouseDown$)
+        const basicMouseDragStart$: Observable<number[]> = this._container.mouseService
+            .filtered$(this._component.name, this._container.mouseService.mouseDragStart$)
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$)
@@ -43,7 +40,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                 })
             .share();
 
-        const validBasicMouseDown$: Observable<number[]> = basicMouseDown$
+        const validBasicMouseDragStart$: Observable<number[]> = basicMouseDragStart$
             .filter(
                 (basic: number[]): boolean => {
                     let x: number = basic[0];
@@ -53,67 +50,70 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                 })
             .share();
 
-        const validBasicMouseMove$: Observable<number[]> = this._container.mouseService.mouseMove$
-            .withLatestFrom(
-                this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$)
-            .map(
-                ([event, camera, transform]: [MouseEvent, RenderCamera, Transform]): number[] => {
-                    return this._mouseEventToBasic(
-                        event,
-                        this._container.element,
-                        camera,
-                        transform);
-                })
-            .filter(
-                (basic: number[]): boolean => {
-                    let x: number = basic[0];
-                    let y: number = basic[1];
-
-                    return 0 <= x && x <= 1 && 0 <= y && y <= 1;
-                })
-            .share();
-
-        this._createSubscription = transformChanged$
-            .switchMap(
-                (): Observable<number[]> => {
-                    return validBasicMouseDown$.take(1);
-                })
+        this._createSubscription = validBasicMouseDragStart$
             .subscribe(this._tagCreator.create$);
+
+        const basicMouseDrag$: Observable<number[]> = this._container.mouseService
+            .filtered$(this._component.name, this._container.mouseService.mouseDrag$)
+            .withLatestFrom(
+                this._container.renderService.renderCamera$,
+                this._navigator.stateService.currentTransform$)
+            .map(
+                ([event, camera, transform]: [MouseEvent, RenderCamera, Transform]): number[] => {
+                    return this._mouseEventToBasic(
+                        event,
+                        this._container.element,
+                        camera,
+                        transform);
+                })
+            .share();
+
+        const validBasicMouseDrag$: Observable<number[]> = basicMouseDrag$
+            .filter(
+                (basic: number[]): boolean => {
+                    let x: number = basic[0];
+                    let y: number = basic[1];
+
+                    return 0 <= x && x <= 1 && 0 <= y && y <= 1;
+                })
+            .share();
+
+        const basicContainerMouseMove$: Observable<number[]> = Observable
+            .merge(
+                this._container.mouseService.filtered$(this._component.name, this._container.mouseService.mouseMove$),
+                this._container.mouseService.filtered$(this._component.name, this._container.mouseService.domMouseMove$))
+            .withLatestFrom(
+                this._container.renderService.renderCamera$,
+                this._navigator.stateService.currentTransform$)
+            .map(
+                ([event, camera, transform]: [MouseEvent, RenderCamera, Transform]): number[] => {
+                    return this._mouseEventToBasic(
+                        event,
+                        this._container.element,
+                        camera,
+                        transform);
+                })
+            .share();
 
         this._setVertexSubscription = this._tagCreator.tag$
             .switchMap(
-                (tag: OutlineCreateTag): Observable<[OutlineCreateTag, MouseEvent, RenderCamera, Transform]> => {
+                (tag: OutlineCreateTag): Observable<[OutlineCreateTag, number[], Transform]> => {
                     return !!tag ?
                         Observable
                             .combineLatest(
                                 Observable.of(tag),
-                                Observable
-                                    .merge(
-                                        this._container.mouseService.mouseMove$,
-                                        this._container.mouseService.domMouseMove$),
-                                this._container.renderService.renderCamera$,
+                                basicContainerMouseMove$,
                                 this._navigator.stateService.currentTransform$) :
                         Observable.empty();
                 })
             .subscribe(
-                ([tag, event, camera, transform]: [OutlineCreateTag, MouseEvent, RenderCamera, Transform]): void => {
-                    const basicPoint: number[] = this._mouseEventToBasic(
-                        event,
-                        this._container.element,
-                        camera,
-                        transform);
-
+                ([tag, basicPoint, transform]: [OutlineCreateTag, number[], Transform]): void => {
                     tag.geometry.setVertex2d(3, basicPoint, transform);
                 });
 
-        const basicMouseUp$: Observable<number[]> = Observable
-            .merge(
-                Observable.fromEvent<Event>(window, "blur"),
-                this._container.mouseService
-                    .filtered$(this._component.name, this._container.mouseService.documentMouseUp$))
+        const basicMouseDragEnd$: Observable<number[]> = this._container.mouseService.mouseDragEnd$
             .withLatestFrom(
-                validBasicMouseMove$,
+                validBasicMouseDrag$,
                 (event: MouseEvent, basicPoint: number[]): number[] => {
                     return basicPoint;
                 })
@@ -126,11 +126,16 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                         Observable
                             .combineLatest(
                                 Observable.of(tag),
-                                basicMouseUp$) :
+                                basicMouseDragEnd$) :
                         Observable.empty();
                 })
             .subscribe(
                 ([tag, basicPoint]: [OutlineCreateTag, number[]]): void => {
+                    const rectGeometry: RectGeometry = <RectGeometry>tag.geometry;
+                    if (!rectGeometry.validate(basicPoint)) {
+                        basicPoint = rectGeometry.getVertex2d(3);
+                    }
+
                     tag.addPoint(basicPoint);
                 });
 
