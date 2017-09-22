@@ -25,6 +25,8 @@ import {
 } from "../../../Viewer";
 
 export class EditVertexHandler extends CreateHandlerBase {
+    private _name: string;
+
     private _tagSet: TagSet;
 
     private _claimMouseSubscription: Subscription;
@@ -40,6 +42,8 @@ export class EditVertexHandler extends CreateHandlerBase {
         viewportCoords: ViewportCoords,
         tagSet: TagSet) {
         super(component, container, navigator, tagCreator, viewportCoords);
+
+        this._name = this._component.name + "-edit-vertex";
 
         this._tagSet = tagSet;
     }
@@ -76,18 +80,18 @@ export class EditVertexHandler extends CreateHandlerBase {
         this._claimMouseSubscription = interaction$
             .switchMap(
                 (interaction: IInteraction): Observable<MouseEvent> => {
-                    return !!interaction.tag ? mouseMove$.take(1) : Observable.empty();
+                    return !!interaction.tag ? this._container.mouseService.domMouseDragStart$ : Observable.empty();
                 })
             .subscribe(
-                (e: MouseEvent): void => {
-                    this._container.mouseService.claimMouse(this._component.name, 1);
+                (): void => {
+                    this._container.mouseService.claimMouse(this._name, 3);
                 });
 
         this._unclaimMouseSubscription = this._container.mouseService
-            .filtered$(this._component.name, this._container.mouseService.domMouseDragEnd$)
+            .filtered$(this._name, this._container.mouseService.domMouseDragEnd$)
             .subscribe(
                 (e: MouseEvent): void => {
-                    this._container.mouseService.unclaimMouse(this._component.name);
+                    this._container.mouseService.unclaimMouse(this._name);
                 });
 
         this._preventDefaultSubscription = interaction$
@@ -115,7 +119,7 @@ export class EditVertexHandler extends CreateHandlerBase {
                         .concat<MouseEvent>(
                             this._container.mouseService
                                 .filtered$(
-                                    this._component.name,
+                                    this._name,
                                     this._container.mouseService.domMouseDrag$)
                                 .filter(
                                     (event: MouseEvent): boolean => {

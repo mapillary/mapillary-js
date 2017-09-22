@@ -2,23 +2,46 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import {
+    Component,
     CreateHandlerBase,
     Geometry,
+    ITagConfiguration,
     OutlineCreateTag,
     RectGeometry,
+    TagCreator,
 } from "../../../Component";
-import {Transform} from "../../../Geo";
+import {
+    Transform,
+    ViewportCoords,
+} from "../../../Geo";
 import {RenderCamera} from "../../../Render";
+import {
+    Container,
+    Navigator,
+} from "../../../Viewer";
 
 export class CreateRectDragHandler extends CreateHandlerBase {
+    private _name: string;
+
     private _addPointSubscription: Subscription;
     private _createSubscription: Subscription;
     private _deleteSubscription: Subscription;
     private _geometryCreatedSubscription: Subscription;
     private _setVertexSubscription: Subscription;
 
+    constructor(
+        component: Component<ITagConfiguration>,
+        container: Container,
+        navigator: Navigator,
+        tagCreator: TagCreator,
+        viewportCoords: ViewportCoords) {
+        super(component, container, navigator, tagCreator, viewportCoords);
+
+        this._name = this._component.name + "-create-rect-drag";
+    }
+
     protected _enable(): void {
-        this._container.mouseService.claimMouse(this._component.name, 1);
+        this._container.mouseService.claimMouse(this._name, 2);
 
         this._deleteSubscription = this._navigator.stateService.currentTransform$
             .map((transform: Transform): void => { return null; })
@@ -26,7 +49,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
             .subscribe(this._tagCreator.delete$);
 
         const basicMouseDragStart$: Observable<number[]> = this._container.mouseService
-            .filtered$(this._component.name, this._container.mouseService.mouseDragStart$)
+            .filtered$(this._name, this._container.mouseService.mouseDragStart$)
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$)
@@ -54,7 +77,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
             .subscribe(this._tagCreator.create$);
 
         const basicMouseDrag$: Observable<number[]> = this._container.mouseService
-            .filtered$(this._component.name, this._container.mouseService.mouseDrag$)
+            .filtered$(this._name, this._container.mouseService.mouseDrag$)
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$)
@@ -80,8 +103,8 @@ export class CreateRectDragHandler extends CreateHandlerBase {
 
         const basicContainerMouseMove$: Observable<number[]> = Observable
             .merge(
-                this._container.mouseService.filtered$(this._component.name, this._container.mouseService.mouseMove$),
-                this._container.mouseService.filtered$(this._component.name, this._container.mouseService.domMouseMove$))
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$))
             .withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$)
@@ -154,7 +177,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
     }
 
     protected _disable(): void {
-        this._container.mouseService.unclaimMouse(this._component.name);
+        this._container.mouseService.unclaimMouse(this._name);
 
         this._tagCreator.delete$.next(null);
 
