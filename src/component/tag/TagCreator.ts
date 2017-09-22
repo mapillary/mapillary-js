@@ -12,7 +12,6 @@ import {
     OutlineCreateTag,
     PolygonGeometry,
     RectGeometry,
-    TagMode,
 } from "../../Component";
 import {Transform} from "../../Geo";
 import {Navigator} from "../../Viewer";
@@ -28,7 +27,8 @@ export class TagCreator {
     private _tagOperation$: Subject<ICreateTagOperation>;
     private _tag$: Observable<OutlineCreateTag>;
 
-    private _create$: Subject<number[]>;
+    private _createPolygon$: Subject<number[]>;
+    private _createRect$: Subject<number[]>;
     private _delete$: Subject<void>;
 
     constructor(component: Component<ITagConfiguration>, navigator: Navigator) {
@@ -36,7 +36,8 @@ export class TagCreator {
         this._navigator = navigator;
 
         this._tagOperation$ = new Subject<ICreateTagOperation>();
-        this._create$ = new Subject<number[]>();
+        this._createPolygon$ = new Subject<number[]>();
+        this._createRect$ = new Subject<number[]>();
         this._delete$ = new Subject<void>();
 
         this._tag$ = this._tagOperation$
@@ -47,33 +48,39 @@ export class TagCreator {
                 null)
             .share();
 
-        this._create$
+        this._createRect$
             .withLatestFrom(
                 this._component.configuration$,
                 this._navigator.stateService.currentTransform$)
             .map(
                 ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
-                        if (conf.mode === TagMode.CreateRect || conf.mode === TagMode.CreateRectDrag) {
-                            let geometry: RectGeometry = new RectGeometry([
-                                coord[0],
-                                coord[1],
-                                coord[0],
-                                coord[1],
-                            ]);
+                        const geometry: RectGeometry = new RectGeometry([
+                            coord[0],
+                            coord[1],
+                            coord[0],
+                            coord[1],
+                        ]);
 
-                            return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
-                        } else if (conf.mode === TagMode.CreatePolygon) {
-                            let geometry: PolygonGeometry = new PolygonGeometry([
-                                [coord[0], coord[1]],
-                                [coord[0], coord[1]],
-                                [coord[0], coord[1]],
-                            ]);
+                        return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
+                    };
+                })
+            .subscribe(this._tagOperation$);
 
-                            return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
-                        }
+        this._createPolygon$
+            .withLatestFrom(
+                this._component.configuration$,
+                this._navigator.stateService.currentTransform$)
+            .map(
+                ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
+                    return (tag: OutlineCreateTag): OutlineCreateTag => {
+                        const geometry: PolygonGeometry = new PolygonGeometry([
+                            [coord[0], coord[1]],
+                            [coord[0], coord[1]],
+                            [coord[0], coord[1]],
+                        ]);
 
-                        return null;
+                        return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
                     };
                 })
             .subscribe(this._tagOperation$);
@@ -88,8 +95,12 @@ export class TagCreator {
             .subscribe(this._tagOperation$);
     }
 
-    public get create$(): Subject<number[]> {
-        return this._create$;
+    public get createRect$(): Subject<number[]> {
+        return this._createRect$;
+    }
+
+    public get createPolygon$(): Subject<number[]> {
+        return this._createPolygon$;
     }
 
     public get delete$(): Subject<void> {

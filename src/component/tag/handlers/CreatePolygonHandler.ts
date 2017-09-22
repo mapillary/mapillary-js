@@ -1,3 +1,5 @@
+import {Subject} from "rxjs/Subject";
+
 import {
     CreateVertexHandler,
     OutlineCreateTag,
@@ -6,6 +8,10 @@ import {
 import {Transform} from "../../../Geo";
 
 export class CreatePolygonHandler extends CreateVertexHandler {
+    protected get _create$(): Subject<number[]> {
+        return this._tagCreator.createPolygon$;
+    }
+
     protected _setVertex2d(tag: OutlineCreateTag, basicPoint: number[], transform: Transform): void {
         tag.geometry.setVertex2d((<PolygonGeometry>tag.geometry).polygon.length - 2, basicPoint, transform);
     }

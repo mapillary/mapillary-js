@@ -173,14 +173,15 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _setGLCreateTagSubscription: Subscription;
     private _createGLObjectsChangedSubscription: Subscription;
     private _containerClassListSubscription: Subscription;
-    private _handlerGeometryCreatedSubscription: Subscription;
+
     private _handlerStopCreateSubscription: Subscription;
     private _handlerEnablerSubscription: Subscription;
 
     private _domSubscription: Subscription;
     private _glSubscription: Subscription;
 
-    private _tagsChangedEventSubscription: Subscription;
+    private _fireGeometryCreatedSubscription: Subscription;
+    private _fireTagsChangedSubscription: Subscription;
 
     private _createHandlers: { [K in keyof typeof TagMode]: CreateHandlerBase };
     private _editVertexHandler: EditVertexHandler;
@@ -491,7 +492,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 })
             .share();
 
-        this._handlerGeometryCreatedSubscription = handlerGeometryCreated$
+        this._fireGeometryCreatedSubscription = handlerGeometryCreated$
             .subscribe(
                 (geometry: Geometry): void => {
                     this.fire(TagComponent.geometrycreated, geometry);
@@ -515,7 +516,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                     }
                 });
 
-        this._tagsChangedEventSubscription = this._renderTags$
+        this._fireTagsChangedSubscription = this._renderTags$
             .subscribe(
                 (tags: RenderTag<Tag>[]): void => {
                     this.fire(TagComponent.tagschanged, this);
@@ -651,9 +652,9 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._domSubscription.unsubscribe();
         this._glSubscription.unsubscribe();
 
-        this._tagsChangedEventSubscription.unsubscribe();
+        this._fireTagsChangedSubscription.unsubscribe();
 
-        this._handlerGeometryCreatedSubscription.unsubscribe();
+        this._fireGeometryCreatedSubscription.unsubscribe();
         this._handlerStopCreateSubscription.unsubscribe();
         this._handlerEnablerSubscription.unsubscribe();
 

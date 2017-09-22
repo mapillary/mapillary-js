@@ -1,4 +1,5 @@
 import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
 import {
@@ -16,6 +17,8 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
     private _geometryCreateSubscription: Subscription;
     private _setVertexSubscription: Subscription;
 
+    protected abstract get _create$(): Subject<number[]>;
+
     protected _enable(): void {
         const transformChanged$: Observable<void> = this._navigator.stateService.currentTransform$
             .map((transform: Transform): void => { /*noop*/ })
@@ -31,7 +34,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                 (): Observable<number[]> => {
                     return this._validBasicClick$.take(1);
                 })
-            .subscribe(this._tagCreator.create$);
+            .subscribe(this._create$);
 
         this._setVertexSubscription = this._tagCreator.tag$
             .switchMap(

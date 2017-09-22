@@ -74,7 +74,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
             .share();
 
         this._createSubscription = validBasicMouseDragStart$
-            .subscribe(this._tagCreator.create$);
+            .subscribe(this._tagCreator.createRect$);
 
         const basicMouseDrag$: Observable<number[]> = this._container.mouseService
             .filtered$(this._name, this._container.mouseService.mouseDrag$)
