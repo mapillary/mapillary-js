@@ -34,6 +34,7 @@ describe("MouseService.mouseDragStart$", () => {
                 (event: MouseEvent): void => {
                     mouseDragStartEmitCount++;
                     expect(event.button === 0);
+                    expect(event.type === "mousedown");
                 });
 
         const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
@@ -87,6 +88,7 @@ describe("MouseService.mouseDrag$", () => {
             .subscribe(
                 (event: MouseEvent): void => {
                     mouseDragEmitCount++;
+                    expect(event.type === "mousemove");
                 });
 
         const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
@@ -98,9 +100,44 @@ describe("MouseService.mouseDrag$", () => {
         canvasContainer.dispatchEvent(mouseDownEvent);
 
         doc.dispatchEvent(mouseMoveEvent);
+        expect(mouseDragEmitCount).toBe(1);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(mouseDragEmitCount).toBe(2);
+    });
+
+    it("should emit mouse drag after mouse drag start", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let mouseDragEmitCount: number = 0;
+        mouseService.mouseDrag$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    mouseDragEmitCount++;
+                });
+
+        let mouseDragStartEmitCount: number = 0;
+        mouseService.mouseDragStart$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    expect(mouseDragEmitCount).toBe(0);
+                    mouseDragStartEmitCount++;
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, document);
+
+        canvasContainer.dispatchEvent(mouseDownEvent);
+        expect(mouseDragStartEmitCount).toBe(0);
         expect(mouseDragEmitCount).toBe(0);
 
         doc.dispatchEvent(mouseMoveEvent);
+        expect(mouseDragStartEmitCount).toBe(1);
         expect(mouseDragEmitCount).toBe(1);
     });
 
@@ -130,13 +167,13 @@ describe("MouseService.mouseDrag$", () => {
         expect(emitCount).toBe(0);
 
         doc.dispatchEvent(mouseMoveEvent);
-        expect(emitCount).toBe(0);
-
-        doc.dispatchEvent(mouseMoveEvent);
         expect(emitCount).toBe(1);
 
         doc.dispatchEvent(mouseMoveEvent);
         expect(emitCount).toBe(2);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(3);
     });
 
     it("should emit filtered mouse drag after switch mapping from filtered mouse drag start", () => {
@@ -168,13 +205,13 @@ describe("MouseService.mouseDrag$", () => {
         expect(emitCount).toBe(0);
 
         doc.dispatchEvent(mouseMoveEvent);
-        expect(emitCount).toBe(0);
-
-        doc.dispatchEvent(mouseMoveEvent);
         expect(emitCount).toBe(1);
 
         doc.dispatchEvent(mouseMoveEvent);
         expect(emitCount).toBe(2);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(3);
     });
 });
 
@@ -241,6 +278,7 @@ describe("MouseService.domMouseDragStart$", () => {
                 (event: MouseEvent): void => {
                     domMouseDragStartEmitCount++;
                     expect(event.button === 0);
+                    expect(event.type === "mousedown");
                 });
 
         const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
@@ -294,6 +332,7 @@ describe("MouseService.domMouseDrag$", () => {
             .subscribe(
                 (event: MouseEvent): void => {
                     domMouseDragEmitCount++;
+                    expect(event.type === "mousemove");
                 });
 
         const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
@@ -305,9 +344,44 @@ describe("MouseService.domMouseDrag$", () => {
         domContainer.dispatchEvent(mouseDownEvent);
 
         doc.dispatchEvent(mouseMoveEvent);
+        expect(domMouseDragEmitCount).toBe(1);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(domMouseDragEmitCount).toBe(2);
+    });
+
+    it("should emit DOM mouse drag after DOM mouse drag start", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let domMouseDragEmitCount: number = 0;
+        mouseService.domMouseDrag$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    domMouseDragEmitCount++;
+                });
+
+        let domMouseDragStartEmitCount: number = 0;
+        mouseService.domMouseDragStart$
+            .subscribe(
+                (event: MouseEvent): void => {
+                    expect(domMouseDragEmitCount).toBe(0);
+                    domMouseDragStartEmitCount++;
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, domContainer);
+        const mouseMoveEvent: MouseEvent = EventHelper.createMouseEvent("mousemove", {}, document);
+
+        domContainer.dispatchEvent(mouseDownEvent);
+        expect(domMouseDragStartEmitCount).toBe(0);
         expect(domMouseDragEmitCount).toBe(0);
 
         doc.dispatchEvent(mouseMoveEvent);
+        expect(domMouseDragStartEmitCount).toBe(1);
         expect(domMouseDragEmitCount).toBe(1);
     });
 
@@ -337,13 +411,13 @@ describe("MouseService.domMouseDrag$", () => {
         expect(emitCount).toBe(0);
 
         doc.dispatchEvent(mouseMoveEvent);
-        expect(emitCount).toBe(0);
-
-        doc.dispatchEvent(mouseMoveEvent);
         expect(emitCount).toBe(1);
 
         doc.dispatchEvent(mouseMoveEvent);
         expect(emitCount).toBe(2);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(3);
     });
 
     it("should emit filtered DOM ouse drag after switch mapping from DOM filtered mouse drag start", () => {
@@ -375,13 +449,13 @@ describe("MouseService.domMouseDrag$", () => {
         expect(emitCount).toBe(0);
 
         doc.dispatchEvent(mouseMoveEvent);
-        expect(emitCount).toBe(0);
-
-        doc.dispatchEvent(mouseMoveEvent);
         expect(emitCount).toBe(1);
 
         doc.dispatchEvent(mouseMoveEvent);
         expect(emitCount).toBe(2);
+
+        doc.dispatchEvent(mouseMoveEvent);
+        expect(emitCount).toBe(3);
     });
 });
 
