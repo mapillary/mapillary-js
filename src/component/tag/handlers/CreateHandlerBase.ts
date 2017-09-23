@@ -26,9 +26,6 @@ export abstract class CreateHandlerBase extends HandlerBase<ITagConfiguration> {
 
     protected _geometryCreated$: Subject<Geometry>;
 
-    protected _basicClick$: Observable<number[]>;
-    protected _validBasicClick$: Observable<number[]>;
-
     constructor(
         component: Component<ITagConfiguration>,
         container: Container,
@@ -41,30 +38,6 @@ export abstract class CreateHandlerBase extends HandlerBase<ITagConfiguration> {
         this._viewportCoords = viewportCoords;
 
         this._geometryCreated$ = new Subject<Geometry>();
-
-        this._basicClick$ = this._container.mouseService.staticClick$
-            .withLatestFrom(
-                this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$)
-            .map(
-                ([event, camera, transform]: [MouseEvent, RenderCamera, Transform]): number[] => {
-                    return this._mouseEventToBasic(
-                        event,
-                        this._container.element,
-                        camera,
-                        transform);
-                })
-            .share();
-
-        this._validBasicClick$ = this._basicClick$
-            .filter(
-                (basic: number[]): boolean => {
-                    let x: number = basic[0];
-                    let y: number = basic[1];
-
-                    return 0 <= x && x <= 1 && 0 <= y && y <= 1;
-                })
-            .share();
     }
 
     public get geometryCreated$(): Observable<Geometry> {
@@ -73,6 +46,13 @@ export abstract class CreateHandlerBase extends HandlerBase<ITagConfiguration> {
 
     protected _getConfiguration(enable: boolean): ITagConfiguration {
         return {};
+    }
+
+    protected _validateBasic(basic: number[]): boolean {
+        const x: number = basic[0];
+        const y: number = basic[1];
+
+        return 0 <= x && x <= 1 && 0 <= y && y <= 1;
     }
 
     protected _mouseEventToBasic(
@@ -97,6 +77,21 @@ export abstract class CreateHandlerBase extends HandlerBase<ITagConfiguration> {
                 camera.perspective);
 
         return basic;
+    }
+
+    protected _mouseEventToBasic$(mouseEvent$: Observable<MouseEvent>): Observable<number[]> {
+        return mouseEvent$
+            .withLatestFrom(
+                this._container.renderService.renderCamera$,
+                this._navigator.stateService.currentTransform$)
+            .map(
+                ([event, camera, transform]: [MouseEvent, RenderCamera, Transform]): number[] => {
+                    return this._mouseEventToBasic(
+                        event,
+                        this._container.element,
+                        camera,
+                        transform);
+                });
     }
 }
 

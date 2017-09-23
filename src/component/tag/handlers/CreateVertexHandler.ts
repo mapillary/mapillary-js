@@ -29,10 +29,14 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
             .skip(1)
             .subscribe(this._tagCreator.delete$);
 
+        const basicClick$: Observable<number[]> = this._mouseEventToBasic$(this._container.mouseService.staticClick$).share();
+
         this._createSubscription = transformChanged$
             .switchMap(
                 (): Observable<number[]> => {
-                    return this._validBasicClick$.take(1);
+                    return basicClick$
+                        .filter(this._validateBasic)
+                        .take(1);
                 })
             .subscribe(this._create$);
 
@@ -69,7 +73,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                         Observable
                             .combineLatest(
                                 Observable.of(tag),
-                                this._basicClick$) :
+                                basicClick$) :
                         Observable.empty();
                 })
             .subscribe(
