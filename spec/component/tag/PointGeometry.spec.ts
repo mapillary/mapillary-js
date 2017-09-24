@@ -30,8 +30,6 @@ describe("PointGeometry.ctor", () => {
     });
 });
 
-
-
 describe("PointGeometry.setVertex2d", () => {
     let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
         let node: Node = new Node({

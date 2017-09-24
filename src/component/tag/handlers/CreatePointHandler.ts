@@ -11,7 +11,6 @@ export class CreatePointHandler extends CreateHandlerBase {
     protected _enable(): void {
         this._geometryCreatedSubscription = this._mouseEventToBasic$(this._container.mouseService.staticClick$)
             .filter(this._validateBasic)
-            .take(1)
             .map(
                 (basic: number[]): PointGeometry => {
                     return new PointGeometry(basic);
