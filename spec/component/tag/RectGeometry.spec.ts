@@ -5,6 +5,8 @@ import {RectGeometry} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
 import {Node} from "../../../src/Graph";
 
+import {TransformHelper} from "../../helper/TransformHelper.spec";
+
 describe("RectGeometry.ctor", () => {
     it("should be defined", () => {
         let rectGeometry: RectGeometry = new RectGeometry([0, 0, 1, 1]);
@@ -505,5 +507,235 @@ describe("RectGeometry.setCentroid2d", () => {
         expect(rectGeometry.rect[1]).toBeCloseTo(0, precision);
         expect(rectGeometry.rect[2]).toBeCloseTo(0.3, precision);
         expect(rectGeometry.rect[3]).toBeCloseTo(0.2, precision);
+    });
+});
+
+describe("RectGeometry.initializeAnchorIndexing", () => {
+    it("should initialize without parameter", () => {
+        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        rectGeometry.initializeAnchorIndexing();
+
+        expect(rectGeometry.anchorIndex).toBe(0);
+    });
+
+    it("should initialize to supplied value parameter", () => {
+        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        rectGeometry.initializeAnchorIndexing(2);
+
+        expect(rectGeometry.anchorIndex).toBe(2);
+    });
+
+    it("should throw for incorrect indices", () => {
+        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        expect((): void => { rectGeometry.initializeAnchorIndexing(-1); }).toThrowError(Error);
+        expect((): void => { rectGeometry.initializeAnchorIndexing(4); }).toThrowError(Error);
+    });
+
+    it("should throw if already intialized", () => {
+        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        rectGeometry.initializeAnchorIndexing();
+
+        expect((): void => { rectGeometry.initializeAnchorIndexing(); }).toThrowError(Error);
+    });
+});
+
+describe("RectGeometry.terminateAnchorIndexing", () => {
+    it("should clear anchor index", () => {
+        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        rectGeometry.initializeAnchorIndexing();
+        rectGeometry.terminateAnchorIndexing();
+
+        expect(rectGeometry.anchorIndex).toBeUndefined();
+    });
+});
+
+describe("RectGeometry.setOppositeVertex", () => {
+    const precision: number = 8;
+
+    const createFullGPano: () => IGPano = (): IGPano => {
+        return {
+            CroppedAreaImageHeightPixels: 1,
+            CroppedAreaImageWidthPixels: 1,
+            CroppedAreaLeftPixels: 0,
+            CroppedAreaTopPixels: 0,
+            FullPanoHeightPixels: 1,
+            FullPanoWidthPixels: 1,
+        }
+    }
+
+    it("should clamp supplied coords to [0, 1] interval", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.5];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([2, 2], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 1, 1]);
+
+        rectGeometry.setOppositeVertex2d([-1, -1], transform);
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.rect).toEqual([0, 0, 0.5, 0.5]);
+    });
+
+    it("should rotate anchor index clockwise", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(1);
+        expect(rectGeometry.anchorIndex).toBe(1);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(2);
+        expect(rectGeometry.rect).toEqual([0.4, 0.5, 0.5, 0.6]);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.rect).toEqual([0.4, 0.4, 0.5, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.6, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
+    });
+
+    it("should rotate anchor index counterclockwise", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(1);
+        expect(rectGeometry.anchorIndex).toBe(1);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.6, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.rect).toEqual([0.4, 0.4, 0.5, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(2);
+        expect(rectGeometry.rect).toEqual([0.4, 0.5, 0.5, 0.6]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
+    });
+
+    it("should rotate anchor index diagonally se-nw", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(1);
+        expect(rectGeometry.anchorIndex).toBe(1);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.rect).toEqual([0.4, 0.4, 0.5, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
+    });
+
+    it("should rotate anchor index diagonally ne-sw", () => {
+        const rect: number[] = [0.5, 0.4, 0.6, 0.5];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(0);
+        expect(rectGeometry.anchorIndex).toBe(0);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(2);
+        expect(rectGeometry.rect).toEqual([0.4, 0.5, 0.5, 0.6]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.6, 0.5]);
+    });
+
+    it("should not change anchor index when opposite decreases to equal anchor", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.5, 0.6]);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.5], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.5, 0.5]);
+    });
+
+    it("should not change anchor index when opposite increases to equal anchor", () => {
+        const rect: number[] = [0.4, 0.4, 0.5, 0.5];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(3);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.5, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.5], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.5, 0.5]);
+    });
+
+    it("should always have a larger right x than left x except when equal", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.6], transform);
+        expect(rectGeometry.rect[0] < rectGeometry.rect[2]).toBe(true);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.rect[0] < rectGeometry.rect[2]).toBe(true);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.6], transform);
+        expect(rectGeometry.rect[0] === rectGeometry.rect[2]).toBe(true);
+    });
+
+    it("should always have a larger bottom y than top y except when equal", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.4], transform);
+        expect(rectGeometry.rect[1] < rectGeometry.rect[3]).toBe(true);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.rect[1] < rectGeometry.rect[3]).toBe(true);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.5], transform);
+        expect(rectGeometry.rect[1] === rectGeometry.rect[3]).toBe(true);
     });
 });

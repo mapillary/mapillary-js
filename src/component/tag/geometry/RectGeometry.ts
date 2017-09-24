@@ -13,9 +13,9 @@ import {Transform} from "../../../Geo";
  * ```
  */
 export class RectGeometry extends VertexGeometry {
-    private _rect: number[];
-
+    private _anchorIndex: number;
     private _inverted: boolean;
+    private _rect: number[];
 
     /**
      * Create a rectangle geometry.
@@ -39,11 +39,17 @@ export class RectGeometry extends VertexGeometry {
             }
         }
 
+
+        this._anchorIndex = undefined;
         this._rect = rect.slice(0, 4);
 
         if (this._rect[0] > this._rect[2]) {
             this._inverted = true;
         }
+    }
+
+    public get anchorIndex(): number {
+        return this._anchorIndex;
     }
 
     /**
@@ -53,6 +59,77 @@ export class RectGeometry extends VertexGeometry {
      */
     public get rect(): number[] {
         return this._rect;
+    }
+
+    public initializeAnchorIndexing(index?: number): void {
+        if (this._anchorIndex !== undefined) {
+            throw new Error("Anchor indexing is already initialized.");
+        }
+
+        if (index < 0 || index > 3) {
+            throw new Error(`Invalid anchor index: ${index}.`);
+        }
+
+        this._anchorIndex = index === undefined ? 0 : index;
+    }
+
+    public terminateAnchorIndexing(): void {
+        this._anchorIndex = undefined;
+    }
+
+    public setOppositeVertex2d(opposite: number[], transform: Transform): void {
+        if (this._anchorIndex === undefined) {
+            throw new Error("Anchor indexing needs to be initialized.");
+        }
+
+        const changed: number[] = [
+            Math.max(0, Math.min(1, opposite[0])),
+            Math.max(0, Math.min(1, opposite[1])),
+        ];
+
+        const original: number[] = this._rect.slice();
+        const vertices2d: number[][] = this._rectToVertices2d(original).slice(0, 4);
+        const anchor: number[] = vertices2d[this._anchorIndex];
+
+        if (anchor[0] <= changed[0] && anchor[1] > changed[1]) {
+            this._anchorIndex = 0;
+        } else if (anchor[0] <= changed[0] && anchor[1] <= changed[1]) {
+            this._anchorIndex = 1;
+        } else if (anchor[0] > changed[0] && anchor[1] <= changed[1]) {
+            this._anchorIndex = 2;
+        } else {
+            this._anchorIndex = 3;
+        }
+
+        const rect: number[] = [];
+        if (this._anchorIndex === 0) {
+            rect[0] = anchor[0];
+            rect[1] = changed[1];
+            rect[2] = changed[0];
+            rect[3] = anchor[1];
+        } else if (this._anchorIndex === 1) {
+            rect[0] = anchor[0];
+            rect[1] = anchor[1];
+            rect[2] = changed[0];
+            rect[3] = changed[1];
+        } else if (this._anchorIndex === 2) {
+            rect[0] = changed[0];
+            rect[1] = anchor[1];
+            rect[2] = anchor[0];
+            rect[3] = changed[1];
+        } else {
+            rect[0] = changed[0];
+            rect[1] = changed[1];
+            rect[2] = anchor[0];
+            rect[3] = anchor[1];
+        }
+
+        this._rect[0] = rect[0];
+        this._rect[1] = rect[1];
+        this._rect[2] = rect[2];
+        this._rect[3] = rect[3];
+
+        this._notifyChanged$.next(this);
     }
 
     /**
