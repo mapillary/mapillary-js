@@ -45,16 +45,30 @@ export class RectGeometry extends VertexGeometry {
         this._inverted = this._rect[0] > this._rect[2];
     }
 
+    /**
+     * Get anchor index property.
+     *
+     * @returns {number} Index representing the current anchor property if
+     * achoring indexing has been initialized. If anchor indexing has not been
+     * initialized or has been terminated undefined will be returned.
+     */
     public get anchorIndex(): number {
         return this._anchorIndex;
     }
 
+    /**
+     * Get inverted property.
+     *
+     * @returns {boolean} Boolean determining whether the rect geometry is
+     * inverted. For panoramas the rect geometrye may be inverted.
+     */
     public get inverted(): boolean {
         return this._inverted;
     }
 
     /**
      * Get rect property.
+     *
      * @returns {Array<number>} Array representing the top-left and bottom-right
      * corners of the rectangle in basic coordinates.
      */
@@ -62,6 +76,14 @@ export class RectGeometry extends VertexGeometry {
         return this._rect;
     }
 
+    /**
+     * Initialize anchor indexing to enable setting opposite vertex.
+     *
+     * @param {number} [index] - The index of the vertex to use as anchor.
+     *
+     * @throws {Error} If anchor indexing has already been initialized.
+     * @throws {Error} If index is not valid (0 to 3).
+     */
     public initializeAnchorIndexing(index?: number): void {
         if (this._anchorIndex !== undefined) {
             throw new Error("Anchor indexing is already initialized.");
@@ -74,10 +96,24 @@ export class RectGeometry extends VertexGeometry {
         this._anchorIndex = index === undefined ? 0 : index;
     }
 
+    /**
+     * Terminate anchor indexing to disable setting pposite vertex.
+     */
     public terminateAnchorIndexing(): void {
         this._anchorIndex = undefined;
     }
 
+    /**
+     * Set the value of the vertex opposite to the anchor in the polygon
+     * representation of the rectangle.
+     *
+     * @description Setting the opposite vertex may change the anchor index.
+     *
+     * @param {Array<number>} opposite - The new value of the vertex opposite to the anchor.
+     * @param {Transform} transform - The transform of the node related to the rectangle.
+     *
+     * @throws {Error} When anchor indexing has not been initialized.
+     */
     public setOppositeVertex2d(opposite: number[], transform: Transform): void {
         if (this._anchorIndex === undefined) {
             throw new Error("Anchor indexing needs to be initialized.");
@@ -414,7 +450,9 @@ export class RectGeometry extends VertexGeometry {
      * Get the coordinates of a vertex from the polygon representation of the geometry.
      *
      * @description The first vertex represents the bottom-left corner with the rest of
-     * the vertices following in clockwise order.
+     * the vertices following in clockwise order. The method shifts the right side
+     * coordinates of the rectangle by one unit to ensure that the vertices are ordered
+     * clockwise.
      *
      * @param {number} index - Vertex index.
      * @returns {Array<number>} Array representing the 2D basic coordinates of the vertex.
@@ -423,8 +461,18 @@ export class RectGeometry extends VertexGeometry {
         return this._rectToVertices2d(this._rect)[index];
     }
 
-    public getNonInvertedVertex2d(index: number): number[] {
-        return this._nonInvertedRectToVertices2d(this._rect)[index];
+    /**
+     * Get the coordinates of a vertex from the polygon representation of the geometry.
+     *
+     * @description The first vertex represents the bottom-left corner with the rest of
+     * the vertices following in clockwise order. The coordinates will not be shifted
+     * so they may not appear in clockwise order when layed out on the plane.
+     *
+     * @param {number} index - Vertex index.
+     * @returns {Array<number>} Array representing the 2D basic coordinates of the vertex.
+     */
+    public getNonAdjustedVertex2d(index: number): number[] {
+        return this._rectToNonAdjustedVertices2d(this._rect)[index];
     }
 
     /**
@@ -576,8 +624,11 @@ export class RectGeometry extends VertexGeometry {
 
     /**
      * Convert the top-left, bottom-right representation of a rectangle to a polygon
-     * representation of the vertices starting at the bottom-right corner going
+     * representation of the vertices starting at the bottom-left corner going
      * clockwise.
+     *
+     * @description The method shifts the right side coordinates of the rectangle
+     * by one unit to ensure that the vertices are ordered clockwise.
      *
      * @param {Array<number>} rect - Top-left, bottom-right representation of a
      * rectangle.
@@ -594,7 +645,21 @@ export class RectGeometry extends VertexGeometry {
         ];
     }
 
-    private _nonInvertedRectToVertices2d(rect: number[]): number[][] {
+    /**
+     * Convert the top-left, bottom-right representation of a rectangle to a polygon
+     * representation of the vertices starting at the bottom-left corner going
+     * clockwise.
+     *
+     * @description The first vertex represents the bottom-left corner with the rest of
+     * the vertices following in clockwise order. The coordinates will not be shifted
+     * to ensure that the vertices are ordered clockwise when layed out on the plane.
+     *
+     * @param {Array<number>} rect - Top-left, bottom-right representation of a
+     * rectangle.
+     * @returns {Array<Array<number>>} Polygon representation of the vertices of the
+     * rectangle.
+     */
+    private _rectToNonAdjustedVertices2d(rect: number[]): number[][] {
         return [
             [rect[0], rect[3]],
             [rect[0], rect[1]],
