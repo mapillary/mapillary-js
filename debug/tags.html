@@ -16,6 +16,7 @@
     <div id='viewer'></div>
     <button onclick="createGeometry(Mapillary.TagComponent.TagMode.CreatePolygon)">Create polygon</button>
     <button onclick="createGeometry(Mapillary.TagComponent.TagMode.CreateRect)">Create rectangle</button>
+    <button onclick="createGeometry(Mapillary.TagComponent.TagMode.CreateRectDrag)">Create rectangle drag</button>
     <button onclick="createGeometry(Mapillary.TagComponent.TagMode.CreatePoint)">Create point</button>
     <button onclick="stopCreate()">Stop create</button>
     <button onclick="deactivate()">Deactivate</button>
@@ -51,6 +52,23 @@
         function createGeometry(tagMode) {
             tagComponent.changeMode(tagMode);
         }
+
+        var currentMode = Mapillary.TagComponent.TagMode.Default;
+        tagComponent.on(Mapillary.TagComponent.TagComponent.modechanged, function(mode) {
+            currentMode = mode;
+        })
+
+        document.addEventListener("keydown", function(keyEvent) {
+            if (keyEvent.key === "Control" && currentMode === Mapillary.TagComponent.TagMode.CreateRectDrag) {
+                createGeometry(Mapillary.TagComponent.TagMode.Default);
+            }
+        });
+
+        document.addEventListener("keyup", function(keyEvent) {
+            if (keyEvent.key === "Control" && currentMode === Mapillary.TagComponent.TagMode.Default) {
+                createGeometry(Mapillary.TagComponent.TagMode.CreateRectDrag);
+            }
+        });
 
         function stopCreate() {
             tagComponent.changeMode(Mapillary.TagComponent.TagMode.Default);

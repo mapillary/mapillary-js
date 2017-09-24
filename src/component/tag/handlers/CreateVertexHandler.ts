@@ -78,7 +78,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                 })
             .subscribe(
                 ([tag, basicPoint]: [OutlineCreateTag, number[]]): void => {
-                    tag.addPoint(basicPoint);
+                    this._addPoint(tag, basicPoint);
                 });
 
         this._geometryCreateSubscription = this._tagCreator.tag$
@@ -94,6 +94,8 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                 })
             .subscribe(this._geometryCreated$);
     }
+
+    protected abstract _addPoint(tag: OutlineCreateTag, basicPoint: number[]): void;
 
     protected abstract _setVertex2d(tag: OutlineCreateTag, basicPoint: number[], transform: Transform): void;
 

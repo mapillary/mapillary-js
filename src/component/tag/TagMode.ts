@@ -26,9 +26,10 @@ export enum TagMode {
     CreateRect,
 
     /**
-     * Create a rect geometry through drag. Claims the mouse
-     * which results in drag panning and scroll zooming becoming
-     * disabled.
+     * Create a rect geometry through drag.
+     *
+     * @description Claims the mouse which results in mouse handlers like
+     * drag pan and scroll zoom becoming inactive.
      */
     CreateRectDrag,
 }

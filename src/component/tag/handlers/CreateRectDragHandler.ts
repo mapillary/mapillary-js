@@ -26,6 +26,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
     private _createSubscription: Subscription;
     private _deleteSubscription: Subscription;
     private _geometryCreatedSubscription: Subscription;
+    private _initializeAnchorIndexingSubscription: Subscription;
     private _setVertexSubscription: Subscription;
 
     constructor(
@@ -58,6 +59,16 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                     this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
                     this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$)));
 
+        this._initializeAnchorIndexingSubscription = this._tagCreator.tag$
+            .filter(
+                (tag: OutlineCreateTag): boolean => {
+                    return !!tag;
+                })
+            .subscribe(
+                (tag: OutlineCreateTag): void => {
+                    (<RectGeometry>tag.geometry).initializeAnchorIndexing();
+                });
+
         this._setVertexSubscription = this._tagCreator.tag$
             .switchMap(
                 (tag: OutlineCreateTag): Observable<[OutlineCreateTag, number[], Transform]> => {
@@ -71,7 +82,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                 })
             .subscribe(
                 ([tag, basicPoint, transform]: [OutlineCreateTag, number[], Transform]): void => {
-                    tag.geometry.setVertex2d(3, basicPoint, transform);
+                    (<RectGeometry>tag.geometry).setOppositeVertex2d(basicPoint, transform);
                 });
 
         const basicMouseDragEnd$: Observable<number[]> = this._container.mouseService.mouseDragEnd$
@@ -97,7 +108,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                 ([tag, basicPoint]: [OutlineCreateTag, number[]]): void => {
                     const rectGeometry: RectGeometry = <RectGeometry>tag.geometry;
                     if (!rectGeometry.validate(basicPoint)) {
-                        basicPoint = rectGeometry.getVertex2d(3);
+                        basicPoint = rectGeometry.getNonAdjustedVertex2d(3);
                     }
 
                     tag.addPoint(basicPoint);
@@ -126,6 +137,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
         this._createSubscription.unsubscribe();
         this._deleteSubscription.unsubscribe();
         this._geometryCreatedSubscription.unsubscribe();
+        this._initializeAnchorIndexingSubscription.unsubscribe();
         this._setVertexSubscription.unsubscribe();
     }
 }

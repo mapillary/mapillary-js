@@ -102,7 +102,9 @@ export class OutlineCreateTag {
         };
 
         if (this._geometry instanceof RectGeometry) {
-            const [basicX, basicY]: number[] = this._geometry.getVertex2d(1);
+            const anchorIndex: number = (<RectGeometry>this._geometry).anchorIndex;
+            const vertexIndex: number = anchorIndex === undefined ? 1 : anchorIndex;
+            const [basicX, basicY]: number[] = this._geometry.getVertex2d(vertexIndex);
             const canvasPoint: number[] =
                 this._viewportCoords.basicToCanvasSafe(
                     basicX,
