@@ -560,19 +560,6 @@ describe("RectGeometry.terminateAnchorIndexing", () => {
 });
 
 describe("RectGeometry.setOppositeVertex", () => {
-    const precision: number = 8;
-
-    const createFullGPano: () => IGPano = (): IGPano => {
-        return {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        }
-    }
-
     it("should clamp supplied coords to [0, 1] interval", () => {
         const rect: number[] = [0.5, 0.5, 0.6, 0.5];
         const rectGeometry: RectGeometry = new RectGeometry(rect);
@@ -726,6 +713,435 @@ describe("RectGeometry.setOppositeVertex", () => {
         const rect: number[] = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry: RectGeometry = new RectGeometry(rect);
         const transform: Transform = new TransformHelper().createTransform();
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.4], transform);
+        expect(rectGeometry.rect[1] < rectGeometry.rect[3]).toBe(true);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.rect[1] < rectGeometry.rect[3]).toBe(true);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.5], transform);
+        expect(rectGeometry.rect[1] === rectGeometry.rect[3]).toBe(true);
+    });
+});
+
+describe("RectGeometry.inverted", () => {
+    it("should not be inverted if right is larger than left", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        expect(rectGeometry.inverted).toBe(false);
+    });
+
+    it("should be inverted if left is larger than right", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        expect(rectGeometry.inverted).toBe(true);
+    });
+});
+
+describe("RectGeometry.setOppositeVertex", () => {
+    const createFullGPano: () => IGPano = (): IGPano => {
+        return {
+            CroppedAreaImageHeightPixels: 1,
+            CroppedAreaImageWidthPixels: 1,
+            CroppedAreaLeftPixels: 0,
+            CroppedAreaTopPixels: 0,
+            FullPanoHeightPixels: 1,
+            FullPanoWidthPixels: 1,
+        };
+    };
+
+    it("should invert for pano when right side passes boundary rightward", () => {
+        const rect: number[] = [0.9, 0.5, 0.99, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(0);
+
+        rectGeometry.setOppositeVertex2d([0.01, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.01, 0.6]);
+    });
+
+    it("should invert for pano when left side passes right side and boundary rightward", () => {
+        const rect: number[] = [0.9, 0.5, 0.99, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(3);
+
+        rectGeometry.setOppositeVertex2d([0.01, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.99, 0.5, 0.01, 0.6]);
+    });
+
+    it("should uninvert for pano when left side passes boundary rightward", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(3);
+
+        rectGeometry.setOppositeVertex2d([0.01, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.inverted).toBe(false);
+        expect(rectGeometry.rect).toEqual([0.01, 0.5, 0.1, 0.6]);
+    });
+
+    it("should uninvert for pano when left side passes right side and boundary rightward", () => {
+        const rect: number[] = [0.99, 0.5, 0.01, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(3);
+
+        rectGeometry.setOppositeVertex2d([0.1, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.inverted).toBe(false);
+        expect(rectGeometry.rect).toEqual([0.01, 0.5, 0.1, 0.6]);
+    });
+
+    it("should invert for pano when left side passes boundary leftward", () => {
+        const rect: number[] = [0.01, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(3);
+
+        rectGeometry.setOppositeVertex2d([0.99, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.99, 0.5, 0.1, 0.6]);
+    });
+
+    it("should invert for pano when right side passes left side and boundary leftward", () => {
+        const rect: number[] = [0.01, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(0);
+
+        rectGeometry.setOppositeVertex2d([0.9, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.01, 0.6]);
+    });
+
+    it("should uninvert for pano when right side passes boundary leftward", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(0);
+
+        rectGeometry.setOppositeVertex2d([0.99, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.inverted).toBe(false);
+        expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.99, 0.6]);
+    });
+
+    it("should uninvert for pano when right side passes left side and boundary leftward", () => {
+        const rect: number[] = [0.99, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(0);
+
+        rectGeometry.setOppositeVertex2d([0.9, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.inverted).toBe(false);
+        expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.99, 0.6]);
+    });
+
+    it("should keep inversion for anchor index 0", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(0);
+
+        rectGeometry.setOppositeVertex2d([0.2, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.2, 0.6]);
+    });
+
+    it("should keep inversion for anchor index 1", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([0.2, 0.6], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.2, 0.6]);
+    });
+
+    it("should keep inversion for anchor index 2", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(2);
+
+        rectGeometry.setOppositeVertex2d([0.8, 0.6], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(2);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.8, 0.5, 0.1, 0.6]);
+    });
+
+    it("should keep inversion for anchor index 2", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(3);
+
+        rectGeometry.setOppositeVertex2d([0.8, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.8, 0.5, 0.1, 0.6]);
+    });
+
+    it("should keep inversion when passing vertically to the right", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([0.1, 0.4], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.9, 0.4, 0.1, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.1, 0.6], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.1, 0.6]);
+    });
+
+
+    it("should keep inversion when passing vertically to the left", () => {
+        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(2);
+
+        rectGeometry.setOppositeVertex2d([0.9, 0.4], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.9, 0.4, 0.1, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.9, 0.6], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(2);
+        expect(rectGeometry.inverted).toBe(true);
+        expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.1, 0.6]);
+    });
+
+    it("should reset loop when right passes left", () => {
+        const rect: number[] = [0.15, 0.5, 0.1, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(0);
+
+        rectGeometry.setOppositeVertex2d([0.2, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.inverted).toBe(false);
+        expect(rectGeometry.rect).toEqual([0.15, 0.5, 0.2, 0.6]);
+    });
+
+    it("should reset loop when left passes right", () => {
+        const rect: number[] = [0.2, 0.5, 0.15, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(3);
+
+        rectGeometry.setOppositeVertex2d([0.1, 0.5], transform);
+
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.inverted).toBe(false);
+        expect(rectGeometry.rect).toEqual([0.1, 0.5, 0.15, 0.6]);
+    });
+});
+
+describe("RectGeometry.setOppositeVertex", () => {
+    const createFullGPano: () => IGPano = (): IGPano => {
+        return {
+            CroppedAreaImageHeightPixels: 1,
+            CroppedAreaImageWidthPixels: 1,
+            CroppedAreaLeftPixels: 0,
+            CroppedAreaTopPixels: 0,
+            FullPanoHeightPixels: 1,
+            FullPanoWidthPixels: 1,
+        };
+    };
+
+    it("should rotate anchor index clockwise for pano", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(1);
+        expect(rectGeometry.anchorIndex).toBe(1);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(2);
+        expect(rectGeometry.rect).toEqual([0.4, 0.5, 0.5, 0.6]);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.rect).toEqual([0.4, 0.4, 0.5, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.6, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
+    });
+
+    it("should rotate anchor index counterclockwise for pano", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(1);
+        expect(rectGeometry.anchorIndex).toBe(1);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.6, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.rect).toEqual([0.4, 0.4, 0.5, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(2);
+        expect(rectGeometry.rect).toEqual([0.4, 0.5, 0.5, 0.6]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
+    });
+
+    it("should rotate anchor index diagonally se-nw for pano", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(1);
+        expect(rectGeometry.anchorIndex).toBe(1);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(3);
+        expect(rectGeometry.rect).toEqual([0.4, 0.4, 0.5, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
+    });
+
+    it("should rotate anchor index diagonally ne-sw for pano", () => {
+        const rect: number[] = [0.5, 0.4, 0.6, 0.5];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(0);
+        expect(rectGeometry.anchorIndex).toBe(0);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(2);
+        expect(rectGeometry.rect).toEqual([0.4, 0.5, 0.5, 0.6]);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.6, 0.5]);
+    });
+
+    it("should not change anchor index when opposite decreases to equal anchor for pano", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.6], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.5, 0.6]);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.5], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.5, 0.5]);
+    });
+
+    it("should not change anchor index when opposite increases to equal anchor for pano", () => {
+        const rect: number[] = [0.4, 0.4, 0.5, 0.5];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(3);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.4], transform);
+        expect(rectGeometry.anchorIndex).toBe(0);
+        expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.5, 0.5]);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.5], transform);
+        expect(rectGeometry.anchorIndex).toBe(1);
+        expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.5, 0.5]);
+    });
+
+    it("should always have a larger right x than left x except when equal for pano", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+
+        rectGeometry.initializeAnchorIndexing(1);
+
+        rectGeometry.setOppositeVertex2d([0.4, 0.6], transform);
+        expect(rectGeometry.rect[0] < rectGeometry.rect[2]).toBe(true);
+
+        rectGeometry.setOppositeVertex2d([0.6, 0.6], transform);
+        expect(rectGeometry.rect[0] < rectGeometry.rect[2]).toBe(true);
+
+        rectGeometry.setOppositeVertex2d([0.5, 0.6], transform);
+        expect(rectGeometry.rect[0] === rectGeometry.rect[2]).toBe(true);
+    });
+
+    it("should always have a larger bottom y than top y except when equal for pano", () => {
+        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
 
         rectGeometry.initializeAnchorIndexing(1);
 

@@ -42,14 +42,15 @@ export class RectGeometry extends VertexGeometry {
 
         this._anchorIndex = undefined;
         this._rect = rect.slice(0, 4);
-
-        if (this._rect[0] > this._rect[2]) {
-            this._inverted = true;
-        }
+        this._inverted = this._rect[0] > this._rect[2];
     }
 
     public get anchorIndex(): number {
         return this._anchorIndex;
+    }
+
+    public get inverted(): boolean {
+        return this._inverted;
     }
 
     /**
@@ -88,46 +89,165 @@ export class RectGeometry extends VertexGeometry {
         ];
 
         const original: number[] = this._rect.slice();
-        const vertices2d: number[][] = this._rectToVertices2d(original).slice(0, 4);
-        const anchor: number[] = vertices2d[this._anchorIndex];
+        const anchor: number[] = this._anchorIndex === 0 ? [original[0], original[3]] :
+            this._anchorIndex === 1 ? [original[0], original[1]] :
+            this._anchorIndex === 2 ? [original[2], original[1]] :
+            [original[2], original[3]];
 
-        if (anchor[0] <= changed[0] && anchor[1] > changed[1]) {
-            this._anchorIndex = 0;
-        } else if (anchor[0] <= changed[0] && anchor[1] <= changed[1]) {
-            this._anchorIndex = 1;
-        } else if (anchor[0] > changed[0] && anchor[1] <= changed[1]) {
-            this._anchorIndex = 2;
+        if (transform.fullPano) {
+            const deltaX: number = this._anchorIndex < 2 ?
+                changed[0] - original[2] :
+                changed[0] - original[0];
+
+            if (!this._inverted && this._anchorIndex < 2 && changed[0] < 0.25 && original[2] > 0.75 && deltaX < -0.5) {
+                // right side passes boundary rightward
+                this._inverted = true;
+                this._anchorIndex = anchor[1] > changed[1] ? 0 : 1;
+            } else if (!this._inverted && this._anchorIndex >= 2 && changed[0] < 0.25 && original[2] > 0.75 && deltaX < -0.5) {
+                // left side passes right side and boundary rightward
+                this._inverted = true;
+                this._anchorIndex = anchor[1] > changed[1] ? 0 : 1;
+            } else if (this._inverted && this._anchorIndex >= 2 && changed[0] < 0.25 && original[0] > 0.75 && deltaX < -0.5) {
+                this._inverted = false;
+                if (anchor[0] > changed[0]) {
+                    // left side passes boundary rightward
+                    this._anchorIndex = anchor[1] > changed[1] ? 3 : 2;
+                } else {
+                    // left side passes right side and boundary rightward
+                    this._anchorIndex = anchor[1] > changed[1] ? 0 : 1;
+                }
+            } else if (!this._inverted && this._anchorIndex >= 2 && changed[0] > 0.75 && original[0] < 0.25 && deltaX > 0.5) {
+                // left side passes boundary leftward
+                this._inverted = true;
+                this._anchorIndex = anchor[1] > changed[1] ? 3 : 2;
+            } else if (!this._inverted && this._anchorIndex < 2 && changed[0] > 0.75 && original[0] < 0.25 && deltaX > 0.5) {
+                // right side passes left side and boundary leftward
+                this._inverted = true;
+                this._anchorIndex = anchor[1] > changed[1] ? 3 : 2;
+            } else if (this._inverted && this._anchorIndex < 2 && changed[0] > 0.75 && original[2] < 0.25 && deltaX > 0.5) {
+                this._inverted = false;
+                if (anchor[0] > changed[0]) {
+                    // right side passes boundary leftward
+                    this._anchorIndex = anchor[1] > changed[1] ? 3 : 2;
+                } else {
+                    // right side passes left side and boundary leftward
+                    this._anchorIndex = anchor[1] > changed[1] ? 0 : 1;
+                }
+            } else if (this._inverted && this._anchorIndex < 2 && changed[0] > original[0]) {
+                // inverted and right side passes left side completing a loop
+                this._inverted = false;
+                this._anchorIndex = anchor[1] > changed[1] ? 0 : 1;
+            } else if (this._inverted && this._anchorIndex >= 2 && changed[0] < original[2]) {
+                // inverted and left side passes right side completing a loop
+                this._inverted = false;
+                this._anchorIndex = anchor[1] > changed[1] ? 3 : 2;
+            } else if (this._inverted) {
+                // if still inverted only top and bottom can switch
+                if (this._anchorIndex < 2) {
+                    this._anchorIndex = anchor[1] > changed[1] ? 0 : 1;
+                } else {
+                    this._anchorIndex = anchor[1] > changed[1] ? 3 : 2;
+                }
+            } else {
+                // if still not inverted treat as non full pano
+                if (anchor[0] <= changed[0] && anchor[1] > changed[1]) {
+                    this._anchorIndex = 0;
+                } else if (anchor[0] <= changed[0] && anchor[1] <= changed[1]) {
+                    this._anchorIndex = 1;
+                } else if (anchor[0] > changed[0] && anchor[1] <= changed[1]) {
+                    this._anchorIndex = 2;
+                } else {
+                    this._anchorIndex = 3;
+                }
+            }
+
+            const rect: number[] = [];
+            if (this._anchorIndex === 0) {
+                rect[0] = anchor[0];
+                rect[1] = changed[1];
+                rect[2] = changed[0];
+                rect[3] = anchor[1];
+            } else if (this._anchorIndex === 1) {
+                rect[0] = anchor[0];
+                rect[1] = anchor[1];
+                rect[2] = changed[0];
+                rect[3] = changed[1];
+            } else if (this._anchorIndex === 2) {
+                rect[0] = changed[0];
+                rect[1] = anchor[1];
+                rect[2] = anchor[0];
+                rect[3] = changed[1];
+            } else {
+                rect[0] = changed[0];
+                rect[1] = changed[1];
+                rect[2] = anchor[0];
+                rect[3] = anchor[1];
+            }
+
+            if (!this._inverted && rect[0] > rect[2] ||
+                this._inverted && rect[0] < rect[2]) {
+                rect[0] = original[0];
+                rect[2] = original[2];
+            }
+
+            if (rect[1] > rect[3]) {
+                rect[1] = original[1];
+                rect[3] = original[3];
+            }
+
+            this._rect[0] = rect[0];
+            this._rect[1] = rect[1];
+            this._rect[2] = rect[2];
+            this._rect[3] = rect[3];
         } else {
-            this._anchorIndex = 3;
-        }
+            if (anchor[0] <= changed[0] && anchor[1] > changed[1]) {
+                this._anchorIndex = 0;
+            } else if (anchor[0] <= changed[0] && anchor[1] <= changed[1]) {
+                this._anchorIndex = 1;
+            } else if (anchor[0] > changed[0] && anchor[1] <= changed[1]) {
+                this._anchorIndex = 2;
+            } else {
+                this._anchorIndex = 3;
+            }
 
-        const rect: number[] = [];
-        if (this._anchorIndex === 0) {
-            rect[0] = anchor[0];
-            rect[1] = changed[1];
-            rect[2] = changed[0];
-            rect[3] = anchor[1];
-        } else if (this._anchorIndex === 1) {
-            rect[0] = anchor[0];
-            rect[1] = anchor[1];
-            rect[2] = changed[0];
-            rect[3] = changed[1];
-        } else if (this._anchorIndex === 2) {
-            rect[0] = changed[0];
-            rect[1] = anchor[1];
-            rect[2] = anchor[0];
-            rect[3] = changed[1];
-        } else {
-            rect[0] = changed[0];
-            rect[1] = changed[1];
-            rect[2] = anchor[0];
-            rect[3] = anchor[1];
-        }
+            const rect: number[] = [];
+            if (this._anchorIndex === 0) {
+                rect[0] = anchor[0];
+                rect[1] = changed[1];
+                rect[2] = changed[0];
+                rect[3] = anchor[1];
+            } else if (this._anchorIndex === 1) {
+                rect[0] = anchor[0];
+                rect[1] = anchor[1];
+                rect[2] = changed[0];
+                rect[3] = changed[1];
+            } else if (this._anchorIndex === 2) {
+                rect[0] = changed[0];
+                rect[1] = anchor[1];
+                rect[2] = anchor[0];
+                rect[3] = changed[1];
+            } else {
+                rect[0] = changed[0];
+                rect[1] = changed[1];
+                rect[2] = anchor[0];
+                rect[3] = anchor[1];
+            }
 
-        this._rect[0] = rect[0];
-        this._rect[1] = rect[1];
-        this._rect[2] = rect[2];
-        this._rect[3] = rect[3];
+            if (rect[0] > rect[2]) {
+                rect[0] = original[0];
+                rect[2] = original[2];
+            }
+
+            if (rect[1] > rect[3]) {
+                rect[1] = original[1];
+                rect[3] = original[3];
+            }
+
+            this._rect[0] = rect[0];
+            this._rect[1] = rect[1];
+            this._rect[2] = rect[2];
+            this._rect[3] = rect[3];
+        }
 
         this._notifyChanged$.next(this);
     }
@@ -173,16 +293,16 @@ export class RectGeometry extends VertexGeometry {
             rect[3] = changed[1];
         }
 
-        if (transform.gpano) {
-            let passingBoundaryLeft: boolean =
+        if (transform.fullPano) {
+            let passingBoundaryLeftward: boolean =
                 index < 2 && changed[0] > 0.75 && original[0] < 0.25 ||
                 index >= 2 && this._inverted && changed[0] > 0.75 && original[2] < 0.25;
 
-            let passingBoundaryRight: boolean =
+            let passingBoundaryRightward: boolean =
                 index < 2 && this._inverted && changed[0] < 0.25 && original[0] > 0.75 ||
                 index >= 2 && changed[0] < 0.25 && original[2] > 0.75;
 
-            if (passingBoundaryLeft || passingBoundaryRight) {
+            if (passingBoundaryLeftward || passingBoundaryRightward) {
                 this._inverted = !this._inverted;
             } else {
                 if (rect[0] - original[0] < -0.25) {
@@ -200,7 +320,7 @@ export class RectGeometry extends VertexGeometry {
                 rect[2] = original[2];
             }
         } else {
-             if (rect[0] > rect[2]) {
+            if (rect[0] > rect[2]) {
                 rect[0] = original[0];
                 rect[2] = original[2];
             }
@@ -301,6 +421,10 @@ export class RectGeometry extends VertexGeometry {
      */
     public getVertex2d(index: number): number[] {
         return this._rectToVertices2d(this._rect)[index];
+    }
+
+    public getNonInvertedVertex2d(index: number): number[] {
+        return this._nonInvertedRectToVertices2d(this._rect)[index];
     }
 
     /**
@@ -466,6 +590,16 @@ export class RectGeometry extends VertexGeometry {
             [rect[0], rect[1]],
             [this._inverted ? rect[2] + 1 : rect[2], rect[1]],
             [this._inverted ? rect[2] + 1 : rect[2], rect[3]],
+            [rect[0], rect[3]],
+        ];
+    }
+
+    private _nonInvertedRectToVertices2d(rect: number[]): number[][] {
+        return [
+            [rect[0], rect[3]],
+            [rect[0], rect[1]],
+            [rect[2], rect[1]],
+            [rect[2], rect[3]],
             [rect[0], rect[3]],
         ];
     }
