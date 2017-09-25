@@ -292,7 +292,7 @@ export class Popup {
         if (!this._container) {
             this._container = this._dom.createElement("div", "mapillaryjs-popup", this._parentContainer);
 
-            let showTip: boolean =
+            const showTip: boolean =
                 this._options.clean !== true &&
                 this._options.float !== Alignment.Center;
 
@@ -341,7 +341,7 @@ export class Popup {
             const height: number = this._container.offsetHeight;
             const floats: PopupAlignment[] = this._pixelToFloats(pointPixel, size, width, height);
 
-            float = floats.length === 0 ? "bottom" : <PopupAlignment>floats.join("-");
+            float = floats.length === 0 ? "top" : <PopupAlignment>floats.join("-");
         }
 
         if (!!this._options.offset) {
@@ -414,7 +414,7 @@ export class Popup {
             };
 
             const automaticPositions: PopupAlignment[] =
-                ["bottom", "top", "left", "right"];
+                ["top", "bottom", "left", "right"];
 
             let largestVisibleArea: [number, number[], PopupAlignment] = [0, null, null];
 
@@ -475,7 +475,7 @@ export class Popup {
                 transform,
                 renderCamera.perspective);
 
-        return [pointCanvas, position != null ? position : "bottom"];
+        return [pointCanvas, position != null ? position : "top"];
     }
 
     private _alignmentToPopupAligment(float: Alignment): PopupAlignment {

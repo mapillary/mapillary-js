@@ -121,7 +121,7 @@ describe("Popup.update", () => {
         expect(visibility).toBe("hidden");
     });
 
-    it("should float to bottom when float is automatic", () => {
+    it("should float to top when float is automatic", () => {
         const viewportCoords: ViewportCoords = new ViewportCoords();
         spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
 
@@ -134,7 +134,7 @@ describe("Popup.update", () => {
 
         popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
 
-        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-bottom").length)
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-top").length)
             .toBe(1);
     });
 });
