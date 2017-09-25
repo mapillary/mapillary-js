@@ -322,7 +322,19 @@ export class Popup {
                     transform,
                     renderCamera.perspective);
         } else {
-            [pointPixel, position] = this._rectToPixel(this._rect, position, renderCamera, size, transform);
+            const classList: DOMTokenList = this._container.classList;
+            const alignments: PopupAlignment[] =
+                ["center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"];
+
+            let appliedPosition: PopupAlignment = null;
+            for (const alignment of alignments) {
+                if (classList.contains(`mapillaryjs-popup-float-${alignment}`)) {
+                    appliedPosition = alignment;
+                    break;
+                }
+            }
+
+            [pointPixel, position] = this._rectToPixel(this._rect, position, appliedPosition, renderCamera, size, transform);
 
             if (!float) {
                 float = position;
@@ -394,6 +406,7 @@ export class Popup {
     private _rectToPixel(
         rect: number[],
         position: PopupAlignment,
+        appliedPosition: PopupAlignment,
         renderCamera: RenderCamera,
         size: ISize, transform:
         Transform): [number[], PopupAlignment] {
@@ -434,7 +447,9 @@ export class Popup {
 
                 const floatOffset: number[] = floatOffsets[automaticPosition];
                 const offsetedPosition: number[] = [pointPixel[0] + floatOffset[0], pointPixel[1] + floatOffset[1]];
-                const floats: PopupAlignment[] = this._pixelToFloats(offsetedPosition, size, width, height / 2);
+                const staticCoeff: number = appliedPosition != null && appliedPosition === automaticPosition ? 1 : 0.7;
+                const floats: PopupAlignment[] =
+                    this._pixelToFloats(offsetedPosition, size, width / staticCoeff, height / (2 * staticCoeff));
 
                 if (floats.length === 0 &&
                     pointPixel[0] > 0 &&
@@ -452,7 +467,8 @@ export class Popup {
 
                 const visibleX: number = Math.max(0, maxX - minX);
                 const visibleY: number = Math.max(0, maxY - minY);
-                const visibleArea: number = visibleX * visibleY;
+
+                const visibleArea: number = staticCoeff * visibleX * visibleY;
 
                 if (visibleArea > largestVisibleArea[0]) {
                     largestVisibleArea[0] = visibleArea;
