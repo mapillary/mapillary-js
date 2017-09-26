@@ -111,6 +111,40 @@ export class TagComponent extends Component<ITagConfiguration> {
     public static componentName: string = "tag";
 
     /**
+     * Event fired when an interaction to create a geometry ends.
+     *
+     * @description A create interaction can by a geometry being created
+     * or by the creation being aborted.
+     *
+     * @event TagComponent#creategeometryend
+     * @type {TagComponent} Tag component.
+     * @example
+     * ```
+     * tagComponent.on("creategeometryend", function(component) {
+     *     console.log(component);
+     * });
+     * ```
+     */
+    public static creategeometryend: string = "creategeometryend";
+
+    /**
+     * Event fired when an interaction to create a geometry starts.
+     *
+     * @description A create interaction starts when the first vertex
+     * is created in the geometry.
+     *
+     * @event TagComponent#creategeometrystart
+     * @type {TagComponent} Tag component.
+     * @example
+     * ```
+     * tagComponent.on("creategeometrystart", function(component) {
+     *     console.log(component);
+     * });
+     * ```
+     */
+    public static creategeometrystart: string = "creategeometrystart";
+
+    /**
      * Event fired when the create mode is changed.
      *
      * @event TagComponent#modechanged
@@ -180,6 +214,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _domSubscription: Subscription;
     private _glSubscription: Subscription;
 
+    private _fireCreateGeometryEventSubscription: Subscription;
     private _fireGeometryCreatedSubscription: Subscription;
     private _fireTagsChangedSubscription: Subscription;
 
@@ -498,6 +533,16 @@ export class TagComponent extends Component<ITagConfiguration> {
                     this.fire(TagComponent.geometrycreated, geometry);
                 });
 
+        this._fireCreateGeometryEventSubscription = this._tagCreator.tag$
+            .subscribe(
+                (tag: OutlineCreateTag): void => {
+                    const eventType: string = tag != null ?
+                        TagComponent.creategeometrystart :
+                        TagComponent.creategeometryend;
+
+                    this.fire(eventType, this);
+                });
+
         this._handlerStopCreateSubscription = handlerGeometryCreated$
             .subscribe(
                 (): void => {
@@ -652,9 +697,10 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._domSubscription.unsubscribe();
         this._glSubscription.unsubscribe();
 
+        this._fireCreateGeometryEventSubscription.unsubscribe();
+        this._fireGeometryCreatedSubscription.unsubscribe();
         this._fireTagsChangedSubscription.unsubscribe();
 
-        this._fireGeometryCreatedSubscription.unsubscribe();
         this._handlerStopCreateSubscription.unsubscribe();
         this._handlerEnablerSubscription.unsubscribe();
 
