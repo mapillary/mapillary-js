@@ -534,6 +534,11 @@ export class TagComponent extends Component<ITagConfiguration> {
                 });
 
         this._fireCreateGeometryEventSubscription = this._tagCreator.tag$
+            .skipWhile(
+                (tag: OutlineCreateTag): boolean => {
+                    return tag == null;
+                })
+            .distinctUntilChanged()
             .subscribe(
                 (tag: OutlineCreateTag): void => {
                     const eventType: string = tag != null ?
