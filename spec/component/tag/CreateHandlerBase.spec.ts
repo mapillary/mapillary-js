@@ -22,6 +22,7 @@ class CreateTestHandler extends CreateHandlerBase {
 
     protected _enable(): void { /*noop*/ }
     protected _disable(): void { /*noop*/ }
+    protected _getNameExtension(): string { return "create-test"; }
 }
 
 class TestComponent extends Component<ITagConfiguration> {

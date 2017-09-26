@@ -2,44 +2,21 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import {
-    Component,
     CreateHandlerBase,
     Geometry,
-    ITagConfiguration,
     OutlineCreateTag,
     RectGeometry,
-    TagCreator,
 } from "../../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../Geo";
+import {Transform} from "../../../Geo";
 import {RenderCamera} from "../../../Render";
-import {
-    Container,
-    Navigator,
-} from "../../../Viewer";
 
 export class CreateRectDragHandler extends CreateHandlerBase {
-    private _name: string;
-
     private _addPointSubscription: Subscription;
     private _createSubscription: Subscription;
     private _deleteSubscription: Subscription;
     private _geometryCreatedSubscription: Subscription;
     private _initializeAnchorIndexingSubscription: Subscription;
     private _setVertexSubscription: Subscription;
-
-    constructor(
-        component: Component<ITagConfiguration>,
-        container: Container,
-        navigator: Navigator,
-        viewportCoords: ViewportCoords,
-        tagCreator: TagCreator) {
-        super(component, container, navigator, viewportCoords, tagCreator);
-
-        this._name = this._component.name + "-create-rect-drag";
-    }
 
     protected _enable(): void {
         this._container.mouseService.claimMouse(this._name, 2);
@@ -149,6 +126,10 @@ export class CreateRectDragHandler extends CreateHandlerBase {
         this._geometryCreatedSubscription.unsubscribe();
         this._initializeAnchorIndexingSubscription.unsubscribe();
         this._setVertexSubscription.unsubscribe();
+    }
+
+    protected _getNameExtension(): string {
+        return "create-rect-drag";
     }
 }
 

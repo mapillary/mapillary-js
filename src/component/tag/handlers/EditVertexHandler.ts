@@ -24,8 +24,6 @@ import {
 } from "../../../Viewer";
 
 export class EditVertexHandler extends TagHandlerBase {
-    private _name: string;
-
     private _tagSet: TagSet;
 
     private _claimMouseSubscription: Subscription;
@@ -40,8 +38,6 @@ export class EditVertexHandler extends TagHandlerBase {
         viewportCoords: ViewportCoords,
         tagSet: TagSet) {
         super(component, container, navigator, viewportCoords);
-
-        this._name = this._component.name + "-edit-vertex";
 
         this._tagSet = tagSet;
     }
@@ -169,6 +165,10 @@ export class EditVertexHandler extends TagHandlerBase {
         this._preventDefaultSubscription.unsubscribe();
         this._unclaimMouseSubscription.unsubscribe();
         this._updateGeometrySubscription.unsubscribe();
+    }
+
+    protected _getNameExtension(): string {
+        return "edit-vertex";
     }
 }
 

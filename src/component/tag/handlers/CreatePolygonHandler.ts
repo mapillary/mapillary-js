@@ -16,6 +16,10 @@ export class CreatePolygonHandler extends CreateVertexHandler {
         return this._tagCreator.createPolygon$;
     }
 
+    protected _getNameExtension(): string {
+        return "create-polygon";
+    }
+
     protected _setVertex2d(tag: OutlineCreateTag, basicPoint: number[], transform: Transform): void {
         tag.geometry.setVertex2d((<PolygonGeometry>tag.geometry).polygon.length - 2, basicPoint, transform);
     }

@@ -44,6 +44,10 @@ export class CreateRectHandler extends CreateVertexHandler {
         this._initializeAnchorIndexingSubscription.unsubscribe();
     }
 
+    protected _getNameExtension(): string {
+        return "create-rect";
+    }
+
     protected _setVertex2d(tag: OutlineCreateTag, basicPoint: number[], transform: Transform): void {
         (<RectGeometry>tag.geometry).setOppositeVertex2d(basicPoint, transform);
     }

@@ -20,6 +20,8 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
     protected abstract get _create$(): Subject<number[]>;
 
     protected _enable(): void {
+        this._container.mouseService.deferPixels(this._name, 4);
+
         const transformChanged$: Observable<void> = this._navigator.stateService.currentTransform$
             .map((transform: Transform): void => { /*noop*/ })
             .publishReplay(1)
@@ -29,7 +31,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
             .skip(1)
             .subscribe(this._tagCreator.delete$);
 
-        const basicClick$: Observable<number[]> = this._mouseEventToBasic$(this._container.mouseService.staticClick$).share();
+        const basicClick$: Observable<number[]> = this._mouseEventToBasic$(this._container.mouseService.proximateClick$).share();
 
         this._createSubscription = transformChanged$
             .switchMap(
@@ -100,6 +102,8 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
     protected abstract _setVertex2d(tag: OutlineCreateTag, basicPoint: number[], transform: Transform): void;
 
     protected _disable(): void {
+        this._container.mouseService.undeferPixels(this._name);
+
         this._tagCreator.delete$.next(null);
 
         this._addPointSubscription.unsubscribe();

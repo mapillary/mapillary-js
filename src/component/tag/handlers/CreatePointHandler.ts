@@ -9,7 +9,9 @@ export class CreatePointHandler extends CreateHandlerBase {
     private _geometryCreatedSubscription: Subscription;
 
     protected _enable(): void {
-        this._geometryCreatedSubscription = this._mouseEventToBasic$(this._container.mouseService.staticClick$)
+        this._container.mouseService.deferPixels(this._name, 4);
+
+        this._geometryCreatedSubscription = this._mouseEventToBasic$(this._container.mouseService.proximateClick$)
             .filter(this._validateBasic)
             .map(
                 (basic: number[]): PointGeometry => {
@@ -19,7 +21,13 @@ export class CreatePointHandler extends CreateHandlerBase {
     }
 
     protected _disable(): void {
+        this._container.mouseService.undeferPixels(this._name);
+
         this._geometryCreatedSubscription.unsubscribe();
+    }
+
+    protected _getNameExtension(): string {
+        return "create-point";
     }
 }
 

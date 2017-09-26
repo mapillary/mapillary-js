@@ -16,6 +16,8 @@ import {
 } from "../../../Viewer";
 
 export abstract class TagHandlerBase extends HandlerBase<ITagConfiguration> {
+    protected _name: string;
+
     protected _viewportCoords: ViewportCoords;
 
     constructor(
@@ -25,12 +27,16 @@ export abstract class TagHandlerBase extends HandlerBase<ITagConfiguration> {
         viewportCoords: ViewportCoords) {
         super(component, container, navigator);
 
+        this._name = `${this._component.name}-${this._getNameExtension()}`;
+
         this._viewportCoords = viewportCoords;
     }
 
     protected _getConfiguration(enable: boolean): ITagConfiguration {
         return {};
     }
+
+    protected abstract _getNameExtension(): string;
 
     protected _mouseEventToBasic(
         event: MouseEvent,

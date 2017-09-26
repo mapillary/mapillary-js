@@ -79,7 +79,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
 
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
-        const basicStaticClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.staticClick$);
+        const basicProximateClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.proximateClick$);
 
         component.activate();
         createPointHandler.enable();
@@ -99,7 +99,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
                     done();
                 });
 
-        basicStaticClick$.next(basicPoint);
+        basicProximateClick$.next(basicPoint);
     });
 
     it("should not create point geometry if not enabled", () => {
@@ -111,7 +111,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
 
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
-        const basicStaticClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.staticClick$);
+        const basicProximateClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.proximateClick$);
 
         component.activate();
 
@@ -124,7 +124,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
                     geometryCreatedCount++;
                 });
 
-        basicStaticClick$.next(basicPoint);
+        basicProximateClick$.next(basicPoint);
         expect(geometryCreatedCount).toBe(0);
     });
 
@@ -137,7 +137,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
 
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
-        const basicStaticClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.staticClick$);
+        const basicProximateClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.proximateClick$);
 
         component.activate();
         createPointHandler.enable();
@@ -151,13 +151,13 @@ describe("CreatePointHandler.geometryCreated$", () => {
                     geometryCreatedCount++;
                 });
 
-        basicStaticClick$.next(basicPoint);
+        basicProximateClick$.next(basicPoint);
         expect(geometryCreatedCount).toBe(1);
 
-        basicStaticClick$.next(basicPoint);
+        basicProximateClick$.next(basicPoint);
         expect(geometryCreatedCount).toBe(2);
 
-        basicStaticClick$.next(basicPoint);
+        basicProximateClick$.next(basicPoint);
         expect(geometryCreatedCount).toBe(3);
     });
 
@@ -170,7 +170,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
 
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
-        const basicStaticClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.staticClick$);
+        const basicProximateClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.proximateClick$);
 
         component.activate();
         createPointHandler.enable();
@@ -184,7 +184,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
                     geometryCreatedCount++;
                 });
 
-        basicStaticClick$.next(basicPoint);
+        basicProximateClick$.next(basicPoint);
         expect(geometryCreatedCount).toBe(0);
     });
 });
