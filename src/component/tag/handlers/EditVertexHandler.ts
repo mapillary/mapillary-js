@@ -63,12 +63,18 @@ export class EditVertexHandler extends CreateHandlerBase {
                                 return tag.interact$;
                             });
                 })
-            .merge<IInteraction>(
-                this._container.mouseService.documentMouseUp$
-                    .map(
-                        (): IInteraction => {
-                            return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
-                        }))
+            .switchMap(
+                (interaction: IInteraction): Observable<IInteraction> => {
+                    return Observable
+                        .of(interaction)
+                        .concat(
+                            this._container.mouseService.documentMouseUp$
+                                .map(
+                                    (): IInteraction => {
+                                        return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
+                                    })
+                                .first());
+                })
             .share();
 
         const mouseMove$: Observable<MouseEvent> = Observable
