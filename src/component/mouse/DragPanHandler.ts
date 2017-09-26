@@ -82,7 +82,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
              this._container.mouseService
                 .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$)
                 .map(
-                    (event: MouseEvent): boolean => {
+                    (event: Event): boolean => {
                         return false;
                     });
 
@@ -153,7 +153,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                                         this._container.mouseService
                                             .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$)
                                             .map(
-                                                (e: MouseEvent): MouseEvent => {
+                                                (e: Event): MouseEvent => {
                                                     return null;
                                                 }))
                                     .takeWhile(

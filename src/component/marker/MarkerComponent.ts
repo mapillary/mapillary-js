@@ -517,7 +517,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
              this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDragEnd$)
                 .map(
-                    (event: MouseEvent): boolean => {
+                    (event: Event): boolean => {
                         return false;
                     });
 

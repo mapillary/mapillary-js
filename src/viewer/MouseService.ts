@@ -30,7 +30,7 @@ export class MouseService {
 
     private _domMouseDragStart$: Observable<MouseEvent>;
     private _domMouseDrag$: Observable<MouseEvent>;
-    private _domMouseDragEnd$: Observable<MouseEvent>;
+    private _domMouseDragEnd$: Observable<MouseEvent | FocusEvent>;
 
     private _documentMouseMove$: Observable<MouseEvent>;
     private _documentMouseUp$: Observable<MouseEvent>;
@@ -51,7 +51,7 @@ export class MouseService {
 
     private _mouseDragStart$: Observable<MouseEvent>;
     private _mouseDrag$: Observable<MouseEvent>;
-    private _mouseDragEnd$: Observable<MouseEvent>;
+    private _mouseDragEnd$: Observable<MouseEvent | FocusEvent>;
 
     private _staticClick$: Observable<MouseEvent>;
 
@@ -155,9 +155,9 @@ export class MouseService {
                 })
             .share();
 
-        const dragStop$: Observable<MouseEvent> = Observable
+        const dragStop$: Observable<MouseEvent | FocusEvent> = Observable
             .merge(
-                Observable.fromEvent<MouseEvent>(window, "blur"),
+                Observable.fromEvent<FocusEvent>(window, "blur"),
                 this._documentMouseUp$
                     .filter(
                         (e: MouseEvent): boolean => {
@@ -254,7 +254,7 @@ export class MouseService {
         return this._domMouseDrag$;
     }
 
-    public get domMouseDragEnd$(): Observable<MouseEvent> {
+    public get domMouseDragEnd$(): Observable<MouseEvent | FocusEvent> {
         return this._domMouseDragEnd$;
     }
 
@@ -318,7 +318,7 @@ export class MouseService {
         return this._mouseDrag$;
     }
 
-    public get mouseDragEnd$(): Observable<MouseEvent> {
+    public get mouseDragEnd$(): Observable<MouseEvent | FocusEvent> {
         return this._mouseDragEnd$;
     }
 
@@ -369,10 +369,10 @@ export class MouseService {
                 });
     }
 
-    private _createMouseDragEnd$(mouseDragStart$: Observable<MouseEvent>, stop$: Observable<MouseEvent>): Observable<MouseEvent> {
+    private _createMouseDragEnd$<T>(mouseDragStart$: Observable<MouseEvent>, stop$: Observable<T>): Observable<T> {
         return mouseDragStart$
             .switchMap(
-                (e: MouseEvent): Observable<MouseEvent> => {
+                (event: MouseEvent): Observable<T> => {
                     return stop$.first();
                 });
     }

@@ -89,7 +89,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
             .withLatestFrom(
                 this._mouseEventToBasic$(this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$))
                     .filter(this._validateBasic),
-                (event: MouseEvent, basicPoint: number[]): number[] => {
+                (event: Event, basicPoint: number[]): number[] => {
                     return basicPoint;
                 })
             .share();

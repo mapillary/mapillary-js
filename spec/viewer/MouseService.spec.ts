@@ -226,7 +226,7 @@ describe("MouseService.mouseDragEnd$", () => {
 
         mouseService.mouseDragEnd$
             .subscribe(
-                (event: MouseEvent): void => {
+                (event: Event): void => {
                     done();
                 });
 
