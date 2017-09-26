@@ -30,6 +30,7 @@ export {TouchZoomHandler} from "./component/mouse/TouchZoomHandler";
 export {Popup} from "./component/popup/popup/Popup";
 export {PopupComponent} from "./component/popup/PopupComponent";
 export {PopupAlignment} from "./component/popup/popup/PopupAlignment";
+export {IPopupOffset} from "./component/popup/interfaces/IPopupOffset";
 export {IPopupOptions} from "./component/popup/interfaces/IPopupOptions";
 export {NavigationComponent} from "./component/NavigationComponent";
 export {RouteComponent} from "./component/RouteComponent";

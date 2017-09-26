@@ -1,3 +1,4 @@
+import {IPopupOffset} from "../../../Component";
 import {Alignment} from "../../../Viewer";
 
 /**
@@ -35,12 +36,17 @@ export interface IPopupOptions {
     float?: Alignment;
 
     /**
-     * Offset in pixels in the float direction that the popup
+     * A pixel offset applied to the popup's location specfied as:
+     *
+     * - A single number in pixels in the float direction that the popup
      * will be translated with respect to the current anchor point.
+     *
+     * - An object of number arrays specifing an offset for
+     * each float direction. Negative offsets indicate left and up.
      *
      * @default 0
      */
-    offset?: number;
+    offset?: number | IPopupOffset;
 
     /**
      * Opacity of the popup visuals.

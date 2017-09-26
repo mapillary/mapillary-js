@@ -4,6 +4,7 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {
+    IPopupOffset,
     IPopupOptions,
     PopupAlignment,
 } from "../../../Component";
@@ -356,25 +357,9 @@ export class Popup {
             float = floats.length === 0 ? "top" : <PopupAlignment>floats.join("-");
         }
 
-        if (!!this._options.offset) {
-            const offset: number = this._options.offset;
-            const sign: number = offset >= 0 ? 1 : -1;
-            const cornerOffset: number = sign * Math.round(Math.sqrt(0.5 * Math.pow(offset, 2)));
-            const floatOffset: { [key in PopupAlignment]: number[] } = {
-                "bottom": [0, offset],
-                "bottom-left": [-cornerOffset, cornerOffset],
-                "bottom-right": [cornerOffset, cornerOffset],
-                "center": [0, 0],
-                "left": [-offset, 0],
-                "right": [offset, 0],
-                "top": [0, -offset],
-                "top-left": [-cornerOffset, -cornerOffset],
-                "top-right": [cornerOffset, -cornerOffset],
-            };
+        const offset: { [key in PopupAlignment]: number[] } = this._normalizeOffset(this._options.offset);
 
-            pointPixel = [pointPixel[0] + floatOffset[float][0], pointPixel[1] + floatOffset[float][1]];
-        }
-
+        pointPixel = [pointPixel[0] + offset[float][0], pointPixel[1] + offset[float][1]];
         pointPixel = [Math.round(pointPixel[0]), Math.round(pointPixel[1])];
 
         const floatTranslate: {[key in PopupAlignment]: string } = {
@@ -516,6 +501,43 @@ export class Popup {
                 return "top-right";
             default:
                 return null;
+        }
+    }
+
+    private _normalizeOffset(offset: number | IPopupOffset): { [key in PopupAlignment]: number[] } {
+        if (offset == null) {
+            return this._normalizeOffset(0);
+        }
+
+        if (typeof offset === "number") {
+            // input specifies a radius
+            const sideOffset: number = <number>offset;
+            const sign: number = sideOffset >= 0 ? 1 : -1;
+            const cornerOffset: number = sign * Math.round(Math.sqrt(0.5 * Math.pow(sideOffset, 2)));
+            return {
+                "bottom": [0, sideOffset],
+                "bottom-left": [-cornerOffset, cornerOffset],
+                "bottom-right": [cornerOffset, cornerOffset],
+                "center": [0, 0],
+                "left": [-sideOffset, 0],
+                "right": [sideOffset, 0],
+                "top": [0, -sideOffset],
+                "top-left": [-cornerOffset, -cornerOffset],
+                "top-right": [cornerOffset, -cornerOffset],
+            };
+        } else {
+            // input specifes a value for each position
+            return {
+                "bottom": offset.bottom || [0, 0],
+                "bottom-left": offset.bottomLeft || [0, 0],
+                "bottom-right": offset.bottomRight || [0, 0],
+                "center": offset.center || [0, 0],
+                "left": offset.left || [0, 0],
+                "right": offset.right || [0, 0],
+                "top": offset.top || [0, 0],
+                "top-left": offset.topLeft || [0, 0],
+                "top-right": offset.topRight || [0, 0],
+               };
         }
     }
 

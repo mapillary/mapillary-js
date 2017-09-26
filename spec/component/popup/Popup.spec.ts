@@ -1,6 +1,9 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import {Popup} from "../../../src/Component";
+import {
+    IPopupOffset,
+    Popup,
+} from "../../../src/Component";
 import {ViewportCoords} from "../../../src/Geo";
 import {RenderCamera} from "../../../src/Render";
 import {Alignment} from "../../../src/Viewer";
@@ -346,6 +349,64 @@ describe("Popup.offset", () => {
         const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
 
         expect(/translate\(52px,\s?60px\)/.test(transform)).toBe(true);
+    });
+
+    it("should offset according to popup offset struct in the float direction", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);
+
+        const offset: IPopupOffset = {
+            bottom: [0, 1],
+            bottomLeft: [2, 3],
+            bottomRight: [4, 5],
+            center: [6, 7],
+            left: [8, 9],
+            right: [10, 11],
+            top: [12, 13],
+            topLeft: [14, 15],
+            topRight: [16, 17],
+        };
+        const popup: Popup = new Popup({ offset: offset, float: Alignment.TopLeft }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.4, 0.6]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
+
+        expect(/translate\(54px,\s?75px\)/.test(transform)).toBe(true);
+    });
+
+    it("should offset left and up for negative popup offset struct values in the float direction", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);
+
+        const offset: IPopupOffset = {
+            bottom: [-0, -1],
+            bottomLeft: [-2, -3],
+            bottomRight: [-4, -5],
+            center: [-6, -7],
+            left: [-8, -9],
+            right: [-10, -11],
+            top: [-12, -13],
+            topLeft: [-14, -15],
+            topRight: [-16, -17],
+        };
+        const popup: Popup = new Popup({ offset: offset, float: Alignment.BottomRight }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.4, 0.6]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
+
+        expect(/translate\(36px,\s?55px\)/.test(transform)).toBe(true);
     });
 });
 
