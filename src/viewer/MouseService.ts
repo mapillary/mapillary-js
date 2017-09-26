@@ -15,7 +15,10 @@ import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/withLatestFrom";
 
 import {ViewportCoords} from "../Geo";
-import {IMouseClaim} from "../Viewer";
+import {
+    IMouseClaim,
+    IMouseDeferPixels,
+} from "../Viewer";
 
 export class MouseService {
     private _domContainer: EventTarget;
@@ -53,6 +56,9 @@ export class MouseService {
     private _mouseDrag$: Observable<MouseEvent>;
     private _mouseDragEnd$: Observable<MouseEvent | FocusEvent>;
 
+    private _deferPixelClaims$: Subject<IMouseDeferPixels>;
+    private _deferPixels$: Observable<number>;
+    private _proximateClick$: Observable<MouseEvent>;
     private _staticClick$: Observable<MouseEvent>;
 
     private _claimMouse$: Subject<IMouseClaim>;
@@ -81,6 +87,41 @@ export class MouseService {
 
         this._claimMouse$ = new Subject<IMouseClaim>();
         this._claimWheel$ = new Subject<IMouseClaim>();
+
+        this._deferPixelClaims$ = new Subject<IMouseDeferPixels>();
+        this._deferPixels$ = this._deferPixelClaims$
+            .scan(
+                (claims: { [key: string]: number }, claim: IMouseDeferPixels): { [key: string]: number } => {
+                    if (claim.deferPixels == null) {
+                        delete claims[claim.name];
+                    } else {
+                        claims[claim.name] = claim.deferPixels;
+                    }
+
+                    return claims;
+                },
+                {})
+            .map(
+                (claims: { [key: string]: number }): number => {
+                    let deferPixelMax: number = -1;
+                    for (const key in claims) {
+                        if (!claims.hasOwnProperty(key)) {
+                            continue;
+                        }
+
+                        const deferPixels: number = claims[key];
+                        if (deferPixels > deferPixelMax) {
+                            deferPixelMax = deferPixels;
+                        }
+                    }
+
+                    return deferPixelMax;
+                })
+            .startWith(-1)
+            .publishReplay(1)
+            .refCount();
+
+        this._deferPixels$.subscribe((): void => { /* noop */ });
 
         this._documentMouseMove$ = Observable.fromEvent<MouseEvent>(doc, "mousemove");
         this._documentMouseUp$ = Observable.fromEvent<MouseEvent>(doc, "mouseup");
@@ -182,6 +223,15 @@ export class MouseService {
         this._domMouseDragStart$ = this._createMouseDragStart$(domMouseDragInitiate$).share();
         this._domMouseDrag$ = this._createMouseDrag$(domMouseDragInitiate$, dragStop$).share();
         this._domMouseDragEnd$ = this._createMouseDragEnd$(this._domMouseDragStart$, dragStop$).share();
+
+        this._proximateClick$ = this._mouseDown$
+            .switchMap(
+                (mouseDown: MouseEvent): Observable<MouseEvent> => {
+                    return this._click$
+                        .takeUntil(this._createDeferredMouseMove$(mouseDown, this._mouseMove$))
+                        .take(1);
+                })
+            .share();
 
         this._staticClick$ = this._mouseDown$
             .switchMap(
@@ -306,16 +356,28 @@ export class MouseService {
         return this._mouseDragEnd$;
     }
 
+    public get proximateClick$(): Observable<MouseEvent> {
+        return this._proximateClick$;
+    }
+
     public get staticClick$(): Observable<MouseEvent> {
         return this._staticClick$;
     }
 
     public claimMouse(name: string, zindex: number): void {
-        this._claimMouse$.next({name: name, zindex: zindex});
+        this._claimMouse$.next({ name: name, zindex: zindex });
     }
 
     public unclaimMouse(name: string): void {
-        this._claimMouse$.next({name: name, zindex: null});
+        this._claimMouse$.next({ name: name, zindex: null });
+    }
+
+    public deferPixels(name: string, deferPixels: number): void {
+        this._deferPixelClaims$.next({ name: name, deferPixels: deferPixels });
+    }
+
+    public undeferPixels(name: string): void {
+        this._deferPixelClaims$.next({ name: name, deferPixels: null });
     }
 
     public claimWheel(name: string, zindex: number): void {
@@ -332,6 +394,28 @@ export class MouseService {
 
     public filteredWheel$<T>(name: string, observable$: Observable<T>): Observable<T> {
         return this._filtered(name, observable$, this._wheelOwner$);
+    }
+
+    private _createDeferredMouseMove$(
+        origin: MouseEvent,
+        mouseMove$: Observable<MouseEvent>): Observable<MouseEvent> {
+        return mouseMove$
+            .map(
+                (mouseMove: MouseEvent): [MouseEvent, number] => {
+                    const deltaX: number = mouseMove.clientX - origin.clientX;
+                    const deltaY: number = mouseMove.clientY - origin.clientY;
+
+                    return [mouseMove, Math.sqrt(deltaX * deltaX + deltaY * deltaY)];
+                })
+            .withLatestFrom(this._deferPixels$)
+            .filter(
+                ([[mouseMove, delta], deferPixels]: [[MouseEvent, number], number]): boolean => {
+                    return delta > deferPixels;
+                })
+            .map(
+                ([[mouseMove, delta], deferPixels]: [[MouseEvent, number], number]): MouseEvent => {
+                    return mouseMove;
+                });
     }
 
     private _createMouseDrag$(
@@ -382,7 +466,7 @@ export class MouseService {
                     return Observable
                         .combineLatest(
                             Observable.of(mouseDown),
-                            this._documentMouseMove$)
+                            this._createDeferredMouseMove$(mouseDown, this._documentMouseMove$))
                         .takeUntil(stop$)
                         .take(1);
                 });
