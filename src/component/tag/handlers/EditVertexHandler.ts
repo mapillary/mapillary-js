@@ -3,13 +3,12 @@ import {Subscription} from "rxjs/Subscription";
 
 import {
     Component,
-    CreateHandlerBase,
+    TagHandlerBase,
     Geometry,
     IInteraction,
     ITagConfiguration,
     RenderTag,
     Tag,
-    TagCreator,
     TagOperation,
     TagSet,
     VertexGeometry,
@@ -24,7 +23,7 @@ import {
     Navigator,
 } from "../../../Viewer";
 
-export class EditVertexHandler extends CreateHandlerBase {
+export class EditVertexHandler extends TagHandlerBase {
     private _name: string;
 
     private _tagSet: TagSet;
@@ -38,10 +37,9 @@ export class EditVertexHandler extends CreateHandlerBase {
         component: Component<ITagConfiguration>,
         container: Container,
         navigator: Navigator,
-        tagCreator: TagCreator,
         viewportCoords: ViewportCoords,
         tagSet: TagSet) {
-        super(component, container, navigator, tagCreator, viewportCoords);
+        super(component, container, navigator, viewportCoords);
 
         this._name = this._component.name + "-edit-vertex";
 

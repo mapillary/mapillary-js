@@ -231,14 +231,14 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._viewportCoords = new ViewportCoords();
 
         this._createHandlers = {
-            "CreatePoint": new CreatePointHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
-            "CreatePolygon": new CreatePolygonHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
-            "CreateRect": new CreateRectHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
-            "CreateRectDrag": new CreateRectDragHandler(this, container, navigator, this._tagCreator, this._viewportCoords),
+            "CreatePoint": new CreatePointHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
+            "CreatePolygon": new CreatePolygonHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
+            "CreateRect": new CreateRectHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
+            "CreateRectDrag": new CreateRectDragHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
             "Default": undefined,
         };
 
-        this._editVertexHandler = new EditVertexHandler(this, container, navigator, this._tagCreator, this._viewportCoords, this._tagSet);
+        this._editVertexHandler = new EditVertexHandler(this, container, navigator, this._viewportCoords, this._tagSet);
 
         this._renderTags$ = this._tagSet.changed$
             .map(

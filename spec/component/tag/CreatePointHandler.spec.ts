@@ -34,7 +34,7 @@ describe("CreatePointHandler.ctor", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         expect(createPointHandler).toBeDefined();
     });
@@ -48,7 +48,7 @@ describe("CreatePointHandler.disable", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         component.activate();
         createPointHandler.enable();
@@ -77,7 +77,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         const basicStaticClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.staticClick$);
 
@@ -109,7 +109,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         const basicStaticClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.staticClick$);
 
@@ -135,7 +135,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         const basicStaticClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.staticClick$);
 
@@ -168,7 +168,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         const basicStaticClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.staticClick$);
 

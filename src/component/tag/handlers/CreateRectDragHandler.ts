@@ -33,9 +33,9 @@ export class CreateRectDragHandler extends CreateHandlerBase {
         component: Component<ITagConfiguration>,
         container: Container,
         navigator: Navigator,
-        tagCreator: TagCreator,
-        viewportCoords: ViewportCoords) {
-        super(component, container, navigator, tagCreator, viewportCoords);
+        viewportCoords: ViewportCoords,
+        tagCreator: TagCreator) {
+        super(component, container, navigator, viewportCoords, tagCreator);
 
         this._name = this._component.name + "-create-rect-drag";
     }

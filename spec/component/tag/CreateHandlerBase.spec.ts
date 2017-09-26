@@ -38,7 +38,7 @@ describe("CreateHandlerBase.ctor", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createTestHandler: CreateTestHandler = new CreateTestHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createTestHandler: CreateTestHandler = new CreateTestHandler(component, container, navigator, viewportCoords, tagCreator);
 
         expect(createTestHandler).toBeDefined();
     });
@@ -52,7 +52,7 @@ describe("CreateHandlerBase.validateBasic", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createTestHandler: CreateTestHandler = new CreateTestHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createTestHandler: CreateTestHandler = new CreateTestHandler(component, container, navigator, viewportCoords, tagCreator);
 
         expect(createTestHandler.validateBasic([0, 0])).toBe(true);
         expect(createTestHandler.validateBasic([1, 1])).toBe(true);
@@ -68,7 +68,7 @@ describe("CreateHandlerBase.validateBasic", () => {
         const tagCreator: TagCreator = new TagCreator(component, navigator);
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
-        const createTestHandler: CreateTestHandler = new CreateTestHandler(component, container, navigator, tagCreator, viewportCoords);
+        const createTestHandler: CreateTestHandler = new CreateTestHandler(component, container, navigator, viewportCoords, tagCreator);
 
         expect(createTestHandler.validateBasic([-1, 0.5])).toBe(false);
         expect(createTestHandler.validateBasic([2, 0.5])).toBe(false);

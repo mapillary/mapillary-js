@@ -5,10 +5,10 @@ import {Subject} from "rxjs/Subject";
 
 import {
     Component,
-    HandlerBase,
     Geometry,
     ITagConfiguration,
     TagCreator,
+    TagHandlerBase,
 } from "../../../Component";
 import {
     Transform,
@@ -20,9 +20,8 @@ import {
     Navigator,
 } from "../../../Viewer";
 
-export abstract class CreateHandlerBase extends HandlerBase<ITagConfiguration> {
+export abstract class CreateHandlerBase extends TagHandlerBase {
     protected _tagCreator: TagCreator;
-    protected _viewportCoords: ViewportCoords;
 
     protected _geometryCreated$: Subject<Geometry>;
 
@@ -30,13 +29,11 @@ export abstract class CreateHandlerBase extends HandlerBase<ITagConfiguration> {
         component: Component<ITagConfiguration>,
         container: Container,
         navigator: Navigator,
-        tagCreator: TagCreator,
-        viewportCoords: ViewportCoords) {
-        super(component, container, navigator);
+        viewportCoords: ViewportCoords,
+        tagCreator: TagCreator) {
+        super(component, container, navigator, viewportCoords);
 
         this._tagCreator = tagCreator;
-        this._viewportCoords = viewportCoords;
-
         this._geometryCreated$ = new Subject<Geometry>();
     }
 
@@ -44,39 +41,11 @@ export abstract class CreateHandlerBase extends HandlerBase<ITagConfiguration> {
         return this._geometryCreated$;
     }
 
-    protected _getConfiguration(enable: boolean): ITagConfiguration {
-        return {};
-    }
-
     protected _validateBasic(basic: number[]): boolean {
         const x: number = basic[0];
         const y: number = basic[1];
 
         return 0 <= x && x <= 1 && 0 <= y && y <= 1;
-    }
-
-    protected _mouseEventToBasic(
-        event: MouseEvent,
-        element: HTMLElement,
-        camera: RenderCamera,
-        transform: Transform,
-        offsetX?: number,
-        offsetY?: number):
-        number[] {
-
-        offsetX = offsetX != null ? offsetX : 0;
-        offsetY = offsetY != null ? offsetY : 0;
-
-        const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
-        const basic: number[] =
-            this._viewportCoords.canvasToBasic(
-                canvasX - offsetX,
-                canvasY - offsetY,
-                element,
-                transform,
-                camera.perspective);
-
-        return basic;
     }
 
     protected _mouseEventToBasic$(mouseEvent$: Observable<MouseEvent>): Observable<number[]> {
