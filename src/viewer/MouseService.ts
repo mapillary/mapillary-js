@@ -56,7 +56,10 @@ export class MouseService {
     private _staticClick$: Observable<MouseEvent>;
 
     private _claimMouse$: Subject<IMouseClaim>;
+    private _claimWheel$: Subject<IMouseClaim>;
+
     private _mouseOwner$: Observable<string>;
+    private _wheelOwner$: Observable<string>;
 
     constructor(
         container: EventTarget,
@@ -77,6 +80,7 @@ export class MouseService {
             .refCount();
 
         this._claimMouse$ = new Subject<IMouseClaim>();
+        this._claimWheel$ = new Subject<IMouseClaim>();
 
         this._documentMouseMove$ = Observable.fromEvent<MouseEvent>(doc, "mousemove");
         this._documentMouseUp$ = Observable.fromEvent<MouseEvent>(doc, "mouseup");
@@ -198,36 +202,16 @@ export class MouseService {
 
         this._staticClick$.subscribe();
 
-        this._mouseOwner$ = this._claimMouse$
-            .scan(
-                (claims: {[key: string]: number}, mouseClaim: IMouseClaim): {[key: string]: number} => {
-                    if (mouseClaim.zindex == null) {
-                        delete claims[mouseClaim.name];
-                    } else {
-                        claims[mouseClaim.name] = mouseClaim.zindex;
-                    }
-                    return claims;
-                },
-                {})
-            .map(
-                (claims: {[key: string]: number}): string => {
-                    let owner: string = null;
-                    let curZ: number = -1;
+        this._mouseOwner$ = this._createOwner$(this._claimMouse$)
+            .publishReplay(1)
+            .refCount();
 
-                    for (const name in claims) {
-                        if (claims.hasOwnProperty(name)) {
-                            if (claims[name] > curZ) {
-                                curZ = claims[name];
-                                owner = name;
-                            }
-                        }
-                    }
-                    return owner;
-                })
+        this._wheelOwner$ = this._createOwner$(this._claimWheel$)
             .publishReplay(1)
             .refCount();
 
         this._mouseOwner$.subscribe(() => { /* noop */ });
+        this._wheelOwner$.subscribe(() => { /* noop */ });
     }
 
     public get active$(): Observable<boolean> {
@@ -334,21 +318,20 @@ export class MouseService {
         this._claimMouse$.next({name: name, zindex: null});
     }
 
+    public claimWheel(name: string, zindex: number): void {
+        this._claimWheel$.next({name: name, zindex: zindex});
+    }
+
+    public unclaimWheel(name: string): void {
+        this._claimWheel$.next({name: name, zindex: null});
+    }
+
     public filtered$<T>(name: string, observable$: Observable<T>): Observable<T> {
-        return observable$
-            .withLatestFrom(
-                this.mouseOwner$,
-                (event: T, owner: string): [T, string] => {
-                    return [event, owner];
-                })
-            .filter(
-                (eo: [T, string]): boolean => {
-                    return eo[1] === name;
-                })
-            .map(
-                (eo: [T, string]): T => {
-                    return eo[0];
-                });
+        return this._filtered(name, observable$, this._mouseOwner$);
+    }
+
+    public filteredWheel$<T>(name: string, observable$: Observable<T>): Observable<T> {
+        return this._filtered(name, observable$, this._wheelOwner$);
     }
 
     private _createMouseDrag$(
@@ -402,6 +385,53 @@ export class MouseService {
                             this._documentMouseMove$)
                         .takeUntil(stop$)
                         .take(1);
+                });
+    }
+
+    private _createOwner$(claim$: Observable<IMouseClaim>): Observable<string> {
+        return claim$
+            .scan(
+                (claims: { [key: string]: number }, claim: IMouseClaim): { [key: string]: number } => {
+                    if (claim.zindex == null) {
+                        delete claims[claim.name];
+                    } else {
+                        claims[claim.name] = claim.zindex;
+                    }
+
+                    return claims;
+                },
+                {})
+            .map(
+                (claims: { [key: string]: number }): string => {
+                    let owner: string = null;
+                    let zIndexMax: number = -1;
+
+                    for (const name in claims) {
+                        if (!claims.hasOwnProperty(name)) {
+                            continue;
+                        }
+
+                        if (claims[name] > zIndexMax) {
+                            zIndexMax = claims[name];
+                            owner = name;
+                        }
+                    }
+
+                    return owner;
+                })
+            .startWith(null);
+    }
+
+    private _filtered<T>(name: string, observable$: Observable<T>, owner$: Observable<string>): Observable<T> {
+        return observable$
+            .withLatestFrom(owner$)
+            .filter(
+                ([item, owner]: [T, string]): boolean => {
+                    return owner === name;
+                })
+            .map(
+                ([item, owner]: [T, string]): T => {
+                    return item;
                 });
     }
 }

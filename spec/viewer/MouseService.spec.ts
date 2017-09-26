@@ -551,7 +551,7 @@ describe("MouseService.claimMouse", () => {
         expect(mouseDownCount).toBe(0);
     });
 
-    it("should emit to highest zindex", () => {
+    it("should emit to highest z-index", () => {
         const container: HTMLElement = document.createElement("div");
         const canvasContainer: HTMLElement = document.createElement("div");
         const domContainer: HTMLElement = document.createElement("div");
@@ -615,5 +615,116 @@ describe("MouseService.claimMouse", () => {
 
         expect(mouseDownCount1).toBe(1);
         expect(mouseDownCount2).toBe(0);
+    });
+});
+
+describe("MouseService.claimWheel", () => {
+    it("should emit filtered after claiming wheel", (done: Function) => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        mouseService.claimWheel("test", 0);
+        mouseService.filteredWheel$("test", mouseService.mouseWheel$)
+            .subscribe(
+                (wheel: WheelEvent): void => {
+                    expect(wheel).toBeDefined();
+                    done();
+                });
+
+        const wheelEvent: WheelEvent = EventHelper.createWheelEvent("wheel", { button: 0 }, canvasContainer);
+
+        canvasContainer.dispatchEvent(wheelEvent);
+    });
+
+    it("should not emit filtered if not claimed", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let wheelCount: number = 0;
+        mouseService.filteredWheel$("test", mouseService.mouseWheel$)
+            .subscribe(
+                (wheel: WheelEvent): void => {
+                    wheelCount++;
+                });
+
+        const wheelEvent: WheelEvent = EventHelper.createWheelEvent("wheel", { button: 0 }, canvasContainer);
+
+        canvasContainer.dispatchEvent(wheelEvent);
+
+        expect(wheelCount).toBe(0);
+    });
+
+    it("should emit to highest z-index", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let wheelCount1: number = 0;
+        mouseService.claimWheel("test1", 1);
+        mouseService.filteredWheel$("test1", mouseService.mouseWheel$)
+            .subscribe(
+                (wheel: WheelEvent): void => {
+                    wheelCount1++;
+                });
+
+        let wheelCount2: number = 0;
+        mouseService.claimWheel("test2", 2);
+        mouseService.filteredWheel$("test2", mouseService.mouseWheel$)
+            .subscribe(
+                (wheel: WheelEvent): void => {
+                    wheelCount2++;
+                });
+
+        const wheelEvent: WheelEvent = EventHelper.createWheelEvent("wheel", { button: 0 }, canvasContainer);
+
+        canvasContainer.dispatchEvent(wheelEvent);
+
+        expect(wheelCount1).toBe(0);
+        expect(wheelCount2).toBe(1);
+    });
+
+    it("should emit to lower z-index after higher z-index unclaims", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let wheelCount1: number = 0;
+        mouseService.claimWheel("test1", 1);
+        mouseService.filteredWheel$("test1", mouseService.mouseWheel$)
+            .subscribe(
+                (wheel: WheelEvent): void => {
+                    wheelCount1++;
+                });
+
+        let wheelCount2: number = 0;
+        mouseService.claimWheel("test2", 2);
+        mouseService.filteredWheel$("test2", mouseService.mouseWheel$)
+            .subscribe(
+                (wheel: WheelEvent): void => {
+                    wheelCount2++;
+                });
+
+        mouseService.unclaimWheel("test2");
+
+        const wheelEvent: WheelEvent = EventHelper.createWheelEvent("wheel", { button: 0 }, canvasContainer);
+
+        canvasContainer.dispatchEvent(wheelEvent);
+
+        expect(wheelCount1).toBe(1);
+        expect(wheelCount2).toBe(0);
     });
 });

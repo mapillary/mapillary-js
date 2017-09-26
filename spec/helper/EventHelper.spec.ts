@@ -64,6 +64,29 @@ export class EventHelper {
 
         return uiEvent;
     }
+
+    public static createWheelEvent(eventType: string, params: WheelEventInit, target?: EventTarget): WheelEvent {
+        const wheelEvent: MouseEvent = document.createEvent("MouseEvent");
+
+        wheelEvent.initMouseEvent(
+            eventType,
+            params.bubbles !== undefined ? params.bubbles : true,
+            params.cancelable !== undefined ? params.cancelable : true,
+            window,
+            params.detail !== undefined ? params.detail : 0,
+            params.screenX !== undefined ? params.screenX : 0,
+            params.screenY !== undefined ? params.screenY : 0,
+            params.clientX !== undefined ? params.clientX : 0,
+            params.clientY !== undefined ? params.clientY : 0,
+            !!params.ctrlKey,
+            !!params.altKey,
+            !!params.shiftKey,
+            !!params.metaKey,
+            params.button !== undefined ? params.button : 0,
+            !!target ? target : document.createElement("div"));
+
+        return <WheelEvent>wheelEvent;
+    }
 }
 
 export default EventHelper;
