@@ -30,7 +30,6 @@ export class MouseServiceMockCreator extends MockCreatorBase<MouseService> {
         this._mockProperty(mock, "mouseWheel$", new Subject<MouseEvent>());
         this._mockProperty(mock, "staticClick$", new Subject<MouseEvent>());
 
-
         return mock;
     }
 }

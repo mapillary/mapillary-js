@@ -506,3 +506,114 @@ describe("MouseService.domMouseDragEnd$", () => {
         window.dispatchEvent(blurEvent);
     });
 });
+
+describe("MouseService.claimMouse", () => {
+    it("should emit filtered after claiming mouse", (done: Function) => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        mouseService.claimMouse("test", 0);
+        mouseService.filtered$("test", mouseService.mouseDown$)
+            .subscribe(
+                (mouseDown: MouseEvent): void => {
+                    expect(mouseDown).toBeDefined();
+                    done();
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
+
+        canvasContainer.dispatchEvent(mouseDownEvent);
+    });
+
+    it("should not emit filtered if not claimed", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let mouseDownCount: number = 0;
+        mouseService.filtered$("test", mouseService.mouseDown$)
+            .subscribe(
+                (mouseDown: MouseEvent): void => {
+                    mouseDownCount++;
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
+
+        canvasContainer.dispatchEvent(mouseDownEvent);
+
+        expect(mouseDownCount).toBe(0);
+    });
+
+    it("should emit to highest zindex", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let mouseDownCount1: number = 0;
+        mouseService.claimMouse("test1", 1);
+        mouseService.filtered$("test1", mouseService.mouseDown$)
+            .subscribe(
+                (mouseDown: MouseEvent): void => {
+                    mouseDownCount1++;
+                });
+
+        let mouseDownCount2: number = 0;
+        mouseService.claimMouse("test2", 2);
+        mouseService.filtered$("test2", mouseService.mouseDown$)
+            .subscribe(
+                (mouseDown: MouseEvent): void => {
+                    mouseDownCount2++;
+                });
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
+
+        canvasContainer.dispatchEvent(mouseDownEvent);
+
+        expect(mouseDownCount1).toBe(0);
+        expect(mouseDownCount2).toBe(1);
+    });
+
+    it("should emit to lower z-index after higher z-index unclaims", () => {
+        const container: HTMLElement = document.createElement("div");
+        const canvasContainer: HTMLElement = document.createElement("div");
+        const domContainer: HTMLElement = document.createElement("div");
+        const doc: HTMLElement = document.createElement("div");
+
+        const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
+
+        let mouseDownCount1: number = 0;
+        mouseService.claimMouse("test1", 1);
+        mouseService.filtered$("test1", mouseService.mouseDown$)
+            .subscribe(
+                (mouseDown: MouseEvent): void => {
+                    mouseDownCount1++;
+                });
+
+        let mouseDownCount2: number = 0;
+        mouseService.claimMouse("test2", 2);
+        mouseService.filtered$("test2", mouseService.mouseDown$)
+            .subscribe(
+                (mouseDown: MouseEvent): void => {
+                    mouseDownCount2++;
+                });
+
+        mouseService.unclaimMouse("test2");
+
+        const mouseDownEvent: MouseEvent = EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
+
+        canvasContainer.dispatchEvent(mouseDownEvent);
+
+        expect(mouseDownCount1).toBe(1);
+        expect(mouseDownCount2).toBe(0);
+    });
+});
