@@ -19,6 +19,7 @@ export interface IStateContext extends ICurrentState {
     rotate(delta: IRotation): void;
     rotateBasic(basicRotation: number[]): void;
     rotateBasicUnbounded(basicRotation: number[]): void;
+    rotateBasicWithoutInertia(basicRotation: number[]): void;
     rotateToBasic(basic: number[]): void;
     move(delta: number): void;
     moveTo(position: number): void;

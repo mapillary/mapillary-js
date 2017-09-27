@@ -421,6 +421,11 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.rotateBasicUnbounded(basicRotation); });
     }
 
+    public rotateBasicWithoutInertia(basicRotation: number[]): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.rotateBasicWithoutInertia(basicRotation); });
+    }
+
     public rotateToBasic(basic: number[]): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotateToBasic(basic); });
