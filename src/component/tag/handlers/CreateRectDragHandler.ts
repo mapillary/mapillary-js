@@ -14,6 +14,7 @@ import {
     Transform,
     ViewportCoords,
 } from "../../../Geo";
+import {RenderCamera} from "../../../Render";
 import {
     Container,
     Navigator,
@@ -53,12 +54,6 @@ export class CreateRectDragHandler extends CreateHandlerBase {
             .filter(this._validateBasic)
             .subscribe(this._tagCreator.createRect$);
 
-        const basicContainerMouseMove$: Observable<number[]> =
-            this._mouseEventToBasic$(Observable
-                .merge(
-                    this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
-                    this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$)));
-
         this._initializeAnchorIndexingSubscription = this._tagCreator.tag$
             .filter(
                 (tag: OutlineCreateTag): boolean => {
@@ -69,6 +64,21 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                     (<RectGeometry>tag.geometry).initializeAnchorIndexing();
                 });
 
+        const basicMouse$: Observable<number[]> = Observable
+            .merge(
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$))
+            .combineLatest(this._container.renderService.renderCamera$)
+            .withLatestFrom(this._navigator.stateService.currentTransform$)
+                .map(
+                    ([[event, camera], transform]: [[MouseEvent, RenderCamera], Transform]): number[] => {
+                        return this._mouseEventToBasic(
+                            event,
+                            this._container.element,
+                            camera,
+                            transform);
+                    });
+
         this._setVertexSubscription = this._tagCreator.tag$
             .switchMap(
                 (tag: OutlineCreateTag): Observable<[OutlineCreateTag, number[], Transform]> => {
@@ -76,7 +86,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                         Observable
                             .combineLatest(
                                 Observable.of(tag),
-                                basicContainerMouseMove$,
+                                basicMouse$,
                                 this._navigator.stateService.currentTransform$) :
                         Observable.empty();
                 })
