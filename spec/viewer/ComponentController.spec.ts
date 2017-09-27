@@ -129,6 +129,7 @@ describe("ComponentController.navigable", () => {
         const observer: Observer = new Observer(eventEmitter, navigator, container);
 
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
+        (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
 
         const componentController: ComponentController =
             new ComponentController(
@@ -175,6 +176,7 @@ describe("ComponentController.navigable", () => {
         const observer: Observer = new Observer(eventEmitter, navigator, container);
 
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
+        (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
         const moveToKey$: Subject<Node> = new Subject<Node>();
         (<jasmine.Spy>navigator.moveToKey$).and.returnValue(moveToKey$);
 
@@ -271,6 +273,7 @@ describe("ComponentController.navigable", () => {
         const observer: Observer = new Observer(eventEmitter, navigator, container);
 
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
+        (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
         const moveToKey$: Subject<Node> = new Subject<Node>();
         (<jasmine.Spy>navigator.moveToKey$).and.returnValue(moveToKey$);
 

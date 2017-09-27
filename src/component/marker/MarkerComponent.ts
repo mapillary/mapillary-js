@@ -569,8 +569,10 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 (claim: boolean): void => {
                     if (claim) {
                         this._container.mouseService.claimMouse(this._name, 1);
+                        this._container.mouseService.claimWheel(this._name, 1);
                     } else {
                         this._container.mouseService.unclaimMouse(this._name);
+                        this._container.mouseService.unclaimWheel(this._name);
                     }
                 });
 

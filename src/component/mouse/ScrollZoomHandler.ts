@@ -49,6 +49,8 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
     }
 
     protected _enable(): void {
+        this._container.mouseService.claimWheel(this._component.name, 0);
+
         this._preventDefaultSubscription = this._container.mouseService.mouseWheel$
             .subscribe(
                 (event: WheelEvent): void => {
@@ -56,7 +58,7 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
                 });
 
         this._zoomSubscription = this._container.mouseService
-            .filtered$(this._component.name, this._container.mouseService.mouseWheel$)
+            .filteredWheel$(this._component.name, this._container.mouseService.mouseWheel$)
             .withLatestFrom(
                 this._navigator.stateService.currentState$,
                 (w: WheelEvent, f: IFrame): [WheelEvent, IFrame] => {
@@ -112,6 +114,8 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
     }
 
     protected _disable(): void {
+        this._container.mouseService.unclaimWheel(this._component.name);
+
         this._preventDefaultSubscription.unsubscribe();
         this._zoomSubscription.unsubscribe();
 
