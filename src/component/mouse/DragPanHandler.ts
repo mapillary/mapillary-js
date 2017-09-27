@@ -5,8 +5,8 @@ import * as THREE from "three";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/bufferWhen";
 import "rxjs/add/operator/concat";
+import "rxjs/add/operator/sample";
 import "rxjs/add/operator/takeWhile";
 
 import {
@@ -316,32 +316,30 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 });
 
         this._rotateBasicSubscription = basicRotation$
-            .map(
-                (basicRotation: number[]): [number[], number] => {
-                    return [basicRotation, Date.now()];
-                })
-            .bufferWhen(
-                (): Observable<MouseEvent | FocusEvent> => {
-                    return this._container.mouseService
-                        .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$);
-                })
-            .map(
-                (rotationBuffer: [number[], number][]): number[] => {
-                    const cutoff: number = 50;
-                    const now: number = Date.now();
+            .scan(
+                (rotationBuffer: [number, number[]][], rotation: number[]): [number, number[]][] => {
+                    this._drainBuffer(rotationBuffer);
 
-                    let count: number = 0;
-                    let basicRotation: number[] = [0, 0];
-                    for (const rotation of rotationBuffer) {
-                        if (now - rotation[1] > cutoff) {
-                            continue;
-                        }
+                    rotationBuffer.push([Date.now(), rotation]);
 
-                        count++;
-                        basicRotation[0] += rotation[0][0];
-                        basicRotation[1] += rotation[0][1];
+                    return rotationBuffer;
+                },
+                [])
+            .sample(
+                this._container.mouseService.filtered$(
+                    this._component.name,
+                    this._container.mouseService.mouseDragEnd$))
+            .map(
+                (rotationBuffer: [number, number[]][]): number[] => {
+                    const drainedBuffer: [number, number[]][] = this._drainBuffer(rotationBuffer.slice());
+                    const basicRotation: number[] = [0, 0];
+
+                    for (const rotation of drainedBuffer) {
+                        basicRotation[0] += rotation[1][0];
+                        basicRotation[1] += rotation[1][1];
                     }
 
+                    const count: number = drainedBuffer.length;
                     if (count > 0) {
                         basicRotation[0] /= count;
                         basicRotation[1] /= count;
@@ -370,6 +368,17 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
 
     protected _getConfiguration(enable: boolean): IMouseConfiguration {
         return { dragPan: enable };
+    }
+
+    private _drainBuffer<T>(buffer: [number, T][]): [number, T][] {
+        const cutoff: number = 50;
+        const now: number = Date.now();
+
+        while (buffer.length > 0 && now - buffer[0][0] > cutoff) {
+            buffer.shift();
+        }
+
+        return buffer;
     }
 }
 
