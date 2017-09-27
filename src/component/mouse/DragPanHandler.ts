@@ -5,6 +5,7 @@ import * as THREE from "three";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
+import "rxjs/add/operator/bufferWhen";
 import "rxjs/add/operator/concat";
 import "rxjs/add/operator/takeWhile";
 
@@ -53,6 +54,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
     private _activeTouchSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
     private _rotateBasicSubscription: Subscription;
+    private _rotateBasicWithoutInertiaSubscription: Subscription;
 
     constructor(
         component: Component<IMouseConfiguration>,
@@ -128,7 +130,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 touchMovingStopped$)
             .subscribe(this._container.touchService.activate$);
 
-        this._rotateBasicSubscription = this._navigator.stateService.currentState$
+        const basicRotation$: Observable<number[]> = this._navigator.stateService.currentState$
             .map(
                 (frame: IFrame): boolean => {
                     return frame.state.currentNode.fullPano || frame.state.nodesAhead < 1;
@@ -305,6 +307,48 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
 
                     return [x, y];
                 })
+            .share();
+
+        this._rotateBasicWithoutInertiaSubscription = basicRotation$
+            .subscribe(
+                (basicRotation: number[]): void => {
+                    this._navigator.stateService.rotateBasicWithoutInertia(basicRotation);
+                });
+
+        this._rotateBasicSubscription = basicRotation$
+            .map(
+                (basicRotation: number[]): [number[], number] => {
+                    return [basicRotation, Date.now()];
+                })
+            .bufferWhen(
+                (): Observable<MouseEvent | FocusEvent> => {
+                    return this._container.mouseService
+                        .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$);
+                })
+            .map(
+                (rotationBuffer: [number[], number][]): number[] => {
+                    const cutoff: number = 50;
+                    const now: number = Date.now();
+
+                    let count: number = 0;
+                    let basicRotation: number[] = [0, 0];
+                    for (const rotation of rotationBuffer) {
+                        if (now - rotation[1] > cutoff) {
+                            continue;
+                        }
+
+                        count++;
+                        basicRotation[0] += rotation[0][0];
+                        basicRotation[1] += rotation[0][1];
+                    }
+
+                    if (count > 0) {
+                        basicRotation[0] /= count;
+                        basicRotation[1] /= count;
+                    }
+
+                    return basicRotation;
+                })
             .subscribe(
                 (basicRotation: number[]): void => {
                     this._navigator.stateService.rotateBasic(basicRotation);
@@ -316,6 +360,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
         this._activeTouchSubscription.unsubscribe();
         this._preventDefaultSubscription.unsubscribe();
         this._rotateBasicSubscription.unsubscribe();
+        this._rotateBasicWithoutInertiaSubscription.unsubscribe();
 
         this._activeMouseSubscription = null;
         this._activeTouchSubscription = null;
