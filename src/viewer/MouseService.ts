@@ -211,14 +211,14 @@ export class MouseService {
             .share();
 
         const mouseDragInitiate$: Observable<[MouseEvent, MouseEvent]> =
-            this._createMouseDragInitiate$(this._mouseDown$, dragStop$).share();
+            this._createMouseDragInitiate$(this._mouseDown$, dragStop$, true).share();
 
         this._mouseDragStart$ = this._createMouseDragStart$(mouseDragInitiate$).share();
         this._mouseDrag$ = this._createMouseDrag$(mouseDragInitiate$, dragStop$).share();
         this._mouseDragEnd$ = this._createMouseDragEnd$(this._mouseDragStart$, dragStop$).share();
 
         const domMouseDragInitiate$: Observable<[MouseEvent, MouseEvent]> =
-            this._createMouseDragInitiate$(this._domMouseDown$, dragStop$).share();
+            this._createMouseDragInitiate$(this._domMouseDown$, dragStop$, false).share();
 
         this._domMouseDragStart$ = this._createMouseDragStart$(domMouseDragInitiate$).share();
         this._domMouseDrag$ = this._createMouseDrag$(domMouseDragInitiate$, dragStop$).share();
@@ -228,7 +228,7 @@ export class MouseService {
             .switchMap(
                 (mouseDown: MouseEvent): Observable<MouseEvent> => {
                     return this._click$
-                        .takeUntil(this._createDeferredMouseMove$(mouseDown, this._mouseMove$))
+                        .takeUntil(this._createDeferredMouseMove$(mouseDown, this._documentMouseMove$))
                         .take(1);
                 })
             .share();
@@ -237,7 +237,7 @@ export class MouseService {
             .switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return this._click$
-                        .takeUntil(this._mouseMove$)
+                        .takeUntil(this._documentMouseMove$)
                         .take(1);
                 })
             .share();
@@ -454,7 +454,8 @@ export class MouseService {
 
     private _createMouseDragInitiate$(
         mouseDown$: Observable<MouseEvent>,
-        stop$: Observable<Event>): Observable<[MouseEvent, MouseEvent]> {
+        stop$: Observable<Event>,
+        defer: boolean): Observable<[MouseEvent, MouseEvent]> {
 
         return mouseDown$
             .filter(
@@ -466,7 +467,9 @@ export class MouseService {
                     return Observable
                         .combineLatest(
                             Observable.of(mouseDown),
-                            this._createDeferredMouseMove$(mouseDown, this._documentMouseMove$))
+                            defer ?
+                                this._createDeferredMouseMove$(mouseDown, this._documentMouseMove$) :
+                                this._documentMouseMove$)
                         .takeUntil(stop$)
                         .take(1);
                 });
