@@ -59,7 +59,7 @@ interface IImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
 }
 
-type PositionLookat = [THREE.Vector3, THREE.Vector3, number];
+type PositionLookat = [THREE.Vector3, THREE.Vector3, number, number, number];
 
 export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     public static componentName: string = "imagePlane";
@@ -74,6 +74,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
     private _rendererSubscription: Subscription;
     private _setRegionOfInterestSubscription: Subscription;
     private _setTextureProviderSubscription: Subscription;
+    private _setTileSizeSubscription: Subscription;
     private _stateSubscription: Subscription;
     private _textureProviderSubscription: Subscription;
     private _updateBackgroundSubscription: Subscription;
@@ -185,14 +186,13 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 this._container.glRenderer.webGLRenderer$,
                 this._container.renderService.size$)
             .map(
-                (args: [IFrame, THREE.WebGLRenderer, ISize]): TextureProvider => {
-                    let state: ICurrentState = args[0].state;
-                    let renderer: THREE.WebGLRenderer = args[1];
-                    let viewportSize: ISize = args[2];
+                ([frame, renderer, size]: [IFrame, THREE.WebGLRenderer, ISize]): TextureProvider => {
+                    let state: ICurrentState = frame.state;
+                    let viewportSize: number = Math.max(size.width, size.height);
 
                     let currentNode: Node = state.currentNode;
                     let currentTransform: Transform = state.currentTransform;
-                    let tileSize: number = Math.max(viewportSize.width, viewportSize.height) > 1024 ? 1024 : 512;
+                    let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
                     return new TextureProvider(
                         currentNode.key,
@@ -220,6 +220,23 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 })
             .subscribe(this._rendererOperation$);
 
+        this._setTileSizeSubscription = this._container.renderService.size$
+            .switchMap(
+                (size: ISize): Observable<[TextureProvider, ISize]> => {
+                    return Observable
+                        .combineLatest(
+                            textureProvider$,
+                            Observable.of<ISize>(size))
+                        .first();
+                })
+            .subscribe(
+                ([provider, size]: [TextureProvider, ISize]): void => {
+                    let viewportSize: number = Math.max(size.width, size.height);
+                    let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
+
+                    provider.setTileSize(tileSize);
+                });
+
         this._abortTextureProviderSubscription = textureProvider$
             .pairwise()
             .subscribe(
@@ -228,13 +245,18 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     previous.abort();
                 });
 
-        let roiTrigger$: Observable<[RenderCamera, ISize, Transform]> = this._container.renderService.renderCameraFrame$
+        let roiTrigger$: Observable<[RenderCamera, ISize, Transform]> = Observable
+            .combineLatest(
+                this._container.renderService.renderCameraFrame$,
+                this._container.renderService.size$.debounceTime(250))
             .map(
-                (renderCamera: RenderCamera): PositionLookat => {
+                ([camera, size]: [RenderCamera, ISize]): PositionLookat => {
                     return [
-                        renderCamera.camera.position.clone(),
-                        renderCamera.camera.lookat.clone(),
-                        renderCamera.zoom.valueOf()];
+                        camera.camera.position.clone(),
+                        camera.camera.lookat.clone(),
+                        camera.zoom.valueOf(),
+                        size.height.valueOf(),
+                        size.width.valueOf()];
                 })
             .pairwise()
             .skipWhile(
@@ -246,8 +268,10 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     let samePosition: boolean = pls[0][0].equals(pls[1][0]);
                     let sameLookat: boolean = pls[0][1].equals(pls[1][1]);
                     let sameZoom: boolean = pls[0][2] === pls[1][2];
+                    let sameHeight: boolean = pls[0][3] === pls[1][3];
+                    let sameWidth: boolean = pls[0][4] === pls[1][4];
 
-                    return samePosition && sameLookat && sameZoom;
+                    return samePosition && sameLookat && sameZoom && sameHeight && sameWidth;
                 })
             .distinctUntilChanged()
             .filter(
@@ -268,9 +292,10 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 (provider: TextureProvider): Observable<[IRegionOfInterest, TextureProvider]> => {
                     return roiTrigger$
                         .map(
-                            (args: [RenderCamera, ISize, Transform]): [IRegionOfInterest, TextureProvider] => {
+                            ([camera, size, transform]: [RenderCamera, ISize, Transform]):
+                            [IRegionOfInterest, TextureProvider] => {
                                 return [
-                                    this._roiCalculator.computeRegionOfInterest(args[0], args[1], args[2]),
+                                    this._roiCalculator.computeRegionOfInterest(camera, size, transform),
                                     provider,
                                 ];
                             });
@@ -383,6 +408,7 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         this._rendererSubscription.unsubscribe();
         this._setRegionOfInterestSubscription.unsubscribe();
         this._setTextureProviderSubscription.unsubscribe();
+        this._setTileSizeSubscription.unsubscribe();
         this._stateSubscription.unsubscribe();
         this._textureProviderSubscription.unsubscribe();
         this._updateBackgroundSubscription.unsubscribe();
