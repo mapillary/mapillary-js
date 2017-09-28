@@ -240,7 +240,7 @@ export class TextureProvider {
         let height: number = 1 / this._roi.pixelHeight;
         let size: number = Math.max(height, width);
 
-        let currentLevel: number = Math.max(0, Math.min(this._maxLevel, Math.round(Math.log(size) / Math.log(2) + 0.25)));
+        let currentLevel: number = Math.max(0, Math.min(this._maxLevel, Math.ceil(Math.log(size) / Math.log(2))));
         if (currentLevel !== this._currentLevel) {
             this.abort();
 
@@ -251,7 +251,7 @@ export class TextureProvider {
 
             this._renderedCurrentLevelTiles = {};
             for (let tile of this._renderedTiles[this._currentLevel]) {
-                this._renderedCurrentLevelTiles[this._tileKey(tile)] = true;
+                this._renderedCurrentLevelTiles[this._tileKey(this._tileSize, tile)] = true;
             }
         }
 
@@ -299,6 +299,10 @@ export class TextureProvider {
         this._fetchTiles(tiles);
     }
 
+    public setTileSize(tileSize: number): void {
+        this._tileSize = tileSize;
+    }
+
     /**
      * Update the image used as background for the texture.
      *
@@ -342,7 +346,7 @@ export class TextureProvider {
 
         this._abortFunctions.push(abort);
 
-        let tileKey: string = this._tileKey(tile);
+        let tileKey: string = this._tileKey(this._tileSize, tile);
 
         let subscription: Subscription = tile$
             .subscribe(
@@ -384,7 +388,7 @@ export class TextureProvider {
         let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
 
         for (let tile of tiles) {
-            let tileKey: string = this._tileKey(tile);
+            let tileKey: string = this._tileKey(this._tileSize, tile);
             if (tileKey in this._renderedCurrentLevelTiles ||
                 tileKey in this._tileSubscriptions) {
                 continue;
@@ -585,7 +589,7 @@ export class TextureProvider {
         }
 
         this._renderedTiles[level].push(tile);
-        this._renderedCurrentLevelTiles[this._tileKey(tile)] = true;
+        this._renderedCurrentLevelTiles[this._tileKey(this._tileSize, tile)] = true;
     }
 
     /**
@@ -594,10 +598,11 @@ export class TextureProvider {
      * @description Tile keys are used as a hash for
      * storing the tile in a dictionary.
      *
+     * @param {number} tileSize - The tile size.
      * @param {Arrary<number>} tile - The tile coordinates.
      */
-    private _tileKey(tile: number[]): string {
-        return tile[0] + "-" + tile[1];
+    private _tileKey(tileSize: number, tile: number[]): string {
+        return tileSize + "-" + tile[0] + "-" + tile[1];
     }
 }
 
