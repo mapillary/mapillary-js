@@ -227,7 +227,7 @@ export class Popup {
      * ```
      */
     public setHTML(html: string): void {
-        const frag: DocumentFragment = document.createDocumentFragment();
+        const frag: DocumentFragment = this._dom.document.createDocumentFragment();
         const temp: HTMLBodyElement = this._dom.createElement("body");
         let child: Node;
         temp.innerHTML = html;
@@ -262,7 +262,7 @@ export class Popup {
      * ```
      */
     public setText(text: string): void {
-        this.setDOMContent(document.createTextNode(text));
+        this.setDOMContent(this._dom.document.createTextNode(text));
     }
 
     /**

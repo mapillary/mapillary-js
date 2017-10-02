@@ -35,16 +35,15 @@ export class Container {
 
     constructor (id: string, stateService: StateService, options: IViewerOptions, dom?: DOM) {
         this.id = id;
+        this._dom = !!dom ? dom : new DOM();
 
-        this._container = document.getElementById(id);
+        this._container = this._dom.document.getElementById(id);
 
         if (!this._container) {
             throw new Error(`Container '${id}' not found.`);
         }
 
         this._container.classList.add("mapillary-js");
-
-        this._dom = !!dom ? dom : new DOM();
 
         this._canvasContainer = this._dom.createElement("div", "mapillary-js-interactive", this._container);
         this._domContainer = this._dom.createElement("div", "mapillary-js-dom", this._container);

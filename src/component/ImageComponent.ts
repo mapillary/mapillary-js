@@ -10,24 +10,28 @@ import "rxjs/add/operator/combineLatest";
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
 import {ISize} from "../Render";
+import {DOM} from "../Utils";
 import {Container, Navigator} from "../Viewer";
 
 export class ImageComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "image";
 
     private _canvasId: string;
+    private _dom: DOM;
     private drawSubscription: Subscription;
 
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(name: string, container: Container, navigator: Navigator, dom?: DOM) {
         super(name, container, navigator);
+
         this._canvasId = `${container.id}-${this._name}`;
+        this._dom = !!dom ? dom : new DOM();
     }
 
     protected _activate(): void {
         const canvasSize$: Observable<[HTMLCanvasElement, ISize]> = this._container.domRenderer.element$
             .map(
                 (element: HTMLElement): HTMLCanvasElement => {
-                    return <HTMLCanvasElement>document.getElementById(this._canvasId);
+                    return <HTMLCanvasElement>this._dom.document.getElementById(this._canvasId);
                 })
             .filter(
                 (canvas: HTMLCanvasElement): boolean => {
