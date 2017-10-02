@@ -46,6 +46,7 @@
     width: 0;
     height: 0;
     border: 7px solid transparent;
+    pointer-events: auto;
 }
 
 .mapillaryjs-popup-float-top .mapillaryjs-popup-tip {
