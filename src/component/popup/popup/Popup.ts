@@ -85,6 +85,7 @@ export class Popup {
         this._options = {};
 
         if (!!options) {
+            this._options.capturePointer = options.capturePointer == null ? true : options.capturePointer;
             this._options.clean = options.clean;
             this._options.float = options.float;
             this._options.offset = options.offset;
@@ -200,7 +201,10 @@ export class Popup {
             this._content.parentNode.removeChild(this._content);
         }
 
-        const className: string = "mapillaryjs-popup-content" + (this._options.clean === true ? "-clean" : "");
+        const className: string = "mapillaryjs-popup-content" +
+            (this._options.clean === true ? "-clean" : "") +
+            (this._options.capturePointer === true ? " mapillaryjs-popup-capture-pointer" : "");
+
         this._content = this._dom.createElement("div", className, this._container);
 
         this._content.appendChild(htmlNode);
@@ -298,7 +302,11 @@ export class Popup {
                 this._options.float !== Alignment.Center;
 
             if (showTip) {
-                this._tip = this._dom.createElement("div", "mapillaryjs-popup-tip", this._container);
+                const tipClassName: string =
+                    "mapillaryjs-popup-tip" +
+                    (this._options.capturePointer === true ? " mapillaryjs-popup-capture-pointer" : "");
+
+                this._tip = this._dom.createElement("div", tipClassName, this._container);
                 this._dom.createElement("div", "mapillaryjs-popup-tip-inner", this._tip);
             }
 

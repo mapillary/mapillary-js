@@ -9,6 +9,18 @@ import {Alignment} from "../../../Viewer";
  */
 export interface IPopupOptions {
     /**
+     * Specify if the popup should capture pointer events.
+     *
+     * @description If the popup is specifed to not capture
+     * pointer events the provided content can still override
+     * this behavior for the individual content HTML elements
+     * by specifying the appropriate CSS.
+     *
+     * @default true
+     */
+    capturePointer?: boolean;
+
+    /**
      * Specify that the popup should not have any tooltip
      * like visuals around the provided content.
      *
