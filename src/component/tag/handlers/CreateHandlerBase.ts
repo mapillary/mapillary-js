@@ -41,6 +41,20 @@ export abstract class CreateHandlerBase extends TagHandlerBase {
         return this._geometryCreated$;
     }
 
+    protected abstract _enableCreate(): void;
+
+    protected abstract _disableCreate(): void;
+
+    protected _enable(): void {
+        this._enableCreate();
+        this._container.element.classList.add("component-tag-create");
+    }
+
+    protected _disable(): void {
+        this._container.element.classList.remove("component-tag-create");
+        this._disableCreate();
+    }
+
     protected _validateBasic(basic: number[]): boolean {
         const x: number = basic[0];
         const y: number = basic[1];

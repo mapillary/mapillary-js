@@ -19,7 +19,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
 
     protected abstract get _create$(): Subject<number[]>;
 
-    protected _enable(): void {
+    protected _enableCreate(): void {
         this._container.mouseService.deferPixels(this._name, 4);
 
         const transformChanged$: Observable<void> = this._navigator.stateService.currentTransform$
@@ -101,7 +101,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
 
     protected abstract _setVertex2d(tag: OutlineCreateTag, basicPoint: number[], transform: Transform): void;
 
-    protected _disable(): void {
+    protected _disableCreate(): void {
         this._container.mouseService.undeferPixels(this._name);
 
         this._tagCreator.delete$.next(null);

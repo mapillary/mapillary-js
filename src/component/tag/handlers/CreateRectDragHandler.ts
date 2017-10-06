@@ -18,7 +18,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
     private _initializeAnchorIndexingSubscription: Subscription;
     private _setVertexSubscription: Subscription;
 
-    protected _enable(): void {
+    protected _enableCreate(): void {
         this._container.mouseService.claimMouse(this._name, 2);
 
         this._deleteSubscription = this._navigator.stateService.currentTransform$
@@ -115,7 +115,7 @@ export class CreateRectDragHandler extends CreateHandlerBase {
             .subscribe(this._geometryCreated$);
     }
 
-    protected _disable(): void {
+    protected _disableCreate(): void {
         this._container.mouseService.unclaimMouse(this._name);
 
         this._tagCreator.delete$.next(null);

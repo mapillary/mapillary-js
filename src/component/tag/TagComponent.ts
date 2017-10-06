@@ -206,7 +206,6 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _stopCreateSubscription: Subscription;
     private _setGLCreateTagSubscription: Subscription;
     private _createGLObjectsChangedSubscription: Subscription;
-    private _containerClassListSubscription: Subscription;
 
     private _handlerStopCreateSubscription: Subscription;
     private _handlerEnablerSubscription: Subscription;
@@ -582,20 +581,6 @@ export class TagComponent extends Component<ITagConfiguration> {
                 })
             .subscribe((): void => { this.changeMode(TagMode.Default); });
 
-        this._containerClassListSubscription = this._creatingConfiguration$
-            .map(
-                (configuration: ITagConfiguration): boolean => {
-                    return configuration.mode !== TagMode.Default;
-                })
-            .subscribe(
-                (creating: boolean): void => {
-                    if (creating) {
-                        this._container.element.classList.add("component-tag-create");
-                    } else {
-                        this._container.element.classList.remove("component-tag-create");
-                    }
-                });
-
         this._setGLCreateTagSubscription = this._tagCreator.tag$
             .subscribe(
                 (tag: OutlineCreateTag): void => {
@@ -697,7 +682,6 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._stopCreateSubscription.unsubscribe();
         this._setGLCreateTagSubscription.unsubscribe();
         this._createGLObjectsChangedSubscription.unsubscribe();
-        this._containerClassListSubscription.unsubscribe();
 
         this._domSubscription.unsubscribe();
         this._glSubscription.unsubscribe();

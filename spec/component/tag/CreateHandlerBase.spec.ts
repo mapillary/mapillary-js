@@ -20,8 +20,8 @@ class CreateTestHandler extends CreateHandlerBase {
         return this._validateBasic(basicPoint);
     }
 
-    protected _enable(): void { /*noop*/ }
-    protected _disable(): void { /*noop*/ }
+    protected _enableCreate(): void { /*noop*/ }
+    protected _disableCreate(): void { /*noop*/ }
     protected _getNameExtension(): string { return "create-test"; }
 }
 
