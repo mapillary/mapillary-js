@@ -7,6 +7,7 @@ import {Subscription} from "rxjs/Subscription";
 
 import {
     Geometry,
+    InteractionCursor,
     OutlineTag,
     PolygonGeometry,
     RectGeometry,
@@ -195,7 +196,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                     camera);
 
             if (centroidCanvas != null) {
-                const interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid);
+                const interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid, "move");
                 const centroidCanvasX: number = Math.round(centroidCanvas[0]);
                 const centroidCanvasY: number = Math.round(centroidCanvas[1]);
                 const transform: string = `translate(-50%, -50%) translate(${centroidCanvasX}px,${centroidCanvasY}px)`;
@@ -231,19 +232,19 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                 continue;
             }
 
-            const interact: (e: MouseEvent) => void = this._interact(TagOperation.Vertex, i);
+            const cursor: InteractionCursor = isRect ?
+                 i % 2 === 0 ? "nesw-resize" : "nwse-resize" :
+                 "crosshair";
+
+            const interact: (e: MouseEvent) => void = this._interact(TagOperation.Vertex, cursor, i);
             const vertexCanvasX: number = Math.round(vertexCanvas[0]);
             const vertexCanvasY: number = Math.round(vertexCanvas[1]);
             const transform: string = `translate(-50%, -50%) translate(${vertexCanvasX}px,${vertexCanvasY}px)`;
 
             const properties: vd.createProperties = {
                 onmousedown: interact,
-                style: { background: lineColor, transform: transform },
+                style: { background: lineColor, transform: transform, cursor: cursor },
             };
-
-            if (isRect) {
-                properties.style.cursor = i % 2 === 0 ? "nesw-resize" : "nwse-resize";
-            }
 
             vNodes.push(vd.h("div.TagResizer", properties, []));
 
@@ -385,12 +386,13 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         return positions;
     }
 
-    private _interact(operation: TagOperation, vertexIndex?: number): (e: MouseEvent) => void {
+    private _interact(operation: TagOperation, cursor?: InteractionCursor, vertexIndex?: number): (e: MouseEvent) => void {
         return (e: MouseEvent): void => {
             let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
             let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
 
             this._interact$.next({
+                cursor: cursor,
                 offsetX: offsetX,
                 offsetY: offsetY,
                 operation: operation,

@@ -4,6 +4,7 @@ import * as THREE from "three";
 import * as vd from "virtual-dom";
 
 import {
+    InteractionCursor,
     RenderTag,
     SpotTag,
     Tag,
@@ -74,7 +75,7 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
                 vNodes.push(vd.h("span.TagSymbol", properties, []));
             }
 
-            const interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid, tag);
+            const interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid, tag, "move");
             const background: string = this._colorToCss(tag.color);
             const transform: string = `translate(-50%,-50%) translate(${canvasX}px,${canvasY}px)`;
 
@@ -111,12 +112,13 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
         return "#" + ("000000" + color.toString(16)).substr(-6);
     }
 
-    private _interact(operation: TagOperation, tag: Tag, vertexIndex?: number): (e: MouseEvent) => void {
+    private _interact(operation: TagOperation, tag: Tag, cursor: InteractionCursor, vertexIndex?: number): (e: MouseEvent) => void {
         return (e: MouseEvent): void => {
             const offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
             const offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
 
             this._interact$.next({
+                cursor: cursor,
                 offsetX: offsetX,
                 offsetY: offsetY,
                 operation: operation,

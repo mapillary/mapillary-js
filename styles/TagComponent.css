@@ -1,5 +1,18 @@
-.mapillary-js.component-tag-create .mapillary-js-interactive {
+.mapillary-js.component-tag-create .mapillary-js-interactive,
+.mapillary-js.component-tag-edit-crosshair .mapillary-js-interactive {
     cursor: crosshair;
+}
+
+.mapillary-js.component-tag-edit-move .mapillary-js-interactive {
+    cursor: move;
+}
+
+.mapillary-js.component-tag-edit-nesw-resize .mapillary-js-interactive {
+    cursor: nesw-resize;
+}
+
+.mapillary-js.component-tag-edit-nwse-resize .mapillary-js-interactive {
+    cursor: nwse-resize;
 }
 
 .TagCompleter,

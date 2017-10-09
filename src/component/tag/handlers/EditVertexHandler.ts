@@ -6,6 +6,7 @@ import {
     TagHandlerBase,
     Geometry,
     IInteraction,
+    InteractionCursor,
     ITagConfiguration,
     RenderTag,
     Tag,
@@ -27,6 +28,7 @@ export class EditVertexHandler extends TagHandlerBase {
     private _tagSet: TagSet;
 
     private _claimMouseSubscription: Subscription;
+    private _cursorSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
     private _unclaimMouseSubscription: Subscription;
     private _updateGeometrySubscription: Subscription;
@@ -85,6 +87,24 @@ export class EditVertexHandler extends TagHandlerBase {
             .subscribe(
                 (): void => {
                     this._container.mouseService.claimMouse(this._name, 3);
+                });
+
+        this._cursorSubscription = interaction$
+            .map(
+                (interaction: IInteraction): string => {
+                    return interaction.cursor;
+                })
+            .distinctUntilChanged()
+            .subscribe(
+                (cursor: string): void => {
+                    const interactionCursors: InteractionCursor[] = ["crosshair", "move", "nesw-resize", "nwse-resize"];
+                    for (const interactionCursor of interactionCursors) {
+                        this._container.element.classList.remove(`component-tag-edit-${interactionCursor}`);
+                    }
+
+                    if (!!cursor) {
+                        this._container.element.classList.add(`component-tag-edit-${cursor}`);
+                    }
                 });
 
         this._unclaimMouseSubscription = this._container.mouseService
@@ -162,6 +182,7 @@ export class EditVertexHandler extends TagHandlerBase {
 
     protected _disable(): void {
         this._claimMouseSubscription.unsubscribe();
+        this._cursorSubscription.unsubscribe();
         this._preventDefaultSubscription.unsubscribe();
         this._unclaimMouseSubscription.unsubscribe();
         this._updateGeometrySubscription.unsubscribe();
