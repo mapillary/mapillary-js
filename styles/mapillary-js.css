@@ -14,11 +14,14 @@
 }
 
 .mapillary-js .mapillary-js-dom {
-    user-select: none;
-    position: relative;
-    height: 100%;
+    bottom: 0;
+    left: 0;
     overflow: hidden;
     pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    user-select: none;
 }
 
 .mapillary-js-dom .domRenderer {
