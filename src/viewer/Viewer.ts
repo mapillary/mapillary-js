@@ -271,7 +271,6 @@ export class Viewer extends EventEmitter {
      * is deactivated or activated without being supplied a key it will
      * be navigable.
      *
-     * @event
      * @returns {boolean} Boolean indicating whether the viewer is navigable.
      */
     public get isNavigable(): boolean {

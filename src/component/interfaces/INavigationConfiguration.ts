@@ -10,7 +10,7 @@ import {IComponentConfiguration} from "../../Component";
  *     {
  *         component: {
  *             navigation: {
- *                 spatialVisible: false,
+ *                 spatial: false,
  *             },
  *         },
  *     })
