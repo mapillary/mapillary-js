@@ -56,7 +56,6 @@ export function isWebGLSupported(): boolean {
     }
 
     const requiredExtensions: string[] = [
-        "OES_texture_float",
         "OES_standard_derivatives",
     ];
 
