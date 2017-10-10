@@ -326,9 +326,12 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 },
                 [])
             .sample(
-                this._container.mouseService.filtered$(
-                    this._component.name,
-                    this._container.mouseService.mouseDragEnd$))
+                Observable
+                    .merge(
+                        this._container.mouseService.filtered$(
+                            this._component.name,
+                            this._container.mouseService.mouseDragEnd$),
+                        this._container.touchService.singleTouchDragEnd$))
             .map(
                 (rotationBuffer: [number, number[]][]): number[] => {
                     const drainedBuffer: [number, number[]][] = this._drainBuffer(rotationBuffer.slice());
