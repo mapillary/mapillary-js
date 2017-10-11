@@ -91,6 +91,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#capturepointer" class="tsd-kind-icon">capture<wbr>Pointer</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#clean" class="tsd-kind-icon">clean</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#float" class="tsd-kind-icon">float</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipopupoptions.html#offset" class="tsd-kind-icon">offset</a></li>
@@ -104,12 +105,38 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="capturepointer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> capture<wbr>Pointer</h3>
+					<div class="tsd-signature tsd-kind-icon">capture<wbr>Pointer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/popup/interfaces/IPopupOptions.ts#L21">component/popup/interfaces/IPopupOptions.ts:21</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Specify if the popup should capture pointer events.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>If the popup is specifed to not capture
+									pointer events the provided content can still override
+									this behavior for the individual content HTML elements
+								by specifying the appropriate CSS.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>true</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="clean" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> clean</h3>
 					<div class="tsd-signature tsd-kind-icon">clean<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/popup/interfaces/IPopupOptions.ts#L16">component/popup/interfaces/IPopupOptions.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/popup/interfaces/IPopupOptions.ts#L29">component/popup/interfaces/IPopupOptions.ts:29</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -130,7 +157,7 @@
 					<div class="tsd-signature tsd-kind-icon">float<span class="tsd-signature-symbol">:</span> <a href="../enums/alignment.html" class="tsd-signature-type">Alignment</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/popup/interfaces/IPopupOptions.ts#L35">component/popup/interfaces/IPopupOptions.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/popup/interfaces/IPopupOptions.ts#L48">component/popup/interfaces/IPopupOptions.ts:48</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -160,17 +187,24 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="offset" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> offset</h3>
-					<div class="tsd-signature tsd-kind-icon">offset<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<div class="tsd-signature tsd-kind-icon">offset<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="ipopupoffset.html" class="tsd-signature-type">IPopupOffset</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/popup/interfaces/IPopupOptions.ts#L43">component/popup/interfaces/IPopupOptions.ts:43</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/popup/interfaces/IPopupOptions.ts#L61">component/popup/interfaces/IPopupOptions.ts:61</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Offset in pixels in the float direction that the popup
-							will be translated with respect to the current anchor point.</p>
+							<p>A pixel offset applied to the popup&#39;s location specfied as:</p>
 						</div>
+						<ul>
+							<li><p>A single number in pixels in the float direction that the popup
+								will be translated with respect to the current anchor point.</p>
+							</li>
+							<li><p>An object of number arrays specifing an offset for
+								each float direction. Negative offsets indicate left and up.</p>
+							</li>
+						</ul>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
 							<dd><p>0</p>
@@ -184,7 +218,7 @@
 					<div class="tsd-signature tsd-kind-icon">opacity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/popup/interfaces/IPopupOptions.ts#L50">component/popup/interfaces/IPopupOptions.ts:50</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/popup/interfaces/IPopupOptions.ts#L68">component/popup/interfaces/IPopupOptions.ts:68</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -204,7 +238,7 @@
 					<div class="tsd-signature tsd-kind-icon">position<span class="tsd-signature-symbol">:</span> <a href="../enums/alignment.html" class="tsd-signature-type">Alignment</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/popup/interfaces/IPopupOptions.ts#L60">component/popup/interfaces/IPopupOptions.ts:60</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/popup/interfaces/IPopupOptions.ts#L78">component/popup/interfaces/IPopupOptions.ts:78</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -238,6 +272,9 @@
 					<li class="current tsd-kind-interface">
 						<a href="ipopupoptions.html" class="tsd-kind-icon">IPopup<wbr>Options</a>
 						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ipopupoptions.html#capturepointer" class="tsd-kind-icon">capture<wbr>Pointer</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ipopupoptions.html#clean" class="tsd-kind-icon">clean</a>
 							</li>

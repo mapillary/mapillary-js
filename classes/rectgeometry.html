@@ -112,7 +112,9 @@
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="rectgeometry.html#anchorindex" class="tsd-kind-icon">anchor<wbr>Index</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="rectgeometry.html#changed_" class="tsd-kind-icon">changed$</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="rectgeometry.html#inverted" class="tsd-kind-icon">inverted</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="rectgeometry.html#rect" class="tsd-kind-icon">rect</a></li>
 							</ul>
 						</section>
@@ -123,6 +125,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="rectgeometry.html#_triangulate" class="tsd-kind-icon">_triangulate</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#getcentroid2d" class="tsd-kind-icon">get<wbr>Centroid2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#getcentroid3d" class="tsd-kind-icon">get<wbr>Centroid3d</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="rectgeometry.html#getnonadjustedvertex2d" class="tsd-kind-icon">get<wbr>Non<wbr>Adjusted<wbr>Vertex2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#getpoints3d" class="tsd-kind-icon">get<wbr>Points3d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#getpoleofaccessibility2d" class="tsd-kind-icon">get<wbr>Pole<wbr>OfAccessibility2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#getpoleofaccessibility3d" class="tsd-kind-icon">get<wbr>Pole<wbr>OfAccessibility3d</a></li>
@@ -131,8 +134,11 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#getvertex3d" class="tsd-kind-icon">get<wbr>Vertex3d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#getvertices2d" class="tsd-kind-icon">get<wbr>Vertices2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#getvertices3d" class="tsd-kind-icon">get<wbr>Vertices3d</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="rectgeometry.html#initializeanchorindexing" class="tsd-kind-icon">initialize<wbr>Anchor<wbr>Indexing</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#setcentroid2d" class="tsd-kind-icon">set<wbr>Centroid2d</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="rectgeometry.html#setoppositevertex2d" class="tsd-kind-icon">set<wbr>Opposite<wbr>Vertex2d</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="rectgeometry.html#setvertex2d" class="tsd-kind-icon">set<wbr>Vertex2d</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="rectgeometry.html#terminateanchorindexing" class="tsd-kind-icon">terminate<wbr>Anchor<wbr>Indexing</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="rectgeometry.html#validate" class="tsd-kind-icon">validate</a></li>
 							</ul>
 						</section>
@@ -152,7 +158,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L18">component/tag/geometry/RectGeometry.ts:18</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L18">component/tag/geometry/RectGeometry.ts:18</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -193,13 +199,38 @@
 					<aside class="tsd-sources">
 						<p>Inherited from Geometry._notifyChanged$</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/Geometry.ts#L12">component/tag/geometry/Geometry.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/Geometry.ts#L12">component/tag/geometry/Geometry.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="anchorindex" class="tsd-anchor"></a>
+					<h3>anchor<wbr>Index</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> anchorIndex<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L55">component/tag/geometry/RectGeometry.ts:55</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get anchor index property.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>Index representing the current anchor property if
+								achoring indexing has been initialized. If anchor indexing has not been
+							initialized or has been terminated undefined will be returned.</p>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 					<a name="changed_" class="tsd-anchor"></a>
 					<h3>changed$</h3>
@@ -211,7 +242,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Geometry.changed$</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/Geometry.ts#L32">component/tag/geometry/Geometry.ts:32</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/Geometry.ts#L32">component/tag/geometry/Geometry.ts:32</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -233,6 +264,30 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="inverted" class="tsd-anchor"></a>
+					<h3>inverted</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> inverted<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L65">component/tag/geometry/RectGeometry.ts:65</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get inverted property.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>Boolean determining whether the rect geometry is
+							inverted. For panoramas the rect geometrye may be inverted.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="rect" class="tsd-anchor"></a>
 					<h3>rect</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
@@ -242,7 +297,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L54">component/tag/geometry/RectGeometry.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L75">component/tag/geometry/RectGeometry.ts:75</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -270,7 +325,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from VertexGeometry._getPoleOfInaccessibility2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/VertexGeometry.ts#L127">component/tag/geometry/VertexGeometry.ts:127</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/VertexGeometry.ts#L127">component/tag/geometry/VertexGeometry.ts:127</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -308,7 +363,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from VertexGeometry._triangulate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/VertexGeometry.ts#L144">component/tag/geometry/VertexGeometry.ts:144</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/VertexGeometry.ts#L144">component/tag/geometry/VertexGeometry.ts:144</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -358,7 +413,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Geometry.getCentroid2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L277">component/tag/geometry/RectGeometry.ts:277</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L526">component/tag/geometry/RectGeometry.ts:526</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -382,7 +437,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Geometry.getCentroid3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L293">component/tag/geometry/RectGeometry.ts:293</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L542">component/tag/geometry/RectGeometry.ts:542</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -401,6 +456,45 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getnonadjustedvertex2d" class="tsd-anchor"></a>
+					<h3>get<wbr>Non<wbr>Adjusted<wbr>Vertex2d</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Non<wbr>Adjusted<wbr>Vertex2d<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L474">component/tag/geometry/RectGeometry.ts:474</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the coordinates of a vertex from the polygon representation of the geometry.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>The first vertex represents the bottom-left corner with the rest of
+											the vertices following in clockwise order. The coordinates will not be shifted
+										so they may not appear in clockwise order when layed out on the plane.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>index: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Vertex index.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>Array representing the 2D basic coordinates of the vertex.</p>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getpoints3d" class="tsd-anchor"></a>
 					<h3>get<wbr>Points3d</h3>
@@ -412,7 +506,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getPoints3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L208">component/tag/geometry/RectGeometry.ts:208</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L441">component/tag/geometry/RectGeometry.ts:441</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -448,7 +542,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getPoleOfAccessibility2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L300">component/tag/geometry/RectGeometry.ts:300</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L549">component/tag/geometry/RectGeometry.ts:549</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -472,7 +566,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getPoleOfAccessibility3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L305">component/tag/geometry/RectGeometry.ts:305</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L554">component/tag/geometry/RectGeometry.ts:554</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -502,7 +596,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getTriangles3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L312">component/tag/geometry/RectGeometry.ts:312</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L561">component/tag/geometry/RectGeometry.ts:561</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -532,7 +626,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getVertex2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L225">component/tag/geometry/RectGeometry.ts:225</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L460">component/tag/geometry/RectGeometry.ts:460</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -542,7 +636,9 @@
 								<dl class="tsd-comment-tags">
 									<dt>description</dt>
 									<dd><p>The first vertex represents the bottom-left corner with the rest of
-										the vertices following in clockwise order.</p>
+											the vertices following in clockwise order. The method shifts the right side
+											coordinates of the rectangle by one unit to ensure that the vertices are ordered
+										clockwise.</p>
 									</dd>
 								</dl>
 							</div>
@@ -571,7 +667,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getVertex3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L241">component/tag/geometry/RectGeometry.ts:241</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L490">component/tag/geometry/RectGeometry.ts:490</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -618,7 +714,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getVertices2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L254">component/tag/geometry/RectGeometry.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L503">component/tag/geometry/RectGeometry.ts:503</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -649,7 +745,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.getVertices3d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L268">component/tag/geometry/RectGeometry.ts:268</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L517">component/tag/geometry/RectGeometry.ts:517</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -678,6 +774,42 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="initializeanchorindexing" class="tsd-anchor"></a>
+					<h3>initialize<wbr>Anchor<wbr>Indexing</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">initialize<wbr>Anchor<wbr>Indexing<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L87">component/tag/geometry/RectGeometry.ts:87</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Initialize anchor indexing to enable setting opposite vertex.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If anchor indexing has already been initialized.</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{Error} If index is not valid (0 to 3).</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> index: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="setcentroid2d" class="tsd-anchor"></a>
 					<h3>set<wbr>Centroid2d</h3>
@@ -689,7 +821,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Geometry.setCentroid2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L146">component/tag/geometry/RectGeometry.ts:146</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L379">component/tag/geometry/RectGeometry.ts:379</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -711,6 +843,52 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setoppositevertex2d" class="tsd-anchor"></a>
+					<h3>set<wbr>Opposite<wbr>Vertex2d</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Opposite<wbr>Vertex2d<span class="tsd-signature-symbol">(</span>opposite<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span>, transform<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Transform</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L117">component/tag/geometry/RectGeometry.ts:117</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Set the value of the vertex opposite to the anchor in the polygon
+									representation of the rectangle.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>Setting the opposite vertex may change the anchor index.</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{Error} When anchor indexing has not been initialized.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>opposite: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The new value of the vertex opposite to the anchor.</p>
+									</div>
+								</li>
+								<li>
+									<h5>transform: <span class="tsd-signature-type">Transform</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The transform of the node related to the rectangle.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="setvertex2d" class="tsd-anchor"></a>
 					<h3>set<wbr>Vertex2d</h3>
@@ -722,7 +900,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides VertexGeometry.setVertex2d</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L68">component/tag/geometry/RectGeometry.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L301">component/tag/geometry/RectGeometry.ts:301</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -762,6 +940,28 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="terminateanchorindexing" class="tsd-anchor"></a>
+					<h3>terminate<wbr>Anchor<wbr>Indexing</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">terminate<wbr>Anchor<wbr>Indexing<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L102">component/tag/geometry/RectGeometry.ts:102</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Terminate anchor indexing to disable setting pposite vertex.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="validate" class="tsd-anchor"></a>
 					<h3>validate</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -771,7 +971,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/e25a7c6/src/component/tag/geometry/RectGeometry.ts#L324">component/tag/geometry/RectGeometry.ts:324</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/component/tag/geometry/RectGeometry.ts#L573">component/tag/geometry/RectGeometry.ts:573</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -818,8 +1018,14 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 								<a href="rectgeometry.html#_notifychanged_" class="tsd-kind-icon">_notify<wbr>Changed$</a>
 							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="rectgeometry.html#anchorindex" class="tsd-kind-icon">anchor<wbr>Index</a>
+							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 								<a href="rectgeometry.html#changed_" class="tsd-kind-icon">changed$</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="rectgeometry.html#inverted" class="tsd-kind-icon">inverted</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="rectgeometry.html#rect" class="tsd-kind-icon">rect</a>
@@ -835,6 +1041,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="rectgeometry.html#getcentroid3d" class="tsd-kind-icon">get<wbr>Centroid3d</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="rectgeometry.html#getnonadjustedvertex2d" class="tsd-kind-icon">get<wbr>Non<wbr>Adjusted<wbr>Vertex2d</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="rectgeometry.html#getpoints3d" class="tsd-kind-icon">get<wbr>Points3d</a>
@@ -860,11 +1069,20 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="rectgeometry.html#getvertices3d" class="tsd-kind-icon">get<wbr>Vertices3d</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="rectgeometry.html#initializeanchorindexing" class="tsd-kind-icon">initialize<wbr>Anchor<wbr>Indexing</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="rectgeometry.html#setcentroid2d" class="tsd-kind-icon">set<wbr>Centroid2d</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="rectgeometry.html#setoppositevertex2d" class="tsd-kind-icon">set<wbr>Opposite<wbr>Vertex2d</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="rectgeometry.html#setvertex2d" class="tsd-kind-icon">set<wbr>Vertex2d</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="rectgeometry.html#terminateanchorindexing" class="tsd-kind-icon">terminate<wbr>Anchor<wbr>Indexing</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="rectgeometry.html#validate" class="tsd-kind-icon">validate</a>
