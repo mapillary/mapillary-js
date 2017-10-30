@@ -78,7 +78,8 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 .map(
                     (event: MouseEvent): boolean => {
                         return true;
-                    });
+                    })
+                .share();
 
         let draggingStopped$: Observable<boolean> =
              this._container.mouseService
@@ -86,7 +87,8 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 .map(
                     (event: Event): boolean => {
                         return false;
-                    });
+                    })
+                .share();
 
         this._activeMouseSubscription = Observable
             .merge(

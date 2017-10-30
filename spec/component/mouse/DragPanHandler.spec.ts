@@ -1,21 +1,32 @@
 /// <reference path="../../../typings/index.d.ts" />
 
+import * as THREE from "three";
+
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
 import {EventHelper} from "../../helper/EventHelper.spec";
+import {FrameHelper} from "../../helper/FrameHelper.spec";
 import {MockCreator} from "../../helper/MockCreator.spec";
 import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
 import {TestComponent} from "../../helper/TestComponent.spec";
+import {TransformHelper} from "../../helper/TransformHelper.spec";
 
 import {
     DragPanHandler,
 } from "../../../src/Component";
 import {
+    Camera,
     Spatial,
+    Transform,
     ViewportCoords,
 } from "../../../src/Geo";
+import {
+    RenderCamera,
+    RenderMode,
+} from "../../../src/Render";
+import {IFrame} from "../../../src/State";
 import {
     Container,
     Navigator,
@@ -201,5 +212,41 @@ describe("DragPanHandler.enable", () => {
 
         (<Subject<TouchEvent>>containerMock.touchService.singleTouchDragEnd$)
             .next(EventHelper.createTouchEvent("tap", false));
+    });
+
+    it("should rotate basic without inertia on mouse drag", () => {
+        (<jasmine.Spy>viewportCoordsMock.canvasPosition).and.returnValue([[0, 0]]);
+        (<jasmine.Spy>viewportCoordsMock.unprojectFromCanvas).and.returnValue(new THREE.Vector3());
+        (<jasmine.Spy>viewportCoordsMock.getPixelDistances).and.returnValue([0, 0, 0, 0]);
+        (<jasmine.Spy>spatialMock.clamp).and.returnValue(0);
+
+        const handler: DragPanHandler = new DragPanHandler(
+            testComponent,
+            containerMock,
+            navigatorMock,
+            viewportCoordsMock,
+            spatialMock);
+
+        testComponent.activate();
+        handler.enable();
+
+        const frame: IFrame = new FrameHelper().createFrame();
+        (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
+
+        (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
+        .next(new RenderCamera(1, 1, RenderMode.Fill));
+
+        const transform: Transform = new TransformHelper().createTransform();
+        spyOn(transform, "projectBasic").and.returnValue([1, 1]);
+        (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
+            .next(transform);
+
+        (<Subject<Camera>>navigatorMock.stateService.currentCamera$)
+            .next(new Camera());
+
+        filteredMouseDragStart$.next(EventHelper.createMouseEvent("mousedown", {}));
+        filteredMouseDrag$.next(EventHelper.createMouseEvent("mousemove", {}));
+
+        expect((<jasmine.Spy>navigatorMock.stateService.rotateBasicWithoutInertia).calls.count()).toBe(1);
     });
 });
