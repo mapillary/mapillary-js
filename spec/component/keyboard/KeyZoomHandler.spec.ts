@@ -110,22 +110,22 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        let keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: "+", ctrlKey: true });
+        let keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", ctrlKey: true });
         const preventDefaultSpyCtrl: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpyCtrl.calls.count()).toBe(0);
 
-        keyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: "+", altKey: true });
+        keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", altKey: true });
         const preventDefaultSpyAlt: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpyAlt.calls.count()).toBe(0);
 
-        keyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: "+", shiftKey: true });
+        keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", shiftKey: true });
         const preventDefaultSpyShift: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpyShift.calls.count()).toBe(0);
 
-        keyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: "+", metaKey: true });
+        keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", metaKey: true });
         const preventDefaultSpyMeta: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpyMeta.calls.count()).toBe(0);
@@ -160,7 +160,7 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: "+" });
+        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+" });
         const preventDefaultSpy: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpy.calls.count()).toBe(1);
@@ -192,7 +192,7 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: "+" });
+        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+" });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
 
         const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
@@ -226,7 +226,7 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: "-" });
+        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "-" });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
 
         const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;

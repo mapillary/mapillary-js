@@ -1,12 +1,6 @@
 export class EventHelper {
     public static createKeyboardEvent(typeArg: string, eventInitDict?: KeyboardEventInit): KeyboardEvent {
-        return Object.assign(
-            {},
-            eventInitDict,
-            {
-                preventDefault: (): void => { /* noop */ },
-                type: typeArg,
-            });
+        return new KeyboardEvent(typeArg, eventInitDict);
     }
 
     public static createMouseEvent(eventType: string, params: MouseEventInit, target?: EventTarget): MouseEvent {
