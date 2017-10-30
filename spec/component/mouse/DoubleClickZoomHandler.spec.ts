@@ -9,12 +9,11 @@ import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
 import {EventHelper} from "../../helper/EventHelper.spec";
 import {MockCreator} from "../../helper/MockCreator.spec";
 import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
+import {TestComponent} from "../../helper/TestComponent.spec";
 import {TransformHelper} from "../../helper/TransformHelper.spec";
 
 import {
-    Component,
     DoubleClickZoomHandler,
-    IComponentConfiguration,
 } from "../../../src/Component";
 import {
     Transform,
@@ -28,19 +27,6 @@ import {
     Container,
     Navigator,
 } from "../../../src/Viewer";
-
-interface ITestConfiguration extends IComponentConfiguration {
-    test: boolean;
-}
-
-class TestComponent extends Component<ITestConfiguration> {
-    constructor(name: string, container: Container, navigator: Navigator) {
-        super(name, container, navigator);
-    }
-    protected _activate(): void { /* noop */ }
-    protected _deactivate(): void { /* noop */ }
-    protected _getDefaultConfiguration(): ITestConfiguration { return { test: false }; }
-}
 
 describe("DoubleClickZoomHandler.ctor", () => {
     it("should be defined", () => {
@@ -207,5 +193,34 @@ describe("DoubleClickZoomHandler.enable", () => {
 
         expect(zoomInSpy.calls.count()).toBe(1);
         expect(zoomInSpy.calls.first().args[0]).toBe(-1);
+    });
+});
+
+describe("DoubleClickZoomHandler.disable", () => {
+    it("should disable properly", () => {
+        const containerMock: Container = new ContainerMockCreator().create();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
+        const viewportCoordsMock: ViewportCoords = new MockCreator().create(ViewportCoords, "ViewportCoords");
+        const testComponent: TestComponent = new TestComponent("test", containerMock, navigatorMock);
+
+        (<jasmine.Spy>containerMock.mouseService.filtered$)
+            .and.returnValue(new Subject<MouseEvent>());
+
+        const handler: DoubleClickZoomHandler = new DoubleClickZoomHandler(
+            testComponent,
+            containerMock,
+            navigatorMock,
+            viewportCoordsMock);
+
+        expect(handler.isEnabled).toBe(false);
+
+        testComponent.activate();
+        handler.enable();
+
+        expect(handler.isEnabled).toBe(true);
+
+        handler.disable();
+
+        expect(handler.isEnabled).toBe(false);
     });
 });

@@ -12,6 +12,7 @@ export class MouseServiceMockCreator extends MockCreatorBase<MouseService> {
     public create(): MouseService {
         const mock: MouseService = new MockCreator().create(MouseService, "MouseService");
 
+        this._mockProperty(mock, "activate$", new Subject<boolean>());
         this._mockProperty(mock, "active$", new Subject<boolean>());
         this._mockProperty(mock, "click$", new Subject<MouseEvent>());
         this._mockProperty(mock, "contextMenu$", new Subject<MouseEvent>());
@@ -23,6 +24,9 @@ export class MouseServiceMockCreator extends MockCreatorBase<MouseService> {
         this._mockProperty(mock, "documentMouseMove$", new Subject<MouseEvent>());
         this._mockProperty(mock, "documentMouseUp$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseDown$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "mouseDrag$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "mouseDragEnd$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "mouseDragStart$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseMove$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseOut$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseOver$", new Subject<MouseEvent>());
