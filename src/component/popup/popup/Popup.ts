@@ -401,8 +401,8 @@ export class Popup {
         position: PopupAlignment,
         appliedPosition: PopupAlignment,
         renderCamera: RenderCamera,
-        size: ISize, transform:
-        Transform): [number[], PopupAlignment] {
+        size: ISize,
+        transform: Transform): [number[], PopupAlignment] {
 
         if (!position) {
             const width: number = this._container.offsetWidth;
@@ -568,27 +568,32 @@ export class Popup {
     }
 
     private _pointFromRectPosition(rect: number[], position: PopupAlignment): number[] {
+        const x0: number = rect[0];
+        const x1: number = rect[0] < rect[2] ? rect[2] : rect[2] + 1;
+        const y0: number = rect[1];
+        const y1: number = rect[3];
+
         switch (position) {
             case "bottom":
-                return [(rect[0] + rect[2]) / 2, rect[3]];
+                return [(x0 + x1) / 2, y1];
             case "bottom-left":
-                return [rect[0], rect[3]];
+                return [x0, y1];
             case "bottom-right":
-                return [rect[2], rect[3]];
+                return [x1, y1];
             case "center":
-                return [(rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2];
+                return [(x0 + x1) / 2, (y0 + y1) / 2];
             case "left":
-                return [rect[0], (rect[1] + rect[3]) / 2];
+                return [x0, (y0 + y1) / 2];
             case "right":
-                return [rect[2], (rect[1] + rect[3]) / 2];
+                return [x1, (y0 + y1) / 2];
             case "top":
-                return [(rect[0] + rect[2]) / 2, rect[1]];
+                return [(x0 + x1) / 2, y0];
             case "top-left":
-                return [rect[0], rect[1]];
+                return [x0, y0];
             case "top-right":
-                return [rect[2], rect[1]];
+                return [x1, y0];
             default:
-                return [(rect[0] + rect[2]) / 2, rect[3]];
+                return [(x0 + x1) / 2, y1];
         }
     }
 }
