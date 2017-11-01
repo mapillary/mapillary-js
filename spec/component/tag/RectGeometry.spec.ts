@@ -68,6 +68,17 @@ describe("RectGeometry.getCentroid2d", () => {
     });
 });
 
+describe("RectGeometry.getCentroid2d", () => {
+    it("should shift the centroid when inverted", () => {
+        const rect: number[] = [0.9, 0.4, 0.2, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        const result: number[] = rectGeometry.getCentroid2d();
+
+        expect(result).toEqual([1.05, 0.5]);
+    });
+});
+
 describe("RectGeometry.getVertices2d", () => {
     it("should return the vertices create from the rect representation", () => {
         const rect: number[] = [0.2, 0.4, 0.6, 0.7];
@@ -81,6 +92,22 @@ describe("RectGeometry.getVertices2d", () => {
         expect(result[2]).toEqual([0.6, 0.4]);
         expect(result[3]).toEqual([0.6, 0.7]);
         expect(result[4]).toEqual([0.2, 0.7]);
+    });
+});
+
+describe("RectGeometry.getVertices2d", () => {
+    it("should return the shifted clockwise vertices when inverted", () => {
+        const rect: number[] = [0.9, 0.4, 0.2, 0.6];
+        const rectGeometry: RectGeometry = new RectGeometry(rect);
+
+        const result: number[][] = rectGeometry.getVertices2d();
+
+        expect(result.length).toBe(5);
+        expect(result[0]).toEqual([0.9, 0.6]);
+        expect(result[1]).toEqual([0.9, 0.4]);
+        expect(result[2]).toEqual([1.2, 0.4]);
+        expect(result[3]).toEqual([1.2, 0.6]);
+        expect(result[4]).toEqual([0.9, 0.6]);
     });
 });
 

@@ -6,6 +6,7 @@ import {
 } from "../../../src/Component";
 import {ViewportCoords} from "../../../src/Geo";
 import {RenderCamera} from "../../../src/Render";
+import {DOM} from "../../../src/Utils";
 import {Alignment} from "../../../src/Viewer";
 
 describe("Popup.ctor", () => {
@@ -307,6 +308,136 @@ describe("Popup.float", () => {
         popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-bottom-right").length)
+            .toBe(1);
+    });
+});
+
+describe("Popup.setBasicRect", () => {
+    let dom: DOM;
+    let viewportCoords: ViewportCoords;
+    let basicToCanvasSafeSpy: jasmine.Spy;
+
+    beforeEach(() => {
+        dom = new DOM();
+        const createElement: Function = dom.createElement.bind(dom);
+        spyOn(dom, "createElement").and.callFake(
+            (tagName: string, className: string, container: HTMLElement): HTMLElement => {
+                if (className === "mapillaryjs-popup") {
+                    const element: HTMLDivElement = window.document.createElement("div");
+
+                    Object.defineProperty(element, "offsetWidth", { value: 20 });
+                    Object.defineProperty(element, "offsetHeight", { value: 20 });
+
+                    if (!!className) {
+                        element.className = className;
+                    }
+
+                    if (!!container) {
+                        container.appendChild(element);
+                    }
+
+                    return element;
+                }
+
+                return createElement(tagName, className, container);
+            });
+
+        viewportCoords = new ViewportCoords();
+
+        basicToCanvasSafeSpy = spyOn(viewportCoords, "basicToCanvasSafe").and.callFake(
+            (basicX: number, basicY: number): number[] => {
+                // if basic X has been wrapped over pano border
+                // interpret as if it was centered horizontally.
+                basicX = basicX > 1 ? 0.5 : basicX;
+
+                return [100 * basicX, 100 * basicY];
+            });
+    });
+
+    it("should get default top position", () => {
+        const popup: Popup = new Popup({}, viewportCoords, dom);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicRect([0.25, 0.25, 0.75, 0.75]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-top").length)
+            .toBe(1);
+    });
+
+    it("should get bottom position when not completely visible on top", () => {
+        const popup: Popup = new Popup({}, viewportCoords, dom);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicRect([0.25, 0.1, 0.75, 0.75]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-bottom").length)
+            .toBe(1);
+    });
+
+    it("should get left position when not completely visible on top or bottom", () => {
+        const popup: Popup = new Popup({}, viewportCoords, dom);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicRect([0.25, 0.1, 0.75, 0.9]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-left").length)
+            .toBe(1);
+    });
+
+    it("should get right position when not completely visible on top, bottom or left", () => {
+        const popup: Popup = new Popup({}, viewportCoords, dom);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicRect([0.1, 0.1, 0.75, 0.9]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-right").length)
+            .toBe(1);
+    });
+
+    it("should get position with largest area visible", () => {
+        const popup: Popup = new Popup({}, viewportCoords, dom);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicRect([0.15, 0.1, 0.9, 0.9]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-left").length)
+            .toBe(1);
+    });
+
+    it("should shift basic x when rect is wrapping pano border", () => {
+        const popup: Popup = new Popup({}, viewportCoords, dom);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicRect([0.9, 0.4, 0.2, 0.6]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
+
+        expect(basicToCanvasSafeSpy.calls.count()).toBe(1);
+        expect(basicToCanvasSafeSpy.calls.first().args[0]).toBe(1.05);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-top").length)
             .toBe(1);
     });
 });
