@@ -55,9 +55,9 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                     let transform: Transform = frame.state.currentTransform;
 
                     if (node.pano) {
-                        let hFov: number = 2 * Math.PI * node.gpano.CroppedAreaImageWidthPixels / node.gpano.FullPanoWidthPixels;
+                        let panoHFov: number = 2 * Math.PI * node.gpano.CroppedAreaImageWidthPixels / node.gpano.FullPanoWidthPixels;
 
-                        return [this._spatial.degToRad(node.ca), hFov];
+                        return [this._spatial.degToRad(node.ca), panoHFov];
                     }
 
                     let size: number = Math.max(transform.basicWidth, transform.basicHeight);

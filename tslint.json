@@ -64,8 +64,10 @@
     "no-object-literal-type-assertion": false,
     "no-string-throw": false,
     "no-sparse-arrays": false,
+    "no-submodule-imports": [true, "rxjs"],
     "no-switch-case-fall-through": true,
     "no-unbound-method": false,
+    "no-unnecessary-class": [true, "allow-static-only"],
     "no-unsafe-any": false,
     "no-unsafe-finally": false,
     "no-void-expression": false,
@@ -94,6 +96,7 @@
     "no-default-export": false,
     "no-irregular-whitespace": false,
     "no-mergeable-namespace": false,
+    "no-parameter-reassignment": false,
     "prefer-const": false,
 
     // Style
@@ -125,6 +128,7 @@
     "no-boolean-literal-compare": false,
     "no-consecutive-blank-lines": false,
     "no-parameter-properties": false,
+    "no-redundant-jsdoc": false,
     "no-reference-import": false,
     "no-unnecessary-callback-wrapper": false,
     "no-unnecessary-initializer": false,

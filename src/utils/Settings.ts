@@ -1,5 +1,7 @@
-import {IViewerOptions} from "../Viewer";
-import {ImageSize} from "../Viewer";
+import {
+    ImageSize,
+    IViewerOptions,
+} from "../Viewer";
 
 export class Settings {
     private static _baseImageSize: number;

@@ -322,6 +322,8 @@ export class Popup {
         let position: PopupAlignment = this._alignmentToPopupAligment(this._options.position);
         let float: PopupAlignment = this._alignmentToPopupAligment(this._options.float);
 
+        const classList: DOMTokenList = this._container.classList;
+
         if (this._point != null) {
             pointPixel =
                 this._viewportCoords.basicToCanvasSafe(
@@ -331,7 +333,6 @@ export class Popup {
                     transform,
                     renderCamera.perspective);
         } else {
-            const classList: DOMTokenList = this._container.classList;
             const alignments: PopupAlignment[] =
                 ["center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"];
 
@@ -382,7 +383,6 @@ export class Popup {
             "top-right": "translate(0,-100%)",
         };
 
-        const classList: DOMTokenList = this._container.classList;
         for (const key in floatTranslate) {
             if (!floatTranslate.hasOwnProperty(key)) {
                 continue;
@@ -425,32 +425,32 @@ export class Popup {
             let largestVisibleArea: [number, number[], PopupAlignment] = [0, null, null];
 
             for (const automaticPosition of automaticPositions) {
-                const pointBasic: number[] = this._pointFromRectPosition(rect, automaticPosition);
-                const pointPixel: number[] =
+                const autoPointBasic: number[] = this._pointFromRectPosition(rect, automaticPosition);
+                const autoPointPixel: number[] =
                     this._viewportCoords.basicToCanvasSafe(
-                        pointBasic[0],
-                        pointBasic[1],
+                        autoPointBasic[0],
+                        autoPointBasic[1],
                         { offsetHeight: size.height, offsetWidth: size.width },
                         transform,
                         renderCamera.perspective);
 
-                if (pointPixel == null) {
+                if (autoPointPixel == null) {
                     continue;
                 }
 
                 const floatOffset: number[] = floatOffsets[automaticPosition];
-                const offsetedPosition: number[] = [pointPixel[0] + floatOffset[0], pointPixel[1] + floatOffset[1]];
+                const offsetedPosition: number[] = [autoPointPixel[0] + floatOffset[0], autoPointPixel[1] + floatOffset[1]];
                 const staticCoeff: number = appliedPosition != null && appliedPosition === automaticPosition ? 1 : 0.7;
                 const floats: PopupAlignment[] =
                     this._pixelToFloats(offsetedPosition, size, width / staticCoeff, height / (2 * staticCoeff));
 
                 if (floats.length === 0 &&
-                    pointPixel[0] > 0 &&
-                    pointPixel[0] < size.width &&
-                    pointPixel[1] > 0 &&
-                    pointPixel[1] < size.height) {
+                    autoPointPixel[0] > 0 &&
+                    autoPointPixel[0] < size.width &&
+                    autoPointPixel[1] > 0 &&
+                    autoPointPixel[1] < size.height) {
 
-                    return [pointPixel, automaticPosition];
+                    return [autoPointPixel, automaticPosition];
                 }
 
                 const minX: number = Math.max(offsetedPosition[0] - width / 2, 0);
@@ -465,7 +465,7 @@ export class Popup {
 
                 if (visibleArea > largestVisibleArea[0]) {
                     largestVisibleArea[0] = visibleArea;
-                    largestVisibleArea[1] = pointPixel;
+                    largestVisibleArea[1] = autoPointPixel;
                     largestVisibleArea[2] = automaticPosition;
                 }
             }
@@ -476,7 +476,7 @@ export class Popup {
         }
 
         const pointBasic: number[] = this._pointFromRectPosition(rect, position);
-        const pointCanvas: number[] =
+        const pointPixel: number[] =
             this._viewportCoords.basicToCanvasSafe(
                 pointBasic[0],
                 pointBasic[1],
@@ -484,7 +484,7 @@ export class Popup {
                 transform,
                 renderCamera.perspective);
 
-        return [pointCanvas, position != null ? position : "top"];
+        return [pointPixel, position != null ? position : "top"];
     }
 
     private _alignmentToPopupAligment(float: Alignment): PopupAlignment {

@@ -1,10 +1,9 @@
 /// <reference path="../../../typings/index.d.ts" />
 
 import {ArgumentMapillaryError} from "../../Error";
-import {IState} from "../../State";
 import {Node} from "../../Graph";
 import {Camera, GeoCoords, ILatLonAlt, Transform, Spatial} from "../../Geo";
-import {IRotation} from "../../State";
+import {IRotation, IState} from "../../State";
 
 export abstract class StateBase implements IState {
     protected _spatial: Spatial;

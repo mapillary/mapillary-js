@@ -664,20 +664,20 @@ export class Graph {
                                 }
 
                                 if (preStored != null && coreNode.key in preStored) {
-                                    let node: Node = preStored[coreNode.key];
+                                    let preStoredNode: Node = preStored[coreNode.key];
                                     delete preStored[coreNode.key];
 
-                                    hCache.push(node);
+                                    hCache.push(preStoredNode);
 
-                                    let nodeIndexItem: NodeIndexItem = {
-                                        lat: node.latLon.lat,
-                                        lon: node.latLon.lon,
-                                        node: node,
+                                    let preStoredNodeIndexItem: NodeIndexItem = {
+                                        lat: preStoredNode.latLon.lat,
+                                        lon: preStoredNode.latLon.lon,
+                                        node: preStoredNode,
                                     };
 
-                                    this._nodeIndex.insert(nodeIndexItem);
-                                    this._nodeIndexTiles[h].push(nodeIndexItem);
-                                    this._nodeToTile[node.key] = h;
+                                    this._nodeIndex.insert(preStoredNodeIndexItem);
+                                    this._nodeIndexTiles[h].push(preStoredNodeIndexItem);
+                                    this._nodeToTile[preStoredNode.key] = h;
 
                                     continue;
                                 }

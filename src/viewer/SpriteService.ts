@@ -105,7 +105,7 @@ class SpriteAtlas implements ISpriteAtlas {
                 break;
             case Alignment.BottomRight:
             case Alignment.Right:
-            case Alignment.BottomRight:
+            case Alignment.TopRight:
             default:
                 break;
         }

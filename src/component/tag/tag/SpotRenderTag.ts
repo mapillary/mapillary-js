@@ -50,24 +50,24 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
             if (tag.icon != null) {
                 if (atlas.loaded) {
                     const sprite: vd.VNode = atlas.getDOMSprite(tag.icon, Alignment.Bottom);
-                    const transform: string = `translate(${canvasX}px,${canvasY + 8}px)`;
+                    const iconTransform: string = `translate(${canvasX}px,${canvasY + 8}px)`;
                     const properties: vd.createProperties = {
                         onmousedown: interactNone,
                         style: {
                             pointerEvents: "all",
-                            transform: transform,
+                            transform: iconTransform,
                         },
                     };
 
                     vNodes.push(vd.h("div", properties, [sprite]));
                 }
             } else if (tag.text != null) {
-                const transform: string = `translate(-50%,0%) translate(${canvasX}px,${canvasY + 8}px)`;
+                const textTransform: string = `translate(-50%,0%) translate(${canvasX}px,${canvasY + 8}px)`;
                 const properties: vd.createProperties = {
                     onmousedown: interactNone,
                     style: {
                         color: this._colorToCss(tag.textColor),
-                        transform: transform,
+                        transform: textTransform,
                     },
                     textContent: tag.text,
                 };

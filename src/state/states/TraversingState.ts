@@ -444,7 +444,7 @@ export class TraversingState extends StateBase {
             return;
         }
 
-        let q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3( 0, 0, 1 ));
+        let q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
         let qInverse: THREE.Quaternion = q.clone().inverse();
 
         let offset: THREE.Vector3 = new THREE.Vector3();

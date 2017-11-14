@@ -110,7 +110,7 @@ export class SimpleMarker extends Marker {
         return radius * Math.sqrt(1 + t * t);
     }
 
-    private _markerGeometry(radius: number, widthSegments: number, heightSegments: number ): THREE.Geometry {
+    private _markerGeometry(radius: number, widthSegments: number, heightSegments: number): THREE.Geometry {
         let geometry: THREE.Geometry = new THREE.Geometry();
 
         widthSegments = Math.max(3, Math.floor(widthSegments) || 8);

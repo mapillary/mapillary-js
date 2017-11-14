@@ -2,10 +2,6 @@ import {Observable} from "rxjs/Observable";
 
 import {Node} from "../Graph";
 import {
-    Container,
-    Navigator,
-} from "../Viewer";
-import {
     Component,
     ComponentService,
     CoverComponent,
@@ -14,7 +10,9 @@ import {
     ICoverConfiguration,
 } from "../Component";
 import {
+    Container,
     IComponentOptions,
+    Navigator,
     Observer,
 } from "../Viewer";
 
