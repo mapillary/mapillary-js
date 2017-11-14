@@ -9,7 +9,6 @@ import {
     IPotentialEdge,
 } from "../../../src/Edge";
 import {Node} from "../../../src/Graph";
-import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computeTurnEdges", () => {
@@ -18,8 +17,6 @@ describe("EdgeCalculator.computeTurnEdges", () => {
     let directions: EdgeCalculatorDirections;
 
     let helper: EdgeCalculatorHelper;
-
-    let spatial: Spatial;
 
     let node: Node;
     let potentialEdge: IPotentialEdge;
@@ -30,8 +27,6 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {
@@ -133,8 +128,6 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let spatial: Spatial;
-
     let node: Node;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
@@ -145,8 +138,6 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {

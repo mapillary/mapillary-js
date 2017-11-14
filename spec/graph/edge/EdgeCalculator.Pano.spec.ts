@@ -9,7 +9,6 @@ import {
     IPotentialEdge,
 } from "../../../src/Edge";
 import {Node} from "../../../src/Graph";
-import {Spatial} from "../../../src/Geo";
 import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computePanoEdges", () => {
@@ -18,8 +17,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
     let directions: EdgeCalculatorDirections;
 
     let helper: EdgeCalculatorHelper;
-
-    let spatial: Spatial;
 
     let node: Node;
     let potentialEdge1: IPotentialEdge;
@@ -37,8 +34,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {
@@ -129,8 +124,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let spatial: Spatial;
-
     let node: Node;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
@@ -148,8 +141,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {
@@ -242,8 +233,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let spatial: Spatial;
-
     let node: Node;
 
     let potentialEdge1: IPotentialEdge;
@@ -264,8 +253,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {
@@ -390,8 +377,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let spatial: Spatial;
-
     let node: Node;
     let potentialEdge1: IPotentialEdge;
 
@@ -410,8 +395,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {
@@ -616,8 +599,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let spatial: Spatial;
-
     let node: Node;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
@@ -637,8 +618,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {
@@ -731,8 +710,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let spatial: Spatial;
-
     let node: Node;
 
     let potentialEdge1: IPotentialEdge;
@@ -753,8 +730,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
         edgeCalculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {
@@ -851,8 +826,6 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let spatial: Spatial;
-
     let node: Node;
     let potentialEdge1: IPotentialEdge;
     let potentialEdge2: IPotentialEdge;
@@ -870,8 +843,6 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
         calculator = new EdgeCalculator(settings, directions);
 
         helper = new EdgeCalculatorHelper();
-
-        spatial = new Spatial();
     });
 
     beforeEach(() => {

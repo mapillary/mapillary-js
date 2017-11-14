@@ -18,9 +18,6 @@ interface IPinchOperation {
 }
 
 export class TouchService {
-    private _canvasContainer: HTMLElement;
-    private _domContainer: HTMLElement;
-
     private _activeSubject$: BehaviorSubject<boolean>;
     private _active$: Observable<boolean>;
 
@@ -43,9 +40,6 @@ export class TouchService {
     private _doubleTap$: Observable<TouchEvent>;
 
     constructor(canvasContainer: HTMLElement, domContainer: HTMLElement) {
-        this._canvasContainer = canvasContainer;
-        this._domContainer = domContainer;
-
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
 
         this._active$ = this._activeSubject$

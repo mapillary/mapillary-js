@@ -34,9 +34,6 @@ export class MouseComponent extends Component<IMouseConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "mouse";
 
-    private _viewportCoords: ViewportCoords;
-    private _spatial: Spatial;
-
     private _bounceHandler: BounceHandler;
     private _doubleClickZoomHandler: DoubleClickZoomHandler;
     private _dragPanHandler: DragPanHandler;
@@ -48,11 +45,8 @@ export class MouseComponent extends Component<IMouseConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        let spatial: Spatial = new Spatial();
-        let viewportCoords: ViewportCoords = new ViewportCoords();
-
-        this._spatial = spatial;
-        this._viewportCoords = viewportCoords;
+        const spatial: Spatial = new Spatial();
+        const viewportCoords: ViewportCoords = new ViewportCoords();
 
         this._bounceHandler = new BounceHandler(this, container, navigator, viewportCoords, spatial);
         this._doubleClickZoomHandler = new DoubleClickZoomHandler(this, container, navigator, viewportCoords);

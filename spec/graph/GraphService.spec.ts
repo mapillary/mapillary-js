@@ -635,12 +635,6 @@ describe("GraphService.setFilter$", () => {
 });
 
 describe("GraphService.uncache$", () => {
-    let helper: NodeHelper;
-
-    beforeEach(() => {
-        helper = new NodeHelper();
-    });
-
     it("should reset spatial edges and set filter", () => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
 

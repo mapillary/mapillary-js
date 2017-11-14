@@ -15,10 +15,8 @@ export class ComponentService {
     public static registeredCoverComponent: typeof CoverComponent;
     public static registeredComponents: {[key: string]: { new (...args: any[]): Component<IComponentConfiguration>; }} = {};
 
-    private _container: Container;
     private _coverActivated: boolean;
     private _coverComponent: CoverComponent;
-    private _navigator: Navigator;
     private _components: {[key: string]: IActiveComponent} = {};
 
     public static register<T extends Component<IComponentConfiguration>>(
@@ -33,9 +31,6 @@ export class ComponentService {
     }
 
     constructor (container: Container, navigator: Navigator) {
-        this._container = container;
-        this._navigator = navigator;
-
         for (let component of _.values(ComponentService.registeredComponents)) {
             this._components[component.componentName] = {
                 active: false,

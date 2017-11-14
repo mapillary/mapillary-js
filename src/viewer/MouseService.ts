@@ -21,10 +21,6 @@ import {
 } from "../Viewer";
 
 export class MouseService {
-    private _domContainer: EventTarget;
-    private _canvasContainer: EventTarget;
-    private _viewportCoords: ViewportCoords;
-
     private _activeSubject$: BehaviorSubject<boolean>;
     private _active$: Observable<boolean>;
 
@@ -74,9 +70,7 @@ export class MouseService {
         doc: EventTarget,
         viewportCoords?: ViewportCoords) {
 
-        this._canvasContainer = canvasContainer;
-        this._domContainer = domContainer;
-        this._viewportCoords = viewportCoords != null ? viewportCoords : new ViewportCoords();
+        viewportCoords = viewportCoords != null ? viewportCoords : new ViewportCoords();
 
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
 

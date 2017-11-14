@@ -9,7 +9,6 @@ import {
     ImagePlaneFactory,
     IShaderMaterial,
 } from "../../Component";
-import {Camera} from "../../Geo";
 import {Node} from "../../Graph";
 import {
     ICurrentState,
@@ -24,8 +23,6 @@ export class ImagePlaneGLRenderer {
     private _alpha: number;
     private _alphaOld: number;
     private _fadeOutSpeed: number;
-    private _lastCamera: Camera;
-    private _epsilon: number;
 
     private _currentKey: string;
     private _previousKey: string;
@@ -41,8 +38,6 @@ export class ImagePlaneGLRenderer {
         this._alpha = 0;
         this._alphaOld = 0;
         this._fadeOutSpeed = 0.05;
-        this._lastCamera = new Camera();
-        this._epsilon = 0.000001;
 
         this._currentKey = null;
         this._previousKey = null;

@@ -11,20 +11,13 @@ import "rxjs/add/operator/combineLatest";
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
 import {Component, ComponentService, IComponentConfiguration} from "../Component";
-import {Container, Navigator} from "../Viewer";
 
 export class DebugComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "debug";
 
-    private _displaying: boolean;
     private _disposable: Subscription;
 
     private _open$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
-    constructor(name: string, container: Container, navigator: Navigator) {
-        super(name, container, navigator);
-        this._displaying = false;
-    }
 
     public _activate(): void {
         this._disposable = this._navigator.stateService.currentState$
