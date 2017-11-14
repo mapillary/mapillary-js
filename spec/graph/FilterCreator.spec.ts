@@ -650,7 +650,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let numbers: number[] = Array.apply(null, { length: 2000 }).map(Number.call, Number);
-        let filterDefinition: Array<string | number> = [].concat(["in", "capturedAt"]).concat(numbers);
+        let filterDefinition: (string | number)[] = [].concat(["in", "capturedAt"]).concat(numbers);
 
         let filter: FilterFunction = creator.createFilter(filterDefinition);
 
@@ -808,7 +808,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let numbers: number[] = Array.apply(null, { length: 2000 }).map(Number.call, Number);
-        let filterDefinition: Array<string | number> = [].concat(["!in", "capturedAt"]).concat(numbers);
+        let filterDefinition: (string | number)[] = [].concat(["!in", "capturedAt"]).concat(numbers);
 
         let filter: FilterFunction = creator.createFilter(filterDefinition);
 

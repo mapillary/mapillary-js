@@ -41,7 +41,6 @@ import {
     ViewportCoords,
 } from "../../Geo";
 
-
 /**
  * @class MarkerComponent
  *
@@ -179,7 +178,6 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     public get(markerId: string): Marker {
         return this._markerSet.get(markerId);
     }
-
 
     /**
      * Returns an array of all markers.

@@ -70,7 +70,6 @@ describe("Observer.loading", () => {
         (<Subject<boolean>>navigatorMock.loadingService.loading$).next(true);
     });
 
-
     it("should emit loading when started and stopped", (done: Function) => {
         const eventEmitter: EventEmitter = new EventEmitter();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();

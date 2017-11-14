@@ -1,4 +1,4 @@
-export type FilterExpression = Array<FilterOperator | string | FilterValue | FilterOperation>;
+export type FilterExpression = (FilterOperator | string | FilterValue | FilterOperation)[];
 
 export type FilterOperation = [FilterOperator, string, FilterValue];
 

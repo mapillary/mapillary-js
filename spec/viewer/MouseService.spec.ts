@@ -1341,4 +1341,3 @@ describe("MouseService.proximateClick$", () => {
         expect(proximateClickCount).toBe(0);
     });
 });
-

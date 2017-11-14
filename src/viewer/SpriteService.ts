@@ -50,7 +50,6 @@ class SpriteAtlas implements ISpriteAtlas {
         let width: number = this._image.width;
         let height: number = this._image.height;
 
-
         texture.offset.x = definition.x / width;
         texture.offset.y = (height - definition.y - definition.height) / height;
         texture.repeat.x = definition.width / width;

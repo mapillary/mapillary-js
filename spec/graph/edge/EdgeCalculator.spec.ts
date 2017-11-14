@@ -133,7 +133,6 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.distance).toBeCloseTo(5, precision);
     });
 
-
     it("should have correct positive motion change", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";

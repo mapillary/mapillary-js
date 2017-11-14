@@ -242,8 +242,8 @@ export class DirectionDOMRenderer {
         }
     }
 
-    private _createPanoArrows(navigator: Navigator, rotation: IRotation): Array<vd.VNode> {
-        let arrows: Array<vd.VNode> = [];
+    private _createPanoArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
+        let arrows: vd.VNode[] = [];
 
         for (let panoEdge of this._panoEdges) {
             arrows.push(
@@ -307,8 +307,8 @@ export class DirectionDOMRenderer {
         return this._createVNodeDisabled(key, azimuth, rotation);
     }
 
-    private _createPerspectiveToPanoArrows(navigator: Navigator, rotation: IRotation): Array<vd.VNode> {
-        let arrows: Array<vd.VNode> = [];
+    private _createPerspectiveToPanoArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
+        let arrows: vd.VNode[] = [];
 
         for (let panoEdge of this._panoEdges) {
             arrows.push(
@@ -325,8 +325,8 @@ export class DirectionDOMRenderer {
         return arrows;
     }
 
-    private _createStepArrows(navigator: Navigator, rotation: IRotation): Array<vd.VNode> {
-        let arrows: Array<vd.VNode> = [];
+    private _createStepArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
+        let arrows: vd.VNode[] = [];
 
         for (let stepEdge of this._stepEdges) {
             arrows.push(
@@ -341,9 +341,8 @@ export class DirectionDOMRenderer {
         return arrows;
     }
 
-
-    private _createTurnArrows(navigator: Navigator): Array<vd.VNode> {
-        let turns: Array<vd.VNode> = [];
+    private _createTurnArrows(navigator: Navigator): vd.VNode[] {
+        let turns: vd.VNode[] = [];
 
         for (let turnEdge of this._turnEdges) {
             let direction: EdgeDirection = turnEdge.data.direction;
@@ -493,13 +492,13 @@ export class DirectionDOMRenderer {
         onClick?: (e: Event) => void,
         shiftVertically?: boolean): vd.VNode {
 
-        let translation: Array<number> = this._calculator.angleToCoordinates(azimuth - rotation.phi);
+        let translation: number[] = this._calculator.angleToCoordinates(azimuth - rotation.phi);
 
         // rotate 90 degrees clockwise and flip over X-axis
         let translationX: number = Math.round(-radius * translation[1] + 0.5 * this._calculator.containerWidth);
         let translationY: number = Math.round(-radius * translation[0] + 0.5 * this._calculator.containerHeight);
 
-        let shadowTranslation: Array<number> = this._calculator.relativeAngleToCoordiantes(azimuth, rotation.phi);
+        let shadowTranslation: number[] = this._calculator.relativeAngleToCoordiantes(azimuth, rotation.phi);
         let shadowOffset: number = this._calculator.shadowOffset;
         let shadowTranslationX: number = -shadowOffset * shadowTranslation[1];
         let shadowTranslationY: number = shadowOffset * shadowTranslation[0];

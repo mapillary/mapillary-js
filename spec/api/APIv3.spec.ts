@@ -676,7 +676,6 @@ describe("APIv3.sequenceViewAdd$", () => {
     });
 });
 
-
 describe("APIv3.invalidateImageByKey", () => {
     it("should call model correctly", () => {
         let model: falcor.Model = new falcor.Model();
@@ -774,4 +773,3 @@ describe("APIv3.setToken", () => {
         expect(creatorSpy.calls.mostRecent().args[1]).toBe("token");
     });
 });
-

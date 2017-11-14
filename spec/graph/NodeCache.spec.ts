@@ -70,7 +70,6 @@ describe("NodeCache.sequenceEdges$", () => {
         nodeCache.cacheSequenceEdges([sequenceEdge]);
     });
 
-
     describe("NodeCache.resetSequenc eEdges", () => {
         it("should reset the sequence edges", () => {
             let nodeCache: NodeCache = new NodeCache();

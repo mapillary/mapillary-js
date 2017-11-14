@@ -149,7 +149,7 @@ export class DirectionDOMCalculator {
      * @param {number} angle Angle in radians.
      * @returns {Array<number>} The x and y coordinates on the unit circle.
      */
-    public angleToCoordinates(angle: number): Array<number> {
+    public angleToCoordinates(angle: number): number[] {
         return [Math.cos(angle), Math.sin(angle)];
     }
 
@@ -162,7 +162,7 @@ export class DirectionDOMCalculator {
      * @returns {Array<number>} The x and y coordinates on the unit circle
      * for the relative angle between the first and second angle.
      */
-    public relativeAngleToCoordiantes(first: number, second: number): Array<number> {
+    public relativeAngleToCoordiantes(first: number, second: number): number[] {
         let relativeAngle: number = this._spatial.wrapAngle(first - second);
 
         return this.angleToCoordinates(relativeAngle);

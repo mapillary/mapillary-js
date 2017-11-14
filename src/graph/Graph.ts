@@ -155,7 +155,7 @@ export class Graph {
     /**
      * Nodes retrieved before tiles, stored on tile level.
      */
-    private _preStored: { [h: string]:  { [key: string]: Node }; };
+    private _preStored: { [h: string]: { [key: string]: Node } };
 
     /**
      * Tiles required for a node to retrive spatial area.

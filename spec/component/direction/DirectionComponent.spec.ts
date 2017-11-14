@@ -21,7 +21,6 @@ import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
 import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
 import {NodeHelper} from "../../helper/NodeHelper.spec";
 
-
 describe("DirectionComponent.ctor", () => {
     it("should be defined", () => {
         const directionComponent: DirectionComponent =

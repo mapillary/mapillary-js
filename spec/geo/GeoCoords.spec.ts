@@ -50,7 +50,6 @@ describe("GeoCoords.geodeticToEcef", () => {
         expect(ecef3[2]).toBeCloseTo(0, precision);
     });
 
-
     it("should convert random Equator postion correctly", () => {
         let position: ILatLonAlt = { alt: 0, lat: 0, lon: 35.6589 };
 

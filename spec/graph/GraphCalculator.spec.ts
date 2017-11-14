@@ -109,7 +109,6 @@ describe("GraphCalculator.encodeHs", () => {
         expect(hs.indexOf("1,0")).not.toBe(-1);
     });
 
-
     it("should return h of position and south neighbour", () => {
         let geoCoords: GeoCoords = new GeoCoords();
         let calculator: GraphCalculator = new GraphCalculator(geoCoords);
@@ -259,5 +258,3 @@ describe("GraphCalculator.boundingBoxCorners", () => {
         expect(bbox[1].lon).toBe(1);
     });
 });
-
-

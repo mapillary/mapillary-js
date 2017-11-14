@@ -943,7 +943,6 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.1, 0.6]);
     });
 
-
     it("should keep inversion when passing vertically to the left", () => {
         const rect: number[] = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry: RectGeometry = new RectGeometry(rect);

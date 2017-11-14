@@ -569,7 +569,6 @@ describe("Graph.cacheTiles$", () => {
         expect(encodeHsSpy.calls.count()).toBe(1);
     });
 
-
     it("should encode hs only once when caching tiles", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
@@ -1833,7 +1832,6 @@ describe("Graph.uncache", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
-
 
         let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
 

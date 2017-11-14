@@ -39,7 +39,6 @@ export class RectGeometry extends VertexGeometry {
             }
         }
 
-
         this._anchorIndex = undefined;
         this._rect = rect.slice(0, 4);
         this._inverted = this._rect[0] > this._rect[2];

@@ -100,7 +100,6 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
                 ([pinch, render, transform]: [IPinch, RenderCamera, Transform]): void => {
                     let element: HTMLElement = this._container.element;
 
-
                     let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(pinch, element);
 
                     let unprojected: THREE.Vector3 =

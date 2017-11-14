@@ -531,4 +531,3 @@ describe("ViewportCoords.basicToCanvasSafe", () => {
         expect(canvas).not.toBe(null);
     });
 });
-

@@ -303,7 +303,6 @@ export class EdgeCalculator {
             similarEdges.push(similarEdge);
         }
 
-
         return similarEdges
             .map<IEdge>(
                 (potentialEdge: IPotentialEdge): IEdge => {

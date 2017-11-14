@@ -432,7 +432,6 @@ describe("RenderCamera.perspective.fov", () => {
             .toBeCloseTo(getVerticalFov(d, focal), precision);
     });
 
-
     it("should be correct in fill for perspective aspect 1:1 and node aspect 1:1", () => {
         let focal: number = 1;
         let zoom: number = 0;

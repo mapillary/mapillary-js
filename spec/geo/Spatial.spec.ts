@@ -282,7 +282,6 @@ describe("Spatial.clamp", () => {
     });
 });
 
-
 describe("Spatial.angleBetweenVector2", () => {
     let spatial: Spatial;
 

@@ -528,4 +528,3 @@ describe("RenderService.bearing$", () => {
         frame$.next(frame);
     });
 });
-

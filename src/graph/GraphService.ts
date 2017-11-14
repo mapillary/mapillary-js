@@ -21,7 +21,6 @@ import {
     Sequence,
 } from "../Graph";
 
-
 /**
  * @class GraphService
  *
