@@ -21,6 +21,7 @@ class TestStateBase extends StateBase {
     public update(fps: number): void { return; }
     public setCenter(center: number[]): void { return; }
     public setZoom(zoom: number): void { return; }
+    public setSpeed(speed: number): void { return; }
 
     protected _getAlpha(): number { return; }
 }

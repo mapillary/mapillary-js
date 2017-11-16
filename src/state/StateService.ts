@@ -475,6 +475,10 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.setCenter(center); });
     }
 
+    public setSpeed(speed: number): void {
+        this._invokeContextOperation((context: IStateContext) => { context.setSpeed(speed); });
+    }
+
     public setZoom(zoom: number): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.setZoom(zoom); });

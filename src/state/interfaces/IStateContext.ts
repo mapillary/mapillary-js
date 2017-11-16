@@ -28,4 +28,6 @@ export interface IStateContext extends ICurrentState {
     getCenter(): number[];
     setCenter(center: number[]): void;
     setZoom(zoom: number): void;
+
+    setSpeed(speed: number): void;
 }

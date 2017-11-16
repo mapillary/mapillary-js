@@ -69,7 +69,14 @@ class RotationDelta implements IRotation {
 
 export class TraversingState extends StateBase {
     private _baseAlpha: number;
+
+    /**
+     * Animation speed in transitions per frame at 60 FPS. Run time
+     * animation speed is adjusted to FPS and according to speed
+     * coefficient.
+     */
     private _animationSpeed: number;
+    private _speedCoefficient: number;
 
     private _unitBezier: UnitBezier;
     private _useBezier: boolean;
@@ -102,7 +109,8 @@ export class TraversingState extends StateBase {
         this._motionless = this._motionlessTransition();
 
         this._baseAlpha = this._alpha;
-        this._animationSpeed = 0.025;
+        this._animationSpeed = 1 / 40;
+        this._speedCoefficient = 1;
         this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
         this._useBezier = false;
 
@@ -279,6 +287,10 @@ export class TraversingState extends StateBase {
         this._currentCamera.lookat.fromArray(lookat);
     }
 
+    public setSpeed(speed: number): void {
+        this._speedCoefficient = this._spatial.clamp(speed, 0, 10);
+    }
+
     public zoomIn(delta: number, reference: number[]): void {
         if (this._currentNode == null) {
             return;
@@ -384,7 +396,7 @@ export class TraversingState extends StateBase {
             this._desiredLookat = null;
         }
 
-        let animationSpeed: number = this._animationSpeed * (60 / fps);
+        let animationSpeed: number = this._speedCoefficient * this._animationSpeed * (60 / fps);
         this._baseAlpha = Math.min(1, this._baseAlpha + animationSpeed);
         if (this._useBezier) {
             this._alpha = this._unitBezier.solve(this._baseAlpha);
