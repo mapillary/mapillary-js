@@ -16,6 +16,7 @@ import "rxjs/add/operator/publishReplay";
 import {
     FilterExpression,
     Graph,
+    GraphMode,
     ImageLoadingService,
     Node,
     Sequence,
@@ -28,6 +29,8 @@ import {
  */
 export class GraphService {
     private _graph$: Observable<Graph>;
+    private _graphMode$: Observable<GraphMode>;
+    private _graphModeSubject$: Subject<GraphMode>;
 
     private _imageLoadingService: ImageLoadingService;
 
@@ -51,6 +54,14 @@ export class GraphService {
 
         this._graph$.subscribe(() => { /*noop*/ });
 
+        this._graphModeSubject$ = new Subject<GraphMode>();
+        this._graphMode$ = this._graphModeSubject$
+            .startWith(GraphMode.Spatial)
+            .publishReplay(1)
+            .refCount();
+
+        this._graphMode$.subscribe(() => { /*noop*/ });
+
         this._imageLoadingService = imageLoadingService;
 
         this._firstGraphSubjects$ = [];
@@ -58,6 +69,18 @@ export class GraphService {
         this._initializeCacheSubscriptions = [];
         this._sequenceSubscriptions = [];
         this._spatialSubscriptions = [];
+    }
+
+    /**
+     * Get graph mode observable.
+     *
+     * @description Emits the current graph mode.
+     *
+     * @returns {Observable<GraphMode>} Observable
+     * emitting the current graph mode when it changes.
+     */
+    public get graphMode$(): Observable<GraphMode> {
+        return this._graphMode$;
     }
 
     /**

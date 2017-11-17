@@ -10,6 +10,7 @@ export {
 } from "./graph/FilterExpression";
 export {Graph} from "./graph/Graph";
 export {GraphCalculator} from "./graph/GraphCalculator";
+export {GraphMode} from "./graph/GraphMode";
 export {GraphService} from "./graph/GraphService";
 export {ImageLoadingService} from "./graph/ImageLoadingService";
 export {MeshReader} from "./graph/MeshReader";
