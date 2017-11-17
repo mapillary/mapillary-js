@@ -26,12 +26,21 @@ export class EventHelper {
         return mouseEvent;
     }
 
-    public static createTouchEvent(eventType: string, shiftKey: boolean): TouchEvent {
+    public static createTouchEvent(eventType: string, shiftKey?: boolean): TouchEvent {
         const event: UIEvent = document.createEvent("UIEvent");
+
+        event.initEvent(eventType, true, true);
 
         Object.defineProperty(
             event,
             "touches",
+            {
+                get: (): Touch[] => { return [<Touch>{ clientX: 0, clientY: 0 }]; },
+            });
+
+        Object.defineProperty(
+            event,
+            "targetTouches",
             {
                 get: (): Touch[] => { return [<Touch>{ clientX: 0, clientY: 0 }]; },
             });
