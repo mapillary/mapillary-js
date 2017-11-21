@@ -29,6 +29,7 @@ import {
  */
 export class GraphService {
     private _graph$: Observable<Graph>;
+    private _graphMode: GraphMode;
     private _graphMode$: Observable<GraphMode>;
     private _graphModeSubject$: Subject<GraphMode>;
 
@@ -37,6 +38,7 @@ export class GraphService {
     private _firstGraphSubjects$: Subject<Graph>[];
 
     private _initializeCacheSubscriptions: Subscription[];
+    private _sequenceNodesSubscriptions: Subscription[];
     private _sequenceSubscriptions: Subscription[];
     private _spatialSubscriptions: Subscription[];
 
@@ -54,9 +56,10 @@ export class GraphService {
 
         this._graph$.subscribe(() => { /*noop*/ });
 
+        this._graphMode = GraphMode.Spatial;
         this._graphModeSubject$ = new Subject<GraphMode>();
         this._graphMode$ = this._graphModeSubject$
-            .startWith(GraphMode.Spatial)
+            .startWith(this._graphMode)
             .publishReplay(1)
             .refCount();
 
@@ -67,6 +70,7 @@ export class GraphService {
         this._firstGraphSubjects$ = [];
 
         this._initializeCacheSubscriptions = [];
+        this._sequenceNodesSubscriptions = [];
         this._sequenceSubscriptions = [];
         this._spatialSubscriptions = [];
     }
@@ -102,15 +106,15 @@ export class GraphService {
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
     public cacheNode$(key: string): Observable<Node> {
-        let firstGraphSubject$: Subject<Graph> = new Subject<Graph>();
+        const firstGraphSubject$: Subject<Graph> = new Subject<Graph>();
 
         this._firstGraphSubjects$.push(firstGraphSubject$);
 
-        let firstGraph$: Observable<Graph> = firstGraphSubject$
+        const firstGraph$: Observable<Graph> = firstGraphSubject$
             .publishReplay(1)
             .refCount();
 
-        let node$: Observable<Node> = firstGraph$
+        const node$: Observable<Node> = firstGraph$
             .map(
                 (graph: Graph): Node => {
                     return graph.getNode(key);
@@ -132,7 +136,7 @@ export class GraphService {
                 console.error(`Failed to cache node (${key})`, error);
             });
 
-        let initializeCacheSubscription: Subscription = this._graph$
+        const initializeCacheSubscription: Subscription = this._graph$
             .first()
             .mergeMap(
                 (graph: Graph): Observable<Graph> => {
@@ -174,7 +178,7 @@ export class GraphService {
             this._initializeCacheSubscriptions.push(initializeCacheSubscription);
         }
 
-        let sequenceSubscription: Subscription = firstGraph$
+        const graphSequence$: Observable<Graph> = firstGraph$
             .mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.isCachingNodeSequence(key) || !graph.hasNodeSequence(key)) {
@@ -183,6 +187,41 @@ export class GraphService {
 
                     return Observable.of<Graph>(graph);
                 })
+            .publishReplay(1)
+            .refCount();
+
+        if (this._graphMode === GraphMode.Sequence) {
+            const sequenceNodesSubscription: Subscription = graphSequence$
+                .mergeMap(
+                    (graph: Graph): Observable<Graph> => {
+                        const sequenceKey: string = graph.getNode(key).sequenceKey;
+
+                        if (graph.isCachingSequenceNodes(sequenceKey) || !graph.hasSequenceNodes(sequenceKey)) {
+                            return graph.cacheSequenceNodes$(sequenceKey);
+                        }
+
+                        return Observable.of<Graph>(graph);
+                    })
+                .finally(
+                    (): void => {
+                        if (sequenceNodesSubscription == null) {
+                            return;
+                        }
+
+                        this._removeFromArray(sequenceNodesSubscription, this._sequenceNodesSubscriptions);
+                    })
+                .subscribe(
+                    (graph: Graph): void => { /*noop*/ },
+                    (error: Error): void => {
+                        console.error(`Failed to cache sequence nodes (${key}).`, error);
+                    });
+
+            if (!sequenceNodesSubscription.closed) {
+                this._sequenceNodesSubscriptions.push(sequenceNodesSubscription);
+            }
+        }
+
+        const sequenceSubscription: Subscription = graphSequence$
             .do(
                 (graph: Graph): void => {
                     if (!graph.getNode(key).sequenceEdges.cached) {
@@ -207,83 +246,85 @@ export class GraphService {
             this._sequenceSubscriptions.push(sequenceSubscription);
         }
 
-        let spatialSubscription: Subscription = firstGraph$
-            .expand(
-                (graph: Graph): Observable<Graph> => {
-                    if (graph.hasTiles(key)) {
-                        return Observable.empty<Graph>();
-                    }
+        if (this._graphMode === GraphMode.Spatial) {
+            const spatialSubscription: Subscription = firstGraph$
+                .expand(
+                    (graph: Graph): Observable<Graph> => {
+                        if (graph.hasTiles(key)) {
+                            return Observable.empty<Graph>();
+                        }
 
-                    return Observable
-                        .from<Observable<Graph>>(graph.cacheTiles$(key))
-                        .mergeMap(
-                            (graph$: Observable<Graph>): Observable<Graph> => {
-                                return graph$
-                                    .mergeMap(
-                                        (g: Graph): Observable<Graph> => {
-                                            if (g.isCachingTiles(key)) {
+                        return Observable
+                            .from<Observable<Graph>>(graph.cacheTiles$(key))
+                            .mergeMap(
+                                (graph$: Observable<Graph>): Observable<Graph> => {
+                                    return graph$
+                                        .mergeMap(
+                                            (g: Graph): Observable<Graph> => {
+                                                if (g.isCachingTiles(key)) {
+                                                    return Observable.empty<Graph>();
+                                                }
+
+                                                return Observable.of<Graph>(g);
+                                            })
+                                        .catch(
+                                            (error: Error, caught$: Observable<Graph>): Observable<Graph> => {
+                                                console.error(`Failed to cache tile data (${key}).`, error);
+
                                                 return Observable.empty<Graph>();
-                                            }
+                                            });
+                                });
+                    })
+                .last()
+                .mergeMap(
+                    (graph: Graph): Observable<Graph> => {
+                        if (graph.hasSpatialArea(key)) {
+                            return Observable.of<Graph>(graph);
+                        }
 
-                                            return Observable.of<Graph>(g);
-                                        })
-                                    .catch(
-                                        (error: Error, caught$: Observable<Graph>): Observable<Graph> => {
-                                            console.error(`Failed to cache tile data (${key}).`, error);
+                        return Observable
+                            .from<Observable<Graph>>(graph.cacheSpatialArea$(key))
+                            .mergeMap(
+                                (graph$: Observable<Graph>): Observable<Graph> => {
+                                    return graph$
+                                        .catch(
+                                            (error: Error, caught$: Observable<Graph>): Observable<Graph> => {
+                                                console.error(`Failed to cache spatial nodes (${key}).`, error);
 
-                                            return Observable.empty<Graph>();
-                                        });
-                            });
-                })
-            .last()
-            .mergeMap(
-                (graph: Graph): Observable<Graph> => {
-                    if (graph.hasSpatialArea(key)) {
-                        return Observable.of<Graph>(graph);
-                    }
+                                                return Observable.empty<Graph>();
+                                            });
+                                });
+                    })
+                .last()
+                .mergeMap(
+                    (graph: Graph): Observable<Graph> => {
+                        return graph.hasNodeSequence(key) ?
+                            Observable.of<Graph>(graph) :
+                            graph.cacheNodeSequence$(key);
+                    })
+                .do(
+                    (graph: Graph): void => {
+                        if (!graph.getNode(key).spatialEdges.cached) {
+                            graph.cacheSpatialEdges(key);
+                        }
+                    })
+                .finally(
+                    (): void => {
+                        if (spatialSubscription == null) {
+                            return;
+                        }
 
-                    return Observable
-                        .from<Observable<Graph>>(graph.cacheSpatialArea$(key))
-                        .mergeMap(
-                            (graph$: Observable<Graph>): Observable<Graph> => {
-                                return graph$
-                                    .catch(
-                                        (error: Error, caught$: Observable<Graph>): Observable<Graph> => {
-                                            console.error(`Failed to cache spatial nodes (${key}).`, error);
+                        this._removeFromArray(spatialSubscription, this._spatialSubscriptions);
+                    })
+                .subscribe(
+                    (graph: Graph): void => { return; },
+                    (error: Error): void => {
+                        console.error(`Failed to cache spatial edges (${key}).`, error);
+                    });
 
-                                            return Observable.empty<Graph>();
-                                        });
-                            });
-                })
-            .last()
-            .mergeMap(
-                (graph: Graph): Observable<Graph> => {
-                    return graph.hasNodeSequence(key) ?
-                        Observable.of<Graph>(graph) :
-                        graph.cacheNodeSequence$(key);
-                })
-            .do(
-                (graph: Graph): void => {
-                    if (!graph.getNode(key).spatialEdges.cached) {
-                        graph.cacheSpatialEdges(key);
-                    }
-                })
-            .finally(
-                (): void => {
-                    if (spatialSubscription == null) {
-                        return;
-                    }
-
-                    this._removeFromArray(spatialSubscription, this._spatialSubscriptions);
-                })
-            .subscribe(
-                (graph: Graph): void => { return; },
-                (error: Error): void => {
-                    console.error(`Failed to cache spatial edges (${key}).`, error);
-                });
-
-        if (!spatialSubscription.closed) {
-            this._spatialSubscriptions.push(spatialSubscription);
+            if (!spatialSubscription.closed) {
+                this._spatialSubscriptions.push(spatialSubscription);
+            }
         }
 
         return node$
@@ -339,6 +380,15 @@ export class GraphService {
                 });
     }
 
+    public setGraphMode(mode: GraphMode): void {
+        this._resetSubscriptions(this._spatialSubscriptions);
+
+        if (this._graphMode !== mode) {
+            this._graphMode = mode;
+            this._graphModeSubject$.next(this._graphMode);
+        }
+    }
+
     /**
      * Reset the graph.
      *
@@ -352,6 +402,7 @@ export class GraphService {
     public reset$(keepKeys: string[]): Observable<Graph> {
         this._abortSubjects(this._firstGraphSubjects$);
         this._resetSubscriptions(this._initializeCacheSubscriptions);
+        this._resetSubscriptions(this._sequenceNodesSubscriptions);
         this._resetSubscriptions(this._sequenceSubscriptions);
         this._resetSubscriptions(this._spatialSubscriptions);
 
@@ -384,7 +435,7 @@ export class GraphService {
     }
 
     private _abortSubjects<T>(subjects: Subject<T>[]): void {
-        for (let subject of subjects.slice()) {
+        for (const subject of subjects.slice()) {
             this._removeFromArray(subject, subjects);
 
             subject.error(new Error("Cache node request was aborted."));
@@ -392,14 +443,14 @@ export class GraphService {
     }
 
     private _removeFromArray<T>(object: T, objects: T[]): void {
-        let index: number = objects.indexOf(object);
+        const index: number = objects.indexOf(object);
         if (index !== -1) {
             objects.splice(index, 1);
         }
     }
 
     private _resetSubscriptions(subscriptions: Subscription[]): void {
-        for (let subscription of subscriptions.slice()) {
+        for (const subscription of subscriptions.slice()) {
             this._removeFromArray(subscription, subscriptions);
 
             if (!subscription.closed) {
