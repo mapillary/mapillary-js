@@ -447,7 +447,7 @@ export class Graph {
                 `Cannot cache sequence nodes of sequence that does not exist in graph (${sequenceKey}).`);
         }
 
-        if (!this.hasSequenceNodes(sequenceKey)) {
+        if (this.hasSequenceNodes(sequenceKey)) {
             throw new GraphMapillaryError(`Sequence nodes already cached (${sequenceKey}).`);
         }
 
