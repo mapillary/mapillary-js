@@ -437,20 +437,21 @@ export class Graph {
     /**
      * Retrieve and cache full nodes for all keys in a sequence.
      *
-     * @param {string} nodeKey - Key of node.
+     * @param {string} sequenceKey - Key of sequence.
      * @returns {Observable<Graph>} Observable emitting the graph
      * when the nodes of the sequence has been cached.
      */
-    public cacheSequenceNodes$(nodeKey: string): Observable<Graph> {
-        if (!this.hasNode(nodeKey)) {
-            throw new GraphMapillaryError(`Cannot cache sequence nodes of node that does not exist in graph (${nodeKey}).`);
+    public cacheSequenceNodes$(sequenceKey: string): Observable<Graph> {
+        if (!this.hasSequence(sequenceKey)) {
+            throw new GraphMapillaryError(
+                `Cannot cache sequence nodes of sequence that does not exist in graph (${sequenceKey}).`);
         }
 
-        if (!this.hasNodeSequence(nodeKey)) {
-            throw new GraphMapillaryError(`Node sequence has not been cached (${nodeKey}).`);
+        if (!this.hasSequenceNodes(sequenceKey)) {
+            throw new GraphMapillaryError(`Sequence nodes already cached (${sequenceKey}).`);
         }
 
-        const sequence: Sequence = this._sequences[this._nodes[nodeKey].sequenceKey].sequence;
+        const sequence: Sequence = this.getSequence(sequenceKey);
         if (sequence.key in this._cachingSequenceNodes$) {
             return this._cachingSequenceNodes$[sequence.key];
         }
@@ -926,14 +927,12 @@ export class Graph {
     /**
      * Get a value indicating if the graph is caching sequence nodes.
      *
-     * @param {string} nodeKey - Key of node.
+     * @param {string} sequenceKey - Key of sequence.
      * @returns {boolean} Value indicating if the sequence nodes are
      * being cached.
      */
-    public isCachingSequenceNodes(nodeKey: string): boolean {
-        const node: Node = this.getNode(nodeKey);
-
-        return node.sequenceKey in this._cachingSequenceNodes$;
+    public isCachingSequenceNodes(sequenceKey: string): boolean {
+        return sequenceKey in this._cachingSequenceNodes$;
     }
 
     /**
@@ -1017,14 +1016,12 @@ export class Graph {
     /**
      * Get a value indicating if sequence nodes has been cached in the graph.
      *
-     * @param {string} nodeKey - Key of node.
+     * @param {string} sequenceKey - Key of sequence.
      * @returns {boolean} Value indicating if a sequence nodes has been
      * cached in the graph.
      */
-    public hasSequenceNodes(nodeKey: string): boolean {
-        const node: Node = this.getNode(nodeKey);
-
-        return node.sequenceKey in this._cachedSequenceNodes;
+    public hasSequenceNodes(sequenceKey: string): boolean {
+        return sequenceKey in this._cachedSequenceNodes;
     }
 
     /**
