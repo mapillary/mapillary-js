@@ -89,6 +89,11 @@ export class Graph {
     private _cachedNodeTiles: { [key: string]: boolean };
 
     /**
+     * Sequences for which the nodes are cached.
+     */
+    private _cachedSequenceNodes: { [sequenceKey: string]: boolean };
+
+    /**
      * Nodes for which the spatial edges are cached.
      */
     private _cachedSpatialEdges: { [key: string]: Node };
@@ -107,6 +112,11 @@ export class Graph {
      * Nodes for which full properties are being retrieved.
      */
     private _cachingFull$: { [key: string]: Observable<Graph> };
+
+    /**
+     * Sequences for which the nodes are being retrieved.
+     */
+    private _cachingSequenceNodes$: { [sequenceKey: string]: Observable<Graph> };
 
     /**
      * Sequences that are being retrieved.
@@ -197,11 +207,13 @@ export class Graph {
 
         this._cachedNodes = {};
         this._cachedNodeTiles = {};
+        this._cachedSequenceNodes = {};
         this._cachedSpatialEdges = {};
         this._cachedTiles = {};
 
         this._cachingFill$ = {};
         this._cachingFull$ = {};
+        this._cachingSequenceNodes$ = {};
         this._cachingSequences$ = {};
         this._cachingSpatialArea$ = {};
         this._cachingTiles$ = {};
@@ -420,6 +432,92 @@ export class Graph {
         let edges: IEdge[] = this._edgeCalculator.computeSequenceEdges(node, sequence);
 
         node.cacheSequenceEdges(edges);
+    }
+
+    /**
+     * Retrieve and cache full nodes for all keys in a sequence.
+     *
+     * @param {string} nodeKey - Key of node.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when the nodes of the sequence has been cached.
+     */
+    public cacheSequenceNodes$(nodeKey: string): Observable<Graph> {
+        if (!this.hasNode(nodeKey)) {
+            throw new GraphMapillaryError(`Cannot cache sequence nodes of node that does not exist in graph (${nodeKey}).`);
+        }
+
+        if (!this.hasNodeSequence(nodeKey)) {
+            throw new GraphMapillaryError(`Node sequence has not been cached (${nodeKey}).`);
+        }
+
+        const sequence: Sequence = this._sequences[this._nodes[nodeKey].sequenceKey].sequence;
+        if (sequence.key in this._cachingSequenceNodes$) {
+            return this._cachingSequenceNodes$[sequence.key];
+        }
+
+        const batches: string[][] = [];
+        const batchSize: number = 200;
+        for (let i: number = 0; i < sequence.keys.length; i += batchSize) {
+            batches.push(sequence.keys.slice(i, i + batchSize));
+        }
+
+        let batchesToCache: number = batches.length;
+        const sequenceNodes$: Observable<Graph> = Observable
+            .from(batches)
+            .mergeMap(
+                (batch: string[]): Observable<Graph> => {
+                    return this._apiV3.imageByKeyFull$(batch)
+                        .do(
+                            (imageByKeyFull: { [key: string]: IFullNode }): void => {
+                                for (const fullKey in imageByKeyFull) {
+                                    if (!imageByKeyFull.hasOwnProperty(fullKey)) {
+                                        continue;
+                                    }
+
+                                    const fn: IFullNode = imageByKeyFull[fullKey];
+
+                                    if (this.hasNode(fullKey)) {
+                                        const node: Node = this.getNode(fn.key);
+
+                                        if (!node.full) {
+                                            this._makeFull(node, fn);
+                                        }
+                                    } else {
+                                        if (fn.sequence == null || fn.sequence.key == null) {
+                                            console.warn(`Sequence missing, discarding (${fn.key})`);
+                                        }
+
+                                        const node: Node = new Node(fn);
+                                        this._makeFull(node, fn);
+
+                                        const h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
+                                        this._preStore(h, node);
+                                        this._setNode(node);
+                                    }
+                                }
+
+                                batchesToCache--;
+                            })
+                        .map(
+                            (imageByKeyFull: { [key: string]: IFullNode }): Graph => {
+                                return this;
+                            });
+                })
+            .last()
+            .finally(
+                (): void => {
+                    delete this._cachingSequenceNodes$[sequence.key];
+
+                    if (batchesToCache === 0) {
+                        this._cachedSequenceNodes[sequence.key] = true;
+                    }
+                })
+            .publish()
+            .refCount();
+
+        this._cachingSequenceNodes$[sequence.key] = sequenceNodes$;
+
+        return sequenceNodes$;
     }
 
     /**
@@ -826,6 +924,19 @@ export class Graph {
     }
 
     /**
+     * Get a value indicating if the graph is caching sequence nodes.
+     *
+     * @param {string} nodeKey - Key of node.
+     * @returns {boolean} Value indicating if the sequence nodes are
+     * being cached.
+     */
+    public isCachingSequenceNodes(nodeKey: string): boolean {
+        const node: Node = this.getNode(nodeKey);
+
+        return node.sequenceKey in this._cachingSequenceNodes$;
+    }
+
+    /**
      * Get a value indicating if the graph is caching the tiles
      * required for calculating spatial edges of a node.
      *
@@ -901,6 +1012,19 @@ export class Graph {
         }
 
         return hasSequence;
+    }
+
+    /**
+     * Get a value indicating if sequence nodes has been cached in the graph.
+     *
+     * @param {string} nodeKey - Key of node.
+     * @returns {boolean} Value indicating if a sequence nodes has been
+     * cached in the graph.
+     */
+    public hasSequenceNodes(nodeKey: string): boolean {
+        const node: Node = this.getNode(nodeKey);
+
+        return node.sequenceKey in this._cachedSequenceNodes;
     }
 
     /**
