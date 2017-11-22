@@ -1701,7 +1701,7 @@ describe("Graph.uncache", () => {
         helper = new NodeHelper();
     });
 
-    it("should uncache cache initialized node", () => {
+    it("should remove prestored node if not cache initialized", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -1731,22 +1731,102 @@ describe("Graph.uncache", () => {
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
         let node: Node = graph.getNode(fullNode.key);
-        graph.initializeCache(node.key);
-
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
-
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
-        nodeUncacheSpy.and.stub();
+        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
-        expect(nodeUncacheSpy.calls.count()).toBe(1);
+        expect(nodeUncacheSpy.calls.count()).toBe(0);
+        expect(nodeDisposeSpy.calls.count()).toBe(1);
 
-        expect(graph.hasNode(node.key)).toBe(true);
-        expect(graph.hasInitializedCache(node.key)).toBe(false);
+        expect(graph.hasNode(fullNode.key)).toBe(false);
     });
 
-    it("should not uncache cache initialized node if below threshold", () => {
+    it("should remove prestored node if cache initialized", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let configuration: IGraphConfiguration = {
+            maxSequences: 0,
+            maxUnusedNodes: 0,
+            maxUnusedTiles: 0,
+        };
+
+        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        graph.initializeCache(fullNode.key);
+
+        let node: Node = graph.getNode(fullNode.key);
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+
+        graph.uncache([]);
+
+        expect(nodeDisposeSpy.calls.count()).toBe(1);
+
+        expect(graph.hasNode(fullNode.key)).toBe(false);
+    });
+
+    it("should not remove prestored node when in keys to keep", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let configuration: IGraphConfiguration = {
+            maxSequences: 0,
+            maxUnusedNodes: 0,
+            maxUnusedTiles: 0,
+        };
+
+        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        graph.initializeCache(fullNode.key);
+
+        let node: Node = graph.getNode(fullNode.key);
+        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+
+        graph.uncache([fullNode.key]);
+
+        expect(nodeUncacheSpy.calls.count()).toBe(0);
+        expect(nodeDisposeSpy.calls.count()).toBe(0);
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+    });
+
+    it("should not remove prestored node if below threshold", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -1775,124 +1855,21 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
+        graph.initializeCache(fullNode.key);
+
         let node: Node = graph.getNode(fullNode.key);
-        graph.initializeCache(node.key);
-
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
-
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
-        nodeUncacheSpy.and.stub();
+        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
-
-        expect(graph.hasNode(node.key)).toBe(true);
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
-    });
-
-    it("should not uncache cache initialized node if key should be kept", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let calculator: GraphCalculator = new GraphCalculator(null);
-
-        let h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
-
-        let configuration: IGraphConfiguration = {
-            maxSequences: 0,
-            maxUnusedNodes: 0,
-            maxUnusedTiles: 0,
-        };
-
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
-
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
-
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        expect(nodeDisposeSpy.calls.count()).toBe(0);
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
-
-        let node: Node = graph.getNode(fullNode.key);
-        graph.initializeCache(node.key);
-
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
-
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
-        nodeUncacheSpy.and.stub();
-
-        graph.uncache([node.key]);
-
-        expect(nodeUncacheSpy.calls.count()).toBe(0);
-
-        expect(graph.hasNode(node.key)).toBe(true);
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
     });
 
-    it("should not uncache cache initialized node if key in use", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
-        let calculator: GraphCalculator = new GraphCalculator(null);
-
-        let h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
-
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
-
-        let configuration: IGraphConfiguration = {
-            maxSequences: 0,
-            maxUnusedNodes: 0,
-            maxUnusedTiles: 0,
-        };
-
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
-
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
-
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
-
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-
-        let node: Node = graph.getNode(fullNode.key);
-        graph.initializeCache(node.key);
-
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
-
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
-
-        graph.hasTiles(node.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(node.key))
-            .mergeAll()
-            .subscribe(() => { /*noop*/ });
-
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
-        nodeUncacheSpy.and.stub();
-
-        graph.uncache([]);
-
-        expect(nodeUncacheSpy.calls.count()).toBe(0);
-
-        expect(graph.hasNode(node.key)).toBe(true);
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
-    });
-
-    it("should uncache cache initialized node accessed earliest", () => {
+    it("should remove prestored node accessed earliest", () => {
         let apiV3: APIv3 = new APIv3("clientId");
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
@@ -1938,6 +1915,323 @@ describe("Graph.uncache", () => {
         imageByKeyFull2.next(result2);
         imageByKeyFull2.complete();
 
+        let node1: Node = graph.getNode(fullNode1.key);
+        graph.initializeCache(node1.key);
+
+        expect(graph.hasInitializedCache(node1.key)).toBe(true);
+
+        let node2: Node = graph.getNode(fullNode2.key);
+        graph.initializeCache(node2.key);
+
+        expect(graph.hasInitializedCache(node2.key)).toBe(true);
+
+        let nodeDisposeSpy1: jasmine.Spy = spyOn(node1, "dispose").and.stub();
+        let nodeDisposeSpy2: jasmine.Spy = spyOn(node2, "dispose").and.stub();
+
+        let time: number = new Date().getTime();
+        while (new Date().getTime() === time) {
+            graph.hasNode(node2.key);
+        }
+
+        graph.hasNode(node2.key);
+
+        graph.uncache([]);
+
+        expect(nodeDisposeSpy1.calls.count()).toBe(1);
+        expect(nodeDisposeSpy2.calls.count()).toBe(0);
+
+        expect(graph.hasNode(fullNode1.key)).toBe(false);
+        expect(graph.hasNode(fullNode2.key)).toBe(true);
+
+    });
+
+    it("should uncache cache initialized node", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let configuration: IGraphConfiguration = {
+            maxSequences: 0,
+            maxUnusedNodes: 0,
+            maxUnusedTiles: 1,
+        };
+
+        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        graph.initializeCache(fullNode.key);
+
+        expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        graph.hasTiles(fullNode.key);
+        Observable
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe(() => { /*noop*/ });
+
+        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        imagesByHResult[h] = {};
+        imagesByHResult[h]["0"] = fullNode;
+        imagesByH.next(imagesByHResult);
+
+        let node: Node = graph.getNode(fullNode.key);
+        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+
+        graph.uncache([]);
+
+        expect(nodeUncacheSpy.calls.count()).toBe(1);
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasInitializedCache(fullNode.key)).toBe(false);
+    });
+
+    it("should not uncache cache initialized node if below threshold", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let configuration: IGraphConfiguration = {
+            maxSequences: 0,
+            maxUnusedNodes: 1,
+            maxUnusedTiles: 1,
+        };
+
+        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        graph.initializeCache(fullNode.key);
+
+        expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        graph.hasTiles(fullNode.key);
+        Observable
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe(() => { /*noop*/ });
+
+        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        imagesByHResult[h] = {};
+        imagesByHResult[h]["0"] = fullNode;
+        imagesByH.next(imagesByHResult);
+
+        let node: Node = graph.getNode(fullNode.key);
+        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+
+        graph.uncache([]);
+
+        expect(nodeUncacheSpy.calls.count()).toBe(0);
+        expect(nodeDisposeSpy.calls.count()).toBe(0);
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
+    });
+
+    it("should not uncache cache initialized node if key should be kept", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let configuration: IGraphConfiguration = {
+            maxSequences: 0,
+            maxUnusedNodes: 0,
+            maxUnusedTiles: 1,
+        };
+
+        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        let node: Node = graph.getNode(fullNode.key);
+        graph.initializeCache(node.key);
+
+        expect(graph.hasInitializedCache(node.key)).toBe(true);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        graph.hasTiles(fullNode.key);
+        Observable
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe(() => { /*noop*/ });
+
+        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        imagesByHResult[h] = {};
+        imagesByHResult[h]["0"] = fullNode;
+        imagesByH.next(imagesByHResult);
+
+        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
+        nodeUncacheSpy.and.stub();
+
+        graph.uncache([node.key]);
+
+        expect(nodeUncacheSpy.calls.count()).toBe(0);
+
+        expect(graph.hasNode(node.key)).toBe(true);
+        expect(graph.hasInitializedCache(node.key)).toBe(true);
+    });
+
+    it("should not uncache cache initialized node if key in use", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        let configuration: IGraphConfiguration = {
+            maxSequences: 0,
+            maxUnusedNodes: 0,
+            maxUnusedTiles: 1,
+        };
+
+        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        let result: { [key: string]: IFullNode } = {};
+        result[fullNode.key] = fullNode;
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+
+        imageByKeyFull.next(result);
+        imageByKeyFull.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+
+        let node: Node = graph.getNode(fullNode.key);
+        graph.initializeCache(node.key);
+
+        expect(graph.hasInitializedCache(node.key)).toBe(true);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        graph.hasTiles(node.key);
+        Observable
+            .from<Observable<Graph>>(graph.cacheTiles$(node.key))
+            .mergeAll()
+            .subscribe(() => { /*noop*/ });
+
+        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+
+        graph.uncache([]);
+
+        expect(nodeUncacheSpy.calls.count()).toBe(0);
+        expect(nodeDisposeSpy.calls.count()).toBe(0);
+
+        expect(graph.hasNode(node.key)).toBe(true);
+        expect(graph.hasInitializedCache(node.key)).toBe(true);
+    });
+
+    it("should uncache cache initialized node accessed earliest", () => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+
+        let imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+
+        let configuration: IGraphConfiguration = {
+            maxSequences: 0,
+            maxUnusedNodes: 1,
+            maxUnusedTiles: 1,
+        };
+
+        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+
+        let fullNode1: IFullNode = helper.createFullNode();
+        fullNode1.key = "key1";
+        let result1: { [key: string]: IFullNode } = {};
+        result1[fullNode1.key] = fullNode1;
+
+        let imageByKeyFull1: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
+
+        graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
+
+        imageByKeyFull1.next(result1);
+        imageByKeyFull1.complete();
+
+        expect(graph.hasNode(fullNode1.key)).toBe(true);
+
+        let fullNode2: IFullNode = helper.createFullNode();
+        fullNode2.key = "key2";
+        let result2: { [key: string]: IFullNode } = {};
+        result2[fullNode2.key] = fullNode2;
+
+        let imageByKeyFull2: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
+
+        graph.cacheFull$(fullNode2.key).subscribe(() => { /*noop*/ });
+
+        imageByKeyFull2.next(result2);
+        imageByKeyFull2.complete();
+
         expect(graph.hasNode(fullNode2.key)).toBe(true);
 
         let node1: Node = graph.getNode(fullNode1.key);
@@ -1949,6 +2243,22 @@ describe("Graph.uncache", () => {
         graph.initializeCache(node2.key);
 
         expect(graph.hasInitializedCache(node2.key)).toBe(true);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        graph.hasTiles(fullNode1.key);
+        Observable
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode1.key))
+            .mergeAll()
+            .subscribe(() => { /*noop*/ });
+
+        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        imagesByHResult[h] = {};
+        imagesByHResult[h]["0"] = fullNode1;
+        imagesByHResult[h]["1"] = fullNode2;
+        imagesByH.next(imagesByHResult);
 
         let nodeUncacheSpy1: jasmine.Spy = spyOn(node1, "uncache").and.stub();
         let nodeUncacheSpy2: jasmine.Spy = spyOn(node2, "uncache").and.stub();
