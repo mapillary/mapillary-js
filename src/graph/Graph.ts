@@ -1303,6 +1303,40 @@ export class Graph {
             this._uncacheTile(uncacheH);
         }
 
+        let potentialPreStored: [NodeAccess, string][] = [];
+        let nonCachedPreStored: [string, string][] = [];
+        for (let h in this._preStored) {
+            if (!this._preStored.hasOwnProperty(h) || h in this._cachingTiles$) {
+                continue;
+            }
+
+            for (let key in this._preStored[h]) {
+                if (!this._preStored[h].hasOwnProperty(key) || key in keysInUse) {
+                    continue;
+                }
+
+                if (key in this._cachedNodes) {
+                    potentialPreStored.push([this._cachedNodes[key], h]);
+                } else {
+                    nonCachedPreStored.push([key, h]);
+                }
+            }
+        }
+
+        let uncachePreStored: [string, string][] = potentialPreStored
+            .sort(
+                ([na1, h1]: [NodeAccess, string], [na2, h2]: [NodeAccess, string]): number => {
+                    return na2.accessed - na1.accessed;
+                })
+            .slice(this._configuration.maxUnusedNodes)
+            .map(
+                ([na, h]: [NodeAccess, string]): [string, string] => {
+                    return [na.node.key, h];
+                });
+
+        this._uncachePreStored(nonCachedPreStored);
+        this._uncachePreStored(uncachePreStored);
+
         let potentialNodes: NodeAccess[] = [];
         for (let key in this._cachedNodes) {
             if (!this._cachedNodes.hasOwnProperty(key) || key in keysInUse) {
@@ -1466,6 +1500,10 @@ export class Graph {
                 delete this._cachedSpatialEdges[key];
             }
 
+            if (node.sequenceKey in this._cachedSequenceNodes) {
+                delete this._cachedSequenceNodes[node.sequenceKey];
+            }
+
             node.dispose();
         }
 
@@ -1475,6 +1513,40 @@ export class Graph {
 
         delete this._nodeIndexTiles[h];
         delete this._cachedTiles[h];
+    }
+
+    private _uncachePreStored(preStored: [string, string][]): void {
+        let hs: { [h: string]: boolean } = {};
+        for (let [key, h] of preStored) {
+            if (key in this._nodes) {
+                delete this._nodes[key];
+            }
+
+            if (key in this._cachedNodes) {
+                delete this._cachedNodes[key];
+            }
+
+            let node: Node = this._preStored[h][key];
+            delete this._preStored[h][key];
+
+            if (node.sequenceKey in this._cachedSequenceNodes) {
+                delete this._cachedSequenceNodes[node.sequenceKey];
+            }
+
+            node.dispose();
+
+            hs[h] = true;
+        }
+
+        for (let h in hs) {
+            if (!hs.hasOwnProperty(h)) {
+                continue;
+            }
+
+            if (Object.keys(this._preStored[h]).length === 0) {
+                delete this._preStored[h];
+            }
+        }
     }
 
     private _updateCachedTileAccess(key: string, accessed: number): void {
