@@ -17,6 +17,7 @@ import "rxjs/add/operator/finally";
 import "rxjs/add/operator/first";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/publishReplay";
+import "rxjs/add/operator/retry";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/share";
 import "rxjs/add/operator/switchMap";
@@ -31,7 +32,7 @@ import {
     SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
-import {IEdgeStatus, Node} from "../../Graph";
+import {IEdgeStatus, Node, Sequence} from "../../Graph";
 import {IVNodeHash} from "../../Render";
 import {IFrame} from "../../State";
 import {Container, Navigator} from "../../Viewer";
@@ -73,6 +74,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _hoveredKeySubscription: Subscription;
 
     private _playingSubscription: Subscription;
+    private _cacheSubscription: Subscription;
     private _clearSubscription: Subscription;
     private _stopSubscription: Subscription;
 
@@ -365,6 +367,75 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     }
 
     private _play(): void {
+        this._cacheSubscription = this._navigator.stateService.currentNode$
+            .map(
+                (node: Node): string => {
+                    return node.sequenceKey;
+                })
+            .distinctUntilChanged()
+            .switchMap(
+                (sequenceKey: string): Observable<Sequence> => {
+                    return this._navigator.graphService.cacheSequence$(sequenceKey)
+                        .retry(3)
+                        .catch(
+                            (): Observable<Sequence> => {
+                                return Observable.of(undefined);
+                            });
+                })
+            .switchMap(
+                (sequence: Sequence): Observable<string> => {
+                    if (sequence === undefined) {
+                        return Observable.empty();
+                    }
+
+                    const sequenceKeys: string[] = sequence.keys.slice();
+
+                    return this._navigator.stateService.currentState$
+                        .map(
+                            (frame: IFrame): [string, number] => {
+                                return [frame.state.trajectory[frame.state.trajectory.length - 1].key, frame.state.nodesAhead];
+                            })
+                        .scan(
+                            (
+                                [lastRequestKey, previousRequestKeys]: [string, string[]],
+                                [lastTrajectoryKey, nodesAhead]: [string, number]):
+                                [string, string[]] => {
+
+                                if (lastRequestKey === undefined) {
+                                    lastRequestKey = lastTrajectoryKey;
+                                }
+
+                                if (nodesAhead >= this._nodesAhead || sequenceKeys.indexOf(lastRequestKey) === sequenceKeys.length - 1) {
+                                    return [lastRequestKey, []];
+                                }
+
+                                const current: number = sequenceKeys.indexOf(lastTrajectoryKey);
+                                const start: number = sequenceKeys.indexOf(lastRequestKey);
+                                const end: number = start + (this._nodesAhead - nodesAhead) - (start - current);
+
+                                if (end === start) {
+                                    return [lastRequestKey, []];
+                                }
+
+                                return [sequenceKeys[end], sequenceKeys.slice(start, end)];
+                            },
+                            [undefined, []])
+                        .mergeMap(
+                            ([lastRequestKey, newRequestKeys]: [string, string[]]): Observable<string> => {
+                                return Observable.from(newRequestKeys);
+                            });
+                })
+            .mergeMap(
+                (key: string): Observable<Node> => {
+                    return this._navigator.graphService.cacheNode$(key)
+                        .catch(
+                            (): Observable<Node> => {
+                                return Observable.empty();
+                            });
+                },
+                6)
+            .subscribe((): void => { /*noop*/ });
+
         this._playingSubscription = this._navigator.stateService.currentState$
             .filter(
                 (frame: IFrame): boolean => {
@@ -429,7 +500,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 });
 
         this._clearSubscription = this._navigator.stateService.currentNode$
-            .bufferCount(1, 7)
+            .bufferCount(1, 10)
             .subscribe(
                 (nodes: Node[]): void => {
                     this._navigator.stateService.clearPriorNodes();
@@ -439,6 +510,9 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     }
 
     private _stop(): void {
+        this._cacheSubscription.unsubscribe();
+        this._cacheSubscription = null;
+
         this._playingSubscription.unsubscribe();
         this._playingSubscription = null;
 
