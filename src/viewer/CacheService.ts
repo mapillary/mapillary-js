@@ -9,6 +9,7 @@ import "rxjs/add/operator/switchMap";
 
 import {
     Graph,
+    GraphMode,
     GraphService,
     Node,
 } from "../Graph";
@@ -48,19 +49,27 @@ export class CacheService {
                     return frame.state.currentNode.key;
                 })
             .map(
-                (frame: IFrame): string[] => {
-                    return frame.state.trajectory
+                (frame: IFrame): [string[], string] => {
+                    const trajectory: Node[] = frame.state.trajectory;
+                    const trajectoryKeys: string[] = trajectory
                         .map(
                             (n: Node): string => {
                                 return n.key;
                             });
+
+                    const sequenceKey: string = trajectory[trajectory.length - 1].sequenceKey;
+
+                    return [trajectoryKeys, sequenceKey];
                 })
             .bufferCount(1, 5)
+            .withLatestFrom(this._graphService.graphMode$)
             .switchMap(
-                (keepKeysBuffer: string[][]): Observable<Graph> => {
-                    let keepKeys: string[] = keepKeysBuffer[0];
+                ([keepBuffer, graphMode]: [[string[], string][], GraphMode]): Observable<Graph> => {
+                    let keepKeys: string[] = keepBuffer[0][0];
+                    let keepSequenceKey: string = graphMode === GraphMode.Sequence ?
+                        keepBuffer[0][1] : undefined;
 
-                    return this._graphService.uncache$(keepKeys);
+                    return this._graphService.uncache$(keepKeys, keepSequenceKey);
                 })
             .subscribe(() => { /*noop*/ });
 

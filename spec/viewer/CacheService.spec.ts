@@ -10,6 +10,7 @@ import {
 } from "../../src/API";
 import {
     Graph,
+    GraphMode,
     GraphService,
     ImageLoadingService,
     Node,
@@ -126,6 +127,7 @@ describe("CacheService.start", () => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
         let graph: Graph = new Graph(apiV3);
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        graphService.setGraphMode(GraphMode.Spatial);
 
         let currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
         let stateService: TestStateService = new TestStateService(currentStateSubject$);
@@ -156,9 +158,55 @@ describe("CacheService.start", () => {
         uncacheSubject.complete();
 
         expect(uncacheSpy.calls.count()).toBe(1);
-        expect(uncacheSpy.calls.first().args.length).toBe(1);
+        expect(uncacheSpy.calls.first().args.length).toBe(2);
         expect(uncacheSpy.calls.first().args[0].length).toBe(2);
         expect(uncacheSpy.calls.first().args[0][0]).toBe(coreNode1.key);
         expect(uncacheSpy.calls.first().args[0][1]).toBe(coreNode2.key);
+        expect(uncacheSpy.calls.first().args[1]).toBeUndefined();
+    });
+
+    it("should call graph service uncache method with sequence key of last trajectory node", () => {
+        let clientId: string = "clientId";
+        let apiV3: APIv3 = new APIv3(clientId);
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let graph: Graph = new Graph(apiV3);
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        graphService.setGraphMode(GraphMode.Sequence);
+
+        let currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
+        let stateService: TestStateService = new TestStateService(currentStateSubject$);
+
+        let uncacheSpy: jasmine.Spy = spyOn(graphService, "uncache$");
+        let uncacheSubject: Subject<Graph> = new Subject<Graph>();
+        uncacheSpy.and.returnValue(uncacheSubject);
+
+        let cacheService: CacheService = new CacheService(graphService, stateService);
+
+        cacheService.start();
+
+        let coreNode1: ICoreNode = helper.createCoreNode();
+        coreNode1.key = "node1";
+        let node1: Node = new Node(coreNode1);
+
+        let coreNode2: ICoreNode = helper.createCoreNode();
+        coreNode2.key = "node2";
+        coreNode2.sequence.key = "sequence2";
+        let node2: Node = new Node(coreNode2);
+
+        let state: ICurrentState = createState();
+        state.trajectory = [node1, node2];
+        state.currentNode = node1;
+
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+        currentStateSubject$.complete();
+
+        uncacheSubject.complete();
+
+        expect(uncacheSpy.calls.count()).toBe(1);
+        expect(uncacheSpy.calls.first().args.length).toBe(2);
+        expect(uncacheSpy.calls.first().args[0].length).toBe(2);
+        expect(uncacheSpy.calls.first().args[0][0]).toBe(coreNode1.key);
+        expect(uncacheSpy.calls.first().args[0][1]).toBe(coreNode2.key);
+        expect(uncacheSpy.calls.first().args[1]).toBe(coreNode2.sequence.key);
     });
 });
