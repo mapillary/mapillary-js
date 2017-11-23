@@ -396,8 +396,8 @@ export class TraversingState extends StateBase {
             this._desiredLookat = null;
         }
 
-        let animationSpeed: number = this._speedCoefficient * this._animationSpeed * (60 / fps);
-        this._baseAlpha = Math.min(1, this._baseAlpha + animationSpeed);
+        let animationSpeed: number = this._animationSpeed * (60 / fps);
+        this._baseAlpha = Math.min(1, this._baseAlpha + this._speedCoefficient * animationSpeed);
         if (this._useBezier) {
             this._alpha = this._unitBezier.solve(this._baseAlpha);
         } else {
