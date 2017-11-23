@@ -1398,6 +1398,10 @@ export class Graph {
 
             delete this._sequences[sequenceKey];
 
+            if (sequenceKey in this._cachedSequenceNodes) {
+                delete this._cachedSequenceNodes[sequenceKey];
+            }
+
             sequenceAccess.sequence.dispose();
         }
     }
@@ -1509,7 +1513,6 @@ export class Graph {
             }
 
             if (node.sequenceKey === keepSequenceKey) {
-                const h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
                 this._preStore(h, node);
                 node.uncache();
             } else {
@@ -1534,8 +1537,6 @@ export class Graph {
     private _uncachePreStored(preStored: [string, string][]): void {
         let hs: { [h: string]: boolean } = {};
         for (let [key, h] of preStored) {
-
-
             if (key in this._nodes) {
                 delete this._nodes[key];
             }
