@@ -422,15 +422,18 @@ export class GraphService {
      * related to those nodes.
      *
      * @param {Array<string>} keepKeys - Keys of nodes to keep in graph.
+     * @param {string} keepSequenceKey - Optional key of sequence
+     * for which the belonging nodes should not be disposed or
+     * removed from the graph.
      * @return {Observable<Graph>} Observable emitting a single item,
      * the graph, when the graph has been uncached.
      */
-    public uncache$(keepKeys: string[]): Observable<Graph> {
+    public uncache$(keepKeys: string[], keepSequenceKey?: string): Observable<Graph> {
         return this._graph$
             .first()
             .do(
                 (graph: Graph): void => {
-                    graph.uncache(keepKeys);
+                    graph.uncache(keepKeys, keepSequenceKey);
                 });
     }
 

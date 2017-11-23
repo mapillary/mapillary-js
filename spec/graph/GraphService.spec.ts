@@ -635,7 +635,7 @@ describe("GraphService.setFilter$", () => {
 });
 
 describe("GraphService.uncache$", () => {
-    it("should reset spatial edges and set filter", () => {
+    it("should call graph uncache", () => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
         let apiV3: APIv3 = new APIv3("clientId");
@@ -645,13 +645,12 @@ describe("GraphService.uncache$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        graphService.uncache$(["nKey"]).subscribe(() => { /*noop*/ });
+        graphService.uncache$(["nKey"], "sKey").subscribe(() => { /*noop*/ });
 
         expect(uncacheSpy.calls.count()).toBe(1);
-
-        expect(uncacheSpy.calls.count()).toBe(1);
-        expect(uncacheSpy.calls.first().args.length).toBe(1);
+        expect(uncacheSpy.calls.first().args.length).toBe(2);
         expect(uncacheSpy.calls.first().args[0].length).toBe(1);
         expect(uncacheSpy.calls.first().args[0][0]).toBe("nKey");
+        expect(uncacheSpy.calls.first().args[1]).toBe("sKey");
     });
 });
