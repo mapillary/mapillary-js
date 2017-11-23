@@ -1244,13 +1244,15 @@ export class Graph {
      * @param {Array<string>} keepKeys - Keys of nodes to keep in
      * graph unrelated to last access. Tiles related to those keys
      * will also be kept in graph.
+     * @param {string} keepSequenceKey - Optional key of sequence
+     * for which the belonging nodes should not be disposed or
+     * removed from the graph.
      */
-    public uncache(keepKeys: string[]): void {
+    public uncache(keepKeys: string[], keepSequenceKey?: string): void {
         let keysInUse: { [key: string]: boolean } = {};
 
         this._addNewKeys(keysInUse, this._cachingFull$);
         this._addNewKeys(keysInUse, this._cachingFill$);
-        this._addNewKeys(keysInUse, this._cachingTiles$);
         this._addNewKeys(keysInUse, this._cachingSpatialArea$);
         this._addNewKeys(keysInUse, this._requiredNodeTiles);
         this._addNewKeys(keysInUse, this._requiredSpatialArea);
@@ -1300,7 +1302,7 @@ export class Graph {
                 });
 
         for (let uncacheH of uncacheHs) {
-            this._uncacheTile(uncacheH);
+            this._uncacheTile(uncacheH, keepSequenceKey);
         }
 
         let potentialPreStored: [NodeAccess, string][] = [];
@@ -1310,8 +1312,14 @@ export class Graph {
                 continue;
             }
 
-            for (let key in this._preStored[h]) {
-                if (!this._preStored[h].hasOwnProperty(key) || key in keysInUse) {
+            const prestoredNodes: { [key: string]: Node } = this._preStored[h];
+
+            for (let key in prestoredNodes) {
+                if (!prestoredNodes.hasOwnProperty(key) || key in keysInUse) {
+                    continue;
+                }
+
+                if (prestoredNodes[key].sequenceKey === keepSequenceKey) {
                     continue;
                 }
 
@@ -1370,7 +1378,8 @@ export class Graph {
         let potentialSequences: SequenceAccess[] = [];
         for (let sequenceKey in this._sequences) {
             if (!this._sequences.hasOwnProperty(sequenceKey) ||
-                sequenceKey in this._cachingSequences$) {
+                sequenceKey in this._cachingSequences$ ||
+                sequenceKey === keepSequenceKey) {
                 continue;
             }
 
@@ -1481,11 +1490,10 @@ export class Graph {
         this._nodes[key] = node;
     }
 
-    private _uncacheTile(h: string): void {
+    private _uncacheTile(h: string, keepSequenceKey: string): void {
         for (let node of this._cachedTiles[h].nodes) {
             let key: string = node.key;
 
-            delete this._nodes[key];
             delete this._nodeToTile[key];
 
             if (key in this._cachedNodes) {
@@ -1500,11 +1508,19 @@ export class Graph {
                 delete this._cachedSpatialEdges[key];
             }
 
-            if (node.sequenceKey in this._cachedSequenceNodes) {
-                delete this._cachedSequenceNodes[node.sequenceKey];
-            }
+            if (node.sequenceKey === keepSequenceKey) {
+                const h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
+                this._preStore(h, node);
+                node.uncache();
+            } else {
+                delete this._nodes[key];
 
-            node.dispose();
+                if (node.sequenceKey in this._cachedSequenceNodes) {
+                    delete this._cachedSequenceNodes[node.sequenceKey];
+                }
+
+                node.dispose();
+            }
         }
 
         for (let nodeIndexItem of this._nodeIndexTiles[h]) {
@@ -1518,6 +1534,8 @@ export class Graph {
     private _uncachePreStored(preStored: [string, string][]): void {
         let hs: { [h: string]: boolean } = {};
         for (let [key, h] of preStored) {
+
+
             if (key in this._nodes) {
                 delete this._nodes[key];
             }
@@ -1527,11 +1545,12 @@ export class Graph {
             }
 
             let node: Node = this._preStored[h][key];
-            delete this._preStored[h][key];
 
             if (node.sequenceKey in this._cachedSequenceNodes) {
                 delete this._cachedSequenceNodes[node.sequenceKey];
             }
+
+            delete this._preStored[h][key];
 
             node.dispose();
 
