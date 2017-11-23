@@ -733,6 +733,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -781,6 +782,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
@@ -831,6 +833,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -879,6 +882,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -929,6 +933,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -1005,6 +1010,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2061,6 +2067,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2102,6 +2109,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2144,6 +2152,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2185,6 +2194,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2228,6 +2238,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 1,
             maxUnusedTiles: 0,
         };
 
@@ -2269,7 +2280,8 @@ describe("Graph.uncache", () => {
 
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
-            maxUnusedNodes: 1,
+            maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 1,
             maxUnusedTiles: 0,
         };
 
@@ -2348,6 +2360,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
@@ -2408,6 +2421,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
@@ -2470,6 +2484,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
@@ -2531,6 +2546,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
@@ -2587,6 +2603,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
@@ -2680,6 +2697,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2719,6 +2737,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2758,6 +2777,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2796,6 +2816,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2868,6 +2889,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2927,6 +2949,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
@@ -2988,6 +3011,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
@@ -3048,6 +3072,7 @@ describe("Graph.uncache", () => {
         let configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
+            maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 

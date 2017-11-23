@@ -230,6 +230,7 @@ export class Graph {
             {
                 maxSequences: 50,
                 maxUnusedNodes: 100,
+                maxUnusedPreStoredNodes: 30,
                 maxUnusedTiles: 20,
             };
 
@@ -1336,7 +1337,7 @@ export class Graph {
                 ([na1, h1]: [NodeAccess, string], [na2, h2]: [NodeAccess, string]): number => {
                     return na2.accessed - na1.accessed;
                 })
-            .slice(this._configuration.maxUnusedNodes)
+            .slice(this._configuration.maxUnusedPreStoredNodes)
             .map(
                 ([na, h]: [NodeAccess, string]): [string, string] => {
                     return [na.node.key, h];

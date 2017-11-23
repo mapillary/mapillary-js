@@ -17,6 +17,12 @@ export interface IGraphConfiguration {
     maxUnusedNodes: number;
 
     /**
+     * The maximum number of unused pre-stored cached nodes left
+     * after uncache.
+     */
+    maxUnusedPreStoredNodes: number;
+
+    /**
      * The maximum number of unused cached tiles left
      * after uncache.
      */
