@@ -360,6 +360,44 @@ export class GraphService {
     }
 
     /**
+     * Cache a sequence and its nodes in the graph and retrieve the sequence.
+     *
+     * @description Caches a sequence and its assets are cached and
+     * retrieves all nodes belonging to the sequence. The node assets
+     * or edges will not be cached.
+     *
+     * @param {string} sequenceKey - Sequence key.
+     * @returns {Observable<Sequence>} Observable emitting a single item,
+     * the sequence, when it has been retrieved, its assets are cached and
+     * all nodes belonging to the sequence has been retrieved.
+     * @throws {Error} Propagates any IO node caching errors to the caller.
+     */
+    public cacheSequenceNodes$(sequenceKey: string): Observable<Sequence> {
+        return this._graph$
+            .first()
+            .mergeMap(
+                (graph: Graph): Observable<Graph> => {
+                    if (graph.isCachingSequence(sequenceKey) || !graph.hasSequence(sequenceKey)) {
+                        return graph.cacheSequence$(sequenceKey);
+                    }
+
+                    return Observable.of<Graph>(graph);
+                })
+            .mergeMap(
+                (graph: Graph): Observable<Graph> => {
+                    if (graph.isCachingSequenceNodes(sequenceKey) || !graph.hasSequenceNodes(sequenceKey)) {
+                        return graph.cacheSequenceNodes$(sequenceKey);
+                    }
+
+                    return Observable.of<Graph>(graph);
+                })
+            .map(
+                (graph: Graph): Sequence => {
+                    return graph.getSequence(sequenceKey);
+                });
+    }
+
+    /**
      * Set a spatial edge filter on the graph.
      *
      * @description Resets the spatial edges of all cached nodes.

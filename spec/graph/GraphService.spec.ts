@@ -12,6 +12,7 @@ import {
     IEdgeStatus,
     ImageLoadingService,
     Node,
+    Sequence,
 } from "../../src/Graph";
 
 describe("GraphService.ctor", () => {
@@ -102,6 +103,92 @@ describe("GraphService.cacheSequence$", () => {
         cacheSequence$.next(graph);
 
         expect(cacheSequenceSpy.calls.count()).toBe(0);
+        expect(getSequenceSpy.calls.count()).toBe(1);
+    });
+});
+
+describe("GraphService.cacheSequenceNodes$", () => {
+    it("should cache sequence nodes when graph does not have sequence nodes", () => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingSequence").and.returnValue(false);
+        spyOn(graph, "hasSequence").and.returnValue(true);
+        spyOn(graph, "isCachingSequenceNodes").and.returnValue(false);
+        spyOn(graph, "hasSequenceNodes").and.returnValue(false);
+
+        let cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
+        let cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
+        cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
+
+        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
+
+        cacheSequenceNodes$.next(graph);
+
+        expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
+        expect(getSequenceSpy.calls.count()).toBe(1);
+    });
+
+    it("should cache sequence nodes when graph is caching sequence nodes", () => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingSequence").and.returnValue(false);
+        spyOn(graph, "hasSequence").and.returnValue(true);
+        spyOn(graph, "isCachingSequenceNodes").and.returnValue(true);
+        spyOn(graph, "hasSequenceNodes").and.returnValue(false);
+
+        let cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
+        let cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
+        cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
+
+        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
+
+        cacheSequenceNodes$.next(graph);
+
+        expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
+        expect(getSequenceSpy.calls.count()).toBe(1);
+    });
+
+    it("should not cache sequence nodes when graph has sequence nodes", () => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingSequence").and.returnValue(false);
+        spyOn(graph, "hasSequence").and.returnValue(true);
+        spyOn(graph, "isCachingSequenceNodes").and.returnValue(false);
+        spyOn(graph, "hasSequenceNodes").and.returnValue(true);
+
+        let cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
+        let cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
+        cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
+
+        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
+
+        cacheSequenceNodes$.next(graph);
+
+        expect(cacheSequenceNodesSpy.calls.count()).toBe(0);
         expect(getSequenceSpy.calls.count()).toBe(1);
     });
 });
