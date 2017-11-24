@@ -33,6 +33,7 @@ import {
 import {
     CacheService,
     LoadingService,
+    PlayService,
 } from "../Viewer";
 
 export class Navigator {
@@ -43,6 +44,7 @@ export class Navigator {
     private _imageLoadingService: ImageLoadingService;
     private _loadingService: LoadingService;
     private _loadingName: string;
+    private _playService: PlayService;
     private _stateService: StateService;
 
     private _keyRequested$: BehaviorSubject<string>;
@@ -60,7 +62,8 @@ export class Navigator {
         imageLoadingService?: ImageLoadingService,
         loadingService?: LoadingService,
         stateService?: StateService,
-        cacheService?: CacheService) {
+        cacheService?: CacheService,
+        playService?: PlayService) {
 
         this._apiV3 = apiV3 != null ? apiV3 : new APIv3(clientId, token);
 
@@ -80,6 +83,10 @@ export class Navigator {
             new CacheService(this._graphService, this._stateService);
 
         this._cacheService.start();
+
+        this._playService = playService != null ?
+            playService :
+            new PlayService(this._graphService, this._stateService);
 
         this._keyRequested$ = new BehaviorSubject<string>(null);
         this._movedToKey$ = new BehaviorSubject<string>(null);
@@ -107,6 +114,10 @@ export class Navigator {
 
     public get movedToKey$(): Observable<string> {
         return this._movedToKey$;
+    }
+
+    public get playService(): PlayService {
+        return this._playService;
     }
 
     public get stateService(): StateService {

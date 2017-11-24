@@ -60,7 +60,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
     private _sequenceDOMRenderer: SequenceDOMRenderer;
     private _sequenceDOMInteraction: SequenceDOMInteraction;
-    private _nodesAhead: number = 5;
 
     private _configurationOperation$: Subject<IConfigurationOperation> = new Subject<IConfigurationOperation>();
     private _hoveredKeySubject$: Subject<string>;
@@ -72,11 +71,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _renderSubscription: Subscription;
     private _containerWidthSubscription: Subscription;
     private _hoveredKeySubscription: Subscription;
-
-    private _playingSubscription: Subscription;
-    private _cacheSubscription: Subscription;
-    private _clearSubscription: Subscription;
-    private _stopSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -96,6 +90,19 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .publishReplay(1)
             .refCount();
+
+        this._navigator.playService.playing$
+            .skip(1)
+            .subscribe(
+                (playing: boolean): void => {
+                    this.fire(SequenceComponent.playingchanged, playing);
+
+                    if (playing) {
+                        this.play();
+                    } else {
+                        this.stop();
+                    }
+                });
     }
 
     /**
@@ -253,14 +260,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (configuration: ISequenceConfiguration, operation: IConfigurationOperation): ISequenceConfiguration => {
                     return operation(configuration);
                 },
-                { playing: false })
-            .finally(
-                (): void => {
-                    if (this._playingSubscription != null) {
-                        this._navigator.stateService.cutNodes();
-                        this._stop();
-                    }
-                })
+                { playing: this._navigator.playService.playing })
             .subscribe(() => { /*noop*/ });
 
         this._configuration$
@@ -269,12 +269,10 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     return (configuration: ISequenceConfiguration): ISequenceConfiguration => {
                         if (newConfiguration.playing !== configuration.playing) {
 
-                            this._navigator.stateService.cutNodes();
-
                             if (newConfiguration.playing) {
-                                this._play();
+                                this._navigator.playService.play();
                             } else {
-                                this._stop();
+                                this._navigator.playService.stop();
                             }
                         }
 
@@ -284,46 +282,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     };
                 })
             .subscribe(this._configurationOperation$);
-
-        this._stopSubscription = this._configuration$
-            .switchMap(
-                (configuration: ISequenceConfiguration): Observable<[IEdgeStatus, EdgeDirection]> => {
-                    let edgeStatus$: Observable<IEdgeStatus> = configuration.playing ?
-                        this._edgeStatus$ :
-                        Observable.empty<IEdgeStatus>();
-
-                    let edgeDirection$: Observable<EdgeDirection> = Observable
-                        .of(configuration.direction);
-
-                    return Observable
-                        .combineLatest<IEdgeStatus, EdgeDirection>(edgeStatus$, edgeDirection$);
-                })
-            .map(
-                (ne: [IEdgeStatus, EdgeDirection]): boolean => {
-                    let edgeStatus: IEdgeStatus = ne[0];
-                    let direction: EdgeDirection = ne[1];
-
-                    if (!edgeStatus.cached) {
-                        return true;
-                    }
-
-                    for (let edge of edgeStatus.edges) {
-                        if (edge.data.direction === direction) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                })
-            .filter(
-                (hasEdge: boolean): boolean => {
-                    return !hasEdge;
-                })
-            .map(
-                (hasEdge: boolean): ISequenceConfiguration => {
-                    return { playing: false };
-                })
-            .subscribe(this._configurationSubject$);
 
         this._hoveredKeySubscription = this._sequenceDOMInteraction.mouseEnterDirection$
             .switchMap(
@@ -347,13 +305,10 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     }
 
     protected _deactivate(): void {
-        this._stopSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
         this._configurationSubscription.unsubscribe();
         this._containerWidthSubscription.unsubscribe();
         this._hoveredKeySubscription.unsubscribe();
-
-        this.stop();
     }
 
     protected _getDefaultConfiguration(): ISequenceConfiguration {
@@ -364,162 +319,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             playing: false,
             visible: true,
         };
-    }
-
-    private _play(): void {
-        this._cacheSubscription = this._navigator.stateService.currentNode$
-            .map(
-                (node: Node): string => {
-                    return node.sequenceKey;
-                })
-            .distinctUntilChanged()
-            .switchMap(
-                (sequenceKey: string): Observable<Sequence> => {
-                    return this._navigator.graphService.cacheSequence$(sequenceKey)
-                        .retry(3)
-                        .catch(
-                            (): Observable<Sequence> => {
-                                return Observable.of(undefined);
-                            });
-                })
-            .switchMap(
-                (sequence: Sequence): Observable<string> => {
-                    if (sequence === undefined) {
-                        return Observable.empty();
-                    }
-
-                    const sequenceKeys: string[] = sequence.keys.slice();
-
-                    return this._navigator.stateService.currentState$
-                        .map(
-                            (frame: IFrame): [string, number] => {
-                                return [frame.state.trajectory[frame.state.trajectory.length - 1].key, frame.state.nodesAhead];
-                            })
-                        .scan(
-                            (
-                                [lastRequestKey, previousRequestKeys]: [string, string[]],
-                                [lastTrajectoryKey, nodesAhead]: [string, number]):
-                                [string, string[]] => {
-
-                                if (lastRequestKey === undefined) {
-                                    lastRequestKey = lastTrajectoryKey;
-                                }
-
-                                if (nodesAhead >= this._nodesAhead || sequenceKeys.indexOf(lastRequestKey) === sequenceKeys.length - 1) {
-                                    return [lastRequestKey, []];
-                                }
-
-                                const current: number = sequenceKeys.indexOf(lastTrajectoryKey);
-                                const start: number = sequenceKeys.indexOf(lastRequestKey);
-                                const end: number = start + (this._nodesAhead - nodesAhead) - (start - current);
-
-                                if (end === start) {
-                                    return [lastRequestKey, []];
-                                }
-
-                                return [sequenceKeys[end], sequenceKeys.slice(start, end)];
-                            },
-                            [undefined, []])
-                        .mergeMap(
-                            ([lastRequestKey, newRequestKeys]: [string, string[]]): Observable<string> => {
-                                return Observable.from(newRequestKeys);
-                            });
-                })
-            .mergeMap(
-                (key: string): Observable<Node> => {
-                    return this._navigator.graphService.cacheNode$(key)
-                        .catch(
-                            (): Observable<Node> => {
-                                return Observable.empty();
-                            });
-                },
-                6)
-            .subscribe((): void => { /*noop*/ });
-
-        this._playingSubscription = this._navigator.stateService.currentState$
-            .filter(
-                (frame: IFrame): boolean => {
-                    return frame.state.nodesAhead < this._nodesAhead;
-                })
-            .map(
-                (frame: IFrame): Node => {
-                    return frame.state.lastNode;
-                })
-            .distinctUntilChanged(
-                undefined,
-                (lastNode: Node): string => {
-                    return lastNode.key;
-                })
-            .withLatestFrom(
-                this._configuration$,
-                (lastNode: Node, configuration: ISequenceConfiguration): [Node, EdgeDirection] => {
-                    return [lastNode, configuration.direction];
-                })
-            .switchMap(
-                (nd: [Node, EdgeDirection]): Observable<[IEdgeStatus, EdgeDirection]> => {
-                    return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(nd[1]) > -1 ?
-                            nd[0].sequenceEdges$ :
-                            nd[0].spatialEdges$)
-                        .filter(
-                            (status: IEdgeStatus): boolean => {
-                                return status.cached;
-                            })
-                        .zip(
-                            Observable.of<EdgeDirection>(nd[1]),
-                            (status: IEdgeStatus, direction: EdgeDirection): [IEdgeStatus, EdgeDirection] => {
-                                return [status, direction];
-                            });
-                })
-            .map(
-                (ed: [IEdgeStatus, EdgeDirection]): string => {
-                    let direction: EdgeDirection = ed[1];
-
-                    for (let edge of ed[0].edges) {
-                        if (edge.data.direction === direction) {
-                            return edge.to;
-                        }
-                    }
-
-                    return null;
-                })
-            .filter(
-                (key: string): boolean => {
-                    return key != null;
-                })
-            .switchMap(
-                (key: string): Observable<Node> => {
-                    return this._navigator.graphService.cacheNode$(key);
-                })
-            .subscribe(
-                (node: Node): void => {
-                    this._navigator.stateService.appendNodes([node]);
-                },
-                (error: Error): void => {
-                    console.error(error);
-                    this.stop();
-                });
-
-        this._clearSubscription = this._navigator.stateService.currentNode$
-            .bufferCount(1, 10)
-            .subscribe(
-                (nodes: Node[]): void => {
-                    this._navigator.stateService.clearPriorNodes();
-                });
-
-        this.fire(SequenceComponent.playingchanged, true);
-    }
-
-    private _stop(): void {
-        this._cacheSubscription.unsubscribe();
-        this._cacheSubscription = null;
-
-        this._playingSubscription.unsubscribe();
-        this._playingSubscription = null;
-
-        this._clearSubscription.unsubscribe();
-        this._clearSubscription = null;
-
-        this.fire(SequenceComponent.playingchanged, false);
     }
 }
 

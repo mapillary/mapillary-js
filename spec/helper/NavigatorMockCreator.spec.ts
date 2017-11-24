@@ -6,6 +6,7 @@ import {ImageLoadingServiceMockCreator} from "./ImageLoadingServiceMockCreator.s
 import {LoadingServiceMockCreator} from "./LoadingServiceMockCreator.spec";
 import {MockCreator} from "./MockCreator.spec";
 import {MockCreatorBase} from "./MockCreatorBase.spec";
+import {PlayServiceMockCreator} from "./PlayServiceMockCreator.spec";
 import {StateServiceMockCreator} from "./StateServiceMockCreator.spec";
 
 import {APIv3} from "../../src/API";
@@ -21,6 +22,7 @@ export class NavigatorMockCreator extends MockCreatorBase<Navigator> {
         this._mockProperty(mock, "imageLoadingService", new ImageLoadingServiceMockCreator().create());
         this._mockProperty(mock, "loadingService", new LoadingServiceMockCreator().create());
         this._mockProperty(mock, "movedToKey$", new Subject<string>());
+        this._mockProperty(mock, "playService", new PlayServiceMockCreator().create());
         this._mockProperty(mock, "stateService", new StateServiceMockCreator().create());
 
         return mock;

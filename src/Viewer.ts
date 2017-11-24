@@ -8,6 +8,7 @@ export {KeyboardService} from "./viewer/KeyboardService";
 export {LoadingService} from "./viewer/LoadingService";
 export {MouseService} from "./viewer/MouseService";
 export {Navigator} from "./viewer/Navigator";
+export {PlayService} from "./viewer/PlayService";
 export {Projection} from "./viewer/Projection";
 export {SpriteService} from "./viewer/SpriteService";
 export {TouchService} from "./viewer/TouchService";

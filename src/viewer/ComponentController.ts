@@ -175,6 +175,7 @@ export class ComponentController {
             } else if (conf.state === CoverState.Visible) {
                 this._observer.stopEmit();
                 this._navigator.stateService.stop();
+                this._navigator.playService.stop();
                 this._componentService.activateCover();
                 this._setNavigable(conf.key == null);
             }
