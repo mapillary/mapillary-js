@@ -65,7 +65,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _hoveredKeySubject$: Subject<string>;
     private _hoveredKey$: Observable<string>;
     private _containerWidth$: Subject<number>;
-    private _edgeStatus$: Observable<IEdgeStatus>;
 
     private _configurationSubscription: Subscription;
     private _renderSubscription: Subscription;
@@ -82,14 +81,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._hoveredKeySubject$ = new Subject<string>();
 
         this._hoveredKey$ = this._hoveredKeySubject$.share();
-
-        this._edgeStatus$ = this._navigator.stateService.currentNode$
-            .switchMap(
-                (node: Node): Observable<IEdgeStatus> => {
-                    return node.sequenceEdges$;
-                })
-            .publishReplay(1)
-            .refCount();
 
         this._navigator.playService.playing$
             .skip(1)
@@ -215,9 +206,17 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     }
 
     protected _activate(): void {
+        const edgeStatus$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
+            .switchMap(
+                (node: Node): Observable<IEdgeStatus> => {
+                    return node.sequenceEdges$;
+                })
+            .publishReplay(1)
+            .refCount();
+
         this._renderSubscription = Observable
             .combineLatest(
-                this._edgeStatus$,
+                edgeStatus$,
                 this._configuration$,
                 this._containerWidth$)
             .map(
@@ -286,7 +285,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._hoveredKeySubscription = this._sequenceDOMInteraction.mouseEnterDirection$
             .switchMap(
                 (direction: EdgeDirection): Observable<string> => {
-                    return this._edgeStatus$
+                    return edgeStatus$
                         .map(
                             (edgeStatus: IEdgeStatus): string => {
                                 for (let edge of edgeStatus.edges) {
