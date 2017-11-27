@@ -38,7 +38,6 @@ export class GraphService {
     private _firstGraphSubjects$: Subject<Graph>[];
 
     private _initializeCacheSubscriptions: Subscription[];
-    private _sequenceNodesSubscriptions: Subscription[];
     private _sequenceSubscriptions: Subscription[];
     private _spatialSubscriptions: Subscription[];
 
@@ -70,7 +69,6 @@ export class GraphService {
         this._firstGraphSubjects$ = [];
 
         this._initializeCacheSubscriptions = [];
-        this._sequenceNodesSubscriptions = [];
         this._sequenceSubscriptions = [];
         this._spatialSubscriptions = [];
     }
@@ -189,37 +187,6 @@ export class GraphService {
                 })
             .publishReplay(1)
             .refCount();
-
-        if (this._graphMode === GraphMode.Sequence) {
-            const sequenceNodesSubscription: Subscription = graphSequence$
-                .mergeMap(
-                    (graph: Graph): Observable<Graph> => {
-                        const sequenceKey: string = graph.getNode(key).sequenceKey;
-
-                        if (graph.isCachingSequenceNodes(sequenceKey) || !graph.hasSequenceNodes(sequenceKey)) {
-                            return graph.cacheSequenceNodes$(sequenceKey);
-                        }
-
-                        return Observable.of<Graph>(graph);
-                    })
-                .finally(
-                    (): void => {
-                        if (sequenceNodesSubscription == null) {
-                            return;
-                        }
-
-                        this._removeFromArray(sequenceNodesSubscription, this._sequenceNodesSubscriptions);
-                    })
-                .subscribe(
-                    (graph: Graph): void => { /*noop*/ },
-                    (error: Error): void => {
-                        console.error(`Failed to cache sequence nodes (${key}).`, error);
-                    });
-
-            if (!sequenceNodesSubscription.closed) {
-                this._sequenceNodesSubscriptions.push(sequenceNodesSubscription);
-            }
-        }
 
         const sequenceSubscription: Subscription = graphSequence$
             .do(
@@ -444,7 +411,6 @@ export class GraphService {
     public reset$(keepKeys: string[]): Observable<Graph> {
         this._abortSubjects(this._firstGraphSubjects$);
         this._resetSubscriptions(this._initializeCacheSubscriptions);
-        this._resetSubscriptions(this._sequenceNodesSubscriptions);
         this._resetSubscriptions(this._sequenceSubscriptions);
         this._resetSubscriptions(this._spatialSubscriptions);
 
