@@ -22,11 +22,14 @@ export class PlayService {
 
     private _nodesAhead: number;
     private _playing: boolean;
+    private _speed: number;
 
     private _direction$: Observable<EdgeDirection>;
     private _directionSubject$: Subject<EdgeDirection>;
     private _playing$: Observable<boolean>;
     private _playingSubject$: Subject<boolean>;
+    private _speed$: Observable<number>;
+    private _speedSubject$: Subject<number>;
 
     private _playingSubscription: Subscription;
     private _cacheSubscription: Subscription;
@@ -52,6 +55,15 @@ export class PlayService {
             .startWith(this._playing)
             .publishReplay(1)
             .refCount();
+
+        this._speed = 0.5;
+        this._speedSubject$ = new Subject<number>();
+        this._speed$ = this._speedSubject$
+            .startWith(this._speed)
+            .publishReplay(1)
+            .refCount();
+
+        this._speed$.subscribe();
 
         this._playing$
             .switchMap(
@@ -106,6 +118,7 @@ export class PlayService {
         }
 
         this._stateService.cutNodes();
+        this._stateService.setSpeed(this._mapSpeed(this._speed));
 
         this._cacheSubscription = this._stateService.currentNode$
             .map(
@@ -246,11 +259,18 @@ export class PlayService {
         this._playingSubject$.next(this._playing);
     }
 
+    public setSpeed(speed: number): void {
+        this._speed = Math.max(0, Math.min(1, speed));
+        this._stateService.setSpeed(this._mapSpeed(this._speed));
+        this._speedSubject$.next(this._speed);
+    }
+
     public stop(): void {
         if (!this._playing) {
             return;
         }
 
+        this._stateService.setSpeed(1);
         this._stateService.cutNodes();
 
         this._cacheSubscription.unsubscribe();
@@ -264,6 +284,12 @@ export class PlayService {
 
         this._playing = false;
         this._playingSubject$.next(this._playing);
+    }
+
+    private _mapSpeed(speed: number): number {
+        const x: number = 2 * speed - 1;
+
+        return Math.pow(10, x) - 0.2 * x;
     }
 
 }
