@@ -34,6 +34,7 @@ export class PlayService {
     private _playingSubscription: Subscription;
     private _cacheSubscription: Subscription;
     private _clearSubscription: Subscription;
+    private _graphModeSubscription: Subscription;
 
     constructor(graphService: GraphService, stateService: StateService) {
         this._graphService = graphService;
@@ -120,15 +121,29 @@ export class PlayService {
         this._stateService.cutNodes();
         this._setSpeed(this._speed);
 
+        this._graphModeSubscription = this._speed$
+            .map(
+                (speed: number): GraphMode => {
+                    return speed > 0.54 ? GraphMode.Sequence : GraphMode.Spatial;
+                })
+            .distinctUntilChanged()
+            .subscribe(
+                (mode: GraphMode): void => {
+                    this._graphService.setGraphMode(mode);
+                });
+
         this._cacheSubscription = this._stateService.currentNode$
             .map(
                 (node: Node): string => {
                     return node.sequenceKey;
                 })
             .distinctUntilChanged()
+            .combineLatest(this._graphService.graphMode$)
             .switchMap(
-                (sequenceKey: string): Observable<Sequence> => {
-                    return this._graphService.cacheSequence$(sequenceKey)
+                ([sequenceKey, mode]: [string, GraphMode]): Observable<Sequence> => {
+                    return (mode === GraphMode.Sequence ?
+                        this._graphService.cacheSequenceNodes$(sequenceKey) :
+                        this._graphService.cacheSequence$(sequenceKey))
                         .retry(3)
                         .catch(
                             (): Observable<Sequence> => {
@@ -269,8 +284,8 @@ export class PlayService {
             return;
         }
 
-        this._stateService.setSpeed(1);
-        this._stateService.cutNodes();
+        this._graphModeSubscription.unsubscribe();
+        this._graphModeSubscription = null;
 
         this._cacheSubscription.unsubscribe();
         this._cacheSubscription = null;
@@ -280,6 +295,10 @@ export class PlayService {
 
         this._clearSubscription.unsubscribe();
         this._clearSubscription = null;
+
+        this._stateService.setSpeed(1);
+        this._stateService.cutNodes();
+        this._graphService.setGraphMode(GraphMode.Spatial);
 
         this._playing = false;
         this._playingSubject$.next(this._playing);
