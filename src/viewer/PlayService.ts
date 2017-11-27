@@ -39,8 +39,6 @@ export class PlayService {
         this._graphService = graphService;
         this._stateService = stateService;
 
-        this._nodesAhead = 5;
-
         this._directionSubject$ = new Subject<EdgeDirection>();
         this._direction$ = this._directionSubject$
             .startWith(EdgeDirection.Next)
@@ -64,6 +62,8 @@ export class PlayService {
             .refCount();
 
         this._speed$.subscribe();
+
+        this._nodesAhead = this._mapNodesAhead(this._mapSpeed(this._speed));
 
         this._playing$
             .switchMap(
@@ -118,7 +118,7 @@ export class PlayService {
         }
 
         this._stateService.cutNodes();
-        this._stateService.setSpeed(this._mapSpeed(this._speed));
+        this._setSpeed(this._speed);
 
         this._cacheSubscription = this._stateService.currentNode$
             .map(
@@ -260,8 +260,7 @@ export class PlayService {
     }
 
     public setSpeed(speed: number): void {
-        this._speed = Math.max(0, Math.min(1, speed));
-        this._stateService.setSpeed(this._mapSpeed(this._speed));
+        this._setSpeed(speed);
         this._speedSubject$.next(this._speed);
     }
 
@@ -292,6 +291,16 @@ export class PlayService {
         return Math.pow(10, x) - 0.2 * x;
     }
 
+    private _mapNodesAhead(stateSpeed: number): number {
+        return Math.round(Math.max(10, Math.min(50, 8 + 6 * stateSpeed)));
+    }
+
+    private _setSpeed(speed: number): void {
+        this._speed = Math.max(0, Math.min(1, speed));
+        const stateSpeed: number = this._mapSpeed(this._speed);
+        this._nodesAhead = this._mapNodesAhead(stateSpeed);
+        this._stateService.setSpeed(stateSpeed);
+    }
 }
 
 export default PlayService;
