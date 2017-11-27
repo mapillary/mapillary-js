@@ -419,12 +419,16 @@ export class GraphService {
     }
 
     public setGraphMode(mode: GraphMode): void {
-        this._resetSubscriptions(this._spatialSubscriptions);
-
-        if (this._graphMode !== mode) {
-            this._graphMode = mode;
-            this._graphModeSubject$.next(this._graphMode);
+        if (this._graphMode === mode) {
+            return;
         }
+
+        if (mode === GraphMode.Sequence) {
+            this._resetSubscriptions(this._spatialSubscriptions);
+        }
+
+        this._graphMode = mode;
+        this._graphModeSubject$.next(this._graphMode);
     }
 
     /**
