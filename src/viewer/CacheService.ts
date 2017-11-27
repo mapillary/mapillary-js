@@ -6,11 +6,13 @@ import "rxjs/add/operator/delay";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/timeout";
 
 import {
     Graph,
     GraphMode,
     GraphService,
+    IEdgeStatus,
     Node,
 } from "../Graph";
 import {
@@ -25,6 +27,7 @@ export class CacheService {
     private _started: boolean;
 
     private _uncacheSubscription: Subscription;
+    private _cacheNodeSubscription: Subscription;
 
     constructor(graphService: GraphService, stateService: StateService) {
         this._graphService = graphService;
@@ -73,6 +76,35 @@ export class CacheService {
                 })
             .subscribe(() => { /*noop*/ });
 
+        this._cacheNodeSubscription = this._graphService.graphMode$
+            .withLatestFrom(this._stateService.currentState$)
+            .switchMap(
+                ([mode, frame]: [GraphMode, IFrame]): Observable<IEdgeStatus> => {
+                    return mode === GraphMode.Sequence ?
+                        this._keyToEdges(
+                            frame.state.currentNode.key,
+                            (node: Node): Observable<IEdgeStatus> => {
+                                return node.sequenceEdges$;
+                            }) :
+                        Observable
+                            .from(frame.state.trajectory
+                                .map(
+                                    (node: Node): string => {
+                                        return node.key;
+                                    })
+                                .slice(frame.state.currentIndex))
+                            .mergeMap(
+                                (key: string): Observable<IEdgeStatus> => {
+                                    return this._keyToEdges(
+                                        key,
+                                        (node: Node): Observable<IEdgeStatus> => {
+                                            return node.spatialEdges$;
+                                        });
+                                },
+                                6);
+                })
+            .subscribe(() => { /*noop*/ });
+
         this._started = true;
     }
 
@@ -84,7 +116,26 @@ export class CacheService {
         this._uncacheSubscription.unsubscribe();
         this._uncacheSubscription = null;
 
+        this._cacheNodeSubscription.unsubscribe();
+        this._cacheNodeSubscription = null;
+
         this._started = false;
+    }
+
+    private _keyToEdges(key: string, nodeToEdgeMap: (node: Node) => Observable<IEdgeStatus>): Observable<IEdgeStatus> {
+        return this._graphService.cacheNode$(key)
+            .switchMap(nodeToEdgeMap)
+            .first(
+                (status: IEdgeStatus): boolean => {
+                    return status.cached;
+                })
+            .timeout(15000)
+            .catch(
+                (error: Error): Observable<IEdgeStatus> => {
+                    console.error(`Failed to cache edges (${key}).`, error);
+
+                    return Observable.empty();
+                });
     }
 }
 
