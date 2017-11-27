@@ -2,6 +2,8 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
+import "rxjs/add/operator/timeout";
+
 import {EdgeDirection} from "../Edge";
 import {
     Graph,
@@ -75,17 +77,25 @@ export class PlayService {
                             .combineLatest(
                                 this._direction$,
                                 this._stateService.currentNode$
-                            .switchMap(
-                                (node: Node): Observable<IEdgeStatus> => {
-                                    return node.sequenceEdges$;
-                                }));
+                                    .switchMap(
+                                        (node: Node): Observable<IEdgeStatus> => {
+                                            return node.sequenceEdges$
+                                                .first(
+                                                    (status: IEdgeStatus): boolean => {
+                                                        return status.cached;
+                                                    })
+                                                .timeout(15000)
+                                                .catch(
+                                                    (error: Error): Observable<IEdgeStatus> => {
+                                                        console.error(error);
+                                                        this.stop();
+
+                                                        return Observable.empty();
+                                                    });
+                                        }));
                 })
             .map(
                 ([direction, edgeStatus]: [EdgeDirection, IEdgeStatus]): boolean => {
-                    if (!edgeStatus.cached) {
-                        return true;
-                    }
-
                     for (let edge of edgeStatus.edges) {
                         if (edge.data.direction === direction) {
                             return true;
@@ -228,6 +238,7 @@ export class PlayService {
                             (status: IEdgeStatus): boolean => {
                                 return status.cached;
                             })
+                        .timeout(15000)
                         .zip(
                             Observable.of<EdgeDirection>(direction),
                             (s: IEdgeStatus, d: EdgeDirection): [IEdgeStatus, EdgeDirection] => {
