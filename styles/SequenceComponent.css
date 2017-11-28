@@ -11,6 +11,7 @@
     left: 50%;
     transform: translate(-50%, 0);
     cursor: pointer;
+    cursor: hand;
 }
 
 .SequencePlay,
@@ -41,27 +42,11 @@
     background: rgba(36, 37, 40, 0.6);
 }
 
-.SequencePlay:hover,
-.SequenceStepNext:hover,
-.SequenceStepNextHighlight:hover,
-.SequenceStepPrev:hover,
-.SequenceStepPrevHighlight:hover {
-    cursor: pointer;
-    cursor: hand;
-}
-
-.SequenceStepNext,
-.SequenceStepNextDisabled,
-.SequenceStepNextHighlight {
-    border-top-right-radius: 100px;
-    border-bottom-right-radius: 100px;
-}
-
 .SequenceStepPrev,
 .SequenceStepPrevDisabled,
 .SequenceStepPrevHighlight {
-    border-top-left-radius: 100px;
-    border-bottom-left-radius: 100px;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
 }
 
 .Play.SequenceComponentIcon,
