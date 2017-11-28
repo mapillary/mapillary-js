@@ -6,12 +6,68 @@
     z-index: 10;
 }
 
-.SequenceStepper {
+.SequenceStepper,
+.SequenceControls {
     position: absolute;
     left: 50%;
-    transform: translate(-50%, 0);
     cursor: pointer;
-    cursor: hand;
+}
+
+.SequenceStepper {
+    transform: translate(-50%, 0);
+}
+
+.SequenceExpanderButton,
+.SequenceControlsButton {
+    display: inline-block;
+    height: 100%;
+    pointer-events: auto;
+}
+
+.SequenceExpanderButton {
+    width: calc(100% * 16 / 52);
+    background: rgba(24, 25, 28, 0.3);
+}
+
+.SequenceExpanderBar {
+    background-color: white;
+    width: 12.5%;
+    border-radius: 50%;
+    height: calc(100% * 16 / 30);
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.SequenceControlsButton {
+    width: 0;
+    background: rgba(24, 25, 28, 0.5);
+    transition: width 0.15s ease-out;
+}
+
+.SequenceFastIcon {
+    background-image: url('./fast.svg');
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% * 24 / 36);
+    height: calc(100% * 24 / 30);
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition-delay: 0s;
+}
+
+.SequenceControlsExpanded .SequenceFastIcon {
+    opacity: 1;
+    transition-delay: 0.12s;
+    transition: 0.2s ease-in;
+}
+
+.SequenceControlsExpanded .SequenceControlsButton {
+    width: calc(100% * 36 / 52);
 }
 
 .SequencePlay,
@@ -34,12 +90,12 @@
 .SequenceStepNextDisabled,
 .SequenceStepPrev,
 .SequenceStepPrevDisabled {
-    background: rgba(36, 37, 40, 0.3);
+    background: rgba(24, 25, 28, 0.3);
 }
 
 .SequenceStepNextHighlight,
 .SequenceStepPrevHighlight {
-    background: rgba(36, 37, 40, 0.6);
+    background: rgba(24, 25, 28, 0.6);
 }
 
 .SequenceStepPrev,
@@ -93,12 +149,17 @@
     .SequencePlay:hover,
     .SequenceStepPrev:hover,
     .SequenceStepNext:hover {
-        background: rgba(36, 37, 40, 0.6);
+        background: rgba(24, 25, 28, 0.6);
     }
 
     .SequencePlayDisabled:hover,
     .SequenceStepPrevDisabled:hover,
     .SequenceStepNextDisabled:hover {
-        background: rgba(36, 37, 40, 0.3);
+        background: rgba(24, 25, 28, 0.3);
     }
+
+    .SequenceControlsButton:hover {
+        background: rgba(24, 25, 28, 0.7);
+    }
+
 }

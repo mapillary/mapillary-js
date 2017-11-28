@@ -218,9 +218,10 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .combineLatest(
                 edgeStatus$,
                 this._configuration$,
-                this._containerWidth$)
+                this._containerWidth$,
+                this._sequenceDOMRenderer.changed$.startWith(null))
             .map(
-                (ec: [IEdgeStatus, ISequenceConfiguration, number]): IVNodeHash => {
+                (ec: [IEdgeStatus, ISequenceConfiguration, number, void]): IVNodeHash => {
                     let edgeStatus: IEdgeStatus = ec[0];
                     let configuration: ISequenceConfiguration = ec[1];
                     let containerWidth: number = ec[2];

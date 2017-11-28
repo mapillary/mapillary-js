@@ -2,6 +2,9 @@
 
 import * as vd from "virtual-dom";
 
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+
 import {
     ISequenceConfiguration,
     SequenceComponent,
@@ -16,12 +19,28 @@ export class SequenceDOMRenderer {
     private _maxThresholdWidth: number;
     private _minThresholdHeight: number;
     private _maxThresholdHeight: number;
+    private _stepperDefaultWidth: number;
+    private _controlsDefaultWidth: number;
+    private _defaultHeight: number;
+    private _expandControls: boolean;
+
+    private _notifyChanged$: Subject<void>;
 
     constructor(element: HTMLElement) {
         this._minThresholdWidth = 320;
         this._maxThresholdWidth = 1480;
         this._minThresholdHeight = 240;
         this._maxThresholdHeight = 820;
+        this._stepperDefaultWidth = 108;
+        this._controlsDefaultWidth = 52;
+        this._defaultHeight = 30;
+        this._expandControls = false;
+
+        this._notifyChanged$ = new Subject<void>();
+    }
+
+    public get changed$(): Observable<void> {
+        return this._notifyChanged$;
     }
 
     public render(
@@ -55,12 +74,17 @@ export class SequenceDOMRenderer {
 
         let containerProperties: vd.createProperties = {
             oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); },
-            style: { height: (30 / 108 * containerWidth) + "px", width: containerWidth + "px" },
+            style: {
+                height: (this._defaultHeight / this._stepperDefaultWidth * containerWidth) + "px",
+                width: containerWidth + "px",
+            },
         };
 
         let stepper: vd.VNode = vd.h("div.SequenceStepper", containerProperties, buttons);
 
-        return vd.h("div.SequenceContainer", [stepper]);
+        let controls: vd.VNode = this._createSequenceControls(containerWidth);
+
+        return vd.h("div.SequenceContainer", [stepper, controls]);
     }
 
     public getContainerWidth(element: HTMLElement, configuration: ISequenceConfiguration): number {
@@ -112,6 +136,38 @@ export class SequenceDOMRenderer {
         let buttonClass: string = canPlay ? "SequencePlay" : "SequencePlayDisabled";
 
         return vd.h("div." + buttonClass, buttonProperties, [icon]);
+    }
+
+    private _createSequenceControls(containerWidth: number): vd.VNode {
+        const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
+        const expanderProperties: vd.createProperties = {
+            onclick: (): void => {
+                this._expandControls = !this._expandControls;
+                this._notifyChanged$.next(null);
+            },
+            style: {
+                "border-bottom-right-radius": `${borderRadius}px`,
+                "border-top-right-radius": `${borderRadius}px`,
+            },
+        };
+
+        const expanderBar: vd.VNode = vd.h("div.SequenceExpanderBar", []);
+        const expander: vd.VNode = vd.h("div.SequenceExpanderButton", expanderProperties, [expanderBar]);
+        const fastIcon: vd.VNode = vd.h("div.SequenceFastIcon", []);
+        const controls: vd.VNode = vd.h("div.SequenceControlsButton", [fastIcon]);
+
+        const properties: vd.createProperties = {
+            style: {
+                height: (this._defaultHeight / this._stepperDefaultWidth * containerWidth) + "px",
+                transform: `translate(${containerWidth / 2 + 2}px, 0)`,
+                width: (this._controlsDefaultWidth / this._stepperDefaultWidth * containerWidth) + "px",
+            },
+        };
+
+        const className: string = ".SequenceControls" +
+            (this._expandControls ? ".SequenceControlsExpanded" : "");
+
+        return vd.h("div" + className, properties, [controls, expander]);
     }
 
     private _createSequenceArrows(
