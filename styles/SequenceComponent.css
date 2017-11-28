@@ -95,4 +95,10 @@
     .SequenceStepNext:hover {
         background: rgba(36, 37, 40, 0.6);
     }
+
+    .SequencePlayDisabled:hover,
+    .SequenceStepPrevDisabled:hover,
+    .SequenceStepNextDisabled:hover {
+        background: rgba(36, 37, 40, 0.3);
+    }
 }
