@@ -1,10 +1,16 @@
 .SequenceContainer {
+    position: relative;
+    top: 14px;
+    pointer-events: none;
+    font-size: 0;
+    z-index: 10;
+}
+
+.SequenceStepper {
     position: absolute;
     left: 50%;
-    top: 14px;
     transform: translate(-50%, 0);
-    display: flex;
-    z-index: 10;
+    cursor: pointer;
 }
 
 .SequencePlay,
@@ -15,10 +21,10 @@
 .SequenceStepPrev,
 .SequenceStepPrevDisabled,
 .SequenceStepPrevHighlight {
-    display: flex;
-    flex: auto;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
+    width: calc(100% / 3);
+    height: 100%;
+    pointer-events: auto;
 }
 
 .SequencePlay,
@@ -33,23 +39,6 @@
 .SequenceStepNextHighlight,
 .SequenceStepPrevHighlight {
     background: rgba(36, 37, 40, 0.6);
-}
-
-.SequenceStepNext,
-.SequenceStepNextDisabled,
-.SequenceStepNextHighlight {
-    order: 2;
-}
-
-.SequenceStepPrev,
-.SequenceStepPrevDisabled,
-.SequenceStepPrevHighlight {
-    order: 0;
-}
-
-.SequencePlay,
-.SequencePlayDisabled {
-    order: 1;
 }
 
 .SequencePlay:hover,
@@ -105,10 +94,14 @@
 }
 
 .SequenceComponentIcon {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% * 16 / 36);
+    height: calc(100% * 16 / 30);
     background-size: contain;
     background-repeat: no-repeat;
-    width: 50%;
-    padding-bottom: 50%;
 }
 
 @media (hover: hover) {

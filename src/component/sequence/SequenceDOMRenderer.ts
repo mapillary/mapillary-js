@@ -50,14 +50,17 @@ export class SequenceDOMRenderer {
         }
 
         let playingButton: vd.VNode = this._createPlayingButton(nextKey, prevKey, configuration, component);
-        let arrows: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, configuration, interaction, navigator);
+        let buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, configuration, interaction, navigator);
+        buttons.splice(1, 0, playingButton);
 
         let containerProperties: vd.createProperties = {
             oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); },
-            style: { height: (0.27 * containerWidth) + "px", width: containerWidth + "px" },
+            style: { height: (30 / 108 * containerWidth) + "px", width: containerWidth + "px" },
         };
 
-        return vd.h("div.SequenceContainer", containerProperties, arrows.concat([playingButton]));
+        let stepper: vd.VNode = vd.h("div.SequenceStepper", containerProperties, buttons);
+
+        return vd.h("div.SequenceContainer", [stepper]);
     }
 
     public getContainerWidth(element: HTMLElement, configuration: ISequenceConfiguration): number {
@@ -157,8 +160,8 @@ export class SequenceDOMRenderer {
         let prevIcon: vd.VNode = vd.h("div.SequenceComponentIcon", []);
 
         return [
-            vd.h("div." + nextClass, nextProperties, [nextIcon]),
             vd.h("div." + prevClass, prevProperties, [prevIcon]),
+            vd.h("div." + nextClass, nextProperties, [nextIcon]),
         ];
     }
 

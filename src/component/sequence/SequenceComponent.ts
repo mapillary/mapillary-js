@@ -313,7 +313,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     protected _getDefaultConfiguration(): ISequenceConfiguration {
         return {
             direction: EdgeDirection.Next,
-            maxWidth: 117,
+            maxWidth: 108,
             minWidth: 70,
             playing: false,
             visible: true,
