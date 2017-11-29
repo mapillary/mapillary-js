@@ -33,6 +33,7 @@ export class SequenceDOMRenderer {
     private _defaultHeight: number;
     private _expandControls: boolean;
     private _mode: ControlMode;
+    private _speed: number;
     private _changingSpeed: boolean;
 
     private _notifyChanged$: Subject<SequenceDOMRenderer>;
@@ -50,8 +51,9 @@ export class SequenceDOMRenderer {
 
         this._defaultHeight = 30;
         this._expandControls = false;
-        this._changingSpeed = false;
         this._mode = ControlMode.Default;
+        this._speed = 0.5;
+        this._changingSpeed = false;
 
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
         this._notifySpeedChanged$ = new Subject<number>();
@@ -63,6 +65,10 @@ export class SequenceDOMRenderer {
                         this._changingSpeed = false;
                     }
                 });
+    }
+
+    public get speed(): number {
+        return this._speed;
     }
 
     public get changed$(): Observable<SequenceDOMRenderer> {
@@ -77,6 +83,7 @@ export class SequenceDOMRenderer {
         edgeStatus: IEdgeStatus,
         configuration: ISequenceConfiguration,
         containerWidth: number,
+        speed: number,
         component: SequenceComponent,
         interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode {
@@ -88,7 +95,7 @@ export class SequenceDOMRenderer {
         const stepper: vd.VNode =
             this._createStepper(edgeStatus, configuration, containerWidth, component, interaction, navigator);
         const controls: vd.VNode = this._createSequenceControls(containerWidth);
-        const playback: vd.VNode = this._createPlaybackControls(containerWidth);
+        const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed);
 
         return vd.h("div.SequenceContainer", [stepper, controls, playback]);
     }
@@ -113,14 +120,16 @@ export class SequenceDOMRenderer {
         return minWidth + coeff * (maxWidth - minWidth);
     }
 
-    private _createSpeedInput(): vd.VNode {
+    private _createSpeedInput(speed: number): vd.VNode {
+        this._speed = speed;
+
         const onSpeed: (e: Event) => void = (e: Event): void => {
-            const speed: number = Number((<HTMLInputElement>e.target).value) / 1000;
-            this._notifySpeedChanged$.next(speed);
+            this._speed = Number((<HTMLInputElement>e.target).value) / 1000;
+            this._notifySpeedChanged$.next(this._speed);
         };
 
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
-        const width: number = Math.max(256, Math.min(400, 0.8 * boundingRect.width)) - 144;
+        const width: number = Math.max(256, Math.min(410, 0.8 * boundingRect.width)) - 144;
 
         const speedInput: vd.VNode = vd.h(
             "input.SequenceSpeed",
@@ -142,14 +151,14 @@ export class SequenceDOMRenderer {
                     width: `${width}px`,
                 },
                 type: "range",
-                value: 500,
+                value: 1000 * speed,
             },
             []);
 
         return vd.h("div.SequenceSpeedContainer", [speedInput]);
     }
 
-    private _createPlaybackControls(containerWidth: number): vd.VNode {
+    private _createPlaybackControls(containerWidth: number, speed: number): vd.VNode {
         if (this._mode !== ControlMode.Playback) {
             return vd.h("div.SequencePlayback", []);
         }
@@ -168,7 +177,7 @@ export class SequenceDOMRenderer {
             },
         };
         const closeButton: vd.VNode = vd.h("div.SequenceCloseButton", closeButtonProperties, [closeIcon]);
-        const speedInput: vd.VNode = this._createSpeedInput();
+        const speedInput: vd.VNode = this._createSpeedInput(speed);
 
         const playbackChildren: vd.VNode[] = [switchButton, slowContainer, speedInput, fastContainer, closeButton];
 

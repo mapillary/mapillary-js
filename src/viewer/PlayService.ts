@@ -123,6 +123,10 @@ export class PlayService {
         return this._playing$;
     }
 
+    public get speed$(): Observable<number> {
+        return this._speed$;
+    }
+
     public play(): void {
         if (this._playing) {
             return;

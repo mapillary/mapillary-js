@@ -219,18 +219,19 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 edgeStatus$,
                 this._configuration$,
                 this._containerWidth$,
-                this._sequenceDOMRenderer.changed$.startWith(this._sequenceDOMRenderer))
+                this._sequenceDOMRenderer.changed$.startWith(this._sequenceDOMRenderer),
+                this._navigator.playService.speed$)
             .map(
-                (ec: [IEdgeStatus, ISequenceConfiguration, number, SequenceDOMRenderer]): IVNodeHash => {
-                    let edgeStatus: IEdgeStatus = ec[0];
-                    let configuration: ISequenceConfiguration = ec[1];
-                    let containerWidth: number = ec[2];
+                (
+                    [edgeStatus, configuration, containerWidth, renderer, speed]:
+                    [IEdgeStatus, ISequenceConfiguration, number, SequenceDOMRenderer, number]): IVNodeHash => {
 
-                    let vNode: vd.VNode = this._sequenceDOMRenderer
+                    const vNode: vd.VNode = this._sequenceDOMRenderer
                         .render(
                             edgeStatus,
                             configuration,
                             containerWidth,
+                            speed,
                             this,
                             this._sequenceDOMInteraction,
                             this._navigator);
@@ -238,6 +239,12 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     return {name: this._name, vnode: vNode };
                 })
             .subscribe(this._container.domRenderer.render$);
+
+        this._sequenceDOMRenderer.speed$
+            .subscribe(
+                (speed: number): void => {
+                    this._navigator.playService.setSpeed(speed);
+                });
 
         this._containerWidthSubscription = this._configuration$
             .distinctUntilChanged(
