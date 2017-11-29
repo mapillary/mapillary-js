@@ -64,6 +64,8 @@
     height: 16px;
     cursor: pointer;
     outline: none;
+    background: none;
+    -webkit-appearance: none;
 }
 
 .SequenceFastIcon,
@@ -239,6 +241,45 @@
     height: calc(100% * 16 / 30);
     background-size: contain;
     background-repeat: no-repeat;
+}
+
+.SequenceSpeed::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: #dee5ed;
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.SequenceSpeed::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background-color: white;
+}
+
+.SequenceSpeed::-moz-focus-outer {
+    border: 0;
+}
+
+.SequenceSpeed::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background-color: white;
+}
+
+.SequenceSpeed::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: #dee5ed;
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
 @media (hover: hover) {
