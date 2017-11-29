@@ -27,7 +27,6 @@
 .DirectionsCircleHighlight:hover,
 .DirectionsCircleSequenceHighlight:hover {
     cursor: pointer;
-    cursor: hand;
 }
 
 .DirectionsCircle,
@@ -97,7 +96,6 @@
 .TurnCircleHighlight:hover,
 .TurnCircleSequenceHighlight:hover {
     cursor: pointer;
-    cursor: hand;
 }
 
 .TurnLeft,
