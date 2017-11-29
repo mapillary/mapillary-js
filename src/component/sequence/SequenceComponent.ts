@@ -74,7 +74,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._sequenceDOMRenderer = new SequenceDOMRenderer(container.element);
+        this._sequenceDOMRenderer = new SequenceDOMRenderer();
         this._sequenceDOMInteraction = new SequenceDOMInteraction();
 
         this._containerWidth$ = new Subject<number>();
@@ -219,9 +219,9 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 edgeStatus$,
                 this._configuration$,
                 this._containerWidth$,
-                this._sequenceDOMRenderer.changed$.startWith(null))
+                this._sequenceDOMRenderer.changed$.startWith(this._sequenceDOMRenderer))
             .map(
-                (ec: [IEdgeStatus, ISequenceConfiguration, number, void]): IVNodeHash => {
+                (ec: [IEdgeStatus, ISequenceConfiguration, number, SequenceDOMRenderer]): IVNodeHash => {
                     let edgeStatus: IEdgeStatus = ec[0];
                     let configuration: ISequenceConfiguration = ec[1];
                     let containerWidth: number = ec[2];

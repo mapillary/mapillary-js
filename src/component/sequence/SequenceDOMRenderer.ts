@@ -6,13 +6,20 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {
+    ControlMode,
     ISequenceConfiguration,
     SequenceComponent,
     SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
-import {IEdgeStatus, Node} from "../../Graph";
-import {Navigator} from "../../Viewer";
+import {
+    IEdgeStatus,
+    Node,
+} from "../../Graph";
+import {
+    MouseService,
+    Navigator,
+} from "../../Viewer";
 
 export class SequenceDOMRenderer {
     private _minThresholdWidth: number;
@@ -23,23 +30,30 @@ export class SequenceDOMRenderer {
     private _controlsDefaultWidth: number;
     private _defaultHeight: number;
     private _expandControls: boolean;
+    private _speed: number;
+    private _mode: ControlMode;
 
-    private _notifyChanged$: Subject<void>;
+    private _notifyChanged$: Subject<SequenceDOMRenderer>;
+    private _notifySpeedChanged$: Subject<number>;
 
-    constructor(element: HTMLElement) {
+    private _state: boolean = false;
+
+    constructor() {
         this._minThresholdWidth = 320;
         this._maxThresholdWidth = 1480;
         this._minThresholdHeight = 240;
         this._maxThresholdHeight = 820;
         this._stepperDefaultWidth = 108;
         this._controlsDefaultWidth = 52;
+
         this._defaultHeight = 30;
         this._expandControls = false;
+        this._mode = ControlMode.Default;
 
-        this._notifyChanged$ = new Subject<void>();
+        this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
     }
 
-    public get changed$(): Observable<void> {
+    public get changed$(): Observable<SequenceDOMRenderer> {
         return this._notifyChanged$;
     }
 
@@ -55,36 +69,12 @@ export class SequenceDOMRenderer {
             return vd.h("div.SequenceContainer", {}, []);
         }
 
-        let nextKey: string = null;
-        let prevKey: string = null;
+        const stepper: vd.VNode =
+            this._createStepper(edgeStatus, configuration, containerWidth, component, interaction, navigator);
+        const controls: vd.VNode = this._createSequenceControls(containerWidth);
+        const playback: vd.VNode = this._createPlaybackControls(containerWidth);
 
-        for (let edge of edgeStatus.edges) {
-            if (edge.data.direction === EdgeDirection.Next) {
-                nextKey = edge.to;
-            }
-
-            if (edge.data.direction === EdgeDirection.Prev) {
-                prevKey = edge.to;
-            }
-        }
-
-        let playingButton: vd.VNode = this._createPlayingButton(nextKey, prevKey, configuration, component);
-        let buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, configuration, interaction, navigator);
-        buttons.splice(1, 0, playingButton);
-
-        let containerProperties: vd.createProperties = {
-            oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); },
-            style: {
-                height: (this._defaultHeight / this._stepperDefaultWidth * containerWidth) + "px",
-                width: containerWidth + "px",
-            },
-        };
-
-        let stepper: vd.VNode = vd.h("div.SequenceStepper", containerProperties, buttons);
-
-        let controls: vd.VNode = this._createSequenceControls(containerWidth);
-
-        return vd.h("div.SequenceContainer", [stepper, controls]);
+        return vd.h("div.SequenceContainer", [stepper, controls, playback]);
     }
 
     public getContainerWidth(element: HTMLElement, configuration: ISequenceConfiguration): number {
@@ -107,6 +97,33 @@ export class SequenceDOMRenderer {
         return minWidth + coeff * (maxWidth - minWidth);
     }
 
+    private _createPlaybackControls(containerWidth: number): vd.VNode {
+        if (this._mode !== ControlMode.Playback) {
+            return vd.h("div.SequencePlayback", []);
+        }
+
+        const switchIcon: vd.VNode = vd.h("div.SequenceSwitchIcon.SequenceIconVisible", []);
+        const switchButton: vd.VNode = vd.h("div.SequenceSwitchButton", [switchIcon]);
+        const slowIcon: vd.VNode = vd.h("div.SequenceSlowIcon.SequenceIconVisible", []);
+        const slowContainer: vd.VNode = vd.h("div.SequenceSlowContainer", [slowIcon]);
+        const fastIcon: vd.VNode = vd.h("div.SequenceFastIconGrey.SequenceIconVisible", []);
+        const fastContainer: vd.VNode = vd.h("div.SequenceFastContainer", [fastIcon]);
+        const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
+        const closeButtonProperties: vd.createProperties = {
+            onclick: (): void => {
+                this._mode = ControlMode.Default;
+                this._notifyChanged$.next(this);
+            },
+        };
+        const closeButton: vd.VNode = vd.h("div.SequenceCloseButton", closeButtonProperties, [closeIcon]);
+        const playbackChildren: vd.VNode[] = [switchButton, slowContainer, fastContainer, closeButton];
+
+        const top: number = Math.round(containerWidth / this._stepperDefaultWidth * this._defaultHeight + 10);
+        const playbackProperties: vd.createProperties = { style: { top: `${top}px` } };
+
+        return vd.h("div.SequencePlayback", playbackProperties, playbackChildren);
+    }
+
     private _createPlayingButton(
         nextKey: string,
         prevKey: string,
@@ -120,12 +137,7 @@ export class SequenceDOMRenderer {
             (e: Event): void => { component.stop(); } :
             canPlay ? (e: Event): void => { component.play(); } : null;
 
-        let buttonProperties: vd.createProperties = {
-            onclick: onclick,
-            style: {
-
-            },
-        };
+        let buttonProperties: vd.createProperties = { onclick: onclick };
 
         let iconClass: string = configuration.playing ?
             "Stop" :
@@ -143,18 +155,29 @@ export class SequenceDOMRenderer {
         const expanderProperties: vd.createProperties = {
             onclick: (): void => {
                 this._expandControls = !this._expandControls;
-                this._notifyChanged$.next(null);
+                this._mode = ControlMode.Default;
+                this._notifyChanged$.next(this);
             },
             style: {
                 "border-bottom-right-radius": `${borderRadius}px`,
                 "border-top-right-radius": `${borderRadius}px`,
             },
         };
-
         const expanderBar: vd.VNode = vd.h("div.SequenceExpanderBar", []);
         const expander: vd.VNode = vd.h("div.SequenceExpanderButton", expanderProperties, [expanderBar]);
-        const fastIcon: vd.VNode = vd.h("div.SequenceFastIcon", []);
-        const controls: vd.VNode = vd.h("div.SequenceControlsButton", [fastIcon]);
+        const fastIconClassName: string = this._mode === ControlMode.Playback ?
+            ".SequenceFastIconGrey.SequenceIconVisible" : ".SequenceFastIcon";
+        const fastIcon: vd.VNode = vd.h("div" + fastIconClassName, []);
+
+        const playbackProperties: vd.createProperties = {
+            onclick: (): void => {
+                this._mode = this._mode === ControlMode.Playback ?
+                    ControlMode.Default :
+                    ControlMode.Playback;
+                this._notifyChanged$.next(this);
+            },
+        };
+        const controls: vd.VNode = vd.h("div.SequencePlaybackButton", playbackProperties, [fastIcon]);
 
         const properties: vd.createProperties = {
             style: {
@@ -219,6 +242,43 @@ export class SequenceDOMRenderer {
             vd.h("div." + prevClass, prevProperties, [prevIcon]),
             vd.h("div." + nextClass, nextProperties, [nextIcon]),
         ];
+    }
+
+    private _createStepper(
+        edgeStatus: IEdgeStatus,
+        configuration: ISequenceConfiguration,
+        containerWidth: number,
+        component: SequenceComponent,
+        interaction: SequenceDOMInteraction,
+        navigator: Navigator,
+        ): vd.VNode {
+
+        let nextKey: string = null;
+        let prevKey: string = null;
+
+        for (let edge of edgeStatus.edges) {
+            if (edge.data.direction === EdgeDirection.Next) {
+                nextKey = edge.to;
+            }
+
+            if (edge.data.direction === EdgeDirection.Prev) {
+                prevKey = edge.to;
+            }
+        }
+
+        const playingButton: vd.VNode = this._createPlayingButton(nextKey, prevKey, configuration, component);
+        const buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, configuration, interaction, navigator);
+        buttons.splice(1, 0, playingButton);
+
+        const containerProperties: vd.createProperties = {
+            oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); },
+            style: {
+                height: (this._defaultHeight / this._stepperDefaultWidth * containerWidth) + "px",
+                width: containerWidth + "px",
+            },
+        };
+
+        return vd.h("div.SequenceStepper", containerProperties, buttons);
     }
 
     private _getStepClassName(direction: EdgeDirection, key: string, highlightKey: string): string {

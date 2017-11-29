@@ -1,9 +1,10 @@
 .SequenceContainer {
-    position: relative;
+    position: absolute;
     top: 14px;
     pointer-events: none;
     font-size: 0;
     z-index: 10;
+    width: 100%;
 }
 
 .SequenceStepper,
@@ -18,7 +19,7 @@
 }
 
 .SequenceExpanderButton,
-.SequenceControlsButton {
+.SequencePlaybackButton {
     display: inline-block;
     height: 100%;
     pointer-events: auto;
@@ -40,34 +41,104 @@
     transform: translate(-50%, -50%);
 }
 
-.SequenceControlsButton {
+.SequencePlaybackButton {
     width: 0;
     background: rgba(24, 25, 28, 0.5);
     transition: width 0.15s ease-out;
 }
 
-.SequenceFastIcon {
-    background-image: url('./fast.svg');
+.SequenceFastIcon,
+.SequenceFastIconGrey,
+.SequenceSlowIcon,
+.SequenceSwitchIcon,
+.SequenceCloseIcon {
     position: relative;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: calc(100% * 24 / 36);
-    height: calc(100% * 24 / 30);
     background-size: contain;
     background-repeat: no-repeat;
     opacity: 0;
+}
+
+.SequenceFastIcon {
     transition-delay: 0s;
+    transition-property: opacity;
+}
+
+.SequenceFastIcon,
+.SequenceFastIconGrey,
+.SequenceSlowIcon {
+    width: calc(100% * 24 / 36);
+    height: calc(100% * 24 / 30);
+}
+
+.SequenceSwitchIcon,
+.SequenceCloseIcon {
+    width: calc(100% * 16 / 36);
+    height: calc(100% * 16 / 30);
+}
+
+.SequenceFastIcon {
+    background-image: url('./fast.svg');
+}
+
+.SequenceFastIconGrey {
+    background-image: url('./fast-grey.svg');
+}
+
+.SequenceSlowIcon {
+    background-image: url('./slow.svg');
+}
+
+.SequenceSwitchIcon {
+    background-image: url('./switch.svg');
+}
+
+.SequenceCloseIcon {
+    background-image: url('./close.svg');
+}
+
+.SequenceIconVisible {
+    opacity: 1;
 }
 
 .SequenceControlsExpanded .SequenceFastIcon {
     opacity: 1;
     transition-delay: 0.12s;
     transition: 0.2s ease-in;
+    transition-property: opacity;
 }
 
-.SequenceControlsExpanded .SequenceControlsButton {
+.SequenceControlsExpanded .SequencePlaybackButton {
     width: calc(100% * 36 / 52);
+}
+
+.SequencePlayback {
+    position: absolute;
+    height: 30px;
+    width: 410px;
+    max-width: 80%;
+    min-width: 256px;
+    left: 50%;
+    padding-left: 5px;
+    transform: translate(-50%, 0);
+}
+
+.SequenceSwitchButton,
+.SequenceSlowContainer,
+.SequenceFastContainer,
+.SequenceCloseButton {
+    width: 36px;
+    height: 100%;
+    display: inline-block;
+    pointer-events: auto;
+    background: rgba(24, 25, 28, 0.5);
+}
+
+.SequenceSwitchButton,
+.SequenceCloseButton {
+    cursor: pointer;
 }
 
 .SequencePlay,
@@ -100,9 +171,15 @@
 
 .SequenceStepPrev,
 .SequenceStepPrevDisabled,
-.SequenceStepPrevHighlight {
-    border-top-left-radius: 8px;
+.SequenceStepPrevHighlight,
+.SequenceSwitchButton {
     border-bottom-left-radius: 8px;
+    border-top-left-radius: 8px;
+}
+
+.SequenceCloseButton {
+    border-bottom-right-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .Play.SequenceComponentIcon,
@@ -148,7 +225,9 @@
 @media (hover: hover) {
     .SequencePlay:hover,
     .SequenceStepPrev:hover,
-    .SequenceStepNext:hover {
+    .SequenceStepNext:hover,
+    .SequenceSwitchButton:hover,
+    .SequenceCloseButton:hover {
         background: rgba(24, 25, 28, 0.6);
     }
 
@@ -158,8 +237,7 @@
         background: rgba(24, 25, 28, 0.3);
     }
 
-    .SequenceControlsButton:hover {
+    .SequencePlaybackButton:hover {
         background: rgba(24, 25, 28, 0.7);
     }
-
 }
