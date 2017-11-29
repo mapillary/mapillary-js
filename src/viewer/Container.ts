@@ -67,6 +67,10 @@ export class Container {
     public get canvasContainer(): HTMLElement {
         return this._canvasContainer;
     }
+
+    public get domContainer(): HTMLElement {
+        return this._domContainer;
+    }
 }
 
 export default Container;

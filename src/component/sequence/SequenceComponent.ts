@@ -74,7 +74,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._sequenceDOMRenderer = new SequenceDOMRenderer();
+        this._sequenceDOMRenderer = new SequenceDOMRenderer(container);
         this._sequenceDOMInteraction = new SequenceDOMInteraction();
 
         this._containerWidth$ = new Subject<number>();

@@ -17,11 +17,13 @@ import {
     Node,
 } from "../../Graph";
 import {
-    MouseService,
+    Container,
     Navigator,
 } from "../../Viewer";
 
 export class SequenceDOMRenderer {
+    private _container: Container;
+
     private _minThresholdWidth: number;
     private _maxThresholdWidth: number;
     private _minThresholdHeight: number;
@@ -30,15 +32,15 @@ export class SequenceDOMRenderer {
     private _controlsDefaultWidth: number;
     private _defaultHeight: number;
     private _expandControls: boolean;
-    private _speed: number;
     private _mode: ControlMode;
+    private _changingSpeed: boolean;
 
     private _notifyChanged$: Subject<SequenceDOMRenderer>;
     private _notifySpeedChanged$: Subject<number>;
 
-    private _state: boolean = false;
+    constructor(container: Container) {
+        this._container = container;
 
-    constructor() {
         this._minThresholdWidth = 320;
         this._maxThresholdWidth = 1480;
         this._minThresholdHeight = 240;
@@ -48,13 +50,27 @@ export class SequenceDOMRenderer {
 
         this._defaultHeight = 30;
         this._expandControls = false;
+        this._changingSpeed = false;
         this._mode = ControlMode.Default;
 
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
+        this._notifySpeedChanged$ = new Subject<number>();
+
+        container.mouseService.documentMouseUp$
+            .subscribe(
+                (event: Event): void => {
+                    if (this._changingSpeed) {
+                        this._changingSpeed = false;
+                    }
+                });
     }
 
     public get changed$(): Observable<SequenceDOMRenderer> {
         return this._notifyChanged$;
+    }
+
+    public get speed$(): Observable<number> {
+        return this._notifySpeedChanged$;
     }
 
     public render(
@@ -97,6 +113,42 @@ export class SequenceDOMRenderer {
         return minWidth + coeff * (maxWidth - minWidth);
     }
 
+    private _createSpeedInput(): vd.VNode {
+        const onSpeed: (e: Event) => void = (e: Event): void => {
+            const speed: number = Number((<HTMLInputElement>e.target).value) / 1000;
+            this._notifySpeedChanged$.next(speed);
+        };
+
+        const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
+        const width: number = Math.max(256, Math.min(400, 0.8 * boundingRect.width)) - 144;
+
+        const speedInput: vd.VNode = vd.h(
+            "input.SequenceSpeed",
+            {
+                max: 1000,
+                min: 0,
+                onchange: onSpeed,
+                oninput: onSpeed,
+                onmousedown: (e: Event): void => {
+                    this._changingSpeed = true;
+                    e.stopPropagation();
+                },
+                onmousemove: (e: Event): void => {
+                    if (this._changingSpeed === true) {
+                        e.stopPropagation();
+                    }
+                },
+                style: {
+                    width: `${width}px`,
+                },
+                type: "range",
+                value: 500,
+            },
+            []);
+
+        return vd.h("div.SequenceSpeedContainer", [speedInput]);
+    }
+
     private _createPlaybackControls(containerWidth: number): vd.VNode {
         if (this._mode !== ControlMode.Playback) {
             return vd.h("div.SequencePlayback", []);
@@ -116,7 +168,9 @@ export class SequenceDOMRenderer {
             },
         };
         const closeButton: vd.VNode = vd.h("div.SequenceCloseButton", closeButtonProperties, [closeIcon]);
-        const playbackChildren: vd.VNode[] = [switchButton, slowContainer, fastContainer, closeButton];
+        const speedInput: vd.VNode = this._createSpeedInput();
+
+        const playbackChildren: vd.VNode[] = [switchButton, slowContainer, speedInput, fastContainer, closeButton];
 
         const top: number = Math.round(containerWidth / this._stepperDefaultWidth * this._defaultHeight + 10);
         const playbackProperties: vd.createProperties = { style: { top: `${top}px` } };

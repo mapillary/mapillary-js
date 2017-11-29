@@ -47,6 +47,23 @@
     transition: width 0.15s ease-out;
 }
 
+.SequenceSpeedContainer {
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+    background: rgba(24, 25, 28, 0.5);
+    pointer-events: auto;
+}
+
+.SequenceSpeed {
+    margin: 0;
+    padding: 0;
+    margin-top: 7px;
+    height: 16px;
+    cursor: pointer;
+    outline: none;
+}
+
 .SequenceFastIcon,
 .SequenceFastIconGrey,
 .SequenceSlowIcon,
@@ -119,7 +136,7 @@
     height: 30px;
     width: 410px;
     max-width: 80%;
-    min-width: 256px;
+    min-width: 266px;
     left: 50%;
     padding-left: 5px;
     transform: translate(-50%, 0);
