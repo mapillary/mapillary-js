@@ -439,10 +439,12 @@ export class Graph {
      * Retrieve and cache full nodes for all keys in a sequence.
      *
      * @param {string} sequenceKey - Key of sequence.
+     * @param {string} referenceNodeKey - Key of node to use as reference
+     * for optimized caching.
      * @returns {Observable<Graph>} Observable emitting the graph
      * when the nodes of the sequence has been cached.
      */
-    public cacheSequenceNodes$(sequenceKey: string): Observable<Graph> {
+    public cacheSequenceNodes$(sequenceKey: string, referenceNodeKey?: string): Observable<Graph> {
         if (!this.hasSequence(sequenceKey)) {
             throw new GraphMapillaryError(
                 `Cannot cache sequence nodes of sequence that does not exist in graph (${sequenceKey}).`);
@@ -459,6 +461,27 @@ export class Graph {
 
         const batches: string[][] = [];
         const batchSize: number = 200;
+        const keys: string[] = sequence.keys.slice();
+        if (!!referenceNodeKey) {
+            let referenceIndex: number = keys.indexOf(referenceNodeKey);
+
+            if (referenceIndex !== -1) {
+                for (const referenceBatchSize of [20, 40]) {
+                    if (referenceIndex < keys.length - 1) {
+                        batches.push(keys.splice(referenceIndex, referenceBatchSize));
+                    }
+
+                    if (referenceIndex > 0) {
+                        const batch: string[] =
+                            keys.splice(Math.max(0, referenceIndex - referenceBatchSize), referenceBatchSize);
+
+                        batches.push(batch);
+                        referenceIndex -= batch.length;
+                    }
+                }
+            }
+        }
+
         for (let i: number = 0; i < sequence.keys.length; i += batchSize) {
             batches.push(sequence.keys.slice(i, i + batchSize));
         }
@@ -504,7 +527,8 @@ export class Graph {
                             (imageByKeyFull: { [key: string]: IFullNode }): Graph => {
                                 return this;
                             });
-                })
+                },
+                6)
             .last()
             .finally(
                 (): void => {

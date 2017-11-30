@@ -157,21 +157,27 @@ export class PlayService {
 
         this._cacheSubscription = this._stateService.currentNode$
             .map(
-                (node: Node): string => {
-                    return node.sequenceKey;
+                (node: Node): [string, string] => {
+                    return [node.sequenceKey, node.key];
                 })
-            .distinctUntilChanged()
+            .distinctUntilChanged(
+                undefined,
+                ([sequenceKey, nodeKey]: [string, string]): string => {
+                    return sequenceKey;
+                })
             .combineLatest(
                 this._graphService.graphMode$,
                 this._direction$)
             .switchMap(
-                ([sequenceKey, mode, direction]: [string, GraphMode, EdgeDirection]): Observable<[Sequence, EdgeDirection]> => {
+                ([[sequenceKey, nodeKey], mode, direction]: [[string, string], GraphMode, EdgeDirection]):
+                    Observable<[Sequence, EdgeDirection]> => {
+
                     if (direction !== EdgeDirection.Next && direction !== EdgeDirection.Prev) {
                         return Observable.of<[Sequence, EdgeDirection]>([undefined, direction]);
                     }
 
                     const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
-                        this._graphService.cacheSequenceNodes$(sequenceKey) :
+                        this._graphService.cacheSequenceNodes$(sequenceKey, nodeKey) :
                         this._graphService.cacheSequence$(sequenceKey))
                         .retry(3)
                         .catch(

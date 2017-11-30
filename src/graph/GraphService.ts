@@ -334,12 +334,14 @@ export class GraphService {
      * or edges will not be cached.
      *
      * @param {string} sequenceKey - Sequence key.
+     * @param {string} referenceNodeKey - Key of node to use as reference
+     * for optimized caching.
      * @returns {Observable<Sequence>} Observable emitting a single item,
      * the sequence, when it has been retrieved, its assets are cached and
      * all nodes belonging to the sequence has been retrieved.
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
-    public cacheSequenceNodes$(sequenceKey: string): Observable<Sequence> {
+    public cacheSequenceNodes$(sequenceKey: string, referenceNodeKey?: string): Observable<Sequence> {
         return this._graph$
             .first()
             .mergeMap(
@@ -353,7 +355,7 @@ export class GraphService {
             .mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.isCachingSequenceNodes(sequenceKey) || !graph.hasSequenceNodes(sequenceKey)) {
-                        return graph.cacheSequenceNodes$(sequenceKey);
+                        return graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey);
                     }
 
                     return Observable.of<Graph>(graph);
