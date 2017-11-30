@@ -4,6 +4,7 @@ import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
+import {Subscription} from "rxjs/Subscription";
 
 import {
     ControlMode,
@@ -39,6 +40,8 @@ export class SequenceDOMRenderer {
     private _notifyChanged$: Subject<SequenceDOMRenderer>;
     private _notifySpeedChanged$: Subject<number>;
 
+    private _changingSpeedSubscription: Subscription;
+
     constructor(container: Container) {
         this._container = container;
 
@@ -57,14 +60,6 @@ export class SequenceDOMRenderer {
 
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
         this._notifySpeedChanged$ = new Subject<number>();
-
-        container.mouseService.documentMouseUp$
-            .subscribe(
-                (event: Event): void => {
-                    if (this._changingSpeed) {
-                        this._changingSpeed = false;
-                    }
-                });
     }
 
     public get speed(): number {
@@ -77,6 +72,33 @@ export class SequenceDOMRenderer {
 
     public get speed$(): Observable<number> {
         return this._notifySpeedChanged$;
+    }
+
+    public activate(): void {
+        if (!!this._changingSpeedSubscription) {
+            return;
+        }
+
+        this._changingSpeedSubscription = this._container.mouseService.documentMouseUp$
+            .subscribe(
+                (event: Event): void => {
+                    if (this._changingSpeed) {
+                        this._changingSpeed = false;
+                    }
+                });
+    }
+
+    public deactivate(): void {
+        if (!this._changingSpeedSubscription) {
+            return;
+        }
+
+        this._changingSpeed = false;
+        this._expandControls = false;
+        this._mode = ControlMode.Default;
+
+        this._changingSpeedSubscription.unsubscribe();
+        this._changingSpeedSubscription = null;
     }
 
     public render(

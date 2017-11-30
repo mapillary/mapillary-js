@@ -206,6 +206,8 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     }
 
     protected _activate(): void {
+        this._sequenceDOMRenderer.activate();
+
         const edgeStatus$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
             .switchMap(
                 (node: Node): Observable<IEdgeStatus> => {
@@ -316,6 +318,8 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._configurationSubscription.unsubscribe();
         this._containerWidthSubscription.unsubscribe();
         this._hoveredKeySubscription.unsubscribe();
+
+        this._sequenceDOMRenderer.deactivate();
     }
 
     protected _getDefaultConfiguration(): ISequenceConfiguration {
