@@ -7,7 +7,8 @@ export function isArraySupported(): boolean {
         Array.prototype &&
         Array.prototype.filter &&
         Array.prototype.indexOf &&
-        Array.prototype.map
+        Array.prototype.map &&
+        Array.prototype.reverse
     );
 }
 

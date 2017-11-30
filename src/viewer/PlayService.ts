@@ -161,10 +161,16 @@ export class PlayService {
                     return node.sequenceKey;
                 })
             .distinctUntilChanged()
-            .combineLatest(this._graphService.graphMode$)
+            .combineLatest(
+                this._graphService.graphMode$,
+                this._direction$)
             .switchMap(
-                ([sequenceKey, mode]: [string, GraphMode]): Observable<Sequence> => {
-                    return (mode === GraphMode.Sequence ?
+                ([sequenceKey, mode, direction]: [string, GraphMode, EdgeDirection]): Observable<[Sequence, EdgeDirection]> => {
+                    if (direction !== EdgeDirection.Next && direction !== EdgeDirection.Prev) {
+                        return Observable.of<[Sequence, EdgeDirection]>([undefined, direction]);
+                    }
+
+                    const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
                         this._graphService.cacheSequenceNodes$(sequenceKey) :
                         this._graphService.cacheSequence$(sequenceKey))
                         .retry(3)
@@ -172,14 +178,22 @@ export class PlayService {
                             (): Observable<Sequence> => {
                                 return Observable.of(undefined);
                             });
+
+                    return Observable
+                        .combineLatest(
+                            sequence$,
+                            Observable.of(direction));
                 })
             .switchMap(
-                (sequence: Sequence): Observable<string> => {
+                ([sequence, direction]: [Sequence, EdgeDirection]): Observable<string> => {
                     if (sequence === undefined) {
                         return Observable.empty();
                     }
 
                     const sequenceKeys: string[] = sequence.keys.slice();
+                    if (direction === EdgeDirection.Prev) {
+                        sequenceKeys.reverse();
+                    }
 
                     return this._stateService.currentState$
                         .map(
@@ -196,7 +210,7 @@ export class PlayService {
                                     lastRequestKey = lastTrajectoryKey;
                                 }
 
-                                if (nodesAhead >= this._nodesAhead || sequenceKeys.indexOf(lastRequestKey) === sequenceKeys.length - 1) {
+                                if (nodesAhead >= this._nodesAhead || sequenceKeys[sequenceKeys.length - 1] === lastRequestKey) {
                                     return [lastRequestKey, []];
                                 }
 
@@ -204,7 +218,7 @@ export class PlayService {
                                 const start: number = sequenceKeys.indexOf(lastRequestKey);
                                 const end: number = start + (this._nodesAhead - nodesAhead) - (start - current);
 
-                                if (end === start) {
+                                if (end <= start) {
                                     return [lastRequestKey, []];
                                 }
 
