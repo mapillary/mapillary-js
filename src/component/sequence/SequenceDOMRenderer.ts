@@ -305,6 +305,7 @@ export class SequenceDOMRenderer {
     private _createSequenceArrows(
         nextKey: string,
         prevKey: string,
+        containerWidth: number,
         configuration: ISequenceConfiguration,
         interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode[] {
@@ -320,11 +321,9 @@ export class SequenceDOMRenderer {
                 null,
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Next); },
             onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.next(EdgeDirection.Next); },
-            style: {
-
-            },
         };
 
+        const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
         let prevProperties: vd.createProperties = {
             onclick: prevKey != null ?
                 (e: Event): void => {
@@ -337,7 +336,8 @@ export class SequenceDOMRenderer {
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Prev); },
             onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.next(EdgeDirection.Prev); },
             style: {
-
+                "border-bottom-left-radius": `${borderRadius}px`,
+                "border-top-left-radius": `${borderRadius}px`,
             },
         };
 
@@ -376,7 +376,7 @@ export class SequenceDOMRenderer {
         }
 
         const playingButton: vd.VNode = this._createPlayingButton(nextKey, prevKey, configuration, component);
-        const buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, configuration, interaction, navigator);
+        const buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, containerWidth, configuration, interaction, navigator);
         buttons.splice(1, 0, playingButton);
 
         const containerProperties: vd.createProperties = {
