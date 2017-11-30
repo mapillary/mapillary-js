@@ -117,7 +117,7 @@ export class SequenceDOMRenderer {
         const stepper: vd.VNode =
             this._createStepper(edgeStatus, configuration, containerWidth, component, interaction, navigator);
         const controls: vd.VNode = this._createSequenceControls(containerWidth);
-        const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed);
+        const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed, component, configuration);
 
         return vd.h("div.SequenceContainer", [stepper, controls, playback]);
     }
@@ -180,13 +180,30 @@ export class SequenceDOMRenderer {
         return vd.h("div.SequenceSpeedContainer", [speedInput]);
     }
 
-    private _createPlaybackControls(containerWidth: number, speed: number): vd.VNode {
+    private _createPlaybackControls(
+        containerWidth: number,
+        speed: number,
+        component: SequenceComponent,
+        configuration: ISequenceConfiguration): vd.VNode {
+
         if (this._mode !== ControlMode.Playback) {
             return vd.h("div.SequencePlayback", []);
         }
 
         const switchIcon: vd.VNode = vd.h("div.SequenceSwitchIcon.SequenceIconVisible", []);
-        const switchButton: vd.VNode = vd.h("div.SequenceSwitchButton", [switchIcon]);
+        const direction: EdgeDirection = configuration.direction === EdgeDirection.Next ?
+            EdgeDirection.Prev : EdgeDirection.Next;
+
+        const playing: boolean = configuration.playing;
+        const switchButtonProperties: vd.createProperties = {
+            onclick: (): void => {
+                if (!playing) {
+                    component.setDirection(direction);
+                }
+            },
+        };
+        const switchButtonClassName: string = configuration.playing ? ".SequenceSwitchButtonDisabled" : ".SequenceSwitchButton";
+        const switchButton: vd.VNode = vd.h("div" + switchButtonClassName, switchButtonProperties, [switchIcon]);
         const slowIcon: vd.VNode = vd.h("div.SequenceSlowIcon.SequenceIconVisible", []);
         const slowContainer: vd.VNode = vd.h("div.SequenceSlowContainer", [slowIcon]);
         const fastIcon: vd.VNode = vd.h("div.SequenceFastIconGrey.SequenceIconVisible", []);
@@ -228,7 +245,14 @@ export class SequenceDOMRenderer {
             "Stop" :
             canPlay ? "Play" : "PlayDisabled";
 
-        let icon: vd.VNode = vd.h("div.SequenceComponentIcon", { className: iconClass }, []);
+        let iconProperties: vd.createProperties = { className: iconClass };
+        if (configuration.direction === EdgeDirection.Prev) {
+            iconProperties.style = {
+                transform: "rotate(180deg) translate(50%, 50%)",
+            };
+        }
+
+        let icon: vd.VNode = vd.h("div.SequenceComponentIcon", iconProperties, []);
 
         let buttonClass: string = canPlay ? "SequencePlay" : "SequencePlayDisabled";
 

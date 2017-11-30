@@ -290,6 +290,10 @@ export class PlayService {
         this._playingSubject$.next(this._playing);
     }
 
+    public setDirection(direction: EdgeDirection): void {
+        this._directionSubject$.next(direction);
+    }
+
     public setSpeed(speed: number): void {
         const stateSpeed: number = this._setSpeed(speed);
 

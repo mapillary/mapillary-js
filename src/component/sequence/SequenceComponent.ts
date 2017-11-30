@@ -70,6 +70,8 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _renderSubscription: Subscription;
     private _containerWidthSubscription: Subscription;
     private _hoveredKeySubscription: Subscription;
+    private _setSpeedSubscription: Subscription;
+    private _setDirectionSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -93,6 +95,13 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     } else {
                         this.stop();
                     }
+                });
+
+        this._navigator.playService.direction$
+            .skip(1)
+            .subscribe(
+                (direction: EdgeDirection): void => {
+                    this.setDirection(direction);
                 });
     }
 
@@ -242,10 +251,21 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .subscribe(this._container.domRenderer.render$);
 
-        this._sequenceDOMRenderer.speed$
+        this._setSpeedSubscription = this._sequenceDOMRenderer.speed$
             .subscribe(
                 (speed: number): void => {
                     this._navigator.playService.setSpeed(speed);
+                });
+
+        this._setDirectionSubscription = this._configuration$
+            .map(
+                (configuration: ISequenceConfiguration): EdgeDirection => {
+                    return configuration.direction;
+                })
+            .distinctUntilChanged()
+            .subscribe(
+                (direction: EdgeDirection): void => {
+                    this._navigator.playService.setDirection(direction);
                 });
 
         this._containerWidthSubscription = this._configuration$
@@ -318,6 +338,8 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._configurationSubscription.unsubscribe();
         this._containerWidthSubscription.unsubscribe();
         this._hoveredKeySubscription.unsubscribe();
+        this._setSpeedSubscription.unsubscribe();
+        this._setDirectionSubscription.unsubscribe();
 
         this._sequenceDOMRenderer.deactivate();
     }

@@ -147,6 +147,7 @@
 }
 
 .SequenceSwitchButton,
+.SequenceSwitchButtonDisabled,
 .SequenceSlowContainer,
 .SequenceFastContainer,
 .SequenceCloseButton {
@@ -158,6 +159,7 @@
 }
 
 .SequenceSwitchButton,
+.SequenceSwitchButtonDisabled,
 .SequenceCloseButton {
     cursor: pointer;
 }
@@ -193,7 +195,8 @@
 .SequenceStepPrev,
 .SequenceStepPrevDisabled,
 .SequenceStepPrevHighlight,
-.SequenceSwitchButton {
+.SequenceSwitchButton,
+.SequenceSwitchButtonDisabled {
     border-bottom-left-radius: 8px;
     border-top-left-radius: 8px;
 }
@@ -228,6 +231,7 @@
 .PlayDisabled.SequenceComponentIcon,
 .SequenceStepNextDisabled .SequenceComponentIcon,
 .SequenceStepPrevDisabled .SequenceComponentIcon,
+.SequenceSwitchButtonDisabled .SequenceSwitchIcon,
 .StopDisabled.SequenceComponentIcon {
     opacity: 0.35;
 }
@@ -285,9 +289,7 @@
 @media (hover: hover) {
     .SequencePlay:hover,
     .SequenceStepPrev:hover,
-    .SequenceStepNext:hover,
-    .SequenceSwitchButton:hover,
-    .SequenceCloseButton:hover {
+    .SequenceStepNext:hover {
         background: rgba(24, 25, 28, 0.6);
     }
 
@@ -297,7 +299,13 @@
         background: rgba(24, 25, 28, 0.3);
     }
 
-    .SequencePlaybackButton:hover {
-        background: rgba(24, 25, 28, 0.7);
+    .SequenceSwitchButtonDisabled:hover {
+        background: rgba(24, 25, 28, 0.5);
+    }
+
+    .SequencePlaybackButton:hover,
+    .SequenceSwitchButton:hover,
+    .SequenceCloseButton:hover {
+        background: rgba(24, 25, 28, 0.75);
     }
 }
