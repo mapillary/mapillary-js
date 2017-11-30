@@ -323,7 +323,20 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
         this._hasTextureSubscription = hasTexture$.subscribe(() => { /*noop*/ });
 
-        let nodeImage$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentNode$
+        let nodeImage$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentState$
+            .filter(
+                (frame: IFrame): boolean => {
+                    return frame.state.nodesAhead === 0;
+                })
+            .map(
+                (frame: IFrame): Node => {
+                    return frame.state.currentNode;
+                })
+            .distinctUntilChanged(
+                undefined,
+                (node: Node): string => {
+                    return node.key;
+                })
             .debounceTime(1000)
             .withLatestFrom(hasTexture$)
             .filter(
