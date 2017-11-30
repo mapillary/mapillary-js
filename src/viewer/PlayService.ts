@@ -257,40 +257,34 @@ export class PlayService {
                 })
             .withLatestFrom(this._direction$)
             .switchMap(
-                ([node, direction]: [Node, EdgeDirection]): Observable<[IEdgeStatus, EdgeDirection]> => {
+                ([node, direction]: [Node, EdgeDirection]): Observable<Node> => {
                     return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
                             node.sequenceEdges$ :
                             node.spatialEdges$)
-                        .filter(
+                        .first(
                             (status: IEdgeStatus): boolean => {
                                 return status.cached;
                             })
                         .timeout(15000)
-                        .zip(
-                            Observable.of<EdgeDirection>(direction),
-                            (s: IEdgeStatus, d: EdgeDirection): [IEdgeStatus, EdgeDirection] => {
-                                return [s, d];
+                        .zip(Observable.of<EdgeDirection>(direction))
+                        .map(
+                            ([s, d]: [IEdgeStatus, EdgeDirection]): string => {
+                                for (let edge of s.edges) {
+                                    if (edge.data.direction === d) {
+                                        return edge.to;
+                                    }
+                                }
+
+                                return null;
+                            })
+                        .filter(
+                            (key: string): boolean => {
+                                return key != null;
+                            })
+                        .switchMap(
+                            (key: string): Observable<Node> => {
+                                return this._graphService.cacheNode$(key);
                             });
-                })
-            .map(
-                (ed: [IEdgeStatus, EdgeDirection]): string => {
-                    let direction: EdgeDirection = ed[1];
-
-                    for (let edge of ed[0].edges) {
-                        if (edge.data.direction === direction) {
-                            return edge.to;
-                        }
-                    }
-
-                    return null;
-                })
-            .filter(
-                (key: string): boolean => {
-                    return key != null;
-                })
-            .switchMap(
-                (key: string): Observable<Node> => {
-                    return this._graphService.cacheNode$(key);
                 })
             .subscribe(
                 (node: Node): void => {
