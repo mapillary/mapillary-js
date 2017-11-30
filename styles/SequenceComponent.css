@@ -286,6 +286,37 @@
     box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
+.SequenceSpeed::-ms-track {
+    height: 2px;
+    border-radius: 2px;
+    background-color: white;
+}
+
+.SequenceSpeed::-ms-fill-lower {
+    height: 0;
+    background: none;
+}
+
+.SequenceSpeed::-ms-fill-upper {
+    height: 0;
+    background: none;
+}
+
+.SequenceSpeed::-ms-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: #dee5ed;
+    cursor: pointer;
+    margin-top: 0;
+    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.SequenceSpeed::-ms-tooltip {
+    display: none;
+}
+
 @media (hover: hover) {
     .SequencePlay:hover,
     .SequenceStepPrev:hover,
