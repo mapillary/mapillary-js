@@ -158,7 +158,7 @@ export class SequenceDOMRenderer {
         };
 
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
-        const width: number = Math.max(256, Math.min(410, 0.8 * boundingRect.width)) - 150;
+        const width: number = Math.max(276, Math.min(410, 0.8 * boundingRect.width)) - 160;
 
         const onStart: (e: Event) => void = (e: Event): void => {
             this._changingSpeed = true;

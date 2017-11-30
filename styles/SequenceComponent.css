@@ -138,9 +138,9 @@
 .SequencePlayback {
     position: absolute;
     height: 30px;
-    width: 410px;
+    width: 405px;
     max-width: 80%;
-    min-width: 266px;
+    min-width: 271px;
     left: 50%;
     padding-left: 5px;
     transform: translate(-50%, 0);
