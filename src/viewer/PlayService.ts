@@ -133,7 +133,8 @@ export class PlayService {
         }
 
         this._stateService.cutNodes();
-        this._setSpeed(this._speed);
+        const stateSpeed: number = this._setSpeed(this._speed);
+        this._stateService.setSpeed(stateSpeed);
 
         this._graphModeSubscription = this._speed$
             .map(
@@ -290,7 +291,12 @@ export class PlayService {
     }
 
     public setSpeed(speed: number): void {
-        this._setSpeed(speed);
+        const stateSpeed: number = this._setSpeed(speed);
+
+        if (this._playing) {
+            this._stateService.setSpeed(stateSpeed);
+        }
+
         this._speedSubject$.next(this._speed);
     }
 
@@ -329,11 +335,12 @@ export class PlayService {
         return Math.round(Math.max(10, Math.min(50, 8 + 6 * stateSpeed)));
     }
 
-    private _setSpeed(speed: number): void {
+    private _setSpeed(speed: number): number {
         this._speed = Math.max(0, Math.min(1, speed));
         const stateSpeed: number = this._mapSpeed(this._speed);
         this._nodesAhead = this._mapNodesAhead(stateSpeed);
-        this._stateService.setSpeed(stateSpeed);
+
+        return stateSpeed;
     }
 }
 
