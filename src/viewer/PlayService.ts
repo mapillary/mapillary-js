@@ -75,24 +75,32 @@ export class PlayService {
                         Observable.empty() :
                         Observable
                             .combineLatest(
-                                this._direction$,
-                                this._stateService.currentNode$
-                                    .switchMap(
-                                        (node: Node): Observable<IEdgeStatus> => {
-                                            return node.sequenceEdges$
-                                                .first(
-                                                    (status: IEdgeStatus): boolean => {
-                                                        return status.cached;
-                                                    })
-                                                .timeout(15000)
-                                                .catch(
-                                                    (error: Error): Observable<IEdgeStatus> => {
-                                                        console.error(error);
-                                                        this.stop();
+                                this._stateService.currentNode$,
+                                this._direction$)
+                            .switchMap(
+                                    ([node, direction]: [Node, EdgeDirection]): Observable<[EdgeDirection, IEdgeStatus]> => {
+                                        const edgeStatus$: Observable<IEdgeStatus> = (
+                                            [EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+                                                node.sequenceEdges$ :
+                                                node.spatialEdges$)
+                                            .first(
+                                                (status: IEdgeStatus): boolean => {
+                                                    return status.cached;
+                                                })
+                                            .timeout(15000)
+                                            .catch(
+                                                (error: Error): Observable<IEdgeStatus> => {
+                                                    console.error(error);
+                                                    this.stop();
 
-                                                        return Observable.empty();
-                                                    });
-                                        }));
+                                                    return Observable.of<IEdgeStatus>({ cached: false, edges: [] });
+                                                });
+
+                                        return Observable
+                                            .combineLatest(
+                                                Observable.of(direction),
+                                                edgeStatus$);
+                                    });
                 })
             .map(
                 ([direction, edgeStatus]: [EdgeDirection, IEdgeStatus]): boolean => {
