@@ -79,7 +79,14 @@ export class SequenceDOMRenderer {
             return;
         }
 
-        this._changingSpeedSubscription = this._container.mouseService.documentMouseUp$
+        this._changingSpeedSubscription = Observable
+            .merge(
+                this._container.mouseService.documentMouseUp$,
+                this._container.touchService.touchEnd$
+                    .filter(
+                        (touchEvent: TouchEvent): boolean => {
+                            return touchEvent.touches.length === 0;
+                        }))
             .subscribe(
                 (event: Event): void => {
                     if (this._changingSpeed) {
@@ -153,6 +160,17 @@ export class SequenceDOMRenderer {
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
         const width: number = Math.max(256, Math.min(410, 0.8 * boundingRect.width)) - 150;
 
+        const onStart: (e: Event) => void = (e: Event): void => {
+            this._changingSpeed = true;
+            e.stopPropagation();
+        };
+
+        const onMove: (e: Event) => void = (e: Event): void => {
+            if (this._changingSpeed === true) {
+                e.stopPropagation();
+            }
+        };
+
         const speedInput: vd.VNode = vd.h(
             "input.SequenceSpeed",
             {
@@ -160,15 +178,10 @@ export class SequenceDOMRenderer {
                 min: 0,
                 onchange: onSpeed,
                 oninput: onSpeed,
-                onmousedown: (e: Event): void => {
-                    this._changingSpeed = true;
-                    e.stopPropagation();
-                },
-                onmousemove: (e: Event): void => {
-                    if (this._changingSpeed === true) {
-                        e.stopPropagation();
-                    }
-                },
+                onmousedown: onStart,
+                onmousemove: onMove,
+                ontouchmove: onMove,
+                ontouchstart: onStart,
                 style: {
                     width: `${width}px`,
                 },
