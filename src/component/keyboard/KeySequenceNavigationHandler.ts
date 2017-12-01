@@ -17,7 +17,7 @@ import {
 } from "../../Graph";
 
 /**
- * The `KeySequenceNavigationHandler` allows the user navigate through a sequence using the
+ * The `KeySequenceNavigationHandler` allows the user to navigate through a sequence using the
  * following key commands:
  *
  * `ALT` + `Up Arrow`: Navigate to next image in the sequence.

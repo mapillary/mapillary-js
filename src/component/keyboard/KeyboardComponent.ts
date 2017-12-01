@@ -4,9 +4,10 @@ import {
     ComponentService,
     Component,
     IKeyboardConfiguration,
-    KeyZoomHandler,
+    KeyPlayHandler,
     KeySequenceNavigationHandler,
     KeySpatialNavigationHandler,
+    KeyZoomHandler,
 } from "../../Component";
 import {
     Spatial,
@@ -37,27 +38,29 @@ import {
 export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     public static componentName: string = "keyboard";
 
-    private _keyZoomHandler: KeyZoomHandler;
+    private _keyPlayHandler: KeyPlayHandler;
     private _keySequenceNavigationHandler: KeySequenceNavigationHandler;
     private _keySpatialNavigationHandler: KeySpatialNavigationHandler;
+    private _keyZoomHandler: KeyZoomHandler;
 
     private _configurationSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._keyZoomHandler = new KeyZoomHandler(this, container, navigator, new ViewportCoords());
+        this._keyPlayHandler = new KeyPlayHandler(this, container, navigator);
         this._keySequenceNavigationHandler = new KeySequenceNavigationHandler(this, container, navigator);
         this._keySpatialNavigationHandler = new KeySpatialNavigationHandler(this, container, navigator, new Spatial());
+        this._keyZoomHandler = new KeyZoomHandler(this, container, navigator, new ViewportCoords());
     }
 
     /**
-     * Get key zoom.
+     * Get key play.
      *
-     * @returns {KeyZoomHandler} The key zoom handler.
+     * @returns {KeyPlayHandler} The key play handler.
      */
-    public get keyZoom(): KeyZoomHandler {
-        return this._keyZoomHandler;
+    public get keyPlay(): KeyPlayHandler {
+        return this._keyPlayHandler;
     }
 
     /**
@@ -78,14 +81,23 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
         return this._keySpatialNavigationHandler;
     }
 
+    /**
+     * Get key zoom.
+     *
+     * @returns {KeyZoomHandler} The key zoom handler.
+     */
+    public get keyZoom(): KeyZoomHandler {
+        return this._keyZoomHandler;
+    }
+
     protected _activate(): void {
         this._configurationSubscription = this._configuration$
             .subscribe(
                 (configuration: IKeyboardConfiguration): void => {
-                    if (configuration.keyZoom) {
-                        this._keyZoomHandler.enable();
+                    if (configuration.keyPlay) {
+                        this._keyPlayHandler.enable();
                     } else {
-                        this._keyZoomHandler.disable();
+                        this._keyPlayHandler.disable();
                     }
 
                     if (configuration.keySequenceNavigation) {
@@ -99,6 +111,12 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
                     } else {
                         this._keySpatialNavigationHandler.disable();
                     }
+
+                    if (configuration.keyZoom) {
+                        this._keyZoomHandler.enable();
+                    } else {
+                        this._keyZoomHandler.disable();
+                    }
                 });
     }
 
@@ -107,7 +125,7 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IKeyboardConfiguration {
-        return { keySequenceNavigation: true, keySpatialNavigation: true, keyZoom: true };
+        return { keyPlay: true, keySequenceNavigation: true, keySpatialNavigation: true, keyZoom: true };
     }
 }
 

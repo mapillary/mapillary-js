@@ -20,11 +20,11 @@ import {IComponentConfiguration} from "../../Component";
  */
 export interface IKeyboardConfiguration extends IComponentConfiguration {
     /**
-     * Enable or disable the `KeyHandler`.
+     * Enable or disable the `KeyPlayHandler`.
      *
      * @default true
      */
-    keyZoom?: boolean;
+    keyPlay?: boolean;
 
     /**
      * Enable or disable the `KeySequenceNavigationHandler`.
@@ -39,6 +39,13 @@ export interface IKeyboardConfiguration extends IComponentConfiguration {
      * @default true
      */
     keySpatialNavigation?: boolean;
+
+    /**
+     * Enable or disable the `KeyZoomHandler`.
+     *
+     * @default true
+     */
+    keyZoom?: boolean;
 }
 
 export default IKeyboardConfiguration;

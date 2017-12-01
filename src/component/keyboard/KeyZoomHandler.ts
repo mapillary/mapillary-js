@@ -20,7 +20,7 @@ import {
 } from "../../Viewer";
 
 /**
- * The `KeyZoomHandler` allows the user zoom in and out using the
+ * The `KeyZoomHandler` allows the user to zoom in and out using the
  * following key commands:
  *
  * `+`: Zoom in.

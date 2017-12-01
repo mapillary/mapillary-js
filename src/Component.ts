@@ -12,6 +12,7 @@ export {DirectionDOMCalculator} from "./component/direction/DirectionDOMCalculat
 export {DirectionDOMRenderer} from "./component/direction/DirectionDOMRenderer";
 export {ImageComponent} from "./component/ImageComponent";
 export {KeyboardComponent} from "./component/keyboard/KeyboardComponent";
+export {KeyPlayHandler} from "./component/keyboard/KeyPlayHandler";
 export {KeyZoomHandler} from "./component/keyboard/KeyZoomHandler";
 export {KeySequenceNavigationHandler} from "./component/keyboard/KeySequenceNavigationHandler";
 export {KeySpatialNavigationHandler} from "./component/keyboard/KeySpatialNavigationHandler";

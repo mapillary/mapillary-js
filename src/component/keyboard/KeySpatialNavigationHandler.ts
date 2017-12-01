@@ -35,7 +35,7 @@ import {
 } from "../../Viewer";
 
 /**
- * The `KeySpatialNavigationHandler` allows the user navigate through a sequence using the
+ * The `KeySpatialNavigationHandler` allows the user to navigate through a sequence using the
  * following key commands:
  *
  * `Up Arrow`: Step forward.

@@ -14,6 +14,7 @@ export class PlayServiceMockCreator extends MockCreatorBase<PlayService> {
 
         this._mockProperty(mock, "direction$", new Subject<EdgeDirection>());
         this._mockProperty(mock, "playing$", new Subject<boolean>());
+        this._mockProperty(mock, "speed$", new Subject<boolean>());
 
         return mock;
     }
