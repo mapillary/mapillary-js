@@ -317,6 +317,11 @@ export class PlayService {
     }
 
     public setSpeed(speed: number): void {
+        speed = Math.max(0, Math.min(1, speed));
+        if (speed === this._speed) {
+            return;
+        }
+
         const stateSpeed: number = this._setSpeed(speed);
 
         if (this._playing) {
@@ -362,7 +367,7 @@ export class PlayService {
     }
 
     private _setSpeed(speed: number): number {
-        this._speed = Math.max(0, Math.min(1, speed));
+        this._speed = speed;
         const stateSpeed: number = this._mapSpeed(this._speed);
         this._nodesAhead = this._mapNodesAhead(stateSpeed);
 
