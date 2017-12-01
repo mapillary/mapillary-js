@@ -77,6 +77,7 @@ export class CacheService {
             .subscribe(() => { /*noop*/ });
 
         this._cacheNodeSubscription = this._graphService.graphMode$
+            .skip(1)
             .withLatestFrom(this._stateService.currentState$)
             .switchMap(
                 ([mode, frame]: [GraphMode, IFrame]): Observable<IEdgeStatus> => {
