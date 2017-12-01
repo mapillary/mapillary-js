@@ -67,7 +67,7 @@ export class CacheService {
             .bufferCount(1, 5)
             .withLatestFrom(this._graphService.graphMode$)
             .switchMap(
-                ([keepBuffer, graphMode]: [[string[], string][], GraphMode]): Observable<Graph> => {
+                ([keepBuffer, graphMode]: [[string[], string][], GraphMode]): Observable<void> => {
                     let keepKeys: string[] = keepBuffer[0][0];
                     let keepSequenceKey: string = graphMode === GraphMode.Sequence ?
                         keepBuffer[0][1] : undefined;

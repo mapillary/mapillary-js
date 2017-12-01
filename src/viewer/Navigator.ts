@@ -207,7 +207,7 @@ export class Navigator {
                                 (keys: string[]): Observable<Node> => {
                                     return this._graphService.setFilter$(filter)
                                         .mergeMap(
-                                            (graph: Graph): Observable<Node> => {
+                                            (): Observable<Node> => {
                                                 return this._cacheKeys$(keys);
                                             });
                                 })
@@ -221,14 +221,14 @@ export class Navigator {
                                 if (requestedKey != null) {
                                     return this._graphService.setFilter$(filter)
                                         .mergeMap(
-                                            (graph: Graph): Observable<Node> => {
+                                            (): Observable<Node> => {
                                                 return this._graphService.cacheNode$(requestedKey);
                                             });
                                 }
 
                                 return this._graphService.setFilter$(filter)
                                     .map(
-                                        (graph: Graph): Node => {
+                                        (): Node => {
                                             return undefined;
                                         });
                             });
@@ -253,17 +253,13 @@ export class Navigator {
             .mergeMap(
                 (key: string): Observable<void> => {
                     return key == null ?
-                        this._graphService.reset$([])
-                            .map(
-                                (graph: Graph): void => {
-                                    return undefined;
-                                }) :
+                        this._graphService.reset$([]) :
                         this._trajectoryKeys$()
                             .mergeMap(
                                 (keys: string[]): Observable<Node> => {
                                     return this._graphService.reset$(keys)
                                         .mergeMap(
-                                            (graph: Graph): Observable<Node> => {
+                                            (): Observable<Node> => {
                                                 return this._cacheKeys$(keys);
                                             });
                                 })

@@ -375,7 +375,7 @@ export class GraphService {
      * @return {Observable<Graph>} Observable emitting a single item,
      * the graph, when the spatial edges have been reset.
      */
-    public setFilter$(filter: FilterExpression): Observable<Graph> {
+    public setFilter$(filter: FilterExpression): Observable<void> {
         this._resetSubscriptions(this._spatialSubscriptions);
 
         return this._graph$
@@ -384,6 +384,10 @@ export class GraphService {
                 (graph: Graph): void => {
                     graph.resetSpatialEdges();
                     graph.setFilter(filter);
+                })
+            .map(
+                (graph: Graph): void => {
+                    return undefined;
                 });
     }
 
@@ -423,7 +427,7 @@ export class GraphService {
      * @return {Observable<Node>} Observable emitting a single item,
      * the graph, when it has been reset.
      */
-    public reset$(keepKeys: string[]): Observable<Graph> {
+    public reset$(keepKeys: string[]): Observable<void> {
         this._abortSubjects(this._firstGraphSubjects$);
         this._resetSubscriptions(this._initializeCacheSubscriptions);
         this._resetSubscriptions(this._sequenceSubscriptions);
@@ -434,6 +438,10 @@ export class GraphService {
             .do(
                 (graph: Graph): void => {
                     graph.reset(keepKeys);
+                })
+            .map(
+                (graph: Graph): void => {
+                    return undefined;
                 });
     }
 
@@ -452,12 +460,16 @@ export class GraphService {
      * @return {Observable<Graph>} Observable emitting a single item,
      * the graph, when the graph has been uncached.
      */
-    public uncache$(keepKeys: string[], keepSequenceKey?: string): Observable<Graph> {
+    public uncache$(keepKeys: string[], keepSequenceKey?: string): Observable<void> {
         return this._graph$
             .first()
             .do(
                 (graph: Graph): void => {
                     graph.uncache(keepKeys, keepSequenceKey);
+                })
+            .map(
+                (graph: Graph): void => {
+                    return undefined;
                 });
     }
 
