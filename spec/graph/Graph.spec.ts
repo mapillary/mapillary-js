@@ -1182,6 +1182,305 @@ describe("Graph.cacheSequenceNodes$", () => {
         expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(false);
         expect(graph.hasNode(nodeKey)).toBe(false);
     });
+
+    it("should start caching in with single batch when lass than or equal to 200 nodes", () => {
+        const apiV3: APIv3 = new APIv3("clientId");
+        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeySpy.and.returnValue(imageByKey);
+
+        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+
+        const sequenceKey: string = "sequenceKey";
+        const key: string = "key";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        const result: { [sequenceKey: string]: ISequence } = {};
+        result[sequenceKey] = { key: sequenceKey, keys: Array(200).fill(undefined).map((value, i) => { return i.toString(); }) };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+
+        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+
+        expect(imageByKeySpy.calls.count()).toBe(1);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(200);
+        expect(
+            imageByKeySpy.calls.allArgs()
+                .map((args: string[][]): number => { return args[0].length; })
+                .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
+            .toBe(200);
+    });
+
+    it("should start caching in batches when more than 200 nodes", () => {
+        const apiV3: APIv3 = new APIv3("clientId");
+        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeySpy.and.returnValue(imageByKey);
+
+        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+
+        const sequenceKey: string = "sequenceKey";
+        const key: string = "key";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        const result: { [sequenceKey: string]: ISequence } = {};
+        result[sequenceKey] = { key: sequenceKey, keys: Array(201).fill(undefined).map((value, i) => { return i.toString(); }) };
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+
+        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+
+        expect(imageByKeySpy.calls.count()).toBe(2);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(1);
+        expect(
+            imageByKeySpy.calls.allArgs()
+                .map((args: string[][]): number => { return args[0].length; })
+                .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
+            .toBe(201);
+    });
+
+    it("should start caching in prioritized batches when reference node key is specified at start", () => {
+        const apiV3: APIv3 = new APIv3("clientId");
+        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeySpy.and.returnValue(imageByKey);
+
+        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+
+        const sequenceKey: string = "sequenceKey";
+        const key: string = "key";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        const referenceNodeKey: string = "referenceNodeKey";
+
+        const result: { [sequenceKey: string]: ISequence } = {};
+        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
+        result[sequenceKey].keys.splice(0, 1, referenceNodeKey);
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+
+        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+
+        expect(imageByKeySpy.calls.count()).toBe(4);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(20);
+        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe(referenceNodeKey);
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(40);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(400 - 200 - 40 - 20);
+        expect(
+            imageByKeySpy.calls.allArgs()
+                .map((args: string[][]): number => { return args[0].length; })
+                .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
+            .toBe(400);
+    });
+
+    it("should start caching in prioritized batches when reference node key is specified at end", () => {
+        const apiV3: APIv3 = new APIv3("clientId");
+        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeySpy.and.returnValue(imageByKey);
+
+        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+
+        const sequenceKey: string = "sequenceKey";
+        const key: string = "key";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        const referenceNodeKey: string = "referenceNodeKey";
+
+        const result: { [sequenceKey: string]: ISequence } = {};
+        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
+        result[sequenceKey].keys.splice(399, 1, referenceNodeKey);
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+
+        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+
+        expect(imageByKeySpy.calls.count()).toBe(4);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(20);
+        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe((400 - 20).toString());
+        expect(imageByKeySpy.calls.argsFor(0)[0][19]).toBe(referenceNodeKey);
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(40);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(400 - 200 - 40 - 20);
+        expect(
+            imageByKeySpy.calls.allArgs()
+                .map((args: string[][]): number => { return args[0].length; })
+                .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
+            .toBe(400);
+    });
+
+    it("should start caching in prioritized batches when reference node key is specified in middle", () => {
+        const apiV3: APIv3 = new APIv3("clientId");
+        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeySpy.and.returnValue(imageByKey);
+
+        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+
+        const sequenceKey: string = "sequenceKey";
+        const key: string = "key";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        const referenceNodeKey: string = "referenceNodeKey";
+
+        const result: { [sequenceKey: string]: ISequence } = {};
+        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
+        result[sequenceKey].keys.splice(200, 1, referenceNodeKey);
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+
+        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+
+        expect(imageByKeySpy.calls.count()).toBe(6);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(20);
+        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe(referenceNodeKey);
+        expect(imageByKeySpy.calls.argsFor(0)[0][19]).toBe((200 + 19).toString());
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(20);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(40);
+        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(40);
+        expect(imageByKeySpy.calls.argsFor(4)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(5)[0].length).toBe(400 - 200 - 2 * 40 - 2 * 20);
+        expect(
+            imageByKeySpy.calls.allArgs()
+                .map((args: string[][]): number => { return args[0].length; })
+                .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
+            .toBe(400);
+    });
+
+    it("should not corrupt sequence when caching in batches", () => {
+        const apiV3: APIv3 = new APIv3("clientId");
+        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeySpy.and.returnValue(imageByKey);
+
+        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+
+        const sequenceKey: string = "sequenceKey";
+        const key: string = "key";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        const referenceNodeKey: string = "referenceNodeKey";
+
+        const result: { [sequenceKey: string]: ISequence } = {};
+        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
+        result[sequenceKey].keys.splice(200, 1, referenceNodeKey);
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+
+        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.getSequence(sequenceKey).keys.length).toBe(400);
+        expect(graph.getSequence(sequenceKey).keys).toEqual(result[sequenceKey].keys);
+    });
+
+    it("should start caching in prioritized batches when reference node key is specified in middle and few nodes", () => {
+        const apiV3: APIv3 = new APIv3("clientId");
+        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+
+        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeySpy.and.returnValue(imageByKey);
+
+        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+
+        const sequenceKey: string = "sequenceKey";
+        const key: string = "key";
+
+        graph.cacheSequence$(sequenceKey).subscribe();
+
+        const referenceNodeKey: string = "referenceNodeKey";
+
+        const result: { [sequenceKey: string]: ISequence } = {};
+        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(90), (x, i): string => i.toString()) };
+        result[sequenceKey].keys.splice(40, 1, referenceNodeKey);
+        sequenceByKey.next(result);
+        sequenceByKey.complete();
+
+        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+
+        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+
+        expect(imageByKeySpy.calls.count()).toBe(4);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(20);
+        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe(referenceNodeKey);
+        expect(imageByKeySpy.calls.argsFor(0)[0][19]).toBe((40 + 19).toString());
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(20);
+        expect(imageByKeySpy.calls.argsFor(1)[0][0]).toBe((40 - 20).toString());
+        expect(imageByKeySpy.calls.argsFor(1)[0][19]).toBe((40 - 20 + 19).toString());
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(30);
+        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(20);
+        expect(
+            imageByKeySpy.calls.allArgs()
+                .map((args: string[][]): number => { return args[0].length; })
+                .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
+            .toBe(90);
+    });
 });
 
 describe("Graph.cacheSpatialArea$", () => {
