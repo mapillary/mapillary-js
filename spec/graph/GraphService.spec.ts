@@ -8,6 +8,7 @@ import {NodeHelper} from "../helper/NodeHelper.spec";
 import {APIv3, ICoreNode} from "../../src/API";
 import {
     Graph,
+    GraphMode,
     GraphService,
     IEdgeStatus,
     ImageLoadingService,
@@ -190,6 +191,164 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         expect(cacheSequenceNodesSpy.calls.count()).toBe(0);
         expect(getSequenceSpy.calls.count()).toBe(1);
+    });
+
+    it("should supply reference node key if present", () => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingSequence").and.returnValue(false);
+        spyOn(graph, "hasSequence").and.returnValue(true);
+        spyOn(graph, "isCachingSequenceNodes").and.returnValue(true);
+        spyOn(graph, "hasSequenceNodes").and.returnValue(false);
+
+        let cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
+        let cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
+        cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
+
+        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        const sequenceKey: string = "sequenceKey";
+        const referenceNodeKey: string = "referenceNodeKey";
+        graphService.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe(() => { /*noop*/ });
+
+        cacheSequenceNodes$.next(graph);
+
+        expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
+        expect(cacheSequenceNodesSpy.calls.first().args[0]).toBe(sequenceKey);
+        expect(cacheSequenceNodesSpy.calls.first().args[1]).toBe(referenceNodeKey);
+        expect(getSequenceSpy.calls.count()).toBe(1);
+    });
+});
+
+describe("GraphService.graphMode$", () => {
+    it("should start in spatial graph mode", (done: () => void) => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        graphService.graphMode$
+            .first()
+            .subscribe(
+                (mode: GraphMode): void => {
+                    expect(mode).toBe(GraphMode.Spatial);
+                    done();
+                });
+    });
+
+    it("should set sequence mode", (done: () => void) => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        graphService.graphMode$
+            .skip(1)
+            .first()
+            .subscribe(
+                (mode: GraphMode): void => {
+                    expect(mode).toBe(GraphMode.Sequence);
+                    done();
+                });
+
+        graphService.setGraphMode(GraphMode.Sequence);
+    });
+
+    it("should not apply mode if same as current", (done: () => void) => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        let first: boolean = true;
+        graphService.graphMode$
+            .skip(1)
+            .take(2)
+            .subscribe(
+                (mode: GraphMode): void => {
+                    if (first) {
+                        expect(mode).toBe(GraphMode.Sequence);
+                        first = false;
+                    } else {
+                        expect(mode).toBe(GraphMode.Spatial);
+                        done();
+                    }
+                });
+
+        graphService.setGraphMode(GraphMode.Sequence);
+        graphService.setGraphMode(GraphMode.Sequence);
+        graphService.setGraphMode(GraphMode.Spatial);
+    });
+
+    it("should cancel spatial edge caching when setting graph mode to sequence", () => {
+        spyOn(console, "error").and.stub();
+
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        spyOn(imageLoadingService.loadnode$, "next").and.stub();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingFull").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValue(false);
+
+        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        cacheFullSpy.and.returnValue(cacheFull$);
+
+        spyOn(graph, "hasInitializedCache").and.returnValue(false);
+        spyOn(graph, "initializeCache").and.stub();
+
+        spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
+        spyOn(graph, "hasNodeSequence").and.returnValue(false);
+
+        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
+
+        spyOn(graph, "hasTiles").and.returnValue(false);
+
+        let cacheTiles$: Subject<Observable<Graph>[]> = new Subject<Observable<Graph>[]>();
+        spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
+
+        let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        const helper: NodeHelper = new NodeHelper();
+        let node: TestNode = new TestNode(helper.createCoreNode());
+        node.spatialEdges.cached = false;
+
+        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        cacheAssetsSpy.and.returnValue(cacheAssets$);
+
+        spyOn(graph, "getNode").and.returnValue(node);
+
+        graphService.cacheNode$(node.key)
+            .subscribe(
+                (n: Node): void => {
+                    expect(n).toBeDefined();
+                });
+
+        cacheFull$.next(graph);
+
+        node.assetsCached = true;
+        cacheAssets$.next(node);
+
+        graphService.setGraphMode(GraphMode.Sequence);
+
+        cacheTiles$.next([Observable.of<Graph>(graph)]);
+
+        expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });
 });
 
@@ -416,9 +575,6 @@ describe("GraphService.cacheNode$", () => {
 
         let cacheSpatialEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSpatialEdges").and.stub();
 
-        let cacheTiles$: Subject<Graph> = new Subject<Graph>();
-        spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
-
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         let node: TestNode = new TestNode(helper.createCoreNode());
@@ -436,6 +592,90 @@ describe("GraphService.cacheNode$", () => {
         expect(cacheSpatialEdgesSpy.calls.count()).toBe(1);
         expect(cacheSpatialEdgesSpy.calls.first().args.length).toBe(1);
         expect(cacheSpatialEdgesSpy.calls.first().args[0]).toBe(node.key);
+    });
+
+    it("should cache spatial edges if in spatial mode", () => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        spyOn(imageLoadingService.loadnode$, "next").and.stub();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingFull").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValue(false);
+
+        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
+
+        spyOn(graph, "hasInitializedCache").and.returnValue(true);
+
+        spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
+        spyOn(graph, "hasNodeSequence").and.returnValue(true);
+
+        const hasTilesSpy: jasmine.Spy = spyOn(graph, "hasTiles");
+        hasTilesSpy.and.returnValue(true);
+
+        spyOn(graph, "hasSpatialArea").and.returnValue(true);
+
+        const cachesSpatialEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSpatialEdges").and.stub();
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        let node: TestNode = new TestNode(helper.createCoreNode());
+        node.sequenceEdges.cached = true;
+
+        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
+
+        spyOn(graph, "getNode").and.returnValue(node);
+
+        graphService.setGraphMode(GraphMode.Spatial);
+
+        graphService.cacheNode$(node.key).subscribe(() => { /*noop*/ });
+
+        cacheFull$.next(graph);
+
+        expect(hasTilesSpy.calls.count()).toBe(1);
+        expect(cachesSpatialEdgesSpy.calls.count()).toBe(1);
+    });
+
+    it("should not cache spatial edges if in sequence mode", () => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        spyOn(imageLoadingService.loadnode$, "next").and.stub();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        spyOn(graph, "isCachingFull").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValue(false);
+
+        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
+
+        spyOn(graph, "hasInitializedCache").and.returnValue(true);
+
+        spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
+        spyOn(graph, "hasNodeSequence").and.returnValue(true);
+
+        const hasTilesSpy: jasmine.Spy = spyOn(graph, "hasTiles").and.stub();
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        let node: TestNode = new TestNode(helper.createCoreNode());
+        node.sequenceEdges.cached = true;
+
+        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
+
+        spyOn(graph, "getNode").and.returnValue(node);
+
+        graphService.setGraphMode(GraphMode.Sequence);
+
+        graphService.cacheNode$(node.key).subscribe(() => { /*noop*/ });
+
+        cacheFull$.next(graph);
+
+        expect(hasTilesSpy.calls.count()).toBe(0);
     });
 });
 

@@ -1272,7 +1272,8 @@ export class Graph {
      * will also be kept in graph.
      * @param {string} keepSequenceKey - Optional key of sequence
      * for which the belonging nodes should not be disposed or
-     * removed from the graph.
+     * removed from the graph. These nodes may still be uncached if
+     * not specified in keep keys param.
      */
     public uncache(keepKeys: string[], keepSequenceKey?: string): void {
         let keysInUse: { [key: string]: boolean } = {};

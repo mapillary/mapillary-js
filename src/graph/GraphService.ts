@@ -387,6 +387,19 @@ export class GraphService {
                 });
     }
 
+    /**
+     * Set the graph mode.
+     *
+     * @description If graph mode is set to spatial, caching
+     * is performed with emphasis on spatial edges. If graph
+     * mode is set to sequence no tile data is requested and
+     * no spatial edges are computed.
+     *
+     * When setting graph mode to sequence all spatial
+     * subscriptions are aborted.
+     *
+     * @param {GraphMode} mode - Graph mode to set.
+     */
     public setGraphMode(mode: GraphMode): void {
         if (this._graphMode === mode) {
             return;
@@ -434,7 +447,8 @@ export class GraphService {
      * @param {Array<string>} keepKeys - Keys of nodes to keep in graph.
      * @param {string} keepSequenceKey - Optional key of sequence
      * for which the belonging nodes should not be disposed or
-     * removed from the graph.
+     * removed from the graph. These nodes may still be uncached if
+     * not specified in keep keys param.
      * @return {Observable<Graph>} Observable emitting a single item,
      * the graph, when the graph has been uncached.
      */
