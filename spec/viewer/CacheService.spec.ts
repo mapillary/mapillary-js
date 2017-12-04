@@ -248,6 +248,8 @@ describe("CacheService.start", () => {
         expect(cacheNodeSpy.calls.count()).toBe(1);
         expect(cacheNodeSpy.calls.first().args.length).toBe(1);
         expect(cacheNodeSpy.calls.first().args[0]).toBe(coreNode1.key);
+
+        cacheService.stop();
     });
 
     it("should cache all trajectory nodes ahead if switching to spatial graph mode", () => {
@@ -295,6 +297,8 @@ describe("CacheService.start", () => {
         expect(cacheNodeSpy.calls.first().args[0]).toBe(coreNode2.key);
         expect(cacheNodeSpy.calls.argsFor(1).length).toBe(1);
         expect(cacheNodeSpy.calls.argsFor(1)[0]).toBe(coreNode3.key);
+
+        cacheService.stop();
     });
 
     it("should keep the subscription open if caching a node fails", () => {
@@ -339,5 +343,7 @@ describe("CacheService.start", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         expect(cacheNodeSpy.calls.count()).toBe(2);
+
+        cacheService.stop();
     });
 });

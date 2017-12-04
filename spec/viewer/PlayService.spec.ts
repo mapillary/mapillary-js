@@ -6,6 +6,7 @@ import { Subject } from "rxjs/Subject";
 import {
     APIv3,
     ICoreNode,
+    IFullNode,
 } from "../../src/API";
 import { EdgeDirection } from "../../src/Edge";
 import {
@@ -16,8 +17,11 @@ import {
     ImageLoadingService,
     Node,
     NodeCache,
+    Sequence,
 } from "../../src/Graph";
 import {
+    ICurrentState,
+    IFrame,
     StateService,
 } from "../../src/State";
 import {
@@ -213,6 +217,25 @@ describe("PlayService.speed$", () => {
     });
 });
 
+let createState: () => ICurrentState = (): ICurrentState => {
+    return {
+        alpha: 0,
+        camera: null,
+        currentCamera: null,
+        currentIndex: 0,
+        currentNode: null,
+        currentTransform: null,
+        lastNode: null,
+        motionless: false,
+        nodesAhead: 0,
+        previousNode: null,
+        previousTransform: null,
+        reference: null,
+        trajectory: null,
+        zoom: 0,
+    };
+};
+
 describe("PlayService.play", () => {
     let nodeHelper: NodeHelper;
 
@@ -252,6 +275,8 @@ describe("PlayService.play", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -272,6 +297,8 @@ describe("PlayService.play", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -289,11 +316,11 @@ describe("PlayService.play", () => {
     });
 
     it("should emit in correct order if stopping immediately", (done: () => void) => {
-        spyOn(console, "error").and.stub();
-
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -323,12 +350,12 @@ describe("PlayService.play", () => {
         node.cacheSequenceEdges([]);
     });
 
-    it("should filter if nodes are not cached", () => {
-        spyOn(console, "error").and.stub();
-
+    it("should not stop if nodes are not cached", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -345,6 +372,112 @@ describe("PlayService.play", () => {
         expect(stopSpy.calls.count()).toBe(0);
 
         sequenceEdgesSubject.next({ cached: true, edges: []});
+
+        expect(stopSpy.calls.count()).toBe(1);
+    });
+
+    it("should append node when cached", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
+        appendNodesSpy.and.callThrough();
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+
+        playService.setDirection(EdgeDirection.Next);
+
+        playService.play();
+
+        const node: Node = new MockCreator().create(Node, "Node"); nodeHelper.createNode();
+        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+
+        let state: ICurrentState = createState();
+        state.trajectory = [node];
+        state.lastNode = node;
+        state.nodesAhead = 0;
+
+        let currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        const fullToNode: IFullNode = nodeHelper.createFullNode();
+        fullToNode.key = "toKey";
+        const toNode: Node = new Node(fullToNode);
+
+        sequenceEdgesSubject.next({
+            cached: true,
+            edges: [{
+                data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
+                from: node.key,
+                to:  toNode.key,
+            }],
+        });
+
+        cacheNodeSubject.next(toNode);
+
+        expect(cacheNodeSpy.calls.count()).toBe(1);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(toNode.key);
+
+        expect(appendNodesSpy.calls.count()).toBe(1);
+        expect(appendNodesSpy.calls.argsFor(0)[0].length).toBe(1);
+        expect(appendNodesSpy.calls.argsFor(0)[0][0].key).toBe(toNode.key);
+    });
+
+    it("should stop on node caching error", () => {
+        spyOn(console, "error").and.stub();
+
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
+        appendNodesSpy.and.callThrough();
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+
+        playService.setDirection(EdgeDirection.Next);
+
+        playService.play();
+
+        const node: Node = new MockCreator().create(Node, "Node"); nodeHelper.createNode();
+        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+
+        let state: ICurrentState = createState();
+        state.trajectory = [node];
+        state.lastNode = node;
+        state.nodesAhead = 0;
+
+        let currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        const fullToNode: IFullNode = nodeHelper.createFullNode();
+        fullToNode.key = "toKey";
+        const toNode: Node = new Node(fullToNode);
+
+        sequenceEdgesSubject.next({
+            cached: true,
+            edges: [{
+                data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
+                from: node.key,
+                to:  toNode.key,
+            }],
+        });
+
+        cacheNodeSubject.error(new Error());
+
+        expect(cacheNodeSpy.calls.count()).toBe(1);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(toNode.key);
+
+        expect(appendNodesSpy.calls.count()).toBe(0);
 
         expect(stopSpy.calls.count()).toBe(1);
     });
