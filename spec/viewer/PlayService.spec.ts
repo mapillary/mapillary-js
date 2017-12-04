@@ -288,6 +288,41 @@ describe("PlayService.play", () => {
         expect(stopSpy.calls.count()).toBe(1);
     });
 
+    it("should emit in correct order if stopping immediately", (done: () => void) => {
+        spyOn(console, "error").and.stub();
+
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+
+        playService.setDirection(EdgeDirection.Next);
+
+        let first: boolean = true;
+        playService.playing$
+            .skip(1)
+            .take(2)
+            .subscribe(
+                (playing: boolean): void => {
+                    expect(playing).toBe(playService.playing);
+
+                    if (first) {
+                        expect(playing).toBe(true);
+                        first = false;
+                    } else {
+                        expect(playing).toBe(false);
+                        done();
+                    }
+                });
+
+        playService.play();
+
+        const node: Node = nodeHelper.createNode();
+        node.initializeCache(new NodeCache());
+        (<Subject<Node>>stateService.currentNode$).next(node);
+
+        node.cacheSequenceEdges([]);
+    });
+
     it("should filter if nodes are not cached", () => {
         spyOn(console, "error").and.stub();
 

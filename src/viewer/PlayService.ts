@@ -37,6 +37,7 @@ export class PlayService {
     private _cacheSubscription: Subscription;
     private _clearSubscription: Subscription;
     private _graphModeSubscription: Subscription;
+    private _stopSubscription: Subscription;
 
     constructor(graphService: GraphService, stateService: StateService) {
         this._graphService = graphService;
@@ -57,6 +58,8 @@ export class PlayService {
             .publishReplay(1)
             .refCount();
 
+        this._playing$.subscribe();
+
         this._speed = 0.5;
         this._speedSubject$ = new Subject<number>();
         this._speed$ = this._speedSubject$
@@ -67,56 +70,6 @@ export class PlayService {
         this._speed$.subscribe();
 
         this._nodesAhead = this._mapNodesAhead(this._mapSpeed(this._speed));
-
-        this._playing$
-            .switchMap(
-                (playing: boolean): Observable<[EdgeDirection, IEdgeStatus]> => {
-                    return !playing ?
-                        Observable.empty() :
-                        Observable
-                            .combineLatest(
-                                this._stateService.currentNode$,
-                                this._direction$)
-                            .switchMap(
-                                    ([node, direction]: [Node, EdgeDirection]): Observable<[EdgeDirection, IEdgeStatus]> => {
-                                        const edgeStatus$: Observable<IEdgeStatus> = (
-                                            [EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
-                                                node.sequenceEdges$ :
-                                                node.spatialEdges$)
-                                            .first(
-                                                (status: IEdgeStatus): boolean => {
-                                                    return status.cached;
-                                                })
-                                            .timeout(15000)
-                                            .catch(
-                                                (error: Error): Observable<IEdgeStatus> => {
-                                                    console.error(error);
-                                                    this.stop();
-
-                                                    return Observable.of<IEdgeStatus>({ cached: false, edges: [] });
-                                                });
-
-                                        return Observable
-                                            .combineLatest(
-                                                Observable.of(direction),
-                                                edgeStatus$);
-                                    });
-                })
-            .map(
-                ([direction, edgeStatus]: [EdgeDirection, IEdgeStatus]): boolean => {
-                    for (let edge of edgeStatus.edges) {
-                        if (edge.data.direction === direction) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                })
-            .filter(
-                (hasEdge: boolean): boolean => {
-                    return !hasEdge;
-                })
-            .subscribe((): void => { this.stop(); });
     }
 
     public get playing(): boolean {
@@ -308,8 +261,57 @@ export class PlayService {
                     this._stateService.clearPriorNodes();
                 });
 
-        this._playing = true;
-        this._playingSubject$.next(this._playing);
+        this._setPlaying(true);
+
+        this._stopSubscription = Observable
+            .combineLatest(
+                this._stateService.currentNode$,
+                this._direction$)
+            .switchMap(
+                ([node, direction]: [Node, EdgeDirection]): Observable<[EdgeDirection, IEdgeStatus]> => {
+                    const edgeStatus$: Observable<IEdgeStatus> = (
+                        [EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+                            node.sequenceEdges$ :
+                            node.spatialEdges$)
+                        .first(
+                            (status: IEdgeStatus): boolean => {
+                                return status.cached;
+                            })
+                        .timeout(15000)
+                        .catch(
+                            (error: Error): Observable<IEdgeStatus> => {
+                                console.error(error);
+
+                                return Observable.of<IEdgeStatus>({ cached: false, edges: [] });
+                            });
+
+                    return Observable
+                        .combineLatest(
+                            Observable.of(direction),
+                            edgeStatus$);
+                })
+            .map(
+                ([direction, edgeStatus]: [EdgeDirection, IEdgeStatus]): boolean => {
+                    for (let edge of edgeStatus.edges) {
+                        if (edge.data.direction === direction) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+            .first(
+                (hasEdge: boolean): boolean => {
+                    return !hasEdge;
+                })
+            .subscribe(
+                undefined,
+                undefined,
+                (): void => { this.stop(); });
+
+        if (this._stopSubscription.closed) {
+            this._stopSubscription = null;
+        }
     }
 
     public setDirection(direction: EdgeDirection): void {
@@ -336,6 +338,14 @@ export class PlayService {
             return;
         }
 
+        if (!!this._stopSubscription) {
+            if (!this._stopSubscription.closed) {
+                this._stopSubscription.unsubscribe();
+            }
+
+            this._stopSubscription = null;
+        }
+
         this._graphModeSubscription.unsubscribe();
         this._graphModeSubscription = null;
 
@@ -352,8 +362,7 @@ export class PlayService {
         this._stateService.cutNodes();
         this._graphService.setGraphMode(GraphMode.Spatial);
 
-        this._playing = false;
-        this._playingSubject$.next(this._playing);
+        this._setPlaying(false);
     }
 
     private _mapSpeed(speed: number): number {
@@ -364,6 +373,11 @@ export class PlayService {
 
     private _mapNodesAhead(stateSpeed: number): number {
         return Math.round(Math.max(10, Math.min(50, 8 + 6 * stateSpeed)));
+    }
+
+    private _setPlaying(playing: boolean): void {
+        this._playing = playing;
+        this._playingSubject$.next(playing);
     }
 
     private _setSpeed(speed: number): number {
