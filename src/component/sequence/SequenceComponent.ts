@@ -61,13 +61,12 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _sequenceDOMRenderer: SequenceDOMRenderer;
     private _sequenceDOMInteraction: SequenceDOMInteraction;
 
-    private _configurationOperation$: Subject<IConfigurationOperation> = new Subject<IConfigurationOperation>();
     private _hoveredKeySubject$: Subject<string>;
     private _hoveredKey$: Observable<string>;
     private _containerWidth$: Subject<number>;
 
-    private _configurationSubscription: Subscription;
     private _renderSubscription: Subscription;
+    private _playingSubscription: Subscription;
     private _containerWidthSubscription: Subscription;
     private _hoveredKeySubscription: Subscription;
     private _setSpeedSubscription: Subscription;
@@ -86,9 +85,14 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
         this._navigator.playService.playing$
             .skip(1)
+            .withLatestFrom(this._configuration$)
             .subscribe(
-                (playing: boolean): void => {
+                ([playing, configuration]: [boolean, ISequenceConfiguration]): void => {
                     this.fire(SequenceComponent.playingchanged, playing);
+
+                    if (playing === configuration.playing) {
+                        return;
+                    }
 
                     if (playing) {
                         this.play();
@@ -99,9 +103,12 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
         this._navigator.playService.direction$
             .skip(1)
+            .withLatestFrom(this._configuration$)
             .subscribe(
-                (direction: EdgeDirection): void => {
-                    this.setDirection(direction);
+                ([direction, configuration]: [EdgeDirection, ISequenceConfiguration]): void => {
+                    if (direction !== configuration.direction) {
+                        this.setDirection(direction);
+                    }
                 });
     }
 
@@ -284,33 +291,20 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .subscribe(this._containerWidth$);
 
-        this._configurationSubscription = this._configurationOperation$
-            .scan<ISequenceConfiguration>(
-                (configuration: ISequenceConfiguration, operation: IConfigurationOperation): ISequenceConfiguration => {
-                    return operation(configuration);
-                },
-                { playing: this._navigator.playService.playing })
-            .subscribe(() => { /*noop*/ });
-
-        this._configuration$
+        this._playingSubscription = this._configuration$
             .map(
-                (newConfiguration: ISequenceConfiguration) => {
-                    return (configuration: ISequenceConfiguration): ISequenceConfiguration => {
-                        if (newConfiguration.playing !== configuration.playing) {
-
-                            if (newConfiguration.playing) {
-                                this._navigator.playService.play();
-                            } else {
-                                this._navigator.playService.stop();
-                            }
-                        }
-
-                        configuration.playing = newConfiguration.playing;
-
-                        return configuration;
-                    };
+                (configuration: ISequenceConfiguration): boolean => {
+                    return configuration.playing;
                 })
-            .subscribe(this._configurationOperation$);
+            .distinctUntilChanged()
+            .subscribe(
+                (playing: boolean) => {
+                    if (playing) {
+                        this._navigator.playService.play();
+                    } else {
+                        this._navigator.playService.stop();
+                    }
+                });
 
         this._hoveredKeySubscription = this._sequenceDOMInteraction.mouseEnterDirection$
             .switchMap(
@@ -335,7 +329,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
     protected _deactivate(): void {
         this._renderSubscription.unsubscribe();
-        this._configurationSubscription.unsubscribe();
+        this._playingSubscription.unsubscribe();
         this._containerWidthSubscription.unsubscribe();
         this._hoveredKeySubscription.unsubscribe();
         this._setSpeedSubscription.unsubscribe();
