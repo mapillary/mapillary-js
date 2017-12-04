@@ -304,7 +304,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const node: Node = new MockCreator().create(Node, "Node"); nodeHelper.createNode();
+        const node: Node = new MockCreator().create(Node, "Node");
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
@@ -361,7 +361,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const node: Node = new MockCreator().create(Node, "Node"); nodeHelper.createNode();
+        const node: Node = new MockCreator().create(Node, "Node");
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
@@ -392,7 +392,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const node: Node = new MockCreator().create(Node, "Node"); nodeHelper.createNode();
+        const node: Node = new MockCreator().create(Node, "Node");
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
@@ -447,7 +447,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const node: Node = new MockCreator().create(Node, "Node"); nodeHelper.createNode();
+        const node: Node = new MockCreator().create(Node, "Node");
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
