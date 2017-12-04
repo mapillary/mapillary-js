@@ -82,8 +82,6 @@ export class Navigator {
             cacheService :
             new CacheService(this._graphService, this._stateService);
 
-        this._cacheService.start();
-
         this._playService = playService != null ?
             playService :
             new PlayService(this._graphService, this._stateService);
@@ -98,6 +96,10 @@ export class Navigator {
 
     public get apiV3(): APIv3 {
         return this._apiV3;
+    }
+
+    public get cacheService(): CacheService {
+        return this._cacheService;
     }
 
     public get graphService(): GraphService {
