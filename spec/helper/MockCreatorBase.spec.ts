@@ -1,16 +1,14 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import { MockCreator } from "./MockCreator.spec";
+
 export abstract class MockCreatorBase<T> {
+    private _mockCreator: MockCreator = new MockCreator();
+
     public abstract create(): T;
 
-    protected _mockProperty<U>(object: T, propertyName: string, propertyValue: U): void {
-        Object.defineProperty(
-            object,
-            propertyName,
-            {
-                get: (): U => { return propertyValue; },
-                set: (value: U): void => { propertyValue = value; },
-            });
+    protected _mockProperty<U>(instance: T, propertyName: string, propertyValue: U): void {
+        this._mockCreator.mockProperty(instance, propertyName, propertyValue);
     }
 }
 

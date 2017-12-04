@@ -13,6 +13,18 @@ export class MockCreator {
 
         return <T>spy;
     }
+
+    public mockProperty<T, U>(instance: T, propertyName: string, propertyValue: U): T {
+        Object.defineProperty(
+            instance,
+            propertyName,
+            {
+                get: (): U => { return propertyValue; },
+                set: (value: U): void => { propertyValue = value; },
+            });
+
+        return instance;
+    }
 }
 
 export default MockCreator;
