@@ -69,7 +69,6 @@ export class SimpleMarker extends Marker {
             new THREE.MeshBasicMaterial({
                 color: this._color,
                 opacity: this._opacity,
-                shading: THREE.SmoothShading,
                 transparent: true,
             }));
 
@@ -80,7 +79,6 @@ export class SimpleMarker extends Marker {
             new THREE.MeshBasicMaterial({
                 color: this._ballColor,
                 opacity: this._ballOpacity,
-                shading: THREE.SmoothShading,
                 transparent: true,
             }));
 
