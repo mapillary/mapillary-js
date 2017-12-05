@@ -122,6 +122,11 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
 
     protected _deactivate(): void {
         this._configurationSubscription.unsubscribe();
+
+        this._keyPlayHandler.disable();
+        this._keySequenceNavigationHandler.disable();
+        this._keySpatialNavigationHandler.disable();
+        this._keyZoomHandler.disable();
     }
 
     protected _getDefaultConfiguration(): IKeyboardConfiguration {
