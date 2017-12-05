@@ -232,14 +232,41 @@ export class Viewer extends EventEmitter {
     /**
      * Create a new viewer instance.
      *
+     * @description It is possible to initialize the viewer with or
+     * without a key.
+     *
+     * When initializing with a key the viewer is bound to that key
+     * until the node/image for that key has been successfully loaded.
+     * Also, a cover with the image of the key will be shown.
+     * If the data for that key can not be loaded because the key is
+     * faulty or other errors occur it is not possible to navigate
+     * to another key because the viewer is not navigable. The viewer
+     * becomes navigable when the data for the has been loaded and
+     * the image is shown in the viewer. This wayof initializing
+     * the viewer is mostly for embedding in blog posts and similar
+     * where one wants to show a specific image initially.
+     *
+     * If the viewer is initialized without a key (with null or
+     * undefined) it is not bound to any particular key and it is
+     * possible to move to any key with `viewer.moveToKey("<my-image-key>")`.
+     * If the first move to a key fails it is possible to move to another
+     * key. The viewer will show a black background until a move
+     * succeeds. This way of intitializing is suited for a map-viewer
+     * application when the initial key is not known at implementation
+     * time.
+     *
      * @param {string} id - Required `id` of a DOM element which will
      * be transformed into the viewer.
      * @param {string} clientId - Required `Mapillary API ClientID`. Can
      * be obtained from https://www.mapillary.com/app/settings/developers.
-     * @param {string} key - Optional `image-key` to start from, can be any
-     * Mapillary image, if null no image is loaded.
+     * @param {string} key - Optional `image-key` to start from. The key
+     * can be any Mapillary image. If a key is provided the viewer is
+     * bound to that key until it has been fully loaded. If null is provided
+     * no image is loaded at viewer initialization and the viewer is not
+     * bound to any particular key. Any image can then be navigated to
+     * with e.g. `viewer.moveToKey("<my-image-key>")`.
      * @param {IViewerOptions} options - Optional configuration object
-     * specifing Viewer's initial setup.
+     * specifing Viewer's and the components' initial setup.
      * @param {string} token - Optional bearer token for API requests of
      * protected resources.
      *
@@ -597,6 +624,9 @@ export class Viewer extends EventEmitter {
      * Calling setAuthToken aborts all outstanding move requests.
      * The promises of those move requests will be rejected and
      * the rejections need to be caught.
+     *
+     * Calling setAuthToken also resets the complete viewer cache
+     * so it should not be called repeatedly.
      *
      * @param {string} [token] token - Bearer token.
      * @returns {Promise<void>} Promise that resolves after token

@@ -18,6 +18,7 @@
         "./src/component/interfaces/ISliderConfiguration.ts",
         "./src/component/interfaces/ITagConfiguration.ts",
         "./src/component/keyboard/KeyboardComponent.ts",
+        "./src/component/keyboard/KeyPlayHandler.ts",
         "./src/component/keyboard/KeySequenceNavigationHandler.ts",
         "./src/component/keyboard/KeySpatialNavigationHandler.ts",
         "./src/component/keyboard/KeyZoomHandler.ts",

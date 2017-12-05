@@ -29,6 +29,18 @@ import {
  * @class MouseComponent
  *
  * @classdesc Component handling mouse and touch events for camera movement.
+ *
+ * To retrive and use the mouse component
+ *
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer(
+ *     "<element-id>",
+ *     "<client-id>",
+ *     "<my key>");
+ *
+ * var mouseComponent = viewer.getComponent("mouse");
+ * ```
  */
 export class MouseComponent extends Component<IMouseConfiguration> {
     /** @inheritdoc */
