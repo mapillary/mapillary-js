@@ -81,6 +81,7 @@
 								<li class="tsd-kind-class"><a href="classes/circlemarker.html" class="tsd-kind-icon">Circle<wbr>Marker</a></li>
 								<li class="tsd-kind-class"><a href="classes/doubleclickzoomhandler.html" class="tsd-kind-icon">Double<wbr>Click<wbr>Zoom<wbr>Handler</a></li>
 								<li class="tsd-kind-class"><a href="classes/dragpanhandler.html" class="tsd-kind-icon">Drag<wbr>Pan<wbr>Handler</a></li>
+								<li class="tsd-kind-class"><a href="classes/keyplayhandler.html" class="tsd-kind-icon">Key<wbr>Play<wbr>Handler</a></li>
 								<li class="tsd-kind-class"><a href="classes/keysequencenavigationhandler.html" class="tsd-kind-icon">Key<wbr>Sequence<wbr>Navigation<wbr>Handler</a></li>
 								<li class="tsd-kind-class"><a href="classes/keyspatialnavigationhandler.html" class="tsd-kind-icon">Key<wbr>Spatial<wbr>Navigation<wbr>Handler</a></li>
 								<li class="tsd-kind-class"><a href="classes/keyzoomhandler.html" class="tsd-kind-icon">Key<wbr>Zoom<wbr>Handler</a></li>
@@ -161,10 +162,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="filterexpression" class="tsd-anchor"></a>
 					<h3>Filter<wbr>Expression</h3>
-					<div class="tsd-signature tsd-kind-icon">Filter<wbr>Expression<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="globals.html#filteroperator" class="tsd-signature-type">FilterOperator</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="globals.html#filtervalue" class="tsd-signature-type">FilterValue</a><span class="tsd-signature-symbol"> | </span><a href="globals.html#filteroperation" class="tsd-signature-type">FilterOperation</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">Filter<wbr>Expression<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/graph/FilterExpression.ts#L1">graph/FilterExpression.ts:1</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/graph/FilterExpression.ts#L1">graph/FilterExpression.ts:1</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -174,7 +175,7 @@
 					<div class="tsd-signature tsd-kind-icon">Filter<wbr>Operation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><a href="globals.html#filteroperator" class="tsd-signature-type">FilterOperator</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="globals.html#filtervalue" class="tsd-signature-type">FilterValue</a><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/graph/FilterExpression.ts#L3">graph/FilterExpression.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/graph/FilterExpression.ts#L3">graph/FilterExpression.ts:3</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -184,7 +185,7 @@
 					<div class="tsd-signature tsd-kind-icon">Filter<wbr>Operator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"&#x3D;&#x3D;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"!&#x3D;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&gt;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&gt;&#x3D;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&lt;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&lt;&#x3D;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"in"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"!in"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"all"</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/graph/FilterExpression.ts#L5">graph/FilterExpression.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/graph/FilterExpression.ts#L5">graph/FilterExpression.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -194,7 +195,7 @@
 					<div class="tsd-signature tsd-kind-icon">Filter<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/graph/FilterExpression.ts#L16">graph/FilterExpression.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/graph/FilterExpression.ts#L16">graph/FilterExpression.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -211,7 +212,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/Support.ts#L29">Support.ts:29</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/Support.ts#L29">Support.ts:29</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -243,7 +244,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/Support.ts#L13">Support.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/Support.ts#L13">Support.ts:13</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -299,6 +300,9 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/dragpanhandler.html" class="tsd-kind-icon">Drag<wbr>Pan<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/keyplayhandler.html" class="tsd-kind-icon">Key<wbr>Play<wbr>Handler</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/keysequencenavigationhandler.html" class="tsd-kind-icon">Key<wbr>Sequence<wbr>Navigation<wbr>Handler</a>

@@ -64,15 +64,15 @@
 			<div class="tsd-panel tsd-typography">
 				<p><a href="https://circleci.com/gh/mapillary/mapillary-js"><img src="https://circleci.com/gh/mapillary/mapillary-js.svg?style=svg" alt="Build Status"></a></p>
 				<h1 id="mapillaryjs">MapillaryJS</h1>
-				<p>MapillaryJS is a JavaScript &amp; WebGL library that renders street level photos from <a href="https://www.mapillary.com">Mapillary</a>.</p>
+				<p>MapillaryJS is a JavaScript &amp; WebGL library that renders street level imagery from <a href="https://www.mapillary.com">Mapillary</a>.</p>
 				<p><a href="https://www.mapillary.com/app/?focus=photo&amp;pKey=VKf9Ay98ubkclhS2cCEWDg"><img width="49%" alt="San Francisco on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964788/9d75b25e-2f1a-11e6-9c5f-b4a42853a1eb.png"></a> <a href="https://www.mapillary.com/app/?focus=photo&amp;pKey=FjsftlSr2Vqigl8P2zpOAw"><img width="49%" alt="Frigilana on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964789/9d8256c6-2f1a-11e6-9d4b-bd906875078c.png"></a></p>
 				<h2 id="using-mapillaryjs">Using MapillaryJS</h2>
 				<p>To use MapillaryJS you must <a href="https://www.mapillary.com/signup">create an account</a> and <a href="https://www.mapillary.com/app/settings/developers">obtain a Client ID</a>. Then you can use MapillaryJS with a <code>&lt;script&gt;</code> tag.</p>
 				<pre><code class="lang-html"><span class="hljs-meta">&lt;!DOCTYPE html&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.9.0/dist/mapillary.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.9.0/dist/mapillary.min.css'</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">'stylesheet'</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.10.0/dist/mapillary.min.js'</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">'https://unpkg.com/mapillary-js@2.10.0/dist/mapillary.min.css'</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">'stylesheet'</span> /&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
@@ -82,7 +82,7 @@
         <span class="hljs-keyword">var</span> mly = <span class="hljs-keyword">new</span> Mapillary.Viewer(
             <span class="hljs-string">'mly'</span>,
             <span class="hljs-string">'&lt;your client id&gt;'</span>,
-            <span class="hljs-string">'&lt;your photo id for initializing the viewer&gt;'</span>
+            <span class="hljs-string">'&lt;your image key for initializing the viewer&gt;'</span>
         );
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
@@ -101,6 +101,7 @@
 					<li><a href="https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39">Dynamic size</a></li>
 					<li><a href="https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade">Load immediately</a></li>
 					<li><a href="https://bl.ocks.org/oscarlorentzon/4f6f7ae5e86db7446f78ccea1eb6c2a7">No cover</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/3eb61ce99b3c1cedba88942cb02f317d">Initialize with or without a key</a></li>
 					<li><a href="https://bl.ocks.org/oscarlorentzon/898c55ef06917b07f165b7707d9f3a9e">Determine if viewer is navigable</a></li>
 					<li><a href="https://bl.ocks.org/oscarlorentzon/317da436accbcf2ff04c642f86cefaf8">Move to key</a></li>
 					<li><a href="https://bl.ocks.org/oscarlorentzon/63ac2aa3f0998f0c2d2b01a42c8babe4">Move in direction</a></li>
@@ -154,7 +155,7 @@
 				</ul>
 				<h4 id="slider">Slider</h4>
 				<ul>
-					<li><a href="https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3">Compare photos</a></li>
+					<li><a href="https://bl.ocks.org/oscarlorentzon/3e46cd939bbe3b6c93fa1e93a108f6a3">Compare images</a></li>
 				</ul>
 				<h4 id="tag">Tag</h4>
 				<ul>
@@ -211,6 +212,9 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/dragpanhandler.html" class="tsd-kind-icon">Drag<wbr>Pan<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/keyplayhandler.html" class="tsd-kind-icon">Key<wbr>Play<wbr>Handler</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/keysequencenavigationhandler.html" class="tsd-kind-icon">Key<wbr>Sequence<wbr>Navigation<wbr>Handler</a>

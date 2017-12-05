@@ -71,8 +71,8 @@
 						<dd><p>Viewer</p>
 						</dd>
 						<dt>classdesc</dt>
-						<dd><p>The Viewer object represents the navigable photo viewer.
-								Create a Viewer by specifying a container, client ID, photo key and
+						<dd><p>The Viewer object represents the navigable image viewer.
+								Create a Viewer by specifying a container, client ID, image key and
 								other options. The viewer exposes methods and events for programmatic
 							interaction.</p>
 							<p>The viewer works with a few different coordinate systems.</p>
@@ -203,7 +203,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides EventEmitter.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L230">viewer/Viewer.ts:230</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L230">viewer/Viewer.ts:230</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -211,8 +211,30 @@
 									<p>Create a new viewer instance.</p>
 								</div>
 								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>It is possible to initialize the viewer with or
+										without a key.</p>
+										<p>When initializing with a key the viewer is bound to that key
+											until the node/image for that key has been successfully loaded.
+											Also, a cover with the image of the key will be shown.
+											If the data for that key can not be loaded because the key is
+											faulty or other errors occur it is not possible to navigate
+											to another key because the viewer is not navigable. The viewer
+											becomes navigable when the data for the has been loaded and
+											the image is shown in the viewer. This wayof initializing
+											the viewer is mostly for embedding in blog posts and similar
+										where one wants to show a specific image initially.</p>
+										<p>If the viewer is initialized without a key (with null or
+											undefined) it is not bound to any particular key and it is
+											possible to move to any key with <code>viewer.moveToKey(&quot;&lt;my-image-key&gt;&quot;)</code>.
+											If the first move to a key fails it is possible to move to another
+											key. The viewer will show a black background until a move
+											succeeds. This way of intitializing is suited for a map-viewer
+											application when the initial key is not known at implementation
+										time.</p>
+									</dd>
 									<dt>example</dt>
-									<dd><pre><code><span class="hljs-keyword">var</span> viewer = <span class="hljs-keyword">new</span> <span class="hljs-type">Mapillary</span>.Viewer(<span class="hljs-string">"&lt;element-id&gt;"</span>, <span class="hljs-string">"&lt;client-id&gt;"</span>, <span class="hljs-string">"&lt;my key&gt;"</span>);
+									<dd><pre><code><span class="hljs-keyword">var</span> viewer = <span class="hljs-keyword">new</span> <span class="hljs-type">Mapillary</span>.Viewer(<span class="hljs-string">"&lt;element-id&gt;"</span>, <span class="hljs-string">"&lt;client-id&gt;"</span>, <span class="hljs-string">"&lt;image-key&gt;"</span>);
 </code></pre></dd>
 								</dl>
 							</div>
@@ -238,12 +260,34 @@
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> key: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Optional <code>image-key</code> to start from. The key
+												can be any Mapillary image. If a key is provided the viewer is
+												bound to that key until it has been fully loaded. If null is provided
+												no image is loaded at viewer initialization and the viewer is not
+												bound to any particular key. Any image can then be navigated to
+											with e.g. <code>viewer.moveToKey(&quot;&lt;my-image-key&gt;&quot;)</code>.</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../interfaces/ivieweroptions.html" class="tsd-signature-type">IViewerOptions</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Optional configuration object
+											specifing Viewer&#39;s and the components&#39; initial setup.</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> token: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Optional bearer token for API requests of
+											protected resources.</p>
+										</div>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="viewer.html" class="tsd-signature-type">Viewer</a></h4>
@@ -259,7 +303,7 @@
 					<div class="tsd-signature tsd-kind-icon">bearingchanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;bearingchanged&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L86">viewer/Viewer.ts:86</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L86">viewer/Viewer.ts:86</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -280,7 +324,7 @@
 					<div class="tsd-signature tsd-kind-icon">click<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;click&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L94">viewer/Viewer.ts:94</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L94">viewer/Viewer.ts:94</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -301,7 +345,7 @@
 					<div class="tsd-signature tsd-kind-icon">contextmenu<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;contextmenu&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L101">viewer/Viewer.ts:101</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L101">viewer/Viewer.ts:101</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -321,7 +365,7 @@
 					<div class="tsd-signature tsd-kind-icon">dblclick<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;dblclick&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L109">viewer/Viewer.ts:109</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L109">viewer/Viewer.ts:109</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -342,7 +386,7 @@
 					<div class="tsd-signature tsd-kind-icon">loadingchanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;loadingchanged&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L116">viewer/Viewer.ts:116</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L116">viewer/Viewer.ts:116</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -362,7 +406,7 @@
 					<div class="tsd-signature tsd-kind-icon">mousedown<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;mousedown&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L123">viewer/Viewer.ts:123</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L123">viewer/Viewer.ts:123</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -382,7 +426,7 @@
 					<div class="tsd-signature tsd-kind-icon">mousemove<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;mousemove&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L131">viewer/Viewer.ts:131</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L131">viewer/Viewer.ts:131</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -405,7 +449,7 @@
 					<div class="tsd-signature tsd-kind-icon">mouseout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;mouseout&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L138">viewer/Viewer.ts:138</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L138">viewer/Viewer.ts:138</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -425,7 +469,7 @@
 					<div class="tsd-signature tsd-kind-icon">mouseover<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;mouseover&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L145">viewer/Viewer.ts:145</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L145">viewer/Viewer.ts:145</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -445,7 +489,7 @@
 					<div class="tsd-signature tsd-kind-icon">mouseup<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;mouseup&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L152">viewer/Viewer.ts:152</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L152">viewer/Viewer.ts:152</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -465,7 +509,7 @@
 					<div class="tsd-signature tsd-kind-icon">moveend<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;moveend&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L159">viewer/Viewer.ts:159</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L159">viewer/Viewer.ts:159</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -481,7 +525,7 @@
 					<div class="tsd-signature tsd-kind-icon">movestart<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;movestart&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L167">viewer/Viewer.ts:167</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L167">viewer/Viewer.ts:167</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -498,7 +542,7 @@
 					<div class="tsd-signature tsd-kind-icon">navigablechanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;navigablechanged&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L182">viewer/Viewer.ts:182</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L182">viewer/Viewer.ts:182</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -526,7 +570,7 @@
 					<div class="tsd-signature tsd-kind-icon">nodechanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;nodechanged&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L189">viewer/Viewer.ts:189</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L189">viewer/Viewer.ts:189</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -546,7 +590,7 @@
 					<div class="tsd-signature tsd-kind-icon">sequenceedgeschanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;sequenceedgeschanged&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L196">viewer/Viewer.ts:196</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L196">viewer/Viewer.ts:196</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -566,7 +610,7 @@
 					<div class="tsd-signature tsd-kind-icon">spatialedgeschanged<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;spatialedgeschanged&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L203">viewer/Viewer.ts:203</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L203">viewer/Viewer.ts:203</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -593,7 +637,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L276">viewer/Viewer.ts:276</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L303">viewer/Viewer.ts:303</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -629,7 +673,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L290">viewer/Viewer.ts:290</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L317">viewer/Viewer.ts:317</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -665,7 +709,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L297">viewer/Viewer.ts:297</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L324">viewer/Viewer.ts:324</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -687,7 +731,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L311">viewer/Viewer.ts:311</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L338">viewer/Viewer.ts:338</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -723,7 +767,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L318">viewer/Viewer.ts:318</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L345">viewer/Viewer.ts:345</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -746,7 +790,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.fire</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/utils/EventEmitter.ts#L45">utils/EventEmitter.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/utils/EventEmitter.ts#L45">utils/EventEmitter.ts:45</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -772,7 +816,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L341">viewer/Viewer.ts:341</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L368">viewer/Viewer.ts:368</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -809,12 +853,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L373">viewer/Viewer.ts:373</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L400">viewer/Viewer.ts:400</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Get the basic coordinates of the current photo that is
+									<p>Get the basic coordinates of the current image that is
 									at the center of the viewport.</p>
 								</div>
 								<dl class="tsd-comment-tags">
@@ -822,7 +866,7 @@
 									<dd><p>Basic coordinates are 2D coordinates on the [0, 1] interval
 											and have the origin point, (0, 0), at the top left corner and the
 											maximum value, (1, 1), at the bottom right corner of the original
-										photo.</p>
+										image.</p>
 									</dd>
 									<dt>example</dt>
 									<dd><pre><code>viewer.getCenter().<span class="hljs-keyword">then</span>(<span class="hljs-function"><span class="hljs-params">(c)</span> =&gt;</span> { <span class="hljs-built_in">console</span>.log(c); });
@@ -831,7 +875,7 @@
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">when.Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p>Promise to the basic coordinates
-							of the current photo at the center for the viewport.</p>
+							of the current image at the center for the viewport.</p>
 						</li>
 					</ul>
 				</section>
@@ -845,7 +889,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L398">viewer/Viewer.ts:398</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L425">viewer/Viewer.ts:425</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -888,7 +932,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L407">viewer/Viewer.ts:407</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L434">viewer/Viewer.ts:434</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -911,12 +955,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L422">viewer/Viewer.ts:422</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L449">viewer/Viewer.ts:449</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Get the photo&#39;s current zoom level.</p>
+									<p>Get the image&#39;s current zoom level.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
@@ -940,7 +984,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L457">viewer/Viewer.ts:457</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L484">viewer/Viewer.ts:484</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -993,13 +1037,13 @@
 					<a name="movedir" class="tsd-anchor"></a>
 					<h3>move<wbr>Dir</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">move<wbr>Dir<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><a href="../enums/edgedirection.html" class="tsd-signature-type">EdgeDirection</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">when.Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">move<wbr>Dir<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">EdgeDirection.Next</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.Prev</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.StepLeft</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.StepRight</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.StepForward</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.StepBackward</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.TurnLeft</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.TurnRight</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.TurnU</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.Pano</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.Similar</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">when.Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L493">viewer/Viewer.ts:493</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L520">viewer/Viewer.ts:520</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1030,7 +1074,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>dir: <a href="../enums/edgedirection.html" class="tsd-signature-type">EdgeDirection</a></h5>
+									<h5>dir: <span class="tsd-signature-type">EdgeDirection.Next</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.Prev</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.StepLeft</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.StepRight</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.StepForward</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.StepBackward</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.TurnLeft</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.TurnRight</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.TurnU</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.Pano</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EdgeDirection.Similar</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Direction in which which to move.</p>
 									</div>
@@ -1051,12 +1095,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L525">viewer/Viewer.ts:525</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L552">viewer/Viewer.ts:552</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Navigate to a given photo key.</p>
+									<p>Navigate to a given image key.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>throws</dt>
@@ -1077,7 +1121,7 @@
 								<li>
 									<h5>key: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>A valid Mapillary photo key.</p>
+										<p>A valid Mapillary image key.</p>
 									</div>
 								</li>
 							</ul>
@@ -1097,7 +1141,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.off</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/utils/EventEmitter.ts#L24">utils/EventEmitter.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/utils/EventEmitter.ts#L24">utils/EventEmitter.ts:24</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1135,7 +1179,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.on</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/utils/EventEmitter.ts#L13">utils/EventEmitter.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/utils/EventEmitter.ts#L13">utils/EventEmitter.ts:13</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1172,7 +1216,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L559">viewer/Viewer.ts:559</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L586">viewer/Viewer.ts:586</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1216,7 +1260,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L584">viewer/Viewer.ts:584</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L611">viewer/Viewer.ts:611</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1247,7 +1291,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L613">viewer/Viewer.ts:613</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L643">viewer/Viewer.ts:643</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1263,6 +1307,8 @@
 										<p>Calling setAuthToken aborts all outstanding move requests.
 											The promises of those move requests will be rejected and
 										the rejections need to be caught.</p>
+										<p>Calling setAuthToken also resets the complete viewer cache
+										so it should not be called repeatedly.</p>
 									</dd>
 									<dt>throws</dt>
 									<dd><p>{Error} When viewer is not navigable.</p>
@@ -1295,12 +1341,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L648">viewer/Viewer.ts:648</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L678">viewer/Viewer.ts:678</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Set the basic coordinates of the current photo to be in the
+									<p>Set the basic coordinates of the current image to be in the
 									center of the viewport.</p>
 								</div>
 								<dl class="tsd-comment-tags">
@@ -1308,7 +1354,7 @@
 									<dd><p>Basic coordinates are 2D coordinates on the [0, 1] interval
 											and has the origin point, (0, 0), at the top left corner and the
 											maximum value, (1, 1), at the bottom right corner of the original
-										photo.</p>
+										image.</p>
 									</dd>
 									<dt>example</dt>
 									<dd><pre><code><span class="hljs-selector-tag">viewer</span><span class="hljs-selector-class">.setCenter</span>(<span class="hljs-selector-attr">[0.5, 0.5]</span>);
@@ -1335,7 +1381,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L696">viewer/Viewer.ts:696</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L726">viewer/Viewer.ts:726</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1386,13 +1432,13 @@
 					<a name="setrendermode" class="tsd-anchor"></a>
 					<h3>set<wbr>Render<wbr>Mode</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Render<wbr>Mode<span class="tsd-signature-symbol">(</span>renderMode<span class="tsd-signature-symbol">: </span><a href="../enums/rendermode.html" class="tsd-signature-type">RenderMode</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Render<wbr>Mode<span class="tsd-signature-symbol">(</span>renderMode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">RenderMode.Letterbox</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RenderMode.Fill</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L720">viewer/Viewer.ts:720</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L750">viewer/Viewer.ts:750</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1408,7 +1454,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>renderMode: <a href="../enums/rendermode.html" class="tsd-signature-type">RenderMode</a></h5>
+									<h5>renderMode: <span class="tsd-signature-type">RenderMode.Letterbox</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RenderMode.Fill</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Render mode.</p>
 									</div>
@@ -1428,17 +1474,17 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L738">viewer/Viewer.ts:738</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L768">viewer/Viewer.ts:768</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Set the photo&#39;s current zoom level.</p>
+									<p>Set the image&#39;s current zoom level.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>description</dt>
 									<dd><p>Possible zoom level values are on the [0, 3] interval.
-											Zero means zooming out to fit the photo to the view whereas three
+											Zero means zooming out to fit the image to the view whereas three
 										shows the highest level of detail.</p>
 									</dd>
 									<dt>example</dt>
@@ -1466,7 +1512,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L759">viewer/Viewer.ts:759</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L789">viewer/Viewer.ts:789</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1510,7 +1556,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/b3608e2/src/viewer/Viewer.ts#L791">viewer/Viewer.ts:791</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6aa792f/src/viewer/Viewer.ts#L821">viewer/Viewer.ts:821</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
