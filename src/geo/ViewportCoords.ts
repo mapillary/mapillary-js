@@ -13,7 +13,7 @@ import {Transform} from "../Geo";
  * Basic coordinates are 2D coordinates on the [0, 1] interval and
  * have the origin point, (0, 0), at the top left corner and the
  * maximum value, (1, 1), at the bottom right corner of the original
- * photo.
+ * image.
  *
  * Viewport coordinates are 2D coordinates on the [-1, 1] interval and
  * have the origin point in the center. The bottom left corner point is

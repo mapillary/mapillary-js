@@ -6,7 +6,7 @@ import {IComponentConfiguration} from "../../Component";
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<photo-key>',
+ * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
  *     {
  *         component: {
  *             keyboard: {

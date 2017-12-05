@@ -8,17 +8,17 @@ import {Viewer} from "../../Viewer";
  */
 export interface IViewerMouseEvent {
     /**
-     * The basic coordinates in the current photo of the mouse
+     * The basic coordinates in the current image of the mouse
      * event target.
      *
      * @description In some situations mouse events can occur outside of
-     * the border of a photo. In that case the basic coordinates will be
+     * the border of a image. In that case the basic coordinates will be
      * `null`.
      *
      * Basic coordinates are 2D coordinates on the [0, 1] interval
      * and has the origin point, (0, 0), at the top left corner and the
      * maximum value, (1, 1), at the bottom right corner of the original
-     * photo.
+     * image.
      */
     basicPoint: number[];
 

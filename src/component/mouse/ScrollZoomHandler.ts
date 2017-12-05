@@ -20,7 +20,7 @@ import {
 } from "../../Viewer";
 
 /**
- * The `ScrollZoomHandler` allows the user to zoom the viewer photo by scrolling.
+ * The `ScrollZoomHandler` allows the user to zoom the viewer image by scrolling.
  *
  * @example
  * ```

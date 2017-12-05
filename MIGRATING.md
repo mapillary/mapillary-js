@@ -134,7 +134,7 @@ MapillaryJS 1:
 var mly = new Mapillary.Viewer(
     'mly',
     '<your client id>',
-    '<your photo id for initializing the viewer>',
+    '<your image key for initializing the viewer>',
     {
         baseImageSize: Mapillary.ImageSize.Size320,
         cache: true,
@@ -153,7 +153,7 @@ MapillaryJS 2:
 var mly = new Mapillary.Viewer(
     'mly',
     '<your client id>',
-    '<your photo id for initializing the viewer>',
+    '<your image key for initializing the viewer>',
     {
         baseImageSize: Mapillary.ImageSize.Size320,
         component: {

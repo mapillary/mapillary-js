@@ -7,7 +7,7 @@ import {EdgeDirection} from "../../Edge";
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<photo-key>',
+ * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
  *     {
  *         component: {
  *             sequence: {

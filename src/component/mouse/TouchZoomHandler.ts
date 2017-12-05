@@ -26,7 +26,7 @@ import {
 } from "../../Viewer";
 
 /**
- * The `TouchZoomHandler` allows the user to zoom the viewer photo by pinching on a touchscreen.
+ * The `TouchZoomHandler` allows the user to zoom the viewer image by pinching on a touchscreen.
  *
  * @example
  * ```

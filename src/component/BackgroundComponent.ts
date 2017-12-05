@@ -15,7 +15,7 @@ export class BackgroundComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._container.domRenderer.render$
-            .next({name: this._name, vnode: this._getBackgroundNode("The viewer can't display the given photo.")});
+            .next({name: this._name, vnode: this._getBackgroundNode("The viewer can't display the given image.")});
     }
 
     protected _deactivate(): void {

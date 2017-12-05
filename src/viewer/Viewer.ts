@@ -30,8 +30,8 @@ import {RenderMode} from "../Render";
 /**
  * @class Viewer
  *
- * @classdesc The Viewer object represents the navigable photo viewer.
- * Create a Viewer by specifying a container, client ID, photo key and
+ * @classdesc The Viewer object represents the navigable image viewer.
+ * Create a Viewer by specifying a container, client ID, image key and
  * other options. The viewer exposes methods and events for programmatic
  * interaction.
  *
@@ -236,16 +236,16 @@ export class Viewer extends EventEmitter {
      * be transformed into the viewer.
      * @param {string} clientId - Required `Mapillary API ClientID`. Can
      * be obtained from https://www.mapillary.com/app/settings/developers.
-     * @param {string} [key] - Optional `photoId` to start from, can be any
-     * Mapillary photo, if null no image is loaded.
-     * @param {IViewerOptions} [options] - Optional configuration object
+     * @param {string} key - Optional `image-key` to start from, can be any
+     * Mapillary image, if null no image is loaded.
+     * @param {IViewerOptions} options - Optional configuration object
      * specifing Viewer's initial setup.
-     * @param {string} [token] - Optional bearer token for API requests of
+     * @param {string} token - Optional bearer token for API requests of
      * protected resources.
      *
      * @example
      * ```
-     * var viewer = new Mapillary.Viewer("<element-id>", "<client-id>", "<my key>");
+     * var viewer = new Mapillary.Viewer("<element-id>", "<client-id>", "<image-key>");
      * ```
      */
     constructor (id: string, clientId: string, key?: string, options?: IViewerOptions, token?: string) {
@@ -354,16 +354,16 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Get the basic coordinates of the current photo that is
+     * Get the basic coordinates of the current image that is
      * at the center of the viewport.
      *
      * @description Basic coordinates are 2D coordinates on the [0, 1] interval
      * and have the origin point, (0, 0), at the top left corner and the
      * maximum value, (1, 1), at the bottom right corner of the original
-     * photo.
+     * image.
      *
      * @returns {Promise<number[]>} Promise to the basic coordinates
-     * of the current photo at the center for the viewport.
+     * of the current image at the center for the viewport.
      *
      * @example
      * ```
@@ -409,7 +409,7 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Get the photo's current zoom level.
+     * Get the image's current zoom level.
      *
      * @returns {Promise<number>} Promise to the viewers's current
      * zoom level.
@@ -508,9 +508,9 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Navigate to a given photo key.
+     * Navigate to a given image key.
      *
-     * @param {string} key - A valid Mapillary photo key.
+     * @param {string} key - A valid Mapillary image key.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
@@ -629,16 +629,16 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Set the basic coordinates of the current photo to be in the
+     * Set the basic coordinates of the current image to be in the
      * center of the viewport.
      *
      * @description Basic coordinates are 2D coordinates on the [0, 1] interval
      * and has the origin point, (0, 0), at the top left corner and the
      * maximum value, (1, 1), at the bottom right corner of the original
-     * photo.
+     * image.
      *
      * @param {number[]} The basic coordinates of the current
-     * photo to be at the center for the viewport.
+     * image to be at the center for the viewport.
      *
      * @example
      * ```
@@ -722,13 +722,13 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Set the photo's current zoom level.
+     * Set the image's current zoom level.
      *
      * @description Possible zoom level values are on the [0, 3] interval.
-     * Zero means zooming out to fit the photo to the view whereas three
+     * Zero means zooming out to fit the image to the view whereas three
      * shows the highest level of detail.
      *
-     * @param {number} The photo's current zoom level.
+     * @param {number} The image's current zoom level.
      *
      * @example
      * ```

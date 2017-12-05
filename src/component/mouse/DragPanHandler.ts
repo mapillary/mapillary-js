@@ -31,7 +31,7 @@ import {
 } from "../../Viewer";
 
 /**
- * The `DragPanHandler` allows the user to pan the viewer photo by clicking and dragging the cursor.
+ * The `DragPanHandler` allows the user to pan the viewer image by clicking and dragging the cursor.
  *
  * @example
  * ```

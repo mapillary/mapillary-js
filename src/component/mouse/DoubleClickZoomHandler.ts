@@ -18,7 +18,7 @@ import {
 } from "../../Viewer";
 
 /**
- * The `DoubleClickZoomHandler` allows the user to zoom the viewer photo at a point by double clicking.
+ * The `DoubleClickZoomHandler` allows the user to zoom the viewer image at a point by double clicking.
  *
  * @example
  * ```
