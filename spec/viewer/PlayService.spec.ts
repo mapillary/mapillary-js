@@ -481,4 +481,385 @@ describe("PlayService.play", () => {
 
         expect(stopSpy.calls.count()).toBe(1);
     });
+
+    it("should cache sequence when in spatial graph mode", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+        playService.setDirection(EdgeDirection.Next);
+        // Set speed to zero so that graph mode is set to spatial when calling play
+        playService.setSpeed(0);
+
+        const cacheSequenceSpy: jasmine.Spy = spyOn(graphService, "cacheSequence$");
+        cacheSequenceSpy.and.returnValue(new Subject<Sequence>());
+        const cacheSequenceNodesSpy: jasmine.Spy = spyOn(graphService, "cacheSequenceNodes$");
+        cacheSequenceNodesSpy.and.returnValue(new Subject<Sequence>());
+
+        playService.play();
+
+        const currentNode: Node = nodeHelper.createNode();
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+        currentNodeSubject.next(currentNode);
+
+        expect(cacheSequenceSpy.calls.count()).toBe(1);
+        expect(cacheSequenceSpy.calls.argsFor(0)[0]).toBe(currentNode.sequenceKey);
+
+        expect(cacheSequenceNodesSpy.calls.count()).toBe(0);
+
+        playService.stop();
+    });
+
+    it("should cache sequence nodes when in sequence graph mode", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+        playService.setDirection(EdgeDirection.Next);
+        // Set speed to one so that graph mode is set to sequence when calling play
+        playService.setSpeed(1);
+
+        const cacheSequenceSpy: jasmine.Spy = spyOn(graphService, "cacheSequence$");
+        cacheSequenceSpy.and.returnValue(new Subject<Sequence>());
+        const cacheSequenceNodesSpy: jasmine.Spy = spyOn(graphService, "cacheSequenceNodes$");
+        cacheSequenceNodesSpy.and.returnValue(new Subject<Sequence>());
+
+        playService.play();
+
+        const currentNode: Node = nodeHelper.createNode();
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+        currentNodeSubject.next(currentNode);
+
+        expect(cacheSequenceSpy.calls.count()).toBe(0);
+
+        expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
+        expect(cacheSequenceNodesSpy.calls.argsFor(0)[0]).toBe(currentNode.sequenceKey);
+
+        playService.stop();
+    });
+
+    it("should not pre-cache if current node is last sequence node", () => {
+        graphService.setGraphMode(GraphMode.Spatial);
+
+        const playService: PlayService = new PlayService(graphService, stateService);
+        playService.setDirection(EdgeDirection.Next);
+
+        const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
+        spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
+
+        playService.play();
+
+        const sequenceKey: string = "sequenceKey";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.key = "node0";
+        const currentNode: Node = new Node(currentFullNode);
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+        const prevNodeKey: string = "node1";
+
+        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+        currentNodeSubject.next(currentNode);
+
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevNodeKey, currentNode.key ]});
+        cacheSequenceSubject.next(sequence);
+
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const state: ICurrentState = createState();
+        state.trajectory = [currentNode];
+        state.lastNode = currentNode;
+        state.nodesAhead = 0;
+
+        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        expect(cacheNodeSpy.calls.count()).toBe(0);
+
+        playService.stop();
+    });
+
+    it("should pre-cache one trajectory node", () => {
+        graphService.setGraphMode(GraphMode.Spatial);
+
+        const playService: PlayService = new PlayService(graphService, stateService);
+        playService.setDirection(EdgeDirection.Next);
+
+        const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
+        spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
+
+        playService.play();
+
+        const sequenceKey: string = "sequenceKey";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.key = "node0";
+        const currentNode: Node = new Node(currentFullNode);
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+        const nextNodeKey: string = "node1";
+
+        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+        currentNodeSubject.next(currentNode);
+
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey ]});
+        cacheSequenceSubject.next(sequence);
+
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const state: ICurrentState = createState();
+        state.trajectory = [currentNode];
+        state.lastNode = currentNode;
+        state.nodesAhead = 0;
+
+        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        cacheNodeSubject.next(new NodeHelper().createNode());
+
+        expect(cacheNodeSpy.calls.count()).toBe(1);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(nextNodeKey);
+
+        playService.stop();
+    });
+
+    it("should not pre-cache the same node twice", () => {
+        graphService.setGraphMode(GraphMode.Spatial);
+
+        const playService: PlayService = new PlayService(graphService, stateService);
+        playService.setDirection(EdgeDirection.Next);
+
+        const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
+        spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
+
+        playService.play();
+
+        const sequenceKey: string = "sequenceKey";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.key = "node0";
+        const currentNode: Node = new Node(currentFullNode);
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+        const nextNodeKey: string = "node1";
+
+        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+        currentNodeSubject.next(currentNode);
+
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey ]});
+        cacheSequenceSubject.next(sequence);
+
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const state: ICurrentState = createState();
+        state.trajectory = [currentNode];
+        state.lastNode = currentNode;
+        state.nodesAhead = 0;
+
+        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        cacheNodeSubject.next(new NodeHelper().createNode());
+
+        expect(cacheNodeSpy.calls.count()).toBe(1);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(nextNodeKey);
+
+        playService.stop();
+    });
+
+    it("should not pre-cache if all sequence nodes in trajectory", () => {
+        graphService.setGraphMode(GraphMode.Spatial);
+
+        const playService: PlayService = new PlayService(graphService, stateService);
+        playService.setDirection(EdgeDirection.Next);
+
+        const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
+        spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
+
+        playService.play();
+
+        const sequenceKey: string = "sequenceKey";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.key = "node0";
+        const currentNode: Node = new Node(currentFullNode);
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+        const nextNodeKey: string = "node1";
+        const nextFullNode: IFullNode = new NodeHelper().createFullNode();
+        nextFullNode.sequence.key = sequenceKey;
+        nextFullNode.key = nextNodeKey;
+        const nextNode: Node = new Node(nextFullNode);
+
+        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+        currentNodeSubject.next(currentNode);
+
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey ]});
+        cacheSequenceSubject.next(sequence);
+
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const state: ICurrentState = createState();
+        state.trajectory = [currentNode, nextNode];
+        state.lastNode = currentNode;
+        state.nodesAhead = 0;
+
+        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        expect(cacheNodeSpy.calls.count()).toBe(0);
+
+        playService.stop();
+    });
+
+    it("should pre-cache up to specified nodes ahead", () => {
+        graphService.setGraphMode(GraphMode.Spatial);
+
+        const playService: PlayService = new PlayService(graphService, stateService);
+        playService.setDirection(EdgeDirection.Next);
+        // Zero speed means max ten nodes ahead
+        playService.setSpeed(0);
+
+        const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
+        spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
+
+        playService.play();
+
+        const sequenceKey: string = "sequenceKey";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.key = "currentNodeKey";
+        const currentNode: Node = new Node(currentFullNode);
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key ]});
+        const sequenceNodes: Node[] = [];
+
+        for (let i: number = 0; i < 20; i++) {
+            const sequenceNodeKey: string = `node${i}`;
+            const sequenceFullNode: IFullNode = new NodeHelper().createFullNode();
+            sequenceFullNode.sequence.key = sequenceKey;
+            sequenceFullNode.key = sequenceNodeKey;
+            const sequenceNode: Node = new Node(sequenceFullNode);
+            new MockCreator().mockProperty(sequenceNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+            sequence.keys.push(sequenceNode.key);
+            sequenceNodes.push(sequenceNode);
+        }
+
+        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+
+        currentNodeSubject.next(currentNode);
+        cacheSequenceSubject.next(sequence);
+
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$").and.callFake(
+            (key: string): Observable<Node> => {
+                const fullNode: IFullNode = new NodeHelper().createFullNode();
+                fullNode.sequence.key = sequenceKey;
+                fullNode.key = key;
+                const node: Node = new Node(fullNode);
+
+                return Observable.of(node);
+            });
+
+        const state: ICurrentState = createState();
+        state.trajectory = [currentNode];
+        state.lastNode = currentNode;
+        state.currentNode = currentNode;
+        state.currentIndex = 0;
+        state.nodesAhead = 0;
+
+        // Cache ten nodes immediately
+        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        let cachedCount: number = 10;
+        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+
+        // Add one node to trajectory before current node has moved
+        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, 1));
+        state.lastNode = state.trajectory[state.trajectory.length - 1];
+        state.nodesAhead = 1;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        // No new nodes should be cached
+        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+
+        // Current node has moved one step in trajectory to the last node, nodes ahead
+        // is zero and one new node should be cached
+        state.currentIndex += 1;
+        state.currentNode = state.trajectory[state.currentIndex];
+        state.nodesAhead = 0;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        cachedCount += 1;
+        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+
+        // Add 5 nodes to trajectory and move current node 3 steps
+        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, 5));
+        state.currentIndex += 3;
+        state.currentNode = state.trajectory[state.currentIndex];
+        state.lastNode = state.trajectory[state.trajectory.length - 1];
+        state.nodesAhead = 2;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        // Three new nodes should be cached
+        cachedCount += 3;
+        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+
+        // Add all 14 nodes cached so far to trajectory and move current node to last
+        // trajectory node
+        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, 8));
+        state.currentIndex = state.trajectory.length - 1;
+        expect(state.currentIndex).toBe(14);
+        state.currentNode = state.trajectory[state.currentIndex];
+        state.lastNode = state.trajectory[state.trajectory.length - 1];
+        state.nodesAhead = 0;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        // Six last nodes should be cached
+        cachedCount += 6;
+        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        // No new nodes should be cached
+        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+
+        // Add all remaining nodes to trajectory and move current node one step
+        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, sequenceNodes.length));
+        state.currentIndex += 1;
+        state.currentNode = state.trajectory[state.currentIndex];
+        state.lastNode = state.trajectory[state.trajectory.length - 1];
+        state.nodesAhead = 5;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        // No new nodes should be cached
+        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+
+        // Move current node to last trajectory node
+        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, sequenceNodes.length));
+        state.currentIndex = state.trajectory.length - 1;
+        state.currentNode = state.trajectory[state.currentIndex];
+        state.lastNode = state.trajectory[state.trajectory.length - 1];
+        state.nodesAhead = 0;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        // No new nodes should be cached
+        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+
+        playService.stop();
+    });
 });
