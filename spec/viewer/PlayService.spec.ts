@@ -798,7 +798,7 @@ describe("PlayService.play", () => {
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key ]});
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key]});
         const sequenceNodes: Node[] = [];
 
         for (let i: number = 0; i < 20; i++) {
@@ -912,7 +912,11 @@ describe("PlayService.play", () => {
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         // No new nodes should be cached
-        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+        expect(cacheNodeSpy.calls.count()).toBe(20);
+
+        for (let i: number = 0; i < 20; i++) {
+            expect(cacheNodeSpy.calls.argsFor(i)[0]).toBe(sequence.keys[i + 1]);
+        }
 
         playService.stop();
     });
