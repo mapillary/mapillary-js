@@ -169,19 +169,20 @@ export class PlayService {
                                     lastRequestKey = lastTrajectoryKey;
                                 }
 
-                                if (nodesAhead >= this._nodesAhead || sequenceKeys[sequenceKeys.length - 1] === lastRequestKey) {
+                                const lastIndex: number = sequenceKeys.length - 1;
+                                if (nodesAhead >= this._nodesAhead || sequenceKeys[lastIndex] === lastRequestKey) {
                                     return [lastRequestKey, []];
                                 }
 
                                 const current: number = sequenceKeys.indexOf(lastTrajectoryKey);
-                                const start: number = sequenceKeys.indexOf(lastRequestKey);
-                                const end: number = start + (this._nodesAhead - nodesAhead) - (start - current);
+                                const start: number = sequenceKeys.indexOf(lastRequestKey) + 1;
+                                const end: number = Math.min(lastIndex, current + this._nodesAhead - nodesAhead) + 1;
 
                                 if (end <= start) {
                                     return [lastRequestKey, []];
                                 }
 
-                                return [sequenceKeys[end], sequenceKeys.slice(start, end)];
+                                return [sequenceKeys[end - 1], sequenceKeys.slice(start, end)];
                             },
                             [undefined, []])
                         .mergeMap(

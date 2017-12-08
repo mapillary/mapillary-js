@@ -627,6 +627,57 @@ describe("PlayService.play", () => {
         playService.stop();
     });
 
+    it("should pre-cache one trajectory node in prev direction", () => {
+        graphService.setGraphMode(GraphMode.Spatial);
+
+        const playService: PlayService = new PlayService(graphService, stateService);
+        playService.setDirection(EdgeDirection.Prev);
+
+        const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
+        spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
+
+        playService.play();
+
+        const sequenceKey: string = "sequenceKey";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.key = "node0";
+        const currentNode: Node = new Node(currentFullNode);
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+
+        const prevNodeKey: string = "node1";
+
+        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+        currentNodeSubject.next(currentNode);
+
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevNodeKey, currentNode.key]});
+        cacheSequenceSubject.next(sequence);
+
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const state: ICurrentState = createState();
+        state.trajectory = [currentNode];
+        state.lastNode = currentNode;
+        state.nodesAhead = 0;
+
+        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        cacheNodeSubject.next(new NodeHelper().createNode());
+
+        expect(cacheNodeSpy.calls.count()).toBe(1);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(prevNodeKey);
+
+        // Sequence should not have changed because of internal reversing
+        expect(sequence.keys[0]).toBe(prevNodeKey);
+        expect(sequence.keys[1]).toBe(currentNode.key);
+
+        playService.stop();
+    });
+
     it("should not pre-cache the same node twice", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
@@ -665,12 +716,15 @@ describe("PlayService.play", () => {
 
         const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
-        currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         cacheNodeSubject.next(new NodeHelper().createNode());
 
         expect(cacheNodeSpy.calls.count()).toBe(1);
         expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(nextNodeKey);
+
+        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+
+        expect(cacheNodeSpy.calls.count()).toBe(1);
 
         playService.stop();
     });
