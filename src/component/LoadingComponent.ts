@@ -3,6 +3,7 @@
 import * as _ from "underscore";
 import * as vd from "virtual-dom";
 
+import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/operator/combineLatest";
@@ -11,6 +12,7 @@ import {Container, Navigator} from "../Viewer";
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 
 import {IVNodeHash} from "../Render";
+import {ILoadStatus} from "../Graph";
 
 export class LoadingComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "loading";
@@ -23,13 +25,14 @@ export class LoadingComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._loadingSubscription = this._navigator.loadingService.loading$
-            .combineLatest(
-                this._navigator.imageLoadingService.loadstatus$,
-                (loading: boolean, loadStatus: any): IVNodeHash => {
-                    if (!loading) {
-                        return {name: "loading", vnode: this._getBarVNode(100)};
-                    }
-
+            .switchMap(
+                (loading: boolean): Observable<{ [key: string]: ILoadStatus }> => {
+                    return loading ?
+                        this._navigator.imageLoadingService.loadstatus$ :
+                        Observable.of({});
+                })
+            .map(
+                (loadStatus: { [key: string]: ILoadStatus }): IVNodeHash => {
                     let total: number = 0;
                     let loaded: number = 0;
 
