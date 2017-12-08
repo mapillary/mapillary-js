@@ -12,11 +12,29 @@ export class ImageLoadingService {
     constructor () {
         this._loadstatus$ = this._loadnode$
             .scan(
-                (nodes: {[key: string]: ILoadStatus}, node: Node): {[key: string]: ILoadStatus} => {
-                    nodes[node.key] = node.loadStatus;
-                    return nodes;
+                ([nodes]: [{[key: string]: ILoadStatus}, boolean], node: Node): [{[key: string]: ILoadStatus}, boolean] => {
+                    let changed: boolean = false;
+                    if (node.loadStatus.total === 0 || node.loadStatus.loaded === node.loadStatus.total) {
+                        if (node.key in nodes) {
+                            delete nodes[node.key];
+                            changed = true;
+                        }
+                    } else {
+                        nodes[node.key] = node.loadStatus;
+                        changed = true;
+                    }
+
+                    return [nodes, changed];
                 },
-                {})
+                [{}, false])
+            .filter(
+                ([nodes, changed]: [{[key: string]: ILoadStatus}, boolean]): boolean => {
+                    return changed;
+                })
+            .map(
+                ([nodes]: [{[key: string]: ILoadStatus}, boolean]): {[key: string]: ILoadStatus} => {
+                    return nodes;
+                })
             .publishReplay(1)
             .refCount();
 
