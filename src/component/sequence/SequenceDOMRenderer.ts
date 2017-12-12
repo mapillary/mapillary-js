@@ -7,7 +7,7 @@ import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
 import {
-    ControlMode,
+    SequenceMode,
     ISequenceConfiguration,
     SequenceComponent,
     SequenceDOMInteraction,
@@ -33,7 +33,7 @@ export class SequenceDOMRenderer {
     private _controlsDefaultWidth: number;
     private _defaultHeight: number;
     private _expandControls: boolean;
-    private _mode: ControlMode;
+    private _mode: SequenceMode;
     private _speed: number;
     private _changingSpeed: boolean;
 
@@ -54,7 +54,7 @@ export class SequenceDOMRenderer {
 
         this._defaultHeight = 30;
         this._expandControls = false;
-        this._mode = ControlMode.Default;
+        this._mode = SequenceMode.Default;
         this._speed = 0.5;
         this._changingSpeed = false;
 
@@ -102,7 +102,7 @@ export class SequenceDOMRenderer {
 
         this._changingSpeed = false;
         this._expandControls = false;
-        this._mode = ControlMode.Default;
+        this._mode = SequenceMode.Default;
 
         this._changingSpeedSubscription.unsubscribe();
         this._changingSpeedSubscription = null;
@@ -199,7 +199,7 @@ export class SequenceDOMRenderer {
         component: SequenceComponent,
         configuration: ISequenceConfiguration): vd.VNode {
 
-        if (this._mode !== ControlMode.Playback) {
+        if (this._mode !== SequenceMode.Playback) {
             return vd.h("div.SequencePlayback", []);
         }
 
@@ -224,7 +224,7 @@ export class SequenceDOMRenderer {
         const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
         const closeButtonProperties: vd.createProperties = {
             onclick: (): void => {
-                this._mode = ControlMode.Default;
+                this._mode = SequenceMode.Default;
                 this._notifyChanged$.next(this);
             },
         };
@@ -277,7 +277,7 @@ export class SequenceDOMRenderer {
         const expanderProperties: vd.createProperties = {
             onclick: (): void => {
                 this._expandControls = !this._expandControls;
-                this._mode = ControlMode.Default;
+                this._mode = SequenceMode.Default;
                 this._notifyChanged$.next(this);
             },
             style: {
@@ -287,15 +287,15 @@ export class SequenceDOMRenderer {
         };
         const expanderBar: vd.VNode = vd.h("div.SequenceExpanderBar", []);
         const expander: vd.VNode = vd.h("div.SequenceExpanderButton", expanderProperties, [expanderBar]);
-        const fastIconClassName: string = this._mode === ControlMode.Playback ?
+        const fastIconClassName: string = this._mode === SequenceMode.Playback ?
             ".SequenceFastIconGrey.SequenceIconVisible" : ".SequenceFastIcon";
         const fastIcon: vd.VNode = vd.h("div" + fastIconClassName, []);
 
         const playbackProperties: vd.createProperties = {
             onclick: (): void => {
-                this._mode = this._mode === ControlMode.Playback ?
-                    ControlMode.Default :
-                    ControlMode.Playback;
+                this._mode = this._mode === SequenceMode.Playback ?
+                    SequenceMode.Default :
+                    SequenceMode.Playback;
                 this._notifyChanged$.next(this);
             },
         };
