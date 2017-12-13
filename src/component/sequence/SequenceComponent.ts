@@ -232,17 +232,21 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .publishReplay(1)
             .refCount();
 
+        const position$: Observable<number> = this._sequenceDOMRenderer.position$
+            .startWith(0);
+
         this._renderSubscription = Observable
             .combineLatest(
                 edgeStatus$,
                 this._configuration$,
                 this._containerWidth$,
                 this._sequenceDOMRenderer.changed$.startWith(this._sequenceDOMRenderer),
-                this._navigator.playService.speed$)
+                this._navigator.playService.speed$,
+                position$)
             .map(
                 (
-                    [edgeStatus, configuration, containerWidth, renderer, speed]:
-                    [IEdgeStatus, ISequenceConfiguration, number, SequenceDOMRenderer, number]): IVNodeHash => {
+                    [edgeStatus, configuration, containerWidth, renderer, speed, position]:
+                    [IEdgeStatus, ISequenceConfiguration, number, SequenceDOMRenderer, number, number]): IVNodeHash => {
 
                     const vNode: vd.VNode = this._sequenceDOMRenderer
                         .render(
@@ -250,6 +254,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                             configuration,
                             containerWidth,
                             speed,
+                            position,
                             this,
                             this._sequenceDOMInteraction,
                             this._navigator);

@@ -36,11 +36,14 @@ export class SequenceDOMRenderer {
     private _mode: SequenceMode;
     private _speed: number;
     private _changingSpeed: boolean;
+    private _position: number;
+    private _changingPosition: boolean;
 
     private _notifyChanged$: Subject<SequenceDOMRenderer>;
     private _notifySpeedChanged$: Subject<number>;
+    private _notifyPositionChanged$: Subject<number>;
 
-    private _changingSpeedSubscription: Subscription;
+    private _changingSubscription: Subscription;
 
     constructor(container: Container) {
         this._container = container;
@@ -57,9 +60,12 @@ export class SequenceDOMRenderer {
         this._mode = SequenceMode.Default;
         this._speed = 0.5;
         this._changingSpeed = false;
+        this._position = 0;
+        this._changingPosition = false;
 
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
         this._notifySpeedChanged$ = new Subject<number>();
+        this._notifyPositionChanged$ = new Subject<number>();
     }
 
     public get speed(): number {
@@ -74,12 +80,16 @@ export class SequenceDOMRenderer {
         return this._notifySpeedChanged$;
     }
 
+    public get position$(): Observable<number> {
+        return this._notifyPositionChanged$;
+    }
+
     public activate(): void {
-        if (!!this._changingSpeedSubscription) {
+        if (!!this._changingSubscription) {
             return;
         }
 
-        this._changingSpeedSubscription = Observable
+        this._changingSubscription = Observable
             .merge(
                 this._container.mouseService.documentMouseUp$,
                 this._container.touchService.touchEnd$
@@ -92,20 +102,25 @@ export class SequenceDOMRenderer {
                     if (this._changingSpeed) {
                         this._changingSpeed = false;
                     }
+
+                    if (this._changingPosition) {
+                        this._changingPosition = false;
+                    }
                 });
     }
 
     public deactivate(): void {
-        if (!this._changingSpeedSubscription) {
+        if (!this._changingSubscription) {
             return;
         }
 
         this._changingSpeed = false;
+        this._changingPosition = false;
         this._expandControls = false;
         this._mode = SequenceMode.Default;
 
-        this._changingSpeedSubscription.unsubscribe();
-        this._changingSpeedSubscription = null;
+        this._changingSubscription.unsubscribe();
+        this._changingSubscription = null;
     }
 
     public render(
@@ -113,6 +128,7 @@ export class SequenceDOMRenderer {
         configuration: ISequenceConfiguration,
         containerWidth: number,
         speed: number,
+        position: number,
         component: SequenceComponent,
         interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode {
@@ -125,7 +141,7 @@ export class SequenceDOMRenderer {
             this._createStepper(edgeStatus, configuration, containerWidth, component, interaction, navigator);
         const controls: vd.VNode = this._createSequenceControls(containerWidth);
         const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed, component, configuration);
-        const timeline: vd.VNode = this._createTimelineControls(containerWidth, component, configuration);
+        const timeline: vd.VNode = this._createTimelineControls(containerWidth, position);
 
         return vd.h("div.SequenceContainer", [stepper, controls, playback, timeline]);
     }
@@ -150,19 +166,44 @@ export class SequenceDOMRenderer {
         return minWidth + coeff * (maxWidth - minWidth);
     }
 
-    private _createPositionInput(): vd.VNode {
+    private _createPositionInput(position: number): vd.VNode {
+        this._position = position;
+
+        const onPosition: (e: Event) => void = (e: Event): void => {
+            this._position = Number((<HTMLInputElement>e.target).value) / 1000;
+            this._notifyPositionChanged$.next(this._position);
+        };
+
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
         const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 65;
+
+        const onStart: (e: Event) => void = (e: Event): void => {
+            this._changingPosition = true;
+            e.stopPropagation();
+        };
+
+        const onMove: (e: Event) => void = (e: Event): void => {
+            if (this._changingPosition === true) {
+                e.stopPropagation();
+            }
+        };
+
         const speedInput: vd.VNode = vd.h(
             "input.SequencePosition",
             {
                 max: 1000,
                 min: 0,
+                onchange: onPosition,
+                oninput: onPosition,
+                onmousedown: onStart,
+                onmousemove: onMove,
+                ontouchmove: onMove,
+                ontouchstart: onStart,
                 style: {
                     width: `${width}px`,
                 },
                 type: "range",
-                value: 500,
+                value: 1000 * position,
             },
             []);
 
@@ -438,16 +479,12 @@ export class SequenceDOMRenderer {
         return vd.h("div.SequenceStepper", containerProperties, buttons);
     }
 
-    private _createTimelineControls(
-        containerWidth: number,
-        component: SequenceComponent,
-        configuration: ISequenceConfiguration): vd.VNode {
-
+    private _createTimelineControls(containerWidth: number, position: number): vd.VNode {
         if (this._mode !== SequenceMode.Timeline) {
             return vd.h("div.SequenceTimeline", []);
         }
 
-        const position: vd.VNode = this._createPositionInput();
+        const positionInput: vd.VNode = this._createPositionInput(position);
 
         const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
         const closeButtonProperties: vd.createProperties = {
@@ -462,7 +499,7 @@ export class SequenceDOMRenderer {
         const top: number = Math.round(containerWidth / this._stepperDefaultWidth * this._defaultHeight + 10);
         const playbackProperties: vd.createProperties = { style: { top: `${top}px` } };
 
-        return vd.h("div.SequenceTimeline", playbackProperties, [position, closeButton]);
+        return vd.h("div.SequenceTimeline", playbackProperties, [positionInput, closeButton]);
     }
 
     private _getStepClassName(direction: EdgeDirection, key: string, highlightKey: string): string {
