@@ -50,7 +50,7 @@ export class SequenceDOMRenderer {
         this._minThresholdHeight = 240;
         this._maxThresholdHeight = 820;
         this._stepperDefaultWidth = 108;
-        this._controlsDefaultWidth = 52;
+        this._controlsDefaultWidth = 88;
 
         this._defaultHeight = 30;
         this._expandControls = false;
@@ -287,10 +287,10 @@ export class SequenceDOMRenderer {
         };
         const expanderBar: vd.VNode = vd.h("div.SequenceExpanderBar", []);
         const expander: vd.VNode = vd.h("div.SequenceExpanderButton", expanderProperties, [expanderBar]);
+
         const fastIconClassName: string = this._mode === SequenceMode.Playback ?
             ".SequenceFastIconGrey.SequenceIconVisible" : ".SequenceFastIcon";
         const fastIcon: vd.VNode = vd.h("div" + fastIconClassName, []);
-
         const playbackProperties: vd.createProperties = {
             onclick: (): void => {
                 this._mode = this._mode === SequenceMode.Playback ?
@@ -299,7 +299,22 @@ export class SequenceDOMRenderer {
                 this._notifyChanged$.next(this);
             },
         };
-        const controls: vd.VNode = vd.h("div.SequencePlaybackButton", playbackProperties, [fastIcon]);
+
+        const playback: vd.VNode = vd.h("div.SequencePlaybackButton", playbackProperties, [fastIcon]);
+
+        const timelineIconClassName: string = this._mode === SequenceMode.Timeline ?
+            ".SequenceTimelineIconGrey.SequenceIconVisible" : ".SequenceTimelineIcon";
+        const timelineIcon: vd.VNode = vd.h("div" + timelineIconClassName, []);
+        const timelineProperties: vd.createProperties = {
+            onclick: (): void => {
+                this._mode = this._mode === SequenceMode.Timeline ?
+                    SequenceMode.Default :
+                    SequenceMode.Timeline;
+                this._notifyChanged$.next(this);
+            },
+        };
+
+        const timeline: vd.VNode = vd.h("div.SequenceTimelineButton", timelineProperties, [timelineIcon]);
 
         const properties: vd.createProperties = {
             style: {
@@ -312,7 +327,7 @@ export class SequenceDOMRenderer {
         const className: string = ".SequenceControls" +
             (this._expandControls ? ".SequenceControlsExpanded" : "");
 
-        return vd.h("div" + className, properties, [controls, expander]);
+        return vd.h("div" + className, properties, [playback, timeline, expander]);
     }
 
     private _createSequenceArrows(

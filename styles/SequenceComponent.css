@@ -19,14 +19,15 @@
 }
 
 .SequenceExpanderButton,
-.SequencePlaybackButton {
+.SequencePlaybackButton,
+.SequenceTimelineButton {
     display: inline-block;
     height: 100%;
     pointer-events: auto;
 }
 
 .SequenceExpanderButton {
-    width: calc(100% * 16 / 52);
+    width: calc(100% * 16 / 88);
     background: rgba(24, 25, 28, 0.3);
 }
 
@@ -41,7 +42,8 @@
     transform: translate(-50%, -50%);
 }
 
-.SequencePlaybackButton {
+.SequencePlaybackButton,
+.SequenceTimelineButton {
     width: 0;
     background: rgba(24, 25, 28, 0.5);
     transition: width 0.15s ease-out;
@@ -70,6 +72,8 @@
 
 .SequenceFastIcon,
 .SequenceFastIconGrey,
+.SequenceTimelineIcon,
+.SequenceTimelineIconGrey,
 .SequenceSlowIcon,
 .SequenceSwitchIcon,
 .SequenceCloseIcon {
@@ -82,13 +86,16 @@
     opacity: 0;
 }
 
-.SequenceFastIcon {
+.SequenceFastIcon,
+.SequenceTimelineIcon {
     transition-delay: 0s;
     transition-property: opacity;
 }
 
 .SequenceFastIcon,
 .SequenceFastIconGrey,
+.SequenceTimelineIcon,
+.SequenceTimelineIconGrey,
 .SequenceSlowIcon {
     width: calc(100% * 24 / 36);
     height: calc(100% * 24 / 30);
@@ -108,6 +115,14 @@
     background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgPHRpdGxlPgogICAgZmFzdAogIDwvdGl0bGU+CiAgPGRlZnM+CiAgICA8cGF0aCBkPSJNMjAuMTQ4NCAxMy41Yy0yLjE1MTcgMC0yLjU0NzguODYyLTMuNTY3NiAxLjM2MDUtMS44NTMzLjkwNi0zLjA5OTMgMi4wNzI2LTMuMDk5MyA0LjI2NDUgMCAxLjE2MTQtLjAxMDMgMS44NzUtLjM3MDMgMS44NzUtLjY1NzUgMC0uOTkzOC0uNjkxLTEuMjk4OC0xLjIyLS4yMDgyLjA2OS0uNDI2Ny4xMDEyLS42NDU3LjA5NS0uODQzNyAwLTUuNDYzLTEuNjg2Ny01LjQ2My0yLjYyNSAwLS41NTEuMzcwMy0uODQ3LjM3MDMtMS41di0uMDFjLS4wMTY1LS41NTM0LS4yODY3LTEuMDY3My0uNzMwOC0xLjM5LS41OTQzLS40MzA1LTEuMDQ0LTEuMDM1LTEuMjg4Mi0xLjczMjMtLjE3OTIuMDg2My0uMzc1LjEzMTUtLjU3MzUuMTMyM0MyLjc3MDUgMTIuNzUgMiAxMS44NzMgMiAxMC41YzAtMS4zNjk0LjI2Ni0xLjg3NS41NTU2LTEuODc1LjM3NTQgMCAuNDYzLjE4NzUuNDYzLjE4NzVzLjI1NjgtLjk0MS43Nzk4LS45NDFjLjI3MTIuMDAzNy41MTc3LjE2MDIuNjM5LjQwNTcuODgwMi0xLjAwOTcgMi4xNTktMS41Njk2IDMuNDg4NC0xLjUyNzIgNS4zNzIgMCA1LjcyOTcgMy4zNzUgNy40MDc1IDMuMzc1LjYyMTQgMCAxLjExMS0uODkyNyAxLjExMS0xLjEyNSAwLS43MjA2LTMuMzMzMy0yLjA3NTctMy4zMzMzLTUuMjUgMC0uNDk2LjM5MzUtLjc1LjkyNi0uNzUuNDYzIDAgMS40NTEzLjYxMDQgMi4wMzcgMS41Ljg5NSAxLjM1OTQuNzU5IDMgMS44NTIgMy43NS40MDkuMjgwOCAxLjQ1MTguMjYwMyAyLjIyMi43NS43NzA1LjQ4OTcgMS4yNDY0IDEuMzAyNyAxLjQ4MTYgMS41LjIxNy4xOTAzLjM1MDIuNDYuMzcwNC43NSAwIC4zNjEzLS44MDUzIDIuMjUtMS44NTE2IDIuMjV6bS04Ljg4OSAzYy0uOTkwNy0uMDE4OC0xLjk2NjUtLjI0ODQtMi44NjQtLjY3MzgtLjA1OTIuMjE5OC0uMDkyNS40NDYtLjA5OS42NzM4IDAgLjYyNzMuNDc5Ny44NjggMi4yMjIgMS41LjM5MTYuMTM0Ljc2OTcuMzA1MiAxLjEyOTMuNTExMy4wNDA0LS42ODMuMTE1NC0xLjM2MzIuMjI1LTIuMDM4My0uMjAwNC4wMTQzLS40MDIyLjAyNy0uNjEzMy4wMjd6IiBpZD0iYSIvPgogIDwvZGVmcz4KICA8dXNlIGZpbGw9IiNEN0RBREQiIGZpbGwtcnVsZT0ibm9uemVybyIgeGxpbms6aHJlZj0iI2EiLz4KPC9zdmc+');
 }
 
+.SequenceTimelineIcon {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGl0bGU+CiAgICBzY3J1YmJlcgogIDwvdGl0bGU+CiAgPHBhdGggZD0iTTE4IDhoMmMuNTUyMyAwIDEgLjQ0NzcgMSAxdjEwYzAgLjU1MjMtLjQ0NzcgMS0xIDFIN2MtLjU1MjMgMC0xLS40NDc3LTEtMXYtM0g0Yy0uNTUyMyAwLTEtLjQ0NzctMS0xVjVjMC0uNTUyMy40NDc3LTEgMS0xaDEzYy41NTIzIDAgMSAuNDQ3NyAxIDF2M3pNNy41IDljLS4yNzYgMC0uNS4yMjQtLjUuNXY5YzAgLjI3Ni4yMjQuNS41LjVoMTJjLjI3NiAwIC41LS4yMjQuNS0uNXYtOWMwLS4yNzYtLjIyNC0uNS0uNS0uNWgtMTJ6IiBmaWxsPSIjRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz4KPC9zdmc+');
+}
+
+.SequenceTimelineIconGrey {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDx0aXRsZT4KICAgICAgc2NydWJiZXIKICAgIDwvdGl0bGU+CiAgICA8cGF0aCBkPSJNMTggOGgyYy41NTIzIDAgMSAuNDQ3NyAxIDF2MTBjMCAuNTUyMy0uNDQ3NyAxLTEgMUg3Yy0uNTUyMyAwLTEtLjQ0NzctMS0xdi0zSDRjLS41NTIzIDAtMS0uNDQ3Ny0xLTFWNWMwLS41NTIzLjQ0NzctMSAxLTFoMTNjLjU1MjMgMCAxIC40NDc3IDEgMXYzek03LjUgOWMtLjI3NiAwLS41LjIyNC0uNS41djljMCAuMjc2LjIyNC41LjUuNWgxMmMuMjc2IDAgLjUtLjIyNC41LS41di05YzAtLjI3Ni0uMjI0LS41LS41LS41aC0xMnoiIGZpbGw9IiNEN0RBREQiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPgogIDwvc3ZnPg==');
+}
+
 .SequenceSlowIcon {
     background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8dGl0bGU+CiAgICAgIHNsb3cKICAgIDwvdGl0bGU+CiAgICA8ZGVmcz4KICAgICAgPHBhdGggZD0iTTE4LjkzMzcgMTMuMjIyMmwtLjc4MTYgMS44OTYzYy4zMzE3LjI1MDMgMS4zMzUgMS4xMDAyIDEuMzM1IDIuMjUxNi0uMDIyMy4zMTMtLjE1OC42MDctLjM4MTYuODI3LS4wNzY4LjA4MDMtLjE4MzQuMTI1NC0uMjk0Ni4xMjQzaC0yLjY1OGMtLjE0NTIgMC0uMjc5Ni0uMDc2Ny0uMzUzNC0uMjAxN2wtLjcxMzYtMS4yMDc0Yy0uMTIwMi0uMjAzNy0uMTQ2OC0uNDQ5Mi0uMDczLS42NzRsLjEyNDgtLjM4MDVINy40Yy4zNjEuNDIzNC41Njg4Ljk1NjMuNTg5OCAxLjUxMjUtLjAyMi4zMTMtLjE1NzcuNjA3LS4zODEzLjgyNjctLjA3NjcuMDgwNC0uMTgzNC4xMjU1LS4yOTQ2LjEyNDRINC42NTZjLS4xNDUyIDAtLjI3OTYtLjA3NjctLjM1MzUtLjIwMTdsLS43MTM2LTEuMjA3NWMtLjEyMDQtLjIwMzYtLjE0Ny0uNDQ5Mi0uMDczMi0uNjc0bC4wMDgyLS4wMjQ2Yy0uNjI5LjQ4MzItMS4zODQuNzc0Ny0yLjE3NDMuODM5Ni0uMTE5Ny4wMTc2LS4yMzg1LS4wMzcyLS4zMDMtLjEzOTctLjA2NDMtLjEwMjUtLjA2Mi0uMjMzNC4wMDU3LS4zMzM3QzMuNDI0NiAxMy40MDE1IDIuNzA4IDYuMDAyMiAxMS4zMTMgNi4wMDIyYzIuNjk0NS0uMDU5IDUuMjc1NSAxLjA4NSA3LjA0MTcgMy4xMjE3Ljc4Ni0uMjQyMiAxLjQ2NS0uNzQ2NyAxLjkyNDItMS40MjkyLjM1My0uNDUzNC45NzI0LS42MDMgMS40OTM1LS4zNjA3bDEuOTg4Ny45MjVjLjE2NDUuMDc2My4yNTk4LjI1MS4yMzUuNDMwOC0uMjAyNSAxLjQ1NTQtMS43ODg2IDMuNzY2Mi01LjA2MjUgNC41MzI0eiIgaWQ9ImEiLz4KICAgIDwvZGVmcz4KICAgIDx1c2UgZmlsbD0iI0Q3REFERCIgZmlsbC1ydWxlPSJub256ZXJvIiB4bGluazpocmVmPSIjYSIvPgogIDwvc3ZnPg==');
 }
@@ -124,15 +139,17 @@
     opacity: 1;
 }
 
-.SequenceControlsExpanded .SequenceFastIcon {
+.SequenceControlsExpanded .SequenceFastIcon,
+.SequenceControlsExpanded .SequenceTimelineIcon {
     opacity: 1;
     transition-delay: 0.12s;
     transition: 0.2s ease-in;
     transition-property: opacity;
 }
 
-.SequenceControlsExpanded .SequencePlaybackButton {
-    width: calc(100% * 36 / 52);
+.SequenceControlsExpanded .SequencePlaybackButton,
+.SequenceControlsExpanded .SequenceTimelineButton {
+    width: calc(100% * 36 / 88);
 }
 
 .SequencePlayback {
@@ -332,6 +349,7 @@
     }
 
     .SequencePlaybackButton:hover,
+    .SequenceTimelineButton:hover,
     .SequenceSwitchButton:hover,
     .SequenceCloseButton:hover {
         background: rgba(24, 25, 28, 0.75);
