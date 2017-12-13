@@ -125,8 +125,9 @@ export class SequenceDOMRenderer {
             this._createStepper(edgeStatus, configuration, containerWidth, component, interaction, navigator);
         const controls: vd.VNode = this._createSequenceControls(containerWidth);
         const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed, component, configuration);
+        const timeline: vd.VNode = this._createTimelineControls(containerWidth, component, configuration);
 
-        return vd.h("div.SequenceContainer", [stepper, controls, playback]);
+        return vd.h("div.SequenceContainer", [stepper, controls, playback, timeline]);
     }
 
     public getContainerWidth(element: HTMLElement, configuration: ISequenceConfiguration): number {
@@ -147,6 +148,25 @@ export class SequenceDOMRenderer {
         let coeff: number = Math.max(0, Math.min(1, Math.min(relativeWidth, relativeHeight)));
 
         return minWidth + coeff * (maxWidth - minWidth);
+    }
+
+    private _createPositionInput(): vd.VNode {
+        const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
+        const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 65;
+        const speedInput: vd.VNode = vd.h(
+            "input.SequencePosition",
+            {
+                max: 1000,
+                min: 0,
+                style: {
+                    width: `${width}px`,
+                },
+                type: "range",
+                value: 500,
+            },
+            []);
+
+        return vd.h("div.SequencePositionContainer", [speedInput]);
     }
 
     private _createSpeedInput(speed: number): vd.VNode {
@@ -416,6 +436,33 @@ export class SequenceDOMRenderer {
         };
 
         return vd.h("div.SequenceStepper", containerProperties, buttons);
+    }
+
+    private _createTimelineControls(
+        containerWidth: number,
+        component: SequenceComponent,
+        configuration: ISequenceConfiguration): vd.VNode {
+
+        if (this._mode !== SequenceMode.Timeline) {
+            return vd.h("div.SequenceTimeline", []);
+        }
+
+        const position: vd.VNode = this._createPositionInput();
+
+        const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
+        const closeButtonProperties: vd.createProperties = {
+            onclick: (): void => {
+                this._mode = SequenceMode.Default;
+                this._notifyChanged$.next(this);
+            },
+        };
+
+        const closeButton: vd.VNode = vd.h("div.SequenceCloseButton", closeButtonProperties, [closeIcon]);
+
+        const top: number = Math.round(containerWidth / this._stepperDefaultWidth * this._defaultHeight + 10);
+        const playbackProperties: vd.createProperties = { style: { top: `${top}px` } };
+
+        return vd.h("div.SequenceTimeline", playbackProperties, [position, closeButton]);
     }
 
     private _getStepClassName(direction: EdgeDirection, key: string, highlightKey: string): string {
