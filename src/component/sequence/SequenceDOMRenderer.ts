@@ -60,7 +60,7 @@ export class SequenceDOMRenderer {
         this._mode = SequenceMode.Default;
         this._speed = 0.5;
         this._changingSpeed = false;
-        this._position = 0;
+        this._position = null;
         this._changingPosition = false;
 
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
@@ -188,26 +188,31 @@ export class SequenceDOMRenderer {
             }
         };
 
-        const speedInput: vd.VNode = vd.h(
-            "input.SequencePosition",
-            {
-                max: 1000,
-                min: 0,
-                onchange: onPosition,
-                oninput: onPosition,
-                onmousedown: onStart,
-                onmousemove: onMove,
-                ontouchmove: onMove,
-                ontouchstart: onStart,
-                style: {
-                    width: `${width}px`,
-                },
-                type: "range",
-                value: 1000 * position,
+        const positionInputProperties: vd.createProperties = {
+            max: 1000,
+            min: 0,
+            onchange: onPosition,
+            oninput: onPosition,
+            onmousedown: onStart,
+            onmousemove: onMove,
+            ontouchmove: onMove,
+            ontouchstart: onStart,
+            style: {
+                width: `${width}px`,
             },
-            []);
+            type: "range",
+            value: 1000 * position,
+        };
 
-        return vd.h("div.SequencePositionContainer", [speedInput]);
+        if (position === null) {
+            positionInputProperties.disabled = "true";
+        }
+
+        const positionInput: vd.VNode = vd.h("input.SequencePosition", positionInputProperties, []);
+
+        const positionContainerClass: string = position === null ? ".SequencePositionContainerDisabled" : ".SequencePositionContainer";
+
+        return vd.h("div" + positionContainerClass, [positionInput]);
     }
 
     private _createSpeedInput(speed: number): vd.VNode {

@@ -233,7 +233,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .refCount();
 
         const position$: Observable<number> = this._sequenceDOMRenderer.position$
-            .startWith(0);
+            .startWith(null);
 
         this._renderSubscription = Observable
             .combineLatest(

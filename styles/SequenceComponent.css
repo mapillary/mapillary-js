@@ -50,7 +50,8 @@
 }
 
 .SequenceSpeedContainer,
-.SequencePositionContainer {
+.SequencePositionContainer,
+.SequencePositionContainerDisabled {
     display: inline-block;
     height: 100%;
     vertical-align: top;
@@ -63,7 +64,8 @@
     padding-left: 3px;
 }
 
-.SequencePositionContainer {
+.SequencePositionContainer,
+.SequencePositionContainerDisabled {
     padding-left: 16px;
 }
 
@@ -77,6 +79,10 @@
     outline: none;
     background: none;
     -webkit-appearance: none;
+}
+
+.SequencePositionContainerDisabled .SequencePosition {
+    cursor: default;
 }
 
 .SequenceFastIcon,
@@ -221,7 +227,8 @@
 
 .SequenceSwitchButton,
 .SequenceSwitchButtonDisabled,
-.SequencePositionContainer {
+.SequencePositionContainer,
+.SequencePositionContainerDisabled {
     border-bottom-left-radius: 8px;
     border-top-left-radius: 8px;
 }
@@ -296,11 +303,21 @@
     box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
+.SequencePositionContainerDisabled .SequencePosition::-webkit-slider-thumb {
+    border: none;
+    background: none;
+    box-shadow: none;
+}
+
 .SequenceSpeed::-webkit-slider-runnable-track,
 .SequencePosition::-webkit-slider-runnable-track {
     height: 4px;
     border-radius: 2px;
     background-color: white;
+}
+
+.SequencePositionContainerDisabled .SequencePosition::-webkit-slider-runnable-track {
+    background-color: #d7dadd;
 }
 
 .SequenceSpeed::-moz-focus-outer,
@@ -313,6 +330,10 @@
     height: 4px;
     border-radius: 2px;
     background-color: white;
+}
+
+.SequencePositionContainerDisabled .SequencePosition::-moz-range-track {
+    background-color: #d7dadd;
 }
 
 .SequenceSpeed::-moz-range-thumb {
@@ -337,11 +358,21 @@
     box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
+.SequencePositionContainerDisabled .SequencePosition::-moz-range-thumb {
+    border: none;
+    background: none;
+    box-shadow: none;
+}
+
 .SequenceSpeed::-ms-track,
 .SequencePosition::-ms-track {
     height: 2px;
     border-radius: 2px;
     background-color: white;
+}
+
+.SequencePositionContainerDisabled .SequencePosition::-ms-track {
+    background-color: #d7dadd;
 }
 
 .SequenceSpeed::-ms-fill-lower,
@@ -376,6 +407,12 @@
     cursor: pointer;
     margin-top: 0;
     box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.SequencePositionContainerDisabled .SequencePosition::-ms-thumb {
+    border: none;
+    background: none;
+    box-shadow: none;
 }
 
 .SequenceSpeed::-ms-tooltip,
