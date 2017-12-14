@@ -254,7 +254,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                             this._navigator.graphService.cacheSequence$(node.sequenceKey));
                 });
 
-        const position$: Observable<number> = Observable
+        const index$: Observable<number> = Observable
             .combineLatest(
                 sequence$,
                 currentKey$)
@@ -266,13 +266,56 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
                     const index: number = sequence.keys.indexOf(nodeKey);
 
-                    if (index === -1) {
-                        return null;
-                    }
-
-                    return index / sequence.keys.length;
+                    return index === -1 ?  null : index;
                 })
-            .startWith(null);
+            .startWith(null)
+            .publishReplay(1)
+            .refCount();
+
+        index$.subscribe();
+
+        this._sequenceDOMRenderer.position$
+            .combineLatest(sequence$)
+            .map(
+                ([position, sequence]: [number, Sequence]): string => {
+                    return sequence.keys[position];
+                })
+            .distinctUntilChanged()
+            .debounceTime(25)
+            .switchMap(
+                (key: string): Observable<Node> => {
+                    return this._navigator.moveToKey$(key)
+                            .catch(
+                                (e: Error): Observable<Node> => {
+                                    return Observable.empty();
+                                });
+
+                })
+            .subscribe();
+
+        const position$: Observable<{ index: number, max: number }> = this._sequenceDOMRenderer.changed$
+            .map(
+                (renderer: SequenceDOMRenderer): boolean => {
+                    return renderer.changingPosition;
+                })
+            .startWith(false)
+            .distinctUntilChanged()
+            .switchMap(
+                (changingPosition: boolean): Observable<number> => {
+                    return changingPosition ?
+                        this._sequenceDOMRenderer.position$ :
+                        index$;
+                })
+            .combineLatest(
+                sequence$
+                    .map(
+                        (sequence: Sequence): number => {
+                            return sequence == null ? null : sequence.keys.length;
+                        })
+                    .startWith(null),
+                (position: number, length: number): { index: number, max: number } => {
+                    return { index: position, max: length - 1 };
+                });
 
         this._renderSubscription = Observable
             .combineLatest(
@@ -285,7 +328,14 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .map(
                 (
                     [edgeStatus, configuration, containerWidth, renderer, speed, position]:
-                    [IEdgeStatus, ISequenceConfiguration, number, SequenceDOMRenderer, number, number]): IVNodeHash => {
+                    [
+                        IEdgeStatus,
+                        ISequenceConfiguration,
+                        number,
+                        SequenceDOMRenderer,
+                        number,
+                        { index: number, max: number }
+                    ]): IVNodeHash => {
 
                     const vNode: vd.VNode = this._sequenceDOMRenderer
                         .render(
@@ -293,7 +343,8 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                             configuration,
                             containerWidth,
                             speed,
-                            position,
+                            position.index,
+                            position.max,
                             this,
                             this._sequenceDOMInteraction,
                             this._navigator);

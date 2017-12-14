@@ -68,8 +68,8 @@ export class SequenceDOMRenderer {
         this._notifyPositionChanged$ = new Subject<number>();
     }
 
-    public get speed(): number {
-        return this._speed;
+    public get changingPosition(): boolean {
+        return this._changingPosition;
     }
 
     public get changed$(): Observable<SequenceDOMRenderer> {
@@ -105,6 +105,7 @@ export class SequenceDOMRenderer {
 
                     if (this._changingPosition) {
                         this._changingPosition = false;
+                        this._notifyChanged$.next(this);
                     }
                 });
     }
@@ -128,7 +129,8 @@ export class SequenceDOMRenderer {
         configuration: ISequenceConfiguration,
         containerWidth: number,
         speed: number,
-        position: number,
+        index: number,
+        max: number,
         component: SequenceComponent,
         interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode {
@@ -141,7 +143,7 @@ export class SequenceDOMRenderer {
             this._createStepper(edgeStatus, configuration, containerWidth, component, interaction, navigator);
         const controls: vd.VNode = this._createSequenceControls(containerWidth);
         const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed, component, configuration);
-        const timeline: vd.VNode = this._createTimelineControls(containerWidth, position);
+        const timeline: vd.VNode = this._createTimelineControls(containerWidth, index, max);
 
         return vd.h("div.SequenceContainer", [stepper, controls, playback, timeline]);
     }
@@ -166,11 +168,11 @@ export class SequenceDOMRenderer {
         return minWidth + coeff * (maxWidth - minWidth);
     }
 
-    private _createPositionInput(position: number): vd.VNode {
+    private _createPositionInput(position: number, max: number): vd.VNode {
         this._position = position;
 
         const onPosition: (e: Event) => void = (e: Event): void => {
-            this._position = Number((<HTMLInputElement>e.target).value) / 1000;
+            this._position = Number((<HTMLInputElement>e.target).value);
             this._notifyPositionChanged$.next(this._position);
         };
 
@@ -178,8 +180,10 @@ export class SequenceDOMRenderer {
         const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 65;
 
         const onStart: (e: Event) => void = (e: Event): void => {
-            this._changingPosition = true;
             e.stopPropagation();
+
+            this._changingPosition = true;
+            this._notifyChanged$.next(this);
         };
 
         const onMove: (e: Event) => void = (e: Event): void => {
@@ -189,7 +193,7 @@ export class SequenceDOMRenderer {
         };
 
         const positionInputProperties: vd.createProperties = {
-            max: 1000,
+            max: max != null ? max : 1,
             min: 0,
             onchange: onPosition,
             oninput: onPosition,
@@ -201,16 +205,18 @@ export class SequenceDOMRenderer {
                 width: `${width}px`,
             },
             type: "range",
-            value: 1000 * position,
+            value: position != null ? position : 0,
         };
 
-        if (position === null) {
+        const disabled: boolean = position === null || max === null;
+
+        if (disabled) {
             positionInputProperties.disabled = "true";
         }
 
         const positionInput: vd.VNode = vd.h("input.SequencePosition", positionInputProperties, []);
 
-        const positionContainerClass: string = position === null ? ".SequencePositionContainerDisabled" : ".SequencePositionContainer";
+        const positionContainerClass: string = disabled ? ".SequencePositionContainerDisabled" : ".SequencePositionContainer";
 
         return vd.h("div" + positionContainerClass, [positionInput]);
     }
@@ -484,12 +490,12 @@ export class SequenceDOMRenderer {
         return vd.h("div.SequenceStepper", containerProperties, buttons);
     }
 
-    private _createTimelineControls(containerWidth: number, position: number): vd.VNode {
+    private _createTimelineControls(containerWidth: number, position: number, max: number): vd.VNode {
         if (this._mode !== SequenceMode.Timeline) {
             return vd.h("div.SequenceTimeline", []);
         }
 
-        const positionInput: vd.VNode = this._createPositionInput(position);
+        const positionInput: vd.VNode = this._createPositionInput(position, max);
 
         const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
         const closeButtonProperties: vd.createProperties = {
