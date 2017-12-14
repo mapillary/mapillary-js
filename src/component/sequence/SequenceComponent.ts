@@ -8,6 +8,7 @@ import {Subject} from "rxjs/Subject";
 
 import "rxjs/add/observable/combineLatest";
 import "rxjs/add/observable/of";
+import "rxjs/add/observable/concat";
 
 import "rxjs/add/operator/bufferCount";
 import "rxjs/add/operator/concat";
@@ -232,7 +233,45 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .publishReplay(1)
             .refCount();
 
-        const position$: Observable<number> = this._sequenceDOMRenderer.position$
+        const currentKey$: Observable<string> = this._navigator.stateService.currentNode$
+                .map(
+                    (node: Node): string => {
+                        return node.key;
+                    })
+                .distinctUntilChanged();
+
+        const sequence$: Observable<Sequence> = this._navigator.stateService.currentNode$
+            .distinctUntilChanged(
+                undefined,
+                (node: Node): string => {
+                    return node.sequenceKey;
+                })
+            .switchMap(
+                (node: Node): Observable<Sequence> => {
+                    return Observable
+                        .concat(
+                            Observable.of(null),
+                            this._navigator.graphService.cacheSequence$(node.sequenceKey));
+                });
+
+        const position$: Observable<number> = Observable
+            .combineLatest(
+                sequence$,
+                currentKey$)
+            .map(
+                ([sequence, nodeKey]: [Sequence, string]): number => {
+                    if (sequence == null) {
+                        return null;
+                    }
+
+                    const index: number = sequence.keys.indexOf(nodeKey);
+
+                    if (index === -1) {
+                        return null;
+                    }
+
+                    return index / sequence.keys.length;
+                })
             .startWith(null);
 
         this._renderSubscription = Observable
