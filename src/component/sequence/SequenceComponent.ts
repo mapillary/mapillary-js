@@ -393,17 +393,16 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                         })
                     .startWith(false)
                     .distinctUntilChanged())
-            .withLatestFrom(sequence$)
+            .withLatestFrom(this._navigator.stateService.currentNode$)
             .switchMap(
-                ([[mode, changing], sequence]: [[GraphMode, boolean], Sequence]): Observable<Sequence> => {
-                    return changing && mode === GraphMode.Sequence && sequence != null ?
-                        this._navigator.graphService.cacheSequenceNodes$(sequence.key) :
+                ([[mode, changing], node]: [[GraphMode, boolean], Node]): Observable<Sequence> => {
+                    return changing && mode === GraphMode.Sequence ?
+                        this._navigator.graphService.cacheSequenceNodes$(node.sequenceKey, node.key) :
                         Observable.empty();
                 })
             .subscribe();
 
         let first: boolean = true;
-
         const position$: Observable<{ index: number, max: number }> = this._sequenceDOMRenderer.changed$
             .map(
                 (renderer: SequenceDOMRenderer): boolean => {
