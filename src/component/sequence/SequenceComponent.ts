@@ -86,6 +86,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _moveSubscription: Subscription;
     private _cacheSequenceNodesSubscription: Subscription;
     private _rendererKeySubscription: Subscription;
+    private _stopSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -383,6 +384,21 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .subscribe();
 
+        this._stopSubscription = this._sequenceDOMRenderer.changed$
+            .map(
+                (renderer: SequenceDOMRenderer): boolean => {
+                    return renderer.changingPosition;
+                })
+            .distinctUntilChanged()
+            .filter(
+                (changing: boolean): boolean => {
+                    return changing;
+                })
+            .subscribe(
+                (): void => {
+                    this._navigator.playService.stop();
+                });
+
         this._cacheSequenceNodesSubscription = Observable
             .combineLatest(
                 this._navigator.graphService.graphMode$,
@@ -402,7 +418,8 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .subscribe();
 
-        let first: boolean = true;
+        let firstRendererKey: boolean = true;
+        let firstCurrentKey: boolean = true;
         const position$: Observable<{ index: number, max: number }> = this._sequenceDOMRenderer.changed$
             .map(
                 (renderer: SequenceDOMRenderer): boolean => {
@@ -412,11 +429,18 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .distinctUntilChanged()
             .switchMap(
                 (changingPosition: boolean): Observable<string> => {
-                    const skip: number = first ? 0 : 1;
-                    first = false;
+                    let skip: number = 1;
+
+                    if (changingPosition && firstRendererKey) {
+                        skip = 0;
+                        firstRendererKey = false;
+                    } else if (!changingPosition && firstCurrentKey) {
+                        skip = 0;
+                        firstCurrentKey = false;
+                    }
 
                     return changingPosition ?
-                        rendererKey$.skip(1) :
+                        rendererKey$.skip(skip) :
                         this._navigator.stateService.currentNode$
                             .map(
                                 (node: Node): string => {
@@ -559,6 +583,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._moveSubscription.unsubscribe();
         this._cacheSequenceNodesSubscription.unsubscribe();
         this._rendererKeySubscription.unsubscribe();
+        this._stopSubscription.unsubscribe();
 
         this._sequenceDOMRenderer.deactivate();
     }
