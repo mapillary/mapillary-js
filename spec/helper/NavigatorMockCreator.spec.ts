@@ -2,6 +2,7 @@
 
 import {Subject} from "rxjs/Subject";
 
+import {GraphServiceMockCreator} from "./GraphServiceMockCreator.spec";
 import {ImageLoadingServiceMockCreator} from "./ImageLoadingServiceMockCreator.spec";
 import {LoadingServiceMockCreator} from "./LoadingServiceMockCreator.spec";
 import {MockCreator} from "./MockCreator.spec";
@@ -22,7 +23,7 @@ export class NavigatorMockCreator extends MockCreatorBase<Navigator> {
 
         this._mockProperty(mock, "apiV3", new MockCreator().create(APIv3, "APIv3"));
         this._mockProperty(mock, "cacheService", new MockCreator().create(CacheService, "CacheService"));
-        this._mockProperty(mock, "graphService", new MockCreator().create(GraphService, "GraphService"));
+        this._mockProperty(mock, "graphService", new GraphServiceMockCreator().create());
         this._mockProperty(mock, "imageLoadingService", new ImageLoadingServiceMockCreator().create());
         this._mockProperty(mock, "loadingService", new LoadingServiceMockCreator().create());
         this._mockProperty(mock, "movedToKey$", new Subject<string>());
