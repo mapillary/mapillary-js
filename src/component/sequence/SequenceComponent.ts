@@ -85,6 +85,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _sequenceSubscription: Subscription;
     private _moveSubscription: Subscription;
     private _cacheSequenceNodesSubscription: Subscription;
+    private _rendererKeySubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -279,11 +280,43 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     return sequence !== null ? sequence.keys[position] : null;
                 })
             .distinctUntilChanged()
-            .publish()
+            .publishReplay(1)
             .refCount();
 
+        this._rendererKeySubscription = rendererKey$.subscribe();
+
         this._moveSubscription = rendererKey$
-            .debounceTime(25)
+            .scan(
+                (keyBuffer: [number, string][], key: string): [number, string][] => {
+                    const threshold: number = 100;
+                    const now: number = Date.now();
+
+                    if (now - keyBuffer[keyBuffer.length - 1][0] > threshold ||
+                        now - keyBuffer[0][0] > 400) {
+                        keyBuffer.splice(0, keyBuffer.length);
+                    }
+
+                    keyBuffer.push([now, key]);
+
+                    return keyBuffer;
+                },
+                [[Date.now(), null]])
+            .distinctUntilChanged(
+                (l1: number, l2: number): boolean => {
+                    const changed: boolean = l2 === 1 || l1 === 1 && l2 > 1;
+
+                    return !changed;
+                },
+                (keyBuffer: [number, string][]): number => {
+                    return keyBuffer.length;
+                })
+            .switchMap(
+                (keyBuffer: [number, string][]): Observable<string> => {
+                    return keyBuffer.length === 1 ?
+                        Observable.of(keyBuffer[0][1]) :
+                        rendererKey$.debounceTime(100);
+                })
+            .distinctUntilChanged()
             .filter(
                 (key: string): boolean => {
                     return key !== null;
@@ -295,7 +328,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                                 (e: Error): Observable<Node> => {
                                     return Observable.empty();
                                 });
-
                 })
             .subscribe();
 
@@ -363,7 +395,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     first = false;
 
                     return changingPosition ?
-                        rendererKey$ :
+                        rendererKey$.skip(1) :
                         this._navigator.stateService.currentNode$
                             .map(
                                 (node: Node): string => {
@@ -505,6 +537,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._sequenceSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
         this._cacheSequenceNodesSubscription.unsubscribe();
+        this._rendererKeySubscription.unsubscribe();
 
         this._sequenceDOMRenderer.deactivate();
     }
