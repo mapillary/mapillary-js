@@ -273,11 +273,11 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
         this._sequenceSubscription = sequence$.subscribe();
 
-        const rendererKey$: Observable<string> = this._sequenceDOMRenderer.position$
+        const rendererKey$: Observable<string> = this._sequenceDOMRenderer.index$
             .withLatestFrom(sequence$)
             .map(
-                ([position, sequence]: [number, Sequence]): string => {
-                    return sequence !== null ? sequence.keys[position] : null;
+                ([index, sequence]: [number, Sequence]): string => {
+                    return sequence != null ? sequence.keys[index] : null;
                 })
             .distinctUntilChanged()
             .publishReplay(1)
@@ -319,7 +319,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .distinctUntilChanged()
             .filter(
                 (key: string): boolean => {
-                    return key !== null;
+                    return key != null;
                 })
             .switchMap(
                 (key: string): Observable<Node> => {
@@ -428,7 +428,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .combineLatest(sequence$)
             .map(
                 ([key, sequence]: [string, Sequence]): { index: number, max: number } => {
-                    if (key === null || sequence === null) {
+                    if (key == null || sequence == null) {
                         return { index: null, max: null };
                     }
 

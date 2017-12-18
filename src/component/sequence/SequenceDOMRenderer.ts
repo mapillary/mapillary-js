@@ -36,12 +36,12 @@ export class SequenceDOMRenderer {
     private _mode: SequenceMode;
     private _speed: number;
     private _changingSpeed: boolean;
-    private _position: number;
+    private _index: number;
     private _changingPosition: boolean;
 
     private _notifyChanged$: Subject<SequenceDOMRenderer>;
     private _notifySpeedChanged$: Subject<number>;
-    private _notifyPositionChanged$: Subject<number>;
+    private _notifyIndexChanged$: Subject<number>;
 
     private _changingSubscription: Subscription;
 
@@ -60,12 +60,12 @@ export class SequenceDOMRenderer {
         this._mode = SequenceMode.Default;
         this._speed = 0.5;
         this._changingSpeed = false;
-        this._position = null;
+        this._index = null;
         this._changingPosition = false;
 
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
         this._notifySpeedChanged$ = new Subject<number>();
-        this._notifyPositionChanged$ = new Subject<number>();
+        this._notifyIndexChanged$ = new Subject<number>();
     }
 
     public get changingPosition(): boolean {
@@ -80,8 +80,8 @@ export class SequenceDOMRenderer {
         return this._notifySpeedChanged$;
     }
 
-    public get position$(): Observable<number> {
-        return this._notifyPositionChanged$;
+    public get index$(): Observable<number> {
+        return this._notifyIndexChanged$;
     }
 
     public activate(): void {
@@ -168,12 +168,12 @@ export class SequenceDOMRenderer {
         return minWidth + coeff * (maxWidth - minWidth);
     }
 
-    private _createPositionInput(position: number, max: number): vd.VNode {
-        this._position = position;
+    private _createPositionInput(index: number, max: number): vd.VNode {
+        this._index = index;
 
         const onPosition: (e: Event) => void = (e: Event): void => {
-            this._position = Number((<HTMLInputElement>e.target).value);
-            this._notifyPositionChanged$.next(this._position);
+            this._index = Number((<HTMLInputElement>e.target).value);
+            this._notifyIndexChanged$.next(this._index);
         };
 
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
@@ -213,10 +213,10 @@ export class SequenceDOMRenderer {
                 width: `${width}px`,
             },
             type: "range",
-            value: position != null ? position : 0,
+            value: index != null ? index : 0,
         };
 
-        const disabled: boolean = position === null || max === null || max <= 1;
+        const disabled: boolean = index == null || max == null || max <= 1;
 
         if (disabled) {
             positionInputProperties.disabled = "true";
@@ -506,12 +506,12 @@ export class SequenceDOMRenderer {
         return vd.h("div.SequenceStepper", containerProperties, buttons);
     }
 
-    private _createTimelineControls(containerWidth: number, position: number, max: number): vd.VNode {
+    private _createTimelineControls(containerWidth: number, index: number, max: number): vd.VNode {
         if (this._mode !== SequenceMode.Timeline) {
             return vd.h("div.SequenceTimeline", []);
         }
 
-        const positionInput: vd.VNode = this._createPositionInput(position, max);
+        const positionInput: vd.VNode = this._createPositionInput(index, max);
 
         const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
         const closeButtonProperties: vd.createProperties = {
