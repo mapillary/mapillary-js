@@ -361,6 +361,28 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     this._navigator.graphService.setGraphMode(GraphMode.Spatial);
                 });
 
+        this._navigator.graphService.graphMode$
+            .switchMap(
+                (mode: GraphMode): Observable<Node> => {
+                    return mode === GraphMode.Spatial ?
+                        this._navigator.stateService.currentNode$
+                            .take(2) :
+                        Observable.empty();
+                })
+            .filter(
+                (node: Node): boolean => {
+                    return !node.spatialEdges.cached;
+                })
+            .switchMap(
+                (node: Node): Observable<Node> => {
+                    return this._navigator.graphService.cacheNode$(node.key)
+                        .catch(
+                            (e: Error): Observable<Node> => {
+                                return Observable.empty();
+                            });
+                })
+            .subscribe();
+
         this._cacheSequenceNodesSubscription = Observable
             .combineLatest(
                 this._navigator.graphService.graphMode$,
