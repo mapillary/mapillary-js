@@ -208,7 +208,7 @@ export class SequenceDOMRenderer {
             value: position != null ? position : 0,
         };
 
-        const disabled: boolean = position === null || max === null;
+        const disabled: boolean = position === null || max === null || max === 1;
 
         if (disabled) {
             positionInputProperties.disabled = "true";

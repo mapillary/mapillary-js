@@ -33,10 +33,18 @@ import {
     SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
-import {IEdgeStatus, Node, Sequence} from "../../Graph";
+import {
+    IEdgeStatus,
+    GraphMode,
+    Node,
+    Sequence,
+} from "../../Graph";
 import {IVNodeHash} from "../../Render";
 import {IFrame} from "../../State";
-import {Container, Navigator} from "../../Viewer";
+import {
+    Container,
+    Navigator,
+} from "../../Viewer";
 
 interface IConfigurationOperation {
     (configuration: ISequenceConfiguration): ISequenceConfiguration;
@@ -72,6 +80,11 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _hoveredKeySubscription: Subscription;
     private _setSpeedSubscription: Subscription;
     private _setDirectionSubscription: Subscription;
+    private _setSequenceGraphModeSubscription: Subscription;
+    private _setSpatialGraphModeSubscription: Subscription;
+    private _sequenceSubscription: Subscription;
+    private _moveSubscription: Subscription;
+    private _cacheSequenceNodesSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -233,13 +246,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .publishReplay(1)
             .refCount();
 
-        const currentKey$: Observable<string> = this._navigator.stateService.currentNode$
-                .map(
-                    (node: Node): string => {
-                        return node.key;
-                    })
-                .distinctUntilChanged();
-
         const sequence$: Observable<Sequence> = this._navigator.stateService.currentNode$
             .distinctUntilChanged(
                 undefined,
@@ -251,37 +257,38 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     return Observable
                         .concat(
                             Observable.of(null),
-                            this._navigator.graphService.cacheSequence$(node.sequenceKey));
-                });
+                            this._navigator.graphService.cacheSequence$(node.sequenceKey)
+                                .retry(3)
+                                .catch(
+                                    (e: Error): Observable<Sequence> => {
+                                        console.error("Failed to cache sequence", e);
 
-        const index$: Observable<number> = Observable
-            .combineLatest(
-                sequence$,
-                currentKey$)
-            .map(
-                ([sequence, nodeKey]: [Sequence, string]): number => {
-                    if (sequence == null) {
-                        return null;
-                    }
-
-                    const index: number = sequence.keys.indexOf(nodeKey);
-
-                    return index === -1 ?  null : index;
+                                        return Observable.of(null);
+                                    }
+                                ));
                 })
             .startWith(null)
             .publishReplay(1)
             .refCount();
 
-        index$.subscribe();
+        this._sequenceSubscription = sequence$.subscribe();
 
-        this._sequenceDOMRenderer.position$
-            .combineLatest(sequence$)
+        const rendererKey$: Observable<string> = this._sequenceDOMRenderer.position$
+            .withLatestFrom(sequence$)
             .map(
                 ([position, sequence]: [number, Sequence]): string => {
-                    return sequence.keys[position];
+                    return sequence !== null ? sequence.keys[position] : null;
                 })
             .distinctUntilChanged()
+            .publish()
+            .refCount();
+
+        this._moveSubscription = rendererKey$
             .debounceTime(25)
+            .filter(
+                (key: string): boolean => {
+                    return key !== null;
+                })
             .switchMap(
                 (key: string): Observable<Node> => {
                     return this._navigator.moveToKey$(key)
@@ -293,6 +300,57 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .subscribe();
 
+        this._setSequenceGraphModeSubscription = this._sequenceDOMRenderer.changed$
+            .map(
+                (renderer: SequenceDOMRenderer): boolean => {
+                    return renderer.changingPosition;
+                })
+            .distinctUntilChanged()
+            .filter(
+                (changing: boolean): boolean => {
+                    return changing;
+                })
+            .subscribe(
+                (): void => {
+                    this._navigator.graphService.setGraphMode(GraphMode.Sequence);
+                });
+
+        this._setSpatialGraphModeSubscription = this._sequenceDOMRenderer.changed$
+            .map(
+                (renderer: SequenceDOMRenderer): boolean => {
+                    return renderer.changingPosition;
+                })
+            .distinctUntilChanged()
+            .filter(
+                (changing: boolean): boolean => {
+                    return !changing;
+                })
+            .subscribe(
+                (): void => {
+                    this._navigator.graphService.setGraphMode(GraphMode.Spatial);
+                });
+
+        this._cacheSequenceNodesSubscription = Observable
+            .combineLatest(
+                this._navigator.graphService.graphMode$,
+                this._sequenceDOMRenderer.changed$
+                    .map(
+                        (renderer: SequenceDOMRenderer): boolean => {
+                            return renderer.changingPosition;
+                        })
+                    .startWith(false)
+                    .distinctUntilChanged())
+            .withLatestFrom(sequence$)
+            .switchMap(
+                ([[mode, changing], sequence]: [[GraphMode, boolean], Sequence]): Observable<Sequence> => {
+                    return changing && mode === GraphMode.Sequence && sequence != null ?
+                        this._navigator.graphService.cacheSequenceNodes$(sequence.key) :
+                        Observable.empty();
+                })
+            .subscribe();
+
+        let first: boolean = true;
+
         const position$: Observable<{ index: number, max: number }> = this._sequenceDOMRenderer.changed$
             .map(
                 (renderer: SequenceDOMRenderer): boolean => {
@@ -301,20 +359,34 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .startWith(false)
             .distinctUntilChanged()
             .switchMap(
-                (changingPosition: boolean): Observable<number> => {
+                (changingPosition: boolean): Observable<string> => {
+                    const skip: number = first ? 0 : 1;
+                    first = false;
+
                     return changingPosition ?
-                        this._sequenceDOMRenderer.position$ :
-                        index$;
+                        rendererKey$ :
+                        this._navigator.stateService.currentNode$
+                            .map(
+                                (node: Node): string => {
+                                    return node.key;
+                                })
+                            .distinctUntilChanged()
+                            .skip(skip);
                 })
-            .combineLatest(
-                sequence$
-                    .map(
-                        (sequence: Sequence): number => {
-                            return sequence == null ? null : sequence.keys.length;
-                        })
-                    .startWith(null),
-                (position: number, length: number): { index: number, max: number } => {
-                    return { index: position, max: length - 1 };
+            .combineLatest(sequence$)
+            .map(
+                ([key, sequence]: [string, Sequence]): { index: number, max: number } => {
+                    if (key === null || sequence === null) {
+                        return { index: null, max: null };
+                    }
+
+                    const index: number = sequence.keys.indexOf(key);
+
+                    if (index === -1) {
+                        return { index: null, max: null };
+                    }
+
+                    return { index: index, max: sequence.keys.length - 1 };
                 });
 
         this._renderSubscription = Observable
@@ -429,6 +501,11 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._hoveredKeySubscription.unsubscribe();
         this._setSpeedSubscription.unsubscribe();
         this._setDirectionSubscription.unsubscribe();
+        this._setSequenceGraphModeSubscription.unsubscribe();
+        this._setSpatialGraphModeSubscription.unsubscribe();
+        this._sequenceSubscription.unsubscribe();
+        this._moveSubscription.unsubscribe();
+        this._cacheSequenceNodesSubscription.unsubscribe();
 
         this._sequenceDOMRenderer.deactivate();
     }
