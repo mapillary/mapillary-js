@@ -192,11 +192,19 @@ export class SequenceDOMRenderer {
             }
         };
 
+        const onKeyDown: (e: KeyboardEvent) => void = (e: KeyboardEvent): void => {
+            if (e.key === "ArrowDown" || e.key === "ArrowLeft" ||
+                e.key === "ArrowRight" || e.key === "ArrowUp") {
+                e.preventDefault();
+            }
+        };
+
         const positionInputProperties: vd.createProperties = {
             max: max != null ? max : 1,
             min: 0,
             onchange: onPosition,
             oninput: onPosition,
+            onkeydown: onKeyDown,
             onmousedown: onStart,
             onmousemove: onMove,
             ontouchmove: onMove,
@@ -208,7 +216,7 @@ export class SequenceDOMRenderer {
             value: position != null ? position : 0,
         };
 
-        const disabled: boolean = position === null || max === null || max === 1;
+        const disabled: boolean = position === null || max === null || max <= 1;
 
         if (disabled) {
             positionInputProperties.disabled = "true";
@@ -243,6 +251,13 @@ export class SequenceDOMRenderer {
             }
         };
 
+        const onKeyDown: (e: KeyboardEvent) => void = (e: KeyboardEvent): void => {
+            if (e.key === "ArrowDown" || e.key === "ArrowLeft" ||
+                e.key === "ArrowRight" || e.key === "ArrowUp") {
+                e.preventDefault();
+            }
+        };
+
         const speedInput: vd.VNode = vd.h(
             "input.SequenceSpeed",
             {
@@ -250,6 +265,7 @@ export class SequenceDOMRenderer {
                 min: 0,
                 onchange: onSpeed,
                 oninput: onSpeed,
+                onkeydown: onKeyDown,
                 onmousedown: onStart,
                 onmousemove: onMove,
                 ontouchmove: onMove,

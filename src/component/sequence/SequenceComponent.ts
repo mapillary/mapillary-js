@@ -264,8 +264,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                                         console.error("Failed to cache sequence", e);
 
                                         return Observable.of(null);
-                                    }
-                                ));
+                                    }));
                 })
             .startWith(null)
             .publishReplay(1)
