@@ -259,4 +259,165 @@ describe("SequenceComponent.activate", () => {
         expect(cacheSequenceNodesSpy.calls.argsFor(1)[0]).toBe("sequenceKey1");
         expect(cacheSequenceNodesSpy.calls.argsFor(1)[1]).toBe("nodeKey1");
     });
+
+    it("should render null index and null max when sequence is not cached", () => {
+        const cacheSequenceSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.graphService.cacheSequence$;
+        cacheSequenceSpy.and.returnValue(new Subject<Sequence>());
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
+        (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
+
+        const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
+        mockCreator.mockProperty(renderer, "changed$", changedSubject$);
+        mockCreator.mockProperty(renderer, "changingPosition", false);
+        spyOn(renderer, "getContainerWidth").and.returnValue(100);
+
+        const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
+
+        const component: SequenceComponent = createComponent();
+        component.activate();
+
+        (<Subject<number>>navigatorMock.playService.speed$).next(1);
+
+        const node1: Node = nodeHelper.createNode();
+        mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
+        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "key", "nodeKey1");
+        mockCreator.mockProperty(node1, "sequenceKey", "sequenceKey1");
+        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
+
+        expect(renderSpy.calls.count()).toBe(1);
+        expect(renderSpy.calls.argsFor(0)[4]).toBe(null);
+        expect(renderSpy.calls.argsFor(0)[5]).toBe(null);
+    });
+
+    it("should render 0 index and 0 max when sequence is cached with single node", () => {
+        const sequenceSubject$: Subject<Sequence> = new Subject<Sequence>();
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(sequenceSubject$);
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
+        (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
+
+        const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
+        mockCreator.mockProperty(renderer, "changed$", changedSubject$);
+        mockCreator.mockProperty(renderer, "changingPosition", false);
+        spyOn(renderer, "getContainerWidth").and.returnValue(100);
+
+        const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
+
+        const component: SequenceComponent = createComponent();
+        component.activate();
+
+        (<Subject<number>>navigatorMock.playService.speed$).next(1);
+
+        const sequenceKey1: string = "sequenceKey1";
+        const nodeKey1: string = "nodeKey1";
+
+        const node1: Node = nodeHelper.createNode();
+        mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
+        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "key", nodeKey1);
+        mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
+        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
+
+        expect(renderSpy.calls.count()).toBe(1);
+
+        sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1] }));
+
+        expect(renderSpy.calls.count()).toBe(2);
+        expect(renderSpy.calls.argsFor(1)[4]).toBe(0);
+        expect(renderSpy.calls.argsFor(1)[5]).toBe(0);
+    });
+
+    it("should render correct index on new node emit", () => {
+        const sequenceSubject$: Subject<Sequence> = new Subject<Sequence>();
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(sequenceSubject$);
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
+        (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
+
+        const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
+        mockCreator.mockProperty(renderer, "changed$", changedSubject$);
+        mockCreator.mockProperty(renderer, "changingPosition", false);
+        spyOn(renderer, "getContainerWidth").and.returnValue(100);
+
+        const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
+
+        const component: SequenceComponent = createComponent();
+        component.activate();
+
+        (<Subject<number>>navigatorMock.playService.speed$).next(1);
+
+        const sequenceKey1: string = "sequenceKey1";
+        const nodeKey1: string = "nodeKey1";
+        const nodeKey2: string = "nodeKey2";
+
+        const node1: Node = nodeHelper.createNode();
+        mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
+        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "key", nodeKey1);
+        mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
+        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
+
+        expect(renderSpy.calls.count()).toBe(1);
+
+        sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2] }));
+
+        expect(renderSpy.calls.count()).toBe(2);
+        expect(renderSpy.calls.argsFor(1)[4]).toBe(0);
+        expect(renderSpy.calls.argsFor(1)[5]).toBe(1);
+
+        const node2: Node = nodeHelper.createNode();
+        mockCreator.mockProperty(node2, "spatialEdges", { cached: false, edges: [] });
+        mockCreator.mockProperty(node2, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node2, "key", nodeKey2);
+        mockCreator.mockProperty(node2, "sequenceKey", sequenceKey1);
+        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node2);
+
+        expect(renderSpy.calls.count()).toBe(4);
+        expect(renderSpy.calls.mostRecent().args[4]).toBe(1);
+        expect(renderSpy.calls.mostRecent().args[5]).toBe(1);
+    });
+
+    it("should render correct index on input emit ", () => {
+        const sequenceSubject$: Subject<Sequence> = new Subject<Sequence>();
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(sequenceSubject$);
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
+        (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
+
+        (<jasmine.Spy>navigatorMock.moveToKey$).and.returnValue(new Subject<Node>());
+
+        const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
+        mockCreator.mockProperty(renderer, "changed$", changedSubject$);
+        const indexSubject$: Subject<number> = new Subject<number>();
+        mockCreator.mockProperty(renderer, "index$", indexSubject$);
+        mockCreator.mockProperty(renderer, "changingPosition", true);
+        spyOn(renderer, "getContainerWidth").and.returnValue(100);
+
+        const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
+
+        const component: SequenceComponent = createComponent();
+        component.activate();
+
+        (<Subject<number>>navigatorMock.playService.speed$).next(1);
+
+        const sequenceKey1: string = "sequenceKey1";
+        const nodeKey1: string = "nodeKey1";
+        const nodeKey2: string = "nodeKey2";
+        const nodeKey3: string = "nodeKey3";
+
+        const node1: Node = nodeHelper.createNode();
+        mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
+        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "key", nodeKey2);
+        mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
+        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
+
+        expect(renderSpy.calls.count()).toBe(1);
+
+        changedSubject$.next(renderer);
+        sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2, nodeKey3] }));
+        indexSubject$.next(0);
+
+        expect(renderSpy.calls.count()).toBeGreaterThan(1);
+        expect(renderSpy.calls.mostRecent().args[4]).toBe(0);
+        expect(renderSpy.calls.mostRecent().args[5]).toBe(2);
+    });
 });
