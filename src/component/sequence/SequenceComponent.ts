@@ -88,10 +88,10 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _rendererKeySubscription: Subscription;
     private _stopSubscription: Subscription;
 
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(name: string, container: Container, navigator: Navigator, renderer?: SequenceDOMRenderer) {
         super(name, container, navigator);
 
-        this._sequenceDOMRenderer = new SequenceDOMRenderer(container);
+        this._sequenceDOMRenderer = !!renderer ? renderer : new SequenceDOMRenderer(container);
         this._sequenceDOMInteraction = new SequenceDOMInteraction();
 
         this._containerWidth$ = new Subject<number>();
