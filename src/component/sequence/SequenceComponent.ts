@@ -3,8 +3,9 @@
 import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {Scheduler} from "rxjs/Scheduler";
 import {Subject} from "rxjs/Subject";
+import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/observable/combineLatest";
 import "rxjs/add/observable/of";
@@ -69,6 +70,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
     private _sequenceDOMRenderer: SequenceDOMRenderer;
     private _sequenceDOMInteraction: SequenceDOMInteraction;
+    private _scheduler: Scheduler;
 
     private _hoveredKeySubject$: Subject<string>;
     private _hoveredKey$: Observable<string>;
@@ -88,11 +90,18 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _rendererKeySubscription: Subscription;
     private _stopSubscription: Subscription;
 
-    constructor(name: string, container: Container, navigator: Navigator, renderer?: SequenceDOMRenderer) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator,
+        renderer?: SequenceDOMRenderer,
+        scheduler?: Scheduler) {
+
         super(name, container, navigator);
 
         this._sequenceDOMRenderer = !!renderer ? renderer : new SequenceDOMRenderer(container);
         this._sequenceDOMInteraction = new SequenceDOMInteraction();
+        this._scheduler = scheduler;
 
         this._containerWidth$ = new Subject<number>();
         this._hoveredKeySubject$ = new Subject<string>();
@@ -301,7 +310,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
                     return keyBuffer;
                 },
-                [[Date.now(), null]])
+                [[Number.NEGATIVE_INFINITY, null]])
             .distinctUntilChanged(
                 (l1: number, l2: number): boolean => {
                     const changed: boolean = l2 === 1 || l1 === 1 && l2 > 1;
@@ -315,7 +324,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (keyBuffer: [number, string][]): Observable<string> => {
                     return keyBuffer.length === 1 ?
                         Observable.of(keyBuffer[0][1]) :
-                        rendererKey$.debounceTime(100);
+                        rendererKey$.debounceTime(100, this._scheduler);
                 })
             .distinctUntilChanged()
             .filter(
