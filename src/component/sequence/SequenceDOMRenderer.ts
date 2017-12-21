@@ -13,6 +13,7 @@ import {
     SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
+import {AbortMapillaryError} from "../../Error";
 import {
     IEdgeStatus,
     Node,
@@ -431,8 +432,12 @@ export class SequenceDOMRenderer {
                 (e: Event): void => {
                     navigator.moveDir$(EdgeDirection.Next)
                         .subscribe(
-                            (node: Node): void => { return; },
-                            (error: Error): void => { console.error(error); });
+                            undefined,
+                            (error: Error): void => {
+                                if (!(error instanceof AbortMapillaryError)) {
+                                    console.error(error);
+                                }
+                            });
                 } :
                 null,
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Next); },
@@ -445,8 +450,12 @@ export class SequenceDOMRenderer {
                 (e: Event): void => {
                     navigator.moveDir$(EdgeDirection.Prev)
                         .subscribe(
-                            (node: Node): void => { return; },
-                            (error: Error): void => { console.error(error); });
+                            undefined,
+                            (error: Error): void => {
+                                if (!(error instanceof AbortMapillaryError)) {
+                                    console.error(error);
+                                }
+                            });
                 } :
                 null,
             onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Prev); },

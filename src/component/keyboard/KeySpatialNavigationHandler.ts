@@ -17,6 +17,7 @@ import {
     EdgeDirection,
     IEdge,
 } from "../../Edge";
+import {AbortMapillaryError} from "../../Error";
 import {
     Camera,
     Spatial,
@@ -167,8 +168,12 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
     private _moveToKey(key: string): void {
         this._navigator.moveToKey$(key)
             .subscribe(
-                (n: Node): void => { /* noop */ },
-                (e: Error): void => { console.error(e); });
+                undefined,
+                (error: Error): void => {
+                    if (!(error instanceof AbortMapillaryError)) {
+                        console.error(error);
+                    }
+                });
     }
 
     private _rotationFromCamera(camera: Camera): IRotation {

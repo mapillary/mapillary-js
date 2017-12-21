@@ -4,6 +4,7 @@ import * as vd from "virtual-dom";
 
 import {DirectionDOMCalculator, IDirectionConfiguration} from "../../Component";
 import {EdgeDirection, IEdge} from "../../Edge";
+import {AbortMapillaryError} from "../../Error";
 import {Spatial} from "../../Geo";
 import {IEdgeStatus, Node, Sequence} from "../../Graph";
 import {RenderCamera} from "../../Render";
@@ -372,8 +373,12 @@ export class DirectionDOMRenderer {
             (e: Event): void => {
                 navigator.moveToKey$(key)
                     .subscribe(
-                        (node: Node): void => { return; },
-                        (error: Error): void => { console.error(error); });
+                        undefined,
+                        (error: Error): void => {
+                            if (!(error instanceof AbortMapillaryError)) {
+                                console.error(error);
+                            }
+                        });
             };
 
         return this._createVNode(
@@ -398,8 +403,12 @@ export class DirectionDOMRenderer {
             (e: Event): void => {
                 navigator.moveDir$(direction)
                     .subscribe(
-                        (node: Node): void => { return; },
-                        (error: Error): void => { console.error(error); });
+                        undefined,
+                        (error: Error): void => {
+                            if (!(error instanceof AbortMapillaryError)) {
+                                console.error(error);
+                            }
+                        });
             };
 
         return this._createVNode(
@@ -422,8 +431,12 @@ export class DirectionDOMRenderer {
             (e: Event): void => {
                 navigator.moveDir$(direction)
                     .subscribe(
-                        (node: Node): void => { return; },
-                        (error: Error): void => { console.error(error); });
+                        undefined,
+                        (error: Error): void => {
+                            if (!(error instanceof AbortMapillaryError)) {
+                                console.error(error);
+                            }
+                        });
             };
 
         let style: any = {

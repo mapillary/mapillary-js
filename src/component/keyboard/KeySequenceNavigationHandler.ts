@@ -11,6 +11,7 @@ import {
     HandlerBase,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
+import {AbortMapillaryError} from "../../Error";
 import {
     IEdgeStatus,
     Node,
@@ -69,8 +70,12 @@ export class KeySequenceNavigationHandler extends HandlerBase<IKeyboardConfigura
                         if (edge.data.direction === direction) {
                             this._navigator.moveToKey$(edge.to)
                                 .subscribe(
-                                    (n: Node): void => { return; },
-                                    (e: Error): void => { console.error(e); });
+                                    undefined,
+                                    (error: Error): void => {
+                                        if (!(error instanceof AbortMapillaryError)) {
+                                            console.error(error);
+                                        }
+                                    });
 
                             return;
                         }

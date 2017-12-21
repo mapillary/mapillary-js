@@ -26,6 +26,7 @@ import {
     Node,
 } from "../Graph";
 import {EdgeDirection} from "../Edge";
+import {AbortMapillaryError} from "../Error";
 import {
     StateService,
     IFrame,
@@ -297,7 +298,7 @@ export class Navigator {
         }
 
         if (this._request$ != null) {
-            this._request$.error(new Error(`Request aborted by a subsequent request ${reason}.`));
+            this._request$.error(new AbortMapillaryError(`Request aborted by a subsequent request ${reason}.`));
             this._request$ = null;
         }
     }

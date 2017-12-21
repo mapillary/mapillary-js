@@ -9,6 +9,7 @@ import "rxjs/add/operator/map";
 import "rxjs/add/operator/first";
 
 import {EdgeDirection, IEdge} from "../Edge";
+import {AbortMapillaryError} from "../Error";
 import {IEdgeStatus, Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";
 import {ComponentService, Component, IComponentConfiguration, INavigationConfiguration} from "../Component";
@@ -140,8 +141,12 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
                 onclick: (ev: Event): void => {
                     this._navigator.moveDir$(direction)
                         .subscribe(
-                            (node: Node): void => { return; },
-                            (error: Error): void => { console.error(error); });
+                            undefined,
+                            (error: Error): void => {
+                                if (!(error instanceof AbortMapillaryError)) {
+                                    console.error(error);
+                                }
+                            });
                 },
                 style: {
                     visibility: visibility,

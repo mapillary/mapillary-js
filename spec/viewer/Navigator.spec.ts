@@ -12,6 +12,7 @@ import {
     IKey,
 } from "../../src/API";
 import {EdgeDirection} from "../../src/graph/edge/EdgeDirection";
+import {AbortMapillaryError} from "../../src/Error";
 import {
     Graph,
     GraphService,
@@ -215,6 +216,7 @@ describe("Navigator.moveToKey$", () => {
                 undefined,
                 (e: Error): void => {
                     expect(e).toBeDefined();
+                    expect(e instanceof AbortMapillaryError);
                     done();
                 });
 
@@ -489,6 +491,7 @@ describe("Navigator.moveCloseTo$", () => {
                 undefined,
                 (e: Error): void => {
                     expect(e).toBeDefined();
+                    expect(e instanceof AbortMapillaryError);
                     done();
                 });
 
@@ -948,6 +951,7 @@ describe("Navigator.setToken$", () => {
                 undefined,
                 (e: Error): void => {
                     expect(e).toBeDefined();
+                    expect(e instanceof AbortMapillaryError);
                     done();
                 });
 
@@ -984,6 +988,7 @@ describe("Navigator.setToken$", () => {
                 undefined,
                 (e: Error): void => {
                     expect(e).toBeDefined();
+                    expect(e instanceof AbortMapillaryError);
                     done();
                 });
 
@@ -1018,6 +1023,7 @@ describe("Navigator.setToken$", () => {
                 undefined,
                 (e: Error): void => {
                     expect(e).toBeDefined();
+                    expect(e instanceof AbortMapillaryError);
                     done();
                 });
 
