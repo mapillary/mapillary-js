@@ -236,11 +236,11 @@ export class Spatial {
      * (latitude longitude pairs) in meters according to
      * the haversine formula.
      *
-     * @param {number} lat1 - Latitude of the first coordinate.
-     * @param {number} lon1 - Longitude of the first coordinate.
-     * @param {number} lat2 - Latitude of the second coordinate.
-     * @param {number} lon2 - Longitude of the second coordinate.
-     * @returns {number} Distance between lat lon positions.
+     * @param {number} lat1 - Latitude of the first coordinate in degrees.
+     * @param {number} lon1 - Longitude of the first coordinate in degrees.
+     * @param {number} lat2 - Latitude of the second coordinate in degrees.
+     * @param {number} lon2 - Longitude of the second coordinate in degrees.
+     * @returns {number} Distance between lat lon positions in meters.
      */
     public distanceFromLatLon(lat1: number, lon1: number, lat2: number, lon2: number): number {
         let r: number = 6371000;
@@ -249,7 +249,7 @@ export class Spatial {
 
         let hav: number =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1) * Math.cos(lat2) *
+            Math.cos(this.degToRad(lat1)) * Math.cos(this.degToRad(lat2)) *
             Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
         let d: number = 2 * r * Math.atan2(Math.sqrt(hav), Math.sqrt(1 - hav));
