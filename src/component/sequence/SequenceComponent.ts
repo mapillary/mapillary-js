@@ -294,10 +294,14 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     return !!key;
                 })
             .distinctUntilChanged()
+            .publish()
+            .refCount();
+
+        const replayedRendererKey$: Observable<string> = rendererKey$
             .publishReplay(1)
             .refCount();
 
-        this._rendererKeySubscription = rendererKey$.subscribe();
+        this._rendererKeySubscription = replayedRendererKey$.subscribe();
 
         this._moveSubscription = rendererKey$
             .scan(
@@ -328,7 +332,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (keyBuffer: [number, string][]): Observable<string> => {
                     return keyBuffer.length === 1 ?
                         Observable.of(keyBuffer[0][1]) :
-                        rendererKey$.debounceTime(100, this._scheduler);
+                        replayedRendererKey$.debounceTime(100, this._scheduler);
                 })
             .distinctUntilChanged()
             .switchMap(
@@ -427,8 +431,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .subscribe();
 
-        let firstRendererKey: boolean = true;
-
         const position$: Observable<{ index: number, max: number }> = sequence$
             .switchMap(
                 (sequence: Sequence): Observable<{ index: number, max: number }> => {
@@ -447,18 +449,11 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                         .distinctUntilChanged()
                         .switchMap(
                             (changingPosition: boolean): Observable<string> => {
-                                let skip: number = 1;
-
-                                if (changingPosition && firstRendererKey) {
-                                    skip = 0;
-                                    firstRendererKey = false;
-                                } else if (!changingPosition && firstCurrentKey) {
-                                    skip = 0;
-                                    firstCurrentKey = false;
-                                }
+                                const skip: number = !changingPosition && firstCurrentKey ? 0 : 1;
+                                firstCurrentKey = false;
 
                                 return changingPosition ?
-                                    rendererKey$.skip(skip) :
+                                    rendererKey$ :
                                     this._navigator.stateService.currentNode$
                                         .map(
                                             (node: Node): string => {
