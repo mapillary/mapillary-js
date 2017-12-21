@@ -289,6 +289,10 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 ([index, sequence]: [number, Sequence]): string => {
                     return sequence != null ? sequence.keys[index] : null;
                 })
+            .filter(
+                (key: string): boolean => {
+                    return !!key;
+                })
             .distinctUntilChanged()
             .publishReplay(1)
             .refCount();
@@ -327,10 +331,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                         rendererKey$.debounceTime(100, this._scheduler);
                 })
             .distinctUntilChanged()
-            .filter(
-                (key: string): boolean => {
-                    return key != null;
-                })
             .switchMap(
                 (key: string): Observable<Node> => {
                     return this._navigator.moveToKey$(key)
@@ -428,50 +428,55 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .subscribe();
 
         let firstRendererKey: boolean = true;
-        let firstCurrentKey: boolean = true;
-        const position$: Observable<{ index: number, max: number }> = this._sequenceDOMRenderer.changed$
-            .map(
-                (renderer: SequenceDOMRenderer): boolean => {
-                    return renderer.changingPosition;
-                })
-            .startWith(false)
-            .distinctUntilChanged()
+
+        const position$: Observable<{ index: number, max: number }> = sequence$
             .switchMap(
-                (changingPosition: boolean): Observable<string> => {
-                    let skip: number = 1;
-
-                    if (changingPosition && firstRendererKey) {
-                        skip = 0;
-                        firstRendererKey = false;
-                    } else if (!changingPosition && firstCurrentKey) {
-                        skip = 0;
-                        firstCurrentKey = false;
+                (sequence: Sequence): Observable<{ index: number, max: number }> => {
+                    if (!sequence) {
+                        return Observable.of({ index: null, max: null });
                     }
 
-                    return changingPosition ?
-                        rendererKey$.skip(skip) :
-                        this._navigator.stateService.currentNode$
-                            .map(
-                                (node: Node): string => {
-                                    return node.key;
-                                })
-                            .distinctUntilChanged()
-                            .skip(skip);
-                })
-            .combineLatest(sequence$)
-            .map(
-                ([key, sequence]: [string, Sequence]): { index: number, max: number } => {
-                    if (key == null || sequence == null) {
-                        return { index: null, max: null };
-                    }
+                    let firstCurrentKey: boolean = true;
 
-                    const index: number = sequence.keys.indexOf(key);
+                    return this._sequenceDOMRenderer.changed$
+                        .map(
+                            (renderer: SequenceDOMRenderer): boolean => {
+                                return renderer.changingPosition;
+                            })
+                        .startWith(false)
+                        .distinctUntilChanged()
+                        .switchMap(
+                            (changingPosition: boolean): Observable<string> => {
+                                let skip: number = 1;
 
-                    if (index === -1) {
-                        return { index: null, max: null };
-                    }
+                                if (changingPosition && firstRendererKey) {
+                                    skip = 0;
+                                    firstRendererKey = false;
+                                } else if (!changingPosition && firstCurrentKey) {
+                                    skip = 0;
+                                    firstCurrentKey = false;
+                                }
 
-                    return { index: index, max: sequence.keys.length - 1 };
+                                return changingPosition ?
+                                    rendererKey$.skip(skip) :
+                                    this._navigator.stateService.currentNode$
+                                        .map(
+                                            (node: Node): string => {
+                                                return node.key;
+                                            })
+                                        .distinctUntilChanged()
+                                        .skip(skip);
+                            })
+                        .map(
+                            (key: string): { index: number, max: number } => {
+                                const index: number = sequence.keys.indexOf(key);
+
+                                if (index === -1) {
+                                    return { index: null, max: null };
+                                }
+
+                                return { index: index, max: sequence.keys.length - 1 };
+                            });
                 });
 
         this._renderSubscription = Observable
