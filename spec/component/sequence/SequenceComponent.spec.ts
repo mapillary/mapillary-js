@@ -570,7 +570,7 @@ describe("SequenceComponent.activate", () => {
         expect(renderSpy.calls.mostRecent().args[5]).toBe(2);
     });
 
-    it("should move to key on first index change", () => {
+    it("should not move to key before  debounce time", () => {
         const sequenceSubject$: Subject<Sequence> = new Subject<Sequence>();
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(sequenceSubject$);
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
@@ -581,9 +581,6 @@ describe("SequenceComponent.activate", () => {
 
         const indexSubject$: Subject<number> = new Subject<number>();
         mockCreator.mockProperty(renderer, "index$", indexSubject$);
-
-        let now: number = 0;
-        spyOn(Date, "now").and.callFake((): number => { return now; });
 
         const scheduler: VirtualTimeScheduler = new VirtualTimeScheduler();
         const component: SequenceComponent = new SequenceComponent(
@@ -609,12 +606,62 @@ describe("SequenceComponent.activate", () => {
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
         sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2, nodeKey3] }));
         indexSubject$.next(1);
+
+        expect(moveToKeySpy.calls.count()).toBe(0);
+
+        scheduler.maxFrames = 99;
+        scheduler.flush();
+
+        expect(moveToKeySpy.calls.count()).toBe(0);
+    });
+
+    it("should move to key on first index change after debounce time", () => {
+        const sequenceSubject$: Subject<Sequence> = new Subject<Sequence>();
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(sequenceSubject$);
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
+        (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
+
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveToKey$;
+        moveToKeySpy.and.returnValue(new Subject<Node>());
+
+        const indexSubject$: Subject<number> = new Subject<number>();
+        mockCreator.mockProperty(renderer, "index$", indexSubject$);
+
+        const scheduler: VirtualTimeScheduler = new VirtualTimeScheduler();
+        const component: SequenceComponent = new SequenceComponent(
+            SequenceComponent.componentName,
+            containerMock,
+            navigatorMock,
+            renderer,
+            scheduler);
+
+        component.activate();
+
+        const sequenceKey1: string = "sequenceKey1";
+        const nodeKey1: string = "nodeKey1";
+        const nodeKey2: string = "nodeKey2";
+        const nodeKey3: string = "nodeKey3";
+
+        const node1: Node = nodeHelper.createNode();
+        mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
+        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "key", nodeKey2);
+        mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
+
+        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
+        sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2, nodeKey3] }));
+        indexSubject$.next(1);
+
+        expect(moveToKeySpy.calls.count()).toBe(0);
+
+        scheduler.maxFrames = 101;
+        scheduler.flush();
 
         expect(moveToKeySpy.calls.count()).toBe(1);
         expect(moveToKeySpy.calls.argsFor(0)[0]).toBe(nodeKey2);
     });
 
-    it("should not move to same key if debounce time expires", () => {
+    it("should not move to same key if audit time expires", () => {
         const sequenceSubject$: Subject<Sequence> = new Subject<Sequence>();
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(sequenceSubject$);
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
@@ -625,9 +672,6 @@ describe("SequenceComponent.activate", () => {
 
         const indexSubject$: Subject<number> = new Subject<number>();
         mockCreator.mockProperty(renderer, "index$", indexSubject$);
-
-        let now: number = 0;
-        spyOn(Date, "now").and.callFake((): number => { return now; });
 
         const scheduler: VirtualTimeScheduler = new VirtualTimeScheduler();
         const component: SequenceComponent = new SequenceComponent(
@@ -654,10 +698,9 @@ describe("SequenceComponent.activate", () => {
         sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2, nodeKey3] }));
         indexSubject$.next(1);
 
-        expect(moveToKeySpy.calls.count()).toBe(1);
+        expect(moveToKeySpy.calls.count()).toBe(0);
 
-        now = 101;
-
+        scheduler.maxFrames = 401;
         scheduler.flush();
 
         expect(moveToKeySpy.calls.count()).toBe(1);
@@ -675,9 +718,6 @@ describe("SequenceComponent.activate", () => {
         const indexSubject$: Subject<number> = new Subject<number>();
         mockCreator.mockProperty(renderer, "index$", indexSubject$);
 
-        let now: number = 0;
-        spyOn(Date, "now").and.callFake((): number => { return now; });
-
         const scheduler: VirtualTimeScheduler = new VirtualTimeScheduler();
         const component: SequenceComponent = new SequenceComponent(
             SequenceComponent.componentName,
@@ -703,21 +743,24 @@ describe("SequenceComponent.activate", () => {
         sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2, nodeKey3] }));
         indexSubject$.next(1);
 
-        expect(moveToKeySpy.calls.count()).toBe(1);
+        expect(moveToKeySpy.calls.count()).toBe(0);
 
-        now = 1;
+        scheduler.maxFrames = 99;
+        scheduler.flush();
+        scheduler.frame = 99;
 
         indexSubject$.next(2);
 
-        expect(moveToKeySpy.calls.count()).toBe(1);
+        expect(moveToKeySpy.calls.count()).toBe(0);
 
+        scheduler.maxFrames = 200;
         scheduler.flush();
 
-        expect(moveToKeySpy.calls.count()).toBe(2);
+        expect(moveToKeySpy.calls.count()).toBe(1);
         expect(moveToKeySpy.calls.mostRecent().args[0]).toBe(nodeKey3);
     });
 
-    it("should move to key immediately if more than 100 ms since last index emit", () => {
+    it("should move to key after multiple index emits with less than 100 ms in between if 400 ms has passed", () => {
         const sequenceSubject$: Subject<Sequence> = new Subject<Sequence>();
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(sequenceSubject$);
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
@@ -728,9 +771,6 @@ describe("SequenceComponent.activate", () => {
 
         const indexSubject$: Subject<number> = new Subject<number>();
         mockCreator.mockProperty(renderer, "index$", indexSubject$);
-
-        let now: number = 0;
-        spyOn(Date, "now").and.callFake((): number => { return now; });
 
         const scheduler: VirtualTimeScheduler = new VirtualTimeScheduler();
         const component: SequenceComponent = new SequenceComponent(
@@ -757,79 +797,41 @@ describe("SequenceComponent.activate", () => {
         sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2, nodeKey3] }));
         indexSubject$.next(1);
 
-        expect(moveToKeySpy.calls.count()).toBe(1);
+        expect(moveToKeySpy.calls.count()).toBe(0);
 
-        now = 101;
+        scheduler.maxFrames = 90;
+        scheduler.flush();
+        scheduler.frame = 90;
 
         indexSubject$.next(0);
+        expect(moveToKeySpy.calls.count()).toBe(0);
 
-        expect(moveToKeySpy.calls.count()).toBe(2);
-        expect(moveToKeySpy.calls.mostRecent().args[0]).toBe(nodeKey1);
-    });
+        scheduler.maxFrames = 180;
+        scheduler.flush();
+        scheduler.frame = 180;
 
-    it("should move to key immediately after multiple index emits with less than 100 ms in between if 400 ms has passed", () => {
-        const sequenceSubject$: Subject<Sequence> = new Subject<Sequence>();
-        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(sequenceSubject$);
-        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
-        (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
-
-        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveToKey$;
-        moveToKeySpy.and.returnValue(new Subject<Node>());
-
-        const indexSubject$: Subject<number> = new Subject<number>();
-        mockCreator.mockProperty(renderer, "index$", indexSubject$);
-
-        let now: number = 0;
-        spyOn(Date, "now").and.callFake((): number => { return now; });
-
-        const scheduler: VirtualTimeScheduler = new VirtualTimeScheduler();
-        const component: SequenceComponent = new SequenceComponent(
-            SequenceComponent.componentName,
-            containerMock,
-            navigatorMock,
-            renderer,
-            scheduler);
-
-        component.activate();
-
-        const sequenceKey1: string = "sequenceKey1";
-        const nodeKey1: string = "nodeKey1";
-        const nodeKey2: string = "nodeKey2";
-        const nodeKey3: string = "nodeKey3";
-
-        const node1: Node = nodeHelper.createNode();
-        mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
-        mockCreator.mockProperty(node1, "key", nodeKey2);
-        mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
-
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
-        sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2, nodeKey3] }));
         indexSubject$.next(1);
+        expect(moveToKeySpy.calls.count()).toBe(0);
 
-        expect(moveToKeySpy.calls.count()).toBe(1);
+        scheduler.maxFrames = 270;
+        scheduler.flush();
+        scheduler.frame = 270;
 
-        now += 90;
         indexSubject$.next(0);
-        expect(moveToKeySpy.calls.count()).toBe(1);
+        expect(moveToKeySpy.calls.count()).toBe(0);
 
-        now += 90;
-        indexSubject$.next(1);
-        expect(moveToKeySpy.calls.count()).toBe(1);
+        scheduler.maxFrames = 360;
+        scheduler.flush();
+        scheduler.frame = 360;
 
-        now += 90;
-        indexSubject$.next(0);
-        expect(moveToKeySpy.calls.count()).toBe(1);
-
-        now += 90;
-        indexSubject$.next(1);
-        expect(moveToKeySpy.calls.count()).toBe(1);
-
-        now += 90;
         indexSubject$.next(2);
+        expect(moveToKeySpy.calls.count()).toBe(0);
 
-        expect(now).toBeGreaterThan(400);
-        expect(moveToKeySpy.calls.count()).toBe(2);
+        scheduler.maxFrames = 450;
+        scheduler.flush();
+        scheduler.frame = 450;
+
+        expect(moveToKeySpy.calls.count()).toBe(1);
         expect(moveToKeySpy.calls.mostRecent().args[0]).toBe(nodeKey3);
     });
 });

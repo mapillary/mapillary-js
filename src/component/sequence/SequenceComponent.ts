@@ -11,6 +11,7 @@ import "rxjs/add/observable/combineLatest";
 import "rxjs/add/observable/of";
 import "rxjs/add/observable/concat";
 
+import "rxjs/add/operator/auditTime";
 import "rxjs/add/operator/bufferCount";
 import "rxjs/add/operator/concat";
 import "rxjs/add/operator/distinctUntilChanged";
@@ -87,7 +88,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _sequenceSubscription: Subscription;
     private _moveSubscription: Subscription;
     private _cacheSequenceNodesSubscription: Subscription;
-    private _rendererKeySubscription: Subscription;
     private _stopSubscription: Subscription;
 
     constructor(
@@ -297,51 +297,18 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .publish()
             .refCount();
 
-        const replayedRendererKey$: Observable<string> = rendererKey$
-            .publishReplay(1)
-            .refCount();
-
-        this._rendererKeySubscription = replayedRendererKey$.subscribe();
-
-        this._moveSubscription = rendererKey$
-            .scan(
-                (keyBuffer: [number, string][], key: string): [number, string][] => {
-                    const threshold: number = 100;
-                    const now: number = Date.now();
-
-                    if (now - keyBuffer[keyBuffer.length - 1][0] > threshold ||
-                        now - keyBuffer[0][0] > 400) {
-                        keyBuffer.splice(0, keyBuffer.length);
-                    }
-
-                    keyBuffer.push([now, key]);
-
-                    return keyBuffer;
-                },
-                [[Number.NEGATIVE_INFINITY, null]])
-            .distinctUntilChanged(
-                (l1: number, l2: number): boolean => {
-                    const changed: boolean = l2 === 1 || l1 === 1 && l2 > 1;
-
-                    return !changed;
-                },
-                (keyBuffer: [number, string][]): number => {
-                    return keyBuffer.length;
-                })
-            .switchMap(
-                (keyBuffer: [number, string][]): Observable<string> => {
-                    return keyBuffer.length === 1 ?
-                        Observable.of(keyBuffer[0][1]) :
-                        replayedRendererKey$.debounceTime(100, this._scheduler);
-                })
+        this._moveSubscription = Observable
+            .merge(
+                rendererKey$.debounceTime(100, this._scheduler),
+                rendererKey$.auditTime(400, this._scheduler))
             .distinctUntilChanged()
             .switchMap(
                 (key: string): Observable<Node> => {
                     return this._navigator.moveToKey$(key)
-                            .catch(
-                                (e: Error): Observable<Node> => {
-                                    return Observable.empty();
-                                });
+                        .catch(
+                            (e: Error): Observable<Node> => {
+                                return Observable.empty();
+                            });
                 })
             .subscribe();
 
@@ -591,7 +558,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._sequenceSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
         this._cacheSequenceNodesSubscription.unsubscribe();
-        this._rendererKeySubscription.unsubscribe();
         this._stopSubscription.unsubscribe();
 
         this._sequenceDOMRenderer.deactivate();
