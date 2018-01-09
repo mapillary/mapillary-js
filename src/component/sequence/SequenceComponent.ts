@@ -32,7 +32,6 @@ import {
     ComponentService,
     ISequenceConfiguration,
     SequenceDOMRenderer,
-    SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
 import {
@@ -70,7 +69,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     public static playingchanged: string = "playingchanged";
 
     private _sequenceDOMRenderer: SequenceDOMRenderer;
-    private _sequenceDOMInteraction: SequenceDOMInteraction;
     private _scheduler: Scheduler;
 
     private _hoveredKeySubject$: Subject<string>;
@@ -100,7 +98,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         super(name, container, navigator);
 
         this._sequenceDOMRenderer = !!renderer ? renderer : new SequenceDOMRenderer(container);
-        this._sequenceDOMInteraction = new SequenceDOMInteraction();
         this._scheduler = scheduler;
 
         this._containerWidth$ = new Subject<number>();
@@ -470,7 +467,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                             position.index,
                             position.max,
                             this,
-                            this._sequenceDOMInteraction,
                             this._navigator);
 
                     return {name: this._name, vnode: vNode };
@@ -525,7 +521,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     }
                 });
 
-        this._hoveredKeySubscription = this._sequenceDOMInteraction.mouseEnterDirection$
+        this._hoveredKeySubscription = this._sequenceDOMRenderer.mouseEnterDirection$
             .switchMap(
                 (direction: EdgeDirection): Observable<string> => {
                     return edgeStatus$
@@ -539,7 +535,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
                                 return null;
                             })
-                        .takeUntil(this._sequenceDOMInteraction.mouseLeaveDirection$)
+                        .takeUntil(this._sequenceDOMRenderer.mouseLeaveDirection$)
                         .concat<string>(Observable.of<string>(null));
                 })
             .distinctUntilChanged()

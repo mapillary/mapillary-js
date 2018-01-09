@@ -10,7 +10,6 @@ import {
     SequenceMode,
     ISequenceConfiguration,
     SequenceComponent,
-    SequenceDOMInteraction,
 } from "../../Component";
 import {EdgeDirection} from "../../Edge";
 import {AbortMapillaryError} from "../../Error";
@@ -40,6 +39,8 @@ export class SequenceDOMRenderer {
     private _index: number;
     private _changingPosition: boolean;
 
+    private _mouseEnterDirection$: Subject<EdgeDirection>;
+    private _mouseLeaveDirection$: Subject<EdgeDirection>;
     private _notifyChanged$: Subject<SequenceDOMRenderer>;
     private _notifySpeedChanged$: Subject<number>;
     private _notifyIndexChanged$: Subject<number>;
@@ -64,6 +65,8 @@ export class SequenceDOMRenderer {
         this._index = null;
         this._changingPosition = false;
 
+        this._mouseEnterDirection$ = new Subject<EdgeDirection>();
+        this._mouseLeaveDirection$ = new Subject<EdgeDirection>();
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
         this._notifySpeedChanged$ = new Subject<number>();
         this._notifyIndexChanged$ = new Subject<number>();
@@ -83,6 +86,14 @@ export class SequenceDOMRenderer {
 
     public get index$(): Observable<number> {
         return this._notifyIndexChanged$;
+    }
+
+    public get mouseEnterDirection$(): Observable<EdgeDirection> {
+        return this._mouseEnterDirection$;
+    }
+
+    public get mouseLeaveDirection$(): Observable<EdgeDirection> {
+        return this._mouseLeaveDirection$;
     }
 
     public activate(): void {
@@ -133,7 +144,6 @@ export class SequenceDOMRenderer {
         index: number,
         max: number,
         component: SequenceComponent,
-        interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode {
 
         if (configuration.visible === false) {
@@ -141,7 +151,7 @@ export class SequenceDOMRenderer {
         }
 
         const stepper: vd.VNode =
-            this._createStepper(edgeStatus, configuration, containerWidth, component, interaction, navigator);
+            this._createStepper(edgeStatus, configuration, containerWidth, component, navigator);
         const controls: vd.VNode = this._createSequenceControls(containerWidth);
         const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed, component, configuration);
         const timeline: vd.VNode = this._createTimelineControls(containerWidth, index, max);
@@ -424,7 +434,6 @@ export class SequenceDOMRenderer {
         prevKey: string,
         containerWidth: number,
         configuration: ISequenceConfiguration,
-        interaction: SequenceDOMInteraction,
         navigator: Navigator): vd.VNode[] {
 
         let nextProperties: vd.createProperties = {
@@ -440,8 +449,8 @@ export class SequenceDOMRenderer {
                             });
                 } :
                 null,
-            onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Next); },
-            onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.next(EdgeDirection.Next); },
+            onmouseenter: (e: MouseEvent): void => { this._mouseEnterDirection$.next(EdgeDirection.Next); },
+            onmouseleave: (e: MouseEvent): void => { this._mouseLeaveDirection$.next(EdgeDirection.Next); },
         };
 
         const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
@@ -458,8 +467,8 @@ export class SequenceDOMRenderer {
                             });
                 } :
                 null,
-            onmouseenter: (e: MouseEvent): void => { interaction.mouseEnterDirection$.next(EdgeDirection.Prev); },
-            onmouseleave: (e: MouseEvent): void => { interaction.mouseLeaveDirection$.next(EdgeDirection.Prev); },
+            onmouseenter: (e: MouseEvent): void => { this._mouseEnterDirection$.next(EdgeDirection.Prev); },
+            onmouseleave: (e: MouseEvent): void => { this._mouseLeaveDirection$.next(EdgeDirection.Prev); },
             style: {
                 "border-bottom-left-radius": `${borderRadius}px`,
                 "border-top-left-radius": `${borderRadius}px`,
@@ -483,7 +492,6 @@ export class SequenceDOMRenderer {
         configuration: ISequenceConfiguration,
         containerWidth: number,
         component: SequenceComponent,
-        interaction: SequenceDOMInteraction,
         navigator: Navigator,
         ): vd.VNode {
 
@@ -501,7 +509,7 @@ export class SequenceDOMRenderer {
         }
 
         const playingButton: vd.VNode = this._createPlayingButton(nextKey, prevKey, configuration, component);
-        const buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, containerWidth, configuration, interaction, navigator);
+        const buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, containerWidth, configuration, navigator);
         buttons.splice(1, 0, playingButton);
 
         const containerProperties: vd.createProperties = {

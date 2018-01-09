@@ -37,7 +37,6 @@ export {NavigationComponent} from "./component/NavigationComponent";
 export {RouteComponent} from "./component/RouteComponent";
 export {SequenceComponent} from "./component/sequence/SequenceComponent";
 export {SequenceDOMRenderer} from "./component/sequence/SequenceDOMRenderer";
-export {SequenceDOMInteraction} from "./component/sequence/SequenceDOMInteraction";
 export {SequenceMode} from "./component/sequence/SequenceMode";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
 export {ImagePlaneFactory} from "./component/imageplane/ImagePlaneFactory";
