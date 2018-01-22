@@ -373,7 +373,7 @@ export class Node {
      * the node belongs.
      */
     public get sequenceKey(): string {
-        return this._core.sequence.key;
+        return this._core.sequence_key;
     }
 
     /**

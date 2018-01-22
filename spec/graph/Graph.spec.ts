@@ -157,7 +157,7 @@ describe("Graph.cacheFull$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        fullNode.sequence.key = undefined;
+        fullNode.sequence_key = undefined;
 
         graph.cacheFull$(fullNode.key)
             .subscribe(
@@ -760,7 +760,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageResult: { [key: string]: IFullNode } = {};
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = nodeKey;
-        fullNode.sequence.key = sequenceKey;
+        fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
@@ -809,7 +809,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageResult: { [key: string]: IFullNode } = {};
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = nodeKey;
-        fullNode.sequence.key = sequenceKey;
+        fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
@@ -860,7 +860,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageResult: { [key: string]: IFullNode } = {};
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = nodeKey;
-        fullNode.sequence.key = sequenceKey;
+        fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
@@ -909,7 +909,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageResult: { [key: string]: IFullNode } = {};
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = nodeKey;
-        fullNode.sequence.key = sequenceKey;
+        fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
@@ -960,7 +960,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageResult: { [key: string]: IFullNode } = {};
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = nodeKey;
-        fullNode.sequence.key = sequenceKey;
+        fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
@@ -1037,7 +1037,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageResult: { [key: string]: IFullNode } = {};
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = nodeKey;
-        fullNode.sequence.key = sequenceKey;
+        fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
@@ -1602,7 +1602,7 @@ describe("Graph.cacheSpatialEdges", () => {
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
-        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1658,7 +1658,7 @@ describe("Graph.cacheSpatialEdges", () => {
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
-        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1667,7 +1667,7 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
         let otherFullNode: IFullNode = helper.createFullNode();
-        otherFullNode.sequence.key = "otherSequenceKey";
+        otherFullNode.sequence_key = "otherSequenceKey";
         let otherNode: Node = new Node(otherFullNode);
         otherNode.makeFull(otherFullNode);
 
@@ -1719,7 +1719,7 @@ describe("Graph.cacheSpatialEdges", () => {
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
-        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1728,7 +1728,7 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
         let otherFullNode: IFullNode = helper.createFullNode();
-        otherFullNode.sequence.key = "otherSequenceKey";
+        otherFullNode.sequence_key = "otherSequenceKey";
         let otherNode: Node = new Node(otherFullNode);
         otherNode.makeFull(otherFullNode);
 
@@ -1822,7 +1822,7 @@ describe("Graph.cacheNodeSequence$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        fullNode.sequence.key = "sequenceKey";
+        fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -1838,7 +1838,7 @@ describe("Graph.cacheNodeSequence$", () => {
                 });
 
         let result: { [key: string]: ISequence } = {};
-        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
+        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1860,7 +1860,7 @@ describe("Graph.cacheNodeSequence$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        fullNode.sequence.key = "sequenceKey";
+        fullNode.sequence_key = "sequenceKey";
 
         expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(Error);
     });
@@ -1879,7 +1879,7 @@ describe("Graph.cacheNodeSequence$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        fullNode.sequence.key = "sequenceKey";
+        fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -1890,7 +1890,7 @@ describe("Graph.cacheNodeSequence$", () => {
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
-        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
+        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1914,7 +1914,7 @@ describe("Graph.cacheNodeSequence$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        fullNode.sequence.key = "sequenceKey";
+        fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -1942,7 +1942,7 @@ describe("Graph.cacheNodeSequence$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let fullNode: IFullNode = helper.createFullNode();
-        fullNode.sequence.key = "sequenceKey";
+        fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -1963,7 +1963,7 @@ describe("Graph.cacheNodeSequence$", () => {
                 });
 
         let result: { [key: string]: ISequence } = {};
-        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: [fullNode.key] };
+        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
     });
@@ -2096,7 +2096,7 @@ describe("Graph.resetSpatialEdges", () => {
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
-        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -2166,7 +2166,7 @@ describe("Graph.resetSpatialEdges", () => {
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: ISequence } = {};
-        result[fullNode.sequence.key] = { key: fullNode.sequence.key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -2415,7 +2415,7 @@ describe("Graph.uncache", () => {
         let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
 
         let fullNode: IFullNode = helper.createFullNode();
-        fullNode.sequence.key = "sequencKey";
+        fullNode.sequence_key = "sequencKey";
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
@@ -2429,7 +2429,7 @@ describe("Graph.uncache", () => {
         let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([], fullNode.sequence.key);
+        graph.uncache([], fullNode.sequence_key);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
@@ -3255,7 +3255,7 @@ describe("Graph.uncache", () => {
         let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
 
         let fullNode: IFullNode = helper.createFullNode();
-        fullNode.sequence.key = "sequenceKey";
+        fullNode.sequence_key = "sequenceKey";
         let result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
@@ -3287,7 +3287,7 @@ describe("Graph.uncache", () => {
         let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
         let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
 
-        graph.uncache([], fullNode.sequence.key);
+        graph.uncache([], fullNode.sequence_key);
 
         expect(nodeDisposeSpy.calls.count()).toBe(0);
         expect(nodeUncacheSpy.calls.count()).toBe(1);

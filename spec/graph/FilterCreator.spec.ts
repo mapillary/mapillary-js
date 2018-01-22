@@ -41,10 +41,10 @@ describe("FilterCreator.createFilter", () => {
         let coreNode3: ICoreNode = helper.createCoreNode();
         let coreNode4: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = sequenceKey;
-        coreNode2.sequence.key = sequenceKey + "w";
-        coreNode3.sequence.key = null;
-        coreNode4.sequence.key = undefined;
+        coreNode1.sequence_key = sequenceKey;
+        coreNode2.sequence_key = sequenceKey + "w";
+        coreNode3.sequence_key = null;
+        coreNode4.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -139,10 +139,10 @@ describe("FilterCreator.createFilter", () => {
         let coreNode3: ICoreNode = helper.createCoreNode();
         let coreNode4: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = sequenceKey;
-        coreNode2.sequence.key = sequenceKey + "w";
-        coreNode3.sequence.key = null;
-        coreNode4.sequence.key = undefined;
+        coreNode1.sequence_key = sequenceKey;
+        coreNode2.sequence_key = sequenceKey + "w";
+        coreNode3.sequence_key = null;
+        coreNode4.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -275,11 +275,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: ICoreNode = helper.createCoreNode();
         let coreNode5: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = "-1";
-        coreNode2.sequence.key = sequenceKey;
-        coreNode3.sequence.key = "1";
-        coreNode4.sequence.key = null;
-        coreNode5.sequence.key = undefined;
+        coreNode1.sequence_key = "-1";
+        coreNode2.sequence_key = sequenceKey;
+        coreNode3.sequence_key = "1";
+        coreNode4.sequence_key = null;
+        coreNode5.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -351,11 +351,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: ICoreNode = helper.createCoreNode();
         let coreNode5: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = "-1";
-        coreNode2.sequence.key = sequenceKey;
-        coreNode3.sequence.key = "1";
-        coreNode4.sequence.key = null;
-        coreNode5.sequence.key = undefined;
+        coreNode1.sequence_key = "-1";
+        coreNode2.sequence_key = sequenceKey;
+        coreNode3.sequence_key = "1";
+        coreNode4.sequence_key = null;
+        coreNode5.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -427,11 +427,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: ICoreNode = helper.createCoreNode();
         let coreNode5: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = "-1";
-        coreNode2.sequence.key = sequenceKey;
-        coreNode3.sequence.key = "1";
-        coreNode4.sequence.key = null;
-        coreNode5.sequence.key = undefined;
+        coreNode1.sequence_key = "-1";
+        coreNode2.sequence_key = sequenceKey;
+        coreNode3.sequence_key = "1";
+        coreNode4.sequence_key = null;
+        coreNode5.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -503,11 +503,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: ICoreNode = helper.createCoreNode();
         let coreNode5: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = "-1";
-        coreNode2.sequence.key = sequenceKey;
-        coreNode3.sequence.key = "1";
-        coreNode4.sequence.key = null;
-        coreNode5.sequence.key = undefined;
+        coreNode1.sequence_key = "-1";
+        coreNode2.sequence_key = sequenceKey;
+        coreNode3.sequence_key = "1";
+        coreNode4.sequence_key = null;
+        coreNode5.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -579,11 +579,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: ICoreNode = helper.createCoreNode();
         let coreNode5: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = "-1";
-        coreNode2.sequence.key = sequenceKey;
-        coreNode3.sequence.key = "1";
-        coreNode4.sequence.key = null;
-        coreNode5.sequence.key = undefined;
+        coreNode1.sequence_key = "-1";
+        coreNode2.sequence_key = sequenceKey;
+        coreNode3.sequence_key = "1";
+        coreNode4.sequence_key = null;
+        coreNode5.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -607,9 +607,9 @@ describe("FilterCreator.createFilter", () => {
         let coreNode2: ICoreNode = helper.createCoreNode();
         let coreNode3: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = "1";
-        coreNode2.sequence.key = null;
-        coreNode3.sequence.key = undefined;
+        coreNode1.sequence_key = "1";
+        coreNode2.sequence_key = null;
+        coreNode3.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -737,11 +737,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: ICoreNode = helper.createCoreNode();
         let coreNode5: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = "-1";
-        coreNode2.sequence.key = sequenceKey;
-        coreNode3.sequence.key = "1";
-        coreNode4.sequence.key = null;
-        coreNode5.sequence.key = undefined;
+        coreNode1.sequence_key = "-1";
+        coreNode2.sequence_key = sequenceKey;
+        coreNode3.sequence_key = "1";
+        coreNode4.sequence_key = null;
+        coreNode5.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -765,9 +765,9 @@ describe("FilterCreator.createFilter", () => {
         let coreNode2: ICoreNode = helper.createCoreNode();
         let coreNode3: ICoreNode = helper.createCoreNode();
 
-        coreNode1.sequence.key = "1";
-        coreNode2.sequence.key = null;
-        coreNode3.sequence.key = undefined;
+        coreNode1.sequence_key = "1";
+        coreNode2.sequence_key = null;
+        coreNode3.sequence_key = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);

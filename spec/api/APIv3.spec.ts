@@ -456,6 +456,8 @@ describe("APIv3.imagesByH$", () => {
 
 describe("APIv3.sequenceByKey$", () => {
     it("should call model correctly", (done: Function) => {
+        spyOn(console, "warn").and.stub();
+
         let model: falcor.Model = new falcor.Model();
 
         let promise: any = {
@@ -525,6 +527,110 @@ describe("APIv3.sequenceByKey$", () => {
                     done();
                 },
             );
+    });
+
+    it("should call model correctly", (done: Function) => {
+        spyOn(console, "warn").and.stub();
+
+        let skey: string = "skey";
+        let nkey: string = "nkey";
+
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve({ json: { sequenceByKey: { skey: { key: skey, keys: [nkey] } } } });
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
+
+        apiV3.sequenceByKey$([skey])
+            .subscribe(
+                (result: { [key: string]: ISequence }): void => {
+                    expect(result).toBeDefined();
+                    expect(result[skey]).toBeDefined();
+                    expect(result[skey].key).toBe(skey);
+                    expect(result[skey].keys.length).toBe(1);
+                    expect(result[skey].keys[0]).toBe(nkey);
+
+                    done();
+                });
+    });
+
+    it("should create empty sequence if return value is not defined", (done: Function) => {
+        spyOn(console, "warn").and.stub();
+
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
+
+        let skey: string = "skey";
+
+        apiV3.sequenceByKey$([skey])
+            .subscribe(
+                (result: { [key: string]: ISequence }): void => {
+                    expect(result).toBeDefined();
+                    expect(result[skey]).toBeDefined();
+                    expect(result[skey].key).toBe(skey);
+                    expect(result[skey].keys.length).toBe(0);
+
+                    done();
+                });
+    });
+
+    it("should populate empty sequence if missing", (done: Function) => {
+        spyOn(console, "warn").and.stub();
+
+        let model: falcor.Model = new falcor.Model();
+
+        let promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve({ json: { sequenceByKey: {} } });
+            },
+        };
+
+        let spy: jasmine.Spy = spyOn(model, "get");
+        spy.and.returnValue(promise);
+
+        let creator: ModelCreator = new ModelCreator();
+        let creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
+        creatorSpy.and.returnValue(model);
+
+        let apiV3: APIv3 = new APIv3("clientId", undefined, creator);
+
+        let skey: string = "skey";
+
+        apiV3.sequenceByKey$([skey])
+            .subscribe(
+                (result: { [key: string]: ISequence }): void => {
+                    expect(result).toBeDefined();
+                    expect(result[skey]).toBeDefined();
+                    expect(result[skey].key).toBe(skey);
+                    expect(result[skey].keys.length).toBe(0);
+
+                    done();
+                });
     });
 });
 

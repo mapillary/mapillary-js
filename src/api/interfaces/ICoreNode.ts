@@ -20,9 +20,9 @@ export interface ICoreNode extends IKey {
     cl?: ILatLon;
 
     /**
-     * Sequence that the node is part of.
+     * Key of sequence that the node is part of.
      */
-    sequence: IKey;
+    sequence_key?: string;
 }
 
 export default ICoreNode;

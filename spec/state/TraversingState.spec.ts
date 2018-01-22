@@ -43,7 +43,7 @@ class TestNode extends Node {
             cl: { lat: 0, lon: 0 },
             key: "key",
             l: { lat: 0, lon: 0 },
-            sequence: { key: "skey" },
+            sequence_key: "skey",
         });
     }
 

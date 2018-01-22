@@ -117,7 +117,7 @@ describe("RectGeometry.setVertex2d", () => {
             cl: { lat: 0, lon: 0},
             key: "key",
             l: { lat: 0, lon: 0 },
-            sequence: { key: "skey" },
+            sequence_key: "skey",
         });
 
         node.makeFull({
@@ -421,7 +421,7 @@ describe("RectGeometry.setCentroid2d", () => {
             cl: { lat: 0, lon: 0},
             key: "key",
             l: { lat: 0, lon: 0 },
-            sequence: { key: "skey" },
+            sequence_key: "skey",
         });
 
         node.makeFull({

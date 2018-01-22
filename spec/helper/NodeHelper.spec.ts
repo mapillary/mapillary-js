@@ -17,7 +17,7 @@ export class NodeHelper {
             cl: { lat: 0, lon: 0 },
             key: this._nodeKey,
             l: { lat: 0, lon: 0},
-            sequence: { key: this._sequenceKey },
+            sequence_key: this._sequenceKey,
         };
     }
 
@@ -57,7 +57,7 @@ export class NodeHelper {
             merge_cc: 0,
             merge_version: 0,
             orientation: 0,
-            sequence: { key: this._sequenceKey },
+            sequence_key: this._sequenceKey,
             user: { key: this._userKey, username: this._username },
             width: 0,
         };

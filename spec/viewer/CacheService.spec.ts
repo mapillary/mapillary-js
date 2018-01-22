@@ -190,7 +190,7 @@ describe("CacheService.start", () => {
 
         let coreNode2: ICoreNode = helper.createCoreNode();
         coreNode2.key = "node2";
-        coreNode2.sequence.key = "sequence2";
+        coreNode2.sequence_key = "sequence2";
         let node2: Node = new Node(coreNode2);
 
         let state: ICurrentState = createState();
@@ -207,7 +207,7 @@ describe("CacheService.start", () => {
         expect(uncacheSpy.calls.first().args[0].length).toBe(2);
         expect(uncacheSpy.calls.first().args[0][0]).toBe(coreNode1.key);
         expect(uncacheSpy.calls.first().args[0][1]).toBe(coreNode2.key);
-        expect(uncacheSpy.calls.first().args[1]).toBe(coreNode2.sequence.key);
+        expect(uncacheSpy.calls.first().args[1]).toBe(coreNode2.sequence_key);
     });
 
     it("should cache current node if switching to sequence graph mode", () => {

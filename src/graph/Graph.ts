@@ -344,8 +344,8 @@ export class Graph {
                             this._makeFull(node, fn);
                         }
                     } else {
-                        if (fn.sequence == null || fn.sequence.key == null) {
-                            throw new GraphMapillaryError(`Node has no sequence (${key}).`);
+                        if (fn.sequence_key == null) {
+                            throw new GraphMapillaryError(`Node has no sequence key (${key}).`);
                         }
 
                         let node: Node = new Node(fn);
@@ -509,8 +509,8 @@ export class Graph {
                                             this._makeFull(node, fn);
                                         }
                                     } else {
-                                        if (fn.sequence == null || fn.sequence.key == null) {
-                                            console.warn(`Sequence missing, discarding (${fn.key})`);
+                                        if (fn.sequence_key == null) {
+                                            console.warn(`Sequence missing, discarding node (${fn.key})`);
                                         }
 
                                         const node: Node = new Node(fn);
@@ -781,9 +781,8 @@ export class Graph {
                                     break;
                                 }
 
-                                if (coreNode.sequence == null ||
-                                    coreNode.sequence.key == null) {
-                                    console.warn(`Sequence missing, discarding (${coreNode.key})`);
+                                if (coreNode.sequence_key == null) {
+                                    console.warn(`Sequence missing, discarding node (${coreNode.key})`);
 
                                     continue;
                                 }

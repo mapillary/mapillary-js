@@ -33,7 +33,7 @@ export class EdgeCalculatorHelper {
             cl: { lat: latLonAlt.lat, lon: latLonAlt.lon },
             key: key,
             l: { lat: latLonAlt.lat, lon: latLonAlt.lon },
-            sequence: { key: sequenceKey },
+            sequence_key: sequenceKey,
         };
 
         return new Node(coreNode);

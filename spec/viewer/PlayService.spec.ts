@@ -550,7 +550,7 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: IFullNode = new NodeHelper().createFullNode();
-        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
@@ -594,7 +594,7 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: IFullNode = new NodeHelper().createFullNode();
-        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
@@ -641,7 +641,7 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: IFullNode = new NodeHelper().createFullNode();
-        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
@@ -692,7 +692,7 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: IFullNode = new NodeHelper().createFullNode();
-        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
@@ -743,14 +743,14 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: IFullNode = new NodeHelper().createFullNode();
-        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
         const nextNodeKey: string = "node1";
         const nextFullNode: IFullNode = new NodeHelper().createFullNode();
-        nextFullNode.sequence.key = sequenceKey;
+        nextFullNode.sequence_key = sequenceKey;
         nextFullNode.key = nextNodeKey;
         const nextNode: Node = new Node(nextFullNode);
 
@@ -793,7 +793,7 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: IFullNode = new NodeHelper().createFullNode();
-        currentFullNode.sequence.key = sequenceKey;
+        currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "currentNodeKey";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
@@ -804,7 +804,7 @@ describe("PlayService.play", () => {
         for (let i: number = 0; i < 20; i++) {
             const sequenceNodeKey: string = `node${i}`;
             const sequenceFullNode: IFullNode = new NodeHelper().createFullNode();
-            sequenceFullNode.sequence.key = sequenceKey;
+            sequenceFullNode.sequence_key = sequenceKey;
             sequenceFullNode.key = sequenceNodeKey;
             const sequenceNode: Node = new Node(sequenceFullNode);
             new MockCreator().mockProperty(sequenceNode, "sequenceEdges$", new Subject<IEdgeStatus>());
@@ -821,7 +821,7 @@ describe("PlayService.play", () => {
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$").and.callFake(
             (key: string): Observable<Node> => {
                 const fullNode: IFullNode = new NodeHelper().createFullNode();
-                fullNode.sequence.key = sequenceKey;
+                fullNode.sequence_key = sequenceKey;
                 fullNode.key = key;
                 const node: Node = new Node(fullNode);
 

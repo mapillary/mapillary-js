@@ -99,7 +99,7 @@ export class APIv3 {
         this._propertiesCore = [
             "cl",
             "l",
-            "sequence",
+            "sequence_key",
         ];
 
         this._propertiesFill = [
@@ -208,11 +208,10 @@ export class APIv3 {
                 hs,
                 { from: 0, to: this._pageCount },
                 this._propertiesKey
-                    .concat(this._propertiesCore),
-                this._propertiesKey]))
+                    .concat(this._propertiesCore)]))
             .map(
                 (value: IFalcorResult<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
-                    if (value == null) {
+                    if (!value) {
                         value = { json: { imagesByH: {} } };
                         for (let h of hs) {
                             value.json.imagesByH[h] = {};
@@ -265,6 +264,18 @@ export class APIv3 {
                     .concat(this._propertiesSequence)]))
             .map(
                 (value: IFalcorResult<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
+                    if (!value) {
+                        value = { json: { sequenceByKey: {} } };
+                    }
+
+                    for (const sequenceKey of sequenceKeys) {
+                        if (!(sequenceKey in value.json.sequenceByKey)) {
+                            console.warn(`Sequence data missing (${sequenceKey})`);
+
+                            value.json.sequenceByKey[sequenceKey] = { key: sequenceKey, keys: [] };
+                        }
+                    }
+
                     return value.json.sequenceByKey;
                 }),
             this._pathSequenceByKey,
