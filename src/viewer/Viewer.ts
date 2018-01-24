@@ -237,14 +237,21 @@ export class Viewer extends EventEmitter {
      * @description It is possible to initialize the viewer with or
      * without a key.
      *
+     * When you want to show a specific image in the viewer from
+     * the start you should initialize it with a key.
+     *
+     * When you do not know the first image key at implementation
+     * time, e.g. in a map-viewer application you should initialize
+     * the viewer without a key and call `moveToKey` instead.
+     *
      * When initializing with a key the viewer is bound to that key
-     * until the node/image for that key has been successfully loaded.
+     * until the node for that key has been successfully loaded.
      * Also, a cover with the image of the key will be shown.
      * If the data for that key can not be loaded because the key is
      * faulty or other errors occur it is not possible to navigate
      * to another key because the viewer is not navigable. The viewer
-     * becomes navigable when the data for the has been loaded and
-     * the image is shown in the viewer. This wayof initializing
+     * becomes navigable when the data for the key has been loaded and
+     * the image is shown in the viewer. This way of initializing
      * the viewer is mostly for embedding in blog posts and similar
      * where one wants to show a specific image initially.
      *
@@ -295,11 +302,12 @@ export class Viewer extends EventEmitter {
      * Return a boolean indicating if the viewer is in a navigable state.
      *
      * @description The navigable state indicates if the viewer supports
-     * moving, i.e. calling the `moveToKey`, `moveDir` and `moveCloseTo`
-     * methods. The viewer will not be in a navigable state if the cover
-     * is activated and the viewer has been supplied a key. When the cover
-     * is deactivated or activated without being supplied a key it will
-     * be navigable.
+     * moving, i.e. calling the {@link moveToKey}, {@link moveDir`}
+     * and {@link moveCloseTo} methods or changing the authentication state,
+     * i.e. calling {@link setAuthToken}. The viewer will not be in a navigable
+     * state if the cover is activated and the viewer has been supplied a key.
+     * When the cover is deactivated or the viewer is activated without being
+     * supplied a key it will be navigable.
      *
      * @returns {boolean} Boolean indicating whether the viewer is navigable.
      */
