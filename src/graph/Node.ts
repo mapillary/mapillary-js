@@ -27,16 +27,16 @@ import {ImageSize} from "../Viewer";
  * Explanation of position and bearing properties:
  *
  * When images are uploaded they will have GPS information in the EXIF, this is what
- * is called `originalLatLon`(@link Node#originalLatLon).
+ * is called `originalLatLon` {@link Node.originalLatLon}.
  *
  * When Structure from Motions has been run for a node a `computedLatLon` that
  * differs from the `originalLatLon` will be created. It is different because
  * GPS positions are not very exact and SfM aligns the camera positions according
- * to the 3D reconstruction (@link Node#computedLatLon).
+ * to the 3D reconstruction {@link Node.computedLatLon}.
  *
  * At last there exist a `latLon` property which evaluates to
  * the `computedLatLon` from SfM if it exists but falls back
- * to the `originalLatLon` from the EXIF GPS otherwise (@link Node#latlon).
+ * to the `originalLatLon` from the EXIF GPS otherwise {@link Node.latlon}.
  *
  * Everything that is done in in the Viewer is based on the SfM positions,
  * i.e. `computedLatLon`. That is why the smooth transitions go in the right

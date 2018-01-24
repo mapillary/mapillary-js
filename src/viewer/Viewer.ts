@@ -712,8 +712,9 @@ export class Viewer extends EventEmitter {
      *
      * `["all", f0, ..., fn]` logical `AND`: `f0 ∧ ... ∧ fn`
      *
-     * A key must be a string that identifies a node property name. A value must be
-     * a string, number, or boolean. Strictly-typed comparisons are used. The values
+     * A key must be a string that identifies a property name of a
+     * simple {@link Node} property. A value must be a string, number, or
+     * boolean. Strictly-typed comparisons are used. The values
      * `f0, ..., fn` of the combining filter must be filter expressions.
      *
      * Clear the filter by setting it to null or empty array.
