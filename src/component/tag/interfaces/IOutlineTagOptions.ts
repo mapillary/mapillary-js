@@ -27,6 +27,9 @@ export interface IOutlineTagOptions {
 
     /**
      * A string referencing the sprite data property to pull from.
+     *
+     * @description Icon is not shown for tags with polygon
+     * geometries in panoramas.
      */
     icon?: string;
 
@@ -76,6 +79,9 @@ export interface IOutlineTagOptions {
 
     /**
      * Text shown as label if no icon is provided.
+     *
+     * @description Text is not shown for tags with
+     * polygon geometries in panoramas.
      */
     text?: string;
 
