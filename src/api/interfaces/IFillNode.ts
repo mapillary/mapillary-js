@@ -55,7 +55,7 @@ export interface IFillNode {
     height: number;
 
     /**
-     * SfM connected component key to which image belongs.
+     * SfM connected component key to which the image belongs.
      */
     merge_cc?: number;
 
@@ -65,9 +65,20 @@ export interface IFillNode {
     merge_version?: number;
 
     /**
+     * Key of the organization to which the image belongs.
+     */
+    organization_key?: string;
+
+    /**
      * EXIF orientation of original image.
      */
     orientation?: number;
+
+    /**
+     * Value specifying if image is accessible to organization members only
+     * or to everyone.
+     */
+    private: boolean;
 
     /**
      * Project the image belongs to.

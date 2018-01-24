@@ -35,6 +35,7 @@ export class NodeHelper {
             merge_cc: 0,
             merge_version: 0,
             orientation: 0,
+            private: false,
             user: { key: this._userKey, username: this._username },
             width: 0,
         };
@@ -57,6 +58,7 @@ export class NodeHelper {
             merge_cc: 0,
             merge_version: 0,
             orientation: 0,
+            private: false,
             sequence_key: this._sequenceKey,
             user: { key: this._userKey, username: this._username },
             width: 0,

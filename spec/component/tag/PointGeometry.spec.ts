@@ -52,6 +52,7 @@ describe("PointGeometry.setVertex2d", () => {
             merge_cc: 0,
             merge_version: 0,
             orientation: 0,
+            private: false,
             user: { key: "key", username: "username"},
             width: 0,
         });

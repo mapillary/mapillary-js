@@ -105,6 +105,8 @@ export class APIv3 {
         this._propertiesFill = [
             "captured_at",
             "user",
+            "organization_key",
+            "private",
             "project",
         ];
 

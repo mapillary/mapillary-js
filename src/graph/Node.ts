@@ -293,6 +293,17 @@ export class Node {
     }
 
     /**
+     * Get organizationKey.
+     *
+     * @returns {string} Unique key of the organization to which
+     * the node belongs. If the node does not belong to an
+     * organization the organization key will be undefined.
+     */
+    public get organizationKey(): string {
+        return this._fill.organization_key;
+    }
+
+    /**
      * Get orientation.
      *
      * @returns {number} EXIF orientation of original image.
@@ -333,10 +344,24 @@ export class Node {
     }
 
     /**
+     * Get private.
+     *
+     * @returns {boolean} Value specifying if image is accessible to
+     * organization members only or to everyone.
+     */
+    public get private(): boolean {
+        return this._fill.private;
+    }
+
+    /**
      * Get projectKey.
      *
      * @returns {string} Unique key of the project to which
-     * the node belongs.
+     * the node belongs. If the node does not belong to a
+     * project the project key will be undefined.
+     *
+     * @deprecated This property will be deprecated in favor
+     * of the organization key and private properties.
      */
     public get projectKey(): string {
         return this._fill.project != null ?
