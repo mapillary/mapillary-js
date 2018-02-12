@@ -2,7 +2,7 @@
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
 
-import {ICoreNode} from "../../src/API";
+import {ICoreNode, IFullNode} from "../../src/API";
 import {Camera} from "../../src/Geo";
 import {Node} from "../../src/Graph";
 import {IRotation, IState, StateBase, TransitionMode} from "../../src/State";
@@ -22,6 +22,8 @@ class TestStateBase extends StateBase {
     public setCenter(center: number[]): void { return; }
     public setZoom(zoom: number): void { return; }
     public setSpeed(speed: number): void { return; }
+
+    public motionlessTransition(): boolean { return this._motionlessTransition(); }
 
     protected _getAlpha(): number { return; }
 }
@@ -59,6 +61,79 @@ let createFullNode: () => Node = (): Node => {
 
     return node;
 };
+
+describe("StateBase.transitionMode", () => {
+    it("should set transition mode", () => {
+        const state1: IState = createState();
+        const stateBase1: TestStateBase = new TestStateBase(state1);
+
+        expect(stateBase1.transitionMode).toBe(TransitionMode.Default);
+
+        const state2: IState = createState();
+        state2.transitionMode = TransitionMode.Instantaneous;
+        const stateBase2: TestStateBase = new TestStateBase(state2);
+
+        expect(stateBase2.transitionMode).toBe(TransitionMode.Instantaneous);
+    });
+});
+
+describe("StateBase.motionlessTransition", () => {
+    it("should be false if not both nodes set", () => {
+        const state: IState = createState();
+        const stateBase: TestStateBase = new TestStateBase(state);
+
+        expect(stateBase.motionlessTransition()).toBe(false);
+    });
+
+    it("should be false if nodes in same connected component", () => {
+        const state: IState = createState();
+        const stateBase: TestStateBase = new TestStateBase(state);
+
+        const helper: NodeHelper = new NodeHelper();
+
+        const fullNode1: IFullNode = helper.createFullNode();
+        fullNode1.merge_cc = 1;
+        fullNode1.merge_version = 1;
+        const node1: Node = new TestNode(fullNode1);
+        node1.makeFull(fullNode1);
+
+        const fullNode2: IFullNode = helper.createFullNode();
+        fullNode2.merge_cc = 1;
+        fullNode2.merge_version = 1;
+        const node2: Node = new TestNode(fullNode2);
+        node2.makeFull(fullNode2);
+
+        stateBase.set([node1]);
+        stateBase.set([node2]);
+
+        expect(stateBase.motionlessTransition()).toBe(false);
+    });
+
+    it("should be true if instantaneous transition mode", () => {
+        const state: IState = createState();
+        state.transitionMode = TransitionMode.Instantaneous;
+        const stateBase: TestStateBase = new TestStateBase(state);
+
+        const helper: NodeHelper = new NodeHelper();
+
+        const fullNode1: IFullNode = helper.createFullNode();
+        fullNode1.merge_cc = 1;
+        fullNode1.merge_version = 1;
+        const node1: Node = new TestNode(fullNode1);
+        node1.makeFull(fullNode1);
+
+        const fullNode2: IFullNode = helper.createFullNode();
+        fullNode2.merge_cc = 1;
+        fullNode2.merge_version = 1;
+        const node2: Node = new TestNode(fullNode2);
+        node2.makeFull(fullNode2);
+
+        stateBase.set([node1]);
+        stateBase.set([node2]);
+
+        expect(stateBase.motionlessTransition()).toBe(true);
+    });
+});
 
 describe("StateBase.set", () => {
     it("should set current node", () => {
