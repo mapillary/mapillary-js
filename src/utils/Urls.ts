@@ -41,8 +41,10 @@ export class Urls {
         return `${Urls._scheme}://${Urls._meshHost}/v2/mesh/${key}`;
     }
 
-    public static thumbnail(key: string, size: number): string {
-        return `${Urls._scheme}://${Urls._imageHost}/${key}/thumb-${size}.jpg?origin=${Urls.origin}`;
+    public static thumbnail(key: string, size: number, origin?: string): string {
+        const query: string = !!origin ? `?origin=${origin}` : "";
+
+        return `${Urls._scheme}://${Urls._imageHost}/${key}/thumb-${size}.jpg${query}`;
     }
 
     public static setOptions(options: IUrlOptions): void {

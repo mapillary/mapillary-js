@@ -8,19 +8,20 @@ import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/withLatestFrom";
 
-import {Node} from "../Graph";
-import {
-    Container,
-    Navigator,
-} from "../Viewer";
 import {
     CoverState,
     ICoverConfiguration,
     ComponentService,
     Component,
 } from "../Component";
-
+import {Node} from "../Graph";
 import {IVNodeHash} from "../Render";
+import {Urls} from "../Utils";
+import {
+    Container,
+    ImageSize,
+    Navigator,
+} from "../Viewer";
 
 export class CoverComponent extends Component<ICoverConfiguration> {
     public static componentName: string = "cover";
@@ -81,14 +82,13 @@ export class CoverComponent extends Component<ICoverConfiguration> {
         return vd.h(cover, [
             this._getCoverBackgroundVNode(conf),
             vd.h("button.CoverButton", { onclick: (): void => { this.configure({ state: CoverState.Loading }); } }, ["Explore"]),
-            vd.h("a.CoverLogo", {href: `https://www.mapillary.com`, target: "_blank"}, []),
+            vd.h("a.CoverLogo", {href: Urls.explore, target: "_blank"}, []),
         ]);
     }
 
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
         let url: string = conf.src != null ?
-            `url(${conf.src})` :
-            `url(https://d1cuyjsrcm0gby.cloudfront.net/${conf.key}/thumb-640.jpg)`;
+            `url(${conf.src})` : Urls.thumbnail(conf.key, ImageSize.Size640);
 
         let properties: vd.createProperties = { style: { backgroundImage: url } };
 

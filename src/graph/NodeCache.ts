@@ -317,7 +317,7 @@ export class NodeCache {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<HTMLImageElement>>): void => {
                 let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-                xmlHTTP.open("GET", Urls.thumbnail(key, imageSize), true);
+                xmlHTTP.open("GET", Urls.thumbnail(key, imageSize, Urls.origin), true);
                 xmlHTTP.responseType = "arraybuffer";
                 xmlHTTP.timeout = 15000;
 

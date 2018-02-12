@@ -4,11 +4,18 @@ import * as vd from "virtual-dom";
 
 import {Subscription} from "rxjs/Subscription";
 
-import {Container, Navigator} from "../Viewer";
+import {
+    ComponentService,
+    Component,
+    IComponentConfiguration,
+} from "../Component";
 import {Node} from "../Graph";
-
-import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {IVNodeHash} from "../Render";
+import {Urls} from "../Utils";
+import {
+    Container,
+    Navigator,
+} from "../Viewer";
 
 export class AttributionComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "attribution";
@@ -37,13 +44,13 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
 
     private _getAttributionNode(username: string, key: string): vd.VNode {
         return vd.h("div.Attribution", {}, [
-            vd.h("a", {href: `https://www.mapillary.com/app/user/${username}`,
+            vd.h("a", {href: Urls.exporeUser(username),
                        target: "_blank",
                        textContent: `@${username}`,
                       },
                  []),
             vd.h("span", {textContent: "|"}, []),
-            vd.h("a", {href: `https://www.mapillary.com/app/?pKey=${key}&focus=photo`,
+            vd.h("a", {href: Urls.exporeImage(key),
                        target: "_blank",
                        textContent: "mapillary.com",
                       },
