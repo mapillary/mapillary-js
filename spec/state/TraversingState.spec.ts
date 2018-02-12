@@ -7,7 +7,7 @@ import {NodeHelper} from "../helper/NodeHelper.spec";
 import {IFillNode} from "../../src/API";
 import {Camera} from "../../src/Geo";
 import {Node} from "../../src/Graph";
-import {IState, TraversingState} from "../../src/State";
+import {IState, TransitionMode, TraversingState} from "../../src/State";
 
 describe("TraversingState.ctor", () => {
     it("should be defined", () => {
@@ -17,6 +17,7 @@ describe("TraversingState.ctor", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -75,6 +76,7 @@ describe("TraversingState.currentCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -106,6 +108,7 @@ describe("TraversingState.currentCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -143,6 +146,7 @@ describe("TraversingState.currentCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -201,6 +205,7 @@ describe("TraversingState.previousCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -232,6 +237,7 @@ describe("TraversingState.previousCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 

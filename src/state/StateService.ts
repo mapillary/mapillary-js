@@ -29,6 +29,7 @@ import {
     IRotation,
     StateContext,
     State,
+    TransitionMode,
 } from "../State";
 
 interface IContextOperation {
@@ -67,7 +68,7 @@ export class StateService {
 
     private _fpsSampleRate: number;
 
-    constructor () {
+    constructor(transitionMode?: TransitionMode) {
         this._start$ = new Subject<void>();
         this._frame$ = new Subject<number>();
         this._fpsSampleRate = 30;
@@ -82,7 +83,7 @@ export class StateService {
                 (context: IStateContext, operation: IContextOperation): IStateContext => {
                     return operation(context);
                 },
-                new StateContext())
+                new StateContext(transitionMode))
             .publishReplay(1)
             .refCount();
 
@@ -477,6 +478,10 @@ export class StateService {
 
     public setSpeed(speed: number): void {
         this._invokeContextOperation((context: IStateContext) => { context.setSpeed(speed); });
+    }
+
+    public setTransitionMode(mode: TransitionMode): void {
+        this._invokeContextOperation((context: IStateContext) => { context.setTransitionMode(mode); });
     }
 
     public setZoom(zoom: number): void {

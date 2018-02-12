@@ -2,8 +2,18 @@
 
 import {ArgumentMapillaryError} from "../../Error";
 import {Node} from "../../Graph";
-import {Camera, GeoCoords, ILatLonAlt, Transform, Spatial} from "../../Geo";
-import {IRotation, IState} from "../../State";
+import {
+    Camera,
+    GeoCoords,
+    ILatLonAlt,
+    Transform,
+    Spatial,
+} from "../../Geo";
+import {
+    IRotation,
+    IState,
+    TransitionMode,
+} from "../../State";
 
 export abstract class StateBase implements IState {
     protected _spatial: Spatial;
@@ -30,12 +40,14 @@ export abstract class StateBase implements IState {
     protected _motionless: boolean;
 
     private _referenceThreshold: number;
+    private _transitionMode: TransitionMode;
 
     constructor(state: IState) {
         this._spatial = new Spatial();
         this._geoCoords = new GeoCoords();
 
         this._referenceThreshold = 0.01;
+        this._transitionMode = state.transitionMode;
 
         this._reference = state.reference;
 
@@ -122,6 +134,10 @@ export abstract class StateBase implements IState {
 
     public get motionless(): boolean {
         return this._motionless;
+    }
+
+    public get transitionMode(): TransitionMode {
+        return this._transitionMode;
     }
 
     public abstract traverse(): StateBase;
@@ -236,6 +252,10 @@ export abstract class StateBase implements IState {
             [0.5, 0.5];
     }
 
+    public setTransitionMode(mode: TransitionMode): void {
+        this._transitionMode = mode;
+    }
+
     public abstract setCenter(center: number[]): void;
 
     public abstract setZoom(zoom: number): void;
@@ -263,12 +283,13 @@ export abstract class StateBase implements IState {
     protected _motionlessTransition(): boolean {
         let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
 
-        return nodesSet && !(
-            this._currentNode.merged &&
-            this._previousNode.merged &&
-            this._withinOriginalDistance() &&
-            this._sameConnectedComponent()
-        );
+        return nodesSet && (
+            this._transitionMode === TransitionMode.Instantaneous || !(
+                this._currentNode.merged &&
+                this._previousNode.merged &&
+                this._withinOriginalDistance() &&
+                this._sameConnectedComponent()
+            ));
     }
 
     private _setReference(node: Node): boolean {

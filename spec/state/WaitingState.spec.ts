@@ -9,6 +9,7 @@ import {Camera} from "../../src/Geo";
 import {Node} from "../../src/Graph";
 import {
     IState,
+    TransitionMode,
     WaitingState,
 } from "../../src/State";
 
@@ -20,6 +21,7 @@ describe("WaitingState.ctor", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -78,6 +80,7 @@ describe("WaitingState.currentCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -109,6 +112,7 @@ describe("WaitingState.currentCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -146,6 +150,7 @@ describe("WaitingState.currentCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -208,6 +213,7 @@ describe("WaitingState.previousCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -239,6 +245,7 @@ describe("WaitingState.previousCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 
@@ -274,6 +281,7 @@ describe("WaitingState.previousCamera.lookat", () => {
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: TransitionMode.Default,
             zoom: 0,
         };
 

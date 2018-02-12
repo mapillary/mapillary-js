@@ -1,4 +1,9 @@
-import {ICurrentState, IRotation, State} from "../../State";
+import {
+    ICurrentState,
+    IRotation,
+    State,
+    TransitionMode,
+} from "../../State";
 import {Node} from "../../Graph";
 
 export interface IStateContext extends ICurrentState {
@@ -30,4 +35,5 @@ export interface IStateContext extends ICurrentState {
     setZoom(zoom: number): void;
 
     setSpeed(speed: number): void;
+    setTransitionMode(mode: TransitionMode): void;
 }

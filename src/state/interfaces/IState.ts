@@ -1,11 +1,16 @@
 import {Node} from "../../Graph";
-import {Camera, ILatLonAlt} from "../../Geo";
+import {
+    Camera,
+    ILatLonAlt,
+} from "../../Geo";
+import {TransitionMode} from "../../State";
 
 export interface IState {
-    reference: ILatLonAlt;
     alpha: number;
     camera: Camera;
-    zoom: number;
-    trajectory: Node[];
     currentIndex: number;
+    reference: ILatLonAlt;
+    trajectory: Node[];
+    transitionMode: TransitionMode;
+    zoom: number;
 }

@@ -5,7 +5,7 @@ import {NodeHelper} from "../helper/NodeHelper.spec";
 import {ICoreNode} from "../../src/API";
 import {Camera} from "../../src/Geo";
 import {Node} from "../../src/Graph";
-import {IRotation, IState, StateBase} from "../../src/State";
+import {IRotation, IState, StateBase, TransitionMode} from "../../src/State";
 
 class TestStateBase extends StateBase {
     public traverse(): StateBase { return null; }
@@ -47,6 +47,7 @@ let createState: () => IState = (): IState => {
         currentIndex: -1,
         reference: { alt: 0, lat: 0, lon: 0 },
         trajectory: [],
+        transitionMode: TransitionMode.Default,
         zoom: 0,
     };
 };

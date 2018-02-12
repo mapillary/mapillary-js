@@ -2,23 +2,29 @@ import {
     IStateContext,
     StateBase,
     State,
+    TransitionMode,
     TraversingState,
     WaitingState,
     IRotation,
 } from "../State";
 import {Node} from "../Graph";
-import {Camera, ILatLonAlt, Transform} from "../Geo";
+import {
+    Camera,
+    ILatLonAlt,
+    Transform,
+} from "../Geo";
 
 export class StateContext implements IStateContext {
     private _state: StateBase;
 
-    constructor() {
+    constructor(transitionMode?: TransitionMode) {
         this._state = new TraversingState({
             alpha: 1,
             camera: new Camera(),
             currentIndex: -1,
             reference: { alt: 0, lat: 0, lon: 0 },
             trajectory: [],
+            transitionMode: transitionMode == null ? TransitionMode.Default : transitionMode,
             zoom: 0,
         });
     }
@@ -175,5 +181,9 @@ export class StateContext implements IStateContext {
 
     public setSpeed(speed: number): void {
         this._state.setSpeed(speed);
+    }
+
+    public setTransitionMode(mode: TransitionMode): void {
+        this._state.setTransitionMode(mode);
     }
 }
