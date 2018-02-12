@@ -4,5 +4,6 @@ export {IMouseDeferPixels} from "./IMouseDeferPixels";
 export {IPinch} from "./IPinch";
 export {ISpriteAtlas} from "./ISpriteAtlas";
 export {IUnprojection} from "./IUnprojection";
+export {IUrlOptions} from "./IUrlOptions";
 export {IViewerMouseEvent} from "./IViewerMouseEvent";
 export {IViewerOptions} from "./IViewerOptions";

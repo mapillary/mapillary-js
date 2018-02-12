@@ -24,6 +24,7 @@ import {
 import {
     EventEmitter,
     Settings,
+    Urls,
 } from "../Utils";
 import {RenderMode} from "../Render";
 
@@ -281,6 +282,7 @@ export class Viewer extends EventEmitter {
         options = options != null ? options : {};
 
         Settings.setOptions(options);
+        Urls.setOptions(options.url);
 
         this._navigator = new Navigator(clientId, token);
         this._container = new Container(id, this._navigator.stateService, options);

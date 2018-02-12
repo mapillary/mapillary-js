@@ -1,4 +1,4 @@
-import {IComponentOptions, ImageSize} from "../../Viewer";
+import {IComponentOptions, ImageSize, IUrlOptions} from "../../Viewer";
 import {RenderMode} from "../../Render";
 
 /**
@@ -42,6 +42,11 @@ export interface IViewerOptions {
      * File name extensions will be automatically appended.
      */
     sprite?: string;
+
+    /**
+     * The URL options.
+     */
+    url?: IUrlOptions;
 }
 
 export default IViewerOptions;
