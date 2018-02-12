@@ -33,6 +33,7 @@ import {
 } from "../State";
 import {
     CacheService,
+    IViewerOptions,
     LoadingService,
     PlayService,
 } from "../Viewer";
@@ -57,6 +58,7 @@ export class Navigator {
 
     constructor (
         clientId: string,
+        options: IViewerOptions,
         token?: string,
         apiV3?: APIv3,
         graphService?: GraphService,
@@ -77,7 +79,7 @@ export class Navigator {
         this._loadingService = loadingService != null ? loadingService : new LoadingService();
         this._loadingName = "navigator";
 
-        this._stateService = stateService != null ? stateService : new StateService();
+        this._stateService = stateService != null ? stateService : new StateService(options.transitionMode);
 
         this._cacheService = cacheService != null ?
             cacheService :

@@ -1,8 +1,9 @@
 import {IComponentOptions, ImageSize, IUrlOptions} from "../../Viewer";
 import {RenderMode} from "../../Render";
+import {TransitionMode} from "../../State";
 
 /**
- * Interface for the options that can be provided to the viewer.
+ * Interface for the options that can be provided to the {@link Viewer}.
  *
  * @interface
  */
@@ -42,6 +43,12 @@ export interface IViewerOptions {
      * File name extensions will be automatically appended.
      */
     sprite?: string;
+
+    /**
+     * The transtion mode in the viewer.
+     * @default {TransitionMode.Default}
+     */
+    transitionMode?: TransitionMode;
 
     /**
      * The URL options.

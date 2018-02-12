@@ -57,6 +57,7 @@
         "./src/graph/Node.ts",
         "./src/graph/NodeCache.ts",
         "./src/render/RenderMode.ts",
+        "./src/state/TransitionMode.ts",
         "./src/viewer/interfaces/IComponentOptions.ts",
         "./src/viewer/interfaces/IViewerMouseEvent.ts",
         "./src/viewer/interfaces/IViewerOptions.ts",

@@ -83,7 +83,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(true);
 
-        let navigator: Navigator = new Navigator("");
+        let navigator: Navigator = new Navigator("", {});
 
         renderer.render(navigator);
 
@@ -159,7 +159,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(true);
 
-        let navigator: Navigator = new Navigator("");
+        let navigator: Navigator = new Navigator("", {});
 
         renderer.render(navigator);
 
@@ -191,7 +191,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(true);
 
-        let navigator: Navigator = new Navigator("");
+        let navigator: Navigator = new Navigator("", {});
 
         renderer.render(navigator);
 
@@ -220,7 +220,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(true);
 
-        let navigator: Navigator = new Navigator("");
+        let navigator: Navigator = new Navigator("", {});
 
         renderer.render(navigator);
 

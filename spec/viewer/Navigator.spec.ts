@@ -51,7 +51,7 @@ let createState: () => ICurrentState = (): ICurrentState => {
 
 describe("Navigator.ctor", () => {
     it("should be defined without optional params", () => {
-        let navigator: Navigator = new Navigator("clientId");
+        let navigator: Navigator = new Navigator("clientId", {});
 
         expect(navigator).toBeDefined();
     });
@@ -68,6 +68,7 @@ describe("Navigator.ctor", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -97,6 +98,7 @@ describe("Navigator.moveToKey$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -137,7 +139,7 @@ describe("Navigator.moveToKey$", () => {
         let stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
 
         let navigator: Navigator =
-            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator(clientId, {}, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$(key).subscribe(() => { /*noop*/ });
 
@@ -166,6 +168,7 @@ describe("Navigator.moveToKey$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -203,6 +206,7 @@ describe("Navigator.moveToKey$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -247,7 +251,7 @@ describe("Navigator.moveToKey$", () => {
         spyOn(stateService, "setNodes").and.stub();
 
         let navigator: Navigator =
-            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator(clientId, {}, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$(key)
             .subscribe(
@@ -282,7 +286,7 @@ describe("Navigator.moveToKey$", () => {
         spyOn(stateService, "setNodes").and.stub();
 
         let navigator: Navigator =
-            new Navigator(clientId, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator(clientId, {}, undefined, apiV3, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$(key)
             .subscribe(
@@ -323,6 +327,7 @@ describe("Navigator.movedToKey$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -364,6 +369,7 @@ describe("Navigator.moveCloseTo$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -398,6 +404,7 @@ describe("Navigator.moveCloseTo$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -435,6 +442,7 @@ describe("Navigator.moveCloseTo$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -475,6 +483,7 @@ describe("Navigator.moveCloseTo$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -539,6 +548,7 @@ describe("Navigator.setFilter$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -586,6 +596,7 @@ describe("Navigator.setFilter$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -637,6 +648,7 @@ describe("Navigator.setFilter$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -709,6 +721,7 @@ describe("Navigator.setFilter$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -791,6 +804,7 @@ describe("Navigator.setToken$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -860,6 +874,7 @@ describe("Navigator.setToken$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -938,6 +953,7 @@ describe("Navigator.setToken$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -975,6 +991,7 @@ describe("Navigator.setToken$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,
@@ -1010,6 +1027,7 @@ describe("Navigator.setToken$", () => {
         let navigator: Navigator =
             new Navigator(
                 clientId,
+                {},
                 undefined,
                 apiV3,
                 graphService,

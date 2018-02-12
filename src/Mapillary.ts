@@ -7,6 +7,7 @@ export * from "./Support";
 
 export {EdgeDirection} from "./Edge";
 export {RenderMode} from "./Render";
+export {TransitionMode} from "./State";
 export {
     Alignment,
     ImageSize,
