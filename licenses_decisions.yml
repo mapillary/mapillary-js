@@ -1,0 +1,69 @@
+---
+- - :license
+  - blob
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z
+
+- - :license
+  - callsite
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z
+
+- - :license
+  - component-bind
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z
+
+- - :license
+  - component-emitter
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z
+
+- - :license
+  - component-inherit
+  - BSD 2
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z
+
+- - :license
+  - indexof
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z
+- - :license
+  - object-component
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z
+- - :license
+  - buffers
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z
+- - :license
+  - forever-agent
+  - Apache 2
+  - :who:
+    :why:
+    :versions: []
+    :when: 2018-02-14 10:15:56.728823943 Z

@@ -1,5 +1,4 @@
 JSONStream, 1.3.2, "(MIT OR Apache-2.0)"
-abbrev, 1.1.0, ISC
 abbrev, 1.1.1, ISC
 accepts, 1.3.3, MIT
 accepts, 1.3.4, MIT
@@ -8,7 +7,6 @@ acorn, 5.4.1, MIT
 acorn-node, 1.3.0, "Apache 2.0"
 after, 0.8.2, MIT
 agent-base, 2.1.1, MIT
-ajv, 4.11.8, MIT
 align-text, 0.1.4, MIT
 alphanum-sort, 1.0.2, MIT
 amdefine, 1.0.1, "BSD-3-Clause OR MIT"
@@ -24,9 +22,7 @@ ansi-styles, 3.2.0, MIT
 ansi-wrap, 0.1.0, MIT
 any-promise, 1.3.0, MIT
 anymatch, 1.3.2, ISC
-aproba, 1.1.1, ISC
 archy, 1.0.0, MIT
-are-we-there-yet, 1.1.4, ISC
 argparse, 1.0.9, MIT
 arr-diff, 1.1.0, MIT
 arr-diff, 2.0.0, MIT
@@ -41,10 +37,7 @@ array-union, 1.0.2, MIT
 array-uniq, 1.0.3, MIT
 array-unique, 0.2.1, MIT
 asap, 2.0.3, MIT
-asn1, 0.2.3, MIT
 assert, 1.4.1, MIT
-assert-plus, 0.2.0, MIT
-assert-plus, 1.0.0, MIT
 astw, 2.2.0, MIT
 async, 1.5.2, MIT
 async-each, 1.0.1, MIT
@@ -52,8 +45,6 @@ asynckit, 0.4.0, MIT
 atob, 1.1.3, "(MIT OR Apache-2.0)"
 autoprefixer, 6.7.7, MIT
 autoprefixer, 7.2.6, MIT
-aws-sign2, 0.6.0, "Apache 2.0"
-aws4, 1.6.0, MIT
 babel-code-frame, 6.26.0, MIT
 backo2, 1.0.2, MIT
 balanced-match, 0.4.2, MIT
@@ -61,17 +52,13 @@ balanced-match, 1.0.0, MIT
 base64-arraybuffer, 0.1.5, MIT
 base64-js, 1.2.1, MIT
 base64id, 1.0.0, MIT
-bcrypt-pbkdf, 1.0.1, "New BSD"
 better-assert, 1.0.2, MIT
 binary-extensions, 1.11.0, MIT
-blob, 0.0.4, unknown
-block-stream, 0.0.9, ISC
+blob, 0.0.4, MIT
 bluebird, 3.5.1, MIT
 body-parser, 1.18.2, MIT
-boom, 2.10.1, "New BSD"
 boxen, 1.3.0, MIT
 brace-expansion, 1.1.11, MIT
-brace-expansion, 1.1.7, MIT
 braces, 0.1.5, MIT
 braces, 1.8.5, MIT
 brfs, 1.4.4, MIT
@@ -92,13 +79,12 @@ browserslist, 1.7.7, MIT
 browserslist, 2.11.3, MIT
 buffer, 5.0.8, MIT
 buffer-equal, 0.0.1, MIT
-buffer-shims, 1.0.0, MIT
 buffer-xor, 1.0.3, MIT
 builtin-modules, 1.1.1, MIT
 builtin-status-codes, 3.0.0, MIT
 bytes, 3.0.0, MIT
 cached-path-relative, 1.0.1, MIT
-callsite, 1.0.0, unknown
+callsite, 1.0.0, MIT
 camelcase, 1.2.1, MIT
 camelcase, 4.1.0, MIT
 camelize, 1.0.0, MIT
@@ -106,7 +92,6 @@ caniuse-api, 1.6.1, MIT
 caniuse-db, 1.0.30000808, CC-BY-4.0
 caniuse-lite, 1.0.30000808, CC-BY-4.0
 capture-stack-trace, 1.0.0, MIT
-caseless, 0.12.0, "Apache 2.0"
 center-align, 0.1.3, MIT
 chalk, 1.1.3, MIT
 chalk, 2.3.1, MIT
@@ -127,7 +112,6 @@ clone-buffer, 1.0.0, MIT
 clone-stats, 0.0.1, MIT
 clone-stats, 1.0.0, MIT
 cloneable-readable, 1.0.0, MIT
-co, 4.6.0, MIT
 coa, 1.0.4, MIT
 code-point-at, 1.1.0, MIT
 color, 0.11.4, MIT
@@ -141,13 +125,12 @@ columnify, 1.5.4, MIT
 combine-lists, 1.0.1, MIT
 combine-source-map, 0.7.2, MIT
 combine-source-map, 0.8.0, MIT
-combined-stream, 1.0.5, MIT
 combined-stream, 1.0.6, MIT
 commander, 2.14.1, MIT
-component-bind, 1.0.0, unknown
-component-emitter, 1.1.2, unknown
+component-bind, 1.0.0, MIT
+component-emitter, 1.1.2, MIT
 component-emitter, 1.2.1, MIT
-component-inherit, 0.0.3, unknown
+component-inherit, 0.0.3, "BSD 2"
 concat-map, 0.0.1, MIT
 concat-stream, 1.5.2, MIT
 concat-stream, 1.6.0, MIT
@@ -155,7 +138,6 @@ concat-with-sourcemaps, 1.0.5, ISC
 configstore, 3.1.1, "Simplified BSD"
 connect, 3.6.5, MIT
 console-browserify, 1.1.0, MIT
-console-control-strings, 1.1.0, ISC
 constants-browserify, 1.0.0, MIT
 content-disposition, 0.5.2, MIT
 content-type, 1.0.4, MIT
@@ -170,7 +152,6 @@ create-error-class, 3.0.2, MIT
 create-hash, 1.1.3, MIT
 create-hmac, 1.1.6, MIT
 cross-spawn, 5.1.0, MIT
-cryptiles, 2.0.5, "New BSD"
 crypto-browserify, 3.12.0, MIT
 crypto-random-string, 1.0.0, MIT
 css, 2.2.1, MIT
@@ -179,11 +160,9 @@ cssnano, 3.10.0, MIT
 csso, 2.3.2, MIT
 custom-event, 1.0.1, MIT
 d, 1.0.0, MIT
-dashdash, 1.14.1, MIT
 date-now, 0.1.4, MIT
 debug, 2.2.0, MIT
 debug, 2.3.3, MIT
-debug, 2.6.8, MIT
 debug, 2.6.9, MIT
 debug, 3.1.0, MIT
 debug-fabulous, 1.0.0, MIT
@@ -193,14 +172,12 @@ deep-is, 0.1.3, MIT
 defaults, 1.0.3, MIT
 defined, 1.0.0, MIT
 delayed-stream, 1.0.0, MIT
-delegates, 1.0.0, MIT
 depd, 1.1.1, MIT
 depd, 1.1.2, MIT
 dependency-graph, 0.5.2, MIT
 deps-sort, 2.0.0, MIT
 destroy, 1.0.4, MIT
 detect-indent, 5.0.0, MIT
-detect-libc, 1.0.2, "Apache 2.0"
 detect-newline, 2.1.0, MIT
 detective, 4.7.1, MIT
 detective, 5.0.2, MIT
@@ -215,7 +192,6 @@ duplexer2, 0.1.4, "New BSD"
 duplexer3, 0.1.4, "New BSD"
 duplexify, 3.5.3, MIT
 earcut, 2.1.3, ISC
-ecc-jsbn, 0.1.1, MIT
 ee-first, 1.1.1, MIT
 electron-to-chromium, 1.3.33, ISC
 elegant-spinner, 1.0.1, MIT
@@ -254,7 +230,6 @@ extend, 3.0.1, MIT
 extend-shallow, 1.1.4, MIT
 extend-shallow, 2.0.1, MIT
 extglob, 0.3.2, MIT
-extsprintf, 1.0.2, MIT
 falafel, 2.1.0, MIT
 falcor, 0.1.17, "Apache 2.0"
 falcor-http-datasource, 0.1.3, "Apache 2.0"
@@ -273,23 +248,16 @@ flatten, 1.0.2, MIT
 for-in, 1.0.2, MIT
 for-own, 0.1.5, MIT
 foreach, 2.0.5, MIT
-forever-agent, 0.6.1, "Apache 2.0"
 fork-stream, 0.0.4, BSD
-form-data, 2.1.4, MIT
 form-data, 2.3.2, MIT
 forwarded, 0.1.2, MIT
 fresh, 0.5.2, MIT
 fs-access, 1.0.1, MIT
 fs-extra, 4.0.3, MIT
-fsevents, 1.1.3, MIT
-fstream, 1.0.11, ISC
-fstream-ignore, 1.0.5, ISC
 function-bind, 1.1.1, MIT
-gauge, 2.7.4, ISC
 get-caller-file, 1.0.2, ISC
 get-stdin, 5.0.1, MIT
 get-stream, 3.0.0, MIT
-getpass, 0.1.7, MIT
 glob, 5.0.15, ISC
 glob, 7.1.2, ISC
 glob-base, 0.3.0, MIT
@@ -310,8 +278,6 @@ gulp-sourcemaps, 1.6.0, ISC
 gulp-sourcemaps, 2.6.4, ISC
 gulp-tap, 1.0.1, MIT
 handlebars, 4.0.11, MIT
-har-schema, 1.0.5, ISC
-har-validator, 4.2.1, ISC
 has, 1.0.1, MIT
 has-ansi, 2.0.0, MIT
 has-binary, 0.1.7, MIT
@@ -322,16 +288,13 @@ has-unicode, 2.0.1, ISC
 hash-base, 2.0.2, MIT
 hash-base, 3.0.4, MIT
 hat, 0.0.3, MIT/X11
-hawk, 3.1.3, "New BSD"
 hmac-drbg, 1.0.1, MIT
-hoek, 2.16.3, "New BSD"
 hosted-git-info, 2.5.0, ISC
 html-comment-regex, 1.1.1, MIT
 htmlescape, 1.1.1, MIT
 http-errors, 1.6.2, MIT
 http-proxy, 1.16.2, MIT
 http-proxy-agent, 1.0.0, MIT
-http-signature, 1.1.1, MIT
 https-browserify, 1.0.0, MIT
 https-proxy-agent, 1.0.0, MIT
 husky, 0.14.3, MIT
@@ -340,12 +303,11 @@ ieee754, 1.1.8, "New BSD"
 import-lazy, 2.1.0, MIT
 imurmurhash, 0.1.4, MIT
 indexes-of, 1.0.1, MIT
-indexof, 0.0.1, unknown
+indexof, 0.0.1, MIT
 individual, 3.0.0, MIT
 inflight, 1.0.6, ISC
 inherits, 2.0.1, ISC
 inherits, 2.0.3, ISC
-ini, 1.3.4, ISC
 ini, 1.3.5, ISC
 inline-source-map, 0.6.2, MIT
 insert-module-globals, 7.0.1, MIT
@@ -386,7 +348,6 @@ is-relative, 0.2.1, MIT
 is-retry-allowed, 1.1.0, MIT
 is-stream, 1.1.0, MIT
 is-svg, 2.1.0, MIT
-is-typedarray, 1.0.0, MIT
 is-unc-path, 0.1.2, MIT
 is-utf8, 0.2.1, MIT
 is-valid-glob, 0.3.0, MIT
@@ -397,24 +358,18 @@ isbinaryfile, 3.0.2, MIT
 isexe, 2.0.0, ISC
 isobject, 2.1.0, MIT
 isobject, 3.0.1, MIT
-isstream, 0.1.2, MIT
 jasmine-core, 2.99.1, MIT
-jodid25519, 1.0.2, MIT
 js-base64, 2.4.3, "New BSD"
 js-string-escape, 1.0.1, MIT
 js-tokens, 3.0.2, MIT
 js-yaml, 3.7.0, MIT
-jsbn, 0.1.1, MIT
-json-schema, 0.2.3, "AFLv2.1, BSD"
 json-stable-stringify, 0.0.1, MIT
 json-stable-stringify, 1.0.1, MIT
-json-stringify-safe, 5.0.1, ISC
 json3, 3.3.2, MIT
 jsonfile, 4.0.0, MIT
 jsonify, 0.0.0, "Public Domain"
 jsonparse, 1.3.1, MIT
 jspm-config, 0.3.4, MIT
-jsprim, 1.4.0, MIT
 karma, 1.7.1, MIT
 karma-browserify, 5.2.0, MIT
 karma-chrome-launcher, 2.2.0, MIT
@@ -462,9 +417,7 @@ micromatch, 2.3.11, MIT
 miller-rabin, 4.0.1, MIT
 mime, 1.4.1, MIT
 mime, 1.6.0, MIT
-mime-db, 1.27.0, MIT
 mime-db, 1.30.0, MIT
-mime-types, 2.1.15, MIT
 mime-types, 2.1.17, MIT
 mimic-fn, 1.2.0, MIT
 min-document, 2.19.0, MIT
@@ -483,27 +436,22 @@ ms, 0.7.1, MIT
 ms, 0.7.2, MIT
 ms, 0.7.3, MIT
 ms, 2.0.0, MIT
-nan, 2.8.0, MIT
 negotiator, 0.6.1, MIT
 next-tick, 0.2.2, MIT
 next-tick, 1.0.0, MIT
-node-pre-gyp, 0.6.39, "New BSD"
 nopt, 1.0.10, MIT
-nopt, 4.0.1, ISC
 normalize-package-data, 2.4.0, "Simplified BSD"
 normalize-path, 1.0.0, MIT
 normalize-path, 2.1.1, MIT
 normalize-range, 0.1.2, MIT
 normalize-url, 1.9.1, MIT
 npm-run-path, 2.0.2, MIT
-npmlog, 4.1.0, ISC
 null-check, 1.0.0, MIT
 num2fraction, 1.2.2, MIT
 number-is-nan, 1.0.1, MIT
-oauth-sign, 0.8.2, "Apache 2.0"
 object-assign, 4.1.0, MIT
 object-assign, 4.1.1, MIT
-object-component, 0.0.3, unknown
+object-component, 0.0.3, MIT
 object-inspect, 1.4.1, MIT
 object-keys, 1.0.11, MIT
 on-finished, 2.3.0, MIT
@@ -520,7 +468,6 @@ os-homedir, 1.0.2, MIT
 os-locale, 2.1.0, MIT
 os-shim, 0.1.3, MIT
 os-tmpdir, 1.0.2, MIT
-osenv, 0.1.4, ISC
 outpipe, 1.1.1, MIT
 p-finally, 1.0.0, MIT
 p-limit, 1.2.0, MIT
@@ -548,7 +495,6 @@ path-to-regexp, 0.1.7, MIT
 path-type, 2.0.0, MIT
 pbf, 3.1.0, "New BSD"
 pbkdf2, 3.0.14, MIT
-performance-now, 0.2.0, MIT
 pify, 2.3.0, MIT
 pify, 3.0.0, MIT
 pinkie, 2.0.4, MIT
@@ -615,7 +561,6 @@ punycode, 1.3.2, MIT
 punycode, 1.4.1, MIT
 q, 1.5.1, MIT
 qjobs, 1.1.5, MIT
-qs, 6.4.0, "New BSD"
 qs, 6.5.1, "New BSD"
 query-string, 4.3.4, MIT
 querystring, 0.2.0, MIT
@@ -628,7 +573,6 @@ randomfill, 1.0.3, MIT
 range-parser, 1.2.0, MIT
 raw-body, 2.3.2, MIT
 rbush, 2.0.2, MIT
-rc, 1.2.1, "(BSD-2-Clause OR MIT OR Apache-2.0)"
 rc, 1.2.5, "(BSD-2-Clause OR MIT OR Apache-2.0)"
 read-cache, 1.0.0, MIT
 read-only-stream, 2.0.0, MIT
@@ -636,7 +580,6 @@ read-pkg, 2.0.0, MIT
 read-pkg-up, 2.0.0, MIT
 readable-stream, 1.0.34, MIT
 readable-stream, 2.0.6, MIT
-readable-stream, 2.2.9, MIT
 readable-stream, 2.3.4, MIT
 readdirp, 2.1.0, MIT
 rechoir, 0.6.2, MIT
@@ -651,7 +594,6 @@ repeat-string, 0.2.2, MIT
 repeat-string, 1.6.1, MIT
 replace-ext, 0.0.1, MIT
 replace-ext, 1.0.0, MIT
-request, 2.81.0, "Apache 2.0"
 require-directory, 2.1.1, MIT
 require-from-string, 1.2.1, MIT
 require-main-filename, 1.0.1, ISC
@@ -663,17 +605,14 @@ resolve-url, 0.2.1, MIT
 restore-cursor, 1.0.1, MIT
 restore-cursor, 2.0.0, MIT
 right-align, 0.1.3, MIT
-rimraf, 2.6.1, ISC
 rimraf, 2.6.2, ISC
 ripemd160, 2.0.1, MIT
 rx, 2.5.3, "Apache 2.0"
 rxjs, 5.5.6, "Apache 2.0"
-safe-buffer, 5.0.1, MIT
 safe-buffer, 5.1.1, MIT
 sax, 1.2.4, ISC
 semver, 4.3.6, ISC
 semver, 5.0.3, ISC
-semver, 5.3.0, ISC
 semver, 5.5.0, ISC
 semver-diff, 2.1.0, MIT
 send, 0.16.1, MIT
@@ -690,7 +629,6 @@ shell-quote, 1.6.1, MIT
 shelljs, 0.7.8, "New BSD"
 signal-exit, 3.0.2, ISC
 slice-ansi, 1.0.0, MIT
-sntp, 1.0.9, BSD
 sort-keys, 1.1.2, MIT
 source-map, 0.1.43, BSD
 source-map, 0.4.4, "New BSD"
@@ -702,7 +640,6 @@ spdx-correct, 1.0.2, "Apache 2.0"
 spdx-expression-parse, 1.0.4, "(MIT AND CC-BY-3.0)"
 spdx-license-ids, 1.2.2, Unlicense
 sprintf-js, 1.0.3, "New BSD"
-sshpk, 1.13.0, MIT
 static-eval, 2.0.0, MIT
 static-module, 2.1.1, MIT
 statuses, 1.3.1, MIT
@@ -717,9 +654,7 @@ string-template, 1.0.0, MIT
 string-width, 1.0.2, MIT
 string-width, 2.1.1, MIT
 string_decoder, 0.10.31, MIT
-string_decoder, 1.0.1, MIT
 string_decoder, 1.0.3, MIT
-stringstream, 0.0.5, MIT
 strip-ansi, 3.0.1, MIT
 strip-ansi, 4.0.0, MIT
 strip-bom, 2.0.0, MIT
@@ -736,8 +671,6 @@ supports-color, 5.2.0, MIT
 svgo, 0.7.2, MIT
 symbol-observable, 1.0.1, MIT
 syntax-error, 1.4.0, MIT
-tar, 2.2.1, ISC
-tar-pack, 3.4.0, "Simplified BSD"
 term-size, 1.2.0, MIT
 ternary-stream, 2.0.1, MIT
 thenify, 3.3.0, MIT
@@ -758,7 +691,6 @@ to-absolute-glob, 0.1.1, MIT
 to-array, 0.1.4, MIT
 to-arraybuffer, 1.0.1, MIT
 touch, 1.0.0, ISC
-tough-cookie, 2.3.2, "New BSD"
 tough-cookie, 2.3.3, "New BSD"
 tsconfig, 5.0.3, MIT
 tsify, 3.0.4, MIT
@@ -766,8 +698,6 @@ tslib, 1.9.0, "Apache 2.0"
 tslint, 5.9.1, "Apache 2.0"
 tsutils, 2.21.1, MIT
 tty-browserify, 0.0.1, MIT
-tunnel-agent, 0.6.0, "Apache 2.0"
-tweetnacl, 0.14.5, Unlicense
 type-check, 0.3.2, MIT
 type-is, 1.6.15, MIT
 typedarray, 0.0.6, MIT
@@ -780,7 +710,6 @@ typings-core, 2.3.3, MIT
 uglify-js, 2.8.29, "Simplified BSD"
 uglify-js, 3.3.10, "Simplified BSD"
 uglify-to-browserify, 1.0.2, MIT
-uid-number, 0.0.6, ISC
 ultron, 1.0.2, MIT
 umd, 3.0.1, MIT
 unc-path-regex, 0.1.2, MIT
@@ -801,12 +730,10 @@ useragent, 2.3.0, MIT
 util, 0.10.3, MIT
 util-deprecate, 1.0.2, MIT
 utils-merge, 1.0.1, MIT
-uuid, 3.0.1, MIT
 vali-date, 1.0.0, MIT
 validate-npm-package-license, 3.0.1, "Apache 2.0"
 vary, 1.1.2, MIT
 vendors, 1.0.1, MIT
-verror, 1.3.6, MIT
 vinyl, 1.2.0, MIT
 vinyl, 2.1.0, MIT
 vinyl-fs, 2.4.4, MIT
@@ -819,7 +746,6 @@ wcwidth, 1.0.1, MIT
 when, 3.7.8, MIT
 which, 1.3.0, ISC
 which-module, 2.0.0, ISC
-wide-align, 1.1.2, ISC
 widest-line, 2.0.0, MIT
 window-size, 0.1.0, MIT
 wordwrap, 0.0.2, MIT/X11
