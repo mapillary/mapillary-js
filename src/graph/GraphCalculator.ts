@@ -4,6 +4,7 @@ import * as geohash from "latlon-geohash";
 import * as THREE from "three";
 
 import {ILatLon} from "../API";
+import {GraphMapillaryError} from "../Error";
 import {GeoCoords} from "../Geo";
 
 class GeoHashDirections {
@@ -127,6 +128,43 @@ export class GraphCalculator {
         }
 
         return hs;
+    }
+
+    /**
+     * Encode the minimum set of geohash tiles containing a bounding box.
+     *
+     * @description The current algorithm does expect the bounding box
+     * to be sufficiently small to be contained in an area with the size
+     * of maximally four tiles. Up to nine adjacent tiles may be returned.
+     * The method currently uses the largest side as the threshold leading to
+     * more tiles being returned than needed in edge cases.
+     *
+     * @param {ILatLon} sw - South west corner of bounding box.
+     * @param {ILatLon} ne - North east corner of bounding box.
+     * @param {number} precision - Precision of the encoding.
+     *
+     * @returns {string} The geohash tiles containing the bounding box.
+     */
+    public encodeHsFromBoundingBox(sw: ILatLon, ne: ILatLon, precision: number = 7): string[] {
+        if (ne.lat <= sw.lat || ne.lon <= sw.lon) {
+            throw new GraphMapillaryError("North east needs to be top right of south west");
+        }
+
+        const centerLat: number = (sw.lat + ne.lat) / 2;
+        const centerLon: number = (sw.lon + ne.lon) / 2;
+
+        const enu: number[] =
+            this._geoCoords.geodeticToEnu(
+                ne.lat,
+                ne.lon,
+                0,
+                centerLat,
+                centerLon,
+                0);
+
+        const threshold: number = Math.max(enu[0], enu[1]);
+
+        return this.encodeHs({ lat: centerLat, lon: centerLon }, precision, threshold);
     }
 
     /**

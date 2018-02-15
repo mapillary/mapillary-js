@@ -3,6 +3,7 @@
 import * as geohash from "latlon-geohash";
 
 import {ILatLon} from "../../src/API";
+import {GraphMapillaryError} from "../../src/Error";
 import {GeoCoords} from "../../src/Geo";
 import {GraphCalculator} from "../../src/Graph";
 
@@ -256,5 +257,33 @@ describe("GraphCalculator.boundingBoxCorners", () => {
         expect(bbox[0].lon).toBe(-1);
         expect(bbox[1].lat).toBe(1);
         expect(bbox[1].lon).toBe(1);
+    });
+});
+
+describe("GraphCalculator.encodeHsFromBoundingBox", () => {
+    it("should throw if north east is not larger than south west", () => {
+        let calculator: GraphCalculator = new GraphCalculator();
+
+        expect(() => { calculator.encodeHsFromBoundingBox({ lat: 0, lon: 0 }, { lat: -1, lon: 1}); })
+            .toThrowError(GraphMapillaryError);
+        expect(() => { calculator.encodeHsFromBoundingBox({ lat: 0, lon: 0 }, { lat: 1, lon: -1}); })
+            .toThrowError(GraphMapillaryError);
+        expect(() => { calculator.encodeHsFromBoundingBox({ lat: 0, lon: 0 }, { lat: -1, lon: -1}); })
+            .toThrowError(GraphMapillaryError);
+    });
+
+    it("should call encodeHs with center and correct threshold", () => {
+        let geoCoords: GeoCoords = new GeoCoords();
+        let calculator: GraphCalculator = new GraphCalculator(geoCoords);
+
+        spyOn(geoCoords, "geodeticToEnu").and.returnValue([10, 20, 0]);
+        const encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs").and.stub();
+
+        calculator.encodeHsFromBoundingBox({ lat: 0, lon: 0 }, { lat: 1, lon: 2});
+
+        expect(encodeHsSpy.calls.count()).toBe(1);
+        expect(encodeHsSpy.calls.argsFor(0)[0].lat).toBe(0.5);
+        expect(encodeHsSpy.calls.argsFor(0)[0].lon).toBe(1);
+        expect(encodeHsSpy.calls.argsFor(0)[2]).toBe(20);
     });
 });
