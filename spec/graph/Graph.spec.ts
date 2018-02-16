@@ -46,6 +46,194 @@ describe("Graph.ctor", () => {
     });
 });
 
+describe("Graph.cacheBoundingBox$", () => {
+    let helper: NodeHelper;
+
+    beforeEach(() => {
+        helper = new NodeHelper();
+    });
+
+    it("should cache one node in the bounding box", (done: Function) => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+
+        let key: string = "key";
+        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        fullNode.key = key;
+        fullNode.l.lat = 0.5;
+        fullNode.l.lon = 0.5;
+
+        let graph: Graph = new Graph(apiV3, index, calculator);
+
+        graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 })
+            .subscribe(
+                (nodes: Node[]): void => {
+                    expect(nodes.length).toBe(1);
+                    expect(nodes[0].key).toBe(fullNode.key);
+                    expect(nodes[0].full).toBe(true);
+
+                    expect(graph.hasNode(key)).toBe(true);
+
+                    done();
+                });
+
+        let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        tileResult[h] = {};
+        tileResult[h]["0"] = fullNode;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        let fillResult: { [key: string]: IFillNode } = {};
+        fillResult[key] = fullNode;
+        imageByKeyFill.next(fillResult);
+        imageByKeyFill.complete();
+    });
+
+    it("should not cache tile of fill node if already cached", (done: Function) => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
+        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(calculator, "encodeH").and.returnValue(h);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy: jasmine.Spy = spyOn(apiV3, "imagesByH$");
+        imagesByHSpy.and.returnValue(imagesByH);
+
+        let key: string = "key";
+        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFillSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFill$");
+        imageByKeyFillSpy.and.returnValue(imageByKeyFill);
+
+        let imageByKeyFull: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        imageByKeyFullSpy.and.returnValue(imageByKeyFull);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        fullNode.key = key;
+        fullNode.l.lat = 0.5;
+        fullNode.l.lon = 0.5;
+
+        let graph: Graph = new Graph(apiV3, index, calculator);
+
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+
+        let fullResult: { [key: string]: IFullNode } = {};
+        fullResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fullResult);
+        imageByKeyFull.complete();
+
+        graph.hasTiles(fullNode.key);
+        Observable
+            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
+            .mergeAll()
+            .subscribe(() => { /*noop*/ });
+
+        let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        tileResult[h] = {};
+        tileResult[h]["0"] = fullNode;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.key)).toBe(true);
+
+        expect(imagesByHSpy.calls.count()).toBe(1);
+        expect(imageByKeyFillSpy.calls.count()).toBe(0);
+        expect(imageByKeyFullSpy.calls.count()).toBe(1);
+
+        graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 })
+            .subscribe(
+                (nodes: Node[]): void => {
+                    expect(nodes.length).toBe(1);
+                    expect(nodes[0].key).toBe(fullNode.key);
+                    expect(nodes[0].full).toBe(true);
+
+                    expect(graph.hasNode(key)).toBe(true);
+
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(imageByKeyFillSpy.calls.count()).toBe(0);
+                    expect(imageByKeyFullSpy.calls.count()).toBe(1);
+
+                    done();
+                });
+    });
+
+    it("should only cache tile once for two similar calls", (done: Function) => {
+        let apiV3: APIv3 = new APIv3("clientId");
+        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let calculator: GraphCalculator = new GraphCalculator(null);
+
+        let h: string = "h";
+        spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
+
+        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy: jasmine.Spy = spyOn(apiV3, "imagesByH$");
+        imagesByHSpy.and.returnValue(imagesByH);
+
+        let key: string = "key";
+        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        let fullNode: IFullNode = helper.createFullNode();
+        fullNode.key = key;
+        fullNode.l.lat = 0.5;
+        fullNode.l.lon = 0.5;
+
+        let graph: Graph = new Graph(apiV3, index, calculator);
+
+        let count: number = 0;
+        Observable
+            .merge(
+                graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 }),
+                graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 }))
+            .subscribe(
+                (nodes: Node[]): void => {
+                    expect(nodes.length).toBe(1);
+                    expect(nodes[0].key).toBe(fullNode.key);
+                    expect(nodes[0].full).toBe(true);
+
+                    expect(graph.hasNode(key)).toBe(true);
+
+                    count++;
+                },
+                undefined,
+                (): void => {
+                    expect(count).toBe(2);
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+
+                    done();
+                });
+
+        let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        tileResult[h] = {};
+        tileResult[h]["0"] = fullNode;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        let fillResult: { [key: string]: IFillNode } = {};
+        fillResult[key] = fullNode;
+        imageByKeyFill.next(fillResult);
+        imageByKeyFill.complete();
+    });
+});
+
 describe("Graph.cacheFull$", () => {
     let helper: NodeHelper;
 

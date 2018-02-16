@@ -10,8 +10,10 @@ import "rxjs/add/observable/from";
 import "rxjs/add/operator/catch";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/finally";
+import "rxjs/add/operator/last";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/publish";
+import "rxjs/add/operator/reduce";
 
 import {
     APIv3,
@@ -258,6 +260,111 @@ export class Graph {
      */
     public get changed$(): Observable<Graph> {
         return this._changed$;
+    }
+
+    /**
+     * Caches the full node data for all images within a bounding
+     * box.
+     *
+     * @description The node assets are not cached.
+     *
+     * @param {ILatLon} sw - South west corner of bounding box.
+     * @param {ILatLon} ne - North east corner of bounding box.
+     * @returns {Observable<Graph>} Observable emitting the full
+     * nodes in the bounding box.
+     */
+    public cacheBoundingBox$(sw: ILatLon, ne: ILatLon): Observable<Node[]> {
+        const cacheTiles$: Observable<Graph>[] = this._graphCalculator.encodeHsFromBoundingBox(sw, ne)
+            .filter(
+                (h: string): boolean => {
+                    return !(h in this._cachedTiles);
+                })
+            .map(
+                (h): Observable<Graph> => {
+                    return h in this._cachingTiles$ ?
+                        this._cachingTiles$[h] :
+                        this._cacheTile$(h);
+                });
+
+        if (cacheTiles$.length === 0) {
+            cacheTiles$.push(Observable.of(this));
+        }
+
+        return Observable
+            .from(cacheTiles$)
+            .mergeAll()
+            .last()
+            .mergeMap(
+                (graph: Graph): Observable<Node[]> => {
+                    const nodes: Node[] = this._nodeIndex
+                        .search({
+                            maxX: ne.lat,
+                            maxY: ne.lon,
+                            minX: sw.lat,
+                            minY: sw.lon,
+                        })
+                        .map(
+                            (item: NodeIndexItem): Node => {
+                                return item.node;
+                            });
+
+                    const fullNodes: Node[] = [];
+                    const coreNodes: string[] = [];
+
+                    for (const node of nodes) {
+                        if (node.full) {
+                            fullNodes.push(node);
+                        } else {
+                            coreNodes.push(node.key);
+                        }
+                    }
+
+                    const coreNodeBatches: string[][] = [];
+                    const batchSize: number = 200;
+                    while (coreNodes.length > 0) {
+                         coreNodeBatches.push(coreNodes.splice(0, batchSize));
+                    }
+
+                    const fullNodes$: Observable<Node[]> = Observable.of(fullNodes);
+                    const fillNodes$: Observable<Node[]>[] = coreNodeBatches
+                        .map(
+                            (batch: string[]): Observable<Node[]> => {
+                                return this._apiV3.imageByKeyFill$(batch)
+                                    .map(
+                                        (imageByKeyFill: { [key: string]: IFillNode }): Node[] => {
+                                            const filledNodes: Node[] = [];
+
+                                            for (const fillKey in imageByKeyFill) {
+                                                if (!imageByKeyFill.hasOwnProperty(fillKey)) {
+                                                    continue;
+                                                }
+
+                                                if (this.hasNode(fillKey)) {
+                                                    const node: Node = this.getNode(fillKey);
+
+                                                    if (!node.full) {
+                                                        this._makeFull(node, imageByKeyFill[fillKey]);
+                                                    }
+
+                                                    filledNodes.push(node);
+                                                }
+                                            }
+
+                                            return filledNodes;
+                                        });
+                            });
+
+                    return Observable
+                        .merge(
+                            fullNodes$,
+                            Observable
+                                .from(fillNodes$)
+                                .mergeAll());
+                })
+            .reduce(
+                (acc: Node[], value: Node[]): Node[] => {
+                    return acc.concat(value);
+                });
     }
 
     /**
@@ -717,8 +824,8 @@ export class Graph {
      * Retrieve and cache geohash tiles for a node.
      *
      * @param {string} key - Key of node for which to retrieve tiles.
-     * @returns {Observable<Graph>} Observable emitting the graph
-     * when the tiles required for the node has been cached.
+     * @returns {Array<Observable<Graph>>} Array of observables emitting
+     * the graph for each tile required for the node has been cached.
      * @throws {GraphMapillaryError} When the operation is not valid on the
      * current graph.
      */
@@ -752,94 +859,9 @@ export class Graph {
         let cacheTiles$: Observable<Graph>[] = [];
 
         for (let h of nodeTiles.caching) {
-            let cacheTile$: Observable<Graph> = null;
-            if (h in this._cachingTiles$) {
-                cacheTile$ = this._cachingTiles$[h];
-            } else {
-                cacheTile$ = this._apiV3.imagesByH$([h])
-                    .do(
-                        (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): void => {
-                            let coreNodes: { [index: string]: ICoreNode } = imagesByH[h];
-
-                            if (h in this._cachedTiles) {
-                                return;
-                            }
-
-                            this._nodeIndexTiles[h] = [];
-                            this._cachedTiles[h] = { accessed: new Date().getTime(), nodes: [] };
-                            let hCache: Node[] = this._cachedTiles[h].nodes;
-                            let preStored: { [key: string]: Node } = this._removeFromPreStore(h);
-
-                            for (let index in coreNodes) {
-                                if (!coreNodes.hasOwnProperty(index)) {
-                                    continue;
-                                }
-
-                                let coreNode: ICoreNode = coreNodes[index];
-
-                                if (coreNode == null) {
-                                    break;
-                                }
-
-                                if (coreNode.sequence_key == null) {
-                                    console.warn(`Sequence missing, discarding node (${coreNode.key})`);
-
-                                    continue;
-                                }
-
-                                if (preStored != null && coreNode.key in preStored) {
-                                    let preStoredNode: Node = preStored[coreNode.key];
-                                    delete preStored[coreNode.key];
-
-                                    hCache.push(preStoredNode);
-
-                                    let preStoredNodeIndexItem: NodeIndexItem = {
-                                        lat: preStoredNode.latLon.lat,
-                                        lon: preStoredNode.latLon.lon,
-                                        node: preStoredNode,
-                                    };
-
-                                    this._nodeIndex.insert(preStoredNodeIndexItem);
-                                    this._nodeIndexTiles[h].push(preStoredNodeIndexItem);
-                                    this._nodeToTile[preStoredNode.key] = h;
-
-                                    continue;
-                                }
-
-                                let node: Node = new Node(coreNode);
-
-                                hCache.push(node);
-
-                                let nodeIndexItem: NodeIndexItem = {
-                                    lat: node.latLon.lat,
-                                    lon: node.latLon.lon,
-                                    node: node,
-                                };
-
-                                this._nodeIndex.insert(nodeIndexItem);
-                                this._nodeIndexTiles[h].push(nodeIndexItem);
-                                this._nodeToTile[node.key] = h;
-
-                                this._setNode(node);
-                            }
-
-                            delete this._cachingTiles$[h];
-                        })
-                    .map(
-                        (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): Graph => {
-                            return this;
-                        })
-                    .catch(
-                        (error: Error): Observable<Graph> => {
-                            delete this._cachingTiles$[h];
-
-                            throw error;
-                        })
-                    .publish()
-                    .refCount();
-
-                this._cachingTiles$[h] = cacheTile$;
-            }
+            const cacheTile$: Observable<Graph> = h in this._cachingTiles$ ?
+                this._cachingTiles$[h] :
+                this._cacheTile$(h);
 
             cacheTiles$.push(
                 cacheTile$
@@ -1477,6 +1499,92 @@ export class Graph {
             .refCount();
 
         return this._cachingSequences$[sequenceKey];
+    }
+
+    private _cacheTile$(h: string): Observable<Graph> {
+        this._cachingTiles$[h] = this._apiV3.imagesByH$([h])
+            .do(
+                (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): void => {
+                    let coreNodes: { [index: string]: ICoreNode } = imagesByH[h];
+
+                    if (h in this._cachedTiles) {
+                        return;
+                    }
+
+                    this._nodeIndexTiles[h] = [];
+                    this._cachedTiles[h] = { accessed: new Date().getTime(), nodes: [] };
+                    let hCache: Node[] = this._cachedTiles[h].nodes;
+                    let preStored: { [key: string]: Node } = this._removeFromPreStore(h);
+
+                    for (let index in coreNodes) {
+                        if (!coreNodes.hasOwnProperty(index)) {
+                            continue;
+                        }
+
+                        let coreNode: ICoreNode = coreNodes[index];
+
+                        if (coreNode == null) {
+                            break;
+                        }
+
+                        if (coreNode.sequence_key == null) {
+                            console.warn(`Sequence missing, discarding node (${coreNode.key})`);
+
+                            continue;
+                        }
+
+                        if (preStored != null && coreNode.key in preStored) {
+                            let preStoredNode: Node = preStored[coreNode.key];
+                            delete preStored[coreNode.key];
+
+                            hCache.push(preStoredNode);
+
+                            let preStoredNodeIndexItem: NodeIndexItem = {
+                                lat: preStoredNode.latLon.lat,
+                                lon: preStoredNode.latLon.lon,
+                                node: preStoredNode,
+                            };
+
+                            this._nodeIndex.insert(preStoredNodeIndexItem);
+                            this._nodeIndexTiles[h].push(preStoredNodeIndexItem);
+                            this._nodeToTile[preStoredNode.key] = h;
+
+                            continue;
+                        }
+
+                        let node: Node = new Node(coreNode);
+
+                        hCache.push(node);
+
+                        let nodeIndexItem: NodeIndexItem = {
+                            lat: node.latLon.lat,
+                            lon: node.latLon.lon,
+                            node: node,
+                        };
+
+                        this._nodeIndex.insert(nodeIndexItem);
+                        this._nodeIndexTiles[h].push(nodeIndexItem);
+                        this._nodeToTile[node.key] = h;
+
+                        this._setNode(node);
+                    }
+
+                    delete this._cachingTiles$[h];
+                })
+            .map(
+                (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): Graph => {
+                    return this;
+                })
+            .catch(
+                (error: Error): Observable<Graph> => {
+                    delete this._cachingTiles$[h];
+
+                    throw error;
+                })
+            .publish()
+            .refCount();
+
+        return this._cachingTiles$[h];
     }
 
     private _makeFull(node: Node, fillNode: IFillNode): void {
