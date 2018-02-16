@@ -35,6 +35,12 @@ export interface IFillNode {
     captured_at: number;
 
     /**
+     * Universally unique id for camera used when capturing
+     * image.
+     */
+    captured_with_camera_uuid?: string;
+
+    /**
      * SfM computed compass angle, measured in degrees.
      */
     cca?: number;

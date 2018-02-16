@@ -104,6 +104,7 @@ export class APIv3 {
 
         this._propertiesFill = [
             "captured_at",
+            "captured_with_camera_uuid",
             "user",
             "organization_key",
             "private",

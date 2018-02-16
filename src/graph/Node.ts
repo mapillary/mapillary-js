@@ -120,6 +120,19 @@ export class Node {
     }
 
     /**
+     * Get camera uuid.
+     *
+     * @description Will be undefined if the camera uuid was not
+     * recorded in the image exif information.
+     *
+     * @returns {string} Universally unique id for camera used
+     * when capturing image.
+     */
+    public get cameraUuid(): string {
+        return this._fill.captured_with_camera_uuid;
+    }
+
+    /**
      * Get computedCA.
      *
      * @description Will not be set if SfM has not been run.
