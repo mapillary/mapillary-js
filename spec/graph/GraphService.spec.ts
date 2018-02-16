@@ -28,6 +28,32 @@ describe("GraphService.ctor", () => {
     });
 });
 
+describe("GraphService.cacheBoundingBox$", () => {
+    it("should call cache bounding box on graph", (done: Function) => {
+        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+
+        let apiV3: APIv3 = new APIv3("clientId");
+        let graph: Graph = new Graph(apiV3);
+
+        const cacheBoundingBoxSpy: jasmine.Spy = spyOn(graph, "cacheBoundingBox$");
+        cacheBoundingBoxSpy.and.returnValue(Observable.of([]));
+
+        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        graphService.cacheBoundingBox$({ lat: 0, lon: 1 }, { lat: 2, lon: 3 })
+            .subscribe(
+                (nodes: Node[]): void => {
+                    expect(cacheBoundingBoxSpy.calls.count()).toBe(1);
+                    expect(cacheBoundingBoxSpy.calls.argsFor(0)[0].lat).toBe(0);
+                    expect(cacheBoundingBoxSpy.calls.argsFor(0)[0].lon).toBe(1);
+                    expect(cacheBoundingBoxSpy.calls.argsFor(0)[1].lat).toBe(2);
+                    expect(cacheBoundingBoxSpy.calls.argsFor(0)[1].lon).toBe(3);
+
+                    done();
+                });
+    });
+});
+
 describe("GraphService.cacheSequence$", () => {
     it("should cache sequence when graph does not have sequence", () => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();

@@ -13,6 +13,7 @@ import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/publishReplay";
 
+import {ILatLon} from "../API";
 import {
     FilterExpression,
     Graph,
@@ -83,6 +84,30 @@ export class GraphService {
      */
     public get graphMode$(): Observable<GraphMode> {
         return this._graphMode$;
+    }
+
+    /**
+     * Cache full nodes in a bounding box.
+     *
+     * @description When called, the full properties of
+     * the node are retrieved. The node cache is not initialized
+     * for any new nodes retrieved and the node assets are not
+     * retrieved, {@link cacheNode$} needs to be called for caching
+     * assets.
+     *
+     * @param {ILatLon} sw - South west corner of bounding box.
+     * @param {ILatLon} ne - North east corner of bounding box.
+     * @return {Observable<Array<Node>>} Observable emitting a single item,
+     * the nodes of the bounding box, when they have all been retrieved.
+     * @throws {Error} Propagates any IO node caching errors to the caller.
+     */
+    public cacheBoundingBox$(sw: ILatLon, ne: ILatLon): Observable<Node[]> {
+        return this._graph$
+            .first()
+            .mergeMap(
+                (graph: Graph): Observable<Node[]> => {
+                    return graph.cacheBoundingBox$(sw, ne);
+                });
     }
 
     /**
