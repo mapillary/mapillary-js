@@ -4,9 +4,11 @@ import {Subscription} from "rxjs/Subscription";
 
 import "rxjs/add/operator/timeout";
 
+import {ILatLon} from "../API";
 import {EdgeDirection} from "../Edge";
 import {
     Graph,
+    GraphCalculator,
     GraphMode,
     GraphService,
     IEdgeStatus,
@@ -14,6 +16,7 @@ import {
     Sequence,
 } from "../Graph";
 import {
+    ICurrentState,
     IFrame,
     StateService,
 } from "../State";
@@ -21,6 +24,7 @@ import {
 export class PlayService {
     private _graphService: GraphService;
     private _stateService: StateService;
+    private _graphCalculator: GraphCalculator;
 
     private _nodesAhead: number;
     private _playing: boolean;
@@ -39,9 +43,12 @@ export class PlayService {
     private _graphModeSubscription: Subscription;
     private _stopSubscription: Subscription;
 
-    constructor(graphService: GraphService, stateService: StateService) {
+    private _bridging$: Observable<Node>;
+
+    constructor(graphService: GraphService, stateService: StateService, graphCalculator?: GraphCalculator) {
         this._graphService = graphService;
         this._stateService = stateService;
+        this._graphCalculator = !!graphCalculator ? graphCalculator : new GraphCalculator();
 
         this._directionSubject$ = new Subject<EdgeDirection>();
         this._direction$ = this._directionSubject$
@@ -70,6 +77,8 @@ export class PlayService {
         this._speed$.subscribe();
 
         this._nodesAhead = this._mapNodesAhead(this._mapSpeed(this._speed));
+
+        this._bridging$ = null;
     }
 
     public get playing(): boolean {
@@ -132,11 +141,11 @@ export class PlayService {
                     const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
                         this._graphService.cacheSequenceNodes$(sequenceKey, nodeKey) :
                         this._graphService.cacheSequence$(sequenceKey))
-                        .retry(3)
-                        .catch(
-                            (): Observable<Sequence> => {
-                                return Observable.of(undefined);
-                            });
+                            .retry(3)
+                            .catch(
+                                (): Observable<Sequence> => {
+                                    return Observable.of(undefined);
+                                });
 
                     return Observable
                         .combineLatest(
@@ -237,13 +246,11 @@ export class PlayService {
 
                                 return null;
                             })
-                        .filter(
-                            (key: string): boolean => {
-                                return key != null;
-                            })
                         .switchMap(
                             (key: string): Observable<Node> => {
-                                return this._graphService.cacheNode$(key);
+                                return key != null ?
+                                    this._graphService.cacheNode$(key) :
+                                    this._bridge$(node);
                             });
                 })
             .subscribe(
@@ -264,12 +271,34 @@ export class PlayService {
 
         this._setPlaying(true);
 
+        const currentLastNodes$: Observable<Node> = this._stateService.currentState$
+            .map(
+                (frame: IFrame): ICurrentState => {
+                    return frame.state;
+                })
+            .distinctUntilChanged(
+                ([kc1, kl1]: [string, string], [kc2, kl2]: [string, string]): boolean => {
+                    return kc1 === kc2 && kl1 === kl2;
+                },
+                (state: ICurrentState): [string, string] => {
+                    return [state.currentNode.key, state.lastNode.key];
+                })
+            .filter(
+                (state: ICurrentState): boolean => {
+                    return state.currentNode.key === state.lastNode.key &&
+                        state.currentIndex === state.trajectory.length - 1;
+                })
+            .map(
+                (state: ICurrentState): Node => {
+                    return state.currentNode;
+                });
+
         this._stopSubscription = Observable
             .combineLatest(
-                this._stateService.currentNode$,
+                currentLastNodes$,
                 this._direction$)
             .switchMap(
-                ([node, direction]: [Node, EdgeDirection]): Observable<[EdgeDirection, IEdgeStatus]> => {
+                ([node, direction]: [Node, EdgeDirection]): Observable<boolean> => {
                     const edgeStatus$: Observable<IEdgeStatus> = (
                         [EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
                             node.sequenceEdges$ :
@@ -289,17 +318,35 @@ export class PlayService {
                     return Observable
                         .combineLatest(
                             Observable.of(direction),
-                            edgeStatus$);
+                            edgeStatus$)
+                        .map(
+                            ([d, es]: [EdgeDirection, IEdgeStatus]): boolean => {
+                                for (const edge of es.edges) {
+                                    if (edge.data.direction === d) {
+                                        return true;
+                                    }
+                                }
+
+                                return false;
+                            });
                 })
-            .map(
-                ([direction, edgeStatus]: [EdgeDirection, IEdgeStatus]): boolean => {
-                    for (let edge of edgeStatus.edges) {
-                        if (edge.data.direction === direction) {
-                            return true;
-                        }
+            .mergeMap(
+                (hasEdge: boolean): Observable<boolean> => {
+                    if (hasEdge || !this._bridging$) {
+                        return Observable.of(hasEdge);
                     }
 
-                    return false;
+                    return this._bridging$
+                        .map(
+                            (node: Node): boolean => {
+                                return node != null;
+                            })
+                        .catch(
+                            (error: Error): Observable<boolean> => {
+                                console.error(error);
+
+                                return Observable.of<boolean>(false);
+                            });
                 })
             .first(
                 (hasEdge: boolean): boolean => {
@@ -364,6 +411,45 @@ export class PlayService {
         this._graphService.setGraphMode(GraphMode.Spatial);
 
         this._setPlaying(false);
+    }
+
+    private _bridge$(node: Node): Observable<Node> {
+        const boundingBox: ILatLon[] = this._graphCalculator.boundingBoxCorners(node.latLon, 25);
+
+        this._bridging$ = this._graphService.cacheBoundingBox$(boundingBox[0], boundingBox[1])
+            .mergeMap(
+                (nodes: Node[]): Observable<Node> => {
+                    let nextNode: Node = null;
+                    for (const n of nodes) {
+                        if (n.sequenceKey === node.sequenceKey ||
+                            !n.cameraUuid ||
+                            n.cameraUuid !== node.cameraUuid) {
+                            continue;
+                        }
+
+                        const delta: number = Math.abs(n.capturedAt - node.capturedAt);
+
+                        if (delta > 15000) {
+                            continue;
+                        }
+
+                        if (!nextNode || delta < Math.abs(nextNode.capturedAt - node.capturedAt)) {
+                            nextNode = n;
+                        }
+                    }
+
+                    return !!nextNode ?
+                        this._graphService.cacheNode$(nextNode.key) :
+                        Observable.of(null);
+                })
+            .finally(
+                (): void => {
+                    this._bridging$ = null;
+                })
+            .publish()
+            .refCount();
+
+        return this._bridging$;
     }
 
     private _mapSpeed(speed: number): number {

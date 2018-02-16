@@ -31,6 +31,7 @@ import {
 import { MockCreator } from "../helper/MockCreator.spec";
 import { NodeHelper } from "../helper/NodeHelper.spec";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
+import { FrameHelper } from "../helper/FrameHelper.spec";
 
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
@@ -271,22 +272,23 @@ describe("PlayService.play", () => {
         expect(setGraphModeSpy.calls.argsFor(2)[0]).toBe(GraphMode.Spatial);
     });
 
-    it("should stop immediately if node does not have an edge in current direction", () => {
+    it("should stop immediately if node does not have an edge in current direction and no bridge", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(Observable.of([]));
 
         playService.setDirection(EdgeDirection.Next);
 
         playService.play();
 
-        const node: Node = nodeHelper.createNode();
-        node.initializeCache(new NodeCache());
-        (<Subject<Node>>stateService.currentNode$).next(node);
+        const frame: IFrame = new FrameHelper().createFrame();
+        frame.state.currentNode.initializeCache(new NodeCache());
+        (<Subject<IFrame>>stateService.currentState$).next(frame);
 
-        node.cacheSequenceEdges([]);
+        frame.state.currentNode.cacheSequenceEdges([]);
 
         expect(stopSpy.calls.count()).toBe(1);
     });
@@ -299,16 +301,19 @@ describe("PlayService.play", () => {
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node>());
 
         playService.setDirection(EdgeDirection.Next);
 
         playService.play();
 
-        const node: Node = new MockCreator().create(Node, "Node");
+        const frame: IFrame = new FrameHelper().createFrame();
+
+        const node: Node = frame.state.currentNode;
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        (<Subject<Node>>stateService.currentNode$).next(node);
+        (<Subject<IFrame>>stateService.currentState$).next(frame);
 
         sequenceEdgesSubject.error(new Error());
 
@@ -321,6 +326,7 @@ describe("PlayService.play", () => {
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(Observable.of([]));
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -343,11 +349,11 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const node: Node = nodeHelper.createNode();
-        node.initializeCache(new NodeCache());
-        (<Subject<Node>>stateService.currentNode$).next(node);
+        const frame: IFrame = new FrameHelper().createFrame();
+        frame.state.currentNode.initializeCache(new NodeCache());
+        (<Subject<IFrame>>stateService.currentState$).next(frame);
 
-        node.cacheSequenceEdges([]);
+        frame.state.currentNode.cacheSequenceEdges([]);
     });
 
     it("should not stop if nodes are not cached", () => {
@@ -356,22 +362,59 @@ describe("PlayService.play", () => {
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(Observable.of([]));
 
         playService.setDirection(EdgeDirection.Next);
 
         playService.play();
 
-        const node: Node = new MockCreator().create(Node, "Node");
+        const frame: IFrame = new FrameHelper().createFrame();
+        const node: Node = frame.state.currentNode;
+        node.initializeCache(new NodeCache());
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        (<Subject<Node>>stateService.currentNode$).next(node);
+        (<Subject<IFrame>>stateService.currentState$).next(frame);
 
         sequenceEdgesSubject.next({ cached: false, edges: []});
 
         expect(stopSpy.calls.count()).toBe(0);
 
         sequenceEdgesSubject.next({ cached: true, edges: []});
+
+        expect(stopSpy.calls.count()).toBe(1);
+    });
+
+    it("should not stop until bridge call completes", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(cacheBoundingBoxSubject);
+
+        playService.setDirection(EdgeDirection.Next);
+
+        playService.play();
+
+        const frame: IFrame = new FrameHelper().createFrame();
+        const node: Node = frame.state.currentNode;
+        node.initializeCache(new NodeCache());
+        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+
+        (<Subject<IFrame>>stateService.currentState$).next(frame);
+
+        sequenceEdgesSubject.next({ cached: false, edges: []});
+
+        expect(stopSpy.calls.count()).toBe(0);
+
+        sequenceEdgesSubject.next({ cached: true, edges: []});
+
+        expect(stopSpy.calls.count()).toBe(0);
+
+        cacheBoundingBoxSubject.next([]);
 
         expect(stopSpy.calls.count()).toBe(1);
     });
@@ -387,22 +430,19 @@ describe("PlayService.play", () => {
 
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node>());
 
         playService.setDirection(EdgeDirection.Next);
 
         playService.play();
 
-        const node: Node = new MockCreator().create(Node, "Node");
+        const frame: IFrame = new FrameHelper().createFrame();
+        const node: Node = frame.state.currentNode;
+        node.initializeCache(new NodeCache());
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        let state: ICurrentState = createState();
-        state.trajectory = [node];
-        state.lastNode = node;
-        state.nodesAhead = 0;
-
-        let currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
-        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+        (<Subject<IFrame>>stateService.currentState$).next(frame);
 
         const fullToNode: IFullNode = nodeHelper.createFullNode();
         fullToNode.key = "toKey";
@@ -442,22 +482,19 @@ describe("PlayService.play", () => {
 
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node>());
 
         playService.setDirection(EdgeDirection.Next);
 
         playService.play();
 
-        const node: Node = new MockCreator().create(Node, "Node");
+        const frame: IFrame = new FrameHelper().createFrame();
+        const node: Node = frame.state.currentNode;
+        node.initializeCache(new NodeCache());
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        let state: ICurrentState = createState();
-        state.trajectory = [node];
-        state.lastNode = node;
-        state.nodesAhead = 0;
-
-        let currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
-        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+        (<Subject<IFrame>>stateService.currentState$).next(frame);
 
         const fullToNode: IFullNode = nodeHelper.createFullNode();
         fullToNode.key = "toKey";
@@ -570,10 +607,10 @@ describe("PlayService.play", () => {
         const state: ICurrentState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
+        state.currentNode = currentNode;
         state.nodesAhead = 0;
 
-        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
-        currentStateSubject$.next({ fps: 60, id: 0, state: state });
+        (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
         expect(cacheNodeSpy.calls.count()).toBe(0);
 
@@ -614,6 +651,7 @@ describe("PlayService.play", () => {
         const state: ICurrentState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
+        state.currentNode = currentNode;
         state.nodesAhead = 0;
 
         const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
@@ -661,6 +699,7 @@ describe("PlayService.play", () => {
         const state: ICurrentState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
+        state.currentNode = currentNode;
         state.nodesAhead = 0;
 
         const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
@@ -712,6 +751,7 @@ describe("PlayService.play", () => {
         const state: ICurrentState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
+        state.currentNode = currentNode;
         state.nodesAhead = 0;
 
         const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
@@ -753,6 +793,7 @@ describe("PlayService.play", () => {
         nextFullNode.sequence_key = sequenceKey;
         nextFullNode.key = nextNodeKey;
         const nextNode: Node = new Node(nextFullNode);
+        new MockCreator().mockProperty(nextNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
@@ -766,7 +807,8 @@ describe("PlayService.play", () => {
 
         const state: ICurrentState = createState();
         state.trajectory = [currentNode, nextNode];
-        state.lastNode = currentNode;
+        state.lastNode = nextNode;
+        state.currentNode = currentNode;
         state.nodesAhead = 0;
 
         const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
