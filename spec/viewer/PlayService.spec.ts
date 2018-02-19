@@ -402,6 +402,14 @@ describe("PlayService.play", () => {
         const node: Node = frame.state.currentNode;
         node.initializeCache(new NodeCache());
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+
+        const prevFullNode: IFullNode = new NodeHelper().createFullNode();
+        prevFullNode.captured_at = -1;
+        const prevNode: Node = new Node(prevFullNode);
+        prevNode.makeFull(prevFullNode);
+        frame.state.trajectory.splice(0, 0, prevNode);
+        frame.state.currentIndex = 1;
+
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
         (<Subject<IFrame>>stateService.currentState$).next(frame);
@@ -734,6 +742,7 @@ describe("PlayService.play", () => {
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
+        currentNode.makeFull(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
         const nextNodeKey: string = "node1";
@@ -757,7 +766,12 @@ describe("PlayService.play", () => {
         const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        cacheNodeSubject.next(new NodeHelper().createNode());
+        const nextFullNode: IFullNode = new NodeHelper().createFullNode();
+        nextFullNode.sequence_key = sequenceKey;
+        nextFullNode.key = nextNodeKey;
+        const nextNode: Node = new Node(nextFullNode);
+        nextNode.makeFull(nextFullNode);
+        cacheNodeSubject.next(nextNode);
 
         expect(cacheNodeSpy.calls.count()).toBe(1);
         expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(nextNodeKey);
@@ -786,6 +800,7 @@ describe("PlayService.play", () => {
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
+        currentNode.makeFull(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
         const nextNodeKey: string = "node1";
@@ -793,6 +808,7 @@ describe("PlayService.play", () => {
         nextFullNode.sequence_key = sequenceKey;
         nextFullNode.key = nextNodeKey;
         const nextNode: Node = new Node(nextFullNode);
+        nextNode.makeFull(nextFullNode);
         new MockCreator().mockProperty(nextNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
@@ -838,6 +854,7 @@ describe("PlayService.play", () => {
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "currentNodeKey";
         const currentNode: Node = new Node(currentFullNode);
+        currentNode.makeFull(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
         const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key]});
@@ -849,6 +866,7 @@ describe("PlayService.play", () => {
             sequenceFullNode.sequence_key = sequenceKey;
             sequenceFullNode.key = sequenceNodeKey;
             const sequenceNode: Node = new Node(sequenceFullNode);
+            sequenceNode.makeFull(sequenceFullNode);
             new MockCreator().mockProperty(sequenceNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
             sequence.keys.push(sequenceNode.key);
@@ -866,6 +884,7 @@ describe("PlayService.play", () => {
                 fullNode.sequence_key = sequenceKey;
                 fullNode.key = key;
                 const node: Node = new Node(fullNode);
+                node.makeFull(fullNode);
 
                 return Observable.of(node);
             });

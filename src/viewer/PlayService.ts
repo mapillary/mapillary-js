@@ -215,18 +215,34 @@ export class PlayService {
                 (frame: IFrame): boolean => {
                     return frame.state.nodesAhead < this._nodesAhead;
                 })
-            .map(
-                (frame: IFrame): Node => {
-                    return frame.state.lastNode;
-                })
             .distinctUntilChanged(
                 undefined,
-                (lastNode: Node): string => {
-                    return lastNode.key;
+                (frame: IFrame): string => {
+                    return frame.state.lastNode.key;
+                })
+            .map(
+                (frame: IFrame): [Node, boolean] => {
+                    const lastNode: Node = frame.state.lastNode;
+                    const trajectory: Node[] = frame.state.trajectory;
+                    let increasingTime: boolean = undefined;
+
+                    for (let i: number = trajectory.length - 2; i >= 0; i--) {
+                        const node: Node = trajectory[i];
+                        if (node.sequenceKey !== lastNode.sequenceKey) {
+                            break;
+                        }
+
+                        if (node.capturedAt !== lastNode.capturedAt) {
+                            increasingTime = node.capturedAt < lastNode.capturedAt;
+                            break;
+                        }
+                    }
+
+                    return [frame.state.lastNode, increasingTime];
                 })
             .withLatestFrom(this._direction$)
             .switchMap(
-                ([node, direction]: [Node, EdgeDirection]): Observable<Node> => {
+                ([[node, increasingTime], direction]: [[Node, boolean], EdgeDirection]): Observable<Node> => {
                     return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
                             node.sequenceEdges$ :
                             node.spatialEdges$)
@@ -250,7 +266,11 @@ export class PlayService {
                             (key: string): Observable<Node> => {
                                 return key != null ?
                                     this._graphService.cacheNode$(key) :
-                                    this._bridge$(node);
+                                    this._bridge$(node, increasingTime)
+                                        .filter(
+                                            (n: Node): boolean => {
+                                                return !!n;
+                                            });
                             });
                 })
             .subscribe(
@@ -413,7 +433,11 @@ export class PlayService {
         this._setPlaying(false);
     }
 
-    private _bridge$(node: Node): Observable<Node> {
+    private _bridge$(node: Node, increasingTime: boolean): Observable<Node> {
+        if (increasingTime === undefined) {
+            return Observable.of(null);
+        }
+
         const boundingBox: ILatLon[] = this._graphCalculator.boundingBoxCorners(node.latLon, 25);
 
         this._bridging$ = this._graphService.cacheBoundingBox$(boundingBox[0], boundingBox[1])
@@ -423,7 +447,9 @@ export class PlayService {
                     for (const n of nodes) {
                         if (n.sequenceKey === node.sequenceKey ||
                             !n.cameraUuid ||
-                            n.cameraUuid !== node.cameraUuid) {
+                            n.cameraUuid !== node.cameraUuid ||
+                            n.capturedAt === node.capturedAt ||
+                            n.capturedAt > node.capturedAt !== increasingTime) {
                             continue;
                         }
 
