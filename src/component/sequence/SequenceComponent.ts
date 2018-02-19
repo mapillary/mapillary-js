@@ -309,12 +309,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .subscribe();
 
-        this._setSequenceGraphModeSubscription = this._sequenceDOMRenderer.changed$
-            .map(
-                (renderer: SequenceDOMRenderer): boolean => {
-                    return renderer.changingPosition;
-                })
-            .distinctUntilChanged()
+        this._setSequenceGraphModeSubscription = this._sequenceDOMRenderer.changingPositionChanged$
             .filter(
                 (changing: boolean): boolean => {
                     return changing;
@@ -324,12 +319,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     this._navigator.graphService.setGraphMode(GraphMode.Sequence);
                 });
 
-        this._setSpatialGraphModeSubscription = this._sequenceDOMRenderer.changed$
-            .map(
-                (renderer: SequenceDOMRenderer): boolean => {
-                    return renderer.changingPosition;
-                })
-            .distinctUntilChanged()
+        this._setSpatialGraphModeSubscription = this._sequenceDOMRenderer.changingPositionChanged$
             .filter(
                 (changing: boolean): boolean => {
                     return !changing;
@@ -361,12 +351,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 })
             .subscribe();
 
-        this._stopSubscription = this._sequenceDOMRenderer.changed$
-            .map(
-                (renderer: SequenceDOMRenderer): boolean => {
-                    return renderer.changingPosition;
-                })
-            .distinctUntilChanged()
+        this._stopSubscription = this._sequenceDOMRenderer.changingPositionChanged$
             .filter(
                 (changing: boolean): boolean => {
                     return changing;
@@ -379,11 +364,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._cacheSequenceNodesSubscription = Observable
             .combineLatest(
                 this._navigator.graphService.graphMode$,
-                this._sequenceDOMRenderer.changed$
-                    .map(
-                        (renderer: SequenceDOMRenderer): boolean => {
-                            return renderer.changingPosition;
-                        })
+                this._sequenceDOMRenderer.changingPositionChanged$
                     .startWith(false)
                     .distinctUntilChanged())
             .withLatestFrom(this._navigator.stateService.currentNode$)
@@ -404,11 +385,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
                     let firstCurrentKey: boolean = true;
 
-                    return this._sequenceDOMRenderer.changed$
-                        .map(
-                            (renderer: SequenceDOMRenderer): boolean => {
-                                return renderer.changingPosition;
-                            })
+                    return this._sequenceDOMRenderer.changingPositionChanged$
                         .startWith(false)
                         .distinctUntilChanged()
                         .switchMap(

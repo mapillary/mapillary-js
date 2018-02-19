@@ -80,14 +80,13 @@ describe("SequenceComponent.activate", () => {
     it("should set graph mode to sequence when changing position", () => {
         const setGraphModeSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.graphService.setGraphMode;
 
-        const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
-        mockCreator.mockProperty(renderer, "changed$", changedSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", true);
+        const changingPositionChangedSubject$: Subject<boolean> = new Subject<boolean>();
+        mockCreator.mockProperty(renderer, "changingPositionChanged$", changingPositionChangedSubject$);
 
         const component: SequenceComponent = createComponent();
         component.activate();
 
-        changedSubject$.next(renderer);
+        changingPositionChangedSubject$.next(true);
 
         expect(setGraphModeSpy.calls.count()).toBe(1);
         expect(setGraphModeSpy.calls.argsFor(0)[0]).toBe(GraphMode.Sequence);
@@ -96,14 +95,13 @@ describe("SequenceComponent.activate", () => {
     it("should set graph mode to spatial when not changing position", () => {
         const setGraphModeSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.graphService.setGraphMode;
 
-        const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
-        mockCreator.mockProperty(renderer, "changed$", changedSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", false);
+        const changingPositionChangedSubject$: Subject<boolean> = new Subject<boolean>();
+        mockCreator.mockProperty(renderer, "changingPositionChanged$", changingPositionChangedSubject$);
 
         const component: SequenceComponent = createComponent();
         component.activate();
 
-        changedSubject$.next(renderer);
+        changingPositionChangedSubject$.next(false);
 
         expect(setGraphModeSpy.calls.count()).toBe(1);
         expect(setGraphModeSpy.calls.argsFor(0)[0]).toBe(GraphMode.Spatial);
@@ -114,14 +112,15 @@ describe("SequenceComponent.activate", () => {
 
         const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", true);
+        const changingPositionChangedSubject$: Subject<boolean> = new Subject<boolean>();
+        mockCreator.mockProperty(renderer, "changingPositionChanged$", changingPositionChangedSubject$);
 
         const component: SequenceComponent = createComponent();
         component.activate();
 
         const count: number = stopSpy.calls.count();
 
-        changedSubject$.next(renderer);
+        changingPositionChangedSubject$.next(true);
 
         expect(stopSpy.calls.count() - count).toBe(1);
     });
@@ -216,7 +215,8 @@ describe("SequenceComponent.activate", () => {
 
         const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", true);
+        const changingPositionChangedSubject$: Subject<boolean> = new Subject<boolean>();
+        mockCreator.mockProperty(renderer, "changingPositionChanged$", changingPositionChangedSubject$);
 
         const component: SequenceComponent = createComponent();
         component.activate();
@@ -231,6 +231,7 @@ describe("SequenceComponent.activate", () => {
         const graphModeSubject$: Subject<GraphMode> = <Subject<GraphMode>>navigatorMock.graphService.graphMode$;
         graphModeSubject$.next(GraphMode.Sequence);
 
+        changingPositionChangedSubject$.next(true);
         changedSubject$.next(renderer);
 
         expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
@@ -241,8 +242,7 @@ describe("SequenceComponent.activate", () => {
 
         expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
 
-        (<boolean>renderer.changingPosition) = false;
-        changedSubject$.next(renderer);
+        changingPositionChangedSubject$.next(false);
 
         expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
 
@@ -254,8 +254,7 @@ describe("SequenceComponent.activate", () => {
 
         expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
 
-        (<boolean>renderer.changingPosition) = true;
-        changedSubject$.next(renderer);
+        changingPositionChangedSubject$.next(true);
 
         expect(cacheSequenceNodesSpy.calls.count()).toBe(2);
         expect(cacheSequenceNodesSpy.calls.argsFor(1)[0]).toBe("sequenceKey1");
@@ -270,7 +269,6 @@ describe("SequenceComponent.activate", () => {
 
         const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", false);
         spyOn(renderer, "getContainerWidth").and.returnValue(100);
 
         const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
@@ -300,7 +298,6 @@ describe("SequenceComponent.activate", () => {
 
         const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", false);
         spyOn(renderer, "getContainerWidth").and.returnValue(100);
 
         const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
@@ -339,7 +336,6 @@ describe("SequenceComponent.activate", () => {
 
         const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", false);
         spyOn(renderer, "getContainerWidth").and.returnValue(100);
 
         const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
@@ -390,7 +386,8 @@ describe("SequenceComponent.activate", () => {
 
         const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", false);
+        const changingPositionChangedSubject$: Subject<boolean> = new Subject<boolean>();
+        mockCreator.mockProperty(renderer, "changingPositionChanged$", changingPositionChangedSubject$);
         spyOn(renderer, "getContainerWidth").and.returnValue(100);
 
         const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
@@ -422,8 +419,7 @@ describe("SequenceComponent.activate", () => {
         expect(renderSpy.calls.mostRecent().args[4]).toBe(0);
         expect(renderSpy.calls.mostRecent().args[5]).toBe(0);
 
-        (<boolean>renderer.changingPosition) = true;
-        changedSubject$.next(renderer);
+        changingPositionChangedSubject$.next(true);
 
         const node2: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node2, "spatialEdges", { cached: false, edges: [] });
@@ -432,8 +428,7 @@ describe("SequenceComponent.activate", () => {
         mockCreator.mockProperty(node2, "sequenceKey", sequenceKey2);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node2);
 
-        (<boolean>renderer.changingPosition) = false;
-        changedSubject$.next(renderer);
+        changingPositionChangedSubject$.next(false);
 
         sequenceSubject$.next(new Sequence({ key: sequenceKey2, keys: [nodeKey2] }));
 
@@ -455,7 +450,8 @@ describe("SequenceComponent.activate", () => {
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
         const indexSubject$: Subject<number> = new Subject<number>();
         mockCreator.mockProperty(renderer, "index$", indexSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", true);
+        const changingPositionChangedSubject$: Subject<boolean> = new Subject<boolean>();
+        mockCreator.mockProperty(renderer, "changingPositionChanged$", changingPositionChangedSubject$);
         spyOn(renderer, "getContainerWidth").and.returnValue(100);
 
         const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
@@ -482,7 +478,7 @@ describe("SequenceComponent.activate", () => {
         expect(renderSpy.calls.count()).toBe(1);
 
         sequenceSubject$.next(new Sequence({ key: sequenceKey1, keys: [nodeKey1, nodeKey2, nodeKey3] }));
-        changedSubject$.next(renderer);
+        changingPositionChangedSubject$.next(true);
         indexSubject$.next(0);
 
         expect(renderSpy.calls.count()).toBeGreaterThan(1);
@@ -502,7 +498,8 @@ describe("SequenceComponent.activate", () => {
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
         const indexSubject$: Subject<number> = new Subject<number>();
         mockCreator.mockProperty(renderer, "index$", indexSubject$);
-        mockCreator.mockProperty(renderer, "changingPosition", true);
+        const changingPositionChangedSubject$: Subject<boolean> = new Subject<boolean>();
+        mockCreator.mockProperty(renderer, "changingPositionChanged$", changingPositionChangedSubject$);
         spyOn(renderer, "getContainerWidth").and.returnValue(100);
 
         const renderSpy: jasmine.Spy = spyOn(renderer, "render").and.stub();
@@ -536,6 +533,7 @@ describe("SequenceComponent.activate", () => {
         expect(renderSpy.calls.mostRecent().args[4]).toBe(0);
         expect(renderSpy.calls.mostRecent().args[5]).toBe(2);
 
+        changingPositionChangedSubject$.next(true);
         changedSubject$.next(renderer);
 
         let callCount: number = renderSpy.calls.count();
@@ -552,8 +550,7 @@ describe("SequenceComponent.activate", () => {
         expect(renderSpy.calls.mostRecent().args[4]).toBe(1);
         expect(renderSpy.calls.mostRecent().args[5]).toBe(2);
 
-        (<boolean>renderer.changingPosition) = false;
-
+        changingPositionChangedSubject$.next(false);
         changedSubject$.next(renderer);
 
         expect(renderSpy.calls.mostRecent().args[4]).toBe(1);

@@ -42,6 +42,7 @@ export class SequenceDOMRenderer {
     private _mouseEnterDirection$: Subject<EdgeDirection>;
     private _mouseLeaveDirection$: Subject<EdgeDirection>;
     private _notifyChanged$: Subject<SequenceDOMRenderer>;
+    private _notifyChangingPositionChanged$: Subject<boolean>;
     private _notifySpeedChanged$: Subject<number>;
     private _notifyIndexChanged$: Subject<number>;
 
@@ -68,16 +69,17 @@ export class SequenceDOMRenderer {
         this._mouseEnterDirection$ = new Subject<EdgeDirection>();
         this._mouseLeaveDirection$ = new Subject<EdgeDirection>();
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
+        this._notifyChangingPositionChanged$ = new Subject<boolean>();
         this._notifySpeedChanged$ = new Subject<number>();
         this._notifyIndexChanged$ = new Subject<number>();
     }
 
-    public get changingPosition(): boolean {
-        return this._changingPosition;
-    }
-
     public get changed$(): Observable<SequenceDOMRenderer> {
         return this._notifyChanged$;
+    }
+
+    public get changingPositionChanged$(): Observable<boolean> {
+        return this._notifyChangingPositionChanged$;
     }
 
     public get speed$(): Observable<number> {
@@ -116,8 +118,7 @@ export class SequenceDOMRenderer {
                     }
 
                     if (this._changingPosition) {
-                        this._changingPosition = false;
-                        this._notifyChanged$.next(this);
+                        this._setChangingPosition(false);
                     }
                 });
     }
@@ -192,9 +193,7 @@ export class SequenceDOMRenderer {
 
         const onStart: (e: Event) => void = (e: Event): void => {
             e.stopPropagation();
-
-            this._changingPosition = true;
-            this._notifyChanged$.next(this);
+            this._setChangingPosition(true);
         };
 
         const onMove: (e: Event) => void = (e: Event): void => {
@@ -560,6 +559,11 @@ export class SequenceDOMRenderer {
         }
 
         return className;
+    }
+
+    private _setChangingPosition(value: boolean): void {
+        this._changingPosition = value;
+        this._notifyChangingPositionChanged$.next(value);
     }
 }
 
