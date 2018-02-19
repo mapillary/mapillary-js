@@ -427,6 +427,218 @@ describe("PlayService.play", () => {
         expect(stopSpy.calls.count()).toBe(1);
     });
 
+    it("should bridge if camera id corresponds and time monotonic", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(cacheBoundingBoxSubject);
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
+        appendNodesSpy.and.stub();
+
+        playService.setDirection(EdgeDirection.Next);
+
+        playService.play();
+
+        const cameraUuid: string = "camera_uuid";
+        const sequenceKey1: string = "sequence1";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.captured_at = 0;
+        currentFullNode.captured_with_camera_uuid = cameraUuid;
+        currentFullNode.key = "currKey";
+        currentFullNode.sequence_key = sequenceKey1;
+        const currentNode: Node = new Node(currentFullNode);
+        currentNode.makeFull(currentFullNode);
+        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
+
+        const prevFullNode: IFullNode = new NodeHelper().createFullNode();
+        prevFullNode.captured_at = -1;
+        prevFullNode.captured_with_camera_uuid = cameraUuid;
+        prevFullNode.key = "prevKey";
+        prevFullNode.sequence_key = sequenceKey1;
+        const prevNode: Node = new Node(prevFullNode);
+        prevNode.makeFull(prevFullNode);
+
+        const state: ICurrentState = createState();
+        state.trajectory = [prevNode, currentNode];
+        state.lastNode = currentNode;
+        state.currentNode = currentNode;
+        state.nodesAhead = 0;
+        state.currentIndex = 1;
+
+        (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
+
+        sequenceEdgesSubject.next({ cached: true, edges: []});
+
+        expect(stopSpy.calls.count()).toBe(0);
+
+        const bridgeFullNode: IFullNode = new NodeHelper().createFullNode();
+        bridgeFullNode.captured_at = 1;
+        bridgeFullNode.captured_with_camera_uuid = cameraUuid;
+        bridgeFullNode.key = "bridgeKey";
+        bridgeFullNode.sequence_key = "sequenceBrdige";
+        const bridgeNode: Node = new Node(bridgeFullNode);
+        bridgeNode.makeFull(bridgeFullNode);
+
+        cacheBoundingBoxSubject.next([bridgeNode]);
+        cacheNodeSubject.next(bridgeNode);
+
+        expect(stopSpy.calls.count()).toBe(0);
+
+        expect(appendNodesSpy.calls.count()).toBe(1);
+        expect(appendNodesSpy.calls.argsFor(0)[0][0].key).toBe(bridgeNode.key);
+
+        expect(cacheNodeSpy.calls.count()).toBe(1);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(bridgeNode.key);
+    });
+
+    it("should bridge to closest node in decreasing time", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(cacheBoundingBoxSubject);
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
+        appendNodesSpy.and.stub();
+
+        playService.setDirection(EdgeDirection.Next);
+
+        playService.play();
+
+        const cameraUuid: string = "camera_uuid";
+        const sequenceKey1: string = "sequence1";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.captured_at = -1;
+        currentFullNode.captured_with_camera_uuid = cameraUuid;
+        currentFullNode.key = "currKey";
+        currentFullNode.sequence_key = sequenceKey1;
+        const currentNode: Node = new Node(currentFullNode);
+        currentNode.makeFull(currentFullNode);
+        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
+
+        const prevFullNode: IFullNode = new NodeHelper().createFullNode();
+        prevFullNode.captured_at = 0;
+        prevFullNode.captured_with_camera_uuid = cameraUuid;
+        prevFullNode.key = "prevKey";
+        prevFullNode.sequence_key = sequenceKey1;
+        const prevNode: Node = new Node(prevFullNode);
+        prevNode.makeFull(prevFullNode);
+
+        const state: ICurrentState = createState();
+        state.trajectory = [prevNode, currentNode];
+        state.lastNode = currentNode;
+        state.currentNode = currentNode;
+        state.nodesAhead = 0;
+        state.currentIndex = 1;
+
+        (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
+
+        sequenceEdgesSubject.next({ cached: true, edges: []});
+
+        expect(stopSpy.calls.count()).toBe(0);
+
+        const cacheBoudndingBoxNodex: Node[] = [1, -3, -5]
+            .map(
+                (capturedAt: number): Node => {
+                    const bridgeFullNode: IFullNode = new NodeHelper().createFullNode();
+                    bridgeFullNode.captured_at = capturedAt;
+                    bridgeFullNode.captured_with_camera_uuid = cameraUuid;
+                    bridgeFullNode.key = "bridgeKey";
+                    bridgeFullNode.sequence_key = "sequenceBrdige";
+                    const bridgeNode: Node = new Node(bridgeFullNode);
+                    bridgeNode.makeFull(bridgeFullNode);
+
+                    return bridgeNode;
+                });
+
+        const sameSequenceFullNode: IFullNode = new NodeHelper().createFullNode();
+        sameSequenceFullNode.captured_at = -2;
+        sameSequenceFullNode.captured_with_camera_uuid = cameraUuid;
+        sameSequenceFullNode.key = "bridgeKey";
+        sameSequenceFullNode.sequence_key = sequenceKey1;
+        const sameSequenceNode: Node = new Node(sameSequenceFullNode);
+        sameSequenceNode.makeFull(sameSequenceFullNode);
+
+        cacheBoudndingBoxNodex.push(sameSequenceNode);
+
+        cacheBoundingBoxSubject.next(cacheBoudndingBoxNodex);
+        cacheNodeSubject.next(cacheBoudndingBoxNodex[1]);
+
+        expect(stopSpy.calls.count()).toBe(0);
+
+        expect(appendNodesSpy.calls.count()).toBe(1);
+        expect(appendNodesSpy.calls.argsFor(0)[0][0].key).toBe(cacheBoudndingBoxNodex[1].key);
+
+        expect(cacheNodeSpy.calls.count()).toBe(1);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(cacheBoudndingBoxNodex[1].key);
+    });
+
+    it("should not bridge if time direction cannot be determined", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoudningBoxSpy: jasmine.Spy = spyOn(graphService, "cacheBoundingBox$");
+        cacheBoudningBoxSpy.and.returnValue(cacheBoundingBoxSubject);
+        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
+        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+
+        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
+        appendNodesSpy.and.stub();
+
+        playService.setDirection(EdgeDirection.Next);
+
+        playService.play();
+
+        const cameraUuid: string = "camera_uuid";
+        const sequenceKey1: string = "sequence1";
+
+        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        currentFullNode.captured_at = 0;
+        currentFullNode.captured_with_camera_uuid = cameraUuid;
+        currentFullNode.key = "currKey";
+        currentFullNode.sequence_key = sequenceKey1;
+        const currentNode: Node = new Node(currentFullNode);
+        currentNode.makeFull(currentFullNode);
+        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
+
+        const state: ICurrentState = createState();
+        state.trajectory = [currentNode];
+        state.lastNode = currentNode;
+        state.currentNode = currentNode;
+        state.nodesAhead = 0;
+        state.currentIndex = 0;
+
+        (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
+
+        sequenceEdgesSubject.next({ cached: true, edges: []});
+
+        expect(stopSpy.calls.count()).toBe(1);
+        expect(cacheBoudningBoxSpy.calls.count()).toBe(0);
+        expect(appendNodesSpy.calls.count()).toBe(0);
+        expect(cacheNodeSpy.calls.count()).toBe(0);
+    });
+
     it("should append node when cached", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
