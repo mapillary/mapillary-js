@@ -585,7 +585,7 @@ export class Viewer extends EventEmitter {
      * pixel point that lies in the visible area of the viewer container.
      *
      * @param {Array<number>} basicPoint - Basic images coordinates to project.
-     * @returns {Promise<ILatLon>} Promise to the pixel coordinates corresponding
+     * @returns {Promise<Array<number>>} Promise to the pixel coordinates corresponding
      * to the basic image point.
      *
      * @example

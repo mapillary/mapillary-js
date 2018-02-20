@@ -4,11 +4,16 @@
 
    To help us diagnose problems, please:
 
- - Ensure you can reproduce the bug using the latest release.
- - Check the console for relevant errors and warnings.
+  - Ensure you can reproduce the bug using the latest release
+  - Check the console for relevant errors and warnings
+  - Attach screenshots and logs if possible/applicable
+  - Remove template lines which do not apply to your issue/feature request
 -->
 
-**mapillary-js version**:
+### Basic information
+
+**MapillaryJS version**: `...`
+**System/Browser**: `...`
 
 ### Steps to Reproduce Behavior
 
@@ -16,6 +21,16 @@
  2.
  3.
 
-### Expected Behavior
+### Expected behavior
 
-### Actual Behavior
+...
+
+### Actual behavior
+
+...
+
+### Additional information
+
+...
+
+<!-- screenshots, system logs etc. -->
