@@ -1448,7 +1448,7 @@ describe("Graph.cacheSequenceNodes$", () => {
             .toBe(201);
     });
 
-    it("should start caching in prioritized batches when reference node key is specified at start", () => {
+    it("should start caching prioritized batch when reference node key is specified at start", () => {
         const apiV3: APIv3 = new APIv3("clientId");
         const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
@@ -1480,12 +1480,11 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
 
-        expect(imageByKeySpy.calls.count()).toBe(4);
-        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(20);
+        expect(imageByKeySpy.calls.count()).toBe(3);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
         expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe(referenceNodeKey);
-        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(40);
-        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(200);
-        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(400 - 200 - 40 - 20);
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(400 - 200 - 50);
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
@@ -1493,7 +1492,7 @@ describe("Graph.cacheSequenceNodes$", () => {
             .toBe(400);
     });
 
-    it("should start caching in prioritized batches when reference node key is specified at end", () => {
+    it("should start caching prioritized batch when reference node key is specified at end", () => {
         const apiV3: APIv3 = new APIv3("clientId");
         const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
@@ -1525,13 +1524,12 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
 
-        expect(imageByKeySpy.calls.count()).toBe(4);
-        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(20);
-        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe((400 - 20).toString());
-        expect(imageByKeySpy.calls.argsFor(0)[0][19]).toBe(referenceNodeKey);
-        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(40);
-        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(200);
-        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(400 - 200 - 40 - 20);
+        expect(imageByKeySpy.calls.count()).toBe(3);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
+        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe((400 - 50).toString());
+        expect(imageByKeySpy.calls.argsFor(0)[0][49]).toBe(referenceNodeKey);
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(400 - 200 - 50);
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
@@ -1571,15 +1569,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
 
-        expect(imageByKeySpy.calls.count()).toBe(6);
-        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(20);
-        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe(referenceNodeKey);
-        expect(imageByKeySpy.calls.argsFor(0)[0][19]).toBe((200 + 19).toString());
-        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(20);
-        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(40);
-        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(40);
-        expect(imageByKeySpy.calls.argsFor(4)[0].length).toBe(200);
-        expect(imageByKeySpy.calls.argsFor(5)[0].length).toBe(400 - 200 - 2 * 40 - 2 * 20);
+        expect(imageByKeySpy.calls.count()).toBe(3);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
+        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe((200 - 25).toString());
+        expect(imageByKeySpy.calls.argsFor(0)[0][25]).toBe(referenceNodeKey);
+        expect(imageByKeySpy.calls.argsFor(0)[0][49]).toBe((200 + 24).toString());
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(400 - 200 - 50);
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
@@ -1622,7 +1618,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         expect(graph.getSequence(sequenceKey).keys).toEqual(result[sequenceKey].keys);
     });
 
-    it("should start caching in prioritized batches when reference node key is specified in middle and few nodes", () => {
+    it("should create single batch when fewer than or equal to 50 nodes", () => {
         const apiV3: APIv3 = new APIv3("clientId");
         const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
@@ -1645,8 +1641,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const referenceNodeKey: string = "referenceNodeKey";
 
         const result: { [sequenceKey: string]: ISequence } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(90), (x, i): string => i.toString()) };
-        result[sequenceKey].keys.splice(40, 1, referenceNodeKey);
+        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(50), (x, i): string => i.toString()) };
+        result[sequenceKey].keys.splice(20, 1, referenceNodeKey);
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1654,20 +1650,17 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
 
-        expect(imageByKeySpy.calls.count()).toBe(4);
-        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(20);
-        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe(referenceNodeKey);
-        expect(imageByKeySpy.calls.argsFor(0)[0][19]).toBe((40 + 19).toString());
-        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(20);
-        expect(imageByKeySpy.calls.argsFor(1)[0][0]).toBe((40 - 20).toString());
-        expect(imageByKeySpy.calls.argsFor(1)[0][19]).toBe((40 - 20 + 19).toString());
-        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(30);
-        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(20);
+        expect(imageByKeySpy.calls.count()).toBe(1);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
+        expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe((0).toString());
+        expect(imageByKeySpy.calls.argsFor(0)[0][20]).toBe(referenceNodeKey);
+        expect(imageByKeySpy.calls.argsFor(0)[0][49]).toBe((49).toString());
+
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
                 .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
-            .toBe(90);
+            .toBe(50);
     });
 });
 

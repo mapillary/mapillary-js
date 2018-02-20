@@ -143,7 +143,9 @@ export class PlayService {
                         this._graphService.cacheSequence$(sequenceKey))
                             .retry(3)
                             .catch(
-                                (): Observable<Sequence> => {
+                                (error: Error): Observable<Sequence> => {
+                                    console.error(error);
+
                                     return Observable.of(undefined);
                                 });
 

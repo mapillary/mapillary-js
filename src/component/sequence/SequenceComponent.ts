@@ -371,7 +371,14 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             .switchMap(
                 ([[mode, changing], node]: [[GraphMode, boolean], Node]): Observable<Sequence> => {
                     return changing && mode === GraphMode.Sequence ?
-                        this._navigator.graphService.cacheSequenceNodes$(node.sequenceKey, node.key) :
+                        this._navigator.graphService.cacheSequenceNodes$(node.sequenceKey, node.key)
+                            .retry(3)
+                            .catch(
+                                (error: Error): Observable<Sequence> => {
+                                    console.error("Failed to cache sequence nodes.", error);
+
+                                    return Observable.empty();
+                                }) :
                         Observable.empty();
                 })
             .subscribe();

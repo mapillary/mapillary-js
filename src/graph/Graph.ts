@@ -568,25 +568,17 @@ export class Graph {
 
         const batches: string[][] = [];
         const keys: string[] = sequence.keys.slice();
-        if (!!referenceNodeKey) {
-            let referenceIndex: number = keys.indexOf(referenceNodeKey);
 
-            if (referenceIndex !== -1) {
-                for (const referenceBatchSize of [20, 40]) {
-                    if (referenceIndex < keys.length - 1) {
-                        batches.push(keys.splice(referenceIndex, referenceBatchSize));
-                    }
+        const referenceBatchSize: number = 50;
+        if (!!referenceNodeKey && keys.length > referenceBatchSize) {
+            const referenceIndex: number = keys.indexOf(referenceNodeKey);
+            const startIndex: number = Math.max(
+                0,
+                Math.min(
+                    referenceIndex - referenceBatchSize / 2,
+                    keys.length - referenceBatchSize));
 
-                    if (referenceIndex > 0) {
-                        const shift: number = referenceIndex === keys.length - 1 ? 1 : 0;
-                        const batch: string[] =
-                            keys.splice(Math.max(0, referenceIndex + shift - referenceBatchSize), referenceBatchSize);
-
-                        batches.push(batch);
-                        referenceIndex -= batch.length;
-                    }
-                }
-            }
+            batches.push(keys.splice(startIndex, referenceBatchSize));
         }
 
         const batchSize: number = 200;
