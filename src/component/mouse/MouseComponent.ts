@@ -150,7 +150,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IMouseConfiguration {
-        return { doubleClickZoom: true, dragPan: true, scrollZoom: true, touchZoom: true };
+        return { doubleClickZoom: false, dragPan: true, scrollZoom: true, touchZoom: true };
     }
 }
 

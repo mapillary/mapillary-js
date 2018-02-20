@@ -23,7 +23,7 @@ export interface IMouseConfiguration extends IComponentConfiguration {
     /**
      * Enable or disable the `DoubleClickZoomHandler`.
      *
-     * @default true
+     * @default false
      */
     doubleClickZoom?: boolean;
 
