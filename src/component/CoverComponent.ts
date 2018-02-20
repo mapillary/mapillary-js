@@ -88,9 +88,9 @@ export class CoverComponent extends Component<ICoverConfiguration> {
 
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
         let url: string = conf.src != null ?
-            `url(${conf.src})` : Urls.thumbnail(conf.key, ImageSize.Size640);
+            conf.src : Urls.thumbnail(conf.key, ImageSize.Size640);
 
-        let properties: vd.createProperties = { style: { backgroundImage: url } };
+        let properties: vd.createProperties = { style: { backgroundImage: `url(${url})` } };
 
         let children: vd.VNode[] = [];
         if (conf.state === CoverState.Loading) {
