@@ -81,6 +81,11 @@ import {TransitionMode} from "../State";
 export class Viewer extends EventEmitter {
     /**
      * Fired when the viewing direction of the camera changes.
+     *
+     * @description Related to the computed compass angle
+     * ({@link Node.computedCa}) from SfM, not the original EXIF compass
+     * angle.
+     *
      * @event
      * @type {number} bearing - Value indicating the current bearing
      * measured in degrees clockwise with respect to north.
