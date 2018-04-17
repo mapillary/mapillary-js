@@ -300,27 +300,36 @@ export class Navigator {
         }
 
         if (this._request$ != null) {
-            this._request$.error(new AbortMapillaryError(`Request aborted by a subsequent request ${reason}.`));
+            if (!(this._request$.isStopped || this._request$.hasError)) {
+                this._request$.error(new AbortMapillaryError(`Request aborted by a subsequent request ${reason}.`));
+            }
+
             this._request$ = null;
         }
     }
 
     private _makeRequest$(node$: Observable<Node>): Observable<Node> {
-        this._request$ = new ReplaySubject<Node>(1);
-        this._requestSubscription = this._request$
+        const request$: ReplaySubject<Node> = new ReplaySubject<Node>(1);
+        this._requestSubscription = request$
             .subscribe(undefined, (e: Error): void => { /*noop*/ });
+
+        this._request$ = request$;
 
         this._nodeRequestSubscription = node$
             .subscribe(
                 (node: Node): void => {
-                    this._request$.next(node);
-                    this._request$.complete();
+                    request$.next(node);
+                    request$.complete();
+
+                    this._request$ = null;
                 },
                 (error: Error): void => {
-                    this._request$.error(error);
+                    request$.error(error);
+
+                    this._request$ = null;
                 });
 
-        return this._request$;
+        return request$;
     }
 
     private _moveToKey$(key: string): Observable<Node> {
