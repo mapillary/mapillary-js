@@ -388,14 +388,8 @@ export abstract class StateBase implements IState {
         let current: Node = this._currentNode;
         let previous: Node = this._previousNode;
 
-        if (!current ||
-            !current.mergeCC ||
-            !previous ||
-            !previous.mergeCC) {
-            return true;
-        }
-
-        return current.mergeCC === previous.mergeCC;
+        return !!current && !!previous &&
+            current.mergeCC === previous.mergeCC;
     }
 
     private _withinOriginalDistance(): boolean {
