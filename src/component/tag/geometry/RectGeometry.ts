@@ -531,8 +531,8 @@ export class RectGeometry extends VertexGeometry {
         const y0: number = rect[1];
         const y1: number = rect[3];
 
-        const centroidX: number = x0 + (x1 - x0) / 2;
-        const centroidY: number = y0 + (y1 - y0) / 2;
+        const centroidX: number = (x0 + x1) / 2;
+        const centroidY: number = (y0 + y1) / 2;
 
         return [centroidX, centroidY];
     }
