@@ -68,7 +68,7 @@ export interface IComponentOptions {
     direction?: boolean | IDirectionConfiguration;
 
     /**
-     * Show static images without transitions.
+     * Show static images without pan, zoom, or transitions.
      *
      * @description Fallback for `imagePlane` when WebGL is not supported.
      *
