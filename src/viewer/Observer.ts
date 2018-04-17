@@ -147,7 +147,7 @@ export class Observer {
                 });
 
         this._bearingSubscription = this._container.renderService.bearing$
-            .throttleTime(100)
+            .auditTime(100)
             .distinctUntilChanged(
                 (b1: number, b2: number): boolean => {
                     return Math.abs(b2 - b1) < 1;
