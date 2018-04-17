@@ -205,8 +205,9 @@ export class Spatial {
         let R: THREE.Matrix4 = R1T.multiply(R2);
         let elements: Float32Array = R.elements;
 
-        // from Tr(R) = 1 + 2*cos(theta)
-        let theta: number = Math.acos((elements[0] + elements[5] + elements[10] - 1) / 2);
+        // from Tr(R) = 1 + 2 * cos(theta)
+        let tr: number = elements[0] + elements[5] + elements[10];
+        let theta: number = Math.acos(Math.max(Math.min((tr - 1) / 2, 1), -1));
 
         return theta;
     }
