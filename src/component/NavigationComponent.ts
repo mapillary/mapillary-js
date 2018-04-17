@@ -5,9 +5,6 @@ import * as vd from "virtual-dom";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/first";
-
 import {EdgeDirection, IEdge} from "../Edge";
 import {AbortMapillaryError} from "../Error";
 import {IEdgeStatus, Node} from "../Graph";

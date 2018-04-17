@@ -1,13 +1,6 @@
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/observable/empty";
-
-import "rxjs/add/operator/count";
-import "rxjs/add/operator/first";
-import "rxjs/add/operator/skip";
-import "rxjs/add/operator/take";
-
 import {ISize, RenderCamera, RenderMode, RenderService} from "../../src/Render";
 import {IFrame, ICurrentState} from "../../src/State";
 import {Camera} from "../../src/Geo";

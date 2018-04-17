@@ -1,12 +1,6 @@
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/buffer";
-import "rxjs/add/operator/debounceTime";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/scan";
-
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
 import {Container, Navigator} from "../Viewer";

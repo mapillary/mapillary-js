@@ -5,8 +5,6 @@ import * as vd from "virtual-dom";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/combineLatest";
-
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
 import {ISize} from "../Render";

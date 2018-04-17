@@ -6,13 +6,6 @@ import * as vd from "virtual-dom";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/operator/combineLatest";
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/pluck";
-import "rxjs/add/operator/scan";
-
 import {ISize, IVNodeHash, RenderMode, RenderService} from "../Render";
 import {IFrame} from "../State";
 

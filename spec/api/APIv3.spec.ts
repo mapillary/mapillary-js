@@ -4,8 +4,6 @@ import * as falcor from "falcor";
 
 import {Observable} from "rxjs/Observable";
 
-import "rxjs/add/operator/retry";
-
 import {
     APIv3,
     ICoreNode,

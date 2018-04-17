@@ -5,14 +5,6 @@ import {Observable} from "rxjs/Observable";
 import {ReplaySubject} from "rxjs/ReplaySubject";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/observable/throw";
-
-import "rxjs/add/operator/do";
-import "rxjs/add/operator/finally";
-import "rxjs/add/operator/first";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/mergeMap";
-
 import {
     APIv3,
     IFullNode,

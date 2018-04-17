@@ -2,8 +2,6 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/timeout";
-
 import {ILatLon} from "../API";
 import {EdgeDirection} from "../Edge";
 import {

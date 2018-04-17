@@ -6,18 +6,6 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/observable/combineLatest";
-
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/first";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/merge";
-import "rxjs/add/operator/mergeMap";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/share";
-import "rxjs/add/operator/startWith";
-
 import {
     GLRenderStage,
     IGLRenderFunction,

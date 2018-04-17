@@ -2,10 +2,6 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/startWith";
-
 import {IComponentConfiguration} from "../Component";
 import {
     Container,

@@ -2,12 +2,6 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/observable/combineLatest";
-
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/throttleTime";
-
 import {ILatLon} from "../API";
 import {
     ILatLonAlt,

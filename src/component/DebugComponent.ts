@@ -6,8 +6,6 @@ import * as vd from "virtual-dom";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/combineLatest";
-
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
 import {Component, ComponentService, IComponentConfiguration} from "../Component";

@@ -1,11 +1,6 @@
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/share";
-import "rxjs/add/operator/withLatestFrom";
-
 import {
     Component,
     ITagConfiguration,

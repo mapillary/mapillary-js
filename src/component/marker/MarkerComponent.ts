@@ -6,11 +6,6 @@ import * as when from "when";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/observable/combineLatest";
-
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/map";
-
 import {ILatLon} from "../../API";
 import {
     IMarkerConfiguration,

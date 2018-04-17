@@ -4,8 +4,6 @@ import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
 
-import "rxjs/add/operator/skip";
-
 import {
     DOMRenderer,
     RenderMode,

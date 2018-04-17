@@ -6,10 +6,6 @@ import * as vd from "virtual-dom";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/startWith";
-
 import {Alignment, ISpriteAtlas} from "../Viewer";
 
 class SpriteAtlas implements ISpriteAtlas {

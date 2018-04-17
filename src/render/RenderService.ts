@@ -4,17 +4,6 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
-import "rxjs/add/observable/combineLatest";
-
-import "rxjs/add/operator/do";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/skip";
-import "rxjs/add/operator/startWith";
-import "rxjs/add/operator/withLatestFrom";
-
 import {Camera, Spatial, Transform} from "../Geo";
 import {Node} from "../Graph";
 import {RenderCamera, RenderMode, ISize} from "../Render";

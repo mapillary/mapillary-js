@@ -5,13 +5,6 @@ import * as _ from "underscore";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/operator/debounceTime";
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/startWith";
-
 interface ILoader {
     task: string;
     loading: boolean;

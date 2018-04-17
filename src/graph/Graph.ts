@@ -5,16 +5,6 @@ import * as rbush from "rbush";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/observable/from";
-
-import "rxjs/add/operator/catch";
-import "rxjs/add/operator/do";
-import "rxjs/add/operator/finally";
-import "rxjs/add/operator/last";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/publish";
-import "rxjs/add/operator/reduce";
-
 import {
     APIv3,
     ICoreNode,

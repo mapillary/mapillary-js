@@ -7,26 +7,6 @@ import {Scheduler} from "rxjs/Scheduler";
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/observable/combineLatest";
-import "rxjs/add/observable/of";
-import "rxjs/add/observable/concat";
-
-import "rxjs/add/operator/auditTime";
-import "rxjs/add/operator/bufferCount";
-import "rxjs/add/operator/concat";
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/finally";
-import "rxjs/add/operator/first";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/retry";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/share";
-import "rxjs/add/operator/switchMap";
-import "rxjs/add/operator/takeUntil";
-import "rxjs/add/operator/withLatestFrom";
-
 import {
     Component,
     ComponentService,

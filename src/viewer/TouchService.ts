@@ -2,15 +2,6 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/observable/timer";
-
-import "rxjs/add/operator/bufferWhen";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/merge";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/switchMap";
-
 import {IPinch} from "../Viewer";
 
 interface IPinchOperation {

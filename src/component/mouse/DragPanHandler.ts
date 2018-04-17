@@ -5,10 +5,6 @@ import * as THREE from "three";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/concat";
-import "rxjs/add/operator/sample";
-import "rxjs/add/operator/takeWhile";
-
 import {
     Component,
     IMouseConfiguration,

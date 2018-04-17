@@ -6,22 +6,6 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/observable/combineLatest";
-import "rxjs/add/observable/fromEvent";
-import "rxjs/add/observable/of";
-import "rxjs/add/observable/zip";
-
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/first";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/merge";
-import "rxjs/add/operator/mergeMap";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/switchMap";
-import "rxjs/add/operator/withLatestFrom";
-import "rxjs/add/operator/zip";
-
 import {Node} from "../../Graph";
 import {
     ICurrentState,

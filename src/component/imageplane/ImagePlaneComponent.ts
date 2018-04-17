@@ -2,22 +2,6 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/operator/catch";
-import "rxjs/add/operator/combineLatest";
-import "rxjs/add/operator/debounceTime";
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/pairwise";
-import "rxjs/add/operator/publish";
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/skipWhile";
-import "rxjs/add/operator/startWith";
-import "rxjs/add/operator/switchMap";
-import "rxjs/add/operator/takeUntil";
-import "rxjs/add/operator/withLatestFrom";
-
 import {
     ComponentService,
     Component,

@@ -1,9 +1,5 @@
 import {Observable} from "rxjs/Observable";
 
-import "rxjs/add/observable/combineLatest";
-
-import "rxjs/add/operator/map";
-
 import {
     ICoreNode,
     IFillNode,

@@ -4,12 +4,6 @@ import * as falcor from "falcor";
 
 import {Observable} from "rxjs/Observable";
 
-import "rxjs/add/observable/defer";
-import "rxjs/add/observable/fromPromise";
-
-import "rxjs/add/operator/catch";
-import "rxjs/add/operator/map";
-
 import {
     ICoreNode,
     IFillNode,

@@ -4,10 +4,6 @@ import * as vd from "virtual-dom";
 
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/withLatestFrom";
-
 import {
     CoverState,
     ICoverConfiguration,

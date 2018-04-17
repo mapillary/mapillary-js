@@ -7,10 +7,6 @@ import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/observable/empty";
-
-import "rxjs/add/operator/map";
-
 import {
     GLRenderer,
     GLRenderStage,

@@ -5,8 +5,6 @@ import * as rbush from "rbush";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
-import "rxjs/add/operator/mergeAll";
-
 import {NodeHelper} from "../helper/NodeHelper.spec";
 
 import {

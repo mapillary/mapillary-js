@@ -6,8 +6,6 @@ import * as vd from "virtual-dom";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
-import "rxjs/add/operator/combineLatest";
-
 import {Container, Navigator} from "../Viewer";
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 

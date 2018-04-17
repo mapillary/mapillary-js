@@ -1,8 +1,5 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import "rxjs/add/operator/switchMap";
-import "rxjs/add/operator/withLatestFrom";
-
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 

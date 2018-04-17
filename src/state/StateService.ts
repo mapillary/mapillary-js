@@ -3,19 +3,6 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {RequestAnimationFrameDefinition} from "rxjs/util/AnimationFrame";
 
-import "rxjs/add/operator/bufferCount";
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/do";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/first";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/pairwise";
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/startWith";
-import "rxjs/add/operator/switchMap";
-import "rxjs/add/operator/withLatestFrom";
-
 import {ILatLon} from "../API";
 import {Node} from "../Graph";
 import {

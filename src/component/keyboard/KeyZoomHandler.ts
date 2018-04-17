@@ -1,7 +1,5 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import "rxjs/add/operator/withLatestFrom";
-
 import {Subscription} from "rxjs/Subscription";
 
 import {
