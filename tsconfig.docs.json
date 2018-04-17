@@ -47,6 +47,7 @@
         "./src/component/tag/TagComponent.ts",
         "./src/component/tag/TagMode.ts",
         "./src/component/NavigationComponent.ts",
+        "./src/error/AbortMapillaryError.ts",
         "./src/graph/edge/interfaces/IEdge.ts",
         "./src/graph/edge/interfaces/IEdgeData.ts",
         "./src/graph/edge/EdgeDirection.ts",

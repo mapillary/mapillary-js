@@ -6,6 +6,7 @@
 export * from "./Support";
 
 export {EdgeDirection} from "./Edge";
+export {AbortMapillaryError} from "./Error";
 export {RenderMode} from "./Render";
 export {TransitionMode} from "./State";
 export {

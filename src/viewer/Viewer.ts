@@ -6,6 +6,7 @@ import {Observable} from "rxjs/Observable";
 
 import {ILatLon} from "../API";
 import {EdgeDirection} from "../Edge";
+import {AbortMapillaryError} from "../Error";
 import {
     FilterExpression,
     Node,
@@ -489,6 +490,8 @@ export class Viewer extends EventEmitter {
      * longitude.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
+     * @throws {AbortMapillaryError} When a subsequent move request is made
+     * before the move close to call has completed.
      *
      * @example
      * ```
@@ -525,6 +528,8 @@ export class Viewer extends EventEmitter {
      * or the edges has not yet been cached.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
+     * @throws {AbortMapillaryError} When a subsequent move request is made
+     * before the move dir call has completed.
      *
      * @example
      * ```
@@ -557,6 +562,8 @@ export class Viewer extends EventEmitter {
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
+     * @throws {AbortMapillaryError} When a subsequent move request is made
+     * before the move to key call has completed.
      *
      * @example
      * ```
@@ -638,8 +645,8 @@ export class Viewer extends EventEmitter {
      * viewer will make unauthenticated requests.
      *
      * Calling setAuthToken aborts all outstanding move requests.
-     * The promises of those move requests will be rejected and
-     * the rejections need to be caught.
+     * The promises of those move requests will be rejected with a
+     * {@link AbortMapillaryError} the rejections need to be caught.
      *
      * Calling setAuthToken also resets the complete viewer cache
      * so it should not be called repeatedly.
