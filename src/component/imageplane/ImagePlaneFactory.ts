@@ -5,7 +5,7 @@ import * as THREE from "three";
 import {IGPano} from "../../API";
 import {Transform} from "../../Geo";
 import {Node} from "../../Graph";
-import {ImagePlaneShaders} from "../../Component";
+import {Shaders} from "../../Component";
 
 export class ImagePlaneFactory {
     private _imagePlaneDepth: number;
@@ -61,7 +61,7 @@ export class ImagePlaneFactory {
 
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
-            fragmentShader: ImagePlaneShaders.equirectangular.fragment,
+            fragmentShader: Shaders.equirectangular.fragment,
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
@@ -94,7 +94,7 @@ export class ImagePlaneFactory {
                     value: thetaShift,
                 },
             },
-            vertexShader: ImagePlaneShaders.equirectangular.vertex,
+            vertexShader: Shaders.equirectangular.vertex,
         };
 
         return materialParameters;
@@ -103,7 +103,7 @@ export class ImagePlaneFactory {
     private _createPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
-            fragmentShader: ImagePlaneShaders.perspective.fragment,
+            fragmentShader: Shaders.perspective.fragment,
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
@@ -124,7 +124,7 @@ export class ImagePlaneFactory {
                     value: texture,
                 },
             },
-            vertexShader: ImagePlaneShaders.perspective.vertex,
+            vertexShader: Shaders.perspective.vertex,
         };
 
         return materialParameters;

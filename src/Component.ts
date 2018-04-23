@@ -42,7 +42,7 @@ export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
 export {ImagePlaneFactory} from "./component/imageplane/ImagePlaneFactory";
 export {ImagePlaneGLRenderer} from "./component/imageplane/ImagePlaneGLRenderer";
 export {ImagePlaneScene} from "./component/imageplane/ImagePlaneScene";
-export {ImagePlaneShaders} from "./component/imageplane/ImagePlaneShaders";
+export {Shaders} from "./component/shaders/Shaders";
 export {SimpleMarker} from "./component/marker/marker/SimpleMarker";
 export {CircleMarker} from "./component/marker/marker/CircleMarker";
 export {SliderComponent} from "./component/slider/SliderComponent";
