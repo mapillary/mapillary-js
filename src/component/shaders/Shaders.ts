@@ -10,8 +10,14 @@ export class Shaders {
         fragment: fs.readFileSync(path.join(__dirname, "./equirectangular.fragment.glsl"), "utf8"),
         vertex: fs.readFileSync(path.join(__dirname, "./equirectangular.vertex.glsl"), "utf8"),
     };
+
     public static perspective: IShader = {
         fragment: fs.readFileSync(path.join(__dirname, "./perspective.fragment.glsl"), "utf8"),
         vertex: fs.readFileSync(path.join(__dirname, "./perspective.vertex.glsl"), "utf8"),
+    };
+
+    public static perspectiveCurtain: IShader = {
+        fragment: fs.readFileSync(path.join(__dirname, "./perspective_curtain.fragment.glsl"), "utf8"),
+        vertex: fs.readFileSync(path.join(__dirname, "./perspective_curtain.vertex.glsl"), "utf8"),
     };
 }

@@ -15,8 +15,13 @@ void main()
     float x = vRstq.x / vRstq.w;
     float y = vRstq.y / vRstq.w;
 
-    vec4 baseColor = texture2D(projectorTex, vec2(x, y));
-    baseColor.a = opacity;
+    vec4 baseColor;
+    if (x > bbox[0] && y > bbox[1] && x < bbox[2] && y < bbox[3]) {
+        baseColor = texture2D(projectorTex, vec2(x, y));
+        baseColor.a = opacity;
+    } else {
+        baseColor = vec4(0.0, 0.0, 0.0, 0.0);
+    }
 
     gl_FragColor = baseColor;
 }

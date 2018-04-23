@@ -154,7 +154,7 @@ export class SliderState {
             this._currentKey = state.currentNode.key;
             this._currentPano = state.currentNode.pano;
             this._imagePlaneScene.setImagePlanes([
-                this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform),
+                this._imagePlaneFactory.createCurtainMesh(state.currentNode, state.currentTransform),
             ]);
 
             if (!this.disabled) {

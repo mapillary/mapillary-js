@@ -24,6 +24,23 @@ export class ImagePlaneFactory {
         return mesh;
     }
 
+    public createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
+        if (node.pano) {
+            throw new Error("Non perspective images cannot have curtain.");
+        }
+
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters =
+            this._createCurtainPlaneMaterialParameters(transform, texture);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
+            this._getImagePlaneGeo(transform, node) :
+            this._getFlatImagePlaneGeo(transform);
+
+        return new THREE.Mesh(geometry, material);
+    }
+
     private _createImageSphere(node: Node, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createSphereMaterialParameters(transform, texture);
@@ -104,6 +121,32 @@ export class ImagePlaneFactory {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
             fragmentShader: Shaders.perspective.fragment,
+            side: THREE.DoubleSide,
+            transparent: true,
+            uniforms: {
+                opacity: {
+                    type: "f",
+                    value: 1,
+                },
+                projectorMat: {
+                    type: "m4",
+                    value: transform.projectorMatrix(),
+                },
+                projectorTex: {
+                    type: "t",
+                    value: texture,
+                },
+            },
+            vertexShader: Shaders.perspective.vertex,
+        };
+
+        return materialParameters;
+    }
+
+    private _createCurtainPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        let materialParameters: THREE.ShaderMaterialParameters = {
+            depthWrite: false,
+            fragmentShader: Shaders.perspectiveCurtain.fragment,
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
