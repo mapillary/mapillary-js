@@ -1,8 +1,8 @@
 import {
     IBBoxShaderMaterial,
-    ImagePlaneScene,
-    ImagePlaneFactory,
     IShaderMaterial,
+    MeshFactory,
+    MeshScene,
 } from "../../Component";
 import {Node} from "../../Graph";
 import {
@@ -11,8 +11,8 @@ import {
 } from "../../State";
 
 export class SliderState {
-    private _imagePlaneFactory: ImagePlaneFactory;
-    private _imagePlaneScene: ImagePlaneScene;
+    private _factory: MeshFactory;
+    private _scene: MeshScene;
 
     private _currentKey: string;
     private _previousKey: string;
@@ -27,8 +27,8 @@ export class SliderState {
     private _curtain: number;
 
     constructor() {
-        this._imagePlaneFactory = new ImagePlaneFactory();
-        this._imagePlaneScene = new ImagePlaneScene();
+        this._factory = new MeshFactory();
+        this._scene = new MeshScene();
 
         this._currentKey = null;
         this._previousKey = null;
@@ -85,9 +85,9 @@ export class SliderState {
 
     public updateTexture(image: HTMLImageElement, node: Node): void {
         let imagePlanes: THREE.Mesh[] = node.key === this._currentKey ?
-            this._imagePlaneScene.imagePlanes :
+            this._scene.imagePlanes :
             node.key === this._previousKey ?
-                this._imagePlaneScene.imagePlanesOld :
+                this._scene.imagePlanesOld :
                 [];
 
         if (imagePlanes.length === 0) {
@@ -110,14 +110,14 @@ export class SliderState {
         renderer: THREE.WebGLRenderer): void {
 
         if (!this.disabled) {
-            renderer.render(this._imagePlaneScene.sceneOld, perspectiveCamera);
+            renderer.render(this._scene.sceneOld, perspectiveCamera);
         }
 
-        renderer.render(this._imagePlaneScene.scene, perspectiveCamera);
+        renderer.render(this._scene.scene, perspectiveCamera);
     }
 
     public dispose(): void {
-        this._imagePlaneScene.clear();
+        this._scene.clear();
     }
 
     public clearGLNeedsRender(): void {
@@ -143,8 +143,8 @@ export class SliderState {
             needsRender = true;
 
             this._previousKey = state.previousNode.key;
-            this._imagePlaneScene.setImagePlanesOld([
-                this._imagePlaneFactory.createMesh(state.previousNode, state.previousTransform),
+            this._scene.setImagePlanesOld([
+                this._factory.createMesh(state.previousNode, state.previousTransform),
             ]);
         }
 
@@ -153,8 +153,8 @@ export class SliderState {
 
             this._currentKey = state.currentNode.key;
             this._currentPano = state.currentNode.pano;
-            this._imagePlaneScene.setImagePlanes([
-                this._imagePlaneFactory.createCurtainMesh(state.currentNode, state.currentTransform),
+            this._scene.setImagePlanes([
+                this._factory.createCurtainMesh(state.currentNode, state.currentTransform),
             ]);
 
             if (!this.disabled) {
@@ -178,7 +178,7 @@ export class SliderState {
     }
 
     private _updateBbox(): void {
-        for (let plane of this._imagePlaneScene.imagePlanes) {
+        for (let plane of this._scene.imagePlanes) {
             let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
             let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
 

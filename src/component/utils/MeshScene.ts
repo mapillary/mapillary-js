@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 import {IShaderMaterial} from "../../Component";
 
-export class ImagePlaneScene {
+export class MeshScene {
     public scene: THREE.Scene;
     public sceneOld: THREE.Scene;
 
@@ -87,4 +87,4 @@ export class ImagePlaneScene {
     }
 }
 
-export default ImagePlaneScene;
+export default MeshScene;

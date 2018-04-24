@@ -7,7 +7,7 @@ import {Transform} from "../../Geo";
 import {Node} from "../../Graph";
 import {Shaders} from "../../Component";
 
-export class ImagePlaneFactory {
+export class MeshFactory {
     private _imagePlaneDepth: number;
     private _imageSphereRadius: number;
 
@@ -328,4 +328,4 @@ export class ImagePlaneFactory {
     }
 }
 
-export default ImagePlaneFactory;
+export default MeshFactory;

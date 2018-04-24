@@ -26,14 +26,10 @@ import {
     Settings,
 } from "../../Utils";
 import {
-    IBBoxShaderMaterial,
     Component,
     ComponentService,
-    ImagePlaneScene,
-    ImagePlaneFactory,
     ISliderKeys,
     ISliderConfiguration,
-    IShaderMaterial,
     SliderState,
 } from "../../Component";
 

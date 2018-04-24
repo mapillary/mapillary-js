@@ -5,8 +5,8 @@ import * as THREE from "three";
 import {Subscription} from "rxjs/Subscription";
 
 import {
-    ImagePlaneScene,
-    ImagePlaneFactory,
+    MeshFactory,
+    MeshScene,
     IShaderMaterial,
 } from "../../Component";
 import {Node} from "../../Graph";
@@ -17,8 +17,8 @@ import {
 import {TextureProvider} from "../../Tiles";
 
 export class ImagePlaneGLRenderer {
-    private _imagePlaneFactory: ImagePlaneFactory;
-    private _imagePlaneScene: ImagePlaneScene;
+    private _factory: MeshFactory;
+    private _scene: MeshScene;
 
     private _alpha: number;
     private _alphaOld: number;
@@ -32,8 +32,8 @@ export class ImagePlaneGLRenderer {
     private _needsRender: boolean;
 
     constructor() {
-        this._imagePlaneFactory = new ImagePlaneFactory();
-        this._imagePlaneScene = new ImagePlaneScene();
+        this._factory = new MeshFactory();
+        this._scene = new MeshScene();
 
         this._alpha = 0;
         this._alphaOld = 0;
@@ -102,7 +102,7 @@ export class ImagePlaneGLRenderer {
     public _updateTexture(texture: THREE.Texture): void {
         this._needsRender = true;
 
-        for (let plane of this._imagePlaneScene.imagePlanes) {
+        for (let plane of this._scene.imagePlanes) {
             let material: IShaderMaterial = <IShaderMaterial>plane.material;
 
             let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
@@ -120,7 +120,7 @@ export class ImagePlaneGLRenderer {
 
         this._needsRender = true;
 
-        for (let plane of this._imagePlaneScene.imagePlanes) {
+        for (let plane of this._scene.imagePlanes) {
             let material: IShaderMaterial = <IShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
@@ -132,24 +132,24 @@ export class ImagePlaneGLRenderer {
     public render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
-        let planeAlpha: number = this._imagePlaneScene.imagePlanesOld.length ? 1 : this._alpha;
+        let planeAlpha: number = this._scene.imagePlanesOld.length ? 1 : this._alpha;
 
-        for (let plane of this._imagePlaneScene.imagePlanes) {
+        for (let plane of this._scene.imagePlanes) {
             (<IShaderMaterial>plane.material).uniforms.opacity.value = planeAlpha;
         }
 
-        for (let plane of this._imagePlaneScene.imagePlanesOld) {
+        for (let plane of this._scene.imagePlanesOld) {
             (<IShaderMaterial>plane.material).uniforms.opacity.value = this._alphaOld;
         }
 
-        renderer.render(this._imagePlaneScene.scene, perspectiveCamera);
-        renderer.render(this._imagePlaneScene.sceneOld, perspectiveCamera);
+        renderer.render(this._scene.scene, perspectiveCamera);
+        renderer.render(this._scene.sceneOld, perspectiveCamera);
 
-        for (let plane of this._imagePlaneScene.imagePlanes) {
+        for (let plane of this._scene.imagePlanes) {
             (<IShaderMaterial>plane.material).uniforms.opacity.value = this._alpha;
         }
 
-        renderer.render(this._imagePlaneScene.scene, perspectiveCamera);
+        renderer.render(this._scene.scene, perspectiveCamera);
     }
 
     public clearNeedsRender(): void {
@@ -157,7 +157,7 @@ export class ImagePlaneGLRenderer {
     }
 
     public dispose(): void {
-        this._imagePlaneScene.clear();
+        this._scene.clear();
     }
 
     private _updateFrameId(frameId: number): void {
@@ -205,9 +205,9 @@ export class ImagePlaneGLRenderer {
         if (previousKey != null) {
             if (previousKey !== this._currentKey && previousKey !== this._previousKey) {
                 let previousMesh: THREE.Mesh =
-                    this._imagePlaneFactory.createMesh(state.previousNode, state.previousTransform);
+                    this._factory.createMesh(state.previousNode, state.previousTransform);
 
-                this._imagePlaneScene.updateImagePlanes([previousMesh]);
+                this._scene.updateImagePlanes([previousMesh]);
             }
 
             this._previousKey = previousKey;
@@ -215,9 +215,9 @@ export class ImagePlaneGLRenderer {
 
         this._currentKey = currentKey;
         let currentMesh: THREE.Mesh =
-            this._imagePlaneFactory.createMesh(state.currentNode, state.currentTransform);
+            this._factory.createMesh(state.currentNode, state.currentTransform);
 
-        this._imagePlaneScene.updateImagePlanes([currentMesh]);
+        this._scene.updateImagePlanes([currentMesh]);
 
         this._alphaOld = 1;
 
