@@ -47,7 +47,7 @@ export {SimpleMarker} from "./component/marker/marker/SimpleMarker";
 export {CircleMarker} from "./component/marker/marker/CircleMarker";
 export {SliderComponent} from "./component/slider/SliderComponent";
 export {SliderDOMRenderer} from "./component/slider/SliderDOMRenderer";
-export {SliderState} from "./component/slider/SliderState";
+export {SliderGLRenderer} from "./component/slider/SliderGLRenderer";
 export {StatsComponent} from "./component/StatsComponent";
 export {TagHandlerBase} from "./component/tag/handlers/TagHandlerBase";
 export {CreateHandlerBase} from "./component/tag/handlers/CreateHandlerBase";

@@ -29,10 +29,10 @@ import {
 import {
     Component,
     ComponentService,
-    ISliderKeys,
     ISliderConfiguration,
+    ISliderKeys,
     SliderDOMRenderer,
-    SliderState,
+    SliderGLRenderer,
 } from "../../Component";
 
 interface ISliderNodes {
@@ -45,20 +45,19 @@ interface ISliderCombination {
     state: ICurrentState;
 }
 
-interface ISliderStateOperation {
-    (sliderState: SliderState): SliderState;
+interface IGLRendererOperation {
+    (glRenderer: SliderGLRenderer): SliderGLRenderer;
 }
 
 export class SliderComponent extends Component<ISliderConfiguration> {
     public static componentName: string = "slider";
 
-    private _dom: DOM;
     private _domRenderer: SliderDOMRenderer;
 
-    private _sliderStateOperation$: Subject<ISliderStateOperation>;
-    private _sliderState$: Observable<SliderState>;
-    private _sliderStateCreator$: Subject<void>;
-    private _sliderStateDisposer$: Subject<void>;
+    private _glRendererOperation$: Subject<IGLRendererOperation>;
+    private _glRenderer$: Observable<SliderGLRenderer>;
+    private _glRendererCreator$: Subject<void>;
+    private _glRendererDisposer$: Subject<void>;
 
     private _setKeysSubscription: Subscription;
     private _setSliderVisibleSubscription: Subscription;
@@ -75,52 +74,51 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     constructor (name: string, container: Container, navigator: Navigator, dom?: DOM) {
         super(name, container, navigator);
 
-        this._dom = !!dom ? dom : new DOM();
         this._domRenderer = new SliderDOMRenderer(container);
 
-        this._sliderStateOperation$ = new Subject<ISliderStateOperation>();
-        this._sliderStateCreator$ = new Subject<void>();
-        this._sliderStateDisposer$ = new Subject<void>();
+        this._glRendererOperation$ = new Subject<IGLRendererOperation>();
+        this._glRendererCreator$ = new Subject<void>();
+        this._glRendererDisposer$ = new Subject<void>();
 
-        this._sliderState$ = this._sliderStateOperation$
+        this._glRenderer$ = this._glRendererOperation$
             .scan(
-                (sliderState: SliderState, operation: ISliderStateOperation): SliderState => {
-                    return operation(sliderState);
+                (glRenderer: SliderGLRenderer, operation: IGLRendererOperation): SliderGLRenderer => {
+                    return operation(glRenderer);
                 },
                 null)
             .filter(
-                (sliderState: SliderState): boolean => {
-                    return sliderState != null;
+                (glRenderer: SliderGLRenderer): boolean => {
+                    return glRenderer != null;
                 })
             .distinctUntilChanged(
                 undefined,
-                (sliderState: SliderState): number => {
-                    return sliderState.frameId;
+                (glRenderer: SliderGLRenderer): number => {
+                    return glRenderer.frameId;
                 });
 
-        this._sliderStateCreator$
+        this._glRendererCreator$
             .map(
-                (): ISliderStateOperation => {
-                    return (sliderState: SliderState): SliderState => {
-                        if (sliderState != null) {
+                (): IGLRendererOperation => {
+                    return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
+                        if (glRenderer != null) {
                             throw new Error("Multiple slider states can not be created at the same time");
                         }
 
-                        return new SliderState();
+                        return new SliderGLRenderer();
                     };
                 })
-            .subscribe(this._sliderStateOperation$);
+            .subscribe(this._glRendererOperation$);
 
-        this._sliderStateDisposer$
+        this._glRendererDisposer$
             .map(
-                (): ISliderStateOperation => {
-                    return (sliderState: SliderState): SliderState => {
-                        sliderState.dispose();
+                (): IGLRendererOperation => {
+                    return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
+                        glRenderer.dispose();
 
                         return null;
                     };
                 })
-            .subscribe(this._sliderStateOperation$);
+            .subscribe(this._glRendererOperation$);
     }
 
     /**
@@ -164,20 +162,20 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     }
                 });
 
-        this._glRenderSubscription = this._sliderState$
+        this._glRenderSubscription = this._glRenderer$
             .map(
-                (sliderState: SliderState): IGLRenderHash => {
+                (glRenderer: SliderGLRenderer): IGLRenderHash => {
                     let renderHash: IGLRenderHash = {
                         name: this._name,
                         render: {
-                            frameId: sliderState.frameId,
-                            needsRender: sliderState.glNeedsRender,
-                            render: sliderState.render.bind(sliderState),
+                            frameId: glRenderer.frameId,
+                            needsRender: glRenderer.glNeedsRender,
+                            render: glRenderer.render.bind(glRenderer),
                             stage: GLRenderStage.Background,
                         },
                     };
 
-                    sliderState.clearGLNeedsRender();
+                    glRenderer.clearGLNeedsRender();
 
                     return renderHash;
                 })
@@ -200,7 +198,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .subscribe(this._container.domRenderer.render$);
 
-        this._sliderStateCreator$.next(null);
+        this._glRendererCreator$.next(null);
 
         this._domRenderer.position$
             .subscribe(
@@ -210,14 +208,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._stateSubscription = this._navigator.stateService.currentState$
             .map(
-                (frame: IFrame): ISliderStateOperation => {
-                    return (sliderState: SliderState): SliderState => {
-                        sliderState.update(frame);
+                (frame: IFrame): IGLRendererOperation => {
+                    return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
+                        glRenderer.update(frame);
 
-                        return sliderState;
+                        return glRenderer;
                     };
                 })
-            .subscribe(this._sliderStateOperation$);
+            .subscribe(this._glRendererOperation$);
 
         this._setSliderVisibleSubscription = this._configuration$
             .map(
@@ -226,14 +224,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .distinctUntilChanged()
             .map(
-                (sliderVisible: boolean): ISliderStateOperation => {
-                    return (sliderState: SliderState): SliderState => {
-                        sliderState.sliderVisible = sliderVisible;
+                (sliderVisible: boolean): IGLRendererOperation => {
+                    return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
+                        glRenderer.sliderVisible = sliderVisible;
 
-                        return sliderState;
+                        return glRenderer;
                     };
                 })
-            .subscribe(this._sliderStateOperation$);
+            .subscribe(this._glRendererOperation$);
 
         this._setKeysSubscription = this._configuration$
             .filter(
@@ -332,14 +330,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                 });
                 })
             .map(
-                ([element, node]: [HTMLImageElement, Node]): ISliderStateOperation => {
-                    return (sliderState: SliderState): SliderState => {
-                        sliderState.updateTexture(element, node);
+                ([element, node]: [HTMLImageElement, Node]): IGLRendererOperation => {
+                    return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
+                        glRenderer.updateTexture(element, node);
 
-                        return sliderState;
+                        return glRenderer;
                     };
                 })
-            .subscribe(this._sliderStateOperation$);
+            .subscribe(this._glRendererOperation$);
     }
 
     protected _deactivate(): void {
@@ -352,7 +350,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     }
                 });
 
-        this._sliderStateDisposer$.next(null);
+        this._glRendererDisposer$.next(null);
         this._domRenderer.deactivate();
 
         this._setKeysSubscription.unsubscribe();

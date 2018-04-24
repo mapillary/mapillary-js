@@ -10,7 +10,7 @@ import {
     IFrame,
 } from "../../State";
 
-export class SliderState {
+export class SliderGLRenderer {
     private _factory: MeshFactory;
     private _scene: MeshScene;
 
@@ -174,4 +174,4 @@ export class SliderState {
     }
 }
 
-export default SliderState;
+export default SliderGLRenderer;
