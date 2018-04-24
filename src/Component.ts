@@ -46,6 +46,7 @@ export {Shaders} from "./component/shaders/Shaders";
 export {SimpleMarker} from "./component/marker/marker/SimpleMarker";
 export {CircleMarker} from "./component/marker/marker/CircleMarker";
 export {SliderComponent} from "./component/slider/SliderComponent";
+export {SliderDOMRenderer} from "./component/slider/SliderDOMRenderer";
 export {SliderState} from "./component/slider/SliderState";
 export {StatsComponent} from "./component/StatsComponent";
 export {TagHandlerBase} from "./component/tag/handlers/TagHandlerBase";

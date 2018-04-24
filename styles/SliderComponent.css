@@ -1,4 +1,4 @@
-.SliderWrapper {
+.SliderContainer {
     text-align: center;
     position: absolute;
     bottom: 40px;
@@ -51,14 +51,14 @@
     border-color: transparent;
     border-radius: 999px;
     box-sizing: border-box;
-    color: transparent;    
+    color: transparent;
     cursor: pointer;
     display: block;
     height: 30px;
     margin: 0 auto;
     max-width: 60%;
     padding: 4px;
-    pointer-events: auto;    
+    pointer-events: auto;
     width: 100%;
 }
 

@@ -21,7 +21,6 @@ export class SliderState {
     private _frameId: number;
 
     private _glNeedsRender: boolean;
-    private _domNeedsRender: boolean;
     private _sliderVisible: boolean;
 
     private _curtain: number;
@@ -37,7 +36,6 @@ export class SliderState {
         this._frameId = 0;
 
         this._glNeedsRender = false;
-        this._domNeedsRender = true;
 
         this._curtain = 1;
     }
@@ -54,17 +52,12 @@ export class SliderState {
         return this._glNeedsRender;
     }
 
-    public get domNeedsRender(): boolean {
-        return this._domNeedsRender;
-    }
-
     public get sliderVisible(): boolean {
         return this._sliderVisible;
     }
 
     public set sliderVisible(value: boolean) {
         this._sliderVisible = value;
-        this._domNeedsRender = true;
     }
 
     public get disabled(): boolean {
@@ -76,8 +69,6 @@ export class SliderState {
     public update(frame: IFrame): void {
         this._updateFrameId(frame.id);
         let needsRender: boolean = this._updateImagePlanes(frame.state);
-
-        this._domNeedsRender = needsRender || this._domNeedsRender;
 
         needsRender = this._updateCurtain(frame.state.alpha) || needsRender;
         this._glNeedsRender = needsRender || this._glNeedsRender;
@@ -122,10 +113,6 @@ export class SliderState {
 
     public clearGLNeedsRender(): void {
         this._glNeedsRender = false;
-    }
-
-    public clearDomNeedsRender(): void {
-        this._domNeedsRender = false;
     }
 
     private _updateFrameId(frameId: number): void {
