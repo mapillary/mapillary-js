@@ -18,12 +18,9 @@ export class SliderGLRenderer {
     private _previousKey: string;
     private _currentPano: boolean;
 
-    private _frameId: number;
-
-    private _glNeedsRender: boolean;
-    private _sliderVisible: boolean;
-
     private _curtain: number;
+    private _frameId: number;
+    private _needsRender: boolean;
 
     constructor() {
         this._factory = new MeshFactory();
@@ -33,31 +30,9 @@ export class SliderGLRenderer {
         this._previousKey = null;
         this._currentPano = false;
 
-        this._frameId = 0;
-
-        this._glNeedsRender = false;
-
         this._curtain = 1;
-    }
-
-    public get frameId(): number {
-        return this._frameId;
-    }
-
-    public get curtain(): number {
-        return this._curtain;
-    }
-
-    public get glNeedsRender(): boolean {
-        return this._glNeedsRender;
-    }
-
-    public get sliderVisible(): boolean {
-        return this._sliderVisible;
-    }
-
-    public set sliderVisible(value: boolean) {
-        this._sliderVisible = value;
+        this._frameId = 0;
+        this._needsRender = false;
     }
 
     public get disabled(): boolean {
@@ -66,12 +41,28 @@ export class SliderGLRenderer {
             this._currentPano;
     }
 
+    public get frameId(): number {
+        return this._frameId;
+    }
+
+    public get needsRender(): boolean {
+        return this._needsRender;
+    }
+
     public update(frame: IFrame): void {
         this._updateFrameId(frame.id);
-        let needsRender: boolean = this._updateImagePlanes(frame.state);
+        this._updateImagePlanes(frame.state);
+    }
 
-        needsRender = this._updateCurtain(frame.state.alpha) || needsRender;
-        this._glNeedsRender = needsRender || this._glNeedsRender;
+    public updateCurtain(curtain: number): void {
+        if (this.disabled || Math.abs(this._curtain - curtain) < 0.001) {
+            return;
+        }
+
+        this._curtain = curtain;
+        this._updateBbox();
+
+        this._needsRender = true;
     }
 
     public updateTexture(image: HTMLImageElement, node: Node): void {
@@ -85,7 +76,7 @@ export class SliderGLRenderer {
             return;
         }
 
-        this._glNeedsRender = true;
+        this._needsRender = true;
 
         for (let plane of imagePlanes) {
             let material: IShaderMaterial = <IShaderMaterial>plane.material;
@@ -105,29 +96,34 @@ export class SliderGLRenderer {
         }
 
         renderer.render(this._scene.scene, perspectiveCamera);
+
+        this._needsRender = false;
     }
 
     public dispose(): void {
         this._scene.clear();
     }
 
-    public clearGLNeedsRender(): void {
-        this._glNeedsRender = false;
+    private _updateBbox(): void {
+        for (let plane of this._scene.imagePlanes) {
+            let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
+            let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
+
+            bbox.z = this._curtain;
+        }
     }
 
     private _updateFrameId(frameId: number): void {
         this._frameId = frameId;
     }
 
-    private _updateImagePlanes(state: ICurrentState): boolean {
+    private _updateImagePlanes(state: ICurrentState): void {
         if (state.currentNode == null) {
             return;
         }
 
-        let needsRender: boolean = false;
-
         if (state.previousNode != null && this._previousKey !== state.previousNode.key) {
-            needsRender = true;
+            this._needsRender = true;
 
             this._previousKey = state.previousNode.key;
             this._scene.setImagePlanesOld([
@@ -136,7 +132,7 @@ export class SliderGLRenderer {
         }
 
         if (this._currentKey !== state.currentNode.key) {
-            needsRender = true;
+            this._needsRender = true;
 
             this._currentKey = state.currentNode.key;
             this._currentPano = state.currentNode.pano;
@@ -147,29 +143,6 @@ export class SliderGLRenderer {
             if (!this.disabled) {
                 this._updateBbox();
             }
-        }
-
-        return needsRender;
-    }
-
-    private _updateCurtain(alpha: number): boolean {
-        if (this.disabled ||
-            Math.abs(this._curtain - alpha) < 0.001) {
-            return false;
-        }
-
-        this._curtain = alpha;
-        this._updateBbox();
-
-        return true;
-    }
-
-    private _updateBbox(): void {
-        for (let plane of this._scene.imagePlanes) {
-            let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
-            let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
-
-            bbox.z = this._curtain;
         }
     }
 }

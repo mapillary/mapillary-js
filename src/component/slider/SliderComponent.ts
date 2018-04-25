@@ -60,12 +60,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _glRendererDisposer$: Subject<void>;
 
     private _setKeysSubscription: Subscription;
-    private _setSliderVisibleSubscription: Subscription;
 
     private _stateSubscription: Subscription;
     private _glRenderSubscription: Subscription;
     private _domRenderSubscription: Subscription;
     private _nodeSubscription: Subscription;
+    private _moveSubscription: Subscription;
+    private _updateCurtainSubscription: Subscription;
 
     /**
      * Create a new slider component instance.
@@ -169,13 +170,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         name: this._name,
                         render: {
                             frameId: glRenderer.frameId,
-                            needsRender: glRenderer.glNeedsRender,
+                            needsRender: glRenderer.needsRender,
                             render: glRenderer.render.bind(glRenderer),
                             stage: GLRenderStage.Background,
                         },
                     };
-
-                    glRenderer.clearGLNeedsRender();
 
                     return renderHash;
                 })
@@ -200,33 +199,28 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._glRendererCreator$.next(null);
 
-        this._domRenderer.position$
+        this._moveSubscription = this._domRenderer.position$
             .subscribe(
                 (position: number): void => {
                     this._navigator.stateService.moveTo(position);
                 });
 
-        this._stateSubscription = this._navigator.stateService.currentState$
+        this._updateCurtainSubscription = this._domRenderer.position$
             .map(
-                (frame: IFrame): IGLRendererOperation => {
+                (position: number): IGLRendererOperation => {
                     return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
-                        glRenderer.update(frame);
+                        glRenderer.updateCurtain(position);
 
                         return glRenderer;
                     };
                 })
             .subscribe(this._glRendererOperation$);
 
-        this._setSliderVisibleSubscription = this._configuration$
+        this._stateSubscription = this._navigator.stateService.currentState$
             .map(
-                (configuration: ISliderConfiguration): boolean => {
-                    return configuration.sliderVisible == null || configuration.sliderVisible;
-                })
-            .distinctUntilChanged()
-            .map(
-                (sliderVisible: boolean): IGLRendererOperation => {
+                (frame: IFrame): IGLRendererOperation => {
                     return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
-                        glRenderer.sliderVisible = sliderVisible;
+                        glRenderer.update(frame);
 
                         return glRenderer;
                     };
@@ -354,7 +348,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._domRenderer.deactivate();
 
         this._setKeysSubscription.unsubscribe();
-        this._setSliderVisibleSubscription.unsubscribe();
         this._stateSubscription.unsubscribe();
         this._glRenderSubscription.unsubscribe();
         this._domRenderSubscription.unsubscribe();
