@@ -161,9 +161,9 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                bbox: {
-                    type: "v4",
-                    value: new THREE.Vector4(0, 0, 1, 1),
+                curtain: {
+                    type: "f",
+                    value: 1,
                 },
                 opacity: {
                     type: "f",

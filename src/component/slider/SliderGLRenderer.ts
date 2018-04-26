@@ -60,7 +60,7 @@ export class SliderGLRenderer {
         }
 
         this._curtain = curtain;
-        this._updateBbox();
+        this._updateCurtain();
 
         this._needsRender = true;
     }
@@ -104,12 +104,10 @@ export class SliderGLRenderer {
         this._scene.clear();
     }
 
-    private _updateBbox(): void {
+    private _updateCurtain(): void {
         for (let plane of this._scene.imagePlanes) {
             let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
-            let bbox: THREE.Vector4 = <THREE.Vector4>shaderMaterial.uniforms.bbox.value;
-
-            bbox.z = this._curtain;
+            shaderMaterial.uniforms.curtain.value = this._curtain;
         }
     }
 
@@ -178,7 +176,7 @@ export class SliderGLRenderer {
             ]);
 
             if (!this.disabled) {
-                this._updateBbox();
+                this._updateCurtain();
             }
         }
     }

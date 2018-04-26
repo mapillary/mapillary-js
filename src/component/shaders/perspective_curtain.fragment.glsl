@@ -6,7 +6,7 @@ precision mediump float;
 
 uniform sampler2D projectorTex;
 uniform float opacity;
-uniform vec4 bbox;
+uniform float curtain;
 
 varying vec4 vRstq;
 
@@ -16,7 +16,7 @@ void main()
     float y = vRstq.y / vRstq.w;
 
     vec4 baseColor;
-    if (x > bbox[0] && y > bbox[1] && x < bbox[2] && y < bbox[3]) {
+    if (x < curtain || curtain >= 1.0) {
         baseColor = texture2D(projectorTex, vec2(x, y));
         baseColor.a = opacity;
     } else {
