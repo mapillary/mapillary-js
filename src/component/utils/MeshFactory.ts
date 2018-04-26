@@ -24,6 +24,17 @@ export class MeshFactory {
         return mesh;
     }
 
+    public createScaledFlatMesh(node: Node, transform: Transform, dx: number, dy: number): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters =
+            this._createPlaneMaterialParameters(transform, texture);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        let geometry: THREE.BufferGeometry = this._getFlatImagePlaneGeo(transform, dx, dy);
+
+        return new THREE.Mesh(geometry, material);
+    }
+
     public createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
         if (node.pano) {
             throw new Error("Non perspective images cannot have curtain.");
@@ -36,7 +47,7 @@ export class MeshFactory {
 
         let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
             this._getImagePlaneGeo(transform, node) :
-            this._getFlatImagePlaneGeo(transform);
+            this._getRegularFlatImagePlaneGeo(transform);
 
         return new THREE.Mesh(geometry, material);
     }
@@ -60,7 +71,7 @@ export class MeshFactory {
 
         let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
             this._getImagePlaneGeo(transform, node) :
-            this._getFlatImagePlaneGeo(transform);
+            this._getRegularFlatImagePlaneGeo(transform);
 
         return new THREE.Mesh(geometry, material);
     }
@@ -290,13 +301,17 @@ export class MeshFactory {
         return geometry;
     }
 
-    private _getFlatImagePlaneGeo(transform: Transform): THREE.BufferGeometry {
+    private _getRegularFlatImagePlaneGeo(transform: Transform): THREE.BufferGeometry {
         let width: number = transform.width;
         let height: number = transform.height;
         let size: number = Math.max(width, height);
         let dx: number = width / 2.0 / size;
         let dy: number = height / 2.0 / size;
 
+        return this._getFlatImagePlaneGeo(transform, dx, dy);
+    }
+
+    private _getFlatImagePlaneGeo(transform: Transform, dx: number, dy: number): THREE.BufferGeometry {
         let vertices: number[][] = [];
         vertices.push(transform.unprojectSfM([-dx, -dy], this._imagePlaneDepth));
         vertices.push(transform.unprojectSfM([dx, -dy], this._imagePlaneDepth));

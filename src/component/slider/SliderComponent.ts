@@ -200,9 +200,12 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._glRendererCreator$.next(null);
 
         this._moveSubscription = this._domRenderer.position$
+            .withLatestFrom(this._navigator.stateService.currentState$)
             .subscribe(
-                (position: number): void => {
-                    this._navigator.stateService.moveTo(position);
+                ([position, frame]: [number, IFrame]): void => {
+                    if (!frame.state.motionless) {
+                        this._navigator.stateService.moveTo(position);
+                    }
                 });
 
         this._updateCurtainSubscription = this._domRenderer.position$
