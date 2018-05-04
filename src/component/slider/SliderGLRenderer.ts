@@ -16,8 +16,8 @@ export class SliderGLRenderer {
 
     private _currentKey: string;
     private _previousKey: string;
-    private _currentPano: boolean;
 
+    private _disabled: boolean;
     private _curtain: number;
     private _frameId: number;
     private _needsRender: boolean;
@@ -28,17 +28,15 @@ export class SliderGLRenderer {
 
         this._currentKey = null;
         this._previousKey = null;
-        this._currentPano = false;
 
+        this._disabled = false;
         this._curtain = 1;
         this._frameId = 0;
         this._needsRender = false;
     }
 
     public get disabled(): boolean {
-        return this._currentKey == null ||
-            this._previousKey == null ||
-            this._currentPano;
+        return this._disabled;
     }
 
     public get frameId(): number {
@@ -104,6 +102,14 @@ export class SliderGLRenderer {
         this._scene.clear();
     }
 
+    private _setDisabled(state: ICurrentState): void {
+        this._disabled = state.currentNode == null ||
+            state.previousNode == null ||
+            (state.currentNode.pano && !state.currentNode.fullPano) ||
+            (state.previousNode.pano && !state.previousNode.fullPano) ||
+            (state.currentNode.fullPano && !state.previousNode.fullPano);
+    }
+
     private _updateCurtain(): void {
         for (let plane of this._scene.imagePlanes) {
             let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
@@ -116,17 +122,23 @@ export class SliderGLRenderer {
     }
 
     private _updateImagePlanes(state: ICurrentState): void {
-        if (state.currentNode == null) {
+        const currentChanged: boolean = state.currentNode != null && this._currentKey !== state.currentNode.key;
+        const previousChanged: boolean = state.previousNode != null && this._previousKey !== state.previousNode.key;
+
+        if (!(currentChanged || previousChanged)) {
             return;
         }
 
-        if (state.previousNode != null && this._previousKey !== state.previousNode.key) {
-            this._needsRender = true;
+        this._setDisabled(state);
+        this._needsRender = true;
 
+        const flat: boolean = state.motionless;
+
+        if (previousChanged) {
             this._previousKey = state.previousNode.key;
 
             let mesh: THREE.Mesh = undefined;
-            if (state.motionless) {
+            if (flat) {
                 const currentAspect: number = state.currentTransform.width / state.currentTransform.height;
                 const previousAspect: number = state.previousTransform.width / state.previousTransform.height;
 
@@ -166,11 +178,8 @@ export class SliderGLRenderer {
             this._scene.setImagePlanesOld([mesh]);
         }
 
-        if (this._currentKey !== state.currentNode.key) {
-            this._needsRender = true;
-
+        if (currentChanged) {
             this._currentKey = state.currentNode.key;
-            this._currentPano = state.currentNode.pano;
             this._scene.setImagePlanes([
                 this._factory.createCurtainMesh(state.currentNode, state.currentTransform),
             ]);
