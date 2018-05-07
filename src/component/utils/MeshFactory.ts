@@ -36,10 +36,16 @@ export class MeshFactory {
     }
 
     public createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
-        if (node.pano) {
-            throw new Error("Non perspective images cannot have curtain.");
+        if (node.pano && !node.fullPano) {
+            throw new Error("Cropped panoramas cannot have curtain.");
         }
 
+        return node.pano ?
+            this._createSphereCurtainMesh(node, transform) :
+            this._createCurtainMesh(node, transform);
+    }
+
+    private _createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters =
             this._createCurtainPlaneMaterialParameters(transform, texture);
@@ -50,6 +56,17 @@ export class MeshFactory {
             this._getRegularFlatImagePlaneGeo(transform);
 
         return new THREE.Mesh(geometry, material);
+    }
+
+    private _createSphereCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters =
+            this._createCurtainSphereMaterialParameters(transform, texture);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        return this._useMesh(transform, node) ?
+            new THREE.Mesh(this._getImageSphereGeo(transform, node), material) :
+            new THREE.Mesh(this._getFlatImageSphereGeo(transform), material);
     }
 
     private _createImageSphere(node: Node, transform: Transform): THREE.Mesh {
@@ -123,6 +140,62 @@ export class MeshFactory {
                 },
             },
             vertexShader: Shaders.equirectangular.vertex,
+        };
+
+        return materialParameters;
+    }
+
+    private _createCurtainSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        let gpano: IGPano = transform.gpano;
+
+        let halfCroppedWidth: number = (gpano.FullPanoWidthPixels - gpano.CroppedAreaImageWidthPixels) / 2;
+        let phiShift: number = 2 * Math.PI * (gpano.CroppedAreaLeftPixels - halfCroppedWidth) / gpano.FullPanoWidthPixels;
+        let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
+
+        let halfCroppedHeight: number = (gpano.FullPanoHeightPixels - gpano.CroppedAreaImageHeightPixels) / 2;
+        let thetaShift: number = Math.PI * (halfCroppedHeight - gpano.CroppedAreaTopPixels) / gpano.FullPanoHeightPixels;
+        let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
+
+        let materialParameters: THREE.ShaderMaterialParameters = {
+            depthWrite: false,
+            fragmentShader: Shaders.equirectangularCurtain.fragment,
+            side: THREE.DoubleSide,
+            transparent: true,
+            uniforms: {
+                curtain: {
+                    type: "f",
+                    value: 1,
+                },
+                opacity: {
+                    type: "f",
+                    value: 1,
+                },
+                phiLength: {
+                    type: "f",
+                    value: phiLength,
+                },
+                phiShift: {
+                    type: "f",
+                    value: phiShift,
+                },
+                projectorMat: {
+                    type: "m4",
+                    value: transform.rt,
+                },
+                projectorTex: {
+                    type: "t",
+                    value: texture,
+                },
+                thetaLength: {
+                    type: "f",
+                    value: thetaLength,
+                },
+                thetaShift: {
+                    type: "f",
+                    value: thetaShift,
+                },
+            },
+            vertexShader: Shaders.equirectangularCurtain.vertex,
         };
 
         return materialParameters;

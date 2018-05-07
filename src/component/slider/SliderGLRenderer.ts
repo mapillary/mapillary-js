@@ -132,15 +132,15 @@ export class SliderGLRenderer {
         this._setDisabled(state);
         this._needsRender = true;
 
-        const flat: boolean = state.motionless;
+        const motionless: boolean = state.motionless;
 
         if (previousChanged) {
             this._previousKey = state.previousNode.key;
 
             let mesh: THREE.Mesh = undefined;
-            if (flat) {
-                const currentAspect: number = state.currentTransform.width / state.currentTransform.height;
-                const previousAspect: number = state.previousTransform.width / state.previousTransform.height;
+            if (motionless) {
+                const currentAspect: number = state.currentTransform.basicAspect;
+                const previousAspect: number = state.previousTransform.basicAspect;
 
                 if (currentAspect > previousAspect) {
                     if (currentAspect > 1) {
@@ -180,6 +180,7 @@ export class SliderGLRenderer {
 
         if (currentChanged) {
             this._currentKey = state.currentNode.key;
+
             this._scene.setImagePlanes([
                 this._factory.createCurtainMesh(state.currentNode, state.currentTransform),
             ]);
