@@ -134,48 +134,59 @@ export class SliderGLRenderer {
 
         const motionless: boolean = state.motionless;
 
-        if (previousChanged) {
-            this._previousKey = state.previousNode.key;
+        if (this.disabled) {
+            this._scene.setImagePlanesOld([]);
+        } else {
+            if (previousChanged) {
+                this._previousKey = state.previousNode.key;
 
-            let mesh: THREE.Mesh = undefined;
-            if (motionless) {
-                const currentAspect: number = state.currentTransform.basicAspect;
-                const previousAspect: number = state.previousTransform.basicAspect;
+                let mesh: THREE.Mesh = undefined;
 
-                if (currentAspect > previousAspect) {
-                    if (currentAspect > 1) {
-                        mesh = this._factory.createScaledFlatMesh(
-                            state.previousNode,
-                            state.currentTransform,
-                            0.5,
-                            0.5 / previousAspect);
-                    } else {
-                        mesh = this._factory.createScaledFlatMesh(
-                            state.previousNode,
-                            state.currentTransform,
-                            0.5 * currentAspect,
-                            0.5 * currentAspect / previousAspect);
-                    }
+                if (state.previousNode.fullPano) {
+                    mesh = this._factory.createMesh(
+                        state.previousNode,
+                        state.currentTransform);
                 } else {
-                    if (currentAspect > 1) {
-                        mesh = this._factory.createScaledFlatMesh(
-                            state.previousNode,
-                            state.currentTransform,
-                            0.5 * previousAspect / currentAspect,
-                            0.5 / currentAspect);
+                    if (motionless) {
+                        const currentAspect: number = state.currentTransform.basicAspect;
+                        const previousAspect: number = state.previousTransform.basicAspect;
+
+                        if (currentAspect > previousAspect) {
+                            if (currentAspect > 1) {
+                                mesh = this._factory.createScaledFlatMesh(
+                                    state.previousNode,
+                                    state.currentTransform,
+                                    0.5,
+                                    0.5 / previousAspect);
+                            } else {
+                                mesh = this._factory.createScaledFlatMesh(
+                                    state.previousNode,
+                                    state.currentTransform,
+                                    0.5 * currentAspect,
+                                    0.5 * currentAspect / previousAspect);
+                            }
+                        } else {
+                            if (currentAspect > 1) {
+                                mesh = this._factory.createScaledFlatMesh(
+                                    state.previousNode,
+                                    state.currentTransform,
+                                    0.5 * previousAspect / currentAspect,
+                                    0.5 / currentAspect);
+                            } else {
+                                mesh = this._factory.createScaledFlatMesh(
+                                    state.previousNode,
+                                    state.currentTransform,
+                                    0.5 * previousAspect,
+                                    0.5);
+                            }
+                        }
                     } else {
-                        mesh = this._factory.createScaledFlatMesh(
-                            state.previousNode,
-                            state.currentTransform,
-                            0.5 * previousAspect,
-                            0.5);
+                        mesh = this._factory.createMesh(state.previousNode, state.previousTransform);
                     }
                 }
-            } else {
-                mesh = this._factory.createMesh(state.previousNode, state.previousTransform);
-            }
 
-            this._scene.setImagePlanesOld([mesh]);
+                this._scene.setImagePlanesOld([mesh]);
+            }
         }
 
         if (currentChanged) {
