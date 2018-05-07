@@ -106,7 +106,7 @@ export class SliderGLRenderer {
         this._disabled = state.currentNode == null ||
             state.previousNode == null ||
             (state.currentNode.pano && !state.currentNode.fullPano) ||
-            (state.previousNode.pano && !state.previousNode.fullPano) ||
+            (!state.currentNode.fullPano && state.previousNode.pano) ||
             (state.currentNode.fullPano && !state.previousNode.fullPano);
     }
 
