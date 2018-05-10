@@ -1,19 +1,25 @@
 import {
+    IGPano,
+} from "../../API";
+import {
+    Camera,
+    Transform,
+} from "../../Geo";
+import {
     Node,
 } from "../../Graph";
 import {
     IState,
-    StateBase,
-    InteractiveWaitingState,
+    InteractiveStateBase,
     IRotation,
+    StateBase,
     TraversingState,
+    WaitingState,
 } from "../../State";
 
-export class WaitingState extends StateBase {
+export class InteractiveWaitingState extends InteractiveStateBase {
     constructor(state: IState) {
         super(state);
-
-        this._zoom = 0;
 
         this._adjustCameras();
 
@@ -25,11 +31,11 @@ export class WaitingState extends StateBase {
     }
 
     public wait(): StateBase {
-        throw new Error("Not implemented");
+        return new WaitingState(this);
     }
 
     public waitInteractively(): StateBase {
-        return new InteractiveWaitingState(this);
+        throw new Error("Not implemented");
     }
 
     public prepend(nodes: Node[]): void {
@@ -44,19 +50,7 @@ export class WaitingState extends StateBase {
         this._motionless = this._motionlessTransition();
     }
 
-    public rotate(delta: IRotation): void { return; }
-
-    public rotateBasic(basicRotation: number[]): void { return; }
-
-    public rotateBasicUnbounded(basicRotation: number[]): void { return; }
-
-    public rotateBasicWithoutInertia(basicRotation: number[]): void { return; }
-
-    public rotateToBasic(basic: number[]): void { return; }
-
     public setSpeed(speed: number): void { return; }
-
-    public zoomIn(delta: number, reference: number[]): void { return; }
 
     public move(delta: number): void {
         this._alpha = Math.max(0, Math.min(1, this._alpha + delta));
@@ -67,12 +61,23 @@ export class WaitingState extends StateBase {
     }
 
     public update(fps: number): void {
+        this._updateRotation();
+        if (!this._rotationDelta.isZero) {
+            this._applyRotation(this._previousCamera);
+            this._applyRotation(this._currentCamera);
+        }
+
+        this._updateRotationBasic();
+        if (this._basicRotation[0] !== 0 || this._basicRotation[1] !== 0) {
+            this._applyRotationBasic(this._basicRotation);
+        }
+
+        let animationSpeed: number = this._animationSpeed * (60 / fps);
+        this._updateZoom(animationSpeed);
+        this._updateLookat(animationSpeed);
+
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }
-
-    public setCenter(center: number[]): void { return; }
-
-    public setZoom(zoom: number): void { return; }
 
     protected _getAlpha(): number {
         return this._motionless ? Math.round(this._alpha) : this._alpha;
@@ -101,4 +106,4 @@ export class WaitingState extends StateBase {
     }
 }
 
-export default WaitingState;
+export default InteractiveWaitingState;

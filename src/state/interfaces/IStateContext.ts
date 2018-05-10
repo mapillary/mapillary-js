@@ -11,6 +11,7 @@ export interface IStateContext extends ICurrentState {
 
     traverse(): void;
     wait(): void;
+    waitInteractively(): void;
 
     update(fps: number): void;
     append(nodes: Node[]): void;

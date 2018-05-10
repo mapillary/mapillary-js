@@ -366,6 +366,10 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.wait(); });
     }
 
+    public waitInteractively(): void {
+        this._invokeContextOperation((context: IStateContext) => { context.waitInteractively(); });
+    }
+
     public appendNodes(nodes: Node[]): void {
         this._invokeContextOperation((context: IStateContext) => { context.append(nodes); });
     }

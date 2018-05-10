@@ -1,4 +1,5 @@
 import {
+    InteractiveWaitingState,
     IStateContext,
     StateBase,
     State,
@@ -37,11 +38,17 @@ export class StateContext implements IStateContext {
         this._state = this._state.wait();
     }
 
+    public waitInteractively(): void {
+        this._state = this._state.waitInteractively();
+    }
+
     public get state(): State {
         if (this._state instanceof TraversingState) {
             return State.Traversing;
         } else if (this._state instanceof WaitingState) {
             return State.Waiting;
+        } else if (this._state instanceof InteractiveWaitingState) {
+            return State.WaitingInteractively;
         }
 
         throw new Error("Invalid state");

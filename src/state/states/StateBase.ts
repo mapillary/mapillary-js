@@ -144,6 +144,8 @@ export abstract class StateBase implements IState {
 
     public abstract wait(): StateBase;
 
+    public abstract waitInteractively(): StateBase;
+
     public abstract move(delta: number): void;
 
     public abstract moveTo(position: number): void;

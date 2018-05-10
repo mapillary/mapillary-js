@@ -10,6 +10,7 @@ import {IRotation, IState, StateBase, TransitionMode} from "../../src/State";
 class TestStateBase extends StateBase {
     public traverse(): StateBase { return null; }
     public wait(): StateBase { return null; }
+    public waitInteractively(): StateBase { return null; }
     public move(delta: number): void { return; }
     public moveTo(position: number): void { return; }
     public rotate(delta: IRotation): void { return; }
