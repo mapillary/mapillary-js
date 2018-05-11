@@ -7,7 +7,7 @@ export {IMarkerConfiguration} from "./IMarkerConfiguration";
 export {IMouseConfiguration} from "./IMouseConfiguration";
 export {INavigationConfiguration} from "./INavigationConfiguration";
 export {IRouteConfiguration, IRoutePath, IRouteInfoKey} from "./IRouteConfiguration";
-export {ISliderConfiguration, ISliderKeys} from "./ISliderConfiguration";
+export {ISliderConfiguration, ISliderKeys, SliderMode} from "./ISliderConfiguration";
 export {IComponentConfiguration} from "./IComponentConfiguration";
 export {ISequenceConfiguration} from "./ISequenceConfiguration";
 export {ITagConfiguration} from "./ITagConfiguration";

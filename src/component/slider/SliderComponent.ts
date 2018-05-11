@@ -2,11 +2,11 @@
 
 import * as THREE from "three";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
-import {Subject} from "rxjs/Subject";
+import { Observable } from "rxjs/Observable";
+import { Subscription } from "rxjs/Subscription";
+import { Subject } from "rxjs/Subject";
 
-import {Node} from "../../Graph";
+import { Node } from "../../Graph";
 import {
     ICurrentState,
     IFrame,
@@ -21,6 +21,7 @@ import {
     IGLRenderHash,
     IVNodeHash,
     GLRenderStage,
+    ISize,
 } from "../../Render";
 import {
     DOM,
@@ -33,6 +34,7 @@ import {
     ISliderKeys,
     SliderDOMRenderer,
     SliderGLRenderer,
+    SliderMode,
 } from "../../Component";
 
 interface ISliderNodes {
@@ -61,6 +63,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
     private _setKeysSubscription: Subscription;
 
+    private _modeSubcription: Subscription;
     private _stateSubscription: Subscription;
     private _glRenderSubscription: Subscription;
     private _domRenderSubscription: Subscription;
@@ -123,20 +126,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     }
 
     /**
-     * Set the image keys.
-     *
-     * Configures the component to show the image planes for the supplied image keys.
-     *
-     * @param {keys} ISliderKeys - Slider keys object specifying the images to be shown in the foreground and the background.
-     */
-    public setKeys(keys: ISliderKeys): void {
-        this.configure({ keys: keys });
-    }
-
-    /**
      * Set the initial position.
      *
-     * Configures the intial position of the slider. The inital position value will be used when the component is activated.
+     * @description Configures the intial position of the slider.
+     * The inital position value will be used when the component
+     * is activated.
      *
      * @param {number} initialPosition - Initial slider position.
      */
@@ -145,15 +139,47 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     }
 
     /**
+     * Set the image keys.
+     *
+     * @description Configures the component to show the image
+     * planes for the supplied image keys.
+     *
+     * @param {ISliderKeys} keys - Slider keys object specifying
+     * the images to be shown in the foreground and the background.
+     */
+    public setKeys(keys: ISliderKeys): void {
+        this.configure({ keys: keys });
+    }
+
+    /**
+     * Set the slider mode.
+     *
+     * @description Configures the mode for transitions between
+     * image pairs.
+     *
+     * @param {SliderMode} mode - Slider mode to be set.
+     */
+    public setSliderMode(mode: SliderMode): void {
+        this.configure({ mode: mode });
+    }
+
+    /**
      * Set the value controlling if the slider is visible.
      *
-     * @param {boolean} sliderVisible - Value indicating if the slider should be visible or not.
+     * @param {boolean} sliderVisible - Value indicating if
+     * the slider should be visible or not.
      */
     public setSliderVisible(sliderVisible: boolean): void {
         this.configure({ sliderVisible: sliderVisible });
     }
 
     protected _activate(): void {
+        this._modeSubcription = this._domRenderer.mode$
+            .subscribe(
+                (mode: SliderMode): void => {
+                    this.setSliderMode(mode);
+                });
+
         this._navigator.stateService.state$
             .first()
             .subscribe(
@@ -180,19 +206,40 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .subscribe(this._container.glRenderer.render$);
 
-        this._domRenderSubscription = this.configuration$
+        const position$: Observable<number> = this.configuration$
             .map(
                 (configuration: ISliderConfiguration): number => {
                     return configuration.initialPosition != null ?
                         configuration.initialPosition : 1;
                 })
             .first()
-            .concat(this._domRenderer.position$)
+            .concat(this._domRenderer.position$);
+
+        const mode$: Observable<SliderMode> = this.configuration$
             .map(
-                (position: number): IVNodeHash => {
+                (configuration: ISliderConfiguration): SliderMode => {
+                    return configuration.mode;
+                })
+            .distinctUntilChanged();
+
+        const motionless$: Observable<boolean> = this._navigator.stateService.currentState$
+            .map(
+                (frame: IFrame): boolean => {
+                    return frame.state.motionless;
+                })
+            .distinctUntilChanged();
+
+        this._domRenderSubscription = Observable
+            .combineLatest(
+                position$,
+                mode$,
+                motionless$,
+                this._container.renderService.size$)
+            .map(
+                ([position, mode, motionless, size]: [number, SliderMode, boolean, ISize]): IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._domRenderer.render(position),
+                        vnode: this._domRenderer.render(position, mode, motionless),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);
@@ -342,7 +389,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .first()
             .subscribe(
                 (state: State): void => {
-                    if (state === State.Waiting) {
+                    if (state !== State.Traversing) {
                         this._navigator.stateService.traverse();
                     }
                 });
@@ -350,6 +397,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._glRendererDisposer$.next(null);
         this._domRenderer.deactivate();
 
+        this._modeSubcription.unsubscribe();
         this._setKeysSubscription.unsubscribe();
         this._stateSubscription.unsubscribe();
         this._glRenderSubscription.unsubscribe();
@@ -360,7 +408,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     }
 
     protected _getDefaultConfiguration(): ISliderConfiguration {
-        return {};
+        return {
+            initialPosition: 1,
+            mode: SliderMode.Motion,
+            sliderVisible: true,
+        };
     }
 
     private _catchCacheNode$(key: string): Observable<Node> {

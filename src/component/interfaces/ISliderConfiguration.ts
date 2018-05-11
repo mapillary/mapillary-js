@@ -1,6 +1,43 @@
 import {IComponentConfiguration} from "../../Component";
 
 /**
+ * Enumeration for slider mode.
+ *
+ * @enum {number}
+ * @readonly
+ *
+ * @description Modes for specifying how transitions
+ * between nodes are performed in slider mode. Only
+ * applicable when the slider component determines
+ * that transitions with motion is possilble. When it
+ * is not, the stationary mode will be applied.
+ */
+export enum SliderMode {
+    /**
+     * Transitions with motion.
+     *
+     * @description The slider component moves the
+     * camera between the node origins.
+     *
+     * In this mode it is not possible to zoom or pan.
+     *
+     * The slider component falls back to stationary
+     * mode when it determines that the pair of nodes
+     * does not have a strong enough relation.
+     */
+    Motion,
+
+    /**
+     * Stationary transitions.
+     *
+     * @description The camera is stationary.
+     *
+     * In this mode it is possible to zoom and pan.
+     */
+    Stationary,
+}
+
+/**
  * Interface for configuration of slider keys.
  *
  * @interface
@@ -56,6 +93,11 @@ export interface ISliderConfiguration extends IComponentConfiguration {
      * @default true
      */
     sliderVisible?: boolean;
+
+    /**
+     * Mode used for image pair transitions.
+     */
+    mode?: SliderMode;
 }
 
 export default ISliderConfiguration;

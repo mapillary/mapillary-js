@@ -2,18 +2,18 @@
 
 import * as vd from "virtual-dom";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
-import {Subscription} from "rxjs/Subscription";
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
+import { Subscription } from "rxjs/Subscription";
 
-import {
-    Container,
-} from "../../Viewer";
+import { SliderMode } from "../../Component";
+import { Container } from "../../Viewer";
 
 export class SliderDOMRenderer {
     private _container: Container;
 
     private _interacting: boolean;
+    private _notifyModeChanged$: Subject<SliderMode>;
     private _notifyPositionChanged$: Subject<number>;
     private _stopInteractionSubscription: Subscription;
 
@@ -21,8 +21,13 @@ export class SliderDOMRenderer {
         this._container = container;
 
         this._interacting = false;
+        this._notifyModeChanged$ = new Subject<SliderMode>();
         this._notifyPositionChanged$ = new Subject<number>();
         this._stopInteractionSubscription = null;
+    }
+
+    public get mode$(): Observable<SliderMode> {
+        return this._notifyModeChanged$;
     }
 
     public get position$(): Observable<number> {
@@ -61,11 +66,38 @@ export class SliderDOMRenderer {
         this._stopInteractionSubscription = null;
     }
 
-    public render(position: number): vd.VNode {
-        return vd.h("div.SliderContainer", [this._createRangeInput(position)]);
+    public render(position: number, mode: SliderMode, motionless: boolean): vd.VNode {
+        const modeButton: vd.VNode = this._createModeButton(mode, motionless);
+        const positionInput: vd.VNode = this._createPositionInput(position);
+
+        return vd.h("div.SliderContainer", [modeButton, positionInput]);
     }
 
-    private _createRangeInput(position: number): vd.VNode {
+    private _createModeButton(mode: SliderMode, motionless: boolean): vd.VNode {
+        const properties: vd.createProperties = {};
+        const children: vd.VNode[] = [];
+
+        if (!motionless) {
+            properties.onclick = (): void => {
+                this._notifyModeChanged$.next(
+                    mode === SliderMode.Motion ?
+                        SliderMode.Stationary :
+                        SliderMode.Motion);
+            };
+
+            children.push(vd.h("div.SliderModeIcon.SliderModeIconVisible", []));
+        }
+
+        const className: string = motionless ?
+            "SliderModeButtonDisabled" :
+            mode === SliderMode.Stationary ?
+                "SliderModeButtonPressed" :
+                "SliderModeButtonDisabled";
+
+        return vd.h("div." + className, properties, children);
+    }
+
+    private _createPositionInput(position: number): vd.VNode {
         const onChange: (e: Event) => void = (e: Event): void => {
             this._notifyPositionChanged$.next(Number((<HTMLInputElement>e.target).value) / 1000);
         };
@@ -89,10 +121,10 @@ export class SliderDOMRenderer {
         };
 
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
-        const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 160;
+        const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 58;
 
-        const rangeInput: vd.VNode = vd.h(
-            "input.SliderControl",
+        const positionInput: vd.VNode = vd.h(
+            "input.SliderPosition",
             {
                 max: 1000,
                 min: 0,
@@ -111,7 +143,7 @@ export class SliderDOMRenderer {
             },
             []);
 
-        return rangeInput;
+        return vd.h("div.SliderPositionContainer", [positionInput]);
     }
 }
 
