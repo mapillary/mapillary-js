@@ -3,8 +3,9 @@ import {
     IShaderMaterial,
     MeshFactory,
     MeshScene,
+    SliderMode,
 } from "../../Component";
-import {Node} from "../../Graph";
+import { Node } from "../../Graph";
 import {
     ICurrentState,
     IFrame,
@@ -22,6 +23,8 @@ export class SliderGLRenderer {
     private _frameId: number;
     private _needsRender: boolean;
 
+    private _mode: SliderMode;
+
     constructor() {
         this._factory = new MeshFactory();
         this._scene = new MeshScene();
@@ -33,6 +36,8 @@ export class SliderGLRenderer {
         this._curtain = 1;
         this._frameId = 0;
         this._needsRender = false;
+
+        this._mode = null;
     }
 
     public get disabled(): boolean {
@@ -47,9 +52,9 @@ export class SliderGLRenderer {
         return this._needsRender;
     }
 
-    public update(frame: IFrame): void {
+    public update(frame: IFrame, mode: SliderMode): void {
         this._updateFrameId(frame.id);
-        this._updateImagePlanes(frame.state);
+        this._updateImagePlanes(frame.state, mode);
     }
 
     public updateCurtain(curtain: number): void {
@@ -121,23 +126,25 @@ export class SliderGLRenderer {
         this._frameId = frameId;
     }
 
-    private _updateImagePlanes(state: ICurrentState): void {
+    private _updateImagePlanes(state: ICurrentState, mode: SliderMode): void {
         const currentChanged: boolean = state.currentNode != null && this._currentKey !== state.currentNode.key;
         const previousChanged: boolean = state.previousNode != null && this._previousKey !== state.previousNode.key;
+        const modeChanged: boolean = this._mode !== mode;
 
-        if (!(currentChanged || previousChanged)) {
+        if (!(currentChanged || previousChanged || modeChanged)) {
             return;
         }
 
         this._setDisabled(state);
         this._needsRender = true;
+        this._mode = mode;
 
-        const motionless: boolean = state.motionless;
+        const motionless: boolean = state.motionless || mode === SliderMode.Stationary;
 
         if (this.disabled) {
             this._scene.setImagePlanesOld([]);
         } else {
-            if (previousChanged) {
+            if (previousChanged || modeChanged) {
                 this._previousKey = state.previousNode.key;
 
                 let mesh: THREE.Mesh = undefined;

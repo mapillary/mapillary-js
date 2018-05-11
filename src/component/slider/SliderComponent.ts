@@ -70,6 +70,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _nodeSubscription: Subscription;
     private _moveSubscription: Subscription;
     private _updateCurtainSubscription: Subscription;
+    private _waitSubscription: Subscription;
 
     /**
      * Create a new slider component instance.
@@ -180,15 +181,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     this.setSliderMode(mode);
                 });
 
-        this._navigator.stateService.state$
-            .first()
-            .subscribe(
-                (state: State): void => {
-                    if (state === State.Traversing) {
-                        this._navigator.stateService.wait();
-                    }
-                });
-
         this._glRenderSubscription = this._glRenderer$
             .map(
                 (glRenderer: SliderGLRenderer): IGLRenderHash => {
@@ -229,6 +221,36 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .distinctUntilChanged();
 
+        this._waitSubscription = Observable
+            .combineLatest(
+                mode$,
+                motionless$)
+            .withLatestFrom(this._navigator.stateService.state$)
+            .subscribe(
+                ([[mode, motionless], state]: [[SliderMode, boolean], State]): void => {
+                    const interactive: boolean = motionless || mode === SliderMode.Stationary;
+
+                    if (interactive && state !== State.WaitingInteractively) {
+                        this._navigator.stateService.waitInteractively();
+                    } else if (!interactive && state !== State.Waiting) {
+                        this._navigator.stateService.wait();
+                    }
+                });
+
+        this._moveSubscription = Observable
+            .combineLatest(
+                this._domRenderer.position$,
+                mode$,
+                motionless$)
+            .subscribe(
+                ([position, mode, motionless]: [number, SliderMode, boolean]): void => {
+                    if (motionless || mode === SliderMode.Stationary) {
+                        this._navigator.stateService.moveTo(1);
+                    } else {
+                        this._navigator.stateService.moveTo(position);
+                    }
+                });
+
         this._domRenderSubscription = Observable
             .combineLatest(
                 position$,
@@ -246,15 +268,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._glRendererCreator$.next(null);
 
-        this._moveSubscription = this._domRenderer.position$
-            .withLatestFrom(this._navigator.stateService.currentState$)
-            .subscribe(
-                ([position, frame]: [number, IFrame]): void => {
-                    if (!frame.state.motionless) {
-                        this._navigator.stateService.moveTo(position);
-                    }
-                });
-
         this._updateCurtainSubscription = this._domRenderer.position$
             .map(
                 (position: number): IGLRendererOperation => {
@@ -266,11 +279,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .subscribe(this._glRendererOperation$);
 
-        this._stateSubscription = this._navigator.stateService.currentState$
+        this._stateSubscription = Observable
+            .combineLatest(
+                this._navigator.stateService.currentState$,
+                mode$)
             .map(
-                (frame: IFrame): IGLRendererOperation => {
+                ([frame, mode]: [IFrame, SliderMode]): IGLRendererOperation => {
                     return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
-                        glRenderer.update(frame);
+                        glRenderer.update(frame, mode);
 
                         return glRenderer;
                     };
@@ -385,6 +401,8 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     }
 
     protected _deactivate(): void {
+        this._waitSubscription.unsubscribe();
+
         this._navigator.stateService.state$
             .first()
             .subscribe(
