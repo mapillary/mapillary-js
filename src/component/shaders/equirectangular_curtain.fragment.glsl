@@ -22,8 +22,17 @@ void main()
     float x = (lon - phiShift) / phiLength + 0.5;
     float y = (lat - thetaShift) / thetaLength + 0.5;
 
+    bool inverted = curtain < 0.5;
+
+    float curtainMin = inverted ? curtain + 0.5 : curtain - 0.5;
+    float curtainMax = curtain;
+
+    bool insideCurtain = inverted ?
+        x > curtainMin || x < curtainMax :
+        x > curtainMin && x < curtainMax;
+
     vec4 baseColor;
-    if (x < curtain || curtain >= 1.0) {
+    if (insideCurtain) {
         baseColor = texture2D(projectorTex, vec2(x, y));
         baseColor.a = opacity;
     } else {
