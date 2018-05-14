@@ -231,11 +231,12 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._waitSubscription = Observable
             .combineLatest(
                 mode$,
-                motionless$)
+                motionless$,
+                pano$)
             .withLatestFrom(this._navigator.stateService.state$)
             .subscribe(
-                ([[mode, motionless], state]: [[SliderMode, boolean], State]): void => {
-                    const interactive: boolean = motionless || mode === SliderMode.Stationary;
+                ([[mode, motionless, pano], state]: [[SliderMode, boolean, boolean], State]): void => {
+                    const interactive: boolean = motionless || mode === SliderMode.Stationary || pano;
 
                     if (interactive && state !== State.WaitingInteractively) {
                         this._navigator.stateService.waitInteractively();
