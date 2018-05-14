@@ -111,7 +111,7 @@ export class SliderGLRenderer {
         this._disabled = state.currentNode == null ||
             state.previousNode == null ||
             (state.currentNode.pano && !state.currentNode.fullPano) ||
-            (!state.currentNode.fullPano && state.previousNode.pano) ||
+            (state.previousNode.pano && !state.previousNode.fullPano) ||
             (state.currentNode.fullPano && !state.previousNode.fullPano);
     }
 
@@ -150,9 +150,16 @@ export class SliderGLRenderer {
                 let mesh: THREE.Mesh = undefined;
 
                 if (state.previousNode.fullPano) {
-                    mesh = this._factory.createMesh(
-                        state.previousNode,
-                        state.currentTransform);
+                    if (state.currentNode.fullPano) {
+                        mesh = this._factory.createMesh(
+                            state.previousNode,
+                            state.currentTransform);
+
+                    } else {
+                        mesh = this._factory.createMesh(
+                            state.previousNode,
+                            state.previousTransform);
+                    }
                 } else {
                     if (motionless) {
                         const currentAspect: number = state.currentTransform.basicAspect;
