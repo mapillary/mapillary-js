@@ -221,6 +221,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .distinctUntilChanged();
 
+        const pano$: Observable<boolean> = this._navigator.stateService.currentState$
+            .map(
+                (frame: IFrame): boolean => {
+                    return frame.state.currentNode.pano;
+                })
+            .distinctUntilChanged();
+
         this._waitSubscription = Observable
             .combineLatest(
                 mode$,
@@ -241,10 +248,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .combineLatest(
                 this._domRenderer.position$,
                 mode$,
-                motionless$)
+                motionless$,
+                pano$)
             .subscribe(
-                ([position, mode, motionless]: [number, SliderMode, boolean]): void => {
-                    if (motionless || mode === SliderMode.Stationary) {
+                ([position, mode, motionless, pano]: [number, SliderMode, boolean, boolean]): void => {
+                    if (motionless || mode === SliderMode.Stationary || pano) {
                         this._navigator.stateService.moveTo(1);
                     } else {
                         this._navigator.stateService.moveTo(position);
@@ -256,12 +264,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 position$,
                 mode$,
                 motionless$,
+                pano$,
                 this._container.renderService.size$)
             .map(
-                ([position, mode, motionless, size]: [number, SliderMode, boolean, ISize]): IVNodeHash => {
+                ([position, mode, motionless, pano, size]: [number, SliderMode, boolean, boolean, ISize]): IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._domRenderer.render(position, mode, motionless),
+                        vnode: this._domRenderer.render(position, mode, motionless, pano),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);
@@ -421,6 +430,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._glRenderSubscription.unsubscribe();
         this._domRenderSubscription.unsubscribe();
         this._nodeSubscription.unsubscribe();
+        this._moveSubscription.unsubscribe();
 
         this.configure({ keys: null });
     }

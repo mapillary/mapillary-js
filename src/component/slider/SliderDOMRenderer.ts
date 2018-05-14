@@ -66,18 +66,18 @@ export class SliderDOMRenderer {
         this._stopInteractionSubscription = null;
     }
 
-    public render(position: number, mode: SliderMode, motionless: boolean): vd.VNode {
-        const modeButton: vd.VNode = this._createModeButton(mode, motionless);
+    public render(position: number, mode: SliderMode, motionless: boolean, pano: boolean): vd.VNode {
+        const modeButton: vd.VNode = this._createModeButton(mode, motionless, pano);
         const positionInput: vd.VNode = this._createPositionInput(position);
 
         return vd.h("div.SliderContainer", [modeButton, positionInput]);
     }
 
-    private _createModeButton(mode: SliderMode, motionless: boolean): vd.VNode {
+    private _createModeButton(mode: SliderMode, motionless: boolean, pano: boolean): vd.VNode {
         const properties: vd.createProperties = {};
         const children: vd.VNode[] = [];
 
-        if (!motionless) {
+        if (!(motionless || pano)) {
             properties.onclick = (): void => {
                 this._notifyModeChanged$.next(
                     mode === SliderMode.Motion ?

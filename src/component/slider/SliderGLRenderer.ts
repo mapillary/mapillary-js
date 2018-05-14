@@ -139,7 +139,7 @@ export class SliderGLRenderer {
         this._needsRender = true;
         this._mode = mode;
 
-        const motionless: boolean = state.motionless || mode === SliderMode.Stationary;
+        const motionless: boolean = state.motionless || mode === SliderMode.Stationary || state.currentNode.pano;
 
         if (this.disabled) {
             this._scene.setImagePlanesOld([]);
