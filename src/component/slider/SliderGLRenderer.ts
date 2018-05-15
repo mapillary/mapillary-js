@@ -58,7 +58,7 @@ export class SliderGLRenderer {
     }
 
     public updateCurtain(curtain: number): void {
-        if (this.disabled || Math.abs(this._curtain - curtain) < 0.001) {
+        if (this.disabled || this._curtain === curtain) {
             return;
         }
 

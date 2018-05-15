@@ -6,6 +6,7 @@ import { Observable } from "rxjs/Observable";
 import { Subscription } from "rxjs/Subscription";
 import { Subject } from "rxjs/Subject";
 
+import { ViewportCoords, Transform } from "../../Geo";
 import { Node } from "../../Graph";
 import {
     ICurrentState,
@@ -18,10 +19,11 @@ import {
     Navigator,
 } from "../../Viewer";
 import {
-    IGLRenderHash,
-    IVNodeHash,
     GLRenderStage,
+    IGLRenderHash,
     ISize,
+    IVNodeHash,
+    RenderCamera,
 } from "../../Render";
 import {
     DOM,
@@ -54,6 +56,7 @@ interface IGLRendererOperation {
 export class SliderComponent extends Component<ISliderConfiguration> {
     public static componentName: string = "slider";
 
+    private _viewportCoords: ViewportCoords;
     private _domRenderer: SliderDOMRenderer;
 
     private _glRendererOperation$: Subject<IGLRendererOperation>;
@@ -76,9 +79,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
      * Create a new slider component instance.
      * @class SliderComponent
      */
-    constructor (name: string, container: Container, navigator: Navigator, dom?: DOM) {
+    constructor (name: string, container: Container, navigator: Navigator, viewportCoords?: ViewportCoords) {
         super(name, container, navigator);
 
+        this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
         this._domRenderer = new SliderDOMRenderer(container);
 
         this._glRendererOperation$ = new Subject<IGLRendererOperation>();
@@ -278,7 +282,32 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._glRendererCreator$.next(null);
 
-        this._updateCurtainSubscription = this._domRenderer.position$
+        this._updateCurtainSubscription = Observable
+            .combineLatest(
+                this.configuration$
+                    .first()
+                    .map(
+                        (configuration: ISliderConfiguration): number => {
+                            return configuration.initialPosition;
+                        })
+                    .concat(this._domRenderer.position$),
+                pano$,
+                this._container.renderService.renderCamera$,
+                this._navigator.stateService.currentTransform$)
+            .map(
+                ([position, pano, render, transform]: [number, boolean, RenderCamera, Transform]): number => {
+                    if (!pano) {
+                        return position;
+                    }
+
+                    const basicMin: number[] = this._viewportCoords.viewportToBasic(-1.15, 0, transform, render.perspective);
+                    const basicMax: number[] = this._viewportCoords.viewportToBasic(1.15, 0, transform, render.perspective);
+
+                    const shiftedMax: number = basicMax[0] < basicMin[0] ? basicMax[0] + 1 : basicMax[0];
+                    const basicPosition: number = basicMin[0] + position * (shiftedMax - basicMin[0]);
+
+                    return basicPosition > 1 ? basicPosition - 1 : basicPosition;
+                })
             .map(
                 (position: number): IGLRendererOperation => {
                     return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
