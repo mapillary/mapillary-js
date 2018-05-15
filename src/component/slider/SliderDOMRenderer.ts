@@ -121,7 +121,7 @@ export class SliderDOMRenderer {
         };
 
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
-        const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 58;
+        const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 66;
 
         const positionInput: vd.VNode = vd.h(
             "input.SliderPosition",
