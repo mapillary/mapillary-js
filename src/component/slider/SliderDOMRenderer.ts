@@ -85,14 +85,14 @@ export class SliderDOMRenderer {
                         SliderMode.Motion);
             };
 
-            children.push(vd.h("div.SliderModeIcon.SliderModeIconVisible", []));
+            children.push(vd.h("div.SliderModeIcon", []));
         }
 
         const className: string = motionless ?
             "SliderModeButtonDisabled" :
             mode === SliderMode.Stationary ?
                 "SliderModeButtonPressed" :
-                "SliderModeButtonDisabled";
+                "SliderModeButton";
 
         return vd.h("div." + className, properties, children);
     }
