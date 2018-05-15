@@ -232,6 +232,25 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .distinctUntilChanged();
 
+        const sliderVisible$: Observable<boolean> = Observable
+            .combineLatest(
+                this._configuration$
+                    .map(
+                        (configuration: ISliderConfiguration): boolean => {
+                            return configuration.sliderVisible;
+                        }),
+                this._navigator.stateService.currentState$
+                    .map(
+                        (frame: IFrame): string => {
+                            return !!frame.state.previousNode ? frame.state.previousNode.key : null;
+                        })
+                    .distinctUntilChanged())
+            .map(
+                ([sliderVisible, previousKey]: [boolean, string]): boolean => {
+                    return sliderVisible && previousKey != null;
+                })
+            .distinctUntilChanged();
+
         this._waitSubscription = Observable
             .combineLatest(
                 mode$,
@@ -270,12 +289,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 mode$,
                 motionless$,
                 pano$,
+                sliderVisible$,
                 this._container.renderService.size$)
             .map(
-                ([position, mode, motionless, pano, size]: [number, SliderMode, boolean, boolean, ISize]): IVNodeHash => {
+                ([position, mode, motionless, pano, sliderVisible, size]:
+                    [number, SliderMode, boolean, boolean, boolean, ISize]): IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._domRenderer.render(position, mode, motionless, pano),
+                        vnode: this._domRenderer.render(position, mode, motionless, pano, sliderVisible),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);

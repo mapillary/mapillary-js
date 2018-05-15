@@ -66,11 +66,15 @@ export class SliderDOMRenderer {
         this._stopInteractionSubscription = null;
     }
 
-    public render(position: number, mode: SliderMode, motionless: boolean, pano: boolean): vd.VNode {
-        const modeButton: vd.VNode = this._createModeButton(mode, motionless, pano);
-        const positionInput: vd.VNode = this._createPositionInput(position);
+    public render(position: number, mode: SliderMode, motionless: boolean, pano: boolean, visible: boolean): vd.VNode {
+        const children: vd.VNode[] = [];
 
-        return vd.h("div.SliderContainer", [modeButton, positionInput]);
+        if (visible) {
+            children.push(this._createModeButton(mode, motionless, pano));
+            children.push(this._createPositionInput(position));
+        }
+
+        return vd.h("div.SliderContainer", children);
     }
 
     private _createModeButton(mode: SliderMode, motionless: boolean, pano: boolean): vd.VNode {
