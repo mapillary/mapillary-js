@@ -241,13 +241,17 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         }),
                 this._navigator.stateService.currentState$
                     .map(
-                        (frame: IFrame): string => {
-                            return !!frame.state.previousNode ? frame.state.previousNode.key : null;
+                        (frame: IFrame): boolean => {
+                            return !(frame.state.currentNode == null ||
+                                frame.state.previousNode == null ||
+                                (frame.state.currentNode.pano && !frame.state.currentNode.fullPano) ||
+                                (frame.state.previousNode.pano && !frame.state.previousNode.fullPano) ||
+                                (frame.state.currentNode.fullPano && !frame.state.previousNode.fullPano));
                         })
                     .distinctUntilChanged())
             .map(
-                ([sliderVisible, previousKey]: [boolean, string]): boolean => {
-                    return sliderVisible && previousKey != null;
+                ([sliderVisible, enabledState]: [boolean, boolean]): boolean => {
+                    return sliderVisible && enabledState;
                 })
             .distinctUntilChanged();
 
@@ -255,11 +259,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .combineLatest(
                 mode$,
                 motionless$,
-                fullPano$)
+                fullPano$,
+                sliderVisible$)
             .withLatestFrom(this._navigator.stateService.state$)
             .subscribe(
-                ([[mode, motionless, fullPano], state]: [[SliderMode, boolean, boolean], State]): void => {
-                    const interactive: boolean = motionless || mode === SliderMode.Stationary || fullPano;
+                ([[mode, motionless, fullPano, sliderVisible], state]: [[SliderMode, boolean, boolean, boolean], State]): void => {
+                    const interactive: boolean = sliderVisible &&
+                        (motionless || mode === SliderMode.Stationary || fullPano);
 
                     if (interactive && state !== State.WaitingInteractively) {
                         this._navigator.stateService.waitInteractively();
@@ -273,9 +279,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 this._domRenderer.position$,
                 mode$,
                 motionless$,
-                fullPano$)
+                fullPano$,
+                sliderVisible$)
             .subscribe(
-                ([position, mode, motionless, fullPano]: [number, SliderMode, boolean, boolean]): void => {
+                ([position, mode, motionless, fullPano, sliderVisible]: [number, SliderMode, boolean, boolean, boolean]): void => {
                     if (motionless || mode === SliderMode.Stationary || fullPano) {
                         this._navigator.stateService.moveTo(1);
                     } else {
@@ -313,12 +320,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         })
                     .concat(this._domRenderer.position$),
                 fullPano$,
+                sliderVisible$,
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$)
             .map(
-                ([position, fullPano, render, transform]: [number, boolean, RenderCamera, Transform]): number => {
+                ([position, fullPano, visible, render, transform]: [number, boolean, boolean, RenderCamera, Transform]): number => {
                     if (!fullPano) {
-                        return position;
+                        return visible ? position : 1;
                     }
 
                     const basicMin: number[] = this._viewportCoords.viewportToBasic(-1.15, 0, transform, render.perspective);

@@ -58,7 +58,7 @@ export class SliderGLRenderer {
     }
 
     public updateCurtain(curtain: number): void {
-        if (this.disabled || this._curtain === curtain) {
+        if (this._curtain === curtain) {
             return;
         }
 
@@ -210,9 +210,7 @@ export class SliderGLRenderer {
                 this._factory.createCurtainMesh(state.currentNode, state.currentTransform),
             ]);
 
-            if (!this.disabled) {
-                this._updateCurtain();
-            }
+            this._updateCurtain();
         }
     }
 }
