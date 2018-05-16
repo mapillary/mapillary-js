@@ -225,10 +225,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 })
             .distinctUntilChanged();
 
-        const pano$: Observable<boolean> = this._navigator.stateService.currentState$
+        const fullPano$: Observable<boolean> = this._navigator.stateService.currentState$
             .map(
                 (frame: IFrame): boolean => {
-                    return frame.state.currentNode.pano;
+                    return frame.state.currentNode.fullPano;
                 })
             .distinctUntilChanged();
 
@@ -255,11 +255,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .combineLatest(
                 mode$,
                 motionless$,
-                pano$)
+                fullPano$)
             .withLatestFrom(this._navigator.stateService.state$)
             .subscribe(
-                ([[mode, motionless, pano], state]: [[SliderMode, boolean, boolean], State]): void => {
-                    const interactive: boolean = motionless || mode === SliderMode.Stationary || pano;
+                ([[mode, motionless, fullPano], state]: [[SliderMode, boolean, boolean], State]): void => {
+                    const interactive: boolean = motionless || mode === SliderMode.Stationary || fullPano;
 
                     if (interactive && state !== State.WaitingInteractively) {
                         this._navigator.stateService.waitInteractively();
@@ -273,10 +273,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 this._domRenderer.position$,
                 mode$,
                 motionless$,
-                pano$)
+                fullPano$)
             .subscribe(
-                ([position, mode, motionless, pano]: [number, SliderMode, boolean, boolean]): void => {
-                    if (motionless || mode === SliderMode.Stationary || pano) {
+                ([position, mode, motionless, fullPano]: [number, SliderMode, boolean, boolean]): void => {
+                    if (motionless || mode === SliderMode.Stationary || fullPano) {
                         this._navigator.stateService.moveTo(1);
                     } else {
                         this._navigator.stateService.moveTo(position);
@@ -288,15 +288,15 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 position$,
                 mode$,
                 motionless$,
-                pano$,
+                fullPano$,
                 sliderVisible$,
                 this._container.renderService.size$)
             .map(
-                ([position, mode, motionless, pano, sliderVisible, size]:
+                ([position, mode, motionless, fullPano, sliderVisible, size]:
                     [number, SliderMode, boolean, boolean, boolean, ISize]): IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._domRenderer.render(position, mode, motionless, pano, sliderVisible),
+                        vnode: this._domRenderer.render(position, mode, motionless, fullPano, sliderVisible),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);
@@ -312,12 +312,12 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                             return configuration.initialPosition;
                         })
                     .concat(this._domRenderer.position$),
-                pano$,
+                fullPano$,
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$)
             .map(
-                ([position, pano, render, transform]: [number, boolean, RenderCamera, Transform]): number => {
-                    if (!pano) {
+                ([position, fullPano, render, transform]: [number, boolean, RenderCamera, Transform]): number => {
+                    if (!fullPano) {
                         return position;
                     }
 
@@ -422,13 +422,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 this._navigator.stateService.currentNode$)
             .filter(
                 (node: Node): boolean => {
-                    return node.pano ?
+                    return node.fullPano ?
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 })
             .mergeMap(
                 (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    let baseImageSize: ImageSize = node.pano ?
+                    let baseImageSize: ImageSize = node.fullPano ?
                         Settings.basePanoramaSize :
                         Settings.baseImageSize;
 
