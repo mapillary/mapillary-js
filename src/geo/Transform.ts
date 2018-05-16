@@ -3,7 +3,6 @@
 import * as THREE from "three";
 
 import {IGPano} from "../API";
-import {Node} from "../Graph";
 
 /**
  * @class Transform
@@ -28,33 +27,49 @@ export class Transform {
 
     /**
      * Create a new transform instance.
-     * @param {Node} apiNavImIm - Node properties.
-     * @param {HTMLImageElement} image - Node image.
-     * @param {Array<number>} translation - Node translation vector in three dimensions.
+     * @param {number} orientation - Image orientation.
+     * @param {number} width - Image height.
+     * @param {number} height - Image width.
+     * @param {number} focal - Focal length.
+     * @param {number} scale - Atomic scale.
+     * @param {IGPano} gpano - Panorama properties.
+     * @param {Array<number>} rotation - Rotation vector in three dimensions.
+     * @param {Array<number>} translation - Translation vector in three dimensions.
+     * @param {HTMLImageElement} image - Image for fallback size calculations.
      */
-    constructor(node: Node, image: HTMLImageElement, translation: number[]) {
-        this._orientation = this._getValue(node.orientation, 1);
+    constructor(
+        orientation: number,
+        width: number,
+        height: number,
+        focal: number,
+        scale: number,
+        gpano: IGPano,
+        rotation: number[],
+        translation: number[],
+        image: HTMLImageElement) {
+
+        this._orientation = this._getValue(orientation, 1);
 
         let imageWidth: number = image != null ? image.width : 4;
         let imageHeight: number = image != null ? image.height : 3;
         let keepOrientation: boolean = this._orientation < 5;
 
-        this._width = this._getValue(node.width, keepOrientation ? imageWidth : imageHeight);
-        this._height = this._getValue(node.height, keepOrientation ? imageHeight : imageWidth);
+        this._width = this._getValue(width, keepOrientation ? imageWidth : imageHeight);
+        this._height = this._getValue(height, keepOrientation ? imageHeight : imageWidth);
 
         this._basicAspect = keepOrientation ?
              this._width / this._height :
              this._height / this._width;
 
-        this._basicWidth = keepOrientation ? node.width : node.height;
-        this._basicHeight = keepOrientation ? node.height : node.width;
+        this._basicWidth = keepOrientation ? width : height;
+        this._basicHeight = keepOrientation ? height : width;
 
-        this._focal = this._getValue(node.focal, 1);
-        this._scale = this._getValue(node.scale, 0);
+        this._focal = this._getValue(focal, 1);
+        this._scale = this._getValue(scale, 0);
 
-        this._gpano = node.gpano != null ? node.gpano : null;
+        this._gpano = gpano != null ? gpano : null;
 
-        this._rt = this._getRt(node.rotation, translation);
+        this._rt = this._getRt(rotation, translation);
         this._srt = this._getSrt(this._rt, this._scale);
     }
 

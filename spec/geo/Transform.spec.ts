@@ -30,7 +30,17 @@ describe("Transform.rt", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
+
         let rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = rt.elements;
@@ -63,7 +73,17 @@ describe("Transform.rt", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
+
         let rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = rt.elements;
@@ -96,7 +116,17 @@ describe("Transform.rt", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
+
         let rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = rt.elements;
@@ -129,7 +159,17 @@ describe("Transform.rt", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
+
         let rt: THREE.Matrix4 = transform.rt;
 
         let elements: Float32Array = rt.elements;
@@ -173,7 +213,17 @@ describe("Transform.srt", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
+
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -207,7 +257,17 @@ describe("Transform.srt", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
+
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -241,7 +301,17 @@ describe("Transform.srt", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
+
         let sRt: THREE.Matrix4 = transform.srt;
 
         let elements: Float32Array = sRt.elements;
@@ -284,7 +354,16 @@ describe("Transform.basicWidth", () => {
         fillNode.orientation = 1;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.basicWidth).toBe(width);
     });
@@ -300,7 +379,16 @@ describe("Transform.basicWidth", () => {
         fillNode.orientation = 5;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.basicWidth).toBe(height);
     });
@@ -324,7 +412,16 @@ describe("Transform.basicHeight", () => {
         fillNode.orientation = 1;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.basicHeight).toBe(height);
     });
@@ -340,7 +437,16 @@ describe("Transform.basicHeight", () => {
         fillNode.orientation = 5;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.basicHeight).toBe(width);
     });
@@ -359,7 +465,16 @@ describe("Transform.width", () => {
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.width).toBe(4);
     });
@@ -374,7 +489,16 @@ describe("Transform.width", () => {
         fillNode.width = width;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.width).toBe(width);
     });
@@ -396,7 +520,16 @@ describe("Transform.height", () => {
         fillNode.orientation = 1;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.height).toBe(3);
     });
@@ -412,7 +545,16 @@ describe("Transform.height", () => {
         fillNode.orientation = 1;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.height).toBe(height);
     });
@@ -432,7 +574,16 @@ describe("Transform.focal", () => {
         let fillNode: IFillNode = helper.createFillNode();
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.focal).toBe(1);
     });
@@ -447,7 +598,16 @@ describe("Transform.focal", () => {
         fillNode.cfocal = focal;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.focal).toBe(focal);
     });
@@ -467,7 +627,16 @@ describe("Transform.orientation", () => {
         let fillNode: IFillNode = helper.createFillNode();
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.orientation).toBe(1);
     });
@@ -482,7 +651,16 @@ describe("Transform.orientation", () => {
         fillNode.orientation = 3;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.orientation).toBe(orientation);
     });
@@ -501,7 +679,16 @@ describe("Transform.scale", () => {
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.scale).toBe(0);
     });
@@ -516,7 +703,16 @@ describe("Transform.scale", () => {
         fillNode.atomic_scale = 0.4;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.scale).toBe(scale);
     });
@@ -535,7 +731,16 @@ describe("Transform.gpano", () => {
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.gpano).toBeNull();
     });
@@ -557,7 +762,16 @@ describe("Transform.gpano", () => {
         fillNode.gpano = gpano;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         expect(transform.gpano).not.toBeNull();
     });
@@ -580,7 +794,16 @@ describe("Transform.unprojectSfM", () => {
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -595,7 +818,16 @@ describe("Transform.unprojectSfM", () => {
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -614,7 +846,16 @@ describe("Transform.unprojectSfM", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -629,7 +870,16 @@ describe("Transform.unprojectSfM", () => {
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let depth: number = 10;
         let sfm: number[] = transform.unprojectSfM([0, 0], depth);
@@ -648,7 +898,16 @@ describe("Transform.unprojectSfM", () => {
         fillNode.c_rotation = r;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let depth: number = 5;
         let sfm: number[] = transform.unprojectSfM([0.5, 0], depth);
@@ -674,7 +933,16 @@ describe("Transform.projectBasic", () => {
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let pixel: number[] = transform.projectBasic([0, 0, 10]);
 
@@ -688,7 +956,16 @@ describe("Transform.projectBasic", () => {
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let pixel: number[] = transform.projectBasic([1, 1, 10]);
 
@@ -715,7 +992,16 @@ describe("Transform.unprojectBasic", () => {
         fillNode.orientation = 1;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -736,7 +1022,16 @@ describe("Transform.unprojectBasic", () => {
         fillNode.orientation = 3;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -757,7 +1052,16 @@ describe("Transform.unprojectBasic", () => {
         fillNode.orientation = 6;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -778,7 +1082,16 @@ describe("Transform.unprojectBasic", () => {
         fillNode.orientation = 8;
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -807,7 +1120,16 @@ describe("Transform.unprojectBasic", () => {
 
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let basicPixel: number[] = [0.4534546, 0.72344564];
 
@@ -836,7 +1158,16 @@ describe("Transform.unprojectBasic", () => {
 
         node.makeFull(fillNode);
 
-        let transform: Transform = new Transform(node, null, t);
+        let transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            t,
+            null);
 
         let basicPixel: number[] = [0.4534546, 0.72344564];
 

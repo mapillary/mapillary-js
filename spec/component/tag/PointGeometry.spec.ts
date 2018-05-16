@@ -74,7 +74,16 @@ describe("PointGeometry.setVertex2d", () => {
 
         let node: Node = createNode(gpano);
 
-        return new Transform(node, null, [0, 0, 0]);
+        return new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            [0, 0, 0],
+            null);
     };
 
     it("should set point to value", () => {

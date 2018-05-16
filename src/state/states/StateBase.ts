@@ -63,7 +63,16 @@ export abstract class StateBase implements IState {
 
         for (let node of this._trajectory) {
             let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node, node.image, translation);
+            let transform: Transform = new Transform(
+                node.orientation,
+                node.width,
+                node.height,
+                node.focal,
+                node.scale,
+                node.gpano,
+                node.rotation,
+                translation,
+                node.image);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -351,7 +360,16 @@ export abstract class StateBase implements IState {
             }
 
             let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node, node.image, translation);
+            let transform: Transform = new Transform(
+                node.orientation,
+                node.width,
+                node.height,
+                node.focal,
+                node.scale,
+                node.gpano,
+                node.rotation,
+                translation,
+                node.image);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -365,7 +383,16 @@ export abstract class StateBase implements IState {
             }
 
             let translation: number[] = this._nodeToTranslation(node);
-            let transform: Transform = new Transform(node, node.image, translation);
+            let transform: Transform = new Transform(
+                node.orientation,
+                node.width,
+                node.height,
+                node.focal,
+                node.scale,
+                node.gpano,
+                node.rotation,
+                translation,
+                node.image);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));

@@ -318,7 +318,16 @@ describe("RectGeometry.setVertex2d", () => {
 
         let node: Node = createNode(gpano);
 
-        return new Transform(node, null, [0, 0, 0]);
+        return new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            [0, 0, 0],
+            null);
     };
 
     it("should set the vertex with index 2", () => {
@@ -438,7 +447,16 @@ describe("RectGeometry.setCentroid2d", () => {
 
         let node: Node = createNode(gpano);
 
-        return new Transform(node, null, [0, 0, 0]);
+        return new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            [0, 0, 0],
+            null);
     };
 
     it("should set the vertices according to the new centroid", () => {
