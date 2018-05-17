@@ -70,38 +70,37 @@ export class SliderDOMRenderer {
         const children: vd.VNode[] = [];
 
         if (visible) {
-            children.push(this._createModeButton(mode, motionless, pano));
-            children.push(this._createPositionInput(position));
+            children.push(vd.h("div.SliderBorder", []));
+
+            const modeVisible: boolean = !(motionless || pano);
+            if (modeVisible) {
+                children.push(this._createModeButton(mode));
+            }
+
+            children.push(this._createPositionInput(position, modeVisible));
         }
 
         return vd.h("div.SliderContainer", children);
     }
 
-    private _createModeButton(mode: SliderMode, motionless: boolean, pano: boolean): vd.VNode {
-        const properties: vd.createProperties = {};
-        const children: vd.VNode[] = [];
-
-        if (!(motionless || pano)) {
-            properties.onclick = (): void => {
+    private _createModeButton(mode: SliderMode): vd.VNode {
+        const properties: vd.createProperties = {
+            onclick: (): void => {
                 this._notifyModeChanged$.next(
                     mode === SliderMode.Motion ?
                         SliderMode.Stationary :
                         SliderMode.Motion);
-            };
+            },
+        };
 
-            children.push(vd.h("div.SliderModeIcon", []));
-        }
+        const className: string = mode === SliderMode.Stationary ?
+            "SliderModeButtonPressed" :
+            "SliderModeButton";
 
-        const className: string = motionless ?
-            "SliderModeButtonDisabled" :
-            mode === SliderMode.Stationary ?
-                "SliderModeButtonPressed" :
-                "SliderModeButton";
-
-        return vd.h("div." + className, properties, children);
+        return vd.h("div." + className, properties, [vd.h("div.SliderModeIcon", [])]);
     }
 
-    private _createPositionInput(position: number): vd.VNode {
+    private _createPositionInput(position: number, modeVisible: boolean): vd.VNode {
         const onChange: (e: Event) => void = (e: Event): void => {
             this._notifyPositionChanged$.next(Number((<HTMLInputElement>e.target).value) / 1000);
         };
@@ -125,7 +124,7 @@ export class SliderDOMRenderer {
         };
 
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
-        const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 66;
+        const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 78 + (modeVisible ? 0 : 36);
 
         const positionInput: vd.VNode = vd.h(
             "input.SliderPosition",

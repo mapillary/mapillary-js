@@ -12,16 +12,25 @@
     z-index: 10;
 }
 
+.SliderBorder {
+    display: inline-block;
+    width: 16px;
+    height: 100%;
+    border-bottom-left-radius: 8px;
+    border-top-left-radius: 8px;
+    pointer-events: auto;
+    cursor: default;
+    background: rgba(24, 25, 28, 0.5);
+}
+
 .SliderModeButton,
-.SliderModeButtonPressed,
-.SliderModeButtonDisabled {
-    width: 44px;
+.SliderModeButtonPressed {
+    width: 36px;
     height: 100%;
     display: inline-block;
     pointer-events: auto;
     background: rgba(24, 25, 28, 0.5);
-    border-bottom-left-radius: 8px;
-    border-top-left-radius: 8px;
+
 }
 
 .SliderModeButton,
@@ -29,15 +38,10 @@
     cursor: pointer;
 }
 
-.SliderModeButtonDisabled {
-    cursor: default;
-}
-
 .SliderModeIcon {
     position: relative;
-    left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(0, -50%);
     background-size: contain;
     background-repeat: no-repeat;
     opacity: 1;
@@ -59,8 +63,7 @@
     vertical-align: top;
     background: rgba(24, 25, 28, 0.5);
     pointer-events: auto;
-    padding-right: 9px;
-    padding-left: 3px;
+    padding-right: 16px;
     border-bottom-right-radius: 8px;
     border-top-right-radius: 8px;
 }
