@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 import {
     IBBoxShaderMaterial,
     IShaderMaterial,
@@ -10,11 +12,15 @@ import {
     ICurrentState,
     IFrame,
 } from "../../State";
-import { Transform } from "../../Geo";
+import {
+    Transform,
+    Spatial,
+} from "../../Geo";
 
 export class SliderGLRenderer {
     private _factory: MeshFactory;
     private _scene: MeshScene;
+    private _spatial: Spatial;
 
     private _currentKey: string;
     private _previousKey: string;
@@ -29,6 +35,7 @@ export class SliderGLRenderer {
     constructor() {
         this._factory = new MeshFactory();
         this._scene = new MeshScene();
+        this._spatial = new Spatial();
 
         this._currentKey = null;
         this._previousKey = null;
@@ -151,7 +158,7 @@ export class SliderGLRenderer {
                 this._previousKey = previousNode.key;
 
                 const elements: Float32Array = state.currentTransform.rt.elements;
-                const translation: number[] = [elements[12], elements[13], elements[14]];
+                let translation: number[] = [elements[12], elements[13], elements[14]];
 
                 const currentAspect: number = state.currentTransform.basicAspect;
                 const previousAspect: number = state.previousTransform.basicAspect;
@@ -160,6 +167,20 @@ export class SliderGLRenderer {
                     [1, previousAspect / currentAspect] :
                     [currentAspect / previousAspect, 1];
 
+                let rotation: number[] = state.currentNode.rotation;
+
+                if (previousNode.fullPano) {
+                    rotation = state.previousNode.rotation;
+                    translation = this._spatial
+                        .rotate(
+                            this._spatial
+                                .opticalCenter(state.currentNode.rotation, translation)
+                                .toArray(),
+                            rotation)
+                        .multiplyScalar(-1)
+                        .toArray();
+                }
+
                 const transform: Transform = new Transform(
                     state.currentNode.orientation,
                     state.currentNode.width,
@@ -167,7 +188,7 @@ export class SliderGLRenderer {
                     state.currentNode.focal,
                     state.currentNode.scale,
                     previousNode.gpano,
-                    state.currentNode.rotation,
+                    rotation,
                     translation,
                     previousNode.image,
                     textureScale);
