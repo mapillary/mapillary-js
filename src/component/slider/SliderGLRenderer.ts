@@ -10,6 +10,7 @@ import {
     ICurrentState,
     IFrame,
 } from "../../State";
+import { Transform } from "../../Geo";
 
 export class SliderGLRenderer {
     private _factory: MeshFactory;
@@ -145,21 +146,31 @@ export class SliderGLRenderer {
             this._scene.setImagePlanesOld([]);
         } else {
             if (previousChanged || modeChanged) {
-                this._previousKey = state.previousNode.key;
+                const previousNode: Node = state.previousNode;
+
+                this._previousKey = previousNode.key;
+
+                const elements: Float32Array = state.currentTransform.rt.elements;
+                const translation: number[] = [elements[12], elements[13], elements[14]];
+
+                const transform: Transform = new Transform(
+                    previousNode.orientation,
+                    previousNode.width,
+                    previousNode.height,
+                    state.currentNode.focal,
+                    state.currentNode.scale,
+                    previousNode.gpano,
+                    state.currentNode.rotation,
+                    translation,
+                    previousNode.image
+                );
 
                 let mesh: THREE.Mesh = undefined;
 
-                if (state.previousNode.fullPano) {
-                    if (state.currentNode.fullPano) {
-                        mesh = this._factory.createMesh(
-                            state.previousNode,
-                            state.currentTransform);
-
-                    } else {
-                        mesh = this._factory.createMesh(
-                            state.previousNode,
-                            state.previousTransform);
-                    }
+                if (previousNode.fullPano) {
+                    mesh = this._factory.createMesh(
+                        previousNode,
+                        motionless || state.currentNode.fullPano ? transform : state.previousTransform);
                 } else {
                     if (motionless) {
                         const currentAspect: number = state.currentTransform.basicAspect;
@@ -169,13 +180,13 @@ export class SliderGLRenderer {
                             if (currentAspect > 1) {
                                 mesh = this._factory.createScaledFlatMesh(
                                     state.previousNode,
-                                    state.currentTransform,
+                                    transform,
                                     0.5,
                                     0.5 / previousAspect);
                             } else {
                                 mesh = this._factory.createScaledFlatMesh(
                                     state.previousNode,
-                                    state.currentTransform,
+                                    transform,
                                     0.5 * currentAspect,
                                     0.5 * currentAspect / previousAspect);
                             }
@@ -183,13 +194,13 @@ export class SliderGLRenderer {
                             if (currentAspect > 1) {
                                 mesh = this._factory.createScaledFlatMesh(
                                     state.previousNode,
-                                    state.currentTransform,
+                                    transform,
                                     0.5 * previousAspect / currentAspect,
                                     0.5 / currentAspect);
                             } else {
                                 mesh = this._factory.createScaledFlatMesh(
                                     state.previousNode,
-                                    state.currentTransform,
+                                    transform,
                                     0.5 * previousAspect,
                                     0.5);
                             }
