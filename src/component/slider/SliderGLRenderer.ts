@@ -153,16 +153,24 @@ export class SliderGLRenderer {
                 const elements: Float32Array = state.currentTransform.rt.elements;
                 const translation: number[] = [elements[12], elements[13], elements[14]];
 
+                const currentAspect: number = state.currentTransform.basicAspect;
+                const previousAspect: number = state.previousTransform.basicAspect;
+
+                const textureScale: number[] = currentAspect > previousAspect ?
+                    [1, previousAspect / currentAspect] :
+                    [currentAspect / previousAspect, 1];
+
                 const transform: Transform = new Transform(
                     state.currentNode.orientation,
-                    previousNode.width,
-                    previousNode.height,
+                    state.currentNode.width,
+                    state.currentNode.height,
                     state.currentNode.focal,
                     state.currentNode.scale,
                     previousNode.gpano,
                     state.currentNode.rotation,
                     translation,
-                    previousNode.image);
+                    previousNode.image,
+                    textureScale);
 
                 let mesh: THREE.Mesh = undefined;
 
@@ -172,9 +180,6 @@ export class SliderGLRenderer {
                         motionless || state.currentNode.fullPano ? transform : state.previousTransform);
                 } else {
                     if (motionless) {
-                        const currentAspect: number = state.currentTransform.basicAspect;
-                        const previousAspect: number = state.previousTransform.basicAspect;
-
                         const [[basicX0, basicY0], [basicX1, basicY1]]: number[][] = this._getBasicCorners(currentAspect, previousAspect);
 
                         mesh = this._factory.createFlatMesh(

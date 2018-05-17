@@ -25,6 +25,8 @@ export class Transform {
     private _rt: THREE.Matrix4;
     private _srt: THREE.Matrix4;
 
+    private _textureScale: number[];
+
     /**
      * Create a new transform instance.
      * @param {number} orientation - Image orientation.
@@ -46,7 +48,8 @@ export class Transform {
         gpano: IGPano,
         rotation: number[],
         translation: number[],
-        image: HTMLImageElement) {
+        image: HTMLImageElement,
+        textureScale?: number[]) {
 
         this._orientation = this._getValue(orientation, 1);
 
@@ -71,6 +74,8 @@ export class Transform {
 
         this._rt = this._getRt(rotation, translation);
         this._srt = this._getSrt(this._rt, this._scale);
+
+        this._textureScale = !!textureScale ? textureScale : [1, 1];
     }
 
     /**
@@ -543,9 +548,13 @@ export class Transform {
      * coordinates transformation matrix.
      */
     private _normalizedToTextureMatrix(): THREE.Matrix4 {
-        let size: number = Math.max(this._width, this._height);
-        let w: number = size / this._width;
-        let h: number = size / this._height;
+        const size: number = Math.max(this._width, this._height);
+
+        const scaleX: number = this._orientation < 5 ? this._textureScale[0] : this._textureScale[1];
+        const scaleY: number = this._orientation < 5 ? this._textureScale[1] : this._textureScale[0];
+
+        const w: number = size / this._width * scaleX;
+        const h: number = size / this._height * scaleY;
 
         switch (this._orientation) {
             case 1:
