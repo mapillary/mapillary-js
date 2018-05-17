@@ -154,7 +154,7 @@ export class SliderGLRenderer {
                 const translation: number[] = [elements[12], elements[13], elements[14]];
 
                 const transform: Transform = new Transform(
-                    previousNode.orientation,
+                    state.currentNode.orientation,
                     previousNode.width,
                     previousNode.height,
                     state.currentNode.focal,
@@ -162,8 +162,7 @@ export class SliderGLRenderer {
                     previousNode.gpano,
                     state.currentNode.rotation,
                     translation,
-                    previousNode.image
-                );
+                    previousNode.image);
 
                 let mesh: THREE.Mesh = undefined;
 
@@ -176,35 +175,15 @@ export class SliderGLRenderer {
                         const currentAspect: number = state.currentTransform.basicAspect;
                         const previousAspect: number = state.previousTransform.basicAspect;
 
-                        if (currentAspect > previousAspect) {
-                            if (currentAspect > 1) {
-                                mesh = this._factory.createScaledFlatMesh(
-                                    state.previousNode,
-                                    transform,
-                                    0.5,
-                                    0.5 / previousAspect);
-                            } else {
-                                mesh = this._factory.createScaledFlatMesh(
-                                    state.previousNode,
-                                    transform,
-                                    0.5 * currentAspect,
-                                    0.5 * currentAspect / previousAspect);
-                            }
-                        } else {
-                            if (currentAspect > 1) {
-                                mesh = this._factory.createScaledFlatMesh(
-                                    state.previousNode,
-                                    transform,
-                                    0.5 * previousAspect / currentAspect,
-                                    0.5 / currentAspect);
-                            } else {
-                                mesh = this._factory.createScaledFlatMesh(
-                                    state.previousNode,
-                                    transform,
-                                    0.5 * previousAspect,
-                                    0.5);
-                            }
-                        }
+                        const [[basicX0, basicY0], [basicX1, basicY1]]: number[][] = this._getBasicCorners(currentAspect, previousAspect);
+
+                        mesh = this._factory.createFlatMesh(
+                            state.previousNode,
+                            transform,
+                            basicX0,
+                            basicX1,
+                            basicY0,
+                            basicY1);
                     } else {
                         mesh = this._factory.createMesh(state.previousNode, state.previousTransform);
                     }
@@ -223,6 +202,21 @@ export class SliderGLRenderer {
 
             this._updateCurtain();
         }
+    }
+
+    private _getBasicCorners(currentAspect: number, previousAspect: number): number[][] {
+        let offsetX: number;
+        let offsetY: number;
+
+        if (currentAspect > previousAspect) {
+            offsetX = 0.5;
+            offsetY = 0.5 * currentAspect / previousAspect;
+        } else {
+            offsetX = 0.5 * previousAspect / currentAspect;
+            offsetY = 0.5;
+        }
+
+        return [[0.5 - offsetX, 0.5 - offsetY], [0.5 + offsetX, 0.5 + offsetY]];
     }
 }
 

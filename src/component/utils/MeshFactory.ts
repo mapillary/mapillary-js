@@ -35,6 +35,24 @@ export class MeshFactory {
         return new THREE.Mesh(geometry, material);
     }
 
+    public createFlatMesh(
+        node: Node,
+        transform: Transform,
+        basicX0: number,
+        basicX1: number,
+        basicY0: number,
+        basicY1: number): THREE.Mesh {
+
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters =
+            this._createPlaneMaterialParameters(transform, texture);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        let geometry: THREE.BufferGeometry = this._getFlatImagePlaneGeoFromBasic(transform, basicX0, basicX1, basicY0, basicY1);
+
+        return new THREE.Mesh(geometry, material);
+    }
+
     public createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
         if (node.pano && !node.fullPano) {
             throw new Error("Cropped panoramas cannot have curtain.");
@@ -391,6 +409,27 @@ export class MeshFactory {
         vertices.push(transform.unprojectSfM([dx, dy], this._imagePlaneDepth));
         vertices.push(transform.unprojectSfM([-dx, dy], this._imagePlaneDepth));
 
+        return this._createFlatGeometry(vertices);
+    }
+
+    private _getFlatImagePlaneGeoFromBasic(
+        transform: Transform,
+        basicX0: number,
+        basicX1: number,
+        basicY0: number,
+        basicY1: number): THREE.BufferGeometry {
+
+        let vertices: number[][] = [];
+
+        vertices.push(transform.unprojectBasic([basicX0, basicY0], this._imagePlaneDepth));
+        vertices.push(transform.unprojectBasic([basicX1, basicY0], this._imagePlaneDepth));
+        vertices.push(transform.unprojectBasic([basicX1, basicY1], this._imagePlaneDepth));
+        vertices.push(transform.unprojectBasic([basicX0, basicY1], this._imagePlaneDepth));
+
+        return this._createFlatGeometry(vertices);
+    }
+
+    private _createFlatGeometry(vertices: number[][]): THREE.BufferGeometry {
         let positions: Float32Array = new Float32Array(12);
         for (let i: number = 0; i < vertices.length; i++) {
             let index: number = 3 * i;
