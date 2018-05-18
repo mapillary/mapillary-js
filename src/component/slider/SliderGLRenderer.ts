@@ -126,7 +126,10 @@ export class SliderGLRenderer {
     private _updateCurtain(): void {
         for (let plane of this._scene.imagePlanes) {
             let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
-            shaderMaterial.uniforms.curtain.value = this._curtain;
+
+            if (!!shaderMaterial.uniforms.curtain) {
+                shaderMaterial.uniforms.curtain.value = this._curtain;
+            }
         }
     }
 
@@ -222,9 +225,11 @@ export class SliderGLRenderer {
         if (currentChanged) {
             this._currentKey = state.currentNode.key;
 
-            this._scene.setImagePlanes([
-                this._factory.createCurtainMesh(state.currentNode, state.currentTransform),
-            ]);
+            const imagePlane: THREE.Mesh = state.currentNode.pano && !state.currentNode.fullPano ?
+                this._factory.createMesh(state.currentNode, state.currentTransform) :
+                this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
+
+            this._scene.setImagePlanes([imagePlane]);
 
             this._updateCurtain();
         }
