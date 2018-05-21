@@ -1,5 +1,7 @@
 import * as THREE from "three";
 
+import {Subscription} from "rxjs/Subscription";
+
 import {
     IBBoxShaderMaterial,
     IShaderMaterial,
@@ -7,15 +9,16 @@ import {
     MeshScene,
     SliderMode,
 } from "../../Component";
+import {
+    Transform,
+    Spatial,
+} from "../../Geo";
 import { Node } from "../../Graph";
 import {
     ICurrentState,
     IFrame,
 } from "../../State";
-import {
-    Transform,
-    Spatial,
-} from "../../Geo";
+import { TextureProvider } from "../../Tiles";
 
 export class SliderGLRenderer {
     private _factory: MeshFactory;
@@ -32,6 +35,8 @@ export class SliderGLRenderer {
 
     private _mode: SliderMode;
 
+    private _providerDisposers: { [key: string]: () => void };
+
     constructor() {
         this._factory = new MeshFactory();
         this._scene = new MeshScene();
@@ -46,6 +51,8 @@ export class SliderGLRenderer {
         this._needsRender = false;
 
         this._mode = null;
+
+        this._providerDisposers = {};
     }
 
     public get disabled(): boolean {
@@ -58,6 +65,39 @@ export class SliderGLRenderer {
 
     public get needsRender(): boolean {
         return this._needsRender;
+    }
+
+    public setTextureProvider(key: string, provider: TextureProvider): void {
+        if (key !== this._currentKey) {
+            return;
+        }
+
+        let createdSubscription: Subscription = provider.textureCreated$
+            .subscribe(
+                (texture: THREE.Texture): void => {
+                    this._updateTexture(texture);
+                });
+
+        let updatedSubscription: Subscription = provider.textureUpdated$
+            .subscribe(
+                (updated: boolean): void => {
+                    this._needsRender = true;
+                });
+
+        let dispose: () => void = (): void => {
+            createdSubscription.unsubscribe();
+            updatedSubscription.unsubscribe();
+            provider.dispose();
+        };
+
+        if (key in this._providerDisposers) {
+            let disposeProvider: () => void = this._providerDisposers[key];
+            disposeProvider();
+
+            delete this._providerDisposers[key];
+        }
+
+        this._providerDisposers[key] = dispose;
     }
 
     public update(frame: IFrame, mode: SliderMode): void {
@@ -90,6 +130,22 @@ export class SliderGLRenderer {
         this._needsRender = true;
 
         for (let plane of imagePlanes) {
+            let material: IShaderMaterial = <IShaderMaterial>plane.material;
+            let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
+
+            texture.image = image;
+            texture.needsUpdate = true;
+        }
+    }
+
+    public updateTextureImage(image: HTMLImageElement, node?: Node): void {
+        if (this._currentKey !== node.key) {
+            return;
+        }
+
+        this._needsRender = true;
+
+        for (let plane of this._scene.imagePlanes) {
             let material: IShaderMaterial = <IShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
@@ -232,6 +288,20 @@ export class SliderGLRenderer {
             this._scene.setImagePlanes([imagePlane]);
 
             this._updateCurtain();
+        }
+    }
+
+    private _updateTexture(texture: THREE.Texture): void {
+        this._needsRender = true;
+
+        for (let plane of this._scene.imagePlanes) {
+            let material: IShaderMaterial = <IShaderMaterial>plane.material;
+
+            let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
+            material.uniforms.projectorTex.value = null;
+            oldTexture.dispose();
+
+            material.uniforms.projectorTex.value = texture;
         }
     }
 
