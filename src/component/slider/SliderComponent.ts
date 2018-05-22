@@ -16,8 +16,9 @@ import {
     SliderMode,
 } from "../../Component";
 import {
-    ViewportCoords,
+    Spatial,
     Transform,
+    ViewportCoords,
 } from "../../Geo";
 import { Node } from "../../Graph";
 import {
@@ -46,7 +47,6 @@ import {
     TextureProvider,
 } from "../../Tiles";
 import {
-    DOM,
     Settings,
     Urls,
 } from "../../Utils";
@@ -74,6 +74,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _domRenderer: SliderDOMRenderer;
     private _imageTileLoader: ImageTileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
+    private _spatial: Spatial;
 
     private _glRendererOperation$: Subject<IGLRendererOperation>;
     private _glRenderer$: Observable<SliderGLRenderer>;
@@ -119,6 +120,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._domRenderer = new SliderDOMRenderer(container);
         this._imageTileLoader = new ImageTileLoader(Urls.tileScheme, Urls.tileDomain, Urls.origin);
         this._roiCalculator = new RegionOfInterestCalculator();
+        this._spatial = new Spatial();
 
         this._glRendererOperation$ = new Subject<IGLRendererOperation>();
         this._glRendererCreator$ = new Subject<void>();
@@ -874,7 +876,29 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     let shiftedRoi: IRegionOfInterest = null;
 
                     if (frame.state.previousNode.fullPano) {
-                        shiftedRoi = roi;
+                        const currentViewingDirection: THREE.Vector3 = this._spatial.viewingDirection(frame.state.currentNode.rotation);
+                        const previousViewingDirection: THREE.Vector3 = this._spatial.viewingDirection(frame.state.previousNode.rotation);
+
+                        const directionDiff: number = this._spatial.angleBetweenVector2(
+                            previousViewingDirection.x,
+                            previousViewingDirection.y,
+                            currentViewingDirection.x,
+                            currentViewingDirection.y);
+
+                        const shift: number = directionDiff / (2 * Math.PI);
+
+                        const bbox: IBoundingBox = {
+                            maxX: this._spatial.wrap(roi.bbox.maxX + shift, 0, 1),
+                            maxY: roi.bbox.maxY,
+                            minX: this._spatial.wrap(roi.bbox.minX + shift, 0, 1),
+                            minY: roi.bbox.minY,
+                        };
+
+                        shiftedRoi = {
+                            bbox: bbox,
+                            pixelHeight: roi.pixelHeight,
+                            pixelWidth: roi.pixelWidth,
+                        };
                     } else {
                         const currentBasicAspect: number = frame.state.currentTransform.basicAspect;
                         const previousBasicAspect: number = frame.state.previousTransform.basicAspect;
