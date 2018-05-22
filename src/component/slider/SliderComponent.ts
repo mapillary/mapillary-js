@@ -38,6 +38,7 @@ import {
     RenderCamera,
 } from "../../Render";
 import {
+    IBoundingBox,
     ImageTileLoader,
     ImageTileStore,
     IRegionOfInterest,
@@ -867,12 +868,48 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 (args: [IRegionOfInterest, TextureProvider]): boolean => {
                     return !args[1].disposed;
                 })
+            .withLatestFrom(this._navigator.stateService.currentState$)
             .subscribe(
-                (args: [IRegionOfInterest, TextureProvider]): void => {
-                    let roi: IRegionOfInterest = args[0];
-                    let provider: TextureProvider = args[1];
+                ([[roi, provider], frame]: [[IRegionOfInterest, TextureProvider], IFrame]): void => {
+                    let shiftedRoi: IRegionOfInterest = null;
 
-                    provider.setRegionOfInterest(roi);
+                    if (frame.state.previousNode.fullPano) {
+                        shiftedRoi = roi;
+                    } else {
+                        const currentBasicAspect: number = frame.state.currentTransform.basicAspect;
+                        const previousBasicAspect: number = frame.state.previousTransform.basicAspect;
+
+                        const [[cornerMinX, cornerMinY], [cornerMaxX, cornerMaxY]]: number[][] =
+                            this._getBasicCorners(currentBasicAspect, previousBasicAspect);
+
+                        const basicWidth: number = cornerMaxX - cornerMinX;
+                        const basicHeight: number = cornerMaxY - cornerMinY;
+
+                        const pixelWidth: number = roi.pixelWidth / basicWidth;
+                        const pixelHeight: number = roi.pixelHeight / basicHeight;
+
+                        const minX: number = (basicWidth - 1) / (2 * basicWidth) + roi.bbox.minX / basicWidth;
+                        const maxX: number = (basicWidth - 1) / (2 * basicWidth) + roi.bbox.maxX / basicWidth;
+                        const minY: number = (basicHeight - 1) / (2 * basicHeight) + roi.bbox.minY / basicHeight;
+                        const maxY: number = (basicHeight - 1) / (2 * basicHeight) + roi.bbox.maxY / basicHeight;
+
+                        const bbox: IBoundingBox = {
+                            maxX: maxX,
+                            maxY: maxY,
+                            minX: minX,
+                            minY: minY,
+                        };
+
+                        this._clipBoundingBox(bbox);
+
+                        shiftedRoi = {
+                            bbox: bbox,
+                            pixelHeight: pixelHeight,
+                            pixelWidth: pixelWidth,
+                        };
+                    }
+
+                    provider.setRegionOfInterest(shiftedRoi);
                 });
 
         let hasTexturePrev$: Observable<boolean> = textureProviderPrev$
@@ -1017,6 +1054,28 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
                     return Observable.empty<Node>();
                 });
+    }
+
+    private _getBasicCorners(currentAspect: number, previousAspect: number): number[][] {
+        let offsetX: number;
+        let offsetY: number;
+
+        if (currentAspect > previousAspect) {
+            offsetX = 0.5;
+            offsetY = 0.5 * currentAspect / previousAspect;
+        } else {
+            offsetX = 0.5 * previousAspect / currentAspect;
+            offsetY = 0.5;
+        }
+
+        return [[0.5 - offsetX, 0.5 - offsetY], [0.5 + offsetX, 0.5 + offsetY]];
+    }
+
+    private _clipBoundingBox(bbox: IBoundingBox): void {
+        bbox.minX = Math.max(0, Math.min(1, bbox.minX));
+        bbox.maxX = Math.max(0, Math.min(1, bbox.maxX));
+        bbox.minY = Math.max(0, Math.min(1, bbox.minY));
+        bbox.maxY = Math.max(0, Math.min(1, bbox.maxY));
     }
 }
 
