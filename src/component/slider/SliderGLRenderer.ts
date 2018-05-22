@@ -35,7 +35,8 @@ export class SliderGLRenderer {
 
     private _mode: SliderMode;
 
-    private _providerDisposers: { [key: string]: () => void };
+    private _currentProviderDisposers: { [key: string]: () => void };
+    private _previousProviderDisposers: { [key: string]: () => void };
 
     constructor() {
         this._factory = new MeshFactory();
@@ -52,7 +53,8 @@ export class SliderGLRenderer {
 
         this._mode = null;
 
-        this._providerDisposers = {};
+        this._currentProviderDisposers = {};
+        this._previousProviderDisposers = {};
     }
 
     public get disabled(): boolean {
@@ -68,36 +70,21 @@ export class SliderGLRenderer {
     }
 
     public setTextureProvider(key: string, provider: TextureProvider): void {
-        if (key !== this._currentKey) {
-            return;
-        }
+        this._setTextureProvider(
+            key,
+            this._currentKey,
+            provider,
+            this._currentProviderDisposers,
+            this._updateTexture.bind(this));
+    }
 
-        let createdSubscription: Subscription = provider.textureCreated$
-            .subscribe(
-                (texture: THREE.Texture): void => {
-                    this._updateTexture(texture);
-                });
-
-        let updatedSubscription: Subscription = provider.textureUpdated$
-            .subscribe(
-                (updated: boolean): void => {
-                    this._needsRender = true;
-                });
-
-        let dispose: () => void = (): void => {
-            createdSubscription.unsubscribe();
-            updatedSubscription.unsubscribe();
-            provider.dispose();
-        };
-
-        if (key in this._providerDisposers) {
-            let disposeProvider: () => void = this._providerDisposers[key];
-            disposeProvider();
-
-            delete this._providerDisposers[key];
-        }
-
-        this._providerDisposers[key] = dispose;
+    public setTextureProviderPrev(key: string, provider: TextureProvider): void {
+        this._setTextureProvider(
+            key,
+            this._previousKey,
+            provider,
+            this._previousProviderDisposers,
+            this._updateTexturePrev.bind(this));
     }
 
     public update(frame: IFrame, mode: SliderMode): void {
@@ -171,12 +158,63 @@ export class SliderGLRenderer {
         this._scene.clear();
     }
 
+    private _getBasicCorners(currentAspect: number, previousAspect: number): number[][] {
+        let offsetX: number;
+        let offsetY: number;
+
+        if (currentAspect > previousAspect) {
+            offsetX = 0.5;
+            offsetY = 0.5 * currentAspect / previousAspect;
+        } else {
+            offsetX = 0.5 * previousAspect / currentAspect;
+            offsetY = 0.5;
+        }
+
+        return [[0.5 - offsetX, 0.5 - offsetY], [0.5 + offsetX, 0.5 + offsetY]];
+    }
+
     private _setDisabled(state: ICurrentState): void {
         this._disabled = state.currentNode == null ||
             state.previousNode == null ||
             (state.currentNode.pano && !state.currentNode.fullPano) ||
             (state.previousNode.pano && !state.previousNode.fullPano) ||
             (state.currentNode.fullPano && !state.previousNode.fullPano);
+    }
+
+    private _setTextureProvider(
+        key: string,
+        originalKey: string,
+        provider: TextureProvider,
+        providerDisposers: { [key: string]: () => void },
+        updateTexture: (texture: THREE.Texture) => void): void {
+
+        if (key !== originalKey) {
+            return;
+        }
+
+        let createdSubscription: Subscription = provider.textureCreated$
+            .subscribe(updateTexture);
+
+        let updatedSubscription: Subscription = provider.textureUpdated$
+            .subscribe(
+                (updated: boolean): void => {
+                    this._needsRender = true;
+                });
+
+        let dispose: () => void = (): void => {
+            createdSubscription.unsubscribe();
+            updatedSubscription.unsubscribe();
+            provider.dispose();
+        };
+
+        if (key in providerDisposers) {
+            let disposeProvider: () => void = providerDisposers[key];
+            disposeProvider();
+
+            delete providerDisposers[key];
+        }
+
+        providerDisposers[key] = dispose;
     }
 
     private _updateCurtain(): void {
@@ -305,19 +343,18 @@ export class SliderGLRenderer {
         }
     }
 
-    private _getBasicCorners(currentAspect: number, previousAspect: number): number[][] {
-        let offsetX: number;
-        let offsetY: number;
+    private _updateTexturePrev(texture: THREE.Texture): void {
+        this._needsRender = true;
 
-        if (currentAspect > previousAspect) {
-            offsetX = 0.5;
-            offsetY = 0.5 * currentAspect / previousAspect;
-        } else {
-            offsetX = 0.5 * previousAspect / currentAspect;
-            offsetY = 0.5;
+        for (let plane of this._scene.imagePlanesOld) {
+            let material: IShaderMaterial = <IShaderMaterial>plane.material;
+
+            let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
+            material.uniforms.projectorTex.value = null;
+            oldTexture.dispose();
+
+            material.uniforms.projectorTex.value = texture;
         }
-
-        return [[0.5 - offsetX, 0.5 - offsetY], [0.5 + offsetX, 0.5 + offsetY]];
     }
 }
 

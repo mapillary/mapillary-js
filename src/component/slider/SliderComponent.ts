@@ -85,7 +85,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _stateSubscription: Subscription;
     private _glRenderSubscription: Subscription;
     private _domRenderSubscription: Subscription;
-    private _nodeSubscription: Subscription;
     private _moveSubscription: Subscription;
     private _updateCurtainSubscription: Subscription;
     private _waitSubscription: Subscription;
@@ -98,6 +97,15 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _hasTextureSubscription: Subscription;
     private _updateBackgroundSubscription: Subscription;
     private _updateTextureImageSubscription: Subscription;
+
+    private _textureProviderSubscriptionPrev: Subscription;
+    private _setTextureProviderSubscriptionPrev: Subscription;
+    private _setTileSizeSubscriptionPrev: Subscription;
+    private _abortTextureProviderSubscriptionPrev: Subscription;
+    private _setRegionOfInterestSubscriptionPrev: Subscription;
+    private _hasTextureSubscriptionPrev: Subscription;
+    private _updateBackgroundSubscriptionPrev: Subscription;
+    private _updateTextureImageSubscriptionPrev: Subscription;
 
     /**
      * Create a new slider component instance.
@@ -450,6 +458,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     return node.key;
                 });
 
+        /*
         this._nodeSubscription = Observable
             .merge(
                 previousNode$,
@@ -492,6 +501,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     };
                 })
             .subscribe(this._glRendererOperation$);
+        */
 
         const textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$
             .distinctUntilChanged(
@@ -728,6 +738,242 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     };
                 })
             .subscribe(this._glRendererOperation$);
+
+        const textureProviderPrev$: Observable<TextureProvider> = this._navigator.stateService.currentState$
+            .distinctUntilChanged(
+                undefined,
+                (frame: IFrame): string => {
+                    return frame.state.previousNode.key;
+                })
+            .withLatestFrom(
+                this._container.glRenderer.webGLRenderer$,
+                this._container.renderService.size$)
+            .map(
+                ([frame, renderer, size]: [IFrame, THREE.WebGLRenderer, ISize]): TextureProvider => {
+                    const state: ICurrentState = frame.state;
+                    const viewportSize: number = Math.max(size.width, size.height);
+
+                    const previousNode: Node = state.previousNode;
+                    const previousTransform: Transform = state.previousTransform;
+                    const tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
+
+                    return new TextureProvider(
+                        previousNode.key,
+                        previousTransform.basicWidth,
+                        previousTransform.basicHeight,
+                        tileSize,
+                        previousNode.image,
+                        this._imageTileLoader,
+                        new ImageTileStore(),
+                        renderer);
+                })
+            .publishReplay(1)
+            .refCount();
+
+        this._textureProviderSubscriptionPrev = textureProviderPrev$.subscribe(() => { /*noop*/ });
+
+        this._setTextureProviderSubscriptionPrev = textureProviderPrev$
+            .map(
+                (provider: TextureProvider): IGLRendererOperation => {
+                    return (renderer: SliderGLRenderer): SliderGLRenderer => {
+                        renderer.setTextureProviderPrev(provider.key, provider);
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._glRendererOperation$);
+
+        this._setTileSizeSubscriptionPrev = this._container.renderService.size$
+            .switchMap(
+                (size: ISize): Observable<[TextureProvider, ISize]> => {
+                    return Observable
+                        .combineLatest(
+                            textureProviderPrev$,
+                            Observable.of<ISize>(size))
+                        .first();
+                })
+            .subscribe(
+                ([provider, size]: [TextureProvider, ISize]): void => {
+                    let viewportSize: number = Math.max(size.width, size.height);
+                    let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
+
+                    provider.setTileSize(tileSize);
+                });
+
+        this._abortTextureProviderSubscriptionPrev = textureProviderPrev$
+            .pairwise()
+            .subscribe(
+                (pair: [TextureProvider, TextureProvider]): void => {
+                    let previous: TextureProvider = pair[0];
+                    previous.abort();
+                });
+
+        let roiTriggerPrev$: Observable<[RenderCamera, ISize, Transform]> = Observable
+            .combineLatest(
+                this._container.renderService.renderCameraFrame$,
+                this._container.renderService.size$.debounceTime(250))
+            .map(
+                ([camera, size]: [RenderCamera, ISize]): PositionLookat => {
+                    return [
+                        camera.camera.position.clone(),
+                        camera.camera.lookat.clone(),
+                        camera.zoom.valueOf(),
+                        size.height.valueOf(),
+                        size.width.valueOf()];
+                })
+            .pairwise()
+            .skipWhile(
+                (pls: [PositionLookat, PositionLookat]): boolean => {
+                    return pls[1][2] - pls[0][2] < 0 || pls[1][2] === 0;
+                })
+            .map(
+                (pls: [PositionLookat, PositionLookat]): boolean => {
+                    let samePosition: boolean = pls[0][0].equals(pls[1][0]);
+                    let sameLookat: boolean = pls[0][1].equals(pls[1][1]);
+                    let sameZoom: boolean = pls[0][2] === pls[1][2];
+                    let sameHeight: boolean = pls[0][3] === pls[1][3];
+                    let sameWidth: boolean = pls[0][4] === pls[1][4];
+
+                    return samePosition && sameLookat && sameZoom && sameHeight && sameWidth;
+                })
+            .distinctUntilChanged()
+            .filter(
+                (stalled: boolean): boolean => {
+                    return stalled;
+                })
+            .switchMap(
+                (stalled: boolean): Observable<RenderCamera> => {
+                    return this._container.renderService.renderCameraFrame$
+                        .first();
+                })
+            .withLatestFrom(
+                this._container.renderService.size$,
+                this._navigator.stateService.currentTransform$);
+
+        this._setRegionOfInterestSubscriptionPrev = textureProviderPrev$
+            .switchMap(
+                (provider: TextureProvider): Observable<[IRegionOfInterest, TextureProvider]> => {
+                    return roiTriggerPrev$
+                        .map(
+                            ([camera, size, transform]: [RenderCamera, ISize, Transform]):
+                            [IRegionOfInterest, TextureProvider] => {
+                                return [
+                                    this._roiCalculator.computeRegionOfInterest(camera, size, transform),
+                                    provider,
+                                ];
+                            });
+                })
+            .filter(
+                (args: [IRegionOfInterest, TextureProvider]): boolean => {
+                    return !args[1].disposed;
+                })
+            .subscribe(
+                (args: [IRegionOfInterest, TextureProvider]): void => {
+                    let roi: IRegionOfInterest = args[0];
+                    let provider: TextureProvider = args[1];
+
+                    provider.setRegionOfInterest(roi);
+                });
+
+        let hasTexturePrev$: Observable<boolean> = textureProviderPrev$
+            .switchMap(
+                (provider: TextureProvider): Observable<boolean> => {
+                    return provider.hasTexture$;
+                })
+            .startWith(false)
+            .publishReplay(1)
+            .refCount();
+
+        this._hasTextureSubscriptionPrev = hasTexturePrev$.subscribe(() => { /*noop*/ });
+
+        let nodeImagePrev$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentState$
+            .filter(
+                (frame: IFrame): boolean => {
+                    return frame.state.nodesAhead === 0;
+                })
+            .map(
+                (frame: IFrame): Node => {
+                    return frame.state.previousNode;
+                })
+            .distinctUntilChanged(
+                undefined,
+                (node: Node): string => {
+                    return node.key;
+                })
+            .debounceTime(1000)
+            .withLatestFrom(hasTexturePrev$)
+            .filter(
+                (args: [Node, boolean]): boolean => {
+                    return !args[1];
+                })
+            .map(
+                (args: [Node, boolean]): Node => {
+                    return args[0];
+                })
+            .filter(
+                (node: Node): boolean => {
+                    return node.pano ?
+                        Settings.maxImageSize > Settings.basePanoramaSize :
+                        Settings.maxImageSize > Settings.baseImageSize;
+                })
+            .switchMap(
+                (node: Node): Observable<[HTMLImageElement, Node]> => {
+                    let baseImageSize: ImageSize = node.pano ?
+                        Settings.basePanoramaSize :
+                        Settings.baseImageSize;
+
+                    if (Math.max(node.image.width, node.image.height) > baseImageSize) {
+                        return Observable.empty<[HTMLImageElement, Node]>();
+                    }
+
+                    let image$: Observable<[HTMLImageElement, Node]> = node
+                        .cacheImage$(Settings.maxImageSize)
+                            .map(
+                                (n: Node): [HTMLImageElement, Node] => {
+                                    return [n.image, n];
+                                });
+
+                    return image$
+                        .takeUntil(
+                            hasTexturePrev$
+                                .filter(
+                                    (hasTexture: boolean): boolean => {
+
+                                        return hasTexture;
+                                    }))
+                        .catch(
+                            (error: Error, caught: Observable<[HTMLImageElement, Node]>):
+                                Observable<[HTMLImageElement, Node]> => {
+                                console.error(`Failed to fetch high res image (${node.key})`, error);
+
+                                return Observable.empty<[HTMLImageElement, Node]>();
+                            });
+                })
+            .publish()
+            .refCount();
+
+        this._updateBackgroundSubscriptionPrev = nodeImagePrev$
+            .withLatestFrom(textureProviderPrev$)
+            .subscribe(
+                (args: [[HTMLImageElement, Node], TextureProvider]): void => {
+                    if (args[0][1].key !== args[1].key ||
+                        args[1].disposed) {
+                        return;
+                    }
+
+                    args[1].updateBackground(args[0][0]);
+                });
+
+        this._updateTextureImageSubscriptionPrev = nodeImagePrev$
+            .map(
+                (imn: [HTMLImageElement, Node]): IGLRendererOperation => {
+                    return (renderer: SliderGLRenderer): SliderGLRenderer => {
+                        renderer.updateTextureImage(imn[0], imn[1]);
+
+                        return renderer;
+                    };
+                })
+            .subscribe(this._glRendererOperation$);
     }
 
     protected _deactivate(): void {
@@ -750,7 +996,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._stateSubscription.unsubscribe();
         this._glRenderSubscription.unsubscribe();
         this._domRenderSubscription.unsubscribe();
-        this._nodeSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
 
         this.configure({ keys: null });
