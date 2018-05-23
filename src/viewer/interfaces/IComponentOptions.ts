@@ -177,6 +177,15 @@ export interface IComponentOptions {
      * @default false
      */
     tag?: boolean | ITagConfiguration;
+
+    /**
+     * Show buttons for zooming in and out.
+     *
+     * @description Requires WebGL support.
+     *
+     * @default true
+     */
+    zoom?: boolean;
 }
 
 export default IComponentOptions;

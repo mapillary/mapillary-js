@@ -120,6 +120,7 @@ export class ComponentController {
         this._uTrue(options.mouse, "mouse");
         this._uTrue(options.sequence, "sequence");
         this._uTrue(options.stats, "stats");
+        this._uTrue(options.zoom, "zoom");
     }
 
     private _initilizeCoverComponent(): void {
