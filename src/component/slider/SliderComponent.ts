@@ -876,29 +876,90 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     let shiftedRoi: IRegionOfInterest = null;
 
                     if (frame.state.previousNode.fullPano) {
-                        const currentViewingDirection: THREE.Vector3 = this._spatial.viewingDirection(frame.state.currentNode.rotation);
-                        const previousViewingDirection: THREE.Vector3 = this._spatial.viewingDirection(frame.state.previousNode.rotation);
+                        if (frame.state.currentNode.fullPano) {
+                            const currentViewingDirection: THREE.Vector3 =
+                                this._spatial.viewingDirection(frame.state.currentNode.rotation);
+                            const previousViewingDirection: THREE.Vector3 =
+                                this._spatial.viewingDirection(frame.state.previousNode.rotation);
 
-                        const directionDiff: number = this._spatial.angleBetweenVector2(
-                            previousViewingDirection.x,
-                            previousViewingDirection.y,
-                            currentViewingDirection.x,
-                            currentViewingDirection.y);
+                            const directionDiff: number = this._spatial.angleBetweenVector2(
+                                currentViewingDirection.x,
+                                currentViewingDirection.y,
+                                previousViewingDirection.x,
+                                previousViewingDirection.y);
 
-                        const shift: number = directionDiff / (2 * Math.PI);
+                            const shift: number = directionDiff / (2 * Math.PI);
 
-                        const bbox: IBoundingBox = {
-                            maxX: this._spatial.wrap(roi.bbox.maxX + shift, 0, 1),
-                            maxY: roi.bbox.maxY,
-                            minX: this._spatial.wrap(roi.bbox.minX + shift, 0, 1),
-                            minY: roi.bbox.minY,
-                        };
+                            const bbox: IBoundingBox = {
+                                maxX: this._spatial.wrap(roi.bbox.maxX + shift, 0, 1),
+                                maxY: roi.bbox.maxY,
+                                minX: this._spatial.wrap(roi.bbox.minX + shift, 0, 1),
+                                minY: roi.bbox.minY,
+                            };
 
-                        shiftedRoi = {
-                            bbox: bbox,
-                            pixelHeight: roi.pixelHeight,
-                            pixelWidth: roi.pixelWidth,
-                        };
+                            shiftedRoi = {
+                                bbox: bbox,
+                                pixelHeight: roi.pixelHeight,
+                                pixelWidth: roi.pixelWidth,
+                            };
+                        } else {
+                            const currentViewingDirection: THREE.Vector3 =
+                                this._spatial.viewingDirection(frame.state.currentNode.rotation);
+                            const previousViewingDirection: THREE.Vector3 =
+                                this._spatial.viewingDirection(frame.state.previousNode.rotation);
+
+                            const directionDiff: number = this._spatial.angleBetweenVector2(
+                                currentViewingDirection.x,
+                                currentViewingDirection.y,
+                                previousViewingDirection.x,
+                                previousViewingDirection.y);
+
+                            const shiftX: number = directionDiff / (2 * Math.PI);
+
+                            const a1: number = this._spatial.angleToPlane(currentViewingDirection.toArray(), [0, 0, 1]);
+                            const a2: number = this._spatial.angleToPlane(previousViewingDirection.toArray(), [0, 0, 1]);
+
+                            const shiftY: number = (a2 - a1) / (2 * Math.PI);
+
+                            const currentTransform: Transform = frame.state.currentTransform;
+                            const size: number = Math.max(currentTransform.basicWidth, currentTransform.basicHeight);
+                            const hFov: number = size > 0 ?
+                                2 * Math.atan(0.5 * currentTransform.basicWidth / (size * currentTransform.focal)) :
+                                Math.PI / 3;
+                            const vFov: number = size > 0 ?
+                                2 * Math.atan(0.5 * currentTransform.basicHeight / (size * currentTransform.focal)) :
+                                Math.PI / 3;
+
+                            const spanningWidth: number = hFov / (2 * Math.PI);
+                            const spanningHeight: number = vFov / Math.PI;
+
+                            const basicWidth: number = (roi.bbox.maxX - roi.bbox.minX) * spanningWidth;
+                            const basicHeight: number = (roi.bbox.maxY - roi.bbox.minY) * spanningHeight;
+
+                            const pixelWidth: number = roi.pixelWidth * spanningWidth;
+                            const pixelHeight: number = roi.pixelHeight * spanningHeight;
+
+                            const zoomShiftX: number = (roi.bbox.minX + roi.bbox.maxX) / 2 - 0.5;
+                            const zoomShiftY: number = (roi.bbox.minY + roi.bbox.maxY) / 2 - 0.5;
+
+                            const minX: number = 0.5 + shiftX + spanningWidth * zoomShiftX - basicWidth / 2;
+                            const maxX: number = 0.5 + shiftX + spanningWidth * zoomShiftX + basicWidth / 2;
+                            const minY: number = 0.5 + shiftY + spanningHeight * zoomShiftY - basicHeight / 2;
+                            const maxY: number = 0.5 + shiftY + spanningHeight * zoomShiftY + basicHeight / 2;
+
+                            const bbox: IBoundingBox = {
+                                maxX: this._spatial.wrap(maxX, 0, 1),
+                                maxY: maxY,
+                                minX: this._spatial.wrap(minX, 0, 1),
+                                minY: minY,
+                            };
+
+                            shiftedRoi = {
+                                bbox: bbox,
+                                pixelHeight: pixelHeight,
+                                pixelWidth: pixelWidth,
+                            };
+                        }
                     } else {
                         const currentBasicAspect: number = frame.state.currentTransform.basicAspect;
                         const previousBasicAspect: number = frame.state.previousTransform.basicAspect;
