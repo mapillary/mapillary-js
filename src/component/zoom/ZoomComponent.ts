@@ -52,13 +52,15 @@ export class ZoomComponent extends Component<IComponentConfiguration> {
                 })
             .map(
                 (zoom: number): IVNodeHash => {
+                    const zoomInIcon: vd.VNode = vd.h("div.ZoomInIcon", []);
                     const zoomInButton: vd.VNode = zoom >= 3 ?
-                        vd.h("div.ZoomInButtonDisabled", []) :
-                        vd.h("div.ZoomInButton", { onclick: (): void => { this._zoomDelta$.next(1); } }, []);
+                        vd.h("div.ZoomInButtonDisabled", [zoomInIcon]) :
+                        vd.h("div.ZoomInButton", { onclick: (): void => { this._zoomDelta$.next(1); } }, [zoomInIcon]);
 
+                    const zoomOutIcon: vd.VNode = vd.h("div.ZoomOutIcon", []);
                     const zoomOutButton: vd.VNode = zoom <= 0 ?
-                        vd.h("div.ZoomOutButtonDisabled", []) :
-                        vd.h("div.ZoomOutButton", { onclick: (): void => { this._zoomDelta$.next(-1); } }, []);
+                        vd.h("div.ZoomOutButtonDisabled", [zoomOutIcon]) :
+                        vd.h("div.ZoomOutButton", { onclick: (): void => { this._zoomDelta$.next(-1); } }, [zoomOutIcon]);
 
                     return {
                         name: this._name,

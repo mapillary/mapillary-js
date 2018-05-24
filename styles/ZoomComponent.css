@@ -2,7 +2,7 @@
     position: absolute;
     bottom: 110px;
     right: 24px;
-    height: 60px;
+    height: 62px;
     width: 30px;
     pointer-events: none;
     z-index: 10;
@@ -13,8 +13,46 @@
 .ZoomOutButton,
 .ZoomOutButtonDisabled {
     width: 100%;
-    height: 50%;
+    height: 30px;
     pointer-events: auto;
-    background: rgba(24, 25, 28, 0.5);
+    background: rgba(0, 0, 0, 0.5);
     cursor: pointer;
+}
+
+.ZoomInButton,
+.ZoomInButtonDisabled {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.ZoomOutButton,
+.ZoomOutButtonDisabled {
+    margin-top: 2px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.ZoomInIcon,
+.ZoomOutIcon {
+    position: relative;
+    top: 0;
+    left: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 1;
+    width: 30px;
+    height: 30px;
+}
+
+.ZoomInIcon {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDMwIDMwIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPiAgPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTE2LDE0IEwyMSwxNCBDMjEuNTUyMjg0NywxNCAyMiwxNC40NDc3MTUzIDIyLDE1IEMyMiwxNS41NTIyODQ3IDIxLjU1MjI4NDcsMTYgMjEsMTYgTDE2LDE2IEwxNiwyMSBDMTYsMjEuNTUyMjg0NyAxNS41NTIyODQ3LDIyIDE1LDIyIEMxNC40NDc3MTUzLDIyIDE0LDIxLjU1MjI4NDcgMTQsMjEgTDE0LDE2IEw5LDE2IEM4LjQ0NzcxNTI1LDE2IDgsMTUuNTUyMjg0NyA4LDE1IEM4LDE0LjQ0NzcxNTMgOC40NDc3MTUyNSwxNCA5LDE0IEwxNCwxNCBMMTQsOSBDMTQsOC40NDc3MTUyNSAxNC40NDc3MTUzLDggMTUsOCBDMTUuNTUyMjg0Nyw4IDE2LDguNDQ3NzE1MjUgMTYsOSBMMTYsMTQgWiIvPjwvZz4gIDwvc3ZnPiAg');
+}
+
+.ZoomOutIcon {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDMwIDMwIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPiAgPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTIyLDE1IEMyMiwxNS41NTIyODQ3IDIxLjU1MjI4NDcsMTYgMjEsMTYgTDksMTYgQzguNDQ3NzE1MjUsMTYgOCwxNS41NTIyODQ3IDgsMTUgQzgsMTQuNDQ3NzE1MyA4LjQ0NzcxNTI1LDE0IDksMTQgTDIxLDE0IEMyMS41NTIyODQ3LDE0IDIyLDE0LjQ0NzcxNTMgMjIsMTUgWiIvPjwvZz4gIDwvc3ZnPiAg');
+}
+
+.ZoomInButtonDisabled .ZoomInIcon,
+.ZoomOutButtonDisabled .ZoomOutIcon {
+    opacity: 0.35;
 }
