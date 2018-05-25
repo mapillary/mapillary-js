@@ -1,41 +1,46 @@
-.BearingIndicator {
-    bottom: 28px;
-    height: 66px;
+.BearingIndicatorContainer {
+    bottom: 46px;
+    height: 38px;
     pointer-events: none;
     position: absolute;
     right: 11px;
-    width: 56px;
+    width: 38px;
     z-index: 10;
 }
 
 .BearingIndicatorBackground {
-    opacity: 0.5;
     pointer-events: auto;
-}
-
-.BearingIndicatorBackgroundRectangle {
-    background: #242528;
-    height: 12px;
-    left: 23px;
     position: absolute;
     top: 0;
-    width: 10px;
+    left: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color:rgba(0, 0, 0, 0.5);
 }
 
 .BearingIndicatorBackgroundCircle {
-    background: #242528;
-    border-radius: 50%;
-    bottom: 0;
-    height: 56px;
     position: absolute;
-    width: 56px;
+    top: 3px;
+    left: 3px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid white;
 }
 
-.BearingIndicatorNorth {
-    background: white;
-    height: 6px;
-    left: 27px;
+.BearingNorthContainer {
     position: absolute;
-    top: 4px;
-    width: 2px;
+    left: 15px;
+    top: -3px;
+    width: 8px;
+    height: 22px;
+    transform-origin: 50% 100%;
+}
+
+.BearingNorth {
+    position: absolute;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid white;
 }

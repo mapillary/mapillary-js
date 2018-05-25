@@ -1,7 +1,7 @@
 .ZoomContainer {
     position: absolute;
-    bottom: 110px;
-    right: 24px;
+    bottom: 100px;
+    right: 16px;
     height: 62px;
     width: 30px;
     pointer-events: none;
