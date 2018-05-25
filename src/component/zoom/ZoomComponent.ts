@@ -64,7 +64,10 @@ export class ZoomComponent extends Component<IComponentConfiguration> {
 
                     return {
                         name: this._name,
-                        vnode: vd.h("div.ZoomContainer", {}, [zoomInButton, zoomOutButton]),
+                        vnode: vd.h(
+                            "div.ZoomContainer",
+                            { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
+                            [zoomInButton, zoomOutButton]),
                     };
                 })
             .subscribe(this._container.domRenderer.render$);
