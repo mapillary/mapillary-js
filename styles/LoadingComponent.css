@@ -7,8 +7,11 @@
 }
 
 .LoadingBar {
-    height: 4px;
+    height: 3px;
     position: relative;
-    background-color: rgba(53, 175, 109, 0.8);
+    background-color: rgba(255, 255, 255, 1);
     transition: opacity 100ms;
+    border-bottom-color: rgba(0, 0, 0, 0.5);
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
 }
