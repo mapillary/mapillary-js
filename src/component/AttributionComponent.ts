@@ -2,6 +2,7 @@
 
 import * as vd from "virtual-dom";
 
+import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import {
@@ -10,7 +11,10 @@ import {
     IComponentConfiguration,
 } from "../Component";
 import {Node} from "../Graph";
-import {IVNodeHash} from "../Render";
+import {
+    IVNodeHash,
+    ISize,
+} from "../Render";
 import {Urls} from "../Utils";
 import {
     Container,
@@ -26,10 +30,16 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._disposable = this._navigator.stateService.currentNode$
+        this._disposable = Observable
+            .combineLatest(
+                this._navigator.stateService.currentNode$,
+                this._container.renderService.size$)
             .map(
-                (node: Node): IVNodeHash => {
-                    return {name: this._name, vnode: this._getAttributionNode(node.username, node.key, node.capturedAt)};
+                ([node, size]: [Node, ISize]): IVNodeHash => {
+                    return {
+                        name: this._name,
+                        vnode: this._getAttributionNode(node.username, node.key, node.capturedAt, size.width),
+                    };
                 })
             .subscribe(this._container.domRenderer.render$);
     }
@@ -42,16 +52,25 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
         return {};
     }
 
-    private _getAttributionNode(username: string, key: string, capturedAt: number): vd.VNode {
-        const mapillaryIcon: vd.VNode = vd.h("div.AttributionMapillaryIcon", []);
-        const mapillaryLink: vd.VNode = vd.h("a.AttributionIconContainer", { href: Urls.explore, target: "_blank" }, [mapillaryIcon]);
+    private _getAttributionNode(username: string, key: string, capturedAt: number, width: number): vd.VNode {
+        const compact: boolean = width <= 640;
 
-        const imageByContent: vd.VNode = vd.h("div.AttributionUsername", { textContent: `image by ${username}` }, []);
+        const mapillaryIcon: vd.VNode = vd.h("div.AttributionMapillaryLogo", []);
+        const mapillaryLink: vd.VNode = vd.h(
+            "a.AttributionIconContainer",
+            { href: Urls.explore, target: "_blank" },
+            [mapillaryIcon]);
+
+        const imageBy: string = compact ? `${username}` : `image by ${username}`;
+        const imageByContent: vd.VNode = vd.h("div.AttributionUsername", { textContent: imageBy }, []);
 
         const date: string[] = new Date(capturedAt).toDateString().split(" ");
-        const formatted: string = date.length > 3 ?
-            [date[1], date[2] + ",", date[3]].join(" ") :
-            date.join(" ");
+        const formatted: string = (date.length > 3 ?
+            compact ?
+                [date[3]] :
+                [date[1], date[2] + ",", date[3]] :
+            date).join(" ");
+
         const dateContent: vd.VNode = vd.h("div.AttributionDate", { textContent: formatted }, []);
 
         const imageLink: vd.VNode =
@@ -60,9 +79,11 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
                 { href: Urls.exporeImage(key), target: "_blank" },
                 [imageByContent, dateContent]);
 
-        return vd.h("div.AttributionContainer", {}, [mapillaryLink, imageLink]);
+        const compactClass: string = compact ? ".AttributionCompact" : "";
+
+        return vd.h("div.AttributionContainer" + compactClass, {}, [mapillaryLink, imageLink]);
     }
-}
+    }
 
 ComponentService.register(AttributionComponent);
 export default AttributionComponent;
