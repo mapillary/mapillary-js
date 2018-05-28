@@ -20,7 +20,7 @@
     border-top-left-radius: 8px;
     pointer-events: auto;
     cursor: default;
-    background: rgba(24, 25, 28, 0.5);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .SliderModeButton,
@@ -29,7 +29,7 @@
     height: 100%;
     display: inline-block;
     pointer-events: auto;
-    background: rgba(24, 25, 28, 0.5);
+    background: rgba(0, 0, 0, 0.5);
 
 }
 
@@ -61,7 +61,7 @@
     display: inline-block;
     height: 100%;
     vertical-align: top;
-    background: rgba(24, 25, 28, 0.5);
+    background: rgba(0, 0, 0, 0.5);
     pointer-events: auto;
     padding-right: 16px;
     border-bottom-right-radius: 8px;
@@ -86,10 +86,9 @@
     height: 16px;
     border-radius: 50%;
     border: 2px solid white;
-    background: #dee5ed;
+    background: white;
     cursor: pointer;
     margin-top: -6px;
-    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
 .SliderPosition::-webkit-slider-runnable-track {
@@ -113,10 +112,9 @@
     height: 12px;
     border-radius: 50%;
     border: 2px solid white;
-    background: #dee5ed;
+    background: white;
     cursor: pointer;
     margin-top: -6px;
-    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
 .SliderPosition::-ms-track {
@@ -140,10 +138,9 @@
     height: 12px;
     border-radius: 50%;
     border: 2px solid white;
-    background: #dee5ed;
+    background: white;
     cursor: pointer;
     margin-top: 0;
-    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
 .SliderPosition::-ms-tooltip {
