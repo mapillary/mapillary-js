@@ -1,9 +1,9 @@
 .BearingIndicatorContainer {
-    bottom: 46px;
+    bottom: 36px;
     height: 38px;
     pointer-events: none;
     position: absolute;
-    right: 11px;
+    right: 10px;
     width: 38px;
     z-index: 10;
 }
