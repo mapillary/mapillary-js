@@ -32,6 +32,11 @@
     border-bottom-right-radius: 8px;
 }
 
+.ZoomInButtonDisabled,
+.ZoomOutButtonDisabled {
+    cursor: default;
+}
+
 .ZoomInIcon,
 .ZoomOutIcon {
     position: relative;

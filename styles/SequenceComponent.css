@@ -211,18 +211,24 @@
     pointer-events: auto;
 }
 
+.SequencePlayDisabled,
+.SequenceStepNextDisabled,
+.SequenceStepPrevDisabled {
+    cursor: default;
+}
+
 .SequencePlay,
 .SequencePlayDisabled,
 .SequenceStepNext,
 .SequenceStepNextDisabled,
 .SequenceStepPrev,
 .SequenceStepPrevDisabled {
-    background: rgba(24, 25, 28, 0.3);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .SequenceStepNextHighlight,
 .SequenceStepPrevHighlight {
-    background: rgba(24, 25, 28, 0.6);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .SequenceSwitchButton,
