@@ -2,6 +2,7 @@
 
 import * as vd from "virtual-dom";
 
+import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 
@@ -20,6 +21,7 @@ import {
 } from "../../Render";
 import {
     IFrame,
+    State,
 } from "../../State";
 import {
     Container,
@@ -45,20 +47,23 @@ export class ZoomComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._renderSubscription = this._navigator.stateService.currentState$
+        this._renderSubscription = Observable
+            .combineLatest(
+                this._navigator.stateService.currentState$,
+                this._navigator.stateService.state$)
             .map(
-                (frame: IFrame): number => {
-                    return frame.state.zoom;
+                ([frame, state]: [IFrame, State]): [number, State] => {
+                    return [frame.state.zoom, state];
                 })
             .map(
-                (zoom: number): IVNodeHash => {
+                ([zoom, state]: [number, State]): IVNodeHash => {
                     const zoomInIcon: vd.VNode = vd.h("div.ZoomInIcon", []);
-                    const zoomInButton: vd.VNode = zoom >= 3 ?
+                    const zoomInButton: vd.VNode = zoom >= 3 || state === State.Waiting ?
                         vd.h("div.ZoomInButtonDisabled", [zoomInIcon]) :
                         vd.h("div.ZoomInButton", { onclick: (): void => { this._zoomDelta$.next(1); } }, [zoomInIcon]);
 
                     const zoomOutIcon: vd.VNode = vd.h("div.ZoomOutIcon", []);
-                    const zoomOutButton: vd.VNode = zoom <= 0 ?
+                    const zoomOutButton: vd.VNode = zoom <= 0 || state === State.Waiting ?
                         vd.h("div.ZoomOutButtonDisabled", [zoomOutIcon]) :
                         vd.h("div.ZoomOutButton", { onclick: (): void => { this._zoomDelta$.next(-1); } }, [zoomOutIcon]);
 
