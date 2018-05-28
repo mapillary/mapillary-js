@@ -2,6 +2,7 @@
 
 import * as vd from "virtual-dom";
 
+import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
 
 import {
@@ -11,7 +12,10 @@ import {
     Component,
 } from "../Component";
 import {Node} from "../Graph";
-import {IVNodeHash} from "../Render";
+import {
+    IVNodeHash,
+    ISize,
+} from "../Render";
 import {Urls} from "../Utils";
 import {
     Container,
@@ -22,15 +26,15 @@ import {
 export class CoverComponent extends Component<ICoverConfiguration> {
     public static componentName: string = "cover";
 
-    private _disposable: Subscription;
-    private _keyDisposable: Subscription;
+    private _renderSubscription: Subscription;
+    private _keySubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     public _activate(): void {
-        this._keyDisposable = this._navigator.stateService.currentNode$
+        this._keySubscription = this._navigator.stateService.currentNode$
             .withLatestFrom(
                 this._configuration$,
                 (node: Node, configuration: ICoverConfiguration): [Node, ICoverConfiguration] => {
@@ -47,39 +51,54 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                 })
             .subscribe(this._configurationSubject$);
 
-        this._disposable = this._configuration$
+        this._renderSubscription = Observable
+            .combineLatest(
+                this._configuration$,
+                this._container.renderService.size$)
             .map(
-                (conf: ICoverConfiguration): IVNodeHash => {
-                    if (!conf.key) {
+                ([configuration, size]: [ICoverConfiguration, ISize]): IVNodeHash => {
+                    if (!configuration.key) {
                         return { name: this._name, vnode: vd.h("div", []) };
                     }
 
-                    if (conf.state === CoverState.Hidden) {
-                        return {name: this._name, vnode: vd.h("div.Cover.CoverDone", [ this._getCoverBackgroundVNode(conf) ])};
+                    const compactClass: string = size.width <= 640 || size.height <= 480 ? ".CoverCompact" : "";
+
+                    if (configuration.state === CoverState.Hidden) {
+                        const doneContainer: vd.VNode = vd.h(
+                            "div.CoverContainer.CoverDone" + compactClass,
+                            [this._getCoverBackgroundVNode(configuration)]);
+
+                        return { name: this._name, vnode: doneContainer };
                     }
 
-                    return { name: this._name, vnode: this._getCoverButtonVNode(conf) };
+                    const container: vd.VNode = vd.h(
+                        "div.CoverContainer" + compactClass,
+                        [this._getCoverButtonVNode(configuration)]);
+
+                    return { name: this._name, vnode: container };
                 })
             .subscribe(this._container.domRenderer.render$);
     }
 
     public _deactivate(): void {
-        this._disposable.unsubscribe();
-        this._keyDisposable.unsubscribe();
+        this._renderSubscription.unsubscribe();
+        this._keySubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ICoverConfiguration {
         return { state: CoverState.Visible };
     }
 
-    private _getCoverButtonVNode(conf: ICoverConfiguration): vd.VNode {
-        const cover: string = conf.state === CoverState.Loading ? "div.Cover.CoverLoading" : "div.Cover";
+    private _getCoverButtonVNode(configuration: ICoverConfiguration): vd.VNode {
+        const cover: string = configuration.state === CoverState.Loading ? "div.Cover.CoverLoading" : "div.Cover";
+        const coverButton: vd.VNode = vd.h(
+            "div.CoverButton",
+            { onclick: (): void => { this.configure({ state: CoverState.Loading }); } },
+            [vd.h("div.CoverButtonIcon", [])]);
 
-        return vd.h(cover, [
-            this._getCoverBackgroundVNode(conf),
-            vd.h("button.CoverButton", { onclick: (): void => { this.configure({ state: CoverState.Loading }); } }, ["Explore"]),
-            vd.h("a.CoverLogo", {href: Urls.explore, target: "_blank"}, []),
-        ]);
+        const coverLogo: vd.VNode = vd.h("a.CoverLogo", {href: Urls.explore, target: "_blank"}, []);
+
+        return vd.h(cover, [this._getCoverBackgroundVNode(configuration), coverButton, coverLogo]);
     }
 
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
@@ -92,8 +111,6 @@ export class CoverComponent extends Component<ICoverConfiguration> {
         if (conf.state === CoverState.Loading) {
             children.push(vd.h("div.Spinner", {}, []));
         }
-
-        children.push(vd.h("div.CoverBackgroundGradient", {}, []));
 
         return vd.h("div.CoverBackground", properties, children);
     }
