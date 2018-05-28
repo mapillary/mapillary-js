@@ -317,7 +317,7 @@ export class SequenceDOMRenderer {
         const switchButton: vd.VNode = vd.h("div" + switchButtonClassName, switchButtonProperties, [switchIcon]);
         const slowIcon: vd.VNode = vd.h("div.SequenceSlowIcon.SequenceIconVisible", []);
         const slowContainer: vd.VNode = vd.h("div.SequenceSlowContainer", [slowIcon]);
-        const fastIcon: vd.VNode = vd.h("div.SequenceFastIconGrey.SequenceIconVisible", []);
+        const fastIcon: vd.VNode = vd.h("div.SequenceFastIcon.SequenceIconVisible", []);
         const fastContainer: vd.VNode = vd.h("div.SequenceFastContainer", [fastIcon]);
         const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
         const closeButtonProperties: vd.createProperties = {
