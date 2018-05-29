@@ -95,13 +95,22 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         expect(similarEdges.length).toBe(0);
     });
 
-    it("should not have a similar edge if not same merge cc", () => {
+    it("should have a similar edge even if not same merge cc", () => {
         potentialEdge.sameMergeCC = false;
         potentialEdge.sequenceKey = "other";
 
         let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
 
-        expect(similarEdges.length).toBe(0);
+        expect(similarEdges.length).toBe(1);
+    });
+
+    it("should have a similar edge if same merge cc", () => {
+        potentialEdge.sameMergeCC = true;
+        potentialEdge.sequenceKey = "other";
+
+        let similarEdges: IEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+
+        expect(similarEdges.length).toBe(1);
     });
 
     it("should not have a similar edge if distance is above threshold", () => {

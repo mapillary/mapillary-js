@@ -233,8 +233,7 @@ export class EdgeCalculator {
                 continue;
             }
 
-            if (potentialEdge.sameSequence ||
-                !potentialEdge.sameMergeCC) {
+            if (potentialEdge.sameSequence) {
                 continue;
             }
 
