@@ -7,6 +7,13 @@ import { Subscription } from "rxjs/Subscription";
 import { Subject } from "rxjs/Subject";
 
 import {
+    ISliderNodes,
+    ISliderCombination,
+    IGLRendererOperation,
+    PositionLookat,
+} from "./interfaces/interfaces";
+
+import {
     Component,
     ComponentService,
     ISliderConfiguration,
@@ -50,22 +57,6 @@ import {
     Settings,
     Urls,
 } from "../../Utils";
-
-interface ISliderNodes {
-    background: Node;
-    foreground: Node;
-}
-
-interface ISliderCombination {
-    nodes: ISliderNodes;
-    state: ICurrentState;
-}
-
-interface IGLRendererOperation {
-    (glRenderer: SliderGLRenderer): SliderGLRenderer;
-}
-
-type PositionLookat = [THREE.Vector3, THREE.Vector3, number, number, number];
 
 /**
  * @class SliderComponent
