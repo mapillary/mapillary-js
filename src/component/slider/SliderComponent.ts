@@ -67,6 +67,34 @@ interface IGLRendererOperation {
 
 type PositionLookat = [THREE.Vector3, THREE.Vector3, number, number, number];
 
+/**
+ * @class SliderComponent
+ *
+ * @classdesc Component for comparing pairs of images. Renders
+ * a slider for adjusting the curtain of the first image.
+ *
+ * Deactivate the sequence, direction and image plane
+ * components when activating the slider component to avoid
+ * interfering UI elements.
+ *
+ * To retrive and use the marker component
+ *
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer(
+ *     "<element-id>",
+ *     "<client-id>",
+ *     "<my key>");
+ *
+ * viewer.deactivateComponent("imagePlane");
+ * viewer.deactivateComponent("direction");
+ * viewer.deactivateComponent("sequence");
+ *
+ * viewer.activateComponent("slider");
+ *
+ * var sliderComponent = viewer.getComponent("marker");
+ * ```
+ */
 export class SliderComponent extends Component<ISliderConfiguration> {
     public static componentName: string = "slider";
 
@@ -109,10 +137,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _updateBackgroundSubscriptionPrev: Subscription;
     private _updateTextureImageSubscriptionPrev: Subscription;
 
-    /**
-     * Create a new slider component instance.
-     * @class SliderComponent
-     */
     constructor (name: string, container: Container, navigator: Navigator, viewportCoords?: ViewportCoords) {
         super(name, container, navigator);
 
@@ -460,51 +484,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 (node: Node): string => {
                     return node.key;
                 });
-
-        /*
-        this._nodeSubscription = Observable
-            .merge(
-                previousNode$,
-                this._navigator.stateService.currentNode$)
-            .filter(
-                (node: Node): boolean => {
-                    return node.fullPano ?
-                        Settings.maxImageSize > Settings.basePanoramaSize :
-                        Settings.maxImageSize > Settings.baseImageSize;
-                })
-            .mergeMap(
-                (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    let baseImageSize: ImageSize = node.fullPano ?
-                        Settings.basePanoramaSize :
-                        Settings.baseImageSize;
-
-                    if (Math.max(node.image.width, node.image.height) > baseImageSize) {
-                        return Observable.empty<[HTMLImageElement, Node]>();
-                    }
-
-                    return node.cacheImage$(Settings.maxImageSize)
-                            .map(
-                                (n: Node): [HTMLImageElement, Node] => {
-                                    return [n.image, n];
-                                })
-                            .catch(
-                                (error: Error, caught: Observable<[HTMLImageElement, Node]>):
-                                    Observable<[HTMLImageElement, Node]> => {
-                                    console.error(`Failed to fetch high res slider image (${node.key})`, error);
-
-                                    return Observable.empty<[HTMLImageElement, Node]>();
-                                });
-                })
-            .map(
-                ([element, node]: [HTMLImageElement, Node]): IGLRendererOperation => {
-                    return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
-                        glRenderer.updateTexture(element, node);
-
-                        return glRenderer;
-                    };
-                })
-            .subscribe(this._glRendererOperation$);
-        */
 
         const textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$
             .distinctUntilChanged(

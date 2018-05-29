@@ -37,6 +37,7 @@
         "./src/component/popup/popup/Popup.ts",
         "./src/component/popup/interfaces/IPopupOffset.ts",
         "./src/component/popup/interfaces/IPopupOptions.ts",
+        "./src/component/slider/SliderComponent.ts",
         "./src/component/tag/geometry/PointGeometry.ts",
         "./src/component/tag/geometry/PolygonGeometry.ts",
         "./src/component/tag/geometry/RectGeometry.ts",
