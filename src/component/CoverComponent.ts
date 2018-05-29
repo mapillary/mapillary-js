@@ -47,7 +47,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             .map(([node, configuration]: [Node, ICoverConfiguration]): Node => { return node; })
             .map(
                 (node: Node): ICoverConfiguration => {
-                    return { key: node.key, src: node.image.src };
+                    return { key: node.key, src: null };
                 })
             .subscribe(this._configurationSubject$);
 
