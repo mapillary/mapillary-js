@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IMouseConfiguration | MapillaryJS</title>
+	<title>AbortMapillaryError | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="imouseconfiguration.html">IMouseConfiguration</a>
+					<a href="abortmapillaryerror.html">AbortMapillaryError</a>
 				</li>
 			</ul>
-			<h1>Interface IMouseConfiguration</h1>
+			<h1>Class AbortMapillaryError</h1>
 		</div>
 	</div>
 </header>
@@ -66,25 +66,14 @@
 		<div class="col-8 col-content">
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Interface for configuration of mouse component.</p>
-					</div>
 					<dl class="tsd-comment-tags">
-						<dt>interface</dt>
-						<dd></dd>
-						<dt>example</dt>
-						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer('&lt;element-id&gt;',</span> <span class="hljs-string">'&lt;client-id&gt;'</span><span class="hljs-string">,</span> <span class="hljs-string">'&lt;image-key&gt;'</span><span class="hljs-string">,</span>
-    <span class="hljs-string">{</span>
-<span class="hljs-attr">        component:</span> <span class="hljs-string">{</span>
-<span class="hljs-attr">            mouse:</span> <span class="hljs-string">{</span>
-<span class="hljs-attr">                doubleClickZoom:</span> <span class="hljs-literal">false</span><span class="hljs-string">,</span>
-<span class="hljs-attr">                dragPan:</span> <span class="hljs-literal">false</span><span class="hljs-string">,</span>
-<span class="hljs-attr">                scrollZoom:</span> <span class="hljs-literal">false</span><span class="hljs-string">,</span>
-<span class="hljs-attr">                touchZoom:</span> <span class="hljs-literal">false</span><span class="hljs-string">,</span>
-            <span class="hljs-string">},</span>
-        <span class="hljs-string">},</span>
-    <span class="hljs-string">})</span>
-</code></pre></dd>
+						<dt>class</dt>
+						<dd><p>AbortMapillaryError</p>
+						</dd>
+						<dt>classdesc</dt>
+						<dd><p>Error thrown when a move to request has been
+							aborted before completing because of a subsequent request.</p>
+						</dd>
 					</dl>
 				</div>
 			</section>
@@ -92,121 +81,98 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">IComponentConfiguration</span>
+						<span class="tsd-signature-type">MapillaryError</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">IMouseConfiguration</span>
+								<span class="target">AbortMapillaryError</span>
 							</li>
 						</ul>
 					</li>
 				</ul>
-			</section>
-			<section class="tsd-panel tsd-kind-interface">
-				<h3 class="tsd-before-signature">Indexable</h3>
-				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>index: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></div>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Interface for configuration of mouse component.</p>
-					</div>
-				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="abortmapillaryerror.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imouseconfiguration.html#doubleclickzoom" class="tsd-kind-icon">double<wbr>Click<wbr>Zoom</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imouseconfiguration.html#dragpan" class="tsd-kind-icon">drag<wbr>Pan</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imouseconfiguration.html#scrollzoom" class="tsd-kind-icon">scroll<wbr>Zoom</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="imouseconfiguration.html#touchzoom" class="tsd-kind-icon">touch<wbr>Zoom</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="abortmapillaryerror.html#message" class="tsd-kind-icon">message</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="abortmapillaryerror.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-static"><a href="abortmapillaryerror.html#stack" class="tsd-kind-icon">stack</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Abort<wbr>Mapillary<wbr>Error<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="abortmapillaryerror.html" class="tsd-signature-type">AbortMapillaryError</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides MapillaryError.__constructor</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/error/AbortMapillaryError.ts#L9">error/AbortMapillaryError.ts:9</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> message: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="abortmapillaryerror.html" class="tsd-signature-type">AbortMapillaryError</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="doubleclickzoom" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> double<wbr>Click<wbr>Zoom</h3>
-					<div class="tsd-signature tsd-kind-icon">double<wbr>Click<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+					<a name="message" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> message</h3>
+					<div class="tsd-signature tsd-kind-icon">message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from Error.message</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/interfaces/IMouseConfiguration.ts#L28">component/interfaces/IMouseConfiguration.ts:28</a></li>
+							<li>Defined in /vagrant/node_modules/typescript/lib/lib.d.ts:874</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Enable or disable the <code>DoubleClickZoomHandler</code>.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>false</p>
-							</dd>
-						</dl>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="dragpan" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> drag<wbr>Pan</h3>
-					<div class="tsd-signature tsd-kind-icon">drag<wbr>Pan<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+					<a name="name" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> name</h3>
+					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from Error.name</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/interfaces/IMouseConfiguration.ts#L35">component/interfaces/IMouseConfiguration.ts:35</a></li>
+							<li>Defined in /vagrant/node_modules/typescript/lib/lib.d.ts:873</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Enable or disable the <code>DragPanHandler</code>.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>true</p>
-							</dd>
-						</dl>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="scrollzoom" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> scroll<wbr>Zoom</h3>
-					<div class="tsd-signature tsd-kind-icon">scroll<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-static">
+					<a name="stack" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagOptional">Optional</span> stack</h3>
+					<div class="tsd-signature tsd-kind-icon">stack<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from Error.stack</p>
+						<p>Overrides Error.stack</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/interfaces/IMouseConfiguration.ts#L42">component/interfaces/IMouseConfiguration.ts:42</a></li>
+							<li>Defined in /vagrant/node_modules/typescript/lib/lib.d.ts:875</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Enable or disable the <code>ScrollZoomHandler</code>.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>true</p>
-							</dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="touchzoom" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> touch<wbr>Zoom</h3>
-					<div class="tsd-signature tsd-kind-icon">touch<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/interfaces/IMouseConfiguration.ts#L49">component/interfaces/IMouseConfiguration.ts:49</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Enable or disable the <code>TouchZoomHandler</code>.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>true</p>
-							</dd>
-						</dl>
-					</div>
 				</section>
 			</section>
 		</div>
@@ -222,20 +188,20 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface">
-						<a href="imouseconfiguration.html" class="tsd-kind-icon">IMouse<wbr>Configuration</a>
+					<li class="current tsd-kind-class">
+						<a href="abortmapillaryerror.html" class="tsd-kind-icon">Abort<wbr>Mapillary<wbr>Error</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imouseconfiguration.html#doubleclickzoom" class="tsd-kind-icon">double<wbr>Click<wbr>Zoom</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+								<a href="abortmapillaryerror.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imouseconfiguration.html#dragpan" class="tsd-kind-icon">drag<wbr>Pan</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="abortmapillaryerror.html#message" class="tsd-kind-icon">message</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imouseconfiguration.html#scrollzoom" class="tsd-kind-icon">scroll<wbr>Zoom</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="abortmapillaryerror.html#name" class="tsd-kind-icon">name</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="imouseconfiguration.html#touchzoom" class="tsd-kind-icon">touch<wbr>Zoom</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-static">
+								<a href="abortmapillaryerror.html#stack" class="tsd-kind-icon">stack</a>
 							</li>
 						</ul>
 					</li>

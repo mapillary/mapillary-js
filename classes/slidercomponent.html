@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>KeyboardComponent | MapillaryJS</title>
+	<title>SliderComponent | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="keyboardcomponent.html">KeyboardComponent</a>
+					<a href="slidercomponent.html">SliderComponent</a>
 				</li>
 			</ul>
-			<h1>Class KeyboardComponent</h1>
+			<h1>Class SliderComponent</h1>
 		</div>
 	</div>
 </header>
@@ -68,19 +68,29 @@
 				<div class="tsd-comment tsd-typography">
 					<dl class="tsd-comment-tags">
 						<dt>class</dt>
-						<dd><p>KeyboardComponent</p>
+						<dd><p>SliderComponent</p>
 						</dd>
 						<dt>classdesc</dt>
-						<dd><p>Component for keyboard event handling.</p>
-							<p>To retrive and use the keyboard component</p>
+						<dd><p>Component for comparing pairs of images. Renders
+							a slider for adjusting the curtain of the first image.</p>
+							<p>Deactivate the sequence, direction and image plane
+								components when activating the slider component to avoid
+							interfering UI elements.</p>
+							<p>To retrive and use the marker component</p>
 						</dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-attribute">var viewer</span> = new Mapillary.Viewer(
+						<dd><pre><code>var viewer = new Mapillary.Viewer(
     <span class="hljs-string">"&lt;element-id&gt;"</span>,
     <span class="hljs-string">"&lt;client-id&gt;"</span>,
-    <span class="hljs-string">"&lt;my key&gt;"</span>);
+    <span class="hljs-string">"&lt;my key&gt;"</span>)<span class="hljs-comment">;</span>
 
-<span class="hljs-attribute">var keyboardComponent</span> = viewer.getComponent(<span class="hljs-string">"keyboard"</span>);
+viewer.deactivateComponent(<span class="hljs-string">"imagePlane"</span>)<span class="hljs-comment">;</span>
+viewer.deactivateComponent(<span class="hljs-string">"direction"</span>)<span class="hljs-comment">;</span>
+viewer.deactivateComponent(<span class="hljs-string">"sequence"</span>)<span class="hljs-comment">;</span>
+
+viewer.activateComponent(<span class="hljs-string">"slider"</span>)<span class="hljs-comment">;</span>
+
+var sliderComponent = viewer.getComponent(<span class="hljs-string">"marker"</span>)<span class="hljs-comment">;</span>
 </code></pre></dd>
 					</dl>
 				</div>
@@ -89,10 +99,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span>
+						<span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">KeyboardComponent</span>
+								<span class="target">SliderComponent</span>
 							</li>
 						</ul>
 					</li>
@@ -105,49 +115,49 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="keyboardcomponent.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="slidercomponent.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyboardcomponent.html#_activated" class="tsd-kind-icon">_activated</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyboardcomponent.html#_activated_" class="tsd-kind-icon">_activated$</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyboardcomponent.html#_configuration_" class="tsd-kind-icon">_configuration$</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyboardcomponent.html#_configurationsubject_" class="tsd-kind-icon">_configuration<wbr>Subject$</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyboardcomponent.html#_container" class="tsd-kind-icon">_container</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyboardcomponent.html#_name" class="tsd-kind-icon">_name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="keyboardcomponent.html#_navigator" class="tsd-kind-icon">_navigator</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static"><a href="keyboardcomponent.html#componentname" class="tsd-kind-icon">component<wbr>Name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="slidercomponent.html#_activated" class="tsd-kind-icon">_activated</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="slidercomponent.html#_activated_" class="tsd-kind-icon">_activated$</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="slidercomponent.html#_configuration_" class="tsd-kind-icon">_configuration$</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="slidercomponent.html#_configurationsubject_" class="tsd-kind-icon">_configuration<wbr>Subject$</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="slidercomponent.html#_container" class="tsd-kind-icon">_container</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="slidercomponent.html#_name" class="tsd-kind-icon">_name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="slidercomponent.html#_navigator" class="tsd-kind-icon">_navigator</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static"><a href="slidercomponent.html#componentname" class="tsd-kind-icon">component<wbr>Name</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#activated" class="tsd-kind-icon">activated</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#activated_" class="tsd-kind-icon">activated$</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#configuration_" class="tsd-kind-icon">configuration$</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#defaultconfiguration" class="tsd-kind-icon">default<wbr>Configuration</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="keyboardcomponent.html#keyplay" class="tsd-kind-icon">key<wbr>Play</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="keyboardcomponent.html#keysequencenavigation" class="tsd-kind-icon">key<wbr>Sequence<wbr>Navigation</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="keyboardcomponent.html#keyspatialnavigation" class="tsd-kind-icon">key<wbr>Spatial<wbr>Navigation</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="keyboardcomponent.html#keyzoom" class="tsd-kind-icon">key<wbr>Zoom</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#activated" class="tsd-kind-icon">activated</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#activated_" class="tsd-kind-icon">activated$</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#configuration_" class="tsd-kind-icon">configuration$</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#defaultconfiguration" class="tsd-kind-icon">default<wbr>Configuration</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#name" class="tsd-kind-icon">name</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="keyboardcomponent.html#_activate" class="tsd-kind-icon">_activate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="keyboardcomponent.html#_deactivate" class="tsd-kind-icon">_deactivate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="keyboardcomponent.html#_getdefaultconfiguration" class="tsd-kind-icon">_get<wbr>Default<wbr>Configuration</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#activate" class="tsd-kind-icon">activate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#configure" class="tsd-kind-icon">configure</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#deactivate" class="tsd-kind-icon">deactivate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#fire" class="tsd-kind-icon">fire</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#off" class="tsd-kind-icon">off</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#on" class="tsd-kind-icon">on</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="keyboardcomponent.html#resize" class="tsd-kind-icon">resize</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="slidercomponent.html#_activate" class="tsd-kind-icon">_activate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="slidercomponent.html#_deactivate" class="tsd-kind-icon">_deactivate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="slidercomponent.html#_getdefaultconfiguration" class="tsd-kind-icon">_get<wbr>Default<wbr>Configuration</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#activate" class="tsd-kind-icon">activate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#configure" class="tsd-kind-icon">configure</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#deactivate" class="tsd-kind-icon">deactivate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#fire" class="tsd-kind-icon">fire</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#off" class="tsd-kind-icon">off</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="slidercomponent.html#resize" class="tsd-kind-icon">resize</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="slidercomponent.html#setinitialposition" class="tsd-kind-icon">set<wbr>Initial<wbr>Position</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="slidercomponent.html#setkeys" class="tsd-kind-icon">set<wbr>Keys</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="slidercomponent.html#setslidermode" class="tsd-kind-icon">set<wbr>Slider<wbr>Mode</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="slidercomponent.html#setslidervisible" class="tsd-kind-icon">set<wbr>Slider<wbr>Visible</a></li>
 							</ul>
 						</section>
 					</div>
@@ -159,14 +169,14 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Keyboard<wbr>Component<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Container</span>, navigator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Navigator</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="keyboardcomponent.html" class="tsd-signature-type">KeyboardComponent</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Slider<wbr>Component<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Container</span>, navigator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Navigator</span>, viewportCoords<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ViewportCoords</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="slidercomponent.html" class="tsd-signature-type">SliderComponent</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides Component.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L46">component/keyboard/KeyboardComponent.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L129">component/slider/SliderComponent.ts:129</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -180,8 +190,11 @@
 								<li>
 									<h5>navigator: <span class="tsd-signature-type">Navigator</span></h5>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> viewportCoords: <span class="tsd-signature-type">ViewportCoords</span></h5>
+								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="keyboardcomponent.html" class="tsd-signature-type">KeyboardComponent</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="slidercomponent.html" class="tsd-signature-type">SliderComponent</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -213,7 +226,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="_configuration_" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _configuration$</h3>
-					<div class="tsd-signature tsd-kind-icon">_configuration$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">_configuration$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from Component._configuration$</p>
 						<ul>
@@ -224,7 +237,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="_configurationsubject_" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _configuration<wbr>Subject$</h3>
-					<div class="tsd-signature tsd-kind-icon">_configuration<wbr>Subject$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Subject&lt;TConfiguration&gt;()</span></div>
+					<div class="tsd-signature tsd-kind-icon">_configuration<wbr>Subject$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Subject&lt;TConfiguration&gt;()</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from Component._configurationSubject$</p>
 						<ul>
@@ -268,16 +281,16 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static">
 					<a name="componentname" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> component<wbr>Name</h3>
-					<div class="tsd-signature tsd-kind-icon">component<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;keyboard&quot;</span></div>
+					<div class="tsd-signature tsd-kind-icon">component<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;slider&quot;</span></div>
 					<aside class="tsd-sources">
 						<p>Overrides Component.componentName</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L39">component/keyboard/KeyboardComponent.ts:39</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L90">component/slider/SliderComponent.ts:90</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Accessors</h2>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 					<a name="activated" class="tsd-anchor"></a>
@@ -319,7 +332,7 @@
 					<a name="configuration_" class="tsd-anchor"></a>
 					<h3>configuration$</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> configuration$<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> configuration$<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -329,7 +342,7 @@
 									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/Component.ts#L71">component/Component.ts:71</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -337,7 +350,7 @@
 					<a name="defaultconfiguration" class="tsd-anchor"></a>
 					<h3>default<wbr>Configuration</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> defaultConfiguration<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> defaultConfiguration<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -352,100 +365,8 @@
 									<p>Get default configuration.</p>
 								</div>
 							</div>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a></h4>
 							<p>Default configuration for component.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="keyplay" class="tsd-anchor"></a>
-					<h3>key<wbr>Play</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> keyPlay<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="keyplayhandler.html" class="tsd-signature-type">KeyPlayHandler</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L62">component/keyboard/KeyboardComponent.ts:62</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get key play.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="keyplayhandler.html" class="tsd-signature-type">KeyPlayHandler</a></h4>
-							<p>The key play handler.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="keysequencenavigation" class="tsd-anchor"></a>
-					<h3>key<wbr>Sequence<wbr>Navigation</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> keySequenceNavigation<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="keysequencenavigationhandler.html" class="tsd-signature-type">KeySequenceNavigationHandler</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L71">component/keyboard/KeyboardComponent.ts:71</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get key sequence navigation.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="keysequencenavigationhandler.html" class="tsd-signature-type">KeySequenceNavigationHandler</a></h4>
-							<p>The key sequence navigation handler.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="keyspatialnavigation" class="tsd-anchor"></a>
-					<h3>key<wbr>Spatial<wbr>Navigation</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> keySpatialNavigation<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="keyspatialnavigationhandler.html" class="tsd-signature-type">KeySpatialNavigationHandler</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L80">component/keyboard/KeyboardComponent.ts:80</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get spatial.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="keyspatialnavigationhandler.html" class="tsd-signature-type">KeySpatialNavigationHandler</a></h4>
-							<p>The spatial handler.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="keyzoom" class="tsd-anchor"></a>
-					<h3>key<wbr>Zoom</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> keyZoom<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="keyzoomhandler.html" class="tsd-signature-type">KeyZoomHandler</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L89">component/keyboard/KeyboardComponent.ts:89</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get key zoom.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="keyzoomhandler.html" class="tsd-signature-type">KeyZoomHandler</a></h4>
-							<p>The key zoom handler.</p>
 						</li>
 					</ul>
 				</section>
@@ -481,7 +402,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Component._activate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L93">component/keyboard/KeyboardComponent.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L233">component/slider/SliderComponent.ts:233</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -499,7 +420,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Component._deactivate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L123">component/keyboard/KeyboardComponent.ts:123</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L1075">component/slider/SliderComponent.ts:1075</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -510,17 +431,17 @@
 					<a name="_getdefaultconfiguration" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _get<wbr>Default<wbr>Configuration</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">_get<wbr>Default<wbr>Configuration<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a></li>
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>Default<wbr>Configuration<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides Component._getDefaultConfiguration</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/keyboard/KeyboardComponent.ts#L132">component/keyboard/KeyboardComponent.ts:132</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L1100">component/slider/SliderComponent.ts:1100</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -528,7 +449,7 @@
 					<a name="activate" class="tsd-anchor"></a>
 					<h3>activate</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">activate<span class="tsd-signature-symbol">(</span>conf<span class="tsd-signature-symbol">?: </span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">activate<span class="tsd-signature-symbol">(</span>conf<span class="tsd-signature-symbol">?: </span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -541,7 +462,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> conf: <a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> conf: <a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -552,7 +473,7 @@
 					<a name="configure" class="tsd-anchor"></a>
 					<h3>configure</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">configure<span class="tsd-signature-symbol">(</span>conf<span class="tsd-signature-symbol">: </span><a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">configure<span class="tsd-signature-symbol">(</span>conf<span class="tsd-signature-symbol">: </span><a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -565,7 +486,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>conf: <a href="../interfaces/ikeyboardconfiguration.html" class="tsd-signature-type">IKeyboardConfiguration</a></h5>
+									<h5>conf: <a href="../interfaces/isliderconfiguration.html" class="tsd-signature-type">ISliderConfiguration</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -717,6 +638,151 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setinitialposition" class="tsd-anchor"></a>
+					<h3>set<wbr>Initial<wbr>Position</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Initial<wbr>Position<span class="tsd-signature-symbol">(</span>initialPosition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L194">component/slider/SliderComponent.ts:194</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Set the initial position.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>Configures the intial position of the slider.
+											The inital position value will be used when the component
+										is activated.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>initialPosition: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Initial slider position.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setkeys" class="tsd-anchor"></a>
+					<h3>set<wbr>Keys</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Keys<span class="tsd-signature-symbol">(</span>keys<span class="tsd-signature-symbol">: </span><a href="../interfaces/isliderkeys.html" class="tsd-signature-type">ISliderKeys</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L207">component/slider/SliderComponent.ts:207</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Set the image keys.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>Configures the component to show the image
+										planes for the supplied image keys.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>keys: <a href="../interfaces/isliderkeys.html" class="tsd-signature-type">ISliderKeys</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Slider keys object specifying
+										the images to be shown in the foreground and the background.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setslidermode" class="tsd-anchor"></a>
+					<h3>set<wbr>Slider<wbr>Mode</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Slider<wbr>Mode<span class="tsd-signature-symbol">(</span>mode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SliderMode.Motion</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">SliderMode.Stationary</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L219">component/slider/SliderComponent.ts:219</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Set the slider mode.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>Configures the mode for transitions between
+										image pairs.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>mode: <span class="tsd-signature-type">SliderMode.Motion</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">SliderMode.Stationary</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Slider mode to be set.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setslidervisible" class="tsd-anchor"></a>
+					<h3>set<wbr>Slider<wbr>Visible</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Slider<wbr>Visible<span class="tsd-signature-symbol">(</span>sliderVisible<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/d384f73/src/component/slider/SliderComponent.ts#L229">component/slider/SliderComponent.ts:229</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Set the value controlling if the slider is visible.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>sliderVisible: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Value indicating if
+										the slider should be visible or not.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -732,91 +798,91 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
-						<a href="keyboardcomponent.html" class="tsd-kind-icon">Keyboard<wbr>Component</a>
+						<a href="slidercomponent.html" class="tsd-kind-icon">Slider<wbr>Component</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-								<a href="keyboardcomponent.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="slidercomponent.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="keyboardcomponent.html#_activated" class="tsd-kind-icon">_activated</a>
+								<a href="slidercomponent.html#_activated" class="tsd-kind-icon">_activated</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="keyboardcomponent.html#_activated_" class="tsd-kind-icon">_activated$</a>
+								<a href="slidercomponent.html#_activated_" class="tsd-kind-icon">_activated$</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="keyboardcomponent.html#_configuration_" class="tsd-kind-icon">_configuration$</a>
+								<a href="slidercomponent.html#_configuration_" class="tsd-kind-icon">_configuration$</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="keyboardcomponent.html#_configurationsubject_" class="tsd-kind-icon">_configuration<wbr>Subject$</a>
+								<a href="slidercomponent.html#_configurationsubject_" class="tsd-kind-icon">_configuration<wbr>Subject$</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="keyboardcomponent.html#_container" class="tsd-kind-icon">_container</a>
+								<a href="slidercomponent.html#_container" class="tsd-kind-icon">_container</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="keyboardcomponent.html#_name" class="tsd-kind-icon">_name</a>
+								<a href="slidercomponent.html#_name" class="tsd-kind-icon">_name</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="keyboardcomponent.html#_navigator" class="tsd-kind-icon">_navigator</a>
+								<a href="slidercomponent.html#_navigator" class="tsd-kind-icon">_navigator</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static">
-								<a href="keyboardcomponent.html#componentname" class="tsd-kind-icon">component<wbr>Name</a>
+								<a href="slidercomponent.html#componentname" class="tsd-kind-icon">component<wbr>Name</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#activated" class="tsd-kind-icon">activated</a>
+								<a href="slidercomponent.html#activated" class="tsd-kind-icon">activated</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#activated_" class="tsd-kind-icon">activated$</a>
+								<a href="slidercomponent.html#activated_" class="tsd-kind-icon">activated$</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#configuration_" class="tsd-kind-icon">configuration$</a>
+								<a href="slidercomponent.html#configuration_" class="tsd-kind-icon">configuration$</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#defaultconfiguration" class="tsd-kind-icon">default<wbr>Configuration</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="keyboardcomponent.html#keyplay" class="tsd-kind-icon">key<wbr>Play</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="keyboardcomponent.html#keysequencenavigation" class="tsd-kind-icon">key<wbr>Sequence<wbr>Navigation</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="keyboardcomponent.html#keyspatialnavigation" class="tsd-kind-icon">key<wbr>Spatial<wbr>Navigation</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="keyboardcomponent.html#keyzoom" class="tsd-kind-icon">key<wbr>Zoom</a>
+								<a href="slidercomponent.html#defaultconfiguration" class="tsd-kind-icon">default<wbr>Configuration</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#name" class="tsd-kind-icon">name</a>
+								<a href="slidercomponent.html#name" class="tsd-kind-icon">name</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="keyboardcomponent.html#_activate" class="tsd-kind-icon">_activate</a>
+								<a href="slidercomponent.html#_activate" class="tsd-kind-icon">_activate</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="keyboardcomponent.html#_deactivate" class="tsd-kind-icon">_deactivate</a>
+								<a href="slidercomponent.html#_deactivate" class="tsd-kind-icon">_deactivate</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="keyboardcomponent.html#_getdefaultconfiguration" class="tsd-kind-icon">_get<wbr>Default<wbr>Configuration</a>
+								<a href="slidercomponent.html#_getdefaultconfiguration" class="tsd-kind-icon">_get<wbr>Default<wbr>Configuration</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#activate" class="tsd-kind-icon">activate</a>
+								<a href="slidercomponent.html#activate" class="tsd-kind-icon">activate</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#configure" class="tsd-kind-icon">configure</a>
+								<a href="slidercomponent.html#configure" class="tsd-kind-icon">configure</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#deactivate" class="tsd-kind-icon">deactivate</a>
+								<a href="slidercomponent.html#deactivate" class="tsd-kind-icon">deactivate</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#fire" class="tsd-kind-icon">fire</a>
+								<a href="slidercomponent.html#fire" class="tsd-kind-icon">fire</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#off" class="tsd-kind-icon">off</a>
+								<a href="slidercomponent.html#off" class="tsd-kind-icon">off</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#on" class="tsd-kind-icon">on</a>
+								<a href="slidercomponent.html#on" class="tsd-kind-icon">on</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="keyboardcomponent.html#resize" class="tsd-kind-icon">resize</a>
+								<a href="slidercomponent.html#resize" class="tsd-kind-icon">resize</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="slidercomponent.html#setinitialposition" class="tsd-kind-icon">set<wbr>Initial<wbr>Position</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="slidercomponent.html#setkeys" class="tsd-kind-icon">set<wbr>Keys</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="slidercomponent.html#setslidermode" class="tsd-kind-icon">set<wbr>Slider<wbr>Mode</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="slidercomponent.html#setslidervisible" class="tsd-kind-icon">set<wbr>Slider<wbr>Visible</a>
 							</li>
 						</ul>
 					</li>
