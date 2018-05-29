@@ -156,6 +156,25 @@ export class SliderGLRenderer {
 
     public dispose(): void {
         this._scene.clear();
+
+        for (const key in this._currentProviderDisposers) {
+            if (!this._currentProviderDisposers.hasOwnProperty(key)) {
+                continue;
+            }
+
+            this._currentProviderDisposers[key]();
+        }
+
+        for (const key in this._previousProviderDisposers) {
+            if (!this._previousProviderDisposers.hasOwnProperty(key)) {
+                continue;
+            }
+
+            this._previousProviderDisposers[key]();
+        }
+
+        this._currentProviderDisposers = {};
+        this._previousProviderDisposers = {};
     }
 
     private _getBasicCorners(currentAspect: number, previousAspect: number): number[][] {
@@ -246,6 +265,14 @@ export class SliderGLRenderer {
 
         const motionless: boolean = state.motionless || mode === SliderMode.Stationary || state.currentNode.pano;
 
+        if (this.disabled || previousChanged) {
+            if (this._previousKey in this._previousProviderDisposers) {
+                this._previousProviderDisposers[this._previousKey]();
+
+                delete this._previousProviderDisposers[this._previousKey];
+            }
+        }
+
         if (this.disabled) {
             this._scene.setImagePlanesOld([]);
         } else {
@@ -265,6 +292,8 @@ export class SliderGLRenderer {
                     [currentAspect / previousAspect, 1];
 
                 let rotation: number[] = state.currentNode.rotation;
+                let width: number = state.currentNode.width;
+                let height: number = state.currentNode.height;
 
                 if (previousNode.fullPano) {
                     rotation = state.previousNode.rotation;
@@ -276,12 +305,15 @@ export class SliderGLRenderer {
                             rotation)
                         .multiplyScalar(-1)
                         .toArray();
+
+                    width = state.previousNode.width;
+                    height = state.previousNode.height;
                 }
 
                 const transform: Transform = new Transform(
                     state.currentNode.orientation,
-                    state.currentNode.width,
-                    state.currentNode.height,
+                    width,
+                    height,
                     state.currentNode.focal,
                     state.currentNode.scale,
                     previousNode.gpano,
@@ -317,6 +349,12 @@ export class SliderGLRenderer {
         }
 
         if (currentChanged) {
+            if (this._currentKey in this._currentProviderDisposers) {
+                this._currentProviderDisposers[this._currentKey]();
+
+                delete this._currentProviderDisposers[this._currentKey];
+            }
+
             this._currentKey = state.currentNode.key;
 
             const imagePlane: THREE.Mesh = state.currentNode.pano && !state.currentNode.fullPano ?
