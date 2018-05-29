@@ -722,6 +722,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             .subscribe(this._glRendererOperation$);
 
         const textureProviderPrev$: Observable<TextureProvider> = this._navigator.stateService.currentState$
+            .filter(
+                (frame: IFrame): boolean => {
+                    return !!frame.state.previousNode;
+                })
             .distinctUntilChanged(
                 undefined,
                 (frame: IFrame): string => {
@@ -990,7 +994,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         let nodeImagePrev$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentState$
             .filter(
                 (frame: IFrame): boolean => {
-                    return frame.state.nodesAhead === 0;
+                    return frame.state.nodesAhead === 0 && !!frame.state.previousNode;
                 })
             .map(
                 (frame: IFrame): Node => {
