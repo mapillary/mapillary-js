@@ -4,7 +4,7 @@
 
 MapillaryJS is a JavaScript & WebGL library that renders street level imagery from [Mapillary](https://www.mapillary.com).
 
-[<img width="49%" alt="San Francisco on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964788/9d75b25e-2f1a-11e6-9c5f-b4a42853a1eb.png">](https://www.mapillary.com/app/?focus=photo&pKey=VKf9Ay98ubkclhS2cCEWDg) [<img width="49%" alt="Frigilana on Mapillary.com" src="https://cloud.githubusercontent.com/assets/2492302/15964789/9d8256c6-2f1a-11e6-9d4b-bd906875078c.png">](https://www.mapillary.com/app/?focus=photo&pKey=FjsftlSr2Vqigl8P2zpOAw)
+[<img width="49%" alt="San Francisco on Mapillary.com" src="https://user-images.githubusercontent.com/2492302/40781267-834ef7d4-64db-11e8-8c4c-3e83f17ff7c8.png">](https://www.mapillary.com/app/?focus=photo&pKey=VKf9Ay98ubkclhS2cCEWDg) [<img width="49%" alt="Frigilana on Mapillary.com" src="https://user-images.githubusercontent.com/2492302/40781605-ccfbb5c4-64dc-11e8-9b89-02beb73449ec.png">](https://www.mapillary.com/app/?focus=photo&pKey=FjsftlSr2Vqigl8P2zpOAw)
 
 ## Using MapillaryJS
 
