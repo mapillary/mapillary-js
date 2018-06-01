@@ -328,7 +328,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._moveSubscription = Observable
             .combineLatest(
-                this._domRenderer.position$,
+                position$,
                 mode$,
                 motionless$,
                 fullPano$,
@@ -364,13 +364,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._updateCurtainSubscription = Observable
             .combineLatest(
-                this.configuration$
-                    .first()
-                    .map(
-                        (configuration: ISliderConfiguration): number => {
-                            return configuration.initialPosition;
-                        })
-                    .concat(this._domRenderer.position$),
+                position$,
                 fullPano$,
                 sliderVisible$,
                 this._container.renderService.renderCamera$,
