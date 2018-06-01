@@ -2,9 +2,6 @@
     position: absolute;
     bottom: 40px;
     height: 30px;
-    width: 405px;
-    max-width: 80%;
-    min-width: 271px;
     left: 50%;
     padding-left: 5px;
     pointer-events: none;

@@ -80,7 +80,10 @@ export class SliderDOMRenderer {
             children.push(this._createPositionInput(position, modeVisible));
         }
 
-        return vd.h("div.SliderContainer", children);
+        const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
+        const width: number = Math.max(215, Math.min(400, boundingRect.width - 100));
+
+        return vd.h("div.SliderContainer", { style: { width: `${width}px` } }, children);
     }
 
     private _createModeButton(mode: SliderMode): vd.VNode {
@@ -124,7 +127,7 @@ export class SliderDOMRenderer {
         };
 
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
-        const width: number = Math.max(276, Math.min(410, 5 + 0.8 * boundingRect.width)) - 78 + (modeVisible ? 0 : 36);
+        const width: number = Math.max(215, Math.min(400, boundingRect.width - 105)) - 68 + (modeVisible ? 0 : 36);
 
         const positionInput: vd.VNode = vd.h(
             "input.SliderPosition",
