@@ -222,6 +222,16 @@ export class Node {
     }
 
     /**
+     * Get image$.
+     *
+     * @returns {Observable<HTMLImageElement>} Observable emitting
+     * the cached image when it is updated.
+     */
+    public get image$(): Observable<HTMLImageElement> {
+        return this._cache.image$;
+    }
+
+    /**
      * Get key.
      *
      * @returns {string} Unique key of the node.

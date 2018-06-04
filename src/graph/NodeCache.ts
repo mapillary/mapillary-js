@@ -34,6 +34,8 @@ export class NodeCache {
     private _imageRequest: XMLHttpRequest;
     private _meshRequest: XMLHttpRequest;
 
+    private _imageChanged$: Subject<HTMLImageElement>;
+    private _image$: Observable<HTMLImageElement>;
     private _sequenceEdgesChanged$: Subject<IEdgeStatus>;
     private _sequenceEdges$: Observable<IEdgeStatus>;
     private _spatialEdgesChanged$: Subject<IEdgeStatus>;
@@ -41,6 +43,7 @@ export class NodeCache {
 
     private _cachingAssets$: Observable<NodeCache>;
 
+    private _iamgeSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
 
@@ -55,6 +58,14 @@ export class NodeCache {
         this._mesh = null;
         this._sequenceEdges = { cached: false, edges: [] };
         this._spatialEdges = { cached: false, edges: [] };
+
+        this._imageChanged$ = new Subject<HTMLImageElement>();
+        this._image$ = this._imageChanged$
+            .startWith(null)
+            .publishReplay(1)
+            .refCount();
+
+        this._iamgeSubscription = this._image$.subscribe();
 
         this._sequenceEdgesChanged$ = new Subject<IEdgeStatus>();
         this._sequenceEdges$ = this._sequenceEdgesChanged$
@@ -85,6 +96,16 @@ export class NodeCache {
      */
     public get image(): HTMLImageElement {
         return this._image;
+    }
+
+    /**
+     * Get image$.
+     *
+     * @returns {Observable<HTMLImageElement>} Observable emitting
+     * the cached image when it is updated.
+     */
+    public get image$(): Observable<HTMLImageElement> {
+        return this._image$;
     }
 
     /**
@@ -198,6 +219,17 @@ export class NodeCache {
             .publishReplay(1)
             .refCount();
 
+        this._cachingAssets$
+            .first(
+                (nodeCache: NodeCache): boolean => {
+                    return !!nodeCache._image;
+                })
+            .subscribe(
+                (nodeCache: NodeCache): void => {
+                    this._imageChanged$.next(this._image);
+                },
+                (error: Error): void => { /*noop*/ });
+
         return this._cachingAssets$;
     }
 
@@ -216,7 +248,7 @@ export class NodeCache {
             return Observable.of<NodeCache>(this);
         }
 
-        return this._cacheImage$(key, imageSize)
+        const cacheImage$: Observable<NodeCache> = this._cacheImage$(key, imageSize)
             .first(
                 (status: ILoadStatusObject<HTMLImageElement>): boolean => {
                     return status.object != null;
@@ -229,7 +261,18 @@ export class NodeCache {
             .map(
                 (imageStatus: ILoadStatusObject<HTMLImageElement>): NodeCache => {
                     return this;
-                });
+                })
+            .publishReplay(1)
+            .refCount();
+
+        cacheImage$
+            .subscribe(
+                (nodeCache: NodeCache): void => {
+                    this._imageChanged$.next(this._image);
+                },
+                (error: Error): void => { /*noop*/ });
+
+        return cacheImage$;
     }
 
     /**
@@ -259,6 +302,7 @@ export class NodeCache {
      * all streams.
      */
     public dispose(): void {
+        this._iamgeSubscription.unsubscribe();
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
 
@@ -270,6 +314,7 @@ export class NodeCache {
         this._sequenceEdges = { cached: false, edges: [] };
         this._spatialEdges = { cached: false, edges: [] };
 
+        this._imageChanged$.next(null);
         this._sequenceEdgesChanged$.next(this._sequenceEdges);
         this._spatialEdgesChanged$.next(this._spatialEdges);
 

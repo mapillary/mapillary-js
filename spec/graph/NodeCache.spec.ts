@@ -3,6 +3,8 @@ import {
     IEdgeStatus,
     NodeCache,
 } from "../../src/Graph";
+import { ImageSize } from "../../src/Viewer";
+import { MockCreator } from "../helper/MockCreator.spec";
 
 describe("NodeCache.ctor", () => {
     it("should create a node cache", () => {
@@ -69,31 +71,31 @@ describe("NodeCache.sequenceEdges$", () => {
 
         nodeCache.cacheSequenceEdges([sequenceEdge]);
     });
+});
 
-    describe("NodeCache.resetSequenc eEdges", () => {
-        it("should reset the sequence edges", () => {
-            let nodeCache: NodeCache = new NodeCache();
+describe("NodeCache.resetSequenceEdges", () => {
+    it("should reset the sequence edges", () => {
+        let nodeCache: NodeCache = new NodeCache();
 
-            let sequenceEdge: IEdge = {
-                data: {
-                    direction: EdgeDirection.Next,
-                    worldMotionAzimuth: null,
-                },
-                from: "key1",
-                to: "key2",
-            };
+        let sequenceEdge: IEdge = {
+            data: {
+                direction: EdgeDirection.Next,
+                worldMotionAzimuth: null,
+            },
+            from: "key1",
+            to: "key2",
+        };
 
-            nodeCache.cacheSequenceEdges([sequenceEdge]);
+        nodeCache.cacheSequenceEdges([sequenceEdge]);
 
-            expect(nodeCache.sequenceEdges.cached).toBe(true);
-            expect(nodeCache.sequenceEdges.edges.length).toBe(1);
-            expect(nodeCache.sequenceEdges.edges[0].from).toBe(sequenceEdge.from);
+        expect(nodeCache.sequenceEdges.cached).toBe(true);
+        expect(nodeCache.sequenceEdges.edges.length).toBe(1);
+        expect(nodeCache.sequenceEdges.edges[0].from).toBe(sequenceEdge.from);
 
-            nodeCache.resetSequenceEdges();
+        nodeCache.resetSequenceEdges();
 
-            expect(nodeCache.sequenceEdges.cached).toBe(false);
-            expect(nodeCache.sequenceEdges.edges.length).toBe(0);
-        });
+        expect(nodeCache.sequenceEdges.cached).toBe(false);
+        expect(nodeCache.sequenceEdges.edges.length).toBe(0);
     });
 });
 
@@ -141,65 +143,170 @@ describe("NodeCache.spatialEdges$", () => {
 
         nodeCache.cacheSpatialEdges([spatialEdge]);
     });
+});
 
-    describe("NodeCache.resetSpatialEdges", () => {
-        it("should reset the spatial edges", () => {
-            let nodeCache: NodeCache = new NodeCache();
+describe("NodeCache.resetSpatialEdges", () => {
+    it("should reset the spatial edges", () => {
+        let nodeCache: NodeCache = new NodeCache();
 
-            let spatialEdge: IEdge = {
-                data: {
-                    direction: EdgeDirection.StepForward,
-                    worldMotionAzimuth: 0,
-                },
-                from: "key1",
-                to: "key2",
-            };
+        let spatialEdge: IEdge = {
+            data: {
+                direction: EdgeDirection.StepForward,
+                worldMotionAzimuth: 0,
+            },
+            from: "key1",
+            to: "key2",
+        };
 
-            nodeCache.cacheSpatialEdges([spatialEdge]);
+        nodeCache.cacheSpatialEdges([spatialEdge]);
 
-            expect(nodeCache.spatialEdges.cached).toBe(true);
-            expect(nodeCache.spatialEdges.edges.length).toBe(1);
-            expect(nodeCache.spatialEdges.edges[0].from).toBe(spatialEdge.from);
+        expect(nodeCache.spatialEdges.cached).toBe(true);
+        expect(nodeCache.spatialEdges.edges.length).toBe(1);
+        expect(nodeCache.spatialEdges.edges[0].from).toBe(spatialEdge.from);
 
-            nodeCache.resetSpatialEdges();
+        nodeCache.resetSpatialEdges();
 
-            expect(nodeCache.spatialEdges.cached).toBe(false);
-            expect(nodeCache.spatialEdges.edges.length).toBe(0);
-        });
+        expect(nodeCache.spatialEdges.cached).toBe(false);
+        expect(nodeCache.spatialEdges.edges.length).toBe(0);
+    });
+});
+
+describe("NodeCache.dispose", () => {
+    it("should clear all properties", () => {
+        let nodeCache: NodeCache = new NodeCache();
+
+        let sequencEdge: IEdge = {
+            data: {
+                direction: EdgeDirection.StepForward,
+                worldMotionAzimuth: 0,
+            },
+            from: "key1",
+            to: "key2",
+        };
+
+        let spatialEdge: IEdge = {
+            data: {
+                direction: EdgeDirection.StepForward,
+                worldMotionAzimuth: 0,
+            },
+            from: "key1",
+            to: "key2",
+        };
+
+        nodeCache.cacheSequenceEdges([sequencEdge]);
+        nodeCache.cacheSpatialEdges([spatialEdge]);
+
+        nodeCache.dispose();
+
+        expect(nodeCache.sequenceEdges.cached).toBe(false);
+        expect(nodeCache.sequenceEdges.edges.length).toBe(0);
+
+        expect(nodeCache.spatialEdges.cached).toBe(false);
+        expect(nodeCache.spatialEdges.edges.length).toBe(0);
+
+        expect(nodeCache.image).toBeNull();
+    });
+});
+
+describe("NodeCache.cacheImage$", () => {
+    it("should return the node cache with a cached image", (done: Function) => {
+        const requestMock: XMLHttpRequest = new XMLHttpRequest();
+        spyOn(requestMock, "send").and.stub();
+        spyOn(requestMock, "open").and.stub();
+
+        spyOn(window, "XMLHttpRequest").and.returnValue(requestMock);
+
+        const imageMock: HTMLImageElement = new Image();
+        spyOn(window, "Image").and.returnValue(imageMock);
+
+        new MockCreator().mockProperty(imageMock, "src", "");
+
+        spyOn(window, "Blob").and.returnValue({});
+        spyOn(window.URL, "createObjectURL").and.returnValue("url");
+
+        const nodeCache: NodeCache = new NodeCache();
+
+        expect(nodeCache.image).toBeNull();
+
+        nodeCache.cacheImage$("key", ImageSize.Size640)
+            .subscribe(
+                (nc: NodeCache): void => {
+                    expect(nc.image).not.toBeNull();
+                    expect(nc.image).toBe(imageMock);
+
+                    done();
+                });
+
+        new MockCreator().mockProperty(requestMock, "status", 200);
+        requestMock.dispatchEvent(new ProgressEvent("load", { total: 1, loaded: 1}));
+
+        imageMock.dispatchEvent(new CustomEvent("load"));
     });
 
-    describe("NodeCache.dispose", () => {
-        it("should clear all properties", () => {
-            let nodeCache: NodeCache = new NodeCache();
+    it("should cache an image", () => {
+        const requestMock: XMLHttpRequest = new XMLHttpRequest();
+        spyOn(requestMock, "send").and.stub();
+        spyOn(requestMock, "open").and.stub();
 
-            let sequencEdge: IEdge = {
-                data: {
-                    direction: EdgeDirection.StepForward,
-                    worldMotionAzimuth: 0,
-                },
-                from: "key1",
-                to: "key2",
-            };
+        spyOn(window, "XMLHttpRequest").and.returnValue(requestMock);
 
-            let spatialEdge: IEdge = {
-                data: {
-                    direction: EdgeDirection.StepForward,
-                    worldMotionAzimuth: 0,
-                },
-                from: "key1",
-                to: "key2",
-            };
+        const imageMock: HTMLImageElement = new Image();
+        spyOn(window, "Image").and.returnValue(imageMock);
 
-            nodeCache.cacheSequenceEdges([sequencEdge]);
-            nodeCache.cacheSpatialEdges([spatialEdge]);
+        new MockCreator().mockProperty(imageMock, "src", "");
 
-            nodeCache.dispose();
+        spyOn(window, "Blob").and.returnValue({});
+        spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-            expect(nodeCache.sequenceEdges.cached).toBe(false);
-            expect(nodeCache.sequenceEdges.edges.length).toBe(0);
+        const nodeCache: NodeCache = new NodeCache();
 
-            expect(nodeCache.spatialEdges.cached).toBe(false);
-            expect(nodeCache.spatialEdges.edges.length).toBe(0);
-        });
+        expect(nodeCache.image).toBeNull();
+
+        nodeCache.cacheImage$("key", ImageSize.Size640).subscribe();
+
+        new MockCreator().mockProperty(requestMock, "status", 200);
+        requestMock.dispatchEvent(new ProgressEvent("load", { total: 1, loaded: 1}));
+
+        imageMock.dispatchEvent(new CustomEvent("load"));
+
+        expect(nodeCache.image).not.toBeNull();
+        expect(nodeCache.image).toBe(imageMock);
+    });
+
+    it("should emit the cached image", (done: Function) => {
+        const requestMock: XMLHttpRequest = new XMLHttpRequest();
+        spyOn(requestMock, "send").and.stub();
+        spyOn(requestMock, "open").and.stub();
+
+        spyOn(window, "XMLHttpRequest").and.returnValue(requestMock);
+
+        const imageMock: HTMLImageElement = new Image();
+        spyOn(window, "Image").and.returnValue(imageMock);
+
+        new MockCreator().mockProperty(imageMock, "src", "");
+
+        spyOn(window, "Blob").and.returnValue({});
+        spyOn(window.URL, "createObjectURL").and.returnValue("url");
+
+        const nodeCache: NodeCache = new NodeCache();
+
+        expect(nodeCache.image).toBeNull();
+
+        nodeCache.image$
+            .skip(1)
+            .subscribe(
+                (image: HTMLImageElement): void => {
+                    expect(image).not.toBeNull();
+                    expect(image).toBe(imageMock);
+
+                    done();
+                });
+
+        nodeCache.cacheImage$("key", ImageSize.Size640).subscribe();
+
+        new MockCreator().mockProperty(requestMock, "status", 200);
+        requestMock.dispatchEvent(new ProgressEvent("load", { total: 1, loaded: 1}));
+
+        imageMock.dispatchEvent(new CustomEvent("load"));
     });
 });
