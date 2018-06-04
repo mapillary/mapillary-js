@@ -34,20 +34,39 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     }
 
     public _activate(): void {
-        this._keySubscription = this._navigator.stateService.currentNode$
-            .withLatestFrom(
-                this._configuration$,
-                (node: Node, configuration: ICoverConfiguration): [Node, ICoverConfiguration] => {
-                    return [node, configuration];
+        this._configuration$
+            .distinctUntilChanged(
+                undefined,
+                (configuration: ICoverConfiguration): CoverState => {
+                    return configuration.state;
                 })
-            .filter(
-                ([node, configuration]: [Node, ICoverConfiguration]): boolean => {
-                    return node.key !== configuration.key;
+            .switchMap(
+                (configuration: ICoverConfiguration): Observable<[CoverState, Node]> => {
+                    return Observable
+                        .combineLatest(
+                            Observable.of(configuration.state),
+                            this._navigator.stateService.currentNode$);
                 })
-            .map(([node, configuration]: [Node, ICoverConfiguration]): Node => { return node; })
+            .switchMap(
+                ([state, node]: [CoverState, Node]): Observable<[string, string]> => {
+                    const keySrc$: Observable<[string, string]> = Observable
+                        .combineLatest(
+                            Observable.of(node.key),
+                            node.image$
+                                .map(
+                                    (image: HTMLImageElement): string => {
+                                        return image.src;
+                                    }));
+
+                    return state === CoverState.Visible ? keySrc$.first() : keySrc$;
+                })
+            .distinctUntilChanged(
+                ([k1, s1]: [string, string], [k2, s2]: [string, string]): boolean => {
+                    return k1 === k2 && s1 === s2;
+                })
             .map(
-                (node: Node): ICoverConfiguration => {
-                    return { key: node.key, src: null };
+                ([key, src]: [string, string]): ICoverConfiguration => {
+                    return { key: key, src: src };
                 })
             .subscribe(this._configurationSubject$);
 
