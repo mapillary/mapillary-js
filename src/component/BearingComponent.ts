@@ -66,7 +66,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                     const backgroundCircle: vd.VNode = vd.h("div.BearingIndicatorBackgroundCircle", {}, []);
                     const north: vd.VNode = this._createNorth(bearing);
                     const cameraSector: vd.VNode = this._createCircleSectorCompass(
-                            this._createCircleSector(fov, "#FFF"));
+                            this._createCircleSector(Math.max(Math.PI / 20, fov), "#FFF"));
 
                     return {
                         name: this._name,
