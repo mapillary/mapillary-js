@@ -28,6 +28,7 @@ export function isSupported(): boolean {
  */
 export function isFallbackSupported(): boolean {
     return support.isBrowser() &&
+        support.isBlobSupported() &&
         support.isArraySupported() &&
         support.isFunctionSupported() &&
         support.isJSONSupported() &&

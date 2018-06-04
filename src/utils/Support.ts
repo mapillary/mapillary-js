@@ -27,6 +27,10 @@ export function isObjectSupported(): boolean {
     );
 }
 
+export function isBlobSupported(): boolean {
+    return "Blob" in window && "URL" in window;
+}
+
 let isWebGLSupportedCache: boolean = undefined;
 export function isWebGLSupportedCached(): boolean {
     if (isWebGLSupportedCache === undefined) {
