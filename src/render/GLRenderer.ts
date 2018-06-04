@@ -92,7 +92,11 @@ export class GLRenderer {
                 (renderer: IGLRenderer, operation: IGLRendererOperation): IGLRenderer => {
                     return operation(renderer);
                 },
-                { needsRender: false, renderer: null });
+                { needsRender: false, renderer: null })
+            .filter(
+                (renderer: IGLRenderer): boolean => {
+                    return !!renderer.renderer;
+                });
 
         this._renderCollection$ = this._renderOperation$
             .scan(
