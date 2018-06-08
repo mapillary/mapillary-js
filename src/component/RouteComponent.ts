@@ -1,6 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as _ from "underscore";
 import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
@@ -122,7 +121,19 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                 for (let instructionPlace of instructionPlaces) {
                     routeTrack.nodeInstructionsOrdered[instructionPlace.place] = instructionPlace.nodeInstructions;
                 }
-                routeTrack.nodeInstructions = _.flatten(routeTrack.nodeInstructionsOrdered);
+
+                for (const place in routeTrack.nodeInstructionsOrdered) {
+                    if (!routeTrack.nodeInstructionsOrdered.hasOwnProperty(place)) {
+                        continue;
+                    }
+
+                    const instructionGroup: INodeInstruction[] = routeTrack.nodeInstructionsOrdered[place];
+
+                    for (const instruction of instructionGroup) {
+                        routeTrack.nodeInstructions.push(instruction);
+                    }
+                }
+
                 return routeTrack;
             },
             new RouteTrack());

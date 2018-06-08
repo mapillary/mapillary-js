@@ -1,7 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
-import * as _ from "underscore";
-
 import {ISequence} from "../API";
 
 /**
@@ -59,7 +55,7 @@ export class Sequence {
      * @returns {string} Next key in sequence if it exists, null otherwise.
      */
     public findNextKey(key: string): string {
-        let i: number = _.indexOf(this._keys, key);
+        let i: number = this._keys.indexOf(key);
 
         if ((i + 1) >= this._keys.length || i === -1) {
             return null;
@@ -76,7 +72,7 @@ export class Sequence {
      * @returns {string} Previous key in sequence if it exists, null otherwise.
      */
     public findPrevKey(key: string): string {
-        let i: number = _.indexOf(this._keys, key);
+        let i: number = this._keys.indexOf(key);
 
         if (i === 0 || i === -1) {
             return null;

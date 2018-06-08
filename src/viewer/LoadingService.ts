@@ -1,7 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
-import * as _ from "underscore";
-
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
@@ -33,12 +29,17 @@ export class LoadingService {
         return this._loaders$
             .map(
                 (loaders: {[key: string]: boolean}): boolean => {
-                    return _.reduce(
-                        loaders,
-                        (loader: boolean, acc: boolean) => {
-                            return (loader || acc);
-                        },
-                        false);
+                    for (const key in loaders) {
+                        if (!loaders.hasOwnProperty(key)) {
+                            continue;
+                        }
+
+                        if (loaders[key]) {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 })
             .debounceTime(100)
             .distinctUntilChanged();

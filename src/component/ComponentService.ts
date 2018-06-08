@@ -1,7 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
-import * as _ from "underscore";
-
 import {ArgumentMapillaryError} from "../Error";
 import {Container, Navigator} from "../Viewer";
 import {CoverComponent, Component, IComponentConfiguration} from "../Component";
@@ -31,10 +27,17 @@ export class ComponentService {
     }
 
     constructor (container: Container, navigator: Navigator) {
-        for (let component of _.values(ComponentService.registeredComponents)) {
-            this._components[component.componentName] = {
+        for (const componentName in ComponentService.registeredComponents) {
+            if (!ComponentService.registeredComponents.hasOwnProperty(componentName)) {
+                continue;
+            }
+
+            const component: new (...args: any[]) => Component<IComponentConfiguration> =
+                ComponentService.registeredComponents[componentName];
+
+            this._components[componentName] = {
                 active: false,
-                component: new component(component.componentName, container, navigator),
+                component: new component(componentName, container, navigator),
             };
         }
 
@@ -51,33 +54,46 @@ export class ComponentService {
         if (this._coverActivated) {
             return;
         }
+
         this._coverActivated = true;
 
-        for (let component of _.values(this._components)) {
+        for (const componentName in this._components) {
+            if (!this._components.hasOwnProperty(componentName)) {
+                continue;
+            }
+
+            const component: IActiveComponent = this._components[componentName];
+
             if (component.active) {
                 component.component.deactivate();
             }
         }
-        return;
     }
 
     public deactivateCover(): void {
         if (!this._coverActivated) {
             return;
         }
+
         this._coverActivated = false;
 
-        for (let component of _.values(this._components)) {
+        for (const componentName in this._components) {
+            if (!this._components.hasOwnProperty(componentName)) {
+                continue;
+            }
+
+            const component: IActiveComponent = this._components[componentName];
+
             if (component.active) {
                 component.component.activate();
             }
         }
-        return;
     }
 
     public activate(name: string): void {
         this._checkName(name);
         this._components[name].active = true;
+
         if (!this._coverActivated) {
             this.get(name).activate();
         }
@@ -91,13 +107,19 @@ export class ComponentService {
     public deactivate(name: string): void {
         this._checkName(name);
         this._components[name].active = false;
+
         if (!this._coverActivated) {
             this.get(name).deactivate();
         }
     }
 
     public resize(): void {
-        for (let component of _.values(this._components)) {
+        for (const componentName in this._components) {
+            if (!this._components.hasOwnProperty(componentName)) {
+                continue;
+            }
+
+            const component: IActiveComponent = this._components[componentName];
             component.component.resize();
         }
     }

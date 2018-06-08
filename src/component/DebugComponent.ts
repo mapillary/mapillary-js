@@ -1,14 +1,15 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as _ from "underscore";
 import * as vd from "virtual-dom";
 
+import {Observable} from "rxjs/Observable";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Subscription} from "rxjs/Subscription";
 
+import {Component, ComponentService, IComponentConfiguration} from "../Component";
+import {ILoadStatus} from "../Graph";
 import {IVNodeHash} from "../Render";
 import {IFrame} from "../State";
-import {Component, ComponentService, IComponentConfiguration} from "../Component";
 
 export class DebugComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "debug";
@@ -18,11 +19,12 @@ export class DebugComponent extends Component<IComponentConfiguration> {
     private _open$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     public _activate(): void {
-        this._disposable = this._navigator.stateService.currentState$
+        this._disposable = Observable
             .combineLatest(
+                this._navigator.stateService.currentState$,
                 this._open$,
                 this._navigator.imageLoadingService.loadstatus$,
-                (frame: IFrame, open: boolean, loadStatus: any): IVNodeHash => {
+                (frame: IFrame, open: boolean, loadStatus: {[key: string]: ILoadStatus}): IVNodeHash => {
                     return {name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame, loadStatus))};
                 })
             .subscribe(this._container.domRenderer.render$);
@@ -36,7 +38,7 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         return {};
     }
 
-    private _getDebugInfo(frame: IFrame, loadStatus: any): vd.VNode[] {
+    private _getDebugInfo(frame: IFrame, loadStatus: {[key: string]: ILoadStatus}): vd.VNode[] {
         let ret: vd.VNode[] = [];
 
         ret.push(vd.h("h2", "Node"));
@@ -55,9 +57,16 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         let loaded: number = 0;
         let loading: number = 0;
 
-        for (let loadStat of _.values(loadStatus)) {
-            total += loadStat.loaded;
-            if (loadStat.loaded !== loadStat.total) {
+        for (const key in loadStatus) {
+            if (!loadStatus.hasOwnProperty(key)) {
+                continue;
+            }
+
+            const status: ILoadStatus = loadStatus[key];
+
+            total += status.loaded;
+
+            if (status.loaded !== status.total) {
                 loading++;
             } else {
                 loaded++;

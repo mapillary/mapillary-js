@@ -3,9 +3,6 @@
   "globalDevDependencies": {
     "jasmine": "github:DefinitelyTyped/DefinitelyTyped/jasmine/jasmine.d.ts#001ca36ba58cef903c4c063555afb07bbc36bb58"
   },
-  "globalDependencies": {
-    "underscore": "github:DefinitelyTyped/DefinitelyTyped/underscore/underscore.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e"
-  },
   "dependencies": {
     "@mapbox/polylabel": "file:typings/created/@mapbox/polylabel/polylabel.d.ts",
     "@mapbox/unitbezier": "file:typings/created/@mapbox/unitbezier/unitbezier.d.ts",

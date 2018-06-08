@@ -1,6 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as _ from "underscore";
 import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
@@ -141,7 +140,16 @@ export class DOMRenderer {
             .combineLatest(this._offset$)
             .map(
                 (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
-                    let vNodes: vd.VNode[] = _.values(vo[0]);
+                    let vNodes: vd.VNode[] = [];
+                    let hashes: IVNodeHashes = vo[0];
+                    for (const name in hashes) {
+                        if (!hashes.hasOwnProperty(name)) {
+                            continue;
+                        }
+
+                        vNodes.push(hashes[name]);
+                    }
+
                     let offset: IOffset = vo[1];
 
                     let properties: vd.createProperties = {
@@ -175,8 +183,16 @@ export class DOMRenderer {
                 },
                 {})
             .map(
-                (vNodeHashes: IVNodeHashes): vd.VNode => {
-                    let vNodes: vd.VNode[] = _.values(vNodeHashes);
+                (hashes: IVNodeHashes): vd.VNode => {
+                    let vNodes: vd.VNode[] = [];
+                    for (const name in hashes) {
+                        if (!hashes.hasOwnProperty(name)) {
+                            continue;
+                        }
+
+                        vNodes.push(hashes[name]);
+                    }
+
                     return vd.h("div.domRenderer", vNodes);
                 });
 

@@ -1,6 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as _ from "underscore";
 import * as vd from "virtual-dom";
 
 import {Observable} from "rxjs/Observable";
@@ -34,10 +33,16 @@ export class LoadingComponent extends Component<IComponentConfiguration> {
                     let total: number = 0;
                     let loaded: number = 0;
 
-                    for (let loadStat of _.values(loadStatus)) {
-                        if (loadStat.loaded !== loadStat.total) {
-                            loaded += loadStat.loaded;
-                            total += loadStat.total;
+                    for (const key in loadStatus) {
+                        if (!loadStatus.hasOwnProperty(key)) {
+                            continue;
+                        }
+
+                        const status: ILoadStatus = loadStatus[key];
+
+                        if (status.loaded !== status.total) {
+                            loaded += status.loaded;
+                            total += status.total;
                         }
                     }
 
