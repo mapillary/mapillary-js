@@ -24,6 +24,7 @@
     "@types/falcor": "^0.1.22",
     "@types/falcor-http-datasource": "^0.1.19",
     "@types/latlon-geohash": "^1.1.0",
+    "@types/node": "^10.3.2",
     "@types/rbush": "^2.0.2",
     "@types/three": "^0.89.12",
     "earcut": "^2.1.2",

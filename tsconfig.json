@@ -13,6 +13,7 @@
             "falcor",
             "falcor-http-datasource",
             "latlon-geohash",
+            "node",
             "rbush",
             "three"
         ],
