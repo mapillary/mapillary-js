@@ -12,10 +12,6 @@ import {
     ModelCreator,
 } from "../API";
 
-interface IFalcorResult<T> {
-    json: T;
-}
-
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
 }
@@ -135,7 +131,7 @@ export class APIv3 {
 
     public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
         return this._catchInvalidateGet$(
-            this._wrapPromise$<IFalcorResult<IImageByKey<IFillNode>>>(this._model.get([
+            this._wrapPromise$<falcor.JSONEnvelope<IImageByKey<IFillNode>>>(this._model.get([
                 this._pathImageByKey,
                 keys,
                 this._propertiesKey
@@ -144,7 +140,7 @@ export class APIv3 {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .map(
-                (value: IFalcorResult<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
+                (value: falcor.JSONEnvelope<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
                     if (!value) {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
@@ -157,7 +153,7 @@ export class APIv3 {
 
     public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: IFullNode }> {
         return this._catchInvalidateGet$(
-            this._wrapPromise$<IFalcorResult<IImageByKey<IFullNode>>>(this._model.get([
+            this._wrapPromise$<falcor.JSONEnvelope<IImageByKey<IFullNode>>>(this._model.get([
                 this._pathImageByKey,
                 keys,
                 this._propertiesKey
@@ -167,7 +163,7 @@ export class APIv3 {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .map(
-                (value: IFalcorResult<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
+                (value: falcor.JSONEnvelope<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
                     if (!value) {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
@@ -181,7 +177,7 @@ export class APIv3 {
     public imageCloseTo$(lat: number, lon: number): Observable<IFullNode> {
         let lonLat: string = `${lon}:${lat}`;
         return this._catchInvalidateGet$(
-            this._wrapPromise$<IFalcorResult<IImageCloseTo<IFullNode>>>(this._model.get([
+            this._wrapPromise$<falcor.JSONEnvelope<IImageCloseTo<IFullNode>>>(this._model.get([
                 this._pathImageCloseTo,
                 [lonLat],
                 this._propertiesKey
@@ -191,7 +187,7 @@ export class APIv3 {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .map(
-                (value: IFalcorResult<IImageCloseTo<IFullNode>>): IFullNode => {
+                (value: falcor.JSONEnvelope<IImageCloseTo<IFullNode>>): IFullNode => {
                     return value != null ? value.json.imageCloseTo[lonLat] : null;
                 }),
             this._pathImageCloseTo,
@@ -200,14 +196,14 @@ export class APIv3 {
 
     public imagesByH$(hs: string[]): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
         return this._catchInvalidateGet$(
-            this._wrapPromise$<IFalcorResult<IImagesByH<ICoreNode>>>(this._model.get([
+            this._wrapPromise$<falcor.JSONEnvelope<IImagesByH<ICoreNode>>>(this._model.get([
                 this._pathImagesByH,
                 hs,
                 { from: 0, to: this._pageCount },
                 this._propertiesKey
                     .concat(this._propertiesCore)]))
             .map(
-                (value: IFalcorResult<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
+                (value: falcor.JSONEnvelope<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
                         for (let h of hs) {
@@ -226,7 +222,7 @@ export class APIv3 {
 
     public imageViewAdd$(keys: string[]): Observable<void> {
         return this._catchInvalidateCall$(
-            this._wrapPromise$<void>(
+            this._wrapCallPromise$(
                 this._model.call(
                     [this._pathImageViewAdd],
                     [keys])),
@@ -254,13 +250,13 @@ export class APIv3 {
 
     public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: ISequence }> {
         return this._catchInvalidateGet$(
-            this._wrapPromise$<IFalcorResult<ISequenceByKey<ISequence>>>(this._model.get([
+            this._wrapPromise$<falcor.JSONEnvelope<ISequenceByKey<ISequence>>>(this._model.get([
                 this._pathSequenceByKey,
                 sequenceKeys,
                 this._propertiesKey
                     .concat(this._propertiesSequence)]))
             .map(
-                (value: IFalcorResult<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
+                (value: falcor.JSONEnvelope<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
                     if (!value) {
                         value = { json: { sequenceByKey: {} } };
                     }
@@ -281,7 +277,7 @@ export class APIv3 {
 
     public sequenceViewAdd$(sequenceKeys: string[]): Observable<void> {
         return this._catchInvalidateCall$(
-            this._wrapPromise$<void>(
+            this._wrapCallPromise$(
                 this._model.call(
                     [this._pathSequenceViewAdd],
                     [sequenceKeys])),
@@ -321,8 +317,16 @@ export class APIv3 {
         this._model.invalidate([path], [paths]);
     }
 
-    private _wrapPromise$<T>(promise: Promise<T>): Observable<T> {
+    private _wrapPromise$<T>(promise: falcor.ModelResponse<T>): Observable<T> {
         return Observable.defer(() => Observable.fromPromise(promise));
+    }
+
+    private _wrapCallPromise$<T>(promise: falcor.ModelResponse<falcor.JSONEnvelope<T>>): Observable<T> {
+        return this._wrapPromise$(promise)
+            .map<falcor.JSONEnvelope<T>, T>(
+                (value: falcor.JSONEnvelope<T>): T => {
+                    return;
+                });
     }
 }
 

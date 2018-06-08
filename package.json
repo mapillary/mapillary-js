@@ -21,6 +21,8 @@
     "@mapbox/polylabel": "^1.0.2",
     "@mapbox/unitbezier": "0.0.0",
     "@types/earcut": "^2.1.0",
+    "@types/falcor": "^0.1.22",
+    "@types/falcor-http-datasource": "^0.1.19",
     "@types/latlon-geohash": "^1.1.0",
     "@types/rbush": "^2.0.2",
     "earcut": "^2.1.2",

@@ -14,8 +14,6 @@
   "dependencies": {
     "@mapbox/polylabel": "file:typings/created/@mapbox/polylabel/polylabel.d.ts",
     "@mapbox/unitbezier": "file:typings/created/@mapbox/unitbezier/unitbezier.d.ts",
-    "falcor": "file:typings/created/falcor/falcor.d.ts",
-    "falcor-http-datasource": "file:typings/created/falcor-http-datasource/falcor-http-datasource.d.ts",
     "pbf": "file:typings/created/pbf/pbf.d.ts"
   }
 }

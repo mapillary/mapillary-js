@@ -1,7 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import * as falcor from "falcor";
-import * as HttpDataSource from "falcor-http-datasource";
+import XmlHttpSource from "falcor-http-datasource";
 
 import {Urls} from "../Utils";
 
@@ -40,7 +40,7 @@ export class ModelCreator {
 
         return new falcor.Model({
             maxSize: 16 * 1024 * 1024,
-            source: new HttpDataSource(Urls.falcorModel(clientId), configuration),
+            source: new XmlHttpSource(Urls.falcorModel(clientId), configuration),
         });
     }
 }

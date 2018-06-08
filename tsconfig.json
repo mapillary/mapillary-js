@@ -6,6 +6,8 @@
         "module": "commonjs",
         "types": [
             "earcut",
+            "falcor",
+            "falcor-http-datasource",
             "latlon-geohash",
             "rbush"
         ],
