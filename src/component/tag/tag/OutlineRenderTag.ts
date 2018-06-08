@@ -347,7 +347,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         }
 
         this._fill.geometry.dispose();
-        this._fill.material.dispose();
+        (<THREE.Material>this._fill.material).dispose();
         this._fill = null;
     }
 

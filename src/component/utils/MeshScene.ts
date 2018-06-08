@@ -78,7 +78,7 @@ export class MeshScene {
         for (let plane of planes) {
             scene.remove(plane);
             plane.geometry.dispose();
-            plane.material.dispose();
+            (<THREE.Material>plane.material).dispose();
             let texture: THREE.Texture = (<IShaderMaterial>plane.material).uniforms.projectorTex.value;
             if (texture != null) {
                 texture.dispose();

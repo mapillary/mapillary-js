@@ -73,7 +73,7 @@ export class CircleMarker extends Marker {
     protected _disposeGeometry(): void {
         for (let mesh of <THREE.Mesh[]>this._geometry.children) {
             mesh.geometry.dispose();
-            mesh.material.dispose();
+            (<THREE.Material>mesh.material).dispose();
         }
     }
 

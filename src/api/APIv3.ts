@@ -318,7 +318,7 @@ export class APIv3 {
     }
 
     private _wrapPromise$<T>(promise: falcor.ModelResponse<T>): Observable<T> {
-        return Observable.defer(() => Observable.fromPromise(promise));
+        return Observable.defer(() => Observable.fromPromise(<PromiseLike<T>>promise));
     }
 
     private _wrapCallPromise$<T>(promise: falcor.ModelResponse<falcor.JSONEnvelope<T>>): Observable<T> {
