@@ -15,7 +15,9 @@
             "latlon-geohash",
             "node",
             "rbush",
-            "three"
+            "three",
+            "virtual-dom",
+            "when"
         ],
         "typeRoots": [
             "./node_modules/@types"

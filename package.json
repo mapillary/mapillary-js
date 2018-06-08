@@ -27,6 +27,8 @@
     "@types/node": "^10.3.2",
     "@types/rbush": "^2.0.2",
     "@types/three": "^0.89.12",
+    "@types/virtual-dom": "^2.0.27",
+    "@types/when": "^2.4.31",
     "earcut": "^2.1.2",
     "falcor": "^0.1.17",
     "falcor-http-datasource": "^0.1.3",
