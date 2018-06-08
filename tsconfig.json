@@ -6,6 +6,7 @@
         "module": "commonjs",
         "types": [
             "earcut",
+            "latlon-geohash",
             "rbush"
         ],
         "typeRoots": [

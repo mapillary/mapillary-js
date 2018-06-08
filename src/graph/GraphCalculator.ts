@@ -7,17 +7,6 @@ import {ILatLon} from "../API";
 import {GraphMapillaryError} from "../Error";
 import {GeoCoords} from "../Geo";
 
-class GeoHashDirections {
-    public static n: string = "n";
-    public static nw: string = "nw";
-    public static w: string = "w";
-    public static sw: string = "sw";
-    public static s: string = "s";
-    public static se: string = "se";
-    public static e: string = "e";
-    public static ne: string = "ne";
-}
-
 /**
  * @class GraphCalculator
  *
@@ -59,10 +48,10 @@ export class GraphCalculator {
      */
     public encodeHs(latLon: ILatLon, precision: number = 7, threshold: number = 20): string[] {
         let h: string = geohash.encode(latLon.lat, latLon.lon, precision);
-        let bounds: geohash.IBounds = geohash.bounds(h);
-        let ne: geohash.ILatLon = bounds.ne;
-        let sw: geohash.ILatLon = bounds.sw;
-        let neighbours: { [key: string]: string } = geohash.neighbours(h);
+        let bounds: geohash.Bounds = geohash.bounds(h);
+        let ne: geohash.Point = bounds.ne;
+        let sw: geohash.Point = bounds.sw;
+        let neighbours: geohash.Neighbours = geohash.neighbours(h);
 
         let bl: number[] = [0, 0, 0];
         let tr: number[] =
@@ -96,35 +85,35 @@ export class GraphCalculator {
         let hs: string[] = [h];
 
         if (t) {
-            hs.push(neighbours[GeoHashDirections.n]);
+            hs.push(neighbours.n);
         }
 
         if (t && l) {
-            hs.push(neighbours[GeoHashDirections.nw]);
+            hs.push(neighbours.nw);
         }
 
         if (l) {
-            hs.push(neighbours[GeoHashDirections.w]);
+            hs.push(neighbours.w);
         }
 
         if (l && b) {
-            hs.push(neighbours[GeoHashDirections.sw]);
+            hs.push(neighbours.sw);
         }
 
         if (b) {
-            hs.push(neighbours[GeoHashDirections.s]);
+            hs.push(neighbours.s);
         }
 
         if (b && r) {
-            hs.push(neighbours[GeoHashDirections.se]);
+            hs.push(neighbours.se);
         }
 
         if (r) {
-            hs.push(neighbours[GeoHashDirections.e]);
+            hs.push(neighbours.e);
         }
 
         if (r && t) {
-            hs.push(neighbours[GeoHashDirections.ne]);
+            hs.push(neighbours.ne);
         }
 
         return hs;
