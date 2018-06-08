@@ -1,8 +1,15 @@
 {
     "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
         "noImplicitAny": true,
         "target": "ES5",
         "module": "commonjs",
-        "types": []
+        "types": [
+            "earcut",
+            "rbush"
+        ],
+        "typeRoots": [
+            "./node_modules/@types"
+          ]
     }
 }

@@ -1,6 +1,6 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-import * as earcut from "earcut";
+import earcut from "earcut";
 import * as polylabel from "@mapbox/polylabel";
 
 import {Geometry} from "../../../Component";
@@ -157,7 +157,7 @@ export abstract class VertexGeometry extends Geometry {
             points = points.concat(hole3d.slice(0, -1));
         }
 
-        let flattened: earcut.Data = earcut.flatten(data);
+        let flattened: { vertices: number[], holes: number[], dimensions: number } = earcut.flatten(data);
         let indices: number[] = earcut(flattened.vertices, flattened.holes, flattened.dimensions);
         let triangles: number[] = [];
 
