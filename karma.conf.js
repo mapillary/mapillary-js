@@ -8,7 +8,7 @@ module.exports = function(config) {
       plugin: [['tsify', JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8')).compilerOptions]],
       transform: ['brfs'],
     },
-    browsers: ['Firefox'],
+    browsers: ['ChromeHeadless', 'Firefox'],
     concurrency: 1,
     files: [
       'spec/**/*.spec.ts'

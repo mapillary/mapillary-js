@@ -6,6 +6,7 @@ jobs:
       - image: circleci/node:10.4.0-browsers
         environment:
           DISPLAY: :99
+          CHROME_BIN: "/usr/bin/google-chrome"
     steps:
       - checkout
       - restore_cache:
