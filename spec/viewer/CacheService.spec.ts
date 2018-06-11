@@ -1,3 +1,4 @@
+import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
@@ -214,6 +215,9 @@ describe("CacheService.start", () => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
         let graph: Graph = new Graph(apiV3);
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        spyOn(graphService, "uncache$").and.returnValue(Observable.of<void>(null));
+
         graphService.setGraphMode(GraphMode.Spatial);
 
         let currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
@@ -256,6 +260,9 @@ describe("CacheService.start", () => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
         let graph: Graph = new Graph(apiV3);
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        spyOn(graphService, "uncache$").and.returnValue(Observable.of<void>(null));
+
         graphService.setGraphMode(GraphMode.Sequence);
 
         let currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
@@ -307,6 +314,8 @@ describe("CacheService.start", () => {
         let imageLoadingService: ImageLoadingService = new ImageLoadingService();
         let graph: Graph = new Graph(apiV3);
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
+
+        spyOn(graphService, "uncache$").and.returnValue(Observable.of<void>(null));
 
         let currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
         let stateService: TestStateService = new TestStateService(currentStateSubject$);
