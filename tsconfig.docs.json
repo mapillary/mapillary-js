@@ -1,10 +1,5 @@
 {
-    "compilerOptions": {
-        "noImplicitAny": true,
-        "target": "ES5",
-        "module": "commonjs",
-        "types": []
-    },
+    "extends": "./tsconfig",
     "files": [
         "./src/api/interfaces/IGPano.ts",
         "./src/api/interfaces/ILatLon.ts",
