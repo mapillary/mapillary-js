@@ -8,20 +8,24 @@
         "module": "commonjs",
         "noImplicitAny": true,
         "target": "es5",
+        "typeRoots": [
+            "./node_modules/@types",
+            "./types"
+        ],
         "types": [
+            "@mapbox/polylabel",
+            "@mapbox/unitbezier",
             "earcut",
             "falcor",
             "falcor-http-datasource",
             "jasmine",
             "latlon-geohash",
             "node",
+            "pbf",
             "rbush",
             "three",
             "virtual-dom",
             "when"
-        ],
-        "typeRoots": [
-            "./node_modules/@types"
-          ]
+        ]
     }
 }

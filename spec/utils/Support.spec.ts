@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as support from "../../src/utils/Support";
 
 describe("isWebGLSupported", () => {

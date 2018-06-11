@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {ISequence} from "../../src/API";
 import {Sequence} from "../../src/Graph";
 

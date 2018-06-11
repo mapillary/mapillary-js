@@ -1,7 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
-import * as THREE from "three";
-
 import {Subject} from "rxjs/Subject";
 
 import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";

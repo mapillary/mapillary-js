@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as when from "when";
 
 import "rxjs/add/observable/combineLatest";

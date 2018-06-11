@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as Pbf from "pbf";
 
 import {IMesh} from "../Graph";

@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {DOMRendererMockCreator} from "./DOMRendererMockCreator.spec";
 import {GLRendererMockCreator} from "./GLRendererMockCreator.spec";
 import {KeyboardServiceMockCreator} from "./KeyboardServiceMockCreator.spec";

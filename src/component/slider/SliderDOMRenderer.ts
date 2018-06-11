@@ -1,5 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
 import * as vd from "virtual-dom";
 
 import { Observable } from "rxjs/Observable";

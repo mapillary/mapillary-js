@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as vd from "virtual-dom";
 
 import {Container, Navigator} from "../Viewer";

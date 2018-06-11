@@ -10,4 +10,6 @@ declare class UnitBezier {
 
 declare module UnitBezier { }
 
-export = UnitBezier;
+declare module "@mapbox/unitbezier" {
+    export = UnitBezier;
+}

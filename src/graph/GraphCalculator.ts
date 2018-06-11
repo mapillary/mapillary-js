@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as geohash from "latlon-geohash";
 import * as THREE from "three";
 

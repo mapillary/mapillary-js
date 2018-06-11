@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as THREE from "three";
 
 import {BehaviorSubject} from "rxjs/BehaviorSubject";

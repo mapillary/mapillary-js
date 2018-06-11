@@ -10,7 +10,6 @@ machine:
 dependencies:
   cache_directories:
     - node_modules
-    - typings
   pre:
     - export DISPLAY=:99.0
   override:
@@ -19,5 +18,4 @@ dependencies:
 
 test:
   override:
-    - npm run typings -- install
     - npm test

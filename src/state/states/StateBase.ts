@@ -1,5 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
 import {ArgumentMapillaryError} from "../../Error";
 import {Node} from "../../Graph";
 import {

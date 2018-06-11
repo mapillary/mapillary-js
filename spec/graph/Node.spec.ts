@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {NodeHelper} from "../helper/NodeHelper.spec";
 import {ICoreNode, IFillNode} from "../../src/API";
 import {IMesh, Node, NodeCache} from "../../src/Graph";

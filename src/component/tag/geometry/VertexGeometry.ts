@@ -1,5 +1,3 @@
-/// <reference path="../../../../typings/index.d.ts" />
-
 import earcut from "earcut";
 import * as polylabel from "@mapbox/polylabel";
 

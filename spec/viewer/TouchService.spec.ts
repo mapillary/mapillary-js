@@ -1,7 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
-import {Observable} from "rxjs/Observable";
-
 import {TouchService} from "../../src/Viewer";
 
 import {EventHelper} from "../helper/EventHelper.spec";

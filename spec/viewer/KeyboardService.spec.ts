@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {KeyboardService} from "../../src/Viewer";
 
 import {EventHelper} from "../helper/EventHelper.spec";

@@ -1,5 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
 import {IGPano} from "../../../src/API";
 import {EdgeCalculator, IPotentialEdge} from "../../../src/Edge";
 import {GeoCoords, ILatLonAlt, Spatial} from "../../../src/Geo";

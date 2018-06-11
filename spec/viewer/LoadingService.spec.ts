@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {LoadingService} from "../../src/Viewer";
 
 describe("LoadingService", () => {

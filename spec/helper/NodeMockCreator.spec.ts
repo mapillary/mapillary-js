@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {Node} from "../../src/Graph";
 
 import {MockCreator} from "./MockCreator.spec";

@@ -1,5 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
 import {Subscription} from "rxjs/Subscription";
 
 import {

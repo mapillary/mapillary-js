@@ -2,4 +2,6 @@ declare function polylabel(polygon: number[][][], precision?: number, debug?: bo
 
 declare module polylabel { }
 
-export = polylabel;
+declare module "@mapbox/polylabel" {
+    export = polylabel;
+}

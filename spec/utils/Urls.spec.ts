@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {Urls} from "../../src/Utils";
 import {IUrlOptions} from "../../src/Viewer";
 

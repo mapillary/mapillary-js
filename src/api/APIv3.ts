@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as falcor from "falcor";
 
 import {Observable} from "rxjs/Observable";

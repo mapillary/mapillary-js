@@ -1,5 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
 import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
 import {MockCreator} from "../../helper/MockCreator.spec";
 import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";

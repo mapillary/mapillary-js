@@ -63,7 +63,6 @@
     "typedoc": "^0.9.0",
     "typedoc-default-themes": "~0.5.0",
     "typescript": "^2.6.1",
-    "typings": "~2.1.1",
     "uglify-js": "^3.1.9",
     "watchify": "^3.9.0"
   },
@@ -82,20 +81,18 @@
     "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary.js.map > dist/mapillary.js'",
     "build-docs": "typedoc --tsconfig tsconfig.docs.json --mode file --theme default --excludePrivate --excludeExternals --name MapillaryJS --out docs/",
     "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs -c -m > dist/mapillary.min.js",
-    "clean": "npm run clean-dist && npm run clean-docs && npm run clean-typings",
+    "clean": "npm run clean-dist && npm run clean-docs",
     "clean-dist": "rm -rf dist && mkdir dist",
     "clean-docs": "rm -rf docs",
-    "clean-typings": "rm -rf typings/modules && rm -rf typings/globals && rm -f typings/index.d.ts",
     "copy-assets": "cp -a styles/*.svg dist",
     "lint": "npm run lint-spec && npm run lint-src",
     "lint-spec": "tslint -c tslint.json -p tsconfig.json \"spec/**/*.ts\"",
     "lint-src": "tslint -c tslint.json -p tsconfig.json \"src/**/*.ts\"",
     "precommit": "npm run lint -q",
-    "prepare": "npm run clean && typings install && npm run lint-src && npm run build-min && npm run build-dev && npm run build-css && npm run copy-assets",
+    "prepare": "npm run clean && npm run lint-src && npm run build-min && npm run build-dev && npm run build-css && npm run copy-assets",
     "prepush": "npm test -q",
     "start": "node server.js",
     "test": "karma start --single-run",
-    "test-watch": "karma start",
-    "typings": "typings"
+    "test-watch": "karma start"
   }
 }

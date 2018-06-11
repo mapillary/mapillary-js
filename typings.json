@@ -1,8 +1,0 @@
-{
-  "name": "mapillary-js",
-  "dependencies": {
-    "@mapbox/polylabel": "file:typings/created/@mapbox/polylabel/polylabel.d.ts",
-    "@mapbox/unitbezier": "file:typings/created/@mapbox/unitbezier/unitbezier.d.ts",
-    "pbf": "file:typings/created/pbf/pbf.d.ts"
-  }
-}

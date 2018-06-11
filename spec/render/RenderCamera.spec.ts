@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {Camera, Spatial} from "../../src/Geo";
 import {RenderCamera, RenderMode} from "../../src/Render";
 

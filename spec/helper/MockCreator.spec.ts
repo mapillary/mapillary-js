@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 export class MockCreator {
     public create<T>(ctor: new (...args: any[]) => T, name: string): T {
         const spy: { [key: string]: any } = {};

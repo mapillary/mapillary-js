@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as THREE from "three";
 
 import {Observable} from "rxjs/Observable";

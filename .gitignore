@@ -7,10 +7,6 @@ Vagrantfile
 # npm
 node_modules/
 
-# Typings
-typings/*
-!typings/created/
-
 # File types
 *.DS_Store
 *.log

@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import * as rbush from "rbush";
 
 import {Observable} from "rxjs/Observable";

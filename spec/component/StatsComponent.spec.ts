@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {Subject} from "rxjs/Subject";
 
 import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";

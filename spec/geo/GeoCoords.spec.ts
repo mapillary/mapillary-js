@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {GeoCoords, ILatLonAlt} from "../../src/Geo";
 
 let precision: number = 8;

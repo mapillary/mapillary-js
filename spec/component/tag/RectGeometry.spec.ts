@@ -1,5 +1,3 @@
-/// <reference path="../../../typings/index.d.ts" />
-
 import {IGPano} from "../../../src/API";
 import {RectGeometry} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";

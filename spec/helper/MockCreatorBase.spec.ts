@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import { MockCreator } from "./MockCreator.spec";
 
 export abstract class MockCreatorBase<T> {

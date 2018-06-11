@@ -11,4 +11,6 @@ declare class Pbf<T> {
 
 declare module Pbf { }
 
-export = Pbf;
+declare module "pbf" {
+    export = Pbf;
+}

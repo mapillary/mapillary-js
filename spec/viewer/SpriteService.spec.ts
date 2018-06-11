@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import {ISpriteAtlas, SpriteService} from "../../src/Viewer";
 
 class XMLHTTPRequestMock {
