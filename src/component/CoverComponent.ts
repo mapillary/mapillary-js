@@ -51,6 +51,10 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                         .combineLatest(
                             Observable.of(node.key),
                             node.image$
+                                .filter(
+                                    (image: HTMLImageElement): boolean => {
+                                        return !!image;
+                                    })
                                 .map(
                                     (image: HTMLImageElement): string => {
                                         return image.src;
