@@ -1,8 +1,5 @@
 {
   "name": "mapillary-js",
-  "globalDevDependencies": {
-    "jasmine": "github:DefinitelyTyped/DefinitelyTyped/jasmine/jasmine.d.ts#001ca36ba58cef903c4c063555afb07bbc36bb58"
-  },
   "dependencies": {
     "@mapbox/polylabel": "file:typings/created/@mapbox/polylabel/polylabel.d.ts",
     "@mapbox/unitbezier": "file:typings/created/@mapbox/unitbezier/unitbezier.d.ts",

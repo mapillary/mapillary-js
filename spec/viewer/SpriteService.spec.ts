@@ -30,7 +30,7 @@ class ImageMock {
 
 describe("SpriteService.ctor", () => {
     it("should be initialized without retrieving sprite", () => {
-        let xmlHTTPRequestSpy: jasmine.Spy = spyOn(window, "XMLHttpRequest");
+        let xmlHTTPRequestSpy: jasmine.Spy = spyOn(window, <keyof Window>"XMLHttpRequest");
 
         let spriteService: SpriteService = new SpriteService();
 
@@ -100,7 +100,7 @@ describe("SpriteService.spriteAtlas$", () => {
 
         let json: boolean = false;
 
-        spyOn(window, "XMLHttpRequest").and
+        spyOn(window, <keyof Window>"XMLHttpRequest").and
             .callFake((): XMLHTTPRequestMock => {
                 if (json) {
                     return jsonXmlHTTPRequestMock;
@@ -114,7 +114,7 @@ describe("SpriteService.spriteAtlas$", () => {
         spyOn(window, "Blob").and.returnValue({});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-        let imageSpy: jasmine.Spy = spyOn(window, "Image");
+        let imageSpy: jasmine.Spy = spyOn(window, <keyof Window>"Image");
         imageSpy.and.returnValue(imageMock);
 
         let jsonSpy: jasmine.Spy = spyOn(JSON, "parse");
@@ -143,7 +143,7 @@ describe("SpriteService.spriteAtlas$", () => {
 
         let json: boolean = false;
 
-        spyOn(window, "XMLHttpRequest").and
+        spyOn(window, <keyof Window>"XMLHttpRequest").and
             .callFake((): XMLHTTPRequestMock => {
                 if (json) {
                     return jsonXmlHTTPRequestMock;
@@ -154,7 +154,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 return pngXmlHTTPRequestMock;
             });
 
-        let imageSpy: jasmine.Spy = spyOn(window, "Image");
+        let imageSpy: jasmine.Spy = spyOn(window, <keyof Window>"Image");
         let jsonSpy: jasmine.Spy = spyOn(JSON, "parse");
         jsonSpy.and.returnValue({});
 
@@ -182,7 +182,7 @@ describe("SpriteService.spriteAtlas$", () => {
 
         let json: boolean = false;
 
-        spyOn(window, "XMLHttpRequest").and
+        spyOn(window, <keyof Window>"XMLHttpRequest").and
             .callFake((): XMLHTTPRequestMock => {
                 if (json) {
                     return jsonXmlHTTPRequestMock;
@@ -196,7 +196,7 @@ describe("SpriteService.spriteAtlas$", () => {
         spyOn(window, "Blob").and.returnValue({});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-        let imageSpy: jasmine.Spy = spyOn(window, "Image");
+        let imageSpy: jasmine.Spy = spyOn(window, <keyof Window>"Image");
         imageSpy.and.returnValue(imageMock);
 
         let jsonSpy: jasmine.Spy = spyOn(JSON, "parse");

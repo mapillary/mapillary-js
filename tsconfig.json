@@ -12,6 +12,7 @@
             "earcut",
             "falcor",
             "falcor-http-datasource",
+            "jasmine",
             "latlon-geohash",
             "node",
             "rbush",

@@ -214,10 +214,10 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(requestMock, "send").and.stub();
         spyOn(requestMock, "open").and.stub();
 
-        spyOn(window, "XMLHttpRequest").and.returnValue(requestMock);
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const imageMock: HTMLImageElement = new Image();
-        spyOn(window, "Image").and.returnValue(imageMock);
+        spyOn(window, <keyof Window>"Image").and.returnValue(imageMock);
 
         new MockCreator().mockProperty(imageMock, "src", "");
 
@@ -248,10 +248,10 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(requestMock, "send").and.stub();
         spyOn(requestMock, "open").and.stub();
 
-        spyOn(window, "XMLHttpRequest").and.returnValue(requestMock);
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const imageMock: HTMLImageElement = new Image();
-        spyOn(window, "Image").and.returnValue(imageMock);
+        spyOn(window, <keyof Window>"Image").and.returnValue(imageMock);
 
         new MockCreator().mockProperty(imageMock, "src", "");
 
@@ -278,10 +278,10 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(requestMock, "send").and.stub();
         spyOn(requestMock, "open").and.stub();
 
-        spyOn(window, "XMLHttpRequest").and.returnValue(requestMock);
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const imageMock: HTMLImageElement = new Image();
-        spyOn(window, "Image").and.returnValue(imageMock);
+        spyOn(window, <keyof Window>"Image").and.returnValue(imageMock);
 
         new MockCreator().mockProperty(imageMock, "src", "");
 
