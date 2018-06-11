@@ -21,6 +21,9 @@ jobs:
       - run:
           name: Test
           command: npm test
+      - run:
+          name: Docs
+          command: npm run build-docs
 
 workflows:
   version: 2
