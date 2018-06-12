@@ -155,7 +155,7 @@ export class Observer {
             .switchMap(
                 (active: boolean): Observable<MouseEvent> => {
                     return active ?
-                        Observable.empty<MouseEvent>() :
+                        Observable.empty() :
                         this._container.mouseService.mouseMove$;
                 });
 

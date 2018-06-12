@@ -32,7 +32,7 @@ describe("TagComponent.ctor", () => {
 describe("TagComponent.deactivate", () => {
     it("should deactivate properly", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -66,7 +66,7 @@ describe("TagComponent.add", () => {
 
     it("should add multiple tags when deactivated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -95,7 +95,7 @@ describe("TagComponent.add", () => {
 
     it("should add a single tag when activated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
@@ -122,7 +122,7 @@ describe("TagComponent.add", () => {
 
     it("should add multiple tags when activated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
@@ -177,7 +177,7 @@ describe("TagComponent.getAll", () => {
 
     it("should get multiple tags when deactivated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -204,7 +204,7 @@ describe("TagComponent.getAll", () => {
 
     it("should get a single tag when activated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
@@ -231,7 +231,7 @@ describe("TagComponent.getAll", () => {
 
     it("should add multiple tags when activated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
@@ -284,7 +284,7 @@ describe("TagComponent.remove", () => {
 
     it("should remove multiple tags when deactivated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -310,7 +310,7 @@ describe("TagComponent.remove", () => {
 
     it("should remove one of multiple tags when deactivated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -336,7 +336,7 @@ describe("TagComponent.remove", () => {
 
     it("should remove a single tag when activated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
@@ -366,7 +366,7 @@ describe("TagComponent.remove", () => {
 
     it("should remove multiple tags when activated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
@@ -405,7 +405,7 @@ describe("TagComponent.remove", () => {
 
     it("should remove one of multiple tags when activated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =
@@ -446,7 +446,7 @@ describe("TagComponent.remove", () => {
 describe("TagComponent.removeAll", () => {
     it("should remove multiple tags when deactivated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
 
         const tagComponent: TagComponent =
             new TagComponent(
@@ -472,7 +472,7 @@ describe("TagComponent.removeAll", () => {
 
     it("should remove multiple tags when activated", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
 
         const tagComponent: TagComponent =

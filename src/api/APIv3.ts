@@ -1,6 +1,7 @@
 import * as falcor from "falcor";
 
 import {Observable} from "rxjs/Observable";
+import {Subscriber} from "rxjs/Subscriber";
 
 import {
     ICoreNode,
@@ -129,7 +130,7 @@ export class APIv3 {
 
     public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
         return this._catchInvalidateGet$(
-            this._wrapPromise$<falcor.JSONEnvelope<IImageByKey<IFillNode>>>(this._model.get([
+            this._wrapModelResponse$<falcor.JSONEnvelope<IImageByKey<IFillNode>>>(this._model.get([
                 this._pathImageByKey,
                 keys,
                 this._propertiesKey
@@ -151,7 +152,7 @@ export class APIv3 {
 
     public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: IFullNode }> {
         return this._catchInvalidateGet$(
-            this._wrapPromise$<falcor.JSONEnvelope<IImageByKey<IFullNode>>>(this._model.get([
+            this._wrapModelResponse$<falcor.JSONEnvelope<IImageByKey<IFullNode>>>(this._model.get([
                 this._pathImageByKey,
                 keys,
                 this._propertiesKey
@@ -175,7 +176,7 @@ export class APIv3 {
     public imageCloseTo$(lat: number, lon: number): Observable<IFullNode> {
         let lonLat: string = `${lon}:${lat}`;
         return this._catchInvalidateGet$(
-            this._wrapPromise$<falcor.JSONEnvelope<IImageCloseTo<IFullNode>>>(this._model.get([
+            this._wrapModelResponse$<falcor.JSONEnvelope<IImageCloseTo<IFullNode>>>(this._model.get([
                 this._pathImageCloseTo,
                 [lonLat],
                 this._propertiesKey
@@ -194,7 +195,7 @@ export class APIv3 {
 
     public imagesByH$(hs: string[]): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
         return this._catchInvalidateGet$(
-            this._wrapPromise$<falcor.JSONEnvelope<IImagesByH<ICoreNode>>>(this._model.get([
+            this._wrapModelResponse$<falcor.JSONEnvelope<IImagesByH<ICoreNode>>>(this._model.get([
                 this._pathImagesByH,
                 hs,
                 { from: 0, to: this._pageCount },
@@ -220,7 +221,7 @@ export class APIv3 {
 
     public imageViewAdd$(keys: string[]): Observable<void> {
         return this._catchInvalidateCall$(
-            this._wrapCallPromise$(
+            this._wrapCallModelResponse$(
                 this._model.call(
                     [this._pathImageViewAdd],
                     [keys])),
@@ -248,7 +249,7 @@ export class APIv3 {
 
     public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: ISequence }> {
         return this._catchInvalidateGet$(
-            this._wrapPromise$<falcor.JSONEnvelope<ISequenceByKey<ISequence>>>(this._model.get([
+            this._wrapModelResponse$<falcor.JSONEnvelope<ISequenceByKey<ISequence>>>(this._model.get([
                 this._pathSequenceByKey,
                 sequenceKeys,
                 this._propertiesKey
@@ -275,7 +276,7 @@ export class APIv3 {
 
     public sequenceViewAdd$(sequenceKeys: string[]): Observable<void> {
         return this._catchInvalidateCall$(
-            this._wrapCallPromise$(
+            this._wrapCallModelResponse$(
                 this._model.call(
                     [this._pathSequenceViewAdd],
                     [sequenceKeys])),
@@ -315,12 +316,24 @@ export class APIv3 {
         this._model.invalidate([path], [paths]);
     }
 
-    private _wrapPromise$<T>(promise: falcor.ModelResponse<T>): Observable<T> {
-        return Observable.defer(() => Observable.fromPromise(<PromiseLike<T>>promise));
+    private _wrapModelResponse$<T>(modelResponse: falcor.ModelResponse<T>): Observable<T> {
+        return Observable
+            .create(
+                (subscriber: Subscriber<T>): void => {
+                    modelResponse
+                        .then(
+                            (value: T): void => {
+                                subscriber.next(value);
+                                subscriber.complete();
+                            },
+                            (error: Error): void => {
+                                subscriber.error(error);
+                            });
+                });
     }
 
-    private _wrapCallPromise$<T>(promise: falcor.ModelResponse<falcor.JSONEnvelope<T>>): Observable<T> {
-        return this._wrapPromise$(promise)
+    private _wrapCallModelResponse$<T>(modelResponse: falcor.ModelResponse<falcor.JSONEnvelope<T>>): Observable<T> {
+        return this._wrapModelResponse$(modelResponse)
             .map<falcor.JSONEnvelope<T>, T>(
                 (value: falcor.JSONEnvelope<T>): T => {
                     return;

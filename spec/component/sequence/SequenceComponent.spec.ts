@@ -1,7 +1,7 @@
 import {Observable} from "rxjs/Observable";
 import {ReplaySubject} from "rxjs/ReplaySubject";
 import {Subject} from "rxjs/Subject";
-import {VirtualTimeScheduler} from "rxjs/scheduler/VirtualTimeScheduler";
+import {VirtualTimeScheduler} from "rxjs";
 
 import {
     SequenceComponent,

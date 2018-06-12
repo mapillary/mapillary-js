@@ -27,7 +27,7 @@ describe("MarkerComponent.add", () => {
 
     beforeEach(() => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
 
         markerComponent =
             new MarkerComponent(
@@ -72,7 +72,7 @@ describe("MarkerComponent.add", () => {
 describe("MarkerComponent.deactivate", () => {
     it("should deactivate properly", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty<MouseEvent>());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
 
         const markerComponent: MarkerComponent =
             new MarkerComponent(

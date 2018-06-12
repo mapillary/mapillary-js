@@ -36,7 +36,7 @@ class RenderServiceMock extends RenderService {
     private _renderCameraFrameMock$: Subject<RenderCamera> = new Subject<RenderCamera>();
 
     constructor(element: HTMLElement) {
-        super(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
+        super(element, Observable.empty(), RenderMode.Letterbox);
     }
 
     public get size$(): Subject<ISize> {

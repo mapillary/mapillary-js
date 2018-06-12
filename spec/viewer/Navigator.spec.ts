@@ -91,7 +91,7 @@ describe("Navigator.moveToKey$", () => {
 
         let loadingSpy: jasmine.Spy = spyOn(loadingService, "startLoading").and.stub();
 
-        spyOn(graphService, "cacheNode$").and.returnValue(Observable.empty<Node>());
+        spyOn(graphService, "cacheNode$").and.returnValue(Observable.empty());
 
         let navigator: Navigator =
             new Navigator(
@@ -362,7 +362,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         let startLoadingSpy: jasmine.Spy = spyOn(loadingService, "startLoading").and.stub();
 
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(Observable.empty<IKey>());
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(Observable.empty());
 
         let navigator: Navigator =
             new Navigator(
@@ -412,7 +412,7 @@ describe("Navigator.moveCloseTo$", () => {
                 cacheService);
 
         let cacheSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        cacheSpy.and.returnValue(Observable.empty<Node>());
+        cacheSpy.and.returnValue(Observable.empty());
 
         let lat: number = 0;
         let lon: number = 0;
@@ -450,7 +450,7 @@ describe("Navigator.moveCloseTo$", () => {
                 cacheService);
 
         let moveSpy: jasmine.Spy = spyOn(navigator, "moveToKey$");
-        moveSpy.and.returnValue(Observable.empty<Node>());
+        moveSpy.and.returnValue(Observable.empty());
 
         let lat: number = 0;
         let lon: number = 0;

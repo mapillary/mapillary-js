@@ -61,7 +61,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                             (error: Error, caught: Observable<EdgesDepth>): Observable<EdgesDepth> => {
                                 console.error("Failed to cache sequence edges.", error);
 
-                                return Observable.empty<EdgesDepth>();
+                                return Observable.empty();
                             });
                  })
             .subscribe(() => { /*noop*/ });
@@ -119,7 +119,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                             (error: Error, caught: Observable<EdgesDepth>): Observable<EdgesDepth> => {
                                 console.error("Failed to cache spatial edges.", error);
 
-                                return Observable.empty<EdgesDepth>();
+                                return Observable.empty();
                             });
                 })
             .subscribe(() => { /*noop*/ });

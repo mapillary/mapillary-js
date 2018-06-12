@@ -9,7 +9,7 @@ describe("RenderService.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
 
         expect(renderService).toBeDefined();
     });
@@ -19,7 +19,7 @@ describe("RenderService.renderMode", () => {
     it("should default to letterboxing", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty<IFrame>(), null);
+            new RenderService(element, Observable.empty(), null);
 
         renderService.renderMode$
             .first()
@@ -34,7 +34,7 @@ describe("RenderService.renderMode", () => {
     it("should default set render mode to constructor parameter", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Fill);
+            new RenderService(element, Observable.empty(), RenderMode.Fill);
 
         renderService.renderMode$
             .first()
@@ -49,7 +49,7 @@ describe("RenderService.renderMode", () => {
     it("should return latest render mode on subscripion", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
 
         renderService.renderMode$.next(RenderMode.Fill);
 
@@ -68,7 +68,7 @@ describe("RenderService.size", () => {
     it("should be defined", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
 
         renderService.size$
             .first()
@@ -83,7 +83,7 @@ describe("RenderService.size", () => {
     it("should have an initial value", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
 
         renderService.size$
             .first()
@@ -99,7 +99,7 @@ describe("RenderService.size", () => {
     it("should emit new value on resize", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
+            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
 
         renderService.size$
             .take(2)

@@ -271,7 +271,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.geometryChanged$ :
-                        Observable.empty<OutlineCreateTag>();
+                        Observable.empty();
                 })
             .share();
 
@@ -280,7 +280,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.glObjectsChanged$ :
-                        Observable.empty<OutlineCreateTag>();
+                        Observable.empty();
                 })
             .share();
 
@@ -550,7 +550,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                     return tag != null ?
                         tag.aborted$
                             .map((t: OutlineCreateTag): void => { return null; }) :
-                        Observable.empty<void>();
+                        Observable.empty();
                 })
             .subscribe((): void => { this.changeMode(TagMode.Default); });
 

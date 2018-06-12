@@ -98,7 +98,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 (dragging: boolean): Observable<MouseEvent> => {
                     return dragging ?
                         this._container.mouseService.documentMouseMove$ :
-                        Observable.empty<MouseEvent>();
+                        Observable.empty();
                 })
             .merge(this._container.touchService.touchMove$)
             .subscribe(
@@ -135,7 +135,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
             .switchMap(
                 (enable: boolean): Observable<MouseTouchPair> => {
                     if (!enable) {
-                        return Observable.empty<MouseTouchPair>();
+                        return Observable.empty();
                     }
 
                     const mouseDrag$: Observable<[MouseEvent, MouseEvent]> = this._container.mouseService

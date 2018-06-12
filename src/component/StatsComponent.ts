@@ -48,7 +48,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                             (error: Error, caught: Observable<void>): Observable<void> => {
                                 console.error(`Failed to report sequence stats (${keys.report})`, error);
 
-                                return Observable.empty<void>();
+                                return Observable.empty();
                             });
                 })
             .subscribe(() => { /*noop*/ });
@@ -84,7 +84,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                             (error: Error, caught: Observable<void>): Observable<void> => {
                                 console.error(`Failed to report image stats (${keys.report})`, error);
 
-                                return Observable.empty<void>();
+                                return Observable.empty();
                             });
                 })
             .subscribe(() => { /*noop*/ });

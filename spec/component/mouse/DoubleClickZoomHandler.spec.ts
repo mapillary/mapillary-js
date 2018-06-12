@@ -132,7 +132,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         (<jasmine.Spy>viewportCoordsMock.unprojectFromCanvas).and.returnValue(new THREE.Vector3());
 
         (<jasmine.Spy>containerMock.mouseService.filtered$)
-            .and.returnValue(Observable.empty<MouseEvent>());
+            .and.returnValue(Observable.empty());
 
         let handler: DoubleClickZoomHandler = new DoubleClickZoomHandler(
             testComponent,
@@ -165,7 +165,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         (<jasmine.Spy>viewportCoordsMock.unprojectFromCanvas).and.returnValue(new THREE.Vector3());
 
         (<jasmine.Spy>containerMock.mouseService.filtered$)
-            .and.returnValue(Observable.empty<MouseEvent>());
+            .and.returnValue(Observable.empty());
 
         let handler: DoubleClickZoomHandler = new DoubleClickZoomHandler(
             testComponent,

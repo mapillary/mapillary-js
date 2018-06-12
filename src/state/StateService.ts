@@ -1,7 +1,6 @@
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
-import {RequestAnimationFrameDefinition} from "rxjs/util/AnimationFrame";
 
 import {ILatLon} from "../API";
 import {Node} from "../Graph";
@@ -11,6 +10,7 @@ import {
     Transform,
 } from "../Geo";
 import {
+    FrameGenerator,
     IStateContext,
     IFrame,
     IRotation,
@@ -50,7 +50,7 @@ export class StateService {
 
     private _appendNode$: Subject<Node> = new Subject<Node>();
 
-    private _frameGenerator: RequestAnimationFrameDefinition;
+    private _frameGenerator: FrameGenerator;
     private _frameId: number;
 
     private _fpsSampleRate: number;
@@ -310,7 +310,7 @@ export class StateService {
         this._inTranslation$.subscribe(() => { /*noop*/ });
 
         this._frameId = null;
-        this._frameGenerator = new RequestAnimationFrameDefinition(window);
+        this._frameGenerator = new FrameGenerator(window);
     }
 
     public get currentState$(): Observable<IFrame> {

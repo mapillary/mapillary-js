@@ -652,7 +652,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         Settings.baseImageSize;
 
                     if (Math.max(node.image.width, node.image.height) > baseImageSize) {
-                        return Observable.empty<[HTMLImageElement, Node]>();
+                        return Observable.empty();
                     }
 
                     let image$: Observable<[HTMLImageElement, Node]> = node
@@ -675,7 +675,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                 Observable<[HTMLImageElement, Node]> => {
                                 console.error(`Failed to fetch high res image (${node.key})`, error);
 
-                                return Observable.empty<[HTMLImageElement, Node]>();
+                                return Observable.empty();
                             });
                 })
             .publish()
@@ -1011,7 +1011,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         Settings.baseImageSize;
 
                     if (Math.max(node.image.width, node.image.height) > baseImageSize) {
-                        return Observable.empty<[HTMLImageElement, Node]>();
+                        return Observable.empty();
                     }
 
                     let image$: Observable<[HTMLImageElement, Node]> = node
@@ -1034,7 +1034,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                 Observable<[HTMLImageElement, Node]> => {
                                 console.error(`Failed to fetch high res image (${node.key})`, error);
 
-                                return Observable.empty<[HTMLImageElement, Node]>();
+                                return Observable.empty();
                             });
                 })
             .publish()
@@ -1103,7 +1103,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 (error: Error, caught: Observable<Node>): Observable<Node> => {
                     console.error(`Failed to cache slider node (${key})`, error);
 
-                    return Observable.empty<Node>();
+                    return Observable.empty();
                 });
     }
 

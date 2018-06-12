@@ -119,7 +119,7 @@ export class EditVertexHandler extends TagHandlerBase {
                 (interaction: IInteraction): Observable<MouseEvent> => {
                     return !!interaction.tag ?
                         this._container.mouseService.documentMouseMove$ :
-                        Observable.empty<MouseEvent>();
+                        Observable.empty();
                 })
             .subscribe(
                 (event: MouseEvent): void => {
@@ -131,7 +131,7 @@ export class EditVertexHandler extends TagHandlerBase {
             .switchMap(
                 ([interaction, mouseMove]: [IInteraction, MouseEvent]): Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
                     if (interaction.operation === TagOperation.None || !interaction.tag) {
-                        return Observable.empty<[MouseEvent, RenderCamera, IInteraction, Transform]>();
+                        return Observable.empty();
                     }
 
                     const mouseDrag$: Observable<MouseEvent> = Observable

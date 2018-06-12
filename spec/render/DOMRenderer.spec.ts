@@ -12,8 +12,8 @@ import {IFrame} from "../../src/State";
 describe("DOMRenderer.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
-        let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty<IFrame>());
+        let renderService: RenderService = new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+        let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty());
 
         expect(domRenderer).toBeDefined();
     });
@@ -22,8 +22,8 @@ describe("DOMRenderer.ctor", () => {
 describe("DOMRenderer.render$", () => {
     it("should render one element", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
-        let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty<IFrame>());
+        let renderService: RenderService = new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+        let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty());
 
         domRenderer.element$
             .subscribe(
@@ -47,8 +47,8 @@ describe("DOMRenderer.render$", () => {
 
     it("should render multiple elements with different hash names", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
-        let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty<IFrame>());
+        let renderService: RenderService = new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+        let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty());
 
         domRenderer.element$
             .skip(1)
@@ -78,8 +78,8 @@ describe("DOMRenderer.render$", () => {
 
     it("should apply patch", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let renderService: RenderService = new RenderService(element, Observable.empty<IFrame>(), RenderMode.Letterbox);
-        let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty<IFrame>());
+        let renderService: RenderService = new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+        let domRenderer: DOMRenderer = new DOMRenderer(element, renderService, Observable.empty());
 
         domRenderer.element$
             .skip(1)

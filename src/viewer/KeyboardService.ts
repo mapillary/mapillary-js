@@ -4,7 +4,7 @@ export class KeyboardService {
     private _keyDown$: Observable<KeyboardEvent>;
 
     constructor(canvasContainer: HTMLElement) {
-        this._keyDown$ = Observable.fromEvent(canvasContainer, "keydown");
+        this._keyDown$ = Observable.fromEvent<KeyboardEvent>(canvasContainer, "keydown");
     }
 
     public get keyDown$(): Observable<KeyboardEvent> {

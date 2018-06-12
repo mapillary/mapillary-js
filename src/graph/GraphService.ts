@@ -232,7 +232,7 @@ export class GraphService {
                 .expand(
                     (graph: Graph): Observable<Graph> => {
                         if (graph.hasTiles(key)) {
-                            return Observable.empty<Graph>();
+                            return Observable.empty();
                         }
 
                         return Observable
@@ -243,7 +243,7 @@ export class GraphService {
                                         .mergeMap(
                                             (g: Graph): Observable<Graph> => {
                                                 if (g.isCachingTiles(key)) {
-                                                    return Observable.empty<Graph>();
+                                                    return Observable.empty();
                                                 }
 
                                                 return Observable.of<Graph>(g);
@@ -252,7 +252,7 @@ export class GraphService {
                                             (error: Error, caught$: Observable<Graph>): Observable<Graph> => {
                                                 console.error(`Failed to cache tile data (${key}).`, error);
 
-                                                return Observable.empty<Graph>();
+                                                return Observable.empty();
                                             });
                                 });
                     })
@@ -272,7 +272,7 @@ export class GraphService {
                                             (error: Error, caught$: Observable<Graph>): Observable<Graph> => {
                                                 console.error(`Failed to cache spatial nodes (${key}).`, error);
 
-                                                return Observable.empty<Graph>();
+                                                return Observable.empty();
                                             });
                                 });
                     })

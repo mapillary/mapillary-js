@@ -1,3 +1,4 @@
+export {FrameGenerator} from "./state/FrameGenerator";
 export {RotationDelta} from "./state/RotationDelta";
 export {State} from "./state/State";
 export {StateBase} from "./state/states/StateBase";

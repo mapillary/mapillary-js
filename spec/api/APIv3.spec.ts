@@ -79,7 +79,7 @@ describe("APIv3.imageByKeyFill$", () => {
                     expect(err).toBeDefined();
                     expect(err instanceof Error).toBe(true);
 
-                    return Observable.empty<{}>();
+                    return Observable.empty();
                 })
             .subscribe(
                 undefined,
@@ -224,7 +224,7 @@ describe("APIv3.imageByKeyFull$", () => {
                     expect(err).toBeDefined();
                     expect(err instanceof Error).toBe(true);
 
-                    return Observable.empty<{}>();
+                    return Observable.empty();
                 })
             .subscribe(
                 undefined,
