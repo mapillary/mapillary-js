@@ -1,4 +1,8 @@
-import {Subject} from "rxjs/Subject";
+import {
+    BehaviorSubject,
+    Subject,
+    VirtualTimeScheduler,
+} from "rxjs";
 
 import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";
 import {MockCreator} from "../helper/MockCreator.spec";
@@ -11,6 +15,7 @@ import {
     Container,
     Navigator,
 } from "../../src/Viewer";
+import { Observable } from "falcor";
 
 describe("StatsComponent", () => {
     it("should be defined", () => {
@@ -119,11 +124,13 @@ describe("StatsComponent.activate", () => {
         let navigatorMockCreator: NavigatorMockCreator = new NavigatorMockCreator();
         let navigatorMock: Navigator = navigatorMockCreator.create();
 
+        const scheduler: VirtualTimeScheduler = new VirtualTimeScheduler();
         let statsComponent: StatsComponent =
             new StatsComponent(
                 StatsComponent.componentName,
                 containerMock,
-                navigatorMock);
+                navigatorMock,
+                scheduler);
 
         let sequenceViewAdd$: Subject<void> = new Subject<void>();
         let sequenceViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.apiV3.sequenceViewAdd$;
@@ -135,16 +142,16 @@ describe("StatsComponent.activate", () => {
 
         let currentNode$: Subject<Node> = <any>navigatorMock.stateService.currentNode$;
 
-        let debounceTime$: Subject<void> = new Subject<void>();
-        spyOn(currentNode$, "debounceTime").and.returnValue(debounceTime$);
-
         statsComponent.activate();
 
         let nodeHelper: NodeHelper = new NodeHelper();
         let node: Node = nodeHelper.createNode();
 
         currentNode$.next(node);
-        debounceTime$.next(null);
+
+        scheduler.maxFrames = 5001;
+        scheduler.flush();
+
         imageViewAdd$.next(null);
 
         expect(imageViewAddSpy.calls.count()).toBe(1);

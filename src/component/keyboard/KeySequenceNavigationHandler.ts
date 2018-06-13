@@ -1,5 +1,5 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {withLatestFrom, switchMap} from "rxjs/operators";
+import {Observable, Subscription} from "rxjs";
 
 import {
     IKeyboardConfiguration,
@@ -33,14 +33,14 @@ export class KeySequenceNavigationHandler extends HandlerBase<IKeyboardConfigura
     private _keyDownSubscription: Subscription;
 
     protected _enable(): void {
-        const sequenceEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
-            .switchMap(
+        const sequenceEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
+            switchMap(
                 (node: Node): Observable<IEdgeStatus> => {
                     return node.sequenceEdges$;
-                });
+                }));
 
-        this._keyDownSubscription = this._container.keyboardService.keyDown$
-            .withLatestFrom(sequenceEdges$)
+        this._keyDownSubscription = this._container.keyboardService.keyDown$.pipe(
+            withLatestFrom(sequenceEdges$))
             .subscribe(
                 ([event, edgeStatus]: [KeyboardEvent, IEdgeStatus]): void => {
                     let direction: EdgeDirection = null;

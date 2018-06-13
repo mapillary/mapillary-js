@@ -1,5 +1,5 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {map, distinctUntilChanged, debounceTime, refCount, publishReplay, scan, startWith} from "rxjs/operators";
+import {Observable, Subject} from "rxjs";
 
 interface ILoader {
     task: string;
@@ -11,23 +11,23 @@ export class LoadingService {
     private _loadersSubject$: Subject<any> = new Subject<any>();
 
     constructor () {
-        this._loaders$ = this._loadersSubject$
-            .scan(
+        this._loaders$ = this._loadersSubject$.pipe(
+            scan(
                 (loaders: {[key: string]: boolean}, loader: ILoader): {[key: string]: boolean} => {
                     if (loader.task !== undefined) {
                         loaders[loader.task] = loader.loading;
                     }
                     return loaders;
                 },
-                {})
-            .startWith({})
-            .publishReplay(1)
-            .refCount();
+                {}),
+            startWith({}),
+            publishReplay(1),
+            refCount());
     }
 
     public get loading$(): Observable<boolean> {
-        return this._loaders$
-            .map(
+        return this._loaders$.pipe(
+            map(
                 (loaders: {[key: string]: boolean}): boolean => {
                     for (const key in loaders) {
                         if (!loaders.hasOwnProperty(key)) {
@@ -40,19 +40,19 @@ export class LoadingService {
                     }
 
                     return false;
-                })
-            .debounceTime(100)
-            .distinctUntilChanged();
+                }),
+            debounceTime(100),
+            distinctUntilChanged());
     }
 
     public taskLoading$(task: string): Observable<boolean> {
-        return this._loaders$
-            .map(
+        return this._loaders$.pipe(
+            map(
                 (loaders: {[key: string]: boolean}): boolean => {
                     return !!loaders[task];
-                })
-            .debounceTime(100)
-            .distinctUntilChanged();
+                }),
+            debounceTime(100),
+            distinctUntilChanged());
     }
 
     public startLoading(task: string): void {

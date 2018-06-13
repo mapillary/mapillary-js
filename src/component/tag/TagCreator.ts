@@ -1,5 +1,5 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {scan, share, withLatestFrom, map} from "rxjs/operators";
+import {Observable, Subject} from "rxjs";
 
 import {
     Component,
@@ -35,19 +35,19 @@ export class TagCreator {
         this._createRect$ = new Subject<number[]>();
         this._delete$ = new Subject<void>();
 
-        this._tag$ = this._tagOperation$
-            .scan(
+        this._tag$ = this._tagOperation$.pipe(
+            scan(
                 (tag: OutlineCreateTag, operation: ICreateTagOperation): OutlineCreateTag => {
                     return operation(tag);
                 },
-                null)
-            .share();
+                null),
+            share());
 
-        this._createRect$
-            .withLatestFrom(
+        this._createRect$.pipe(
+            withLatestFrom(
                 this._component.configuration$,
-                this._navigator.stateService.currentTransform$)
-            .map(
+                this._navigator.stateService.currentTransform$),
+            map(
                 ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
                         const geometry: RectGeometry = new RectGeometry([
@@ -59,14 +59,14 @@ export class TagCreator {
 
                         return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
                     };
-                })
+                }))
             .subscribe(this._tagOperation$);
 
-        this._createPolygon$
-            .withLatestFrom(
+        this._createPolygon$.pipe(
+            withLatestFrom(
                 this._component.configuration$,
-                this._navigator.stateService.currentTransform$)
-            .map(
+                this._navigator.stateService.currentTransform$),
+            map(
                 ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
                         const geometry: PolygonGeometry = new PolygonGeometry([
@@ -77,16 +77,16 @@ export class TagCreator {
 
                         return new OutlineCreateTag(geometry, { color: conf.createColor }, transform);
                     };
-                })
+                }))
             .subscribe(this._tagOperation$);
 
-        this._delete$
-            .map(
+        this._delete$.pipe(
+            map(
                 (): ICreateTagOperation => {
                     return (tag: OutlineCreateTag): OutlineCreateTag => {
                         return null;
                     };
-                })
+                }))
             .subscribe(this._tagOperation$);
     }
 

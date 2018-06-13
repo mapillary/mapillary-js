@@ -1,4 +1,4 @@
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 
 import {MockCreator} from "./MockCreator.spec";
 import {MockCreatorBase} from "./MockCreatorBase.spec";

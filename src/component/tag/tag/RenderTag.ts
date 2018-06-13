@@ -1,8 +1,7 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {Observable, Subject} from "rxjs";
 
 import {IInteraction} from "../../../Component";
 import {

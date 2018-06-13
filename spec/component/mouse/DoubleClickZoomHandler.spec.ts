@@ -1,7 +1,6 @@
-import * as THREE from "three";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {empty as observableEmpty, Observable, Subject} from "rxjs";
+import * as THREE from "three";
 
 import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
 import {EventHelper} from "../../helper/EventHelper.spec";
@@ -132,7 +131,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         (<jasmine.Spy>viewportCoordsMock.unprojectFromCanvas).and.returnValue(new THREE.Vector3());
 
         (<jasmine.Spy>containerMock.mouseService.filtered$)
-            .and.returnValue(Observable.empty());
+            .and.returnValue(observableEmpty());
 
         let handler: DoubleClickZoomHandler = new DoubleClickZoomHandler(
             testComponent,
@@ -165,7 +164,7 @@ describe("DoubleClickZoomHandler.enable", () => {
         (<jasmine.Spy>viewportCoordsMock.unprojectFromCanvas).and.returnValue(new THREE.Vector3());
 
         (<jasmine.Spy>containerMock.mouseService.filtered$)
-            .and.returnValue(Observable.empty());
+            .and.returnValue(observableEmpty());
 
         let handler: DoubleClickZoomHandler = new DoubleClickZoomHandler(
             testComponent,

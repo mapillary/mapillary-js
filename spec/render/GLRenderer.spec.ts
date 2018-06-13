@@ -1,9 +1,7 @@
-import * as THREE from "three";
+import {empty as observableEmpty, BehaviorSubject, Observable, Subscription, Subject} from "rxjs";
 
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
-import {Subject} from "rxjs/Subject";
+import {map} from "rxjs/operators";
+import * as THREE from "three";
 
 import {
     GLRenderer,
@@ -36,7 +34,7 @@ class RenderServiceMock extends RenderService {
     private _renderCameraFrameMock$: Subject<RenderCamera> = new Subject<RenderCamera>();
 
     constructor(element: HTMLElement) {
-        super(element, Observable.empty(), RenderMode.Letterbox);
+        super(element, observableEmpty(), RenderMode.Letterbox);
     }
 
     public get size$(): Subject<ISize> {
@@ -202,13 +200,13 @@ describe("GLRenderer.renderer", () => {
 
         let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
 
-        frame$
-            .map(
+        frame$.pipe(
+            map(
                 (frame: IFrame): IGLRenderHash => {
                     let renderHash: IGLRenderHash = createGLRenderHash(frame.id, true);
 
                     return renderHash;
-                })
+                }))
             .subscribe(glRenderer.render$);
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
@@ -234,13 +232,13 @@ describe("GLRenderer.renderer", () => {
 
         let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
 
-        let frameSubscription: Subscription = frame$
-            .map(
+        let frameSubscription: Subscription = frame$.pipe(
+            map(
                 (frame: IFrame): IGLRenderHash => {
                     let renderHash: IGLRenderHash = createGLRenderHash(frame.id, true);
 
                     return renderHash;
-                })
+                }))
             .subscribe(glRenderer.render$);
 
         expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);

@@ -1,6 +1,23 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
-import {Subscription} from "rxjs/Subscription";
+import {
+    of as observableOf,
+    empty as observableEmpty,
+    combineLatest as observableCombineLatest,
+    merge as observableMerge,
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
+
+import {
+    filter,
+    refCount,
+    switchMap,
+    skip,
+    share,
+    take,
+    map,
+    publishReplay,
+} from "rxjs/operators";
 
 import {
     CreateHandlerBase,
@@ -22,41 +39,39 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
     protected _enableCreate(): void {
         this._container.mouseService.deferPixels(this._name, 4);
 
-        const transformChanged$: Observable<void> = this._navigator.stateService.currentTransform$
-            .map((transform: Transform): void => { /*noop*/ })
-            .publishReplay(1)
-            .refCount();
+        const transformChanged$: Observable<void> = this._navigator.stateService.currentTransform$.pipe(
+            map((transform: Transform): void => { /*noop*/ }),
+            publishReplay(1),
+            refCount());
 
-        this._deleteSubscription = transformChanged$
-            .skip(1)
+        this._deleteSubscription = transformChanged$.pipe(
+            skip(1))
             .subscribe(this._tagCreator.delete$);
 
-        const basicClick$: Observable<number[]> = this._mouseEventToBasic$(this._container.mouseService.proximateClick$).share();
+        const basicClick$: Observable<number[]> = this._mouseEventToBasic$(this._container.mouseService.proximateClick$).pipe(share());
 
-        this._createSubscription = transformChanged$
-            .switchMap(
+        this._createSubscription = transformChanged$.pipe(
+            switchMap(
                 (): Observable<number[]> => {
-                    return basicClick$
-                        .filter(this._validateBasic)
-                        .take(1);
-                })
+                    return basicClick$.pipe(
+                        filter(this._validateBasic),
+                        take(1));
+                }))
             .subscribe(this._create$);
 
-        this._setVertexSubscription = this._tagCreator.tag$
-            .switchMap(
+        this._setVertexSubscription = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<[OutlineCreateTag, MouseEvent, RenderCamera, Transform]> => {
                     return !!tag ?
-                        Observable
-                            .combineLatest(
-                                Observable.of(tag),
-                                Observable
-                                    .merge(
+                        observableCombineLatest(
+                                observableOf(tag),
+                                observableMerge(
                                         this._container.mouseService.mouseMove$,
                                         this._container.mouseService.domMouseMove$),
                                 this._container.renderService.renderCamera$,
                                 this._navigator.stateService.currentTransform$) :
-                        Observable.empty();
-                })
+                        observableEmpty();
+                }))
             .subscribe(
                 ([tag, event, camera, transform]: [OutlineCreateTag, MouseEvent, RenderCamera, Transform]): void => {
                     const basicPoint: number[] = this._mouseEventToBasic(
@@ -68,32 +83,31 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                     this._setVertex2d(tag, basicPoint, transform);
                 });
 
-        this._addPointSubscription = this._tagCreator.tag$
-            .switchMap(
+        this._addPointSubscription = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<[OutlineCreateTag, number[]]> => {
                     return !!tag ?
-                        Observable
-                            .combineLatest(
-                                Observable.of(tag),
+                        observableCombineLatest(
+                                observableOf(tag),
                                 basicClick$) :
-                        Observable.empty();
-                })
+                        observableEmpty();
+                }))
             .subscribe(
                 ([tag, basicPoint]: [OutlineCreateTag, number[]]): void => {
                     this._addPoint(tag, basicPoint);
                 });
 
-        this._geometryCreateSubscription = this._tagCreator.tag$
-            .switchMap(
+        this._geometryCreateSubscription = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<Geometry> => {
                     return !!tag ?
-                        tag.created$
-                            .map(
+                        tag.created$.pipe(
+                            map(
                                 (t: OutlineCreateTag): Geometry => {
                                     return t.geometry;
-                                }) :
-                        Observable.empty();
-                })
+                                })) :
+                        observableEmpty();
+                }))
             .subscribe(this._geometryCreated$);
     }
 

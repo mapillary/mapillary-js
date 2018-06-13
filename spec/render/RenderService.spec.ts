@@ -1,5 +1,6 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {empty as observableEmpty, Observable, Subject} from "rxjs";
+
+import {skip, first, take, count} from "rxjs/operators";
 
 import {ISize, RenderCamera, RenderMode, RenderService} from "../../src/Render";
 import {IFrame, ICurrentState} from "../../src/State";
@@ -9,7 +10,7 @@ describe("RenderService.ctor", () => {
     it("should be contructed", () => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+            new RenderService(element, observableEmpty(), RenderMode.Letterbox);
 
         expect(renderService).toBeDefined();
     });
@@ -19,10 +20,10 @@ describe("RenderService.renderMode", () => {
     it("should default to letterboxing", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty(), null);
+            new RenderService(element, observableEmpty(), null);
 
-        renderService.renderMode$
-            .first()
+        renderService.renderMode$.pipe(
+            first())
             .subscribe(
                 (renderMode: RenderMode): void => {
                     expect(renderMode).toBe(RenderMode.Fill);
@@ -34,10 +35,10 @@ describe("RenderService.renderMode", () => {
     it("should default set render mode to constructor parameter", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty(), RenderMode.Fill);
+            new RenderService(element, observableEmpty(), RenderMode.Fill);
 
-        renderService.renderMode$
-            .first()
+        renderService.renderMode$.pipe(
+            first())
             .subscribe(
                 (renderMode: RenderMode): void => {
                     expect(renderMode).toBe(RenderMode.Fill);
@@ -49,12 +50,12 @@ describe("RenderService.renderMode", () => {
     it("should return latest render mode on subscripion", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+            new RenderService(element, observableEmpty(), RenderMode.Letterbox);
 
         renderService.renderMode$.next(RenderMode.Fill);
 
-        renderService.renderMode$
-            .first()
+        renderService.renderMode$.pipe(
+            first())
             .subscribe(
                 (renderMode: RenderMode): void => {
                     expect(renderMode).toBe(RenderMode.Fill);
@@ -68,10 +69,10 @@ describe("RenderService.size", () => {
     it("should be defined", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+            new RenderService(element, observableEmpty(), RenderMode.Letterbox);
 
-        renderService.size$
-            .first()
+        renderService.size$.pipe(
+            first())
             .subscribe(
                 (size: ISize): void => {
                     expect(size).toBeDefined();
@@ -83,10 +84,10 @@ describe("RenderService.size", () => {
     it("should have an initial value", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+            new RenderService(element, observableEmpty(), RenderMode.Letterbox);
 
-        renderService.size$
-            .first()
+        renderService.size$.pipe(
+            first())
             .subscribe(
                 (size: ISize): void => {
                     expect(size.width).toBe(0);
@@ -99,10 +100,10 @@ describe("RenderService.size", () => {
     it("should emit new value on resize", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
         let renderService: RenderService =
-            new RenderService(element, Observable.empty(), RenderMode.Letterbox);
+            new RenderService(element, observableEmpty(), RenderMode.Letterbox);
 
-        renderService.size$
-            .take(2)
+        renderService.size$.pipe(
+            take(2))
             .subscribe(
                 (size: ISize): void => { return; },
                 (e: Error): void => { return; },
@@ -147,8 +148,8 @@ describe("RenderService.renderCameraFrame", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCameraFrame$
-            .first()
+        renderService.renderCameraFrame$.pipe(
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc).toBeDefined();
@@ -167,8 +168,8 @@ describe("RenderService.renderCameraFrame", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCameraFrame$
-            .first()
+        renderService.renderCameraFrame$.pipe(
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc.changed).toBe(true);
@@ -187,9 +188,9 @@ describe("RenderService.renderCameraFrame", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCameraFrame$
-            .skip(1)
-            .first()
+        renderService.renderCameraFrame$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc.changed).toBe(false);
@@ -209,9 +210,9 @@ describe("RenderService.renderCameraFrame", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCameraFrame$
-            .skip(1)
-            .first()
+        renderService.renderCameraFrame$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc.changed).toBe(true);
@@ -231,9 +232,9 @@ describe("RenderService.renderCameraFrame", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCameraFrame$
-            .skip(1)
-            .first()
+        renderService.renderCameraFrame$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc.changed).toBe(true);
@@ -256,9 +257,9 @@ describe("RenderService.renderCameraFrame", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCameraFrame$
-            .skip(1)
-            .first()
+        renderService.renderCameraFrame$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc.changed).toBe(true);
@@ -280,9 +281,9 @@ describe("RenderService.renderCameraFrame", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCameraFrame$
-            .skip(1)
-            .first()
+        renderService.renderCameraFrame$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc.changed).toBe(true);
@@ -306,8 +307,8 @@ describe("RenderService.renderCameraFrame", () => {
 
         renderService.renderMode$.next(RenderMode.Fill);
 
-        renderService.renderCameraFrame$
-            .first()
+        renderService.renderCameraFrame$.pipe(
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc.renderMode).toBe(RenderMode.Fill);
@@ -326,11 +327,11 @@ describe("RenderService.renderCameraFrame", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCameraFrame$
-            .count()
+        renderService.renderCameraFrame$.pipe(
+            count())
             .subscribe(
-                (count: number): void => {
-                    expect(count).toBe(4);
+                (emitCount: number): void => {
+                    expect(emitCount).toBe(4);
 
                     done();
                 });
@@ -382,8 +383,8 @@ describe("RenderService.renderCamera$", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCamera$
-            .first()
+        renderService.renderCamera$.pipe(
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc).toBeDefined();
@@ -402,9 +403,9 @@ describe("RenderService.renderCamera$", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.renderCamera$
-            .skip(1)
-            .first()
+        renderService.renderCamera$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (rc: RenderCamera): void => {
                     expect(rc.frameId).toBe(2);
@@ -487,8 +488,8 @@ describe("RenderService.bearing$", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.bearing$
-            .first()
+        renderService.bearing$.pipe(
+            first())
             .subscribe(
                 (bearing: number): void => {
                     expect(bearing).toBeDefined();
@@ -506,8 +507,8 @@ describe("RenderService.bearing$", () => {
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
-        renderService.bearing$
-            .first()
+        renderService.bearing$.pipe(
+            first())
             .subscribe(
                 (bearing: number): void => {
                     expect(bearing).toBeCloseTo(90, 5);

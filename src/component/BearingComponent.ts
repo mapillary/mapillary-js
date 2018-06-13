@@ -1,7 +1,7 @@
+import {distinctUntilChanged, map} from "rxjs/operators";
 import * as vd from "virtual-dom";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {Observable, Subscription} from "rxjs";
 
 import {
     Component,
@@ -41,8 +41,8 @@ export class BearingComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        let cameraBearingFov$: Observable<[number, number]> = this._container.renderService.renderCamera$
-            .map(
+        let cameraBearingFov$: Observable<[number, number]> = this._container.renderService.renderCamera$.pipe(
+            map(
                 (rc: RenderCamera): [number, number] => {
                     let vFov: number = this._spatial.degToRad(rc.perspective.fov);
                     let hFov: number = rc.perspective.aspect === Number.POSITIVE_INFINITY ?
@@ -50,15 +50,15 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                         Math.atan(rc.perspective.aspect * Math.tan(0.5 * vFov)) * 2;
 
                     return [this._spatial.azimuthalToBearing(rc.rotation.phi), hFov];
-                })
-            .distinctUntilChanged(
+                }),
+            distinctUntilChanged(
                 (a1: [number, number], a2: [number, number]): boolean => {
                     return Math.abs(a2[0] - a1[0]) < this._distinctThreshold &&
                         Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
-                });
+                }));
 
-        this._renderSubscription = cameraBearingFov$
-            .map(
+        this._renderSubscription = cameraBearingFov$.pipe(
+            map(
                 ([bearing, fov]: [number, number]): IVNodeHash => {
                     const background: vd.VNode = vd.h("div.BearingIndicatorBackground", {}, []);
                     const backgroundCircle: vd.VNode = vd.h("div.BearingIndicatorBackgroundCircle", {}, []);
@@ -78,7 +78,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                                 cameraSector,
                             ]),
                     };
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
     }
 

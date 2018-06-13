@@ -1,7 +1,5 @@
-import {Observable} from "rxjs/Observable";
-import {ReplaySubject} from "rxjs/ReplaySubject";
-import {Subject} from "rxjs/Subject";
-import {VirtualTimeScheduler} from "rxjs";
+
+import {of as observableOf, Observable, ReplaySubject, Subject, VirtualTimeScheduler} from "rxjs";
 
 import {
     SequenceComponent,
@@ -278,7 +276,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", "nodeKey1");
         mockCreator.mockProperty(node1, "sequenceKey", "sequenceKey1");
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
@@ -312,7 +310,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey1);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
@@ -351,7 +349,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey1);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
@@ -366,7 +364,7 @@ describe("SequenceComponent.activate", () => {
 
         const node2: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node2, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node2, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node2, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node2, "key", nodeKey2);
         mockCreator.mockProperty(node2, "sequenceKey", sequenceKey1);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node2);
@@ -404,7 +402,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey1);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
@@ -421,7 +419,7 @@ describe("SequenceComponent.activate", () => {
 
         const node2: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node2, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node2, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node2, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node2, "key", nodeKey2);
         mockCreator.mockProperty(node2, "sequenceKey", sequenceKey2);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node2);
@@ -468,7 +466,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey2);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
@@ -516,7 +514,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey1);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
@@ -556,7 +554,7 @@ describe("SequenceComponent.activate", () => {
 
         const node3: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node3, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node3, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node3, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node3, "key", nodeKey3);
         mockCreator.mockProperty(node3, "sequenceKey", sequenceKey1);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node3);
@@ -594,7 +592,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey2);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
 
@@ -639,7 +637,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey2);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
 
@@ -685,7 +683,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey2);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
 
@@ -730,7 +728,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey2);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
 
@@ -784,7 +782,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", Observable.of({ cached: false, edges: [] }));
+        mockCreator.mockProperty(node1, "sequenceEdges$", observableOf({ cached: false, edges: [] }));
         mockCreator.mockProperty(node1, "key", nodeKey2);
         mockCreator.mockProperty(node1, "sequenceKey", sequenceKey1);
 

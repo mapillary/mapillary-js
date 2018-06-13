@@ -1,5 +1,6 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {empty as observableEmpty, combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
+
+import {first, map, distinctUntilChanged, switchMap} from "rxjs/operators";
 
 import {
     Component,
@@ -51,31 +52,30 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
     }
 
     protected _enable(): void {
-        const inTransition$: Observable<boolean> = this._navigator.stateService.currentState$
-            .map(
+        const inTransition$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
+            map(
                 (frame: IFrame): boolean => {
                     return frame.state.alpha < 1;
-                });
+                }));
 
-        this._bounceSubscription = Observable
-            .combineLatest(
+        this._bounceSubscription = observableCombineLatest(
                 inTransition$,
                 this._navigator.stateService.inTranslation$,
                 this._container.mouseService.active$,
-                this._container.touchService.active$)
-            .map(
+                this._container.touchService.active$).pipe(
+            map(
                 (noForce: boolean[]): boolean => {
                     return noForce[0] || noForce[1] || noForce[2] || noForce[3];
-                })
-            .distinctUntilChanged()
-            .switchMap(
+                }),
+            distinctUntilChanged(),
+            switchMap(
                 (noForce: boolean): Observable<[RenderCamera, Transform]> => {
                     return noForce ?
-                        Observable.empty() :
-                        Observable.combineLatest(
+                        observableEmpty() :
+                        observableCombineLatest(
                             this._container.renderService.renderCamera$,
-                            this._navigator.stateService.currentTransform$.first());
-                })
+                            this._navigator.stateService.currentTransform$.pipe(first()));
+                }))
             .subscribe(
                 (args: [RenderCamera, Transform]): void => {
                     let renderCamera: RenderCamera = args[0];

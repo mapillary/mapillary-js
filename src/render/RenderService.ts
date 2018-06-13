@@ -1,6 +1,5 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {withLatestFrom, map, startWith, scan, publishReplay, skip, refCount, tap, filter} from "rxjs/operators";
+import {Observable, Subject, BehaviorSubject} from "rxjs";
 
 import {Camera, Spatial, Transform} from "../Geo";
 import {Node} from "../Graph";
@@ -47,35 +46,35 @@ export class RenderService {
                     width: this._element.offsetWidth,
                 });
 
-        this._resize$
-            .map(
+        this._resize$.pipe(
+            map(
                 (): ISize => {
                     return { height: this._element.offsetHeight, width: this._element.offsetWidth };
-                })
+                }))
             .subscribe(this._size$);
 
         this._renderMode$ = new BehaviorSubject<RenderMode>(renderMode);
 
-        this._renderCameraHolder$ = this._renderCameraOperation$
-            .startWith(
+        this._renderCameraHolder$ = this._renderCameraOperation$.pipe(
+            startWith(
                 (rc: RenderCamera): RenderCamera => {
                     return rc;
-                })
-            .scan(
+                }),
+            scan(
                 (rc: RenderCamera, operation: IRenderCameraOperation): RenderCamera => {
                     return operation(rc);
                 },
-                new RenderCamera(this._element.offsetWidth, this._element.offsetHeight, renderMode))
-            .publishReplay(1)
-            .refCount();
+                new RenderCamera(this._element.offsetWidth, this._element.offsetHeight, renderMode)),
+            publishReplay(1),
+            refCount());
 
-        this._renderCameraFrame$ = this._currentFrame$
-            .withLatestFrom(
+        this._renderCameraFrame$ = this._currentFrame$.pipe(
+            withLatestFrom(
                 this._renderCameraHolder$,
                 (frame: IFrame, renderCamera: RenderCamera): [IFrame, RenderCamera] => {
                     return [frame, renderCamera];
-                })
-            .do(
+                }),
+            tap(
                 (args: [IFrame, RenderCamera]): void => {
                     let frame: IFrame = args[0];
                     let rc: RenderCamera = args[1];
@@ -113,37 +112,37 @@ export class RenderService {
                     }
 
                     rc.frameId = frame.id;
-                })
-            .map(
+                }),
+            map(
                 (args: [IFrame, RenderCamera]): RenderCamera => {
                     return args[1];
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._renderCamera$ = this._renderCameraFrame$
-            .filter(
+        this._renderCamera$ = this._renderCameraFrame$.pipe(
+            filter(
                 (rc: RenderCamera): boolean => {
                     return rc.changed;
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._bearing$ = this._renderCamera$
-            .map(
+        this._bearing$ = this._renderCamera$.pipe(
+            map(
                 (renderCamera: RenderCamera): number => {
                     let bearing: number =
                         this._spatial.radToDeg(
                             this._spatial.azimuthalToBearing(renderCamera.rotation.phi));
 
                     return this._spatial.wrap(bearing, 0, 360);
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._size$
-            .skip(1)
-            .map(
+        this._size$.pipe(
+            skip(1),
+            map(
                 (size: ISize) => {
                     return (rc: RenderCamera): RenderCamera => {
                         rc.updateAspect(size.width, size.height);
@@ -151,12 +150,12 @@ export class RenderService {
 
                         return rc;
                     };
-                })
+                }))
             .subscribe(this._renderCameraOperation$);
 
-        this._renderMode$
-            .skip(1)
-            .map(
+        this._renderMode$.pipe(
+            skip(1),
+            map(
                 (rm: RenderMode) => {
                     return (rc: RenderCamera): RenderCamera => {
                         rc.renderMode = rm;
@@ -164,7 +163,7 @@ export class RenderService {
 
                         return rc;
                     };
-                })
+                }))
             .subscribe(this._renderCameraOperation$);
 
         this._bearing$.subscribe(() => { /*noop*/ });

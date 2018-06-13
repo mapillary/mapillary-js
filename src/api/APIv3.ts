@@ -1,7 +1,7 @@
+import {catchError, map} from "rxjs/operators";
 import * as falcor from "falcor";
 
-import {Observable} from "rxjs/Observable";
-import {Subscriber} from "rxjs/Subscriber";
+import {Observable, Subscriber} from "rxjs";
 
 import {
     ICoreNode,
@@ -137,15 +137,15 @@ export class APIv3 {
                     .concat(this._propertiesFill)
                     .concat(this._propertiesSpatial),
                 this._propertiesKey
-                    .concat(this._propertiesUser)]))
-            .map(
+                    .concat(this._propertiesUser)])).pipe(
+            map(
                 (value: falcor.JSONEnvelope<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
                     if (!value) {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
                     return value.json.imageByKey;
-                }),
+                })),
             this._pathImageByKey,
             keys);
     }
@@ -160,15 +160,15 @@ export class APIv3 {
                     .concat(this._propertiesFill)
                     .concat(this._propertiesSpatial),
                 this._propertiesKey
-                    .concat(this._propertiesUser)]))
-            .map(
+                    .concat(this._propertiesUser)])).pipe(
+            map(
                 (value: falcor.JSONEnvelope<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
                     if (!value) {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
                     return value.json.imageByKey;
-                }),
+                })),
             this._pathImageByKey,
             keys);
     }
@@ -184,11 +184,11 @@ export class APIv3 {
                     .concat(this._propertiesFill)
                     .concat(this._propertiesSpatial),
                 this._propertiesKey
-                    .concat(this._propertiesUser)]))
-            .map(
+                    .concat(this._propertiesUser)])).pipe(
+            map(
                 (value: falcor.JSONEnvelope<IImageCloseTo<IFullNode>>): IFullNode => {
                     return value != null ? value.json.imageCloseTo[lonLat] : null;
-                }),
+                })),
             this._pathImageCloseTo,
             [lonLat]);
     }
@@ -200,8 +200,8 @@ export class APIv3 {
                 hs,
                 { from: 0, to: this._pageCount },
                 this._propertiesKey
-                    .concat(this._propertiesCore)]))
-            .map(
+                    .concat(this._propertiesCore)])).pipe(
+            map(
                 (value: falcor.JSONEnvelope<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
@@ -214,7 +214,7 @@ export class APIv3 {
                     }
 
                     return value.json.imagesByH;
-                }),
+                })),
             this._pathImagesByH,
             hs);
     }
@@ -253,8 +253,8 @@ export class APIv3 {
                 this._pathSequenceByKey,
                 sequenceKeys,
                 this._propertiesKey
-                    .concat(this._propertiesSequence)]))
-            .map(
+                    .concat(this._propertiesSequence)])).pipe(
+            map(
                 (value: falcor.JSONEnvelope<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
                     if (!value) {
                         value = { json: { sequenceByKey: {} } };
@@ -269,7 +269,7 @@ export class APIv3 {
                     }
 
                     return value.json.sequenceByKey;
-                }),
+                })),
             this._pathSequenceByKey,
             sequenceKeys);
     }
@@ -289,23 +289,23 @@ export class APIv3 {
     }
 
     private _catchInvalidateGet$<TResult>(observable: Observable<TResult>, path: APIPath, paths: string[]): Observable<TResult> {
-        return observable
-            .catch(
+        return observable.pipe(
+            catchError(
                 (error: Error): Observable<TResult> => {
                     this._invalidateGet(path, paths);
 
                     throw error;
-                });
+                }));
     }
 
     private _catchInvalidateCall$<TResult>(observable: Observable<TResult>, path: APIPath, paths: string[]): Observable<TResult> {
-        return observable
-            .catch(
+        return observable.pipe(
+            catchError(
                 (error: Error): Observable<TResult> => {
                     this._invalidateCall(path, paths);
 
                     throw error;
-                });
+                }));
     }
 
     private _invalidateGet(path: APIPath, paths: string[]): void {
@@ -333,11 +333,11 @@ export class APIv3 {
     }
 
     private _wrapCallModelResponse$<T>(modelResponse: falcor.ModelResponse<falcor.JSONEnvelope<T>>): Observable<T> {
-        return this._wrapModelResponse$(modelResponse)
-            .map<falcor.JSONEnvelope<T>, T>(
+        return this._wrapModelResponse$(modelResponse).pipe(
+            map<falcor.JSONEnvelope<T>, T>(
                 (value: falcor.JSONEnvelope<T>): T => {
                     return;
-                });
+                }));
     }
 }
 

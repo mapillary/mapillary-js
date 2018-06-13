@@ -1,7 +1,6 @@
-import {Subject} from "rxjs/Subject";
-import {Observable} from "rxjs/Observable";
-import {Subscriber} from "rxjs/Subscriber";
-import {Subscription} from "rxjs/Subscription";
+import {of as observableOf, combineLatest as observableCombineLatest, Subject, Observable, Subscriber, Subscription} from "rxjs";
+
+import {map, tap, startWith, publishReplay, refCount, finalize, first} from "rxjs/operators";
 
 import {IEdge} from "../Edge";
 import {
@@ -60,26 +59,26 @@ export class NodeCache {
         this._spatialEdges = { cached: false, edges: [] };
 
         this._imageChanged$ = new Subject<HTMLImageElement>();
-        this._image$ = this._imageChanged$
-            .startWith(null)
-            .publishReplay(1)
-            .refCount();
+        this._image$ = this._imageChanged$.pipe(
+            startWith(null),
+            publishReplay(1),
+            refCount());
 
         this._iamgeSubscription = this._image$.subscribe();
 
         this._sequenceEdgesChanged$ = new Subject<IEdgeStatus>();
-        this._sequenceEdges$ = this._sequenceEdgesChanged$
-            .startWith(this._sequenceEdges)
-            .publishReplay(1)
-            .refCount();
+        this._sequenceEdges$ = this._sequenceEdgesChanged$.pipe(
+            startWith(this._sequenceEdges),
+            publishReplay(1),
+            refCount());
 
         this._sequenceEdgesSubscription = this._sequenceEdges$.subscribe(() => { /*noop*/ });
 
         this._spatialEdgesChanged$ = new Subject<IEdgeStatus>();
-        this._spatialEdges$ = this._spatialEdgesChanged$
-            .startWith(this._spatialEdges)
-            .publishReplay(1)
-            .refCount();
+        this._spatialEdges$ = this._spatialEdgesChanged$.pipe(
+            startWith(this._spatialEdges),
+            publishReplay(1),
+            refCount());
 
         this._spatialEdgesSubscription = this._spatialEdges$.subscribe(() => { /*noop*/ });
 
@@ -190,8 +189,7 @@ export class NodeCache {
             Settings.basePanoramaSize :
             Settings.baseImageSize;
 
-        this._cachingAssets$ = Observable
-            .combineLatest(
+        this._cachingAssets$ = observableCombineLatest(
                 this._cacheImage$(key, imageSize),
                 this._cacheMesh$(key, merged),
                 (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NodeCache => {
@@ -211,19 +209,19 @@ export class NodeCache {
                     }
 
                     return this;
-                })
-            .finally(
+                }).pipe(
+            finalize(
                 (): void => {
                     this._cachingAssets$ = null;
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._cachingAssets$
-            .first(
+        this._cachingAssets$.pipe(
+            first(
                 (nodeCache: NodeCache): boolean => {
                     return !!nodeCache._image;
-                })
+                }))
             .subscribe(
                 (nodeCache: NodeCache): void => {
                     this._imageChanged$.next(this._image);
@@ -245,25 +243,25 @@ export class NodeCache {
      */
     public cacheImage$(key: string, imageSize: ImageSize): Observable<NodeCache> {
         if (this._image != null && imageSize <= Math.max(this._image.width, this._image.height)) {
-            return Observable.of<NodeCache>(this);
+            return observableOf<NodeCache>(this);
         }
 
-        const cacheImage$: Observable<NodeCache> = this._cacheImage$(key, imageSize)
-            .first(
+        const cacheImage$: Observable<NodeCache> = this._cacheImage$(key, imageSize).pipe(
+            first(
                 (status: ILoadStatusObject<HTMLImageElement>): boolean => {
                     return status.object != null;
-                })
-            .do(
+                }),
+            tap(
                 (status: ILoadStatusObject<HTMLImageElement>): void => {
                     this._disposeImage();
                     this._image = status.object;
-                })
-            .map(
+                }),
+            map(
                 (imageStatus: ILoadStatusObject<HTMLImageElement>): NodeCache => {
                     return this;
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
         cacheImage$
             .subscribe(

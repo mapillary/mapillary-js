@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {Observable, Subject} from "rxjs";
 
 import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
 import {EventHelper} from "../../helper/EventHelper.spec";

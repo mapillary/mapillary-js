@@ -1,7 +1,29 @@
-import * as when from "when";
+import {
+    empty as observableEmpty,
+    merge as observableMerge,
+    from as observableFrom,
+    Observable,
+    Subscription,
+} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {
+    startWith,
+    first,
+    combineLatest,
+    tap,
+    map,
+    share,
+    merge,
+    skipWhile,
+    filter,
+    mergeMap,
+    refCount,
+    publishReplay,
+    switchMap,
+    distinctUntilChanged,
+} from "rxjs/operators";
+
+import * as when from "when";
 
 import {
     ComponentService,
@@ -212,8 +234,8 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._editVertexHandler = new EditVertexHandler(this, container, navigator, this._viewportCoords, this._tagSet);
 
-        this._renderTags$ = this._tagSet.changed$
-            .map(
+        this._renderTags$ = this._tagSet.changed$.pipe(
+            map(
                 (tagSet: TagSet): RenderTag<Tag>[] => {
                     const tags: RenderTag<Tag>[] = tagSet.getAll();
 
@@ -236,56 +258,53 @@ export class TagComponent extends Component<ITagConfiguration> {
                         });
 
                     return tags;
-                })
-            .share();
+                }),
+            share());
 
-        this._tagChanged$ = this._renderTags$
-            .switchMap(
+        this._tagChanged$ = this._renderTags$.pipe(
+            switchMap(
                 (tags: RenderTag<Tag>[]): Observable<Tag> => {
-                    return Observable
-                        .from(tags)
-                        .mergeMap(
+                    return observableFrom(tags).pipe(
+                        mergeMap(
                             (tag: RenderTag<Tag>): Observable<Tag> => {
-                                return Observable
-                                    .merge(
+                                return observableMerge(
                                         tag.tag.changed$,
                                         tag.tag.geometryChanged$);
-                            });
-                })
-            .share();
+                            }));
+                }),
+            share());
 
-        this._renderTagGLChanged$ = this._renderTags$
-            .switchMap(
+        this._renderTagGLChanged$ = this._renderTags$.pipe(
+            switchMap(
                 (tags: RenderTag<Tag>[]): Observable<RenderTag<Tag>> => {
-                    return Observable
-                        .from(tags)
-                        .mergeMap(
+                    return observableFrom(tags).pipe(
+                        mergeMap(
                             (tag: RenderTag<Tag>): Observable<RenderTag<Tag>> => {
                                 return tag.glObjectsChanged$;
-                            });
-                })
-            .share();
+                            }));
+                }),
+            share());
 
-        this._createGeometryChanged$ = this._tagCreator.tag$
-            .switchMap(
+        this._createGeometryChanged$ = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.geometryChanged$ :
-                        Observable.empty();
-                })
-            .share();
+                        observableEmpty();
+                }),
+            share());
 
-        this._createGLObjectsChanged$ = this._tagCreator.tag$
-            .switchMap(
+        this._createGLObjectsChanged$ = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
                     return tag != null ?
                         tag.glObjectsChanged$ :
-                        Observable.empty();
-                })
-            .share();
+                        observableEmpty();
+                }),
+            share());
 
-        this._creatingConfiguration$ = this._configuration$
-            .distinctUntilChanged(
+        this._creatingConfiguration$ = this._configuration$.pipe(
+            distinctUntilChanged(
                 (c1: ITagConfiguration, c2: ITagConfiguration): boolean => {
                     return c1.mode === c2.mode;
                 },
@@ -294,9 +313,9 @@ export class TagComponent extends Component<ITagConfiguration> {
                         createColor: configuration.createColor,
                         mode: configuration.mode,
                     };
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
         this._creatingConfiguration$
             .subscribe(
@@ -318,8 +337,8 @@ export class TagComponent extends Component<ITagConfiguration> {
      */
     public add(tags: Tag[]): void {
         if (this._activated) {
-            this._navigator.stateService.currentTransform$
-                .first()
+            this._navigator.stateService.currentTransform$.pipe(
+                first())
                 .subscribe(
                     (transform: Transform): void => {
                         this._tagSet.add(tags, transform);
@@ -415,9 +434,9 @@ export class TagComponent extends Component<ITagConfiguration> {
      */
     public getTagIdsAt(pixelPoint: number[]): when.Promise<string[]> {
         return when.promise<string[]>((resolve: (value: string[]) => void, reject: (reason: Error) => void): void => {
-            this._container.renderService.renderCamera$
-                .first()
-                .map(
+            this._container.renderService.renderCamera$.pipe(
+                first(),
+                map(
                     (render: RenderCamera): string[] => {
                         const viewport: number[] = this._viewportCoords
                             .canvasToViewport(
@@ -428,7 +447,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                         const ids: string[] = this._tagScene.intersectObjects(viewport, render.perspective);
 
                         return ids;
-                    })
+                    }))
                 .subscribe(
                     (ids: string[]): void => {
                         resolve(ids);
@@ -483,21 +502,21 @@ export class TagComponent extends Component<ITagConfiguration> {
     protected _activate(): void {
         this._editVertexHandler.enable();
 
-        const handlerGeometryCreated$: Observable<Geometry> = Observable
-            .from<keyof typeof TagMode>(<(keyof typeof TagMode)[]>Object.keys(this._createHandlers))
-            .map(
-                (key: keyof typeof TagMode): CreateHandlerBase => {
-                    return this._createHandlers[key];
-                })
-            .filter(
-                (handler: CreateHandlerBase): boolean => {
-                    return !!handler;
-                })
-            .mergeMap(
-                (handler: CreateHandlerBase): Observable<Geometry> => {
-                    return handler.geometryCreated$;
-                })
-            .share();
+        const handlerGeometryCreated$: Observable<Geometry> =
+            observableFrom<keyof typeof TagMode>(<(keyof typeof TagMode)[]>Object.keys(this._createHandlers)).pipe(
+                map(
+                    (key: keyof typeof TagMode): CreateHandlerBase => {
+                        return this._createHandlers[key];
+                    }),
+                filter(
+                    (handler: CreateHandlerBase): boolean => {
+                        return !!handler;
+                    }),
+                mergeMap(
+                    (handler: CreateHandlerBase): Observable<Geometry> => {
+                        return handler.geometryCreated$;
+                    }),
+                share());
 
         this._fireGeometryCreatedSubscription = handlerGeometryCreated$
             .subscribe(
@@ -505,12 +524,12 @@ export class TagComponent extends Component<ITagConfiguration> {
                     this.fire(TagComponent.geometrycreated, geometry);
                 });
 
-        this._fireCreateGeometryEventSubscription = this._tagCreator.tag$
-            .skipWhile(
+        this._fireCreateGeometryEventSubscription = this._tagCreator.tag$.pipe(
+            skipWhile(
                 (tag: OutlineCreateTag): boolean => {
                     return tag == null;
-                })
-            .distinctUntilChanged()
+                }),
+            distinctUntilChanged())
             .subscribe(
                 (tag: OutlineCreateTag): void => {
                     const eventType: string = tag != null ?
@@ -544,14 +563,14 @@ export class TagComponent extends Component<ITagConfiguration> {
                     this.fire(TagComponent.tagschanged, this);
                 });
 
-        this._stopCreateSubscription = this._tagCreator.tag$
-            .switchMap(
+        this._stopCreateSubscription = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<void> => {
                     return tag != null ?
-                        tag.aborted$
-                            .map((t: OutlineCreateTag): void => { return null; }) :
-                        Observable.empty();
-                })
+                        tag.aborted$.pipe(
+                            map((t: OutlineCreateTag): void => { return null; })) :
+                        observableEmpty();
+                }))
             .subscribe((): void => { this.changeMode(TagMode.Default); });
 
         this._setGLCreateTagSubscription = this._tagCreator.tag$
@@ -584,37 +603,37 @@ export class TagComponent extends Component<ITagConfiguration> {
                     this._tagScene.update();
                 });
 
-        this._domSubscription = this._renderTags$
-            .startWith([])
-            .do(
+        this._domSubscription = this._renderTags$.pipe(
+            startWith([]),
+            tap(
                 (tags: RenderTag<Tag>[]): void => {
                     this._container.domRenderer.render$.next({
                         name: this._name,
                         vnode: this._tagDomRenderer.clear(),
                     });
-                })
-            .combineLatest(
+                }),
+            combineLatest(
                 this._container.renderService.renderCamera$,
                 this._container.spriteService.spriteAtlas$,
                 this._container.renderService.size$,
-                this._tagChanged$.startWith(null),
-                this._tagCreator.tag$.merge(this._createGeometryChanged$).startWith(null),
+                this._tagChanged$.pipe(startWith(null)),
+                this._tagCreator.tag$.pipe(merge(this._createGeometryChanged$), startWith(null)),
                 (renderTags: RenderTag<Tag>[], rc: RenderCamera, atlas: ISpriteAtlas, size: ISize, tag: Tag, ct: OutlineCreateTag):
                 [RenderCamera, ISpriteAtlas, ISize, RenderTag<Tag>[], Tag, OutlineCreateTag] => {
                     return [rc, atlas, size, renderTags, tag, ct];
-                })
-            .map(
+                }),
+            map(
                 (args: [RenderCamera, ISpriteAtlas, ISize, RenderTag<Tag>[], Tag, OutlineCreateTag]):
                     IVNodeHash => {
                     return {
                         name: this._name,
                         vnode: this._tagDomRenderer.render(args[3], args[5], args[1], args[0].perspective, args[2]),
                     };
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
 
-        this._glSubscription = this._navigator.stateService.currentState$
-            .map(
+        this._glSubscription = this._navigator.stateService.currentState$.pipe(
+            map(
                 (frame: IFrame): IGLRenderHash => {
                     const tagScene: TagScene = this._tagScene;
 
@@ -627,11 +646,11 @@ export class TagComponent extends Component<ITagConfiguration> {
                             stage: GLRenderStage.Foreground,
                         },
                     };
-                })
+                }))
             .subscribe(this._container.glRenderer.render$);
 
-        this._navigator.stateService.currentTransform$
-            .first()
+        this._navigator.stateService.currentTransform$.pipe(
+            first())
             .subscribe(
                 (transform: Transform): void => {
                     this._tagSet.activate(transform);

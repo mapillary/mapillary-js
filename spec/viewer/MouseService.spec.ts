@@ -1,4 +1,5 @@
-import {Observable} from "rxjs/Observable";
+import {switchMap} from "rxjs/operators";
+import {Observable} from "rxjs";
 
 import {MouseService} from "../../src/Viewer";
 
@@ -148,11 +149,11 @@ describe("MouseService.mouseDrag$", () => {
         const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
 
         let emitCount: number = 0;
-        mouseService.mouseDragStart$
-            .switchMap(
+        mouseService.mouseDragStart$.pipe(
+            switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return mouseService.mouseDrag$;
-                })
+                }))
             .subscribe(
                 (event: MouseEvent): void => {
                     emitCount++;
@@ -186,11 +187,11 @@ describe("MouseService.mouseDrag$", () => {
 
         let emitCount: number = 0;
         mouseService
-            .filtered$("test", mouseService.mouseDragStart$)
-            .switchMap(
+            .filtered$("test", mouseService.mouseDragStart$).pipe(
+            switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return mouseService.filtered$("test", mouseService.mouseDrag$);
-                })
+                }))
             .subscribe(
                 (event: MouseEvent): void => {
                     emitCount++;
@@ -392,11 +393,11 @@ describe("MouseService.domMouseDrag$", () => {
         const mouseService: MouseService = new MouseService(container, canvasContainer, domContainer, doc);
 
         let emitCount: number = 0;
-        mouseService.domMouseDragStart$
-            .switchMap(
+        mouseService.domMouseDragStart$.pipe(
+            switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return mouseService.domMouseDrag$;
-                })
+                }))
             .subscribe(
                 (event: MouseEvent): void => {
                     emitCount++;
@@ -430,11 +431,11 @@ describe("MouseService.domMouseDrag$", () => {
 
         let emitCount: number = 0;
         mouseService
-            .filtered$("test", mouseService.domMouseDragStart$)
-            .switchMap(
+            .filtered$("test", mouseService.domMouseDragStart$).pipe(
+            switchMap(
                 (e: MouseEvent): Observable<MouseEvent> => {
                     return mouseService.filtered$("test", mouseService.domMouseDrag$);
-                })
+                }))
             .subscribe(
                 (event: MouseEvent): void => {
                     emitCount++;

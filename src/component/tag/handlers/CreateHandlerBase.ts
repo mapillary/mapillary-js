@@ -1,5 +1,5 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {map, withLatestFrom} from "rxjs/operators";
+import {Observable, Subject} from "rxjs";
 
 import {
     Component,
@@ -61,18 +61,18 @@ export abstract class CreateHandlerBase extends TagHandlerBase {
     }
 
     protected _mouseEventToBasic$(mouseEvent$: Observable<MouseEvent>): Observable<number[]> {
-        return mouseEvent$
-            .withLatestFrom(
+        return mouseEvent$.pipe(
+            withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$)
-            .map(
+                this._navigator.stateService.currentTransform$),
+            map(
                 ([event, camera, transform]: [MouseEvent, RenderCamera, Transform]): number[] => {
                     return this._mouseEventToBasic(
                         event,
                         this._container.element,
                         camera,
                         transform);
-                });
+                }));
     }
 }
 

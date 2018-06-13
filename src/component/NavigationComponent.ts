@@ -1,7 +1,7 @@
-import * as vd from "virtual-dom";
+import {of as observableOf, combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {switchMap, map} from "rxjs/operators";
+import * as vd from "virtual-dom";
 
 import {EdgeDirection, IEdge} from "../Edge";
 import {AbortMapillaryError} from "../Error";
@@ -47,46 +47,44 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._renderSubscription = Observable
-            .combineLatest(
+        this._renderSubscription = observableCombineLatest(
                 this._navigator.stateService.currentNode$,
-                this._configuration$)
-            .switchMap(
+                this._configuration$).pipe(
+            switchMap(
                 ([node, configuration]: [Node, INavigationConfiguration]): Observable<EdgeDirection[]> => {
                     const sequenceEdges$: Observable<EdgeDirection[]> = configuration.sequence ?
-                        node.sequenceEdges$
-                            .map(
+                        node.sequenceEdges$.pipe(
+                            map(
                                 (status: IEdgeStatus): EdgeDirection[] => {
                                     return status.edges
                                         .map(
                                             (edge: IEdge): EdgeDirection => {
                                                 return edge.data.direction;
                                             });
-                                }) :
-                        Observable.of<EdgeDirection[]>([]);
+                                })) :
+                        observableOf<EdgeDirection[]>([]);
 
                     const spatialEdges$: Observable<EdgeDirection[]> = !node.pano && configuration.spatial ?
-                        node.spatialEdges$
-                            .map(
+                        node.spatialEdges$.pipe(
+                            map(
                                 (status: IEdgeStatus): EdgeDirection[] => {
                                     return status.edges
                                         .map(
                                             (edge: IEdge): EdgeDirection => {
                                                 return edge.data.direction;
                                             });
-                                }) :
-                        Observable.of<EdgeDirection[]>([]);
+                                })) :
+                        observableOf<EdgeDirection[]>([]);
 
-                    return Observable
-                        .combineLatest(
+                    return observableCombineLatest(
                             sequenceEdges$,
-                            spatialEdges$)
-                        .map(
+                            spatialEdges$).pipe(
+                        map(
                             ([seq, spa]: [EdgeDirection[], EdgeDirection[]]): EdgeDirection[] => {
                                  return seq.concat(spa);
-                            });
-                })
-            .map(
+                            }));
+                }),
+            map(
                 (edgeDirections: EdgeDirection[]): IVNodeHash => {
                     const seqs: vd.VNode[] = this._createArrowRow(this._seqNames, edgeDirections);
                     const spaTops: vd.VNode[] = this._createArrowRow(this._spaTopNames, edgeDirections);
@@ -98,7 +96,7 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
                     const spaContainer: vd.VNode = vd.h(`div.NavigationSpatial`, [spaTopContainer, spaBottomContainer]);
 
                     return { name: this._name, vnode: vd.h(`div.NavigationContainer`, [seqContainer, spaContainer]) };
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
     }
 

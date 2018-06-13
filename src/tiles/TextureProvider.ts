@@ -1,8 +1,7 @@
+import {startWith, publishReplay, refCount} from "rxjs/operators";
 import * as THREE from "three";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
-import {Subscription} from "rxjs/Subscription";
+import {Observable, Subject, Subscription} from "rxjs";
 
 import {
     ImageTileLoader,
@@ -83,17 +82,17 @@ export class TextureProvider {
 
         this._updated$ = new Subject<boolean>();
         this._createdSubject$ = new Subject<THREE.Texture>();
-        this._created$ = this._createdSubject$
-            .publishReplay(1)
-            .refCount();
+        this._created$ = this._createdSubject$.pipe(
+            publishReplay(1),
+            refCount());
 
         this._createdSubscription = this._created$.subscribe(() => { /*noop*/ });
 
         this._hasSubject$ = new Subject<boolean>();
-        this._has$ = this._hasSubject$
-            .startWith(false)
-            .publishReplay(1)
-            .refCount();
+        this._has$ = this._hasSubject$.pipe(
+            startWith(false),
+            publishReplay(1),
+            refCount());
 
         this._hasSubscription = this._has$.subscribe(() => { /*noop*/ });
 

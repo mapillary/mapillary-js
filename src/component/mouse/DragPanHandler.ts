@@ -1,7 +1,28 @@
-import * as THREE from "three";
+import {
+    of as observableOf,
+    empty as observableEmpty,
+    merge as observableMerge,
+    Observable,
+    Subscription,
+} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {
+    sample,
+    scan,
+    map,
+    share,
+    switchMap,
+    merge,
+    takeWhile,
+    withLatestFrom,
+    pairwise,
+    filter,
+    concat,
+    startWith,
+    distinctUntilChanged,
+} from "rxjs/operators";
+
+import * as THREE from "three";
 
 import {
     Component,
@@ -68,130 +89,125 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
     protected _enable(): void {
         let draggingStarted$: Observable<boolean> =
              this._container.mouseService
-                .filtered$(this._component.name, this._container.mouseService.mouseDragStart$)
-                .map(
+                .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
+                map(
                     (event: MouseEvent): boolean => {
                         return true;
-                    })
-                .share();
+                    }),
+                share());
 
         let draggingStopped$: Observable<boolean> =
              this._container.mouseService
-                .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$)
-                .map(
+                .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
+                map(
                     (event: Event): boolean => {
                         return false;
-                    })
-                .share();
+                    }),
+                share());
 
-        this._activeMouseSubscription = Observable
-            .merge(
+        this._activeMouseSubscription = observableMerge(
                 draggingStarted$,
                 draggingStopped$)
             .subscribe(this._container.mouseService.activate$);
 
-        this._preventDefaultSubscription = Observable
-            .merge(
+        this._preventDefaultSubscription = observableMerge(
                 draggingStarted$,
-                draggingStopped$)
-            .switchMap(
+                draggingStopped$).pipe(
+            switchMap(
                 (dragging: boolean): Observable<MouseEvent> => {
                     return dragging ?
                         this._container.mouseService.documentMouseMove$ :
-                        Observable.empty();
-                })
-            .merge(this._container.touchService.touchMove$)
+                        observableEmpty();
+                }),
+            merge(this._container.touchService.touchMove$))
             .subscribe(
                 (event: MouseEvent | TouchEvent): void => {
                     event.preventDefault(); // prevent selection of content outside the viewer
                 });
 
         let touchMovingStarted$: Observable<boolean> =
-            this._container.touchService.singleTouchDragStart$
-                .map(
+            this._container.touchService.singleTouchDragStart$.pipe(
+                map(
                     (event: TouchEvent): boolean => {
                         return true;
-                    });
+                    }));
 
         let touchMovingStopped$: Observable<boolean> =
-            this._container.touchService.singleTouchDragEnd$
-                .map(
+            this._container.touchService.singleTouchDragEnd$.pipe(
+                map(
                     (event: TouchEvent): boolean => {
                         return false;
-                    });
+                    }));
 
-        this._activeTouchSubscription = Observable
-            .merge(
+        this._activeTouchSubscription = observableMerge(
                 touchMovingStarted$,
                 touchMovingStopped$)
             .subscribe(this._container.touchService.activate$);
 
-        const basicRotation$: Observable<number[]> = this._navigator.stateService.currentState$
-            .map(
+        const basicRotation$: Observable<number[]> = this._navigator.stateService.currentState$.pipe(
+            map(
                 (frame: IFrame): boolean => {
                     return frame.state.currentNode.fullPano || frame.state.nodesAhead < 1;
-                })
-            .distinctUntilChanged()
-            .switchMap(
+                }),
+            distinctUntilChanged(),
+            switchMap(
                 (enable: boolean): Observable<MouseTouchPair> => {
                     if (!enable) {
-                        return Observable.empty();
+                        return observableEmpty();
                     }
 
                     const mouseDrag$: Observable<[MouseEvent, MouseEvent]> = this._container.mouseService
-                        .filtered$(this._component.name, this._container.mouseService.mouseDragStart$)
-                        .switchMap(
+                        .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
+                        switchMap(
                             (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
-                                return Observable
-                                    .of(mouseDragStart)
-                                    .concat(
+                                return observableOf(mouseDragStart).pipe(
+                                    concat(
                                         this._container.mouseService
-                                            .filtered$(this._component.name, this._container.mouseService.mouseDrag$))
-                                    .merge(
+                                            .filtered$(this._component.name, this._container.mouseService.mouseDrag$)),
+                                    merge(
                                         this._container.mouseService
-                                            .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$)
-                                            .map(
+                                            .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
+                                            map(
                                                 (e: Event): MouseEvent => {
                                                     return null;
-                                                }))
-                                    .takeWhile(
+                                                }))),
+                                    takeWhile(
                                         (e: MouseEvent): boolean => {
                                             return !!e;
-                                        })
-                                    .startWith(null);
-                            })
-                        .pairwise()
-                        .filter(
+                                        }),
+                                    startWith(null));
+                            }),
+                        pairwise(),
+                        filter(
                             (pair: [MouseEvent, MouseEvent]): boolean => {
                                 return pair[0] != null && pair[1] != null;
-                            });
+                            }));
 
-                    const singleTouchDrag$: Observable<[Touch, Touch]> = Observable
-                        .merge(
+                    const singleTouchDrag$: Observable<[Touch, Touch]> = observableMerge(
                             this._container.touchService.singleTouchDragStart$,
                             this._container.touchService.singleTouchDrag$,
-                            this._container.touchService.singleTouchDragEnd$.map((t: TouchEvent): TouchEvent => { return null; }))
-                        .map(
+                            this._container.touchService.singleTouchDragEnd$.pipe(
+                                map((t: TouchEvent): TouchEvent => { return null; }))).pipe(
+                        map(
                             (event: TouchEvent): Touch => {
                                 return event != null && event.touches.length > 0 ?
                                     event.touches[0] : null;
-                            })
-                        .pairwise()
-                        .filter(
+                            }),
+                        pairwise(),
+                        filter(
                             (pair: [Touch, Touch]): boolean => {
                                 return pair[0] != null && pair[1] != null;
-                            });
+                            }));
 
-                    return Observable
-                        .merge(
+                    return observableMerge(
                             mouseDrag$,
                             singleTouchDrag$);
-                })
-            .withLatestFrom(
+                }),
+            withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
-                this._navigator.stateService.currentCamera$)
-            .map(
+                this._navigator.stateService.currentCamera$),
+            map(
                 ([events, render, transform, c]: [MouseTouchPair, RenderCamera, Transform, Camera]): number[] => {
                     let camera: Camera = c.clone();
 
@@ -302,8 +318,8 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     }
 
                     return [x, y];
-                })
-            .share();
+                }),
+            share());
 
         this._rotateBasicWithoutInertiaSubscription = basicRotation$
             .subscribe(
@@ -311,8 +327,8 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     this._navigator.stateService.rotateBasicWithoutInertia(basicRotation);
                 });
 
-        this._rotateBasicSubscription = basicRotation$
-            .scan(
+        this._rotateBasicSubscription = basicRotation$.pipe(
+            scan(
                 (rotationBuffer: [number, number[]][], rotation: number[]): [number, number[]][] => {
                     this._drainBuffer(rotationBuffer);
 
@@ -320,15 +336,14 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
 
                     return rotationBuffer;
                 },
-                [])
-            .sample(
-                Observable
-                    .merge(
+                []),
+            sample(
+                observableMerge(
                         this._container.mouseService.filtered$(
                             this._component.name,
                             this._container.mouseService.mouseDragEnd$),
-                        this._container.touchService.singleTouchDragEnd$))
-            .map(
+                        this._container.touchService.singleTouchDragEnd$)),
+            map(
                 (rotationBuffer: [number, number[]][]): number[] => {
                     const drainedBuffer: [number, number[]][] = this._drainBuffer(rotationBuffer.slice());
                     const basicRotation: number[] = [0, 0];
@@ -345,7 +360,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     }
 
                     return basicRotation;
-                })
+                }))
             .subscribe(
                 (basicRotation: number[]): void => {
                     this._navigator.stateService.rotateBasic(basicRotation);

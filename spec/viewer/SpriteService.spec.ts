@@ -1,3 +1,4 @@
+import {skip} from "rxjs/operators";
 import {ISpriteAtlas, SpriteService} from "../../src/Viewer";
 
 class XMLHTTPRequestMock {
@@ -119,8 +120,8 @@ describe("SpriteService.spriteAtlas$", () => {
 
         let spriteService: SpriteService = new SpriteService("sprite");
 
-        spriteService.spriteAtlas$
-            .skip(1)
+        spriteService.spriteAtlas$.pipe(
+            skip(1))
             .subscribe(
                 (atlas: ISpriteAtlas): void => {
                     expect(atlas.loaded).toBe(false);
@@ -158,8 +159,8 @@ describe("SpriteService.spriteAtlas$", () => {
 
         let spriteService: SpriteService = new SpriteService("sprite");
 
-        spriteService.spriteAtlas$
-            .skip(1)
+        spriteService.spriteAtlas$.pipe(
+            skip(1))
             .subscribe(
                 (atlas: ISpriteAtlas): void => {
                     expect(atlas.loaded).toBe(false);
@@ -202,8 +203,8 @@ describe("SpriteService.spriteAtlas$", () => {
 
         let spriteService: SpriteService = new SpriteService("sprite");
 
-        spriteService.spriteAtlas$
-            .skip(2)
+        spriteService.spriteAtlas$.pipe(
+            skip(2))
             .subscribe(
                 (atlas: ISpriteAtlas): void => {
                     expect(atlas.loaded).toBe(true);

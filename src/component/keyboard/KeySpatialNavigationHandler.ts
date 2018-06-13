@@ -1,7 +1,7 @@
+import {withLatestFrom, switchMap} from "rxjs/operators";
 import * as THREE from "three";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {Observable, Subscription} from "rxjs";
 
 import {
     Component,
@@ -68,16 +68,16 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
     }
 
     protected _enable(): void {
-        const spatialEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$
-            .switchMap(
+        const spatialEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
+            switchMap(
                 (node: Node): Observable<IEdgeStatus> => {
                     return node.spatialEdges$;
-                });
+                }));
 
-        this._keyDownSubscription = this._container.keyboardService.keyDown$
-            .withLatestFrom(
+        this._keyDownSubscription = this._container.keyboardService.keyDown$.pipe(
+            withLatestFrom(
                 spatialEdges$,
-                this._navigator.stateService.currentState$)
+                this._navigator.stateService.currentState$))
             .subscribe(([event, edgeStatus, frame]: [KeyboardEvent, IEdgeStatus, IFrame]): void => {
                 let pano: boolean = frame.state.currentNode.pano;
                 let direction: EdgeDirection = null;

@@ -1,7 +1,7 @@
-import * as vd from "virtual-dom";
+import {of as observableOf, Observable, Subscription} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {map, switchMap} from "rxjs/operators";
+import * as vd from "virtual-dom";
 
 import {Container, Navigator} from "../Viewer";
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
@@ -19,14 +19,14 @@ export class LoadingComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._loadingSubscription = this._navigator.loadingService.loading$
-            .switchMap(
+        this._loadingSubscription = this._navigator.loadingService.loading$.pipe(
+            switchMap(
                 (loading: boolean): Observable<{ [key: string]: ILoadStatus }> => {
                     return loading ?
                         this._navigator.imageLoadingService.loadstatus$ :
-                        Observable.of({});
-                })
-            .map(
+                        observableOf({});
+                }),
+            map(
                 (loadStatus: { [key: string]: ILoadStatus }): IVNodeHash => {
                     let total: number = 0;
                     let loaded: number = 0;
@@ -50,7 +50,7 @@ export class LoadingComponent extends Component<IComponentConfiguration> {
                     }
 
                     return {name: this._name, vnode: this._getBarVNode(percentage)};
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
     }
 

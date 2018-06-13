@@ -1,7 +1,7 @@
-import * as rbush from "rbush";
+import {from as observableFrom, of as observableOf, merge as observableMerge, Observable, Subject} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {first, mergeAll} from "rxjs/operators";
+import * as rbush from "rbush";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
 
@@ -135,9 +135,8 @@ describe("Graph.cacheBoundingBox$", () => {
         imageByKeyFull.complete();
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -195,8 +194,7 @@ describe("Graph.cacheBoundingBox$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         let count: number = 0;
-        Observable
-            .merge(
+        observableMerge(
                 graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 }),
                 graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 }))
             .subscribe(
@@ -396,9 +394,8 @@ describe("Graph.cacheFull$", () => {
         imageByKeyFullOther.complete();
 
         graph.hasTiles(otherNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(otherNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(otherNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let fullNode: IFullNode = helper.createFullNode();
@@ -463,9 +460,8 @@ describe("Graph.cacheFill$", () => {
         imageByKeyFull.next(fetchResult);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let tileNode: ICoreNode = helper.createCoreNode();
@@ -513,9 +509,8 @@ describe("Graph.cacheFill$", () => {
         imageByKeyFull.next(fetchResult);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let tileNode: ICoreNode = helper.createCoreNode();
@@ -569,9 +564,8 @@ describe("Graph.cacheFill$", () => {
         imageByKeyFull.next(fetchResult);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let tileNode: ICoreNode = helper.createCoreNode();
@@ -700,7 +694,7 @@ describe("Graph.cacheTiles$", () => {
 
         let imageByKeyResult: { [key: string]: IFullNode } = {};
         imageByKeyResult[fullNode.key] = fullNode;
-        let imageByKeyFull: Observable<{ [key: string]: IFullNode }> = Observable.of<{ [key: string]: IFullNode }>(imageByKeyResult);
+        let imageByKeyFull: Observable<{ [key: string]: IFullNode }> = observableOf<{ [key: string]: IFullNode }>(imageByKeyResult);
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
@@ -713,9 +707,8 @@ describe("Graph.cacheTiles$", () => {
         expect(graph.hasTiles(fullNode.key)).toBe(false);
         expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -767,7 +760,7 @@ describe("Graph.cacheTiles$", () => {
 
         let imageByKeyResult: { [key: string]: IFullNode } = {};
         imageByKeyResult[fullNode.key] = fullNode;
-        let imageByKeyFull: Observable<{ [key: string]: IFullNode }> = Observable.of<{ [key: string]: IFullNode }>(imageByKeyResult);
+        let imageByKeyFull: Observable<{ [key: string]: IFullNode }> = observableOf<{ [key: string]: IFullNode }>(imageByKeyResult);
         spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
@@ -779,9 +772,8 @@ describe("Graph.cacheTiles$", () => {
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
 
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -1156,9 +1148,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -1233,9 +1224,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -1728,9 +1718,8 @@ describe("Graph.cacheSpatialArea$", () => {
         coreNode.key = "otherKey";
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let result: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -2129,8 +2118,8 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        graph.changed$
-            .first()
+        graph.changed$.pipe(
+            first())
             .subscribe(
                 (g: Graph): void => {
                     expect(g.hasNodeSequence(fullNode.key)).toBe(true);
@@ -2354,9 +2343,8 @@ describe("Graph.resetSpatialEdges", () => {
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHresult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -2861,9 +2849,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -2922,9 +2909,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -2986,9 +2972,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -3048,9 +3033,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(node.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(node.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(node.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
@@ -3130,9 +3114,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode1.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode1.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode1.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -3386,9 +3369,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -3447,9 +3429,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -3508,9 +3489,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
@@ -3569,9 +3549,8 @@ describe("Graph.uncache", () => {
         spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
-        Observable
-            .from<Observable<Graph>>(graph.cacheTiles$(fullNode.key))
-            .mergeAll()
+        observableFrom<Observable<Graph>>(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
             .subscribe(() => { /*noop*/ });
 
         let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};

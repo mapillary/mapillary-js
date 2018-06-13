@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Subscription} from "rxjs/Subscription";
+import {Subscription} from "rxjs";
 
 import {
     Geometry,

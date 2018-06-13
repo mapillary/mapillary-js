@@ -1,8 +1,24 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {
+    empty as observableEmpty,
+    from as observableFrom,
+    Observable,
+    Subscription,
+} from "rxjs";
 
 import {
-    Graph,
+    catchError,
+    timeout,
+    first,
+    distinctUntilChanged,
+    map,
+    bufferCount,
+    withLatestFrom,
+    switchMap,
+    skip,
+    mergeMap,
+} from "rxjs/operators";
+
+import {
     GraphMode,
     GraphService,
     IEdgeStatus,
@@ -38,13 +54,13 @@ export class CacheService {
             return;
         }
 
-        this._uncacheSubscription = this._stateService.currentState$
-            .distinctUntilChanged(
+        this._uncacheSubscription = this._stateService.currentState$.pipe(
+            distinctUntilChanged(
                 undefined,
                 (frame: IFrame): string => {
                     return frame.state.currentNode.key;
-                })
-            .map(
+                }),
+            map(
                 (frame: IFrame): [string[], string] => {
                     const trajectory: Node[] = frame.state.trajectory;
                     const trajectoryKeys: string[] = trajectory
@@ -56,23 +72,23 @@ export class CacheService {
                     const sequenceKey: string = trajectory[trajectory.length - 1].sequenceKey;
 
                     return [trajectoryKeys, sequenceKey];
-                })
-            .bufferCount(1, 5)
-            .withLatestFrom(this._graphService.graphMode$)
-            .switchMap(
+                }),
+            bufferCount(1, 5),
+            withLatestFrom(this._graphService.graphMode$),
+            switchMap(
                 ([keepBuffer, graphMode]: [[string[], string][], GraphMode]): Observable<void> => {
                     let keepKeys: string[] = keepBuffer[0][0];
                     let keepSequenceKey: string = graphMode === GraphMode.Sequence ?
                         keepBuffer[0][1] : undefined;
 
                     return this._graphService.uncache$(keepKeys, keepSequenceKey);
-                })
+                }))
             .subscribe(() => { /*noop*/ });
 
-        this._cacheNodeSubscription = this._graphService.graphMode$
-            .skip(1)
-            .withLatestFrom(this._stateService.currentState$)
-            .switchMap(
+        this._cacheNodeSubscription = this._graphService.graphMode$.pipe(
+            skip(1),
+            withLatestFrom(this._stateService.currentState$),
+            switchMap(
                 ([mode, frame]: [GraphMode, IFrame]): Observable<IEdgeStatus> => {
                     return mode === GraphMode.Sequence ?
                         this._keyToEdges(
@@ -80,14 +96,13 @@ export class CacheService {
                             (node: Node): Observable<IEdgeStatus> => {
                                 return node.sequenceEdges$;
                             }) :
-                        Observable
-                            .from(frame.state.trajectory
+                        observableFrom(frame.state.trajectory
                                 .map(
                                     (node: Node): string => {
                                         return node.key;
                                     })
-                                .slice(frame.state.currentIndex))
-                            .mergeMap(
+                                .slice(frame.state.currentIndex)).pipe(
+                            mergeMap(
                                 (key: string): Observable<IEdgeStatus> => {
                                     return this._keyToEdges(
                                         key,
@@ -95,8 +110,8 @@ export class CacheService {
                                             return node.spatialEdges$;
                                         });
                                 },
-                                6);
-                })
+                                6));
+                }))
             .subscribe(() => { /*noop*/ });
 
         this._started = true;
@@ -117,19 +132,19 @@ export class CacheService {
     }
 
     private _keyToEdges(key: string, nodeToEdgeMap: (node: Node) => Observable<IEdgeStatus>): Observable<IEdgeStatus> {
-        return this._graphService.cacheNode$(key)
-            .switchMap(nodeToEdgeMap)
-            .first(
+        return this._graphService.cacheNode$(key).pipe(
+            switchMap(nodeToEdgeMap),
+            first(
                 (status: IEdgeStatus): boolean => {
                     return status.cached;
-                })
-            .timeout(15000)
-            .catch(
+                }),
+            timeout(15000),
+            catchError(
                 (error: Error): Observable<IEdgeStatus> => {
                     console.error(`Failed to cache edges (${key}).`, error);
 
-                    return Observable.empty();
-                });
+                    return observableEmpty();
+                }));
     }
 }
 

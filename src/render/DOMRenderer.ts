@@ -1,7 +1,7 @@
+import {combineLatest, scan, filter, map, distinctUntilChanged, pluck, refCount, publishReplay} from "rxjs/operators";
 import * as vd from "virtual-dom";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {Observable, Subject} from "rxjs";
 
 import {ISize, IVNodeHash, RenderMode, RenderService} from "../Render";
 import {IFrame} from "../State";
@@ -53,8 +53,8 @@ export class DOMRenderer {
         let rootNode: Element = vd.create(vd.h("div.domRenderer", []));
         element.appendChild(rootNode);
 
-        this._offset$ = this._adaptiveOperation$
-            .scan(
+        this._offset$ = this._adaptiveOperation$.pipe(
+            scan(
                 (adaptive: IAdaptive, operation: IAdaptiveOperation): IAdaptive => {
                     return operation(adaptive);
                 },
@@ -63,12 +63,12 @@ export class DOMRenderer {
                     elementWidth: element.offsetWidth,
                     imageAspect: 0,
                     renderMode: RenderMode.Fill,
-                })
-            .filter(
+                }),
+            filter(
                 (adaptive: IAdaptive): boolean => {
                     return adaptive.imageAspect > 0 && adaptive.elementWidth > 0 && adaptive.elementHeight > 0;
-                })
-            .map(
+                }),
+            map(
                 (adaptive: IAdaptive): IOffset => {
                     let elementAspect: number = adaptive.elementWidth / adaptive.elementHeight;
                     let ratio: number = adaptive.imageAspect / elementAspect;
@@ -96,36 +96,36 @@ export class DOMRenderer {
                         right: horizontalOffset,
                         top: verticalOffset,
                     };
-                });
+                }));
 
-        this._currentFrame$
-            .filter(
+        this._currentFrame$.pipe(
+            filter(
                 (frame: IFrame): boolean => {
                     return frame.state.currentNode != null;
-                })
-            .distinctUntilChanged(
+                }),
+            distinctUntilChanged(
                 (k1: string, k2: string): boolean => {
                     return k1 === k2;
                 },
                 (frame: IFrame): string => {
                     return frame.state.currentNode.key;
-                })
-            .map(
+                }),
+            map(
                 (frame: IFrame): number => {
                     return frame.state.currentTransform.basicAspect;
-                })
-            .map(
+                }),
+            map(
                  (aspect: number): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
                         adaptive.imageAspect = aspect;
 
                         return adaptive;
                     };
-                })
+                }))
             .subscribe(this._adaptiveOperation$);
 
-        this._renderAdaptive$
-            .scan(
+        this._renderAdaptive$.pipe(
+            scan(
                 (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
                     if (vNodeHash.vnode == null) {
                         delete vNodeHashes[vNodeHash.name];
@@ -134,9 +134,9 @@ export class DOMRenderer {
                     }
                     return vNodeHashes;
                 },
-                {})
-            .combineLatest(this._offset$)
-            .map(
+                {}),
+            combineLatest(this._offset$),
+            map(
                 (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
                     let vNodes: vd.VNode[] = [];
                     let hashes: IVNodeHashes = vo[0];
@@ -165,11 +165,11 @@ export class DOMRenderer {
                         name: "adaptiveDomRenderer",
                         vnode: vd.h("div.adaptiveDomRenderer", properties, vNodes),
                     };
-                })
+                }))
             .subscribe(this._render$);
 
-        this._vNode$ = this._render$
-            .scan(
+        this._vNode$ = this._render$.pipe(
+            scan(
                 (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
                     if (vNodeHash.vnode == null) {
                         delete vNodeHashes[vNodeHash.name];
@@ -179,8 +179,8 @@ export class DOMRenderer {
 
                     return vNodeHashes;
                 },
-                {})
-            .map(
+                {}),
+            map(
                 (hashes: IVNodeHashes): vd.VNode => {
                     let vNodes: vd.VNode[] = [];
                     for (const name in hashes) {
@@ -192,31 +192,31 @@ export class DOMRenderer {
                     }
 
                     return vd.h("div.domRenderer", vNodes);
-                });
+                }));
 
-        this._vPatch$ = this._vNode$
-            .scan(
+        this._vPatch$ = this._vNode$.pipe(
+            scan(
                 (nodePatch: INodePatch, vNode: vd.VNode): INodePatch => {
                     nodePatch.vpatch = vd.diff(nodePatch.vnode, vNode);
                     nodePatch.vnode = vNode;
                     return nodePatch;
                 },
-                {vnode: vd.h("div.domRenderer", []), vpatch: null})
-            .pluck<INodePatch, vd.VPatch[]>("vpatch");
+                {vnode: vd.h("div.domRenderer", []), vpatch: null}),
+            pluck<INodePatch, vd.VPatch[]>("vpatch"));
 
-        this._element$ = this._vPatch$
-            .scan(
+        this._element$ = this._vPatch$.pipe(
+            scan(
                 (oldElement: Element, vPatch: vd.VPatch[]): Element => {
                     return vd.patch(oldElement, vPatch);
                 },
-                rootNode)
-            .publishReplay(1)
-            .refCount();
+                rootNode),
+            publishReplay(1),
+            refCount());
 
         this._element$.subscribe(() => { /*noop*/ });
 
-        this._renderService.size$
-            .map(
+        this._renderService.size$.pipe(
+            map(
                 (size: ISize): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
                         adaptive.elementWidth = size.width;
@@ -224,18 +224,18 @@ export class DOMRenderer {
 
                         return adaptive;
                     };
-                })
+                }))
             .subscribe(this._adaptiveOperation$);
 
-        this._renderService.renderMode$
-            .map(
+        this._renderService.renderMode$.pipe(
+            map(
                 (renderMode: RenderMode): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
                         adaptive.renderMode = renderMode;
 
                         return adaptive;
                     };
-                })
+                }))
             .subscribe(this._adaptiveOperation$);
     }
 

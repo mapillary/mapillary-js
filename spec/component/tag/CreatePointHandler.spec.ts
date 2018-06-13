@@ -1,5 +1,9 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {
+    empty as observableEmpty,
+    of as observableOf,
+    Observable,
+    Subject,
+} from "rxjs";
 
 import {
     Component,
@@ -58,16 +62,6 @@ describe("CreatePointHandler.disable", () => {
 });
 
 describe("CreatePointHandler.geometryCreated$", () => {
-    const mockMouseEventToBasic: (mouseEvent$: Observable<MouseEvent>) => Subject<number[]> =
-        (mouseEvent$: Observable<MouseEvent>): Subject<number[]> => {
-            const basic$: Subject<number[]> = new Subject<number[]>();
-            const withLatestFrom$: Observable<void> = Observable.empty();
-            spyOn(withLatestFrom$, "map").and.returnValue(basic$);
-            spyOn(mouseEvent$, "withLatestFrom").and.returnValue(withLatestFrom$);
-
-            return basic$;
-        };
-
     it("should create point geometry on valid basic static click", (done: Function) => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
@@ -77,7 +71,8 @@ describe("CreatePointHandler.geometryCreated$", () => {
 
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
-        const basicProximateClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.proximateClick$);
+        const basicProximateClick$: Subject<number[]> = new Subject<number[]>();
+        spyOn(container.mouseService.proximateClick$, <keyof Observable<void>>"pipe").and.returnValue(basicProximateClick$);
 
         component.activate();
         createPointHandler.enable();
@@ -109,7 +104,8 @@ describe("CreatePointHandler.geometryCreated$", () => {
 
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
-        const basicProximateClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.proximateClick$);
+        const basicProximateClick$: Subject<number[]> = new Subject<number[]>();
+        spyOn(container.mouseService.proximateClick$, <keyof Observable<void>>"pipe").and.returnValue(basicProximateClick$);
 
         component.activate();
 
@@ -135,7 +131,8 @@ describe("CreatePointHandler.geometryCreated$", () => {
 
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
-        const basicProximateClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.proximateClick$);
+        const basicProximateClick$: Subject<number[]> = new Subject<number[]>();
+        spyOn(container.mouseService.proximateClick$, <keyof Observable<void>>"pipe").and.returnValue(basicProximateClick$);
 
         component.activate();
         createPointHandler.enable();
@@ -168,7 +165,8 @@ describe("CreatePointHandler.geometryCreated$", () => {
 
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
-        const basicProximateClick$: Subject<number[]> = mockMouseEventToBasic(container.mouseService.proximateClick$);
+        const basicProximateClick$: Subject<number[]> = new Subject<number[]>();
+        spyOn(container.mouseService.proximateClick$, <keyof Observable<void>>"pipe").and.returnValue(basicProximateClick$);
 
         component.activate();
         createPointHandler.enable();

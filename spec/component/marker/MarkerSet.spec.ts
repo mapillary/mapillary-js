@@ -1,4 +1,5 @@
-import {Subscription} from "rxjs/Subscription";
+import {first} from "rxjs/operators";
+import {Subscription} from "rxjs";
 
 import {ILatLon} from "../../../src/API";
 import {
@@ -304,8 +305,8 @@ describe("MarkerSet.changed$", () => {
 
         let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
 
-        markerSet.changed$
-            .first()
+        markerSet.changed$.pipe(
+            first())
             .subscribe(
                 (ms: MarkerSet): void => {
                     let result: Marker = ms.get(marker.id);
@@ -342,8 +343,8 @@ describe("MarkerSet.changed$", () => {
         let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
         markerSet.add([marker]);
 
-        markerSet.changed$
-            .first()
+        markerSet.changed$.pipe(
+            first())
             .subscribe(
                 (ms: MarkerSet): void => {
                     let result: Marker = ms.get(marker.id);
@@ -379,8 +380,8 @@ describe("MarkerSet.updated$", () => {
         let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
 
         let hasEmitted: boolean = false;
-        markerSet.updated$
-            .first()
+        markerSet.updated$.pipe(
+            first())
             .subscribe(
                 (ms: Marker[]): void => {
                     hasEmitted = true;
@@ -397,8 +398,8 @@ describe("MarkerSet.updated$", () => {
         let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
         markerSet.add([marker]);
 
-        markerSet.updated$
-            .first()
+        markerSet.updated$.pipe(
+            first())
             .subscribe(
                 (ms: Marker[]): void => {
                     expect(ms.length).toBe(1);
@@ -419,8 +420,8 @@ describe("MarkerSet.updated$", () => {
         let marker2: TestMarker = new TestMarker("id2", { lat: 0, lon: 0 });
 
         let firstDone: boolean = false;
-        markerSet.updated$
-            .first()
+        markerSet.updated$.pipe(
+            first())
             .subscribe(
                 (ms: Marker[]): void => {
                     expect(ms.length).toBe(1);
@@ -433,8 +434,8 @@ describe("MarkerSet.updated$", () => {
                     }
                 });
 
-        markerSet.changed$
-            .first()
+        markerSet.changed$.pipe(
+            first())
             .subscribe(
                 (ms: MarkerSet): void => {
                     let result: Marker = ms.get(marker2.id);

@@ -1,4 +1,5 @@
-import {Subscription} from "rxjs/Subscription";
+import {map, filter} from "rxjs/operators";
+import {Subscription} from "rxjs";
 
 import {
     CreateHandlerBase,
@@ -11,12 +12,12 @@ export class CreatePointHandler extends CreateHandlerBase {
     protected _enableCreate(): void {
         this._container.mouseService.deferPixels(this._name, 4);
 
-        this._geometryCreatedSubscription = this._mouseEventToBasic$(this._container.mouseService.proximateClick$)
-            .filter(this._validateBasic)
-            .map(
+        this._geometryCreatedSubscription = this._mouseEventToBasic$(this._container.mouseService.proximateClick$).pipe(
+            filter(this._validateBasic),
+            map(
                 (basic: number[]): PointGeometry => {
                     return new PointGeometry(basic);
-                })
+                }))
             .subscribe(this._geometryCreated$);
     }
 

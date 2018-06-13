@@ -1,6 +1,6 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
-import {Subscription} from "rxjs/Subscription";
+import {from as observableFrom, combineLatest as observableCombineLatest, Observable, Subject, Subscription} from "rxjs";
+
+import {withLatestFrom, merge, startWith, switchMap, map, mergeMap} from "rxjs/operators";
 
 import {
     ComponentService,
@@ -145,8 +145,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
             popup.setParentContainer(this._popupContainer);
         }
 
-        this._updateAllSubscription = Observable
-            .combineLatest(
+        this._updateAllSubscription = observableCombineLatest(
                 this._container.renderService.renderCamera$,
                 this._container.renderService.size$,
                 this._navigator.stateService.currentTransform$)
@@ -157,28 +156,27 @@ export class PopupComponent extends Component<IComponentConfiguration> {
                     }
                 });
 
-        const changed$: Observable<Popup[]> = this._popups$
-            .startWith(this._popups)
-            .switchMap(
+        const changed$: Observable<Popup[]> = this._popups$.pipe(
+            startWith(this._popups),
+            switchMap(
                 (popups: Popup[]): Observable<Popup> => {
-                    return Observable
-                        .from(popups)
-                        .mergeMap(
+                    return observableFrom(popups).pipe(
+                        mergeMap(
                             (popup: Popup): Observable<Popup> => {
                                 return popup.changed$;
-                            });
-                })
-            .map(
+                            }));
+                }),
+            map(
                 (popup: Popup): Popup[] => {
                     return [popup];
-                });
+                }));
 
-        this._updateAddedChangedSubscription = this._added$
-            .merge(changed$)
-            .withLatestFrom(
+        this._updateAddedChangedSubscription = this._added$.pipe(
+            merge(changed$),
+            withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._container.renderService.size$,
-                this._navigator.stateService.currentTransform$)
+                this._navigator.stateService.currentTransform$))
             .subscribe(
                 ([popups, renderCamera, size, transform]: [Popup[], RenderCamera, ISize, Transform]): void => {
                     for (const popup of popups) {

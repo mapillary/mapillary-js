@@ -1,5 +1,6 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {of as observableOf, Observable, Subject} from "rxjs";
+
+import {take, first, skip} from "rxjs/operators";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
 
@@ -34,7 +35,7 @@ describe("GraphService.cacheBoundingBox$", () => {
         let graph: Graph = new Graph(apiV3);
 
         const cacheBoundingBoxSpy: jasmine.Spy = spyOn(graph, "cacheBoundingBox$");
-        cacheBoundingBoxSpy.and.returnValue(Observable.of([]));
+        cacheBoundingBoxSpy.and.returnValue(observableOf([]));
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
@@ -258,8 +259,8 @@ describe("GraphService.graphMode$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        graphService.graphMode$
-            .first()
+        graphService.graphMode$.pipe(
+            first())
             .subscribe(
                 (mode: GraphMode): void => {
                     expect(mode).toBe(GraphMode.Spatial);
@@ -274,9 +275,9 @@ describe("GraphService.graphMode$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        graphService.graphMode$
-            .skip(1)
-            .first()
+        graphService.graphMode$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (mode: GraphMode): void => {
                     expect(mode).toBe(GraphMode.Sequence);
@@ -293,15 +294,15 @@ describe("GraphService.graphMode$", () => {
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let first: boolean = true;
-        graphService.graphMode$
-            .skip(1)
-            .take(2)
+        let firstEmit: boolean = true;
+        graphService.graphMode$.pipe(
+            skip(1),
+            take(2))
             .subscribe(
                 (mode: GraphMode): void => {
-                    if (first) {
+                    if (firstEmit) {
                         expect(mode).toBe(GraphMode.Sequence);
-                        first = false;
+                        firstEmit = false;
                     } else {
                         expect(mode).toBe(GraphMode.Spatial);
                         done();
@@ -370,7 +371,7 @@ describe("GraphService.graphMode$", () => {
 
         graphService.setGraphMode(GraphMode.Sequence);
 
-        cacheTiles$.next([Observable.of<Graph>(graph)]);
+        cacheTiles$.next([observableOf<Graph>(graph)]);
 
         expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });
@@ -886,7 +887,7 @@ describe("GraphService.reset$", () => {
 
         graphService.reset$([]);
 
-        cacheTiles$.next([Observable.of<Graph>(graph)]);
+        cacheTiles$.next([observableOf<Graph>(graph)]);
 
         expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });
@@ -979,7 +980,7 @@ describe("GraphService.setFilter$", () => {
 
         graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe(() => { /*noop*/ });
 
-        cacheTiles$.next([Observable.of<Graph>(graph)]);
+        cacheTiles$.next([observableOf<Graph>(graph)]);
 
         expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });

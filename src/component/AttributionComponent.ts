@@ -1,7 +1,7 @@
-import * as vd from "virtual-dom";
+import {combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {map} from "rxjs/operators";
+import * as vd from "virtual-dom";
 
 import {
     ComponentService,
@@ -28,17 +28,16 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._disposable = Observable
-            .combineLatest(
+        this._disposable = observableCombineLatest(
                 this._navigator.stateService.currentNode$,
-                this._container.renderService.size$)
-            .map(
+                this._container.renderService.size$).pipe(
+            map(
                 ([node, size]: [Node, ISize]): IVNodeHash => {
                     return {
                         name: this._name,
                         vnode: this._getAttributionNode(node.username, node.key, node.capturedAt, size.width),
                     };
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
     }
 

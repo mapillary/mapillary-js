@@ -1,6 +1,8 @@
-import * as falcor from "falcor";
+import {empty as observableEmpty, Observable} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
+import {catchError, retry} from "rxjs/operators";
+
+import * as falcor from "falcor";
 
 import {
     APIv3,
@@ -73,14 +75,14 @@ describe("APIv3.imageByKeyFill$", () => {
 
         let key: string = "key";
 
-        apiV3.imageByKeyFill$([key])
-            .catch(
+        apiV3.imageByKeyFill$([key]).pipe(
+            catchError(
                 (err: Error): Observable<{}> => {
                     expect(err).toBeDefined();
                     expect(err instanceof Error).toBe(true);
 
-                    return Observable.empty();
-                })
+                    return observableEmpty();
+                }))
             .subscribe(
                 undefined,
                 undefined,
@@ -146,8 +148,8 @@ describe("APIv3.imageByKeyFill$", () => {
 
         let key: string = "key";
 
-        apiV3.imageByKeyFill$([key])
-            .retry(5)
+        apiV3.imageByKeyFill$([key]).pipe(
+            retry(5))
             .subscribe(
                 (result: { [key: string]: IFillNode}): void => { return; },
                 (error: Error): void => {
@@ -218,14 +220,14 @@ describe("APIv3.imageByKeyFull$", () => {
 
         let key: string = "key";
 
-        apiV3.imageByKeyFull$([key])
-            .catch(
+        apiV3.imageByKeyFull$([key]).pipe(
+            catchError(
                 (err: Error): Observable<{}> => {
                     expect(err).toBeDefined();
                     expect(err instanceof Error).toBe(true);
 
-                    return Observable.empty();
-                })
+                    return observableEmpty();
+                }))
             .subscribe(
                 undefined,
                 undefined,

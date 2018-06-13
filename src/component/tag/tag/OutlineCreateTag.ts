@@ -1,9 +1,8 @@
+import {map} from "rxjs/operators";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
-import {Subscription} from "rxjs/Subscription";
+import {Observable, Subject, Subscription} from "rxjs";
 
 import {
     IOutlineCreateTagOptions,
@@ -76,11 +75,11 @@ export class OutlineCreateTag {
     }
 
     public get geometryChanged$(): Observable<OutlineCreateTag> {
-        return this._geometry.changed$
-            .map(
+        return this._geometry.changed$.pipe(
+            map(
                 (geometry: VertexGeometry): OutlineCreateTag => {
                     return this;
-                });
+                }));
     }
 
     public dispose(): void {

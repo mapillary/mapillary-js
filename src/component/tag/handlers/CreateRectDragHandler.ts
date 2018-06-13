@@ -1,5 +1,21 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {
+    combineLatest as observableCombineLatest,
+    empty as observableEmpty,
+    merge as observableMerge,
+    of as observableOf,
+    Observable,
+    Subscription,
+} from "rxjs";
+
+import {
+    withLatestFrom,
+    map,
+    skip,
+    filter,
+    combineLatest,
+    switchMap,
+    share,
+} from "rxjs/operators";
 
 import {
     CreateHandlerBase,
@@ -21,76 +37,73 @@ export class CreateRectDragHandler extends CreateHandlerBase {
     protected _enableCreate(): void {
         this._container.mouseService.claimMouse(this._name, 2);
 
-        this._deleteSubscription = this._navigator.stateService.currentTransform$
-            .map((transform: Transform): void => { return null; })
-            .skip(1)
+        this._deleteSubscription = this._navigator.stateService.currentTransform$.pipe(
+            map((transform: Transform): void => { return null; }),
+            skip(1))
             .subscribe(this._tagCreator.delete$);
 
         this._createSubscription = this._mouseEventToBasic$(
-                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDragStart$))
-            .filter(this._validateBasic)
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDragStart$)).pipe(
+            filter(this._validateBasic))
             .subscribe(this._tagCreator.createRect$);
 
-        this._initializeAnchorIndexingSubscription = this._tagCreator.tag$
-            .filter(
+        this._initializeAnchorIndexingSubscription = this._tagCreator.tag$.pipe(
+            filter(
                 (tag: OutlineCreateTag): boolean => {
                     return !!tag;
-                })
+                }))
             .subscribe(
                 (tag: OutlineCreateTag): void => {
                     (<RectGeometry>tag.geometry).initializeAnchorIndexing();
                 });
 
-        const basicMouse$: Observable<number[]> = Observable
-            .merge(
+        const basicMouse$: Observable<number[]> = observableMerge(
                 this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
-                this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$))
-            .combineLatest(this._container.renderService.renderCamera$)
-            .withLatestFrom(this._navigator.stateService.currentTransform$)
-                .map(
-                    ([[event, camera], transform]: [[MouseEvent, RenderCamera], Transform]): number[] => {
-                        return this._mouseEventToBasic(
-                            event,
-                            this._container.element,
-                            camera,
-                            transform);
-                    });
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$)).pipe(
+            combineLatest(this._container.renderService.renderCamera$),
+            withLatestFrom(this._navigator.stateService.currentTransform$),
+            map(
+                ([[event, camera], transform]: [[MouseEvent, RenderCamera], Transform]): number[] => {
+                    return this._mouseEventToBasic(
+                        event,
+                        this._container.element,
+                        camera,
+                        transform);
+                }));
 
-        this._setVertexSubscription = this._tagCreator.tag$
-            .switchMap(
+        this._setVertexSubscription = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<[OutlineCreateTag, number[], Transform]> => {
                     return !!tag ?
-                        Observable
-                            .combineLatest(
-                                Observable.of(tag),
-                                basicMouse$,
-                                this._navigator.stateService.currentTransform$) :
-                        Observable.empty();
-                })
+                        observableCombineLatest(
+                            observableOf(tag),
+                            basicMouse$,
+                            this._navigator.stateService.currentTransform$) :
+                        observableEmpty();
+                }))
             .subscribe(
                 ([tag, basicPoint, transform]: [OutlineCreateTag, number[], Transform]): void => {
                     (<RectGeometry>tag.geometry).setOppositeVertex2d(basicPoint, transform);
                 });
 
-        const basicMouseDragEnd$: Observable<number[]> = this._container.mouseService.mouseDragEnd$
-            .withLatestFrom(
-                this._mouseEventToBasic$(this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$))
-                    .filter(this._validateBasic),
+        const basicMouseDragEnd$: Observable<number[]> = this._container.mouseService.mouseDragEnd$.pipe(
+            withLatestFrom(
+                this._mouseEventToBasic$(this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDrag$)).pipe(
+                    filter(this._validateBasic)),
                 (event: Event, basicPoint: number[]): number[] => {
                     return basicPoint;
-                })
-            .share();
+                }),
+            share());
 
-        this._addPointSubscription = this._tagCreator.tag$
-            .switchMap(
+        this._addPointSubscription = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<[OutlineCreateTag, number[]]> => {
                     return !!tag ?
-                        Observable
-                            .combineLatest(
-                                Observable.of(tag),
-                                basicMouseDragEnd$) :
-                        Observable.empty();
-                })
+                        observableCombineLatest(
+                            observableOf(tag),
+                            basicMouseDragEnd$) :
+                        observableEmpty();
+                }))
             .subscribe(
                 ([tag, basicPoint]: [OutlineCreateTag, number[]]): void => {
                     const rectGeometry: RectGeometry = <RectGeometry>tag.geometry;
@@ -101,17 +114,17 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                     tag.addPoint(basicPoint);
                 });
 
-        this._geometryCreatedSubscription = this._tagCreator.tag$
-            .switchMap(
+        this._geometryCreatedSubscription = this._tagCreator.tag$.pipe(
+            switchMap(
                 (tag: OutlineCreateTag): Observable<Geometry> => {
                     return !!tag ?
-                        tag.created$
-                            .map(
+                        tag.created$.pipe(
+                            map(
                                 (t: OutlineCreateTag): Geometry => {
                                     return t.geometry;
-                                }) :
-                        Observable.empty();
-                })
+                                })) :
+                        observableEmpty();
+                }))
             .subscribe(this._geometryCreated$);
     }
 

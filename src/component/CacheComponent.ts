@@ -1,5 +1,26 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {
+    from as observableFrom,
+    merge as observableMerge,
+    empty as observableEmpty,
+    of as observableOf,
+    combineLatest as observableCombineLatest,
+    zip as observableZip,
+    Observable,
+    Subscription,
+} from "rxjs";
+
+import {
+    map,
+    first,
+    switchMap,
+    filter,
+    catchError,
+    mergeMap,
+    combineLatest,
+    expand,
+    skip,
+    mergeAll,
+} from "rxjs/operators";
 
 import {EdgeDirection, IEdge} from "../Edge";
 import {IEdgeStatus, Node} from "../Graph";
@@ -31,19 +52,18 @@ export class CacheComponent extends Component<ICacheConfiguration> {
     }
 
     protected _activate(): void {
-        this._sequenceSubscription = Observable
-            .combineLatest(
-                this._navigator.stateService.currentNode$
-                    .switchMap(
+        this._sequenceSubscription = observableCombineLatest(
+                this._navigator.stateService.currentNode$.pipe(
+                    switchMap(
                         (node: Node): Observable<IEdgeStatus> => {
                             return node.sequenceEdges$;
-                        })
-                    .filter(
+                        }),
+                    filter(
                         (status: IEdgeStatus): boolean => {
                             return status.cached;
-                        }),
-                this._configuration$)
-            .switchMap(
+                        })),
+                this._configuration$).pipe(
+            switchMap(
                 (nc: [IEdgeStatus, ICacheConfiguration]): Observable<EdgesDepth> => {
                     let status: IEdgeStatus = nc[0];
                     let configuration: ICacheConfiguration = nc[1];
@@ -53,38 +73,36 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                     let next$: Observable<EdgesDepth> = this._cache$(status.edges, EdgeDirection.Next, sequenceDepth);
                     let prev$: Observable<EdgesDepth> = this._cache$(status.edges, EdgeDirection.Prev, sequenceDepth);
 
-                    return Observable
-                        .merge<EdgesDepth>(
+                    return observableMerge<EdgesDepth>(
                             next$,
-                            prev$)
-                        .catch(
+                            prev$).pipe(
+                        catchError(
                             (error: Error, caught: Observable<EdgesDepth>): Observable<EdgesDepth> => {
                                 console.error("Failed to cache sequence edges.", error);
 
-                                return Observable.empty();
-                            });
-                 })
+                                return observableEmpty();
+                            }));
+                 }))
             .subscribe(() => { /*noop*/ });
 
-        this._spatialSubscription = this._navigator.stateService.currentNode$
-                .switchMap(
-                    (node: Node): Observable<[Node, IEdgeStatus]> => {
-                        return Observable
-                            .combineLatest(
-                                Observable.of<Node>(node),
-                                node.spatialEdges$
-                                    .filter(
-                                        (status: IEdgeStatus): boolean => {
-                                            return status.cached;
-                                        }));
-                    })
-                .combineLatest(
-                    this._configuration$,
-                    (ns: [Node, IEdgeStatus], configuration: ICacheConfiguration):
-                        [Node, IEdgeStatus, ICacheConfiguration] => {
-                            return [ns[0], ns[1], configuration];
-                        })
-            .switchMap(
+        this._spatialSubscription = this._navigator.stateService.currentNode$.pipe(
+            switchMap(
+                (node: Node): Observable<[Node, IEdgeStatus]> => {
+                    return observableCombineLatest(
+                            observableOf<Node>(node),
+                            node.spatialEdges$.pipe(
+                                filter(
+                                    (status: IEdgeStatus): boolean => {
+                                        return status.cached;
+                                    })));
+                }),
+            combineLatest(
+                this._configuration$,
+                (ns: [Node, IEdgeStatus], configuration: ICacheConfiguration):
+                    [Node, IEdgeStatus, ICacheConfiguration] => {
+                        return [ns[0], ns[1], configuration];
+                    }),
+            switchMap(
                 (args: [Node, IEdgeStatus, ICacheConfiguration]): Observable<EdgesDepth> => {
                     let node: Node = args[0];
                     let edges: IEdge[] = args[1].edges;
@@ -105,8 +123,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                     let turnRight$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.TurnRight, turnDepth);
                     let turnU$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.TurnU, turnDepth);
 
-                    return Observable
-                        .merge<EdgesDepth>(
+                    return observableMerge<EdgesDepth>(
                             forward$,
                             backward$,
                             left$,
@@ -114,14 +131,14 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                             pano$,
                             turnLeft$,
                             turnRight$,
-                            turnU$)
-                        .catch(
+                            turnU$).pipe(
+                        catchError(
                             (error: Error, caught: Observable<EdgesDepth>): Observable<EdgesDepth> => {
                                 console.error("Failed to cache spatial edges.", error);
 
-                                return Observable.empty();
-                            });
-                })
+                                return observableEmpty();
+                            }));
+                }))
             .subscribe(() => { /*noop*/ });
     }
 
@@ -135,11 +152,10 @@ export class CacheComponent extends Component<ICacheConfiguration> {
     }
 
     private _cache$(edges: IEdge[], direction: EdgeDirection, depth: number): Observable<EdgesDepth> {
-        return Observable
-            .zip(
-                Observable.of<IEdge[]>(edges),
-                Observable.of<number>(depth))
-            .expand(
+        return observableZip(
+                observableOf<IEdge[]>(edges),
+                observableOf<number>(depth)).pipe(
+            expand(
                 (ed: EdgesDepth): Observable<EdgesDepth> => {
                     let es: IEdge[] = ed[0];
                     let d: number = ed[1];
@@ -150,37 +166,35 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                         for (let edge of es) {
                             if (edge.data.direction === direction) {
                                 edgesDepths$.push(
-                                    Observable
-                                        .zip(
-                                            this._navigator.graphService.cacheNode$(edge.to)
-                                                .mergeMap(
+                                    observableZip(
+                                            this._navigator.graphService.cacheNode$(edge.to).pipe(
+                                                mergeMap(
                                                     (n: Node): Observable<IEdge[]> => {
                                                         return this._nodeToEdges$(n, direction);
-                                                    }),
-                                            Observable.of<number>(d - 1)));
+                                                    })),
+                                            observableOf<number>(d - 1)));
                             }
                         }
                     }
 
-                    return Observable
-                        .from<Observable<EdgesDepth>>(edgesDepths$)
-                        .mergeAll();
-                })
-            .skip(1);
+                    return observableFrom<Observable<EdgesDepth>>(edgesDepths$).pipe(
+                        mergeAll());
+                }),
+            skip(1));
     }
 
     private _nodeToEdges$(node: Node, direction: EdgeDirection): Observable<IEdge[]> {
        return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
             node.sequenceEdges$ :
-            node.spatialEdges$)
-                .first(
+            node.spatialEdges$).pipe(
+                first(
                     (status: IEdgeStatus): boolean => {
                         return status.cached;
-                    })
-                .map(
+                    }),
+                map(
                     (status: IEdgeStatus): IEdge[] => {
                         return status.edges;
-                    });
+                    }));
     }
 }
 

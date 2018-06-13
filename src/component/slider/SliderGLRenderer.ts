@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import {Subscription} from "rxjs/Subscription";
+import {Subscription} from "rxjs";
 
 import {
     IBBoxShaderMaterial,

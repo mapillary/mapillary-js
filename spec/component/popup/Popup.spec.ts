@@ -1,3 +1,5 @@
+
+import {take} from "rxjs/operators";
 import {
     IPopupOffset,
     Popup,
@@ -19,8 +21,8 @@ describe("Popup.changed$", () => {
     it("should notify change", (done: Function) => {
         const popup: Popup = new Popup();
 
-        popup.changed$
-            .take(5)
+        popup.changed$.pipe(
+            take(5))
             .subscribe(
                 (p: Popup): void => { expect(p).toBe(popup); },
                 undefined,

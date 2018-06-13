@@ -1,5 +1,6 @@
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
+import {of as observableOf, zip as observableZip,  Observable ,  Subject } from "rxjs";
+
+import {take, first, skip} from "rxjs/operators";
 
 import {
     APIv3,
@@ -53,12 +54,11 @@ describe("PlayService.ctor", () => {
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
-        Observable
-            .zip(
+        observableZip(
                 playService.direction$,
                 playService.playing$,
-                playService.speed$)
-            .first()
+                playService.speed$).pipe(
+            first())
             .subscribe(
                 ([d, p, s]: [EdgeDirection, boolean, number]): void => {
                     expect(d).toBe(EdgeDirection.Next);
@@ -140,8 +140,8 @@ describe("PlayService.speed$", () => {
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
-        playService.speed$
-            .skip(1)
+        playService.speed$.pipe(
+            skip(1))
             .subscribe(
                 (speed: number): void => {
                     expect(speed).toBe(0);
@@ -164,16 +164,16 @@ describe("PlayService.speed$", () => {
         playService.setSpeed(1);
 
         let speedEmitCount: number = 0;
-        let first: boolean = true;
-        playService.speed$
-            .skip(1)
+        let firstEmit: boolean = true;
+        playService.speed$.pipe(
+            skip(1))
             .subscribe(
                 (speed: number): void => {
                     speedEmitCount ++;
 
-                    if (first) {
+                    if (firstEmit) {
                         expect(speed).toBe(0);
-                        first = false;
+                        firstEmit = false;
                     } else {
                         expect(speed).toBe(1);
                     }
@@ -196,14 +196,14 @@ describe("PlayService.speed$", () => {
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
-        let first: boolean = true;
-        playService.speed$
-            .skip(1)
+        let firstEmit: boolean = true;
+        playService.speed$.pipe(
+            skip(1))
             .subscribe(
                 (speed: number): void => {
-                    if (first) {
+                    if (firstEmit) {
                         expect(speed).toBe(0);
-                        first = false;
+                        firstEmit = false;
                     } else {
                         expect(speed).toBe(1);
 
@@ -276,7 +276,7 @@ describe("PlayService.play", () => {
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(Observable.of([]));
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -324,21 +324,21 @@ describe("PlayService.play", () => {
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(Observable.of([]));
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
         playService.setDirection(EdgeDirection.Next);
 
-        let first: boolean = true;
-        playService.playing$
-            .skip(1)
-            .take(2)
+        let firstEmit: boolean = true;
+        playService.playing$.pipe(
+            skip(1),
+            take(2))
             .subscribe(
                 (playing: boolean): void => {
                     expect(playing).toBe(playService.playing);
 
-                    if (first) {
+                    if (firstEmit) {
                         expect(playing).toBe(true);
-                        first = false;
+                        firstEmit = false;
                     } else {
                         expect(playing).toBe(false);
                         done();
@@ -360,7 +360,7 @@ describe("PlayService.play", () => {
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(Observable.of([]));
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -1096,7 +1096,7 @@ describe("PlayService.play", () => {
                 const node: Node = new Node(fullNode);
                 node.makeFull(fullNode);
 
-                return Observable.of(node);
+                return observableOf(node);
             });
 
         const state: ICurrentState = createState();

@@ -1,7 +1,7 @@
-import * as rbush from "rbush";
+import {merge as observableMerge, from as observableFrom, of as observableOf, Observable, Subject} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {tap, refCount, catchError, publish, finalize, map, reduce, mergeMap, mergeAll, last} from "rxjs/operators";
+import * as rbush from "rbush";
 
 import {
     APIv3,
@@ -275,14 +275,13 @@ export class Graph {
                 });
 
         if (cacheTiles$.length === 0) {
-            cacheTiles$.push(Observable.of(this));
+            cacheTiles$.push(observableOf(this));
         }
 
-        return Observable
-            .from(cacheTiles$)
-            .mergeAll()
-            .last()
-            .mergeMap(
+        return observableFrom(cacheTiles$).pipe(
+            mergeAll(),
+            last(),
+            mergeMap(
                 (graph: Graph): Observable<Node[]> => {
                     const nodes: Node[] = this._nodeIndex
                         .search({
@@ -313,12 +312,12 @@ export class Graph {
                          coreNodeBatches.push(coreNodes.splice(0, batchSize));
                     }
 
-                    const fullNodes$: Observable<Node[]> = Observable.of(fullNodes);
+                    const fullNodes$: Observable<Node[]> = observableOf(fullNodes);
                     const fillNodes$: Observable<Node[]>[] = coreNodeBatches
                         .map(
                             (batch: string[]): Observable<Node[]> => {
-                                return this._apiV3.imageByKeyFill$(batch)
-                                    .map(
+                                return this._apiV3.imageByKeyFill$(batch).pipe(
+                                    map(
                                         (imageByKeyFill: { [key: string]: IFillNode }): Node[] => {
                                             const filledNodes: Node[] = [];
 
@@ -339,20 +338,18 @@ export class Graph {
                                             }
 
                                             return filledNodes;
-                                        });
+                                        }));
                             });
 
-                    return Observable
-                        .merge(
+                    return observableMerge(
                             fullNodes$,
-                            Observable
-                                .from(fillNodes$)
-                                .mergeAll());
-                })
-            .reduce(
+                            observableFrom(fillNodes$).pipe(
+                                mergeAll()));
+                }),
+            reduce(
                 (acc: Node[], value: Node[]): Node[] => {
                     return acc.concat(value);
-                });
+                }));
     }
 
     /**
@@ -382,29 +379,29 @@ export class Graph {
             throw new GraphMapillaryError(`Cannot fill node that is already full (${key}).`);
         }
 
-        this._cachingFill$[key] = this._apiV3.imageByKeyFill$([key])
-            .do(
+        this._cachingFill$[key] = this._apiV3.imageByKeyFill$([key]).pipe(
+            tap(
                 (imageByKeyFill: { [key: string]: IFillNode }): void => {
                     if (!node.full) {
                         this._makeFull(node, imageByKeyFill[key]);
                     }
 
                     delete this._cachingFill$[key];
-                })
-            .map(
+                }),
+            map(
                 (imageByKeyFill: { [key: string]: IFillNode }): Graph => {
                     return this;
-                })
-            .finally(
+                }),
+            finalize(
                 (): void => {
                     if (key in this._cachingFill$) {
                         delete this._cachingFill$[key];
                     }
 
                     this._changed$.next(this);
-                })
-            .publish()
-            .refCount();
+                }),
+            publish(),
+            refCount());
 
         return this._cachingFill$[key];
     }
@@ -427,8 +424,8 @@ export class Graph {
             throw new GraphMapillaryError(`Cannot cache full node that already exist in graph (${key}).`);
         }
 
-        this._cachingFull$[key] = this._apiV3.imageByKeyFull$([key])
-            .do(
+        this._cachingFull$[key] = this._apiV3.imageByKeyFull$([key]).pipe(
+            tap(
                 (imageByKeyFull: { [key: string]: IFullNode }): void => {
                     let fn: IFullNode = imageByKeyFull[key];
 
@@ -452,21 +449,21 @@ export class Graph {
 
                         delete this._cachingFull$[key];
                     }
-                })
-            .map(
+                }),
+            map(
                 (imageByKeyFull: { [key: string]: IFullNode }): Graph => {
                     return this;
-                })
-            .finally(
+                }),
+            finalize(
                 (): void => {
                     if (key in this._cachingFull$) {
                         delete this._cachingFull$[key];
                     }
 
                     this._changed$.next(this);
-                })
-            .publish()
-            .refCount();
+                }),
+            publish(),
+            refCount());
 
         return this._cachingFull$[key];
     }
@@ -575,12 +572,11 @@ export class Graph {
         }
 
         let batchesToCache: number = batches.length;
-        const sequenceNodes$: Observable<Graph> = Observable
-            .from(batches)
-            .mergeMap(
+        const sequenceNodes$: Observable<Graph> = observableFrom(batches).pipe(
+            mergeMap(
                 (batch: string[]): Observable<Graph> => {
-                    return this._apiV3.imageByKeyFull$(batch)
-                        .do(
+                    return this._apiV3.imageByKeyFull$(batch).pipe(
+                        tap(
                             (imageByKeyFull: { [key: string]: IFullNode }): void => {
                                 for (const fullKey in imageByKeyFull) {
                                     if (!imageByKeyFull.hasOwnProperty(fullKey)) {
@@ -610,24 +606,24 @@ export class Graph {
                                 }
 
                                 batchesToCache--;
-                            })
-                        .map(
+                            }),
+                        map(
                             (imageByKeyFull: { [key: string]: IFullNode }): Graph => {
                                 return this;
-                            });
+                            }));
                 },
-                6)
-            .last()
-            .finally(
+                6),
+            last(),
+            finalize(
                 (): void => {
                     delete this._cachingSequenceNodes$[sequence.key];
 
                     if (batchesToCache === 0) {
                         this._cachedSequenceNodes[sequence.key] = true;
                     }
-                })
-            .publish()
-            .refCount();
+                }),
+            publish(),
+            refCount());
 
         this._cachingSequenceNodes$[sequence.key] = sequenceNodes$;
 
@@ -674,8 +670,8 @@ export class Graph {
         let spatialNodes$: Observable<Graph>[] = [];
 
         for (let batch of batches) {
-            let spatialNodeBatch$: Observable<Graph> = this._apiV3.imageByKeyFill$(batch)
-                .do(
+            let spatialNodeBatch$: Observable<Graph> = this._apiV3.imageByKeyFill$(batch).pipe(
+                tap(
                     (imageByKeyFill: { [key: string]: IFillNode }): void => {
                         for (let fillKey in imageByKeyFill) {
                             if (!imageByKeyFill.hasOwnProperty(fillKey)) {
@@ -697,12 +693,12 @@ export class Graph {
                         if (--batchesToCache === 0) {
                             delete this._cachingSpatialArea$[key];
                         }
-                    })
-                .map(
+                    }),
+                map(
                     (imageByKeyFill: { [key: string]: IFillNode }): Graph => {
                         return this;
-                    })
-                .catch(
+                    }),
+                catchError(
                     (error: Error): Observable<Graph> => {
                         for (let batchKey of batch) {
                             if (batchKey in spatialArea.all) {
@@ -719,15 +715,15 @@ export class Graph {
                         }
 
                         throw error;
-                    })
-                .finally(
+                    }),
+                finalize(
                     (): void => {
                         if (Object.keys(spatialArea.cacheNodes).length === 0) {
                             this._changed$.next(this);
                         }
-                    })
-                .publish()
-                .refCount();
+                    }),
+                publish(),
+                refCount());
 
             spatialNodes$.push(spatialNodeBatch$);
         }
@@ -844,8 +840,8 @@ export class Graph {
                 this._cacheTile$(h);
 
             cacheTiles$.push(
-                cacheTile$
-                    .do(
+                cacheTile$.pipe(
+                    tap(
                         (graph: Graph): void => {
                             let index: number = nodeTiles.caching.indexOf(h);
                             if (index > -1) {
@@ -858,8 +854,8 @@ export class Graph {
 
                                 this._cachedNodeTiles[key] = true;
                             }
-                        })
-                    .catch(
+                        }),
+                    catchError(
                         (error: Error): Observable<Graph> => {
                             let index: number = nodeTiles.caching.indexOf(h);
                             if (index > -1) {
@@ -874,13 +870,13 @@ export class Graph {
                             }
 
                             throw error;
-                        })
-                    .finally(
+                        }),
+                    finalize(
                         (): void => {
                             this._changed$.next(this);
-                        })
-                    .publish()
-                    .refCount());
+                        }),
+                    publish(),
+                    refCount()));
         }
 
         return cacheTiles$;
@@ -1451,8 +1447,8 @@ export class Graph {
             return this._cachingSequences$[sequenceKey];
         }
 
-        this._cachingSequences$[sequenceKey] = this._apiV3.sequenceByKey$([sequenceKey])
-            .do(
+        this._cachingSequences$[sequenceKey] = this._apiV3.sequenceByKey$([sequenceKey]).pipe(
+            tap(
                 (sequenceByKey: { [sequenceKey: string]: ISequence }): void => {
                     if (!(sequenceKey in this._sequences)) {
                         this._sequences[sequenceKey] = {
@@ -1462,28 +1458,28 @@ export class Graph {
                     }
 
                     delete this._cachingSequences$[sequenceKey];
-                })
-            .map(
+                }),
+            map(
                 (sequenceByKey: { [sequenceKey: string]: ISequence }): Graph => {
                     return this;
-                })
-            .finally(
+                }),
+            finalize(
                 (): void => {
                     if (sequenceKey in this._cachingSequences$) {
                         delete this._cachingSequences$[sequenceKey];
                     }
 
                     this._changed$.next(this);
-                })
-            .publish()
-            .refCount();
+                }),
+            publish(),
+            refCount());
 
         return this._cachingSequences$[sequenceKey];
     }
 
     private _cacheTile$(h: string): Observable<Graph> {
-        this._cachingTiles$[h] = this._apiV3.imagesByH$([h])
-            .do(
+        this._cachingTiles$[h] = this._apiV3.imagesByH$([h]).pipe(
+            tap(
                 (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): void => {
                     let coreNodes: { [index: string]: ICoreNode } = imagesByH[h];
 
@@ -1550,19 +1546,19 @@ export class Graph {
                     }
 
                     delete this._cachingTiles$[h];
-                })
-            .map(
+                }),
+            map(
                 (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): Graph => {
                     return this;
-                })
-            .catch(
+                }),
+            catchError(
                 (error: Error): Observable<Graph> => {
                     delete this._cachingTiles$[h];
 
                     throw error;
-                })
-            .publish()
-            .refCount();
+                }),
+            publish(),
+            refCount());
 
         return this._cachingTiles$[h];
     }

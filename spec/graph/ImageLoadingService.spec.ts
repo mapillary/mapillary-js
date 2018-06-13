@@ -1,3 +1,4 @@
+import {skip} from "rxjs/operators";
 import {NodeHelper} from "../helper/NodeHelper.spec";
 import {MockCreator} from "../helper/MockCreator.spec";
 
@@ -77,8 +78,8 @@ describe("ImageLoadingService.loadStatus$", () => {
         new MockCreator().mockProperty<Node, ILoadStatus>(node, "loadStatus", loadStatus);
 
         let loadStatusEmitCount: number = 0;
-        imageLoadingService.loadstatus$
-            .skip(1)
+        imageLoadingService.loadstatus$.pipe(
+            skip(1))
             .subscribe(
                 (nodes: { [key: string]: ILoadStatus }): void => {
                     loadStatusEmitCount++;

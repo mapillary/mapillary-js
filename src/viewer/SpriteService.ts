@@ -1,8 +1,8 @@
+import {refCount, publishReplay, scan, startWith} from "rxjs/operators";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {Observable, Subject} from "rxjs";
 
 import {Alignment, ISpriteAtlas} from "../Viewer";
 
@@ -175,18 +175,18 @@ export class SpriteService {
 
         this._spriteAtlasOperation$ = new Subject<ISpriteAtlasOperation>();
 
-        this._spriteAtlas$ = this._spriteAtlasOperation$
-            .startWith(
+        this._spriteAtlas$ = this._spriteAtlasOperation$.pipe(
+            startWith(
                 (atlas: SpriteAtlas): SpriteAtlas => {
                     return atlas;
-                })
-            .scan(
+                }),
+            scan(
                 (atlas: SpriteAtlas, operation: ISpriteAtlasOperation): SpriteAtlas => {
                     return operation(atlas);
                 },
-                new SpriteAtlas())
-            .publishReplay(1)
-            .refCount();
+                new SpriteAtlas()),
+            publishReplay(1),
+            refCount());
 
         this._spriteAtlas$.subscribe(() => { /*noop*/ });
 

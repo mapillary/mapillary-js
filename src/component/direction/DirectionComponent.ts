@@ -1,8 +1,7 @@
-import * as vd from "virtual-dom";
+import {of as observableOf, combineLatest as observableCombineLatest, Observable, Subscription, Subject} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
-import {Subject} from "rxjs/Subject";
+import {switchMap, share, startWith, withLatestFrom, map, filter, distinctUntilChanged, tap, catchError} from "rxjs/operators";
+import * as vd from "virtual-dom";
 
 import {
     ComponentService,
@@ -41,7 +40,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
 
         this._hoveredKeySubject$ = new Subject<string>();
 
-        this._hoveredKey$ = this._hoveredKeySubject$.share();
+        this._hoveredKey$ = this._hoveredKeySubject$.pipe(share());
     }
 
     /**
@@ -114,65 +113,63 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                     this._renderer.setConfiguration(configuration);
                 });
 
-        this._nodeSubscription = this._navigator.stateService.currentNode$
-            .do(
+        this._nodeSubscription = this._navigator.stateService.currentNode$.pipe(
+            tap(
                 (node: Node): void => {
                     this._container.domRenderer.render$.next({name: this._name, vnode: vd.h("div", {}, [])});
                     this._renderer.setNode(node);
-                })
-            .withLatestFrom(this._configuration$)
-            .switchMap(
+                }),
+            withLatestFrom(this._configuration$),
+            switchMap(
                 ([node, configuration]: [Node, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
-                    return Observable
-                        .combineLatest(
+                    return observableCombineLatest(
                             node.spatialEdges$,
                             configuration.distinguishSequence ?
                                 this._navigator.graphService
-                                    .cacheSequence$(node.sequenceKey)
-                                    .catch(
+                                    .cacheSequence$(node.sequenceKey).pipe(
+                                    catchError(
                                         (error: Error, caught: Observable<Sequence>): Observable<Sequence> => {
                                             console.error(`Failed to cache sequence (${node.sequenceKey})`, error);
 
-                                            return Observable.of<Sequence>(null);
-                                        }) :
-                                Observable.of<Sequence>(null));
-                })
+                                            return observableOf<Sequence>(null);
+                                        })) :
+                                observableOf<Sequence>(null));
+                }))
             .subscribe(
                 ([edgeStatus, sequence]: [IEdgeStatus, Sequence]): void => {
                     this._renderer.setEdges(edgeStatus, sequence);
                 });
 
-        this._renderCameraSubscription = this._container.renderService.renderCameraFrame$
-            .do(
+        this._renderCameraSubscription = this._container.renderService.renderCameraFrame$.pipe(
+            tap(
                 (renderCamera: RenderCamera): void => {
                     this._renderer.setRenderCamera(renderCamera);
-                })
-            .map(
-                (renderCamera: RenderCamera): DirectionDOMRenderer => {
+                }),
+            map(
+                (): DirectionDOMRenderer => {
                     return this._renderer;
-                })
-            .filter(
+                }),
+            filter(
                 (renderer: DirectionDOMRenderer): boolean => {
                     return renderer.needsRender;
-                })
-            .map(
+                }),
+            map(
                 (renderer: DirectionDOMRenderer): IVNodeHash => {
                     return { name: this._name, vnode: renderer.render(this._navigator) };
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
 
-        this._hoveredKeySubscription = Observable
-            .combineLatest(
+        this._hoveredKeySubscription = observableCombineLatest(
                 [
                     this._container.domRenderer.element$,
                     this._container.renderService.renderCamera$,
-                    this._container.mouseService.mouseMove$.startWith(null),
-                    this._container.mouseService.mouseUp$.startWith(null),
+                    this._container.mouseService.mouseMove$.pipe(startWith(null)),
+                    this._container.mouseService.mouseUp$.pipe(startWith(null)),
                 ],
                 (e: Element, rc: RenderCamera, mm: MouseEvent, mu: MouseEvent): Element => {
                     return e;
-                })
-            .map(
+                }).pipe(
+            map(
                 (element: Element): string => {
                     let elements: NodeListOf<Element> = element.getElementsByClassName("DirectionsPerspective");
 
@@ -185,8 +182,8 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                     }
 
                     return null;
-                })
-            .distinctUntilChanged()
+                }),
+            distinctUntilChanged())
             .subscribe(this._hoveredKeySubject$);
     }
 

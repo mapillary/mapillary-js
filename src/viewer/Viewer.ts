@@ -1,62 +1,7 @@
+import {throwError as observableThrowError, Observable} from "rxjs";
+
+import {first} from "rxjs/operators";
 import * as when from "when";
-
-import "rxjs/add/observable/combineLatest";
-import "rxjs/add/observable/concat";
-import "rxjs/add/observable/defer";
-import "rxjs/add/observable/empty";
-import "rxjs/add/observable/merge";
-import "rxjs/add/observable/from";
-import "rxjs/add/observable/fromEvent";
-import "rxjs/add/observable/fromPromise";
-import "rxjs/add/observable/of";
-import "rxjs/add/observable/throw";
-import "rxjs/add/observable/timer";
-import "rxjs/add/observable/zip";
-
-import "rxjs/add/operator/auditTime";
-import "rxjs/add/operator/buffer";
-import "rxjs/add/operator/bufferCount";
-import "rxjs/add/operator/bufferWhen";
-import "rxjs/add/operator/catch";
-import "rxjs/add/operator/combineLatest";
-import "rxjs/add/operator/concat";
-import "rxjs/add/operator/count";
-import "rxjs/add/operator/debounceTime";
-import "rxjs/add/operator/delay";
-import "rxjs/add/operator/distinct";
-import "rxjs/add/operator/distinctUntilChanged";
-import "rxjs/add/operator/do";
-import "rxjs/add/operator/expand";
-import "rxjs/add/operator/filter";
-import "rxjs/add/operator/finally";
-import "rxjs/add/operator/first";
-import "rxjs/add/operator/last";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/merge";
-import "rxjs/add/operator/mergeMap";
-import "rxjs/add/operator/mergeAll";
-import "rxjs/add/operator/pairwise";
-import "rxjs/add/operator/pluck";
-import "rxjs/add/operator/publish";
-import "rxjs/add/operator/publishReplay";
-import "rxjs/add/operator/reduce";
-import "rxjs/add/operator/retry";
-import "rxjs/add/operator/sample";
-import "rxjs/add/operator/scan";
-import "rxjs/add/operator/share";
-import "rxjs/add/operator/skip";
-import "rxjs/add/operator/skipUntil";
-import "rxjs/add/operator/skipWhile";
-import "rxjs/add/operator/startWith";
-import "rxjs/add/operator/switchMap";
-import "rxjs/add/operator/take";
-import "rxjs/add/operator/takeUntil";
-import "rxjs/add/operator/takeWhile";
-import "rxjs/add/operator/timeout";
-import "rxjs/add/operator/withLatestFrom";
-import "rxjs/add/operator/zip";
-
-import {Observable} from "rxjs/Observable";
 
 import {ILatLon} from "../API";
 import {EdgeDirection} from "../Edge";
@@ -439,8 +384,8 @@ export class Viewer extends EventEmitter {
     public getBearing(): when.Promise<number> {
         return when.promise<number>(
             (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
-                this._container.renderService.bearing$
-                    .first()
+                this._container.renderService.bearing$.pipe(
+                    first())
                     .subscribe(
                         (bearing: number): void => {
                             resolve(bearing);
@@ -557,7 +502,7 @@ export class Viewer extends EventEmitter {
     public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
         const moveCloseTo$: Observable<Node> = this.isNavigable ?
             this._navigator.moveCloseTo$(lat, lon) :
-            Observable.throw(new Error("Calling moveCloseTo is not supported when viewer is not navigable."));
+            observableThrowError(new Error("Calling moveCloseTo is not supported when viewer is not navigable."));
 
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
@@ -595,7 +540,7 @@ export class Viewer extends EventEmitter {
     public moveDir(dir: EdgeDirection): when.Promise<Node> {
         const moveDir$: Observable<Node> = this.isNavigable ?
             this._navigator.moveDir$(dir) :
-            Observable.throw(new Error("Calling moveDir is not supported when viewer is not navigable."));
+            observableThrowError(new Error("Calling moveDir is not supported when viewer is not navigable."));
 
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
@@ -629,7 +574,7 @@ export class Viewer extends EventEmitter {
     public moveToKey(key: string): when.Promise<Node> {
         const moveToKey$: Observable<Node> = this.isNavigable ?
             this._navigator.moveToKey$(key) :
-            Observable.throw(new Error("Calling moveToKey is not supported when viewer is not navigable."));
+            observableThrowError(new Error("Calling moveToKey is not supported when viewer is not navigable."));
 
         return when.promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
@@ -720,7 +665,7 @@ export class Viewer extends EventEmitter {
     public setAuthToken(token?: string): when.Promise<void> {
         const setToken$: Observable<void> = this.isNavigable ?
             this._navigator.setToken$(token) :
-            Observable.throw(new Error("Calling setAuthToken is not supported when viewer is not navigable."));
+            observableThrowError(new Error("Calling setAuthToken is not supported when viewer is not navigable."));
 
         return when.promise<void>(
             (resolve: (value: void) => void, reject: (reason: Error) => void): void => {

@@ -1,7 +1,7 @@
-import * as vd from "virtual-dom";
+import {of as observableOf, combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {map, distinctUntilChanged, switchMap, first, filter} from "rxjs/operators";
+import * as vd from "virtual-dom";
 
 import {
     CoverState,
@@ -32,51 +32,48 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     }
 
     public _activate(): void {
-        this._configuration$
-            .distinctUntilChanged(
+        this._configuration$.pipe(
+            distinctUntilChanged(
                 undefined,
                 (configuration: ICoverConfiguration): CoverState => {
                     return configuration.state;
-                })
-            .switchMap(
+                }),
+            switchMap(
                 (configuration: ICoverConfiguration): Observable<[CoverState, Node]> => {
-                    return Observable
-                        .combineLatest(
-                            Observable.of(configuration.state),
+                    return observableCombineLatest(
+                            observableOf(configuration.state),
                             this._navigator.stateService.currentNode$);
-                })
-            .switchMap(
+                }),
+            switchMap(
                 ([state, node]: [CoverState, Node]): Observable<[string, string]> => {
-                    const keySrc$: Observable<[string, string]> = Observable
-                        .combineLatest(
-                            Observable.of(node.key),
-                            node.image$
-                                .filter(
+                    const keySrc$: Observable<[string, string]> = observableCombineLatest(
+                            observableOf(node.key),
+                            node.image$.pipe(
+                                filter(
                                     (image: HTMLImageElement): boolean => {
                                         return !!image;
-                                    })
-                                .map(
+                                    }),
+                                map(
                                     (image: HTMLImageElement): string => {
                                         return image.src;
-                                    }));
+                                    })));
 
-                    return state === CoverState.Visible ? keySrc$.first() : keySrc$;
-                })
-            .distinctUntilChanged(
+                    return state === CoverState.Visible ? keySrc$.pipe(first()) : keySrc$;
+                }),
+            distinctUntilChanged(
                 ([k1, s1]: [string, string], [k2, s2]: [string, string]): boolean => {
                     return k1 === k2 && s1 === s2;
-                })
-            .map(
+                }),
+            map(
                 ([key, src]: [string, string]): ICoverConfiguration => {
                     return { key: key, src: src };
-                })
+                }))
             .subscribe(this._configurationSubject$);
 
-        this._renderSubscription = Observable
-            .combineLatest(
+        this._renderSubscription = observableCombineLatest(
                 this._configuration$,
-                this._container.renderService.size$)
-            .map(
+                this._container.renderService.size$).pipe(
+            map(
                 ([configuration, size]: [ICoverConfiguration, ISize]): IVNodeHash => {
                     if (!configuration.key) {
                         return { name: this._name, vnode: vd.h("div", []) };
@@ -97,7 +94,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                         [this._getCoverButtonVNode(configuration)]);
 
                     return { name: this._name, vnode: container };
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
     }
 

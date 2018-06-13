@@ -1,4 +1,5 @@
-import {Observable} from "rxjs/Observable";
+import {first, switchMap} from "rxjs/operators";
+import {Observable} from "rxjs";
 
 import {Node} from "../Graph";
 import {
@@ -51,11 +52,11 @@ export class ComponentController {
             this._initilizeCoverComponent();
             this._subscribeCoverComponent();
         } else {
-            this._navigator.movedToKey$
-                .first(
+            this._navigator.movedToKey$.pipe(
+                first(
                     (k: string): boolean => {
                         return k != null;
-                    })
+                    }))
                 .subscribe(
                     (k: string): void => {
                         this._key = k;
@@ -146,9 +147,9 @@ export class ComponentController {
     private _subscribeCoverComponent(): void {
         this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
             if (conf.state === CoverState.Loading) {
-                this._navigator.stateService.currentKey$
-                    .first()
-                    .switchMap(
+                this._navigator.stateService.currentKey$.pipe(
+                    first(),
+                    switchMap(
                         (key: string): Observable<Node> => {
                             const keyChanged: boolean = key == null || key !== conf.key;
 
@@ -158,9 +159,9 @@ export class ComponentController {
 
                             return keyChanged ?
                                 this._navigator.moveToKey$(conf.key) :
-                                this._navigator.stateService.currentNode$
-                                    .first();
-                        })
+                                this._navigator.stateService.currentNode$.pipe(
+                                    first());
+                        }))
                     .subscribe(
                         (node: Node): void => {
                             this._navigator.stateService.start();

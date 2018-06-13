@@ -1,8 +1,5 @@
+import {combineLatest as observableCombineLatest, Observable, BehaviorSubject, Subscription} from "rxjs";
 import * as vd from "virtual-dom";
-
-import {Observable} from "rxjs/Observable";
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Subscription} from "rxjs/Subscription";
 
 import {Component, ComponentService, IComponentConfiguration} from "../Component";
 import {ILoadStatus} from "../Graph";
@@ -17,8 +14,7 @@ export class DebugComponent extends Component<IComponentConfiguration> {
     private _open$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     public _activate(): void {
-        this._disposable = Observable
-            .combineLatest(
+        this._disposable = observableCombineLatest(
                 this._navigator.stateService.currentState$,
                 this._open$,
                 this._navigator.imageLoadingService.loadstatus$,

@@ -1,4 +1,4 @@
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 
 import {GraphServiceMockCreator} from "./GraphServiceMockCreator.spec";
 import {ImageLoadingServiceMockCreator} from "./ImageLoadingServiceMockCreator.spec";

@@ -1,5 +1,5 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {share, map} from "rxjs/operators";
+import {Observable, Subject} from "rxjs";
 
 import {Geometry} from "../../../Component";
 import {EventEmitter} from "../../../Utils";
@@ -91,12 +91,12 @@ export abstract class Tag extends EventEmitter {
      * @ignore
      */
     public get geometryChanged$(): Observable<Tag> {
-        return this._geometry.changed$
-            .map(
+        return this._geometry.changed$.pipe(
+            map(
                 (geometry: Geometry): Tag => {
                     return this;
-                })
-            .share();
+                }),
+            share());
     }
 }
 

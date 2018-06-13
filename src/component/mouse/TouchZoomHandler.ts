@@ -1,7 +1,7 @@
-import * as THREE from "three";
+import {merge as observableMerge, Observable, Subscription} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {filter, withLatestFrom, map} from "rxjs/operators";
+import * as THREE from "three";
 
 import {
     Component,
@@ -61,39 +61,38 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
                 });
 
         let pinchStarted$: Observable<boolean> =
-            this._container.touchService.pinchStart$
-                .map(
+            this._container.touchService.pinchStart$.pipe(
+                map(
                     (event: TouchEvent): boolean => {
                         return true;
-                    });
+                    }));
 
         let pinchStopped$: Observable<boolean> =
-            this._container.touchService.pinchEnd$
-                .map(
+            this._container.touchService.pinchEnd$.pipe(
+                map(
                     (event: TouchEvent): boolean => {
                         return false;
-                    });
+                    }));
 
-        this._activeSubscription = Observable
-            .merge(
+        this._activeSubscription = observableMerge(
                 pinchStarted$,
                 pinchStopped$)
             .subscribe(this._container.touchService.activate$);
 
-        this._zoomSubscription = this._container.touchService.pinch$
-            .withLatestFrom(this._navigator.stateService.currentState$)
-            .filter(
+        this._zoomSubscription = this._container.touchService.pinch$.pipe(
+            withLatestFrom(this._navigator.stateService.currentState$),
+            filter(
                 (args: [IPinch, IFrame]): boolean => {
                     let state: ICurrentState = args[1].state;
                     return state.currentNode.fullPano || state.nodesAhead < 1;
-                })
-            .map(
+                }),
+            map(
                 (args: [IPinch, IFrame]): IPinch => {
                     return args[0];
-                })
-            .withLatestFrom(
+                }),
+            withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$)
+                this._navigator.stateService.currentTransform$))
             .subscribe(
                 ([pinch, render, transform]: [IPinch, RenderCamera, Transform]): void => {
                     let element: HTMLElement = this._container.element;

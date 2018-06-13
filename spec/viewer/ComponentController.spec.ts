@@ -1,4 +1,5 @@
-import {Subject} from "rxjs/Subject";
+import {skip, first, take} from "rxjs/operators";
+import {Subject} from "rxjs";
 
 import {
     ComponentService,
@@ -144,9 +145,9 @@ describe("ComponentController.navigable", () => {
         const coverComponent: CoverComponent = componentService.getCover();
         const key: string = "key";
 
-        coverComponent.configuration$
-            .skip(1) // skip initial default configuration
-            .take(1)
+        coverComponent.configuration$.pipe(
+            skip(1), // skip initial default configuration
+            take(1))
             .subscribe(
                 (c: ICoverConfiguration): void => {
                     expect(c.key).toBe(key);
@@ -194,11 +195,11 @@ describe("ComponentController.navigable", () => {
         const coverComponent: CoverComponent = componentService.getCover();
 
         let configurationCount: number = 0;
-        coverComponent.configuration$
-            .first(
+        coverComponent.configuration$.pipe(
+            first(
                 (c: ICoverConfiguration): boolean => {
                     return c.state === CoverState.Hidden;
-                })
+                }))
             .subscribe(
                 (c: ICoverConfiguration): void => {
                     configurationCount++;

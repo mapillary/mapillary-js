@@ -1,6 +1,29 @@
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {
+    merge as observableMerge,
+    fromEvent as observableFromEvent,
+    timer as observableTimer,
+    BehaviorSubject,
+    Observable,
+    Subject,
+} from "rxjs";
+
+import {
+    bufferWhen,
+    mergeMap,
+    take,
+    merge,
+    takeUntil,
+    switchMap,
+    distinctUntilChanged,
+    scan,
+    refCount,
+    first,
+    map,
+    skip,
+    share,
+    filter,
+    publishReplay,
+} from "rxjs/operators";
 
 import {IPinch} from "../Viewer";
 
@@ -33,51 +56,50 @@ export class TouchService {
     constructor(canvasContainer: HTMLElement, domContainer: HTMLElement) {
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
 
-        this._active$ = this._activeSubject$
-            .distinctUntilChanged()
-            .publishReplay(1)
-            .refCount();
+        this._active$ = this._activeSubject$.pipe(
+            distinctUntilChanged(),
+            publishReplay(1),
+            refCount());
 
-        Observable.fromEvent<TouchEvent>(domContainer, "touchmove")
+        observableFromEvent<TouchEvent>(domContainer, "touchmove")
             .subscribe(
                 (event: TouchEvent): void => {
                     event.preventDefault();
                 });
 
-        this._touchStart$ = Observable.fromEvent<TouchEvent>(canvasContainer, "touchstart");
-        this._touchMove$ = Observable.fromEvent<TouchEvent>(canvasContainer, "touchmove");
-        this._touchEnd$ = Observable.fromEvent<TouchEvent>(canvasContainer, "touchend");
-        this._touchCancel$ = Observable.fromEvent<TouchEvent>(canvasContainer, "touchcancel");
+        this._touchStart$ = observableFromEvent<TouchEvent>(canvasContainer, "touchstart");
+        this._touchMove$ = observableFromEvent<TouchEvent>(canvasContainer, "touchmove");
+        this._touchEnd$ = observableFromEvent<TouchEvent>(canvasContainer, "touchend");
+        this._touchCancel$ = observableFromEvent<TouchEvent>(canvasContainer, "touchcancel");
 
-        const tapStart$: Observable<TouchEvent> = this._touchStart$
-            .filter(
+        const tapStart$: Observable<TouchEvent> = this._touchStart$.pipe(
+            filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 1 && te.targetTouches.length === 1;
-                })
-            .share();
+                }),
+            share());
 
-        this._doubleTap$ = tapStart$
-            .bufferWhen(
+        this._doubleTap$ = tapStart$.pipe(
+            bufferWhen(
                 (): Observable<number | TouchEvent> => {
-                    return tapStart$
-                        .first()
-                        .switchMap(
+                    return tapStart$.pipe(
+                        first(),
+                        switchMap(
                             (event: TouchEvent): Observable<number | TouchEvent> => {
-                                return Observable
-                                    .timer(300)
-                                    .merge(tapStart$)
-                                    .take(1);
-                            });
-                })
-            .filter(
+                                return observableTimer(300).pipe(
+                                    merge(tapStart$),
+                                    take(1));
+                            }));
+                }),
+            filter(
                 (events: TouchEvent[]): boolean => {
                     return events.length === 2;
-                })
-            .map(
+                }),
+            map(
                 (events: TouchEvent[]): TouchEvent => {
                     return events[events.length - 1];
-                })
-            .share();
+                }),
+            share());
 
         this._doubleTap$
             .subscribe(
@@ -85,97 +107,91 @@ export class TouchService {
                     event.preventDefault();
                 });
 
-        this._singleTouchMove$ = this._touchMove$
-            .filter(
+        this._singleTouchMove$ = this._touchMove$.pipe(
+            filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 1 && te.targetTouches.length === 1;
-                })
-            .share();
+                }),
+            share());
 
-        let singleTouchStart$: Observable<TouchEvent> = Observable
-            .merge<TouchEvent>(
+        let singleTouchStart$: Observable<TouchEvent> = observableMerge<TouchEvent>(
                 this._touchStart$,
                 this._touchEnd$,
-                this._touchCancel$)
-            .filter(
+                this._touchCancel$).pipe(
+            filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 1 && te.targetTouches.length === 1;
-                });
+                }));
 
-        let multipleTouchStart$: Observable<TouchEvent> = Observable
-            .merge<TouchEvent>(
+        let multipleTouchStart$: Observable<TouchEvent> = observableMerge<TouchEvent>(
                 this._touchStart$,
                 this._touchEnd$,
-                this._touchCancel$)
-            .filter(
+                this._touchCancel$).pipe(
+            filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length >= 1;
-                });
+                }));
 
-        let touchStop$: Observable<TouchEvent> = Observable
-            .merge<TouchEvent>(
+        let touchStop$: Observable<TouchEvent> = observableMerge<TouchEvent>(
                 this._touchEnd$,
-                this._touchCancel$)
-            .filter(
+                this._touchCancel$).pipe(
+            filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 0;
-                });
+                }));
 
-        this._singleTouchDragStart$ = singleTouchStart$
-            .mergeMap(
+        this._singleTouchDragStart$ = singleTouchStart$.pipe(
+            mergeMap(
                 (e: TouchEvent): Observable<TouchEvent> => {
-                    return this._singleTouchMove$
-                        .takeUntil(
-                            Observable.merge(
+                    return this._singleTouchMove$.pipe(
+                        takeUntil(
+                            observableMerge(
                                 touchStop$,
-                                multipleTouchStart$))
-                        .take(1);
-                });
+                                multipleTouchStart$)),
+                        take(1));
+                }));
 
-        this._singleTouchDragEnd$ = singleTouchStart$
-            .mergeMap(
+        this._singleTouchDragEnd$ = singleTouchStart$.pipe(
+            mergeMap(
                 (e: TouchEvent): Observable<TouchEvent> => {
-                    return Observable
-                        .merge(
+                    return observableMerge(
                             touchStop$,
-                            multipleTouchStart$)
-                        .first();
-                });
+                            multipleTouchStart$).pipe(
+                        first());
+                }));
 
-        this._singleTouchDrag$ = singleTouchStart$
-            .switchMap(
+        this._singleTouchDrag$ = singleTouchStart$.pipe(
+            switchMap(
                 (te: TouchEvent): Observable<TouchEvent> => {
-                    return this._singleTouchMove$
-                        .skip(1)
-                        .takeUntil(
-                            Observable
-                                .merge(
+                    return this._singleTouchMove$.pipe(
+                        skip(1),
+                        takeUntil(
+                            observableMerge(
                                     multipleTouchStart$,
-                                    touchStop$));
-                });
+                                    touchStop$)));
+                }));
 
-        let touchesChanged$: Observable<TouchEvent> = Observable
-            .merge<TouchEvent>(
+        let touchesChanged$: Observable<TouchEvent> = observableMerge<TouchEvent>(
                 this._touchStart$,
                 this._touchEnd$,
                 this._touchCancel$);
 
-        this._pinchStart$ = touchesChanged$
-            .filter(
+        this._pinchStart$ = touchesChanged$.pipe(
+            filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 2 && te.targetTouches.length === 2;
-                });
+                }));
 
-        this._pinchEnd$ = touchesChanged$
-            .filter(
+        this._pinchEnd$ = touchesChanged$.pipe(
+            filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length !== 2 || te.targetTouches.length !== 2;
-                });
+                }));
 
         this._pinchOperation$ = new Subject<IPinchOperation>();
 
-        this._pinch$ = this._pinchOperation$
-            .scan(
+        this._pinch$ = this._pinchOperation$.pipe(
+            scan(
                 (pinch: IPinch, operation: IPinchOperation): IPinch => {
                     return operation(pinch);
                 },
@@ -195,14 +211,14 @@ export class TouchService {
                     screenY: 0,
                     touch1: null,
                     touch2: null,
-                });
+                }));
 
-        this._touchMove$
-            .filter(
+        this._touchMove$.pipe(
+            filter(
                 (te: TouchEvent): boolean => {
                     return te.touches.length === 2 && te.targetTouches.length === 2;
-                })
-            .map(
+                }),
+            map(
                 (te: TouchEvent): IPinchOperation => {
                     return (previous: IPinch): IPinch => {
                         let touch1: Touch = te.touches[0];
@@ -253,16 +269,16 @@ export class TouchService {
 
                         return current;
                     };
-                })
+                }))
             .subscribe(this._pinchOperation$);
 
-        this._pinchChange$ = this._pinchStart$
-            .switchMap(
+        this._pinchChange$ = this._pinchStart$.pipe(
+            switchMap(
                 (te: TouchEvent): Observable<IPinch> => {
-                    return this._pinch$
-                        .skip(1)
-                        .takeUntil(this._pinchEnd$);
-                });
+                    return this._pinch$.pipe(
+                        skip(1),
+                        takeUntil(this._pinchEnd$));
+                }));
     }
 
     public get active$(): Observable<boolean> {

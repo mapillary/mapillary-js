@@ -1,6 +1,31 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
-import {Subject} from "rxjs/Subject";
+import {
+    empty as observableEmpty,
+    of as observableOf,
+    combineLatest as observableCombineLatest,
+    Observable,
+    Subscription,
+    Subject,
+} from "rxjs";
+
+import {
+    switchMap,
+    pairwise,
+    debounceTime,
+    refCount,
+    publishReplay,
+    withLatestFrom,
+    scan,
+    filter,
+    first,
+    catchError,
+    takeUntil,
+    startWith,
+    combineLatest,
+    skipWhile,
+    map,
+    publish,
+    distinctUntilChanged,
+} from "rxjs/operators";
 
 import {
     ComponentService,
@@ -26,7 +51,7 @@ import {
     ISize,
     RenderCamera,
 } from "../../Render";
-import {Node} from "../../Graph";
+import {Node as GraphNode} from "../../Graph";
 import {
     ImageTileLoader,
     ImageTileStore,
@@ -77,24 +102,24 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         this._rendererCreator$ = new Subject<void>();
         this._rendererDisposer$ = new Subject<void>();
 
-        this._renderer$ = this._rendererOperation$
-            .scan(
+        this._renderer$ = this._rendererOperation$.pipe(
+            scan(
                 (renderer: ImagePlaneGLRenderer, operation: IImagePlaneGLRendererOperation): ImagePlaneGLRenderer => {
                     return operation(renderer);
                 },
-                null)
-            .filter(
+                null),
+            filter(
                 (renderer: ImagePlaneGLRenderer): boolean => {
                     return renderer != null;
-                })
-            .distinctUntilChanged(
+                }),
+            distinctUntilChanged(
                 undefined,
                 (renderer: ImagePlaneGLRenderer): number => {
                     return renderer.frameId;
-                });
+                }));
 
-        this._rendererCreator$
-            .map(
+        this._rendererCreator$.pipe(
+            map(
                 (): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         if (renderer != null) {
@@ -103,24 +128,24 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
 
                         return new ImagePlaneGLRenderer();
                     };
-                })
+                }))
             .subscribe(this._rendererOperation$);
 
-        this._rendererDisposer$
-            .map(
+        this._rendererDisposer$.pipe(
+            map(
                 (): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.dispose();
 
                         return null;
                     };
-                })
+                }))
             .subscribe(this._rendererOperation$);
     }
 
     protected _activate(): void {
-        this._rendererSubscription = this._renderer$
-            .map(
+        this._rendererSubscription = this._renderer$.pipe(
+            map(
                 (renderer: ImagePlaneGLRenderer): IGLRenderHash => {
                     let renderHash: IGLRenderHash = {
                         name: this._name,
@@ -135,46 +160,46 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     renderer.clearNeedsRender();
 
                     return renderHash;
-                })
+                }))
             .subscribe(this._container.glRenderer.render$);
 
         this._rendererCreator$.next(null);
 
-        this._stateSubscription = this._navigator.stateService.currentState$
-            .map(
+        this._stateSubscription = this._navigator.stateService.currentState$.pipe(
+            map(
                 (frame: IFrame): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateFrame(frame);
 
                         return renderer;
                     };
-                })
+                }))
             .subscribe(this._rendererOperation$);
 
-        let textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$
-            .distinctUntilChanged(
+        let textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
+            distinctUntilChanged(
                 undefined,
                 (frame: IFrame): string => {
                     return frame.state.currentNode.key;
-                })
-            .combineLatest(this._configuration$)
-            .filter(
+                }),
+            combineLatest(this._configuration$),
+            filter(
                 (args: [IFrame, IImagePlaneConfiguration]): boolean => {
                     return args[1].imageTiling === true;
-                })
-            .map(
+                }),
+            map(
                 (args: [IFrame, IImagePlaneConfiguration]): IFrame => {
                     return args[0];
-                })
-            .withLatestFrom(
+                }),
+            withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
-                this._container.renderService.size$)
-            .map(
+                this._container.renderService.size$),
+            map(
                 ([frame, renderer, size]: [IFrame, THREE.WebGLRenderer, ISize]): TextureProvider => {
                     let state: ICurrentState = frame.state;
                     let viewportSize: number = Math.max(size.width, size.height);
 
-                    let currentNode: Node = state.currentNode;
+                    let currentNode: GraphNode = state.currentNode;
                     let currentTransform: Transform = state.currentTransform;
                     let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
@@ -187,32 +212,31 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                         this._imageTileLoader,
                         new ImageTileStore(),
                         renderer);
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
         this._textureProviderSubscription = textureProvider$.subscribe(() => { /*noop*/ });
 
-        this._setTextureProviderSubscription = textureProvider$
-            .map(
+        this._setTextureProviderSubscription = textureProvider$.pipe(
+            map(
                 (provider: TextureProvider): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.setTextureProvider(provider.key, provider);
 
                         return renderer;
                     };
-                })
+                }))
             .subscribe(this._rendererOperation$);
 
-        this._setTileSizeSubscription = this._container.renderService.size$
-            .switchMap(
+        this._setTileSizeSubscription = this._container.renderService.size$.pipe(
+            switchMap(
                 (size: ISize): Observable<[TextureProvider, ISize]> => {
-                    return Observable
-                        .combineLatest(
+                    return observableCombineLatest(
                             textureProvider$,
-                            Observable.of<ISize>(size))
-                        .first();
-                })
+                            observableOf<ISize>(size)).pipe(
+                        first());
+                }))
             .subscribe(
                 ([provider, size]: [TextureProvider, ISize]): void => {
                     let viewportSize: number = Math.max(size.width, size.height);
@@ -221,19 +245,18 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     provider.setTileSize(tileSize);
                 });
 
-        this._abortTextureProviderSubscription = textureProvider$
-            .pairwise()
+        this._abortTextureProviderSubscription = textureProvider$.pipe(
+            pairwise())
             .subscribe(
                 (pair: [TextureProvider, TextureProvider]): void => {
                     let previous: TextureProvider = pair[0];
                     previous.abort();
                 });
 
-        let roiTrigger$: Observable<[RenderCamera, ISize, Transform]> = Observable
-            .combineLatest(
+        let roiTrigger$: Observable<[RenderCamera, ISize, Transform]> = observableCombineLatest(
                 this._container.renderService.renderCameraFrame$,
-                this._container.renderService.size$.debounceTime(250))
-            .map(
+                this._container.renderService.size$.pipe(debounceTime(250))).pipe(
+            map(
                 ([camera, size]: [RenderCamera, ISize]): PositionLookat => {
                     return [
                         camera.camera.position.clone(),
@@ -241,13 +264,13 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                         camera.zoom.valueOf(),
                         size.height.valueOf(),
                         size.width.valueOf()];
-                })
-            .pairwise()
-            .skipWhile(
+                }),
+            pairwise(),
+            skipWhile(
                 (pls: [PositionLookat, PositionLookat]): boolean => {
                     return pls[1][2] - pls[0][2] < 0 || pls[1][2] === 0;
-                })
-            .map(
+                }),
+            map(
                 (pls: [PositionLookat, PositionLookat]): boolean => {
                     let samePosition: boolean = pls[0][0].equals(pls[1][0]);
                     let sameLookat: boolean = pls[0][1].equals(pls[1][1]);
@@ -256,38 +279,38 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     let sameWidth: boolean = pls[0][4] === pls[1][4];
 
                     return samePosition && sameLookat && sameZoom && sameHeight && sameWidth;
-                })
-            .distinctUntilChanged()
-            .filter(
+                }),
+            distinctUntilChanged(),
+            filter(
                 (stalled: boolean): boolean => {
                     return stalled;
-                })
-            .switchMap(
+                }),
+            switchMap(
                 (stalled: boolean): Observable<RenderCamera> => {
-                    return this._container.renderService.renderCameraFrame$
-                        .first();
-                })
-            .withLatestFrom(
+                    return this._container.renderService.renderCameraFrame$.pipe(
+                        first());
+                }),
+            withLatestFrom(
                 this._container.renderService.size$,
-                this._navigator.stateService.currentTransform$);
+                this._navigator.stateService.currentTransform$));
 
-        this._setRegionOfInterestSubscription = textureProvider$
-            .switchMap(
+        this._setRegionOfInterestSubscription = textureProvider$.pipe(
+            switchMap(
                 (provider: TextureProvider): Observable<[IRegionOfInterest, TextureProvider]> => {
-                    return roiTrigger$
-                        .map(
+                    return roiTrigger$.pipe(
+                        map(
                             ([camera, size, transform]: [RenderCamera, ISize, Transform]):
                             [IRegionOfInterest, TextureProvider] => {
                                 return [
                                     this._roiCalculator.computeRegionOfInterest(camera, size, transform),
                                     provider,
                                 ];
-                            });
-                })
-            .filter(
+                            }));
+                }),
+            filter(
                 (args: [IRegionOfInterest, TextureProvider]): boolean => {
                     return !args[1].disposed;
-                })
+                }))
             .subscribe(
                 (args: [IRegionOfInterest, TextureProvider]): void => {
                     let roi: IRegionOfInterest = args[0];
@@ -296,87 +319,87 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     provider.setRegionOfInterest(roi);
                 });
 
-        let hasTexture$: Observable<boolean> = textureProvider$
-            .switchMap(
+        let hasTexture$: Observable<boolean> = textureProvider$.pipe(
+            switchMap(
                 (provider: TextureProvider): Observable<boolean> => {
                     return provider.hasTexture$;
-                })
-            .startWith(false)
-            .publishReplay(1)
-            .refCount();
+                }),
+            startWith(false),
+            publishReplay(1),
+            refCount());
 
         this._hasTextureSubscription = hasTexture$.subscribe(() => { /*noop*/ });
 
-        let nodeImage$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentState$
-            .filter(
+        let nodeImage$: Observable<[HTMLImageElement, GraphNode]> = this._navigator.stateService.currentState$.pipe(
+            filter(
                 (frame: IFrame): boolean => {
                     return frame.state.nodesAhead === 0;
-                })
-            .map(
-                (frame: IFrame): Node => {
+                }),
+            map(
+                (frame: IFrame): GraphNode => {
                     return frame.state.currentNode;
-                })
-            .distinctUntilChanged(
+                }),
+            distinctUntilChanged(
                 undefined,
-                (node: Node): string => {
+                (node: GraphNode): string => {
                     return node.key;
-                })
-            .debounceTime(1000)
-            .withLatestFrom(hasTexture$)
-            .filter(
-                (args: [Node, boolean]): boolean => {
+                }),
+            debounceTime(1000),
+            withLatestFrom(hasTexture$),
+            filter(
+                (args: [GraphNode, boolean]): boolean => {
                     return !args[1];
-                })
-            .map(
-                (args: [Node, boolean]): Node => {
+                }),
+            map(
+                (args: [GraphNode, boolean]): GraphNode => {
                     return args[0];
-                })
-            .filter(
-                (node: Node): boolean => {
+                }),
+            filter(
+                (node: GraphNode): boolean => {
                     return node.pano ?
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
-                })
-            .switchMap(
-                (node: Node): Observable<[HTMLImageElement, Node]> => {
+                }),
+            switchMap(
+                (node: GraphNode): Observable<[HTMLImageElement, GraphNode]> => {
                     let baseImageSize: ImageSize = node.pano ?
                         Settings.basePanoramaSize :
                         Settings.baseImageSize;
 
                     if (Math.max(node.image.width, node.image.height) > baseImageSize) {
-                        return Observable.empty();
+                        return observableEmpty();
                     }
 
-                    let image$: Observable<[HTMLImageElement, Node]> = node
-                        .cacheImage$(Settings.maxImageSize)
-                            .map(
-                                (n: Node): [HTMLImageElement, Node] => {
+                    let image$: Observable<[HTMLImageElement, GraphNode]> = node
+                        .cacheImage$(Settings.maxImageSize).pipe(
+                            map(
+                                (n: GraphNode): [HTMLImageElement, GraphNode] => {
                                     return [n.image, n];
-                                });
+                                }));
 
-                    return image$
-                        .takeUntil(
-                            hasTexture$
-                                .filter(
+                    return image$.pipe(
+                        takeUntil(
+                            hasTexture$.pipe(
+                                filter(
                                     (hasTexture: boolean): boolean => {
 
                                         return hasTexture;
-                                    }))
-                        .catch(
-                            (error: Error, caught: Observable<[HTMLImageElement, Node]>):
-                                Observable<[HTMLImageElement, Node]> => {
+                                    }))),
+                        catchError(
+                            (error: Error, caught: Observable<[HTMLImageElement, GraphNode]>):
+                                Observable<[HTMLImageElement, GraphNode]> => {
                                 console.error(`Failed to fetch high res image (${node.key})`, error);
 
-                                return Observable.empty();
-                            });
-                })
-            .publish()
-            .refCount();
+                                return observableEmpty();
+                            }));
+                })).pipe(
+            publish(),
+            refCount());
 
-        this._updateBackgroundSubscription = nodeImage$
-            .withLatestFrom(textureProvider$)
+        this._updateBackgroundSubscription = nodeImage$.pipe(
+            withLatestFrom(textureProvider$))
             .subscribe(
-                (args: [[HTMLImageElement, Node], TextureProvider]): void => {
+                (args: [[HTMLImageElement, GraphNode], TextureProvider]): void => {
                     if (args[0][1].key !== args[1].key ||
                         args[1].disposed) {
                         return;
@@ -385,15 +408,15 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                     args[1].updateBackground(args[0][0]);
                 });
 
-        this._updateTextureImageSubscription = nodeImage$
-            .map(
-                (imn: [HTMLImageElement, Node]): IImagePlaneGLRendererOperation => {
+        this._updateTextureImageSubscription = nodeImage$.pipe(
+            map(
+                (imn: [HTMLImageElement, GraphNode]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateTextureImage(imn[0], imn[1]);
 
                         return renderer;
                     };
-                })
+                }))
             .subscribe(this._rendererOperation$);
     }
 

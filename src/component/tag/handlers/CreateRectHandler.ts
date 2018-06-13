@@ -1,5 +1,5 @@
-import {Subject} from "rxjs/Subject";
-import {Subscription} from "rxjs/Subscription";
+import {filter} from "rxjs/operators";
+import {Subject, Subscription} from "rxjs";
 
 import {
     CreateVertexHandler,
@@ -27,11 +27,11 @@ export class CreateRectHandler extends CreateVertexHandler {
     protected _enable(): void {
         super._enable();
 
-        this._initializeAnchorIndexingSubscription = this._tagCreator.tag$
-            .filter(
+        this._initializeAnchorIndexingSubscription = this._tagCreator.tag$.pipe(
+            filter(
                 (tag: OutlineCreateTag): boolean => {
                     return !!tag;
-                })
+                }))
             .subscribe(
                 (tag: OutlineCreateTag): void => {
                     (<RectGeometry>tag.geometry).initializeAnchorIndexing();

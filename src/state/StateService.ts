@@ -1,6 +1,25 @@
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {
+    BehaviorSubject,
+    Observable,
+    Subject,
+} from "rxjs";
+
+import {
+    first,
+    tap,
+    filter,
+    withLatestFrom,
+    startWith,
+    pairwise,
+    distinctUntilChanged,
+    publishReplay,
+    refCount,
+    bufferCount,
+    share,
+    switchMap,
+    map,
+    scan,
+} from "rxjs/operators";
 
 import {ILatLon} from "../API";
 import {Node} from "../Graph";
@@ -65,75 +84,75 @@ export class StateService {
                 return context;
             });
 
-        this._context$ = this._contextOperation$
-            .scan(
+        this._context$ = this._contextOperation$.pipe(
+            scan(
                 (context: IStateContext, operation: IContextOperation): IStateContext => {
                     return operation(context);
                 },
-                new StateContext(transitionMode))
-            .publishReplay(1)
-            .refCount();
+                new StateContext(transitionMode)),
+            publishReplay(1),
+            refCount());
 
-        this._state$ = this._context$
-            .map(
+        this._state$ = this._context$.pipe(
+            map(
                 (context: IStateContext): State => {
                     return context.state;
-                })
-            .distinctUntilChanged()
-            .publishReplay(1)
-            .refCount();
+                }),
+            distinctUntilChanged(),
+            publishReplay(1),
+            refCount());
 
-        this._fps$ = this._start$
-            .switchMap(
+        this._fps$ = this._start$.pipe(
+            switchMap(
                 (): Observable<number> => {
-                    return this._frame$
-                        .bufferCount(1, this._fpsSampleRate)
-                        .map(
+                    return this._frame$.pipe(
+                        bufferCount(1, this._fpsSampleRate),
+                        map(
                             (frameIds: number[]): number => {
                                 return new Date().getTime();
-                            })
-                        .pairwise()
-                        .map(
+                            }),
+                        pairwise(),
+                        map(
                             (times: [number, number]): number => {
                                 return Math.max(20, 1000 * this._fpsSampleRate / (times[1] - times[0]));
-                            })
-                        .startWith(60);
-                })
-            .share();
+                            }),
+                        startWith(60));
+                }),
+            share());
 
-        this._currentState$ = this._frame$
-            .withLatestFrom(
+        this._currentState$ = this._frame$.pipe(
+            withLatestFrom(
                 this._fps$,
                 this._context$,
                 (frameId: number, fps: number, context: IStateContext): [number, number, IStateContext] => {
                     return [frameId, fps, context];
-                })
-            .filter(
+                }),
+            filter(
                 (fc: [number, number, IStateContext]): boolean => {
                     return fc[2].currentNode != null;
-                })
-            .do(
+                }),
+            tap(
                 (fc: [number, number, IStateContext]): void => {
                     fc[2].update(fc[1]);
-                })
-            .map(
+                }),
+            map(
                 (fc: [number, number, IStateContext]): IFrame => {
                     return { fps: fc[1], id: fc[0], state: fc[2] };
-                })
-            .share();
+                }),
+            share());
 
-        this._lastState$ = this._currentState$
-            .publishReplay(1)
-            .refCount();
+        this._lastState$ = this._currentState$.pipe(
+            publishReplay(1),
+            refCount());
 
-        let nodeChanged$: Observable<IFrame> = this._currentState$
-            .distinctUntilChanged(
+        let nodeChanged$: Observable<IFrame> = this._currentState$.pipe(
+            distinctUntilChanged(
                 undefined,
                 (f: IFrame): string => {
                     return f.state.currentNode.key;
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
         let nodeChangedSubject$: Subject<IFrame> = new Subject<IFrame>();
 
@@ -142,99 +161,99 @@ export class StateService {
 
         this._currentKey$ = new BehaviorSubject<string>(null);
 
-        nodeChangedSubject$
-            .map(
+        nodeChangedSubject$.pipe(
+            map(
                 (f: IFrame): string => {
                     return f.state.currentNode.key;
-                })
+                }))
             .subscribe(this._currentKey$);
 
-        this._currentNode$ = nodeChangedSubject$
-            .map(
+        this._currentNode$ = nodeChangedSubject$.pipe(
+            map(
                 (f: IFrame): Node => {
                     return f.state.currentNode;
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._currentCamera$ = nodeChangedSubject$
-            .map(
+        this._currentCamera$ = nodeChangedSubject$.pipe(
+            map(
                 (f: IFrame): Camera => {
                     return f.state.currentCamera;
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._currentTransform$ = nodeChangedSubject$
-            .map(
+        this._currentTransform$ = nodeChangedSubject$.pipe(
+            map(
                 (f: IFrame): Transform => {
                     return f.state.currentTransform;
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._reference$ = nodeChangedSubject$
-            .map(
+        this._reference$ = nodeChangedSubject$.pipe(
+            map(
                 (f: IFrame): ILatLonAlt => {
                     return f.state.reference;
-                })
-            .distinctUntilChanged(
+                }),
+            distinctUntilChanged(
                 (r1: ILatLon, r2: ILatLon): boolean => {
                     return r1.lat === r2.lat && r1.lon === r2.lon;
                 },
                 (reference: ILatLonAlt): ILatLon => {
                     return { lat: reference.lat, lon: reference.lon };
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._currentNodeExternal$ = nodeChanged$
-            .map(
+        this._currentNodeExternal$ = nodeChanged$.pipe(
+            map(
                 (f: IFrame): Node => {
                     return f.state.currentNode;
-                })
-            .publishReplay(1)
-            .refCount();
+                }),
+            publishReplay(1),
+            refCount());
 
-        this._appendNode$
-            .map(
+        this._appendNode$.pipe(
+            map(
                 (node: Node) => {
                     return (context: IStateContext): IStateContext => {
                         context.append([node]);
 
                         return context;
                     };
-                })
+                }))
             .subscribe(this._contextOperation$);
 
         this._inMotionOperation$ = new Subject<boolean>();
 
-        nodeChanged$
-            .map(
+        nodeChanged$.pipe(
+            map(
                 (frame: IFrame): boolean => {
                     return true;
-                })
+                }))
             .subscribe(this._inMotionOperation$);
 
-        this._inMotionOperation$
-            .distinctUntilChanged()
-            .filter(
+        this._inMotionOperation$.pipe(
+            distinctUntilChanged(),
+            filter(
                 (moving: boolean): boolean => {
                     return moving;
-                })
-            .switchMap(
+                }),
+            switchMap(
                 (moving: boolean): Observable<boolean> => {
-                    return this._currentState$
-                        .filter(
+                    return this._currentState$.pipe(
+                        filter(
                             (frame: IFrame): boolean => {
                                 return frame.state.nodesAhead === 0;
-                            })
-                        .map(
+                            }),
+                        map(
                             (frame: IFrame): [Camera, number] => {
                                 return [frame.state.camera.clone(), frame.state.zoom];
-                            })
-                        .pairwise()
-                        .map(
+                            }),
+                        pairwise(),
+                        map(
                             (pair: [[Camera, number], [Camera, number]]): boolean => {
                                 let c1: Camera = pair[0][0];
                                 let c2: Camera = pair[1][0];
@@ -243,61 +262,61 @@ export class StateService {
                                 let z2: number = pair[1][1];
 
                                 return c1.diff(c2) > 1e-5 || Math.abs(z1 - z2) > 1e-5;
-                            })
-                        .first(
+                            }),
+                        first(
                             (changed: boolean): boolean => {
                                 return !changed;
-                            });
-                })
+                            }));
+                }))
             .subscribe(this._inMotionOperation$);
 
-        this._inMotion$ = this._inMotionOperation$
-            .distinctUntilChanged()
-            .publishReplay(1)
-            .refCount();
+        this._inMotion$ = this._inMotionOperation$.pipe(
+            distinctUntilChanged(),
+            publishReplay(1),
+            refCount());
 
         this._inTranslationOperation$ = new Subject<boolean>();
 
-        nodeChanged$
-            .map(
+        nodeChanged$.pipe(
+            map(
                 (frame: IFrame): boolean => {
                     return true;
-                })
+                }))
             .subscribe(this._inTranslationOperation$);
 
-        this._inTranslationOperation$
-            .distinctUntilChanged()
-            .filter(
+        this._inTranslationOperation$.pipe(
+            distinctUntilChanged(),
+            filter(
                 (inTranslation: boolean): boolean => {
                     return inTranslation;
-                })
-            .switchMap(
+                }),
+            switchMap(
                 (inTranslation: boolean): Observable<boolean> => {
-                    return this._currentState$
-                        .filter(
+                    return this._currentState$.pipe(
+                        filter(
                             (frame: IFrame): boolean => {
                                 return frame.state.nodesAhead === 0;
-                            })
-                        .map(
+                            }),
+                        map(
                             (frame: IFrame): THREE.Vector3 => {
                                 return frame.state.camera.position.clone();
-                            })
-                        .pairwise()
-                        .map(
+                            }),
+                        pairwise(),
+                        map(
                             (pair: [THREE.Vector3, THREE.Vector3]): boolean => {
                                 return pair[0].distanceToSquared(pair[1]) !== 0;
-                            })
-                        .first(
+                            }),
+                        first(
                             (changed: boolean): boolean => {
                                 return !changed;
-                            });
-                })
+                            }));
+                }))
             .subscribe(this._inTranslationOperation$);
 
-        this._inTranslation$ = this._inTranslationOperation$
-            .distinctUntilChanged()
-            .publishReplay(1)
-            .refCount();
+        this._inTranslation$ = this._inTranslationOperation$.pipe(
+            distinctUntilChanged(),
+            publishReplay(1),
+            refCount());
 
         this._state$.subscribe(() => { /*noop*/ });
         this._currentNode$.subscribe(() => { /*noop*/ });
@@ -445,21 +464,21 @@ export class StateService {
     }
 
     public getCenter(): Observable<number[]> {
-        return this._lastState$
-            .first()
-            .map(
+        return this._lastState$.pipe(
+            first(),
+            map(
                 (frame: IFrame): number[] => {
                     return (<IStateContext>frame.state).getCenter();
-                });
+                }));
     }
 
     public getZoom(): Observable<number> {
-        return this._lastState$
-            .first()
-            .map(
+        return this._lastState$.pipe(
+            first(),
+            map(
                 (frame: IFrame): number => {
                     return frame.state.zoom;
-                });
+                }));
     }
 
     public setCenter(center: number[]): void {

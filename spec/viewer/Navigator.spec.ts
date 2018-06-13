@@ -1,5 +1,6 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {of as observableOf, throwError as observableThrowError, empty as observableEmpty, Observable, Subject} from "rxjs";
+
+import {first} from "rxjs/operators";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
 import {StateServiceMockCreator} from "../helper/StateServiceMockCreator.spec";
@@ -91,7 +92,7 @@ describe("Navigator.moveToKey$", () => {
 
         let loadingSpy: jasmine.Spy = spyOn(loadingService, "startLoading").and.stub();
 
-        spyOn(graphService, "cacheNode$").and.returnValue(Observable.empty());
+        spyOn(graphService, "cacheNode$").and.returnValue(observableEmpty());
 
         let navigator: Navigator =
             new Navigator(
@@ -126,7 +127,7 @@ describe("Navigator.moveToKey$", () => {
 
         let key: string = "key";
         let sequenceKey: string = "sequenceKey";
-        spyOn(graphService, "cacheNode$").and.returnValue(Observable.of<Node>(
+        spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(
             new Node({
                 cl: { lat: 0, lon: 0 },
                 key: key,
@@ -159,7 +160,7 @@ describe("Navigator.moveToKey$", () => {
         spyOn(loadingService, "startLoading").and.stub();
         let stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
 
-        spyOn(graphService, "cacheNode$").and.returnValue(Observable.throw(new Error()));
+        spyOn(graphService, "cacheNode$").and.returnValue(observableThrowError(new Error()));
 
         let stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
 
@@ -245,7 +246,7 @@ describe("Navigator.moveToKey$", () => {
             sequence_key: sequenceKey,
         });
 
-        spyOn(graphService, "cacheNode$").and.returnValue(Observable.of<Node>(node));
+        spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(node));
         spyOn(stateService, "setNodes").and.stub();
 
         let navigator: Navigator =
@@ -312,7 +313,7 @@ describe("Navigator.movedToKey$", () => {
 
         let key: string = "key";
         let sequenceKey: string = "sequenceKey";
-        spyOn(graphService, "cacheNode$").and.returnValue(Observable.of<Node>(
+        spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(
             new Node({
                 cl: { lat: 0, lon: 0 },
                 key: key,
@@ -334,11 +335,11 @@ describe("Navigator.movedToKey$", () => {
                 stateService,
                 cacheService);
 
-        navigator.movedToKey$
-            .first(
+        navigator.movedToKey$.pipe(
+            first(
                 (k: string): boolean => {
                     return k != null;
-                })
+                }))
             .subscribe(
                 (k: string): void => {
                     expect(k).toBe(key);
@@ -362,7 +363,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         let startLoadingSpy: jasmine.Spy = spyOn(loadingService, "startLoading").and.stub();
 
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(Observable.empty());
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(observableEmpty());
 
         let navigator: Navigator =
             new Navigator(
@@ -397,7 +398,7 @@ describe("Navigator.moveCloseTo$", () => {
         spyOn(loadingService, "startLoading").and.stub();
 
         let key: string = "key";
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(Observable.of<IKey>({ key: key }));
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(observableOf<IKey>({ key: key }));
 
         let navigator: Navigator =
             new Navigator(
@@ -412,7 +413,7 @@ describe("Navigator.moveCloseTo$", () => {
                 cacheService);
 
         let cacheSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        cacheSpy.and.returnValue(Observable.empty());
+        cacheSpy.and.returnValue(observableEmpty());
 
         let lat: number = 0;
         let lon: number = 0;
@@ -435,7 +436,7 @@ describe("Navigator.moveCloseTo$", () => {
         spyOn(loadingService, "startLoading").and.stub();
         let stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
 
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(Observable.of<IKey>(null));
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(observableOf<IKey>(null));
 
         let navigator: Navigator =
             new Navigator(
@@ -450,7 +451,7 @@ describe("Navigator.moveCloseTo$", () => {
                 cacheService);
 
         let moveSpy: jasmine.Spy = spyOn(navigator, "moveToKey$");
-        moveSpy.and.returnValue(Observable.empty());
+        moveSpy.and.returnValue(observableEmpty());
 
         let lat: number = 0;
         let lon: number = 0;
@@ -632,11 +633,11 @@ describe("Navigator.setFilter$", () => {
 
         let cacheNodeSubject$: Subject<Node> = new Subject<Node>();
         let cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        let first: boolean = true;
+        let firstEmit: boolean = true;
         cacheNodeSpy.and.callFake(
             (key: string): Observable<Node> => {
-                if (first) {
-                    first = false;
+                if (firstEmit) {
+                    firstEmit = false;
                     return new Subject<Node>();
                 }
 
@@ -705,11 +706,11 @@ describe("Navigator.setFilter$", () => {
         let cacheNodeSubject1$: Subject<Node> = new Subject<Node>();
         let cacheNodeSubject2$: Subject<Node> = new Subject<Node>();
         let cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        let first: boolean = true;
+        let firstEmit: boolean = true;
         cacheNodeSpy.and.callFake(
             (key: string): Observable<Node> => {
-                if (first) {
-                    first = false;
+                if (firstEmit) {
+                    firstEmit = false;
                     return cacheNodeSubject1$;
                 }
 
@@ -858,11 +859,11 @@ describe("Navigator.setToken$", () => {
         let cacheNodeSubject1$: Subject<Node> = new Subject<Node>();
         let cacheNodeSubject2$: Subject<Node> = new Subject<Node>();
         let cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        let first: boolean = true;
+        let firstEmit: boolean = true;
         cacheNodeSpy.and.callFake(
             (key: string): Observable<Node> => {
-                if (first) {
-                    first = false;
+                if (firstEmit) {
+                    firstEmit = false;
                     return cacheNodeSubject1$;
                 }
 

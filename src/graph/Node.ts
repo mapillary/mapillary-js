@@ -1,4 +1,5 @@
-import {Observable} from "rxjs/Observable";
+import {map} from "rxjs/operators";
+import {Observable} from "rxjs";
 
 import {
     ICoreNode,
@@ -500,19 +501,19 @@ export class Node {
      * load status has changed and when the mesh or image has been fully loaded.
      */
     public cacheAssets$(): Observable<Node> {
-        return this._cache.cacheAssets$(this.key, this.pano, this.merged)
-            .map(
+        return this._cache.cacheAssets$(this.key, this.pano, this.merged).pipe(
+            map(
                 (cache: NodeCache): Node => {
                     return this;
-                });
+                }));
     }
 
     public cacheImage$(imageSize: ImageSize): Observable<Node> {
-        return this._cache.cacheImage$(this.key, imageSize)
-            .map(
+        return this._cache.cacheImage$(this.key, imageSize).pipe(
+            map(
                 (cache: NodeCache): Node => {
                     return this;
-                });
+                }));
     }
 
     /**

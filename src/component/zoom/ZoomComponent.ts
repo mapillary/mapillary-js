@@ -1,8 +1,7 @@
-import * as vd from "virtual-dom";
+import {combineLatest as observableCombineLatest, Observable, Subject, Subscription} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
-import {Subscription} from "rxjs/Subscription";
+import {withLatestFrom, map} from "rxjs/operators";
+import * as vd from "virtual-dom";
 
 import {
     ComponentService,
@@ -45,15 +44,14 @@ export class ZoomComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._renderSubscription = Observable
-            .combineLatest(
+        this._renderSubscription = observableCombineLatest(
                 this._navigator.stateService.currentState$,
-                this._navigator.stateService.state$)
-            .map(
+                this._navigator.stateService.state$).pipe(
+            map(
                 ([frame, state]: [IFrame, State]): [number, State] => {
                     return [frame.state.zoom, state];
-                })
-            .map(
+                }),
+            map(
                 ([zoom, state]: [number, State]): IVNodeHash => {
                     const zoomInIcon: vd.VNode = vd.h("div.ZoomInIcon", []);
                     const zoomInButton: vd.VNode = zoom >= 3 || state === State.Waiting ?
@@ -72,13 +70,13 @@ export class ZoomComponent extends Component<IComponentConfiguration> {
                             { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
                             [zoomInButton, zoomOutButton]),
                     };
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
 
-        this._zoomSubscription = this._zoomDelta$
-            .withLatestFrom(
+        this._zoomSubscription = this._zoomDelta$.pipe(
+            withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$)
+                this._navigator.stateService.currentTransform$))
             .subscribe(
                 ([zoomDelta, render, transform]: [number, RenderCamera, Transform]): void => {
                     const unprojected: THREE.Vector3 = this._viewportCoords.unprojectFromViewport(0, 0, render.perspective);

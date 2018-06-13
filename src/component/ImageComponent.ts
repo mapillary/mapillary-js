@@ -1,7 +1,7 @@
-import * as vd from "virtual-dom";
+import {combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
 
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {distinctUntilChanged, filter, map} from "rxjs/operators";
+import * as vd from "virtual-dom";
 
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
@@ -24,33 +24,32 @@ export class ImageComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        const canvasSize$: Observable<[HTMLCanvasElement, ISize]> = this._container.domRenderer.element$
-            .map(
+        const canvasSize$: Observable<[HTMLCanvasElement, ISize]> = this._container.domRenderer.element$.pipe(
+            map(
                 (element: HTMLElement): HTMLCanvasElement => {
                     return <HTMLCanvasElement>this._dom.document.getElementById(this._canvasId);
-                })
-            .filter(
+                }),
+            filter(
                 (canvas: HTMLCanvasElement): boolean => {
                     return !!canvas;
-                })
-            .map(
+                }),
+            map(
                 (canvas: HTMLCanvasElement): [HTMLCanvasElement, ISize] => {
                     const adaptableDomRenderer: HTMLElement = canvas.parentElement;
                     const width: number = adaptableDomRenderer.offsetWidth;
                     const height: number = adaptableDomRenderer.offsetHeight;
 
                     return [canvas, { height: height, width: width }];
-                })
-            .distinctUntilChanged(
+                }),
+            distinctUntilChanged(
                 (s1: ISize, s2: ISize): boolean => {
                     return s1.height === s2.height && s1.width === s2.width;
                 },
                 ([canvas, size]: [HTMLCanvasElement, ISize]): ISize => {
                     return size;
-                });
+                }));
 
-        this.drawSubscription = Observable
-            .combineLatest(
+        this.drawSubscription = observableCombineLatest(
                 canvasSize$,
                 this._navigator.stateService.currentNode$)
             .subscribe(

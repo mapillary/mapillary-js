@@ -1,6 +1,5 @@
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {refCount, publishReplay, scan, startWith} from "rxjs/operators";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 
 import {IComponentConfiguration} from "../Component";
 import {
@@ -33,9 +32,9 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
         this._navigator = navigator;
 
         this._configuration$ =
-            this._configurationSubject$
-                .startWith(this.defaultConfiguration)
-                .scan(
+            this._configurationSubject$.pipe(
+                startWith(this.defaultConfiguration),
+                scan(
                     (conf: TConfiguration, newConf: TConfiguration): TConfiguration => {
                         for (let key in newConf) {
                             if (newConf.hasOwnProperty(key)) {
@@ -44,9 +43,9 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
                         }
 
                         return conf;
-                    })
-                .publishReplay(1)
-                .refCount();
+                    }),
+                publishReplay(1),
+                refCount());
 
         this._configuration$.subscribe(() => { /*noop*/ });
     }

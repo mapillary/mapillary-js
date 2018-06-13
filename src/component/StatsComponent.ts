@@ -1,5 +1,6 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {empty as observableEmpty, Observable, Subscription, Scheduler} from "rxjs";
+
+import {scan, catchError, mergeMap, debounceTime, filter, map, buffer} from "rxjs/operators";
 
 import {ComponentService, Component, IComponentConfiguration} from "../Component";
 import {Node} from "../Graph";
@@ -18,13 +19,17 @@ export class StatsComponent extends Component<IComponentConfiguration> {
     private _sequenceSubscription: Subscription;
     private _imageSubscription: Subscription;
 
-    constructor(name: string, container: Container, navigator: Navigator) {
+    private _scheduler: Scheduler;
+
+    constructor(name: string, container: Container, navigator: Navigator, scheduler?: Scheduler) {
         super(name, container, navigator);
+
+        this._scheduler = scheduler;
     }
 
     protected _activate(): void {
-        this._sequenceSubscription = this._navigator.stateService.currentNode$
-            .scan(
+        this._sequenceSubscription = this._navigator.stateService.currentNode$.pipe(
+            scan(
                 (keys: IKeys, node: Node): IKeys => {
                     let sKey: string = node.sequenceKey;
                     keys.report = [];
@@ -36,30 +41,30 @@ export class StatsComponent extends Component<IComponentConfiguration> {
 
                     return keys;
                 },
-                { report: [], reported: {} })
-            .filter(
+                { report: [], reported: {} }),
+            filter(
                 (keys: IKeys): boolean => {
                     return keys.report.length > 0;
-                })
-            .mergeMap(
+                }),
+            mergeMap(
                 (keys: IKeys): Observable<void> => {
-                    return this._navigator.apiV3.sequenceViewAdd$(keys.report)
-                        .catch(
+                    return this._navigator.apiV3.sequenceViewAdd$(keys.report).pipe(
+                        catchError(
                             (error: Error, caught: Observable<void>): Observable<void> => {
                                 console.error(`Failed to report sequence stats (${keys.report})`, error);
 
-                                return Observable.empty();
-                            });
-                })
+                                return observableEmpty();
+                            }));
+                }))
             .subscribe(() => { /*noop*/ });
 
-        this._imageSubscription = this._navigator.stateService.currentNode$
-            .map(
+        this._imageSubscription = this._navigator.stateService.currentNode$.pipe(
+            map(
                 (node: Node): string => {
                     return node.key;
-                })
-            .buffer(this._navigator.stateService.currentNode$.debounceTime(5000))
-            .scan(
+                })).pipe(
+            buffer(this._navigator.stateService.currentNode$.pipe(debounceTime(5000, this._scheduler))),
+            scan(
                  (keys: IKeys, newKeys: string[]): IKeys => {
                      keys.report = [];
 
@@ -72,21 +77,21 @@ export class StatsComponent extends Component<IComponentConfiguration> {
 
                      return keys;
                  },
-                 { report: [], reported: {} })
-             .filter(
+                 { report: [], reported: {} }),
+            filter(
                 (keys: IKeys): boolean => {
                     return keys.report.length > 0;
-                })
-            .mergeMap(
+                }),
+            mergeMap(
                 (keys: IKeys): Observable<void> => {
-                    return this._navigator.apiV3.imageViewAdd$(keys.report)
-                        .catch(
+                    return this._navigator.apiV3.imageViewAdd$(keys.report).pipe(
+                        catchError(
                             (error: Error, caught: Observable<void>): Observable<void> => {
                                 console.error(`Failed to report image stats (${keys.report})`, error);
 
-                                return Observable.empty();
-                            });
-                })
+                                return observableEmpty();
+                            }));
+                }))
             .subscribe(() => { /*noop*/ });
     }
 

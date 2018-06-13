@@ -1,7 +1,6 @@
 import * as rbush from "rbush";
 
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {Observable, Subject} from "rxjs";
 
 import {ILatLon} from "../../API";
 import {Marker} from "../../Component";

@@ -1,3 +1,6 @@
+
+import {skip} from "rxjs/operators";
+
 import {
     Component,
     IComponentConfiguration,
@@ -38,8 +41,8 @@ describe("Component.configuration$", () => {
     it("should emit when configured", (done: Function) => {
         let component: TestComponent = new TestComponent("test", undefined, undefined);
 
-        component.configuration$
-            .skip(1)
+        component.configuration$.pipe(
+            skip(1))
             .subscribe(
                 (configuration: ITestConfiguration): void => {
                     expect(Object.keys(configuration).length).toBe(1);
@@ -53,8 +56,8 @@ describe("Component.configuration$", () => {
     it("should emit when configured value is changed", (done: Function) => {
         let component: TestComponent = new TestComponent("test", undefined, undefined);
 
-        component.configuration$
-            .skip(2)
+        component.configuration$.pipe(
+            skip(2))
             .subscribe(
                 (configuration: ITestConfiguration): void => {
                     expect(Object.keys(configuration).length).toBe(1);

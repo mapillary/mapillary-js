@@ -1,5 +1,6 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {merge as observableMerge, Subscription} from "rxjs";
+
+import {map, withLatestFrom} from "rxjs/operators";
 
 import {
     Component,
@@ -46,19 +47,18 @@ export class DoubleClickZoomHandler extends HandlerBase<IMouseConfiguration> {
     }
 
     protected _enable(): void {
-        this._zoomSubscription = Observable
-            .merge(
+        this._zoomSubscription = observableMerge(
                 this._container.mouseService
                     .filtered$(this._component.name, this._container.mouseService.dblClick$),
-                this._container.touchService.doubleTap$
-                    .map(
+                this._container.touchService.doubleTap$.pipe(
+                    map(
                         (e: TouchEvent): ClientTouch => {
                             let touch: Touch = e.touches[0];
                             return { clientX: touch.clientX, clientY: touch.clientY, shiftKey: e.shiftKey };
-                        }))
-            .withLatestFrom(
+                        }))).pipe(
+            withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$)
+                this._navigator.stateService.currentTransform$))
             .subscribe(
                 ([event, render, transform]: [MouseEvent | ClientTouch, RenderCamera, Transform]): void => {
                     const element: HTMLElement = this._container.element;

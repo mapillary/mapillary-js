@@ -1,5 +1,24 @@
-import {Observable} from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
+import {
+    empty as observableEmpty,
+    combineLatest as observableCombineLatest,
+    of as observableOf,
+    merge as observableMerge,
+    from as observableFrom,
+    Observable,
+    Subscription,
+} from "rxjs";
+
+import {
+    distinctUntilChanged,
+    share,
+    switchMap,
+    filter,
+    withLatestFrom,
+    first,
+    concat,
+    map,
+    mergeMap,
+} from "rxjs/operators";
 
 import {
     Component,
@@ -45,56 +64,53 @@ export class EditVertexHandler extends TagHandlerBase {
     }
 
     protected _enable(): void {
-        const interaction$: Observable<IInteraction> = this._tagSet.changed$
-            .map(
+        const interaction$: Observable<IInteraction> = this._tagSet.changed$.pipe(
+            map(
                 (tagSet: TagSet): RenderTag<Tag>[] => {
                     return tagSet.getAll();
-                })
-            .switchMap(
+                }),
+            switchMap(
                 (tags: RenderTag<Tag>[]): Observable<IInteraction> => {
-                    return Observable
-                        .from(tags)
-                        .mergeMap(
+                    return observableFrom(tags).pipe(
+                        mergeMap(
                             (tag: RenderTag<Tag>): Observable<IInteraction> => {
                                 return tag.interact$;
-                            });
-                })
-            .switchMap(
+                            }));
+                }),
+            switchMap(
                 (interaction: IInteraction): Observable<IInteraction> => {
-                    return Observable
-                        .of(interaction)
-                        .concat(
-                            this._container.mouseService.documentMouseUp$
-                                .map(
+                    return observableOf(interaction).pipe(
+                        concat(
+                            this._container.mouseService.documentMouseUp$.pipe(
+                                map(
                                     (): IInteraction => {
                                         return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
-                                    })
-                                .first());
-                })
-            .share();
+                                    }),
+                                first())));
+                }),
+            share());
 
-        const mouseMove$: Observable<MouseEvent> = Observable
-            .merge(
+        const mouseMove$: Observable<MouseEvent> = observableMerge(
                 this._container.mouseService.mouseMove$,
-                this._container.mouseService.domMouseMove$)
-            .share();
+                this._container.mouseService.domMouseMove$).pipe(
+            share());
 
-        this._claimMouseSubscription = interaction$
-            .switchMap(
+        this._claimMouseSubscription = interaction$.pipe(
+            switchMap(
                 (interaction: IInteraction): Observable<MouseEvent> => {
-                    return !!interaction.tag ? this._container.mouseService.domMouseDragStart$ : Observable.empty();
-                })
+                    return !!interaction.tag ? this._container.mouseService.domMouseDragStart$ : observableEmpty();
+                }))
             .subscribe(
                 (): void => {
                     this._container.mouseService.claimMouse(this._name, 3);
                 });
 
-        this._cursorSubscription = interaction$
-            .map(
+        this._cursorSubscription = interaction$.pipe(
+            map(
                 (interaction: IInteraction): string => {
                     return interaction.cursor;
-                })
-            .distinctUntilChanged()
+                }),
+            distinctUntilChanged())
             .subscribe(
                 (cursor: string): void => {
                     const interactionCursors: InteractionCursor[] = ["crosshair", "move", "nesw-resize", "nwse-resize"];
@@ -114,44 +130,42 @@ export class EditVertexHandler extends TagHandlerBase {
                     this._container.mouseService.unclaimMouse(this._name);
                 });
 
-        this._preventDefaultSubscription = interaction$
-            .switchMap(
+        this._preventDefaultSubscription = interaction$.pipe(
+            switchMap(
                 (interaction: IInteraction): Observable<MouseEvent> => {
                     return !!interaction.tag ?
                         this._container.mouseService.documentMouseMove$ :
-                        Observable.empty();
-                })
+                        observableEmpty();
+                }))
             .subscribe(
                 (event: MouseEvent): void => {
                     event.preventDefault(); // prevent selection of content outside the viewer
                 });
 
-        this._updateGeometrySubscription = interaction$
-            .withLatestFrom(mouseMove$)
-            .switchMap(
+        this._updateGeometrySubscription = interaction$.pipe(
+            withLatestFrom(mouseMove$),
+            switchMap(
                 ([interaction, mouseMove]: [IInteraction, MouseEvent]): Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
                     if (interaction.operation === TagOperation.None || !interaction.tag) {
-                        return Observable.empty();
+                        return observableEmpty();
                     }
 
-                    const mouseDrag$: Observable<MouseEvent> = Observable
-                        .of<MouseEvent>(mouseMove)
-                        .concat<MouseEvent>(
+                    const mouseDrag$: Observable<MouseEvent> = observableOf<MouseEvent>(mouseMove).pipe(
+                        concat<MouseEvent>(
                             this._container.mouseService
                                 .filtered$(
                                     this._name,
-                                    this._container.mouseService.domMouseDrag$)
-                                .filter(
+                                    this._container.mouseService.domMouseDrag$).pipe(
+                                filter(
                                     (event: MouseEvent): boolean => {
                                         return this._viewportCoords.insideElement(event, this._container.element);
-                                    }));
+                                    }))));
 
-                    return Observable
-                        .combineLatest<MouseEvent, RenderCamera>(
+                    return observableCombineLatest<MouseEvent, RenderCamera>(
                             mouseDrag$,
-                            this._container.renderService.renderCamera$)
-                        .withLatestFrom(
-                            Observable.of(interaction),
+                            this._container.renderService.renderCamera$).pipe(
+                        withLatestFrom(
+                            observableOf(interaction),
                             this._navigator.stateService.currentTransform$,
                             (
                                 [event, render]: [MouseEvent, RenderCamera],
@@ -159,8 +173,8 @@ export class EditVertexHandler extends TagHandlerBase {
                                 transform: Transform):
                                 [MouseEvent, RenderCamera, IInteraction, Transform] => {
                                 return [event, render, i, transform];
-                            });
-                })
+                            }));
+                }))
             .subscribe(
                 ([mouseEvent, renderCamera, interaction, transform]: [MouseEvent, RenderCamera, IInteraction, Transform]): void => {
                     const basic: number[] = this._mouseEventToBasic(

@@ -1,5 +1,4 @@
-import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
+import {throwError as observableThrowError, of as observableOf, Subject} from "rxjs";
 
 import {
     DirectionComponent,
@@ -86,7 +85,7 @@ describe("DirectionComponent.activate", () => {
         directionComponent.activate();
 
         const sequence: Sequence = new Sequence({ key: "skey", keys: [] });
-        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(Observable.of<Sequence>(sequence));
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableOf<Sequence>(sequence));
 
         const node: Node = new NodeHelper().createNode();
         node.initializeCache(new NodeCache());
@@ -147,7 +146,7 @@ describe("DirectionComponent.activate", () => {
         directionComponent.configure({ distinguishSequence: true });
         directionComponent.activate();
 
-        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(Observable.throw(new Error("Failed to cache seq.")));
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableThrowError(new Error("Failed to cache seq.")));
 
         const node: Node = new NodeHelper().createNode();
         node.initializeCache(new NodeCache());

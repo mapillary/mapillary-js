@@ -1,4 +1,5 @@
-import {Subscription} from "rxjs/Subscription";
+import {withLatestFrom} from "rxjs/operators";
+import {Subscription} from "rxjs";
 
 import {
     Component,
@@ -48,10 +49,10 @@ export class KeyZoomHandler extends HandlerBase<IKeyboardConfiguration> {
     }
 
     protected _enable(): void {
-        this._keyDownSubscription = this._container.keyboardService.keyDown$
-            .withLatestFrom(
+        this._keyDownSubscription = this._container.keyboardService.keyDown$.pipe(
+            withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$)
+                this._navigator.stateService.currentTransform$))
             .subscribe(
                 ([event, render, transform]: [KeyboardEvent, RenderCamera, Transform]): void => {
                     if (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) {

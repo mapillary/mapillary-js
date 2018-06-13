@@ -1,4 +1,4 @@
-import {Observable} from "rxjs/Observable";
+import {empty as observableEmpty} from "rxjs";
 
 import {
     SimpleMarker,
@@ -27,7 +27,7 @@ describe("MarkerComponent.add", () => {
 
     beforeEach(() => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(observableEmpty());
 
         markerComponent =
             new MarkerComponent(
@@ -72,7 +72,7 @@ describe("MarkerComponent.add", () => {
 describe("MarkerComponent.deactivate", () => {
     it("should deactivate properly", () => {
         const containerMock: Container = new ContainerMockCreator().create();
-        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(Observable.empty());
+        (<jasmine.Spy>containerMock.mouseService.filtered$).and.returnValue(observableEmpty());
 
         const markerComponent: MarkerComponent =
             new MarkerComponent(

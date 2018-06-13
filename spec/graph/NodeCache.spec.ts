@@ -1,3 +1,4 @@
+import {first, skip} from "rxjs/operators";
 import {EdgeDirection, IEdge} from "../../src/Edge";
 import {
     IEdgeStatus,
@@ -31,8 +32,8 @@ describe("NodeCache.sequenceEdges$", () => {
     it("should emit uncached empty edge status initially", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache();
 
-        nodeCache.sequenceEdges$
-            .first()
+        nodeCache.sequenceEdges$.pipe(
+            first())
             .subscribe(
                 (edgeStatus: IEdgeStatus): void => {
                     expect(edgeStatus.cached).toBe(false);
@@ -54,9 +55,9 @@ describe("NodeCache.sequenceEdges$", () => {
             to: "key2",
         };
 
-        nodeCache.sequenceEdges$
-            .skip(1)
-            .first()
+        nodeCache.sequenceEdges$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (edgeStatus: IEdgeStatus): void => {
                     expect(edgeStatus.cached).toBe(true);
@@ -103,8 +104,8 @@ describe("NodeCache.spatialEdges$", () => {
     it("should emit uncached empty edge status initially", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache();
 
-        nodeCache.spatialEdges$
-            .first()
+        nodeCache.spatialEdges$.pipe(
+            first())
             .subscribe(
                 (edgeStatus: IEdgeStatus): void => {
                     expect(edgeStatus.cached).toBe(false);
@@ -126,9 +127,9 @@ describe("NodeCache.spatialEdges$", () => {
             to: "key2",
         };
 
-        nodeCache.spatialEdges$
-            .skip(1)
-            .first()
+        nodeCache.spatialEdges$.pipe(
+            skip(1),
+            first())
             .subscribe(
                 (edgeStatus: IEdgeStatus): void => {
                     expect(edgeStatus.cached).toBe(true);
@@ -292,8 +293,8 @@ describe("NodeCache.cacheImage$", () => {
 
         expect(nodeCache.image).toBeNull();
 
-        nodeCache.image$
-            .skip(1)
+        nodeCache.image$.pipe(
+            skip(1))
             .subscribe(
                 (image: HTMLImageElement): void => {
                     expect(image).not.toBeNull();
