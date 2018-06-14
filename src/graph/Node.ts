@@ -101,7 +101,8 @@ export class Node {
      * @description If the SfM computed compass angle exists it will
      * be returned, otherwise the original EXIF compass angle.
      *
-     * @returns {number} Compass angle, measured in degrees.
+     * @returns {number} Compass angle, measured in degrees
+     * clockwise with respect to north.
      */
     public get ca(): number {
         return this._fill.cca != null ? this._fill.cca : this._fill.ca;
@@ -134,7 +135,8 @@ export class Node {
      *
      * @description Will not be set if SfM has not been run.
      *
-     * @returns {number} SfM computed compass angle, measured in degrees.
+     * @returns {number} SfM computed compass angle, measured
+     * in degrees clockwise with respect to north.
      */
     public get computedCA(): number {
         return this._fill.cca;
