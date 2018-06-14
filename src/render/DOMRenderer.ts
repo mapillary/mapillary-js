@@ -1,4 +1,15 @@
-import {combineLatest, scan, filter, map, distinctUntilChanged, pluck, refCount, publishReplay} from "rxjs/operators";
+import {combineLatest as observableCombineLatest} from "rxjs";
+
+import {
+    scan,
+    filter,
+    map,
+    distinctUntilChanged,
+    pluck,
+    refCount,
+    publishReplay,
+} from "rxjs/operators";
+
 import * as vd from "virtual-dom";
 
 import {Observable, Subject} from "rxjs";
@@ -124,18 +135,19 @@ export class DOMRenderer {
                 }))
             .subscribe(this._adaptiveOperation$);
 
-        this._renderAdaptive$.pipe(
-            scan(
-                (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
-                    if (vNodeHash.vnode == null) {
-                        delete vNodeHashes[vNodeHash.name];
-                    } else {
-                        vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
-                    }
-                    return vNodeHashes;
-                },
-                {}),
-            combineLatest(this._offset$),
+        observableCombineLatest(
+                this._renderAdaptive$.pipe(
+                    scan(
+                        (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
+                            if (vNodeHash.vnode == null) {
+                                delete vNodeHashes[vNodeHash.name];
+                            } else {
+                                vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+                            }
+                            return vNodeHashes;
+                        },
+                        {})),
+                this._offset$).pipe(
             map(
                 (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
                     let vNodes: vd.VNode[] = [];

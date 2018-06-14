@@ -121,16 +121,20 @@ export class GLRenderer {
                 },
                 { needsRender: false }));
 
-        observableCombineLatest<ICombination>(
-                [this._renderer$, this._renderCollection$, this._renderCamera$, this._eraser$],
-                (renderer: IGLRenderer, hashes: IGLRenderHashes, rc: IRenderCamera, eraser: IEraser): ICombination => {
+        observableCombineLatest(
+                this._renderer$,
+                this._renderCollection$,
+                this._renderCamera$,
+                this._eraser$).pipe(
+            map(
+                ([renderer, hashes, rc, eraser]: [IGLRenderer, IGLRenderHashes, IRenderCamera, IEraser]): ICombination => {
                     let renders: IGLRender[] = Object.keys(hashes)
                         .map((key: string): IGLRender => {
                             return hashes[key];
                         });
 
                     return { camera: rc, eraser: eraser, renderer: renderer, renders: renders };
-                }).pipe(
+                }),
             filter(
                 (co: ICombination): boolean => {
                     let needsRender: boolean =

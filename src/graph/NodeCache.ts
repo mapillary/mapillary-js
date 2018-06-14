@@ -191,8 +191,9 @@ export class NodeCache {
 
         this._cachingAssets$ = observableCombineLatest(
                 this._cacheImage$(key, imageSize),
-                this._cacheMesh$(key, merged),
-                (imageStatus: ILoadStatusObject<HTMLImageElement>, meshStatus: ILoadStatusObject<IMesh>): NodeCache => {
+                this._cacheMesh$(key, merged)).pipe(
+            map(
+                ([imageStatus, meshStatus]: [ILoadStatusObject<HTMLImageElement>, ILoadStatusObject<IMesh>]): NodeCache => {
                     this._loadStatus.loaded = 0;
                     this._loadStatus.total = 0;
 
@@ -209,7 +210,7 @@ export class NodeCache {
                     }
 
                     return this;
-                }).pipe(
+                }),
             finalize(
                 (): void => {
                     this._cachingAssets$ = null;

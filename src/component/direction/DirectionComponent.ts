@@ -160,17 +160,12 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
             .subscribe(this._container.domRenderer.render$);
 
         this._hoveredKeySubscription = observableCombineLatest(
-                [
-                    this._container.domRenderer.element$,
-                    this._container.renderService.renderCamera$,
-                    this._container.mouseService.mouseMove$.pipe(startWith(null)),
-                    this._container.mouseService.mouseUp$.pipe(startWith(null)),
-                ],
-                (e: Element, rc: RenderCamera, mm: MouseEvent, mu: MouseEvent): Element => {
-                    return e;
-                }).pipe(
+                this._container.domRenderer.element$,
+                this._container.renderService.renderCamera$,
+                this._container.mouseService.mouseMove$.pipe(startWith(null)),
+                this._container.mouseService.mouseUp$.pipe(startWith(null))).pipe(
             map(
-                (element: Element): string => {
+                ([element]: [Element, RenderCamera, MouseEvent, MouseEvent]): string => {
                     let elements: NodeListOf<Element> = element.getElementsByClassName("DirectionsPerspective");
 
                     for (let i: number = 0; i < elements.length; i++) {

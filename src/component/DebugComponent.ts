@@ -1,4 +1,5 @@
 import {combineLatest as observableCombineLatest, Observable, BehaviorSubject, Subscription} from "rxjs";
+import {map} from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {Component, ComponentService, IComponentConfiguration} from "../Component";
@@ -17,10 +18,11 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         this._disposable = observableCombineLatest(
                 this._navigator.stateService.currentState$,
                 this._open$,
-                this._navigator.imageLoadingService.loadstatus$,
-                (frame: IFrame, open: boolean, loadStatus: {[key: string]: ILoadStatus}): IVNodeHash => {
+                this._navigator.imageLoadingService.loadstatus$).pipe(
+            map(
+                ([frame, open, loadStatus]: [IFrame, boolean, {[key: string]: ILoadStatus}]): IVNodeHash => {
                     return {name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame, loadStatus))};
-                })
+                }))
             .subscribe(this._container.domRenderer.render$);
     }
 

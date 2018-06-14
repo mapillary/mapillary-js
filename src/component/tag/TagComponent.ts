@@ -618,17 +618,13 @@ export class TagComponent extends Component<ITagConfiguration> {
                 this._tagChanged$.pipe(startWith(null)),
                 observableMerge(
                     this._tagCreator.tag$,
-                    this._createGeometryChanged$).pipe(startWith(null)),
-                (renderTags: RenderTag<Tag>[], rc: RenderCamera, atlas: ISpriteAtlas, size: ISize, tag: Tag, ct: OutlineCreateTag):
-                [RenderCamera, ISpriteAtlas, ISize, RenderTag<Tag>[], Tag, OutlineCreateTag] => {
-                    return [rc, atlas, size, renderTags, tag, ct];
-                }).pipe(
+                    this._createGeometryChanged$).pipe(startWith(null))).pipe(
             map(
-                (args: [RenderCamera, ISpriteAtlas, ISize, RenderTag<Tag>[], Tag, OutlineCreateTag]):
+                ([renderTags, rc, atlas, size, tag, ct]: [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ISize, Tag, OutlineCreateTag]):
                     IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._tagDomRenderer.render(args[3], args[5], args[1], args[0].perspective, args[2]),
+                        vnode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
                     };
                 }))
             .subscribe(this._container.domRenderer.render$);

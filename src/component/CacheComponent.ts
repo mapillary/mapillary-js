@@ -96,16 +96,11 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                                             return status.cached;
                                         })));
                         })),
-                this._configuration$,
-                (ns: [Node, IEdgeStatus], configuration: ICacheConfiguration):
-                    [Node, IEdgeStatus, ICacheConfiguration] => {
-                        return [ns[0], ns[1], configuration];
-                    }).pipe(
+                this._configuration$).pipe(
             switchMap(
-                (args: [Node, IEdgeStatus, ICacheConfiguration]): Observable<EdgesDepth> => {
-                    let node: Node = args[0];
-                    let edges: IEdge[] = args[1].edges;
-                    let depth: ICacheDepth = args[2].depth;
+                ([[node, edgeStatus], configuration]: [[Node, IEdgeStatus], ICacheConfiguration]): Observable<EdgesDepth> => {
+                    let edges: IEdge[] = edgeStatus.edges;
+                    let depth: ICacheDepth = configuration.depth;
 
                     let panoDepth: number = Math.max(0, Math.min(2, depth.pano));
                     let stepDepth: number = node.pano ? 0 : Math.max(0, Math.min(3, depth.step));

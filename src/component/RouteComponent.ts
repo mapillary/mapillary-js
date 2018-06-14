@@ -107,8 +107,9 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                                         return sequenceByKey[path.sequenceKey];
                                     }));
                         })),
-                this.configuration$,
-                (sequence: ISequence, conf: IRouteConfiguration): IInstructionPlace[] => {
+                this.configuration$).pipe(
+            map(
+                ([sequence, conf]: [ISequence, IRouteConfiguration]): IInstructionPlace[] => {
                     let i: number = 0;
                     let instructionPlaces: IInstructionPlace[] = [];
 
@@ -141,7 +142,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                     }
 
                     return instructionPlaces;
-                }).pipe(
+                }),
             scan(
                 (routeTrack: RouteTrack, instructionPlaces: IInstructionPlace[]): RouteTrack => {
                     for (let instructionPlace of instructionPlaces) {
@@ -165,72 +166,74 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                 new RouteTrack()));
 
         const cacheNode$: any = observableCombineLatest(
-            slowedStream$,
-            routeTrack$,
-            this.configuration$,
-            (frame: IFrame, routeTrack: RouteTrack, conf: IRouteConfiguration): IRtAndFrame => {
-                return {conf: conf, frame: frame, routeTrack: routeTrack};
-            }).pipe(
-        scan(
-            (routeState: RouteState, rtAndFrame: IRtAndFrame): RouteState => {
-                if (rtAndFrame.conf.playing === undefined || rtAndFrame.conf.playing) {
-                    routeState.routeTrack = rtAndFrame.routeTrack;
-                    routeState.currentNode = rtAndFrame.frame.state.currentNode;
-                    routeState.lastNode = rtAndFrame.frame.state.lastNode;
-                    routeState.playing = true;
-                } else {
-                    this._navigator.stateService.cutNodes();
-                    routeState.playing = false;
-                }
-                return routeState;
-            },
-            new RouteState()),
-        filter(
-            (routeState: RouteState): boolean => {
-                return routeState.playing;
-            }),
-        filter(
-            (routeState: RouteState): boolean => {
-                for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
-                    if (!nodeInstruction) {
-                        continue;
+                slowedStream$,
+                routeTrack$,
+                this.configuration$).pipe(
+            map(
+                ([frame, routeTrack, conf]: [IFrame, RouteTrack, IRouteConfiguration]): IRtAndFrame => {
+                    return {conf: conf, frame: frame, routeTrack: routeTrack};
+                }),
+            scan(
+                (routeState: RouteState, rtAndFrame: IRtAndFrame): RouteState => {
+                    if (rtAndFrame.conf.playing === undefined || rtAndFrame.conf.playing) {
+                        routeState.routeTrack = rtAndFrame.routeTrack;
+                        routeState.currentNode = rtAndFrame.frame.state.currentNode;
+                        routeState.lastNode = rtAndFrame.frame.state.lastNode;
+                        routeState.playing = true;
+                    } else {
+                        this._navigator.stateService.cutNodes();
+                        routeState.playing = false;
                     }
-                    if (nodeInstruction.key === routeState.lastNode.key) {
-                        return true;
+                    return routeState;
+                },
+                new RouteState()),
+            filter(
+                (routeState: RouteState): boolean => {
+                    return routeState.playing;
+                }),
+            filter(
+                (routeState: RouteState): boolean => {
+                    for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
+                        if (!nodeInstruction) {
+                            continue;
+                        }
+                        if (nodeInstruction.key === routeState.lastNode.key) {
+                            return true;
+                        }
                     }
-                }
 
-                return false;
-            }),
-        distinctUntilChanged(
-            undefined,
-            (routeState: RouteState): string => {
-                return routeState.lastNode.key;
-            }),
-        mergeMap(
-            (routeState: RouteState): Observable<Node> => {
-                let i: number = 0;
-                for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
-                    if (nodeInstruction.key === routeState.lastNode.key) {
-                        break;
+                    return false;
+                }),
+            distinctUntilChanged(
+                undefined,
+                (routeState: RouteState): string => {
+                    return routeState.lastNode.key;
+                }),
+            mergeMap(
+                (routeState: RouteState): Observable<Node> => {
+                    let i: number = 0;
+                    for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
+                        if (nodeInstruction.key === routeState.lastNode.key) {
+                            break;
+                        }
+                        i++;
                     }
-                    i++;
-                }
 
-                let nextInstruction: INodeInstruction = routeState.routeTrack.nodeInstructions[i + 1];
-                if (!nextInstruction) {
-                    return observableOf<Node>(null);
-                }
+                    let nextInstruction: INodeInstruction = routeState.routeTrack.nodeInstructions[i + 1];
+                    if (!nextInstruction) {
+                        return observableOf<Node>(null);
+                    }
 
-                return this._navigator.graphService.cacheNode$(nextInstruction.key);
-            }));
+                    return this._navigator.graphService.cacheNode$(nextInstruction.key);
+                }));
 
         this._disposable = observableCombineLatest(
                 cacheNode$,
-                this.configuration$,
-                (node: Node, conf: IRouteConfiguration): IConfAndNode => {
+                this.configuration$).pipe(
+            map(
+                ([node, conf]: [Node, IRouteConfiguration]): IConfAndNode => {
                     return {conf: conf, node: node};
-                }).pipe(
+                }),
             filter(
                 (cAN: IConfAndNode) => {
                     return cAN.node !== null && cAN.conf.playing;
@@ -241,8 +244,9 @@ export class RouteComponent extends Component<IRouteConfiguration> {
         this._disposableDescription = observableCombineLatest(
                 this._navigator.stateService.currentNode$,
                 routeTrack$,
-                this.configuration$,
-                (node: Node, routeTrack: RouteTrack, conf: IRouteConfiguration): string => {
+                this.configuration$).pipe(
+            map(
+                ([node, routeTrack, conf]: [Node, RouteTrack, IRouteConfiguration]): string => {
                     if (conf.playing !== undefined && !conf.playing) {
                         return "quit";
                     }
@@ -257,7 +261,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                     }
 
                     return description;
-                }).pipe(
+                }),
             scan(
                 (descriptionState: DescriptionState, description: string): DescriptionState => {
                     if (description !== descriptionState.description && description !== null) {
