@@ -1,4 +1,5 @@
 import {
+    combineLatest as observableCombineLatest,
     empty as observableEmpty,
     merge as observableMerge,
     from as observableFrom,
@@ -9,11 +10,9 @@ import {
 import {
     startWith,
     first,
-    combineLatest,
     tap,
     map,
     share,
-    merge,
     skipWhile,
     filter,
     mergeMap,
@@ -603,25 +602,27 @@ export class TagComponent extends Component<ITagConfiguration> {
                     this._tagScene.update();
                 });
 
-        this._domSubscription = this._renderTags$.pipe(
-            startWith([]),
-            tap(
-                (tags: RenderTag<Tag>[]): void => {
-                    this._container.domRenderer.render$.next({
-                        name: this._name,
-                        vnode: this._tagDomRenderer.clear(),
-                    });
-                }),
-            combineLatest(
+        this._domSubscription = observableCombineLatest(
+                this._renderTags$.pipe(
+                    startWith([]),
+                    tap(
+                        (tags: RenderTag<Tag>[]): void => {
+                            this._container.domRenderer.render$.next({
+                                name: this._name,
+                                vnode: this._tagDomRenderer.clear(),
+                            });
+                        })),
                 this._container.renderService.renderCamera$,
                 this._container.spriteService.spriteAtlas$,
                 this._container.renderService.size$,
                 this._tagChanged$.pipe(startWith(null)),
-                this._tagCreator.tag$.pipe(merge(this._createGeometryChanged$), startWith(null)),
+                observableMerge(
+                    this._tagCreator.tag$,
+                    this._createGeometryChanged$).pipe(startWith(null)),
                 (renderTags: RenderTag<Tag>[], rc: RenderCamera, atlas: ISpriteAtlas, size: ISize, tag: Tag, ct: OutlineCreateTag):
                 [RenderCamera, ISpriteAtlas, ISize, RenderTag<Tag>[], Tag, OutlineCreateTag] => {
                     return [rc, atlas, size, renderTags, tag, ct];
-                }),
+                }).pipe(
             map(
                 (args: [RenderCamera, ISpriteAtlas, ISize, RenderTag<Tag>[], Tag, OutlineCreateTag]):
                     IVNodeHash => {

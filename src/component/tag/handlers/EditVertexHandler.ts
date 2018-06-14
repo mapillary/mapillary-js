@@ -1,4 +1,5 @@
 import {
+    concat as observableConcat,
     empty as observableEmpty,
     combineLatest as observableCombineLatest,
     of as observableOf,
@@ -15,7 +16,6 @@ import {
     filter,
     withLatestFrom,
     first,
-    concat,
     map,
     mergeMap,
 } from "rxjs/operators";
@@ -79,14 +79,14 @@ export class EditVertexHandler extends TagHandlerBase {
                 }),
             switchMap(
                 (interaction: IInteraction): Observable<IInteraction> => {
-                    return observableOf(interaction).pipe(
-                        concat(
-                            this._container.mouseService.documentMouseUp$.pipe(
-                                map(
-                                    (): IInteraction => {
-                                        return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
-                                    }),
-                                first())));
+                    return observableConcat(
+                        observableOf(interaction),
+                        this._container.mouseService.documentMouseUp$.pipe(
+                            map(
+                                (): IInteraction => {
+                                    return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
+                                }),
+                            first()));
                 }),
             share());
 
@@ -150,8 +150,8 @@ export class EditVertexHandler extends TagHandlerBase {
                         return observableEmpty();
                     }
 
-                    const mouseDrag$: Observable<MouseEvent> = observableOf<MouseEvent>(mouseMove).pipe(
-                        concat<MouseEvent>(
+                    const mouseDrag$: Observable<MouseEvent> = observableConcat(
+                            observableOf<MouseEvent>(mouseMove),
                             this._container.mouseService
                                 .filtered$(
                                     this._name,
@@ -159,7 +159,7 @@ export class EditVertexHandler extends TagHandlerBase {
                                 filter(
                                     (event: MouseEvent): boolean => {
                                         return this._viewportCoords.insideElement(event, this._container.element);
-                                    }))));
+                                    })));
 
                     return observableCombineLatest<MouseEvent, RenderCamera>(
                             mouseDrag$,

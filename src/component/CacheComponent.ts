@@ -16,7 +16,6 @@ import {
     filter,
     catchError,
     mergeMap,
-    combineLatest,
     expand,
     skip,
     mergeAll,
@@ -85,23 +84,23 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                  }))
             .subscribe(() => { /*noop*/ });
 
-        this._spatialSubscription = this._navigator.stateService.currentNode$.pipe(
-            switchMap(
-                (node: Node): Observable<[Node, IEdgeStatus]> => {
-                    return observableCombineLatest(
-                            observableOf<Node>(node),
-                            node.spatialEdges$.pipe(
-                                filter(
-                                    (status: IEdgeStatus): boolean => {
-                                        return status.cached;
-                                    })));
-                }),
-            combineLatest(
+        this._spatialSubscription = observableCombineLatest(
+                this._navigator.stateService.currentNode$.pipe(
+                    switchMap(
+                        (node: Node): Observable<[Node, IEdgeStatus]> => {
+                            return observableCombineLatest(
+                                observableOf<Node>(node),
+                                node.spatialEdges$.pipe(
+                                    filter(
+                                        (status: IEdgeStatus): boolean => {
+                                            return status.cached;
+                                        })));
+                        })),
                 this._configuration$,
                 (ns: [Node, IEdgeStatus], configuration: ICacheConfiguration):
                     [Node, IEdgeStatus, ICacheConfiguration] => {
                         return [ns[0], ns[1], configuration];
-                    }),
+                    }).pipe(
             switchMap(
                 (args: [Node, IEdgeStatus, ICacheConfiguration]): Observable<EdgesDepth> => {
                     let node: Node = args[0];

@@ -12,7 +12,6 @@ import {
     map,
     skip,
     filter,
-    combineLatest,
     switchMap,
     share,
 } from "rxjs/operators";
@@ -57,10 +56,11 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                     (<RectGeometry>tag.geometry).initializeAnchorIndexing();
                 });
 
-        const basicMouse$: Observable<number[]> = observableMerge(
-                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
-                this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$)).pipe(
-            combineLatest(this._container.renderService.renderCamera$),
+        const basicMouse$: Observable<number[]> = observableCombineLatest(
+                observableMerge(
+                    this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
+                    this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$)),
+                this._container.renderService.renderCamera$).pipe(
             withLatestFrom(this._navigator.stateService.currentTransform$),
             map(
                 ([[event, camera], transform]: [[MouseEvent, RenderCamera], Transform]): number[] => {

@@ -1,6 +1,26 @@
-import {empty as observableEmpty, from as observableFrom, of as observableOf, Observable, Subject, Subscription} from "rxjs";
+import {
+    concat as observableConcat,
+    empty as observableEmpty,
+    from as observableFrom,
+    of as observableOf,
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
 
-import {first, expand, map, last, mergeMap, startWith, concat, publishReplay, refCount, catchError, finalize, tap} from "rxjs/operators";
+import {
+    first,
+    expand,
+    map,
+    last,
+    mergeMap,
+    startWith,
+    publishReplay,
+    refCount,
+    catchError,
+    finalize,
+    tap,
+} from "rxjs/operators";
 
 import {ILatLon} from "../API";
 import {
@@ -37,8 +57,9 @@ export class GraphService {
      * @param {Graph} graph - Graph instance to be operated on.
      */
     constructor(graph: Graph, imageLoadingService: ImageLoadingService) {
-        this._graph$ = observableOf(graph).pipe(
-            concat(graph.changed$),
+        this._graph$ = observableConcat(
+                observableOf(graph),
+                graph.changed$).pipe(
             publishReplay(1),
             refCount());
 

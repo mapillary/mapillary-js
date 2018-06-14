@@ -1,4 +1,5 @@
 import {
+    concat as observableConcat,
     of as observableOf,
     zip as observableZip,
     combineLatest as observableCombineLatest,
@@ -17,8 +18,6 @@ import {
     skipWhile,
     scan,
     filter,
-    concat,
-    zip,
     debounceTime,
     startWith,
     map,
@@ -279,14 +278,15 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 }))
             .subscribe(this._container.glRenderer.render$);
 
-        const position$: Observable<number> = this.configuration$.pipe(
-            map(
-                (configuration: ISliderConfiguration): number => {
-                    return configuration.initialPosition != null ?
-                        configuration.initialPosition : 1;
-                }),
-            first(),
-            concat(this._domRenderer.position$));
+        const position$: Observable<number> = observableConcat(
+            this.configuration$.pipe(
+                map(
+                    (configuration: ISliderConfiguration): number => {
+                        return configuration.initialPosition != null ?
+                            configuration.initialPosition : 1;
+                    }),
+                first()),
+            this._domRenderer.position$);
 
         const mode$: Observable<SliderMode> = this.configuration$.pipe(
             map(
@@ -434,13 +434,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             switchMap(
                 (configuration: ISliderConfiguration): Observable<ISliderCombination> => {
                     return observableZip(
-                            this._catchCacheNode$(configuration.keys.background),
-                            this._catchCacheNode$(configuration.keys.foreground)).pipe(
-                        map(
-                            (nodes: [Node, Node]): ISliderNodes => {
-                                return { background: nodes[0], foreground: nodes[1] };
-                            }),
-                        zip(this._navigator.stateService.currentState$.pipe(first())),
+                            observableZip(
+                                this._catchCacheNode$(configuration.keys.background),
+                                this._catchCacheNode$(configuration.keys.foreground)).pipe(
+                            map(
+                                (nodes: [Node, Node]): ISliderNodes => {
+                                    return { background: nodes[0], foreground: nodes[1] };
+                                })),
+                            this._navigator.stateService.currentState$.pipe(first())).pipe(
                         map(
                             (nf: [ISliderNodes, IFrame]): ISliderCombination => {
                                 return { nodes: nf[0], state: nf[1].state };

@@ -20,7 +20,6 @@ import {
     catchError,
     takeUntil,
     startWith,
-    combineLatest,
     skipWhile,
     map,
     publish,
@@ -176,13 +175,14 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 }))
             .subscribe(this._rendererOperation$);
 
-        let textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
-            distinctUntilChanged(
-                undefined,
-                (frame: IFrame): string => {
-                    return frame.state.currentNode.key;
-                }),
-            combineLatest(this._configuration$),
+        let textureProvider$: Observable<TextureProvider> = observableCombineLatest(
+                this._navigator.stateService.currentState$.pipe(
+                    distinctUntilChanged(
+                        undefined,
+                        (frame: IFrame): string => {
+                            return frame.state.currentNode.key;
+                        })),
+                this._configuration$).pipe(
             filter(
                 (args: [IFrame, IImagePlaneConfiguration]): boolean => {
                     return args[1].imageTiling === true;

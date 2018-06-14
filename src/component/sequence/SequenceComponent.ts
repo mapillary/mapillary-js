@@ -11,7 +11,6 @@ import {
 } from "rxjs";
 
 import {
-    concat,
     takeUntil,
     share,
     skip,
@@ -511,7 +510,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._hoveredKeySubscription = this._sequenceDOMRenderer.mouseEnterDirection$.pipe(
             switchMap(
                 (direction: EdgeDirection): Observable<string> => {
-                    return edgeStatus$.pipe(
+                    const edgeTo$: Observable<string> = edgeStatus$.pipe(
                         map(
                             (edgeStatus: IEdgeStatus): string => {
                                 for (let edge of edgeStatus.edges) {
@@ -522,8 +521,9 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
                                 return null;
                             }),
-                        takeUntil(this._sequenceDOMRenderer.mouseLeaveDirection$),
-                        concat<string>(observableOf<string>(null)));
+                        takeUntil(this._sequenceDOMRenderer.mouseLeaveDirection$));
+
+                    return observableConcat(edgeTo$, observableOf<string>(null));
                 }),
             distinctUntilChanged())
             .subscribe(this._hoveredKeySubject$);

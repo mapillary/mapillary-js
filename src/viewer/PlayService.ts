@@ -3,6 +3,7 @@ import {
     empty as observableEmpty,
     from as observableFrom,
     of as observableOf,
+    zip as observableZip,
     Observable,
     Subject,
     Subscription,
@@ -16,9 +17,7 @@ import {
     refCount,
     map,
     distinctUntilChanged,
-    combineLatest,
     switchMap,
-    zip,
     retry,
     catchError,
     scan,
@@ -143,19 +142,19 @@ export class PlayService {
                     this._graphService.setGraphMode(mode);
                 });
 
-        this._cacheSubscription = this._stateService.currentNode$.pipe(
-            map(
-                (node: Node): [string, string] => {
-                    return [node.sequenceKey, node.key];
-                }),
-            distinctUntilChanged(
-                undefined,
-                ([sequenceKey, nodeKey]: [string, string]): string => {
-                    return sequenceKey;
-                }),
-            combineLatest(
+        this._cacheSubscription = observableCombineLatest(
+                this._stateService.currentNode$.pipe(
+                    map(
+                        (node: Node): [string, string] => {
+                            return [node.sequenceKey, node.key];
+                        }),
+                    distinctUntilChanged(
+                        undefined,
+                        ([sequenceKey, nodeKey]: [string, string]): string => {
+                            return sequenceKey;
+                        })),
                 this._graphService.graphMode$,
-                this._direction$),
+                this._direction$).pipe(
             switchMap(
                 ([[sequenceKey, nodeKey], mode, direction]: [[string, string], GraphMode, EdgeDirection]):
                     Observable<[Sequence, EdgeDirection]> => {
@@ -270,15 +269,16 @@ export class PlayService {
             withLatestFrom(this._direction$),
             switchMap(
                 ([[node, increasingTime], direction]: [[Node, boolean], EdgeDirection]): Observable<Node> => {
-                    return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
-                            node.sequenceEdges$ :
-                            node.spatialEdges$).pipe(
-                        first(
-                            (status: IEdgeStatus): boolean => {
-                                return status.cached;
-                            }),
-                        timeout(15000),
-                        zip(observableOf<EdgeDirection>(direction)),
+                    return observableZip(
+                            ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+                                    node.sequenceEdges$ :
+                                    node.spatialEdges$).pipe(
+                                first(
+                                    (status: IEdgeStatus): boolean => {
+                                        return status.cached;
+                                    }),
+                                timeout(15000)),
+                            observableOf<EdgeDirection>(direction)).pipe(
                         map(
                             ([s, d]: [IEdgeStatus, EdgeDirection]): string => {
                                 for (let edge of s.edges) {

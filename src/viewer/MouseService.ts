@@ -1,4 +1,5 @@
 import {
+    concat as observableConcat,
     merge as observableMerge,
     combineLatest as observableCombineLatest,
     fromEvent as observableFromEvent,
@@ -16,7 +17,6 @@ import {
     scan,
     map,
     startWith,
-    concat,
     filter,
     share,
     takeUntil,
@@ -430,8 +430,9 @@ export class MouseService {
                 }),
             switchMap(
                 (mouseMove: MouseEvent): Observable<MouseEvent> => {
-                    return observableOf(mouseMove).pipe(
-                        concat(this._documentMouseMove$),
+                    return observableConcat(
+                            observableOf(mouseMove),
+                            this._documentMouseMove$).pipe(
                         takeUntil(stop$));
                 }));
     }

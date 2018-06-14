@@ -1,6 +1,21 @@
-import {of as observableOf, from as observableFrom, Observable, Subscription} from "rxjs";
+import {
+    combineLatest as observableCombineLatest,
+    of as observableOf,
+    from as observableFrom,
+    Observable,
+    Subscription,
+} from "rxjs";
 
-import {map, filter, distinctUntilChanged, mergeMap, distinct, combineLatest, scan, pluck} from "rxjs/operators";
+import {
+    map,
+    filter,
+    distinctUntilChanged,
+    mergeMap,
+    distinct,
+    scan,
+    pluck,
+} from "rxjs/operators";
+
 import * as vd from "virtual-dom";
 
 import {ISequence} from "../API";
@@ -59,9 +74,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
     }
 
     protected _activate(): void {
-        let _slowedStream$: Observable<IFrame>;
-
-        _slowedStream$ = this._navigator.stateService.currentState$.pipe(
+        let slowedStream$: Observable<IFrame> = this._navigator.stateService.currentState$.pipe(
             filter(
                 (frame: IFrame) => {
                     return (frame.id % 2) === 0;
@@ -76,26 +89,24 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                     return frame.state.lastNode.key;
                     }));
 
-        let _routeTrack$: Observable<RouteTrack>;
-
-        _routeTrack$ = this.configuration$.pipe(
-            mergeMap(
-                (conf: IRouteConfiguration): Observable<IRoutePath> => {
-                    return observableFrom<IRoutePath>(conf.paths);
-                }),
-            distinct(
-                (p: IRoutePath): string => {
-                    return p.sequenceKey;
-                }),
-            mergeMap(
-                (path: IRoutePath): Observable<ISequence> => {
-                    return this._navigator.apiV3.sequenceByKey$([path.sequenceKey]).pipe(
-                        map(
-                            (sequenceByKey: { [sequenceKey: string]: ISequence }): ISequence => {
-                                return sequenceByKey[path.sequenceKey];
-                            }));
-                }),
-            combineLatest(
+        let routeTrack$: Observable<RouteTrack> = observableCombineLatest(
+                this.configuration$.pipe(
+                    mergeMap(
+                        (conf: IRouteConfiguration): Observable<IRoutePath> => {
+                            return observableFrom<IRoutePath>(conf.paths);
+                        }),
+                    distinct(
+                        (p: IRoutePath): string => {
+                            return p.sequenceKey;
+                        }),
+                    mergeMap(
+                        (path: IRoutePath): Observable<ISequence> => {
+                            return this._navigator.apiV3.sequenceByKey$([path.sequenceKey]).pipe(
+                                map(
+                                    (sequenceByKey: { [sequenceKey: string]: ISequence }): ISequence => {
+                                        return sequenceByKey[path.sequenceKey];
+                                    }));
+                        })),
                 this.configuration$,
                 (sequence: ISequence, conf: IRouteConfiguration): IInstructionPlace[] => {
                     let i: number = 0;
@@ -130,7 +141,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                     }
 
                     return instructionPlaces;
-                }),
+                }).pipe(
             scan(
                 (routeTrack: RouteTrack, instructionPlaces: IInstructionPlace[]): RouteTrack => {
                     for (let instructionPlace of instructionPlaces) {
@@ -153,71 +164,73 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                 },
                 new RouteTrack()));
 
-        this._disposable = _slowedStream$.pipe(
-            combineLatest(
-                _routeTrack$,
-                this.configuration$,
-                (frame: IFrame, routeTrack: RouteTrack, conf: IRouteConfiguration): IRtAndFrame => {
-                    return {conf: conf, frame: frame, routeTrack: routeTrack};
-                }),
-            scan(
-                (routeState: RouteState, rtAndFrame: IRtAndFrame): RouteState => {
-                    if (rtAndFrame.conf.playing === undefined || rtAndFrame.conf.playing) {
-                        routeState.routeTrack = rtAndFrame.routeTrack;
-                        routeState.currentNode = rtAndFrame.frame.state.currentNode;
-                        routeState.lastNode = rtAndFrame.frame.state.lastNode;
-                        routeState.playing = true;
-                    } else {
-                        this._navigator.stateService.cutNodes();
-                        routeState.playing = false;
+        const cacheNode$: any = observableCombineLatest(
+            slowedStream$,
+            routeTrack$,
+            this.configuration$,
+            (frame: IFrame, routeTrack: RouteTrack, conf: IRouteConfiguration): IRtAndFrame => {
+                return {conf: conf, frame: frame, routeTrack: routeTrack};
+            }).pipe(
+        scan(
+            (routeState: RouteState, rtAndFrame: IRtAndFrame): RouteState => {
+                if (rtAndFrame.conf.playing === undefined || rtAndFrame.conf.playing) {
+                    routeState.routeTrack = rtAndFrame.routeTrack;
+                    routeState.currentNode = rtAndFrame.frame.state.currentNode;
+                    routeState.lastNode = rtAndFrame.frame.state.lastNode;
+                    routeState.playing = true;
+                } else {
+                    this._navigator.stateService.cutNodes();
+                    routeState.playing = false;
+                }
+                return routeState;
+            },
+            new RouteState()),
+        filter(
+            (routeState: RouteState): boolean => {
+                return routeState.playing;
+            }),
+        filter(
+            (routeState: RouteState): boolean => {
+                for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
+                    if (!nodeInstruction) {
+                        continue;
                     }
-                    return routeState;
-                },
-                new RouteState()),
-            filter(
-                (routeState: RouteState): boolean => {
-                    return routeState.playing;
-                }),
-            filter(
-                (routeState: RouteState): boolean => {
-                    for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
-                        if (!nodeInstruction) {
-                            continue;
-                        }
-                        if (nodeInstruction.key === routeState.lastNode.key) {
-                            return true;
-                        }
+                    if (nodeInstruction.key === routeState.lastNode.key) {
+                        return true;
                     }
+                }
 
-                    return false;
-                }),
-            distinctUntilChanged(
-                undefined,
-                (routeState: RouteState): string => {
-                    return routeState.lastNode.key;
-                }),
-            mergeMap(
-                (routeState: RouteState): Observable<Node> => {
-                    let i: number = 0;
-                    for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
-                        if (nodeInstruction.key === routeState.lastNode.key) {
-                            break;
-                        }
-                        i++;
+                return false;
+            }),
+        distinctUntilChanged(
+            undefined,
+            (routeState: RouteState): string => {
+                return routeState.lastNode.key;
+            }),
+        mergeMap(
+            (routeState: RouteState): Observable<Node> => {
+                let i: number = 0;
+                for (let nodeInstruction of routeState.routeTrack.nodeInstructions) {
+                    if (nodeInstruction.key === routeState.lastNode.key) {
+                        break;
                     }
+                    i++;
+                }
 
-                    let nextInstruction: INodeInstruction = routeState.routeTrack.nodeInstructions[i + 1];
-                    if (!nextInstruction) {
-                        return observableOf<Node>(null);
-                    }
+                let nextInstruction: INodeInstruction = routeState.routeTrack.nodeInstructions[i + 1];
+                if (!nextInstruction) {
+                    return observableOf<Node>(null);
+                }
 
-                    return this._navigator.graphService.cacheNode$(nextInstruction.key);
-                }),
-            combineLatest(
+                return this._navigator.graphService.cacheNode$(nextInstruction.key);
+            }));
+
+        this._disposable = observableCombineLatest(
+                cacheNode$,
                 this.configuration$,
                 (node: Node, conf: IRouteConfiguration): IConfAndNode => {
                     return {conf: conf, node: node};
-                }),
+                }).pipe(
             filter(
                 (cAN: IConfAndNode) => {
                     return cAN.node !== null && cAN.conf.playing;
@@ -225,9 +238,9 @@ export class RouteComponent extends Component<IRouteConfiguration> {
             pluck<IConfAndNode, Node>("node"))
             .subscribe(this._navigator.stateService.appendNode$);
 
-        this._disposableDescription = this._navigator.stateService.currentNode$.pipe(
-            combineLatest(
-                _routeTrack$,
+        this._disposableDescription = observableCombineLatest(
+                this._navigator.stateService.currentNode$,
+                routeTrack$,
                 this.configuration$,
                 (node: Node, routeTrack: RouteTrack, conf: IRouteConfiguration): string => {
                     if (conf.playing !== undefined && !conf.playing) {
@@ -244,7 +257,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                     }
 
                     return description;
-                }),
+                }).pipe(
             scan(
                 (descriptionState: DescriptionState, description: string): DescriptionState => {
                     if (description !== descriptionState.description && description !== null) {

@@ -11,7 +11,6 @@ import {
     bufferWhen,
     mergeMap,
     take,
-    merge,
     takeUntil,
     switchMap,
     distinctUntilChanged,
@@ -86,8 +85,9 @@ export class TouchService {
                         first(),
                         switchMap(
                             (event: TouchEvent): Observable<number | TouchEvent> => {
-                                return observableTimer(300).pipe(
-                                    merge(tapStart$),
+                                return observableMerge(
+                                        observableTimer(300),
+                                        tapStart$).pipe(
                                     take(1));
                             }));
                 }),

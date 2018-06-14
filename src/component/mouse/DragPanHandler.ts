@@ -1,4 +1,5 @@
 import {
+    concat as observableConcat,
     of as observableOf,
     empty as observableEmpty,
     merge as observableMerge,
@@ -12,12 +13,10 @@ import {
     map,
     share,
     switchMap,
-    merge,
     takeWhile,
     withLatestFrom,
     pairwise,
     filter,
-    concat,
     startWith,
     distinctUntilChanged,
 } from "rxjs/operators";
@@ -110,7 +109,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 draggingStopped$)
             .subscribe(this._container.mouseService.activate$);
 
-        this._preventDefaultSubscription = observableMerge(
+        const documentMouseMove$: Observable<MouseEvent> = observableMerge(
                 draggingStarted$,
                 draggingStopped$).pipe(
             switchMap(
@@ -118,8 +117,11 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     return dragging ?
                         this._container.mouseService.documentMouseMove$ :
                         observableEmpty();
-                }),
-            merge(this._container.touchService.touchMove$))
+                }));
+
+        this._preventDefaultSubscription = observableMerge(
+                documentMouseMove$,
+                this._container.touchService.touchMove$)
             .subscribe(
                 (event: MouseEvent | TouchEvent): void => {
                     event.preventDefault(); // prevent selection of content outside the viewer
@@ -160,17 +162,19 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                         .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
                         switchMap(
                             (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
-                                return observableOf(mouseDragStart).pipe(
-                                    concat(
-                                        this._container.mouseService
-                                            .filtered$(this._component.name, this._container.mouseService.mouseDrag$)),
-                                    merge(
-                                        this._container.mouseService
-                                            .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
-                                            map(
-                                                (e: Event): MouseEvent => {
-                                                    return null;
-                                                }))),
+                                const mouseDragging$: Observable<MouseEvent> = observableConcat(
+                                    observableOf(mouseDragStart),
+                                    this._container.mouseService
+                                        .filtered$(this._component.name, this._container.mouseService.mouseDrag$));
+
+                                const mouseDragEnd$: Observable<MouseEvent> = this._container.mouseService
+                                    .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
+                                    map(
+                                        (e: Event): MouseEvent => {
+                                            return null;
+                                        }));
+
+                                return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
                                     takeWhile(
                                         (e: MouseEvent): boolean => {
                                             return !!e;

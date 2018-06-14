@@ -1,4 +1,5 @@
 import {
+    concat as observableConcat,
     merge as observableMerge,
     of as observableOf,
     combineLatest as observableCombineLatest,
@@ -7,13 +8,11 @@ import {
 } from "rxjs";
 
 import {
-    concat,
     startWith,
     withLatestFrom,
     skip,
     first,
     publishReplay,
-    merge,
     pairwise,
     switchMap,
     refCount,
@@ -325,8 +324,9 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             refCount());
 
         const visibleMarkers$: Observable<Marker[]> = observableCombineLatest(
-                observableOf<MarkerSet>(this._markerSet).pipe(
-                    concat(this._markerSet.changed$)),
+                observableConcat(
+                    observableOf<MarkerSet>(this._markerSet),
+                    this._markerSet.changed$),
                 visibleBBox$).pipe(
             map(
                 ([set, bbox]: [MarkerSet, [ILatLon, ILatLon]]): Marker[] => {

@@ -1,6 +1,19 @@
-import {from as observableFrom, combineLatest as observableCombineLatest, Observable, Subject, Subscription} from "rxjs";
+import {
+    merge as observableMerge,
+    from as observableFrom,
+    combineLatest as observableCombineLatest,
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
 
-import {withLatestFrom, merge, startWith, switchMap, map, mergeMap} from "rxjs/operators";
+import {
+    withLatestFrom,
+    startWith,
+    switchMap,
+    map,
+    mergeMap,
+} from "rxjs/operators";
 
 import {
     ComponentService,
@@ -171,8 +184,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
                     return [popup];
                 }));
 
-        this._updateAddedChangedSubscription = this._added$.pipe(
-            merge(changed$),
+        this._updateAddedChangedSubscription = observableMerge(this._added$, changed$).pipe(
             withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._container.renderService.size$,
