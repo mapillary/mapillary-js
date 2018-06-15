@@ -224,17 +224,38 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
+
+                focal: {
+                    type: "f",
+                    value: transform.focal,
+                },
+                k1: {
+                    type: "f",
+                    value: transform.ck1,
+                },
+                k2: {
+                    type: "f",
+                    value: transform.ck2,
+                },
                 opacity: {
                     type: "f",
                     value: 1,
                 },
                 projectorMat: {
                     type: "m4",
-                    value: transform.projectorMatrix(),
+                    value: transform.rt,
                 },
                 projectorTex: {
                     type: "t",
                     value: texture,
+                },
+                scale_x: {
+                    type: "f",
+                    value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
+                },
+                scale_y: {
+                    type: "f",
+                    value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight,
                 },
             },
             vertexShader: Shaders.perspective.vertex,

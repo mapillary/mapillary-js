@@ -6,16 +6,24 @@ precision mediump float;
 
 uniform sampler2D projectorTex;
 uniform float opacity;
-uniform vec4 bbox;
+uniform float focal;
+uniform float k1;
+uniform float k2;
+uniform float scale_x;
+uniform float scale_y;
 
 varying vec4 vRstq;
 
 void main()
 {
-    float x = vRstq.x / vRstq.w;
-    float y = vRstq.y / vRstq.w;
+    float x = vRstq.x / vRstq.z;
+    float y = vRstq.y / vRstq.z;
+    float r2 = x * x + y * y;
+    float d = 1.0 + k1 * r2 + k2 * r2 * r2;
+    float u = scale_x * focal * d * x + 0.5;
+    float v = - scale_y * focal * d * y + 0.5;
 
-    vec4 baseColor = texture2D(projectorTex, vec2(x, y));
+    vec4 baseColor = texture2D(projectorTex, vec2(u, v));
     baseColor.a = opacity;
 
     gl_FragColor = baseColor;
