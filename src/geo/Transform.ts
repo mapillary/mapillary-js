@@ -25,6 +25,9 @@ export class Transform {
 
     private _textureScale: number[];
 
+    private _ck1: number;
+    private _ck2: number;
+
     /**
      * Create a new transform instance.
      * @param {number} orientation - Image orientation.
@@ -47,7 +50,9 @@ export class Transform {
         rotation: number[],
         translation: number[],
         image: HTMLImageElement,
-        textureScale?: number[]) {
+        textureScale?: number[],
+        ck1?: number,
+        ck2?: number) {
 
         this._orientation = this._getValue(orientation, 1);
 
@@ -74,6 +79,17 @@ export class Transform {
         this._srt = this._getSrt(this._rt, this._scale);
 
         this._textureScale = !!textureScale ? textureScale : [1, 1];
+
+        this._ck1 = !!ck1 ? ck1 : 0;
+        this._ck2 = !!ck2 ? ck2 : 0;
+    }
+
+    public get ck1(): number {
+        return this._ck1;
+    }
+
+    public get ck2(): number {
+        return this._ck2;
     }
 
     /**

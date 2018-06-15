@@ -70,7 +70,10 @@ export abstract class StateBase implements IState {
                 node.gpano,
                 node.rotation,
                 translation,
-                node.image);
+                node.image,
+                undefined,
+                node.ck1,
+                node.ck2);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -367,7 +370,10 @@ export abstract class StateBase implements IState {
                 node.gpano,
                 node.rotation,
                 translation,
-                node.image);
+                node.image,
+                undefined,
+                node.ck1,
+                node.ck2);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -390,7 +396,10 @@ export abstract class StateBase implements IState {
                 node.gpano,
                 node.rotation,
                 translation,
-                node.image);
+                node.image,
+                undefined,
+                node.ck1,
+                node.ck2);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));

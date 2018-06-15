@@ -50,6 +50,10 @@ export interface IFillNode {
      */
     cfocal?: number;
 
+    ck1?: number;
+
+    ck2?: number;
+
     /**
      * Panorama information for panorama images.
      */

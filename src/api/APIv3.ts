@@ -114,6 +114,8 @@ export class APIv3 {
             "calt",
             "cca",
             "cfocal",
+            "ck1",
+            "ck2",
             "gpano",
             "height",
             "merge_cc",

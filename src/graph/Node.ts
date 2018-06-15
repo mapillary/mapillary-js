@@ -130,6 +130,14 @@ export class Node {
         return this._fill.captured_with_camera_uuid;
     }
 
+    public get ck1(): number {
+        return this._fill.ck1;
+    }
+
+    public get ck2(): number {
+        return this._fill.ck2;
+    }
+
     /**
      * Get computedCA.
      *
