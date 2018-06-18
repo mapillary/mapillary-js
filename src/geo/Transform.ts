@@ -23,6 +23,8 @@ export class Transform {
     private _rt: THREE.Matrix4;
     private _srt: THREE.Matrix4;
 
+    private _basicRt: THREE.Matrix4;
+
     private _textureScale: number[];
 
     private _ck1: number;
@@ -78,6 +80,8 @@ export class Transform {
         this._rt = this._getRt(rotation, translation);
         this._srt = this._getSrt(this._rt, this._scale);
 
+        this._basicRt = this._getBasicRt(this._rt, orientation);
+
         this._textureScale = !!textureScale ? textureScale : [1, 1];
 
         this._ck1 = !!ck1 ? ck1 : 0;
@@ -111,6 +115,10 @@ export class Transform {
      */
     public get basicHeight(): number {
         return this._basicHeight;
+    }
+
+    public get basicRt(): THREE.Matrix4 {
+        return this._basicRt;
     }
 
     /**
@@ -552,6 +560,29 @@ export class Transform {
         srt.scale(new THREE.Vector3(scale, scale, scale));
 
         return srt;
+    }
+
+    private _getBasicRt(rt: THREE.Matrix4, orientation: number): THREE.Matrix4 {
+        const axis: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
+        let angle: number = 0;
+
+        switch (orientation) {
+            case 3:
+                angle = Math.PI;
+                break;
+            case 6:
+                angle = Math.PI / 2;
+                break;
+            case 8:
+                angle = 3 * Math.PI / 2;
+                break;
+            default:
+                break;
+        }
+
+        return new THREE.Matrix4()
+            .makeRotationAxis(axis, angle)
+            .multiply(rt);
     }
 
     /**

@@ -243,7 +243,7 @@ export class MeshFactory {
                 },
                 projectorMat: {
                     type: "m4",
-                    value: transform.rt,
+                    value: transform.basicRt,
                 },
                 projectorTex: {
                     type: "t",
