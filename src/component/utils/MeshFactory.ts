@@ -349,6 +349,7 @@ export class MeshFactory {
     }
 
     private _getImagePlaneGeo(transform: Transform, node: Node): THREE.BufferGeometry {
+        const undistortionMarginFactor: number = 3;
         let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
 
         // push everything at least 5 meters in front of the camera
@@ -363,6 +364,11 @@ export class MeshFactory {
             let x: number = vertices[index + 0];
             let y: number = vertices[index + 1];
             let z: number = vertices[index + 2];
+
+            if (i < 4) {
+                x *= undistortionMarginFactor;
+                y *= undistortionMarginFactor;
+            }
 
             let boundedZ: number = Math.max(minZ, Math.min(z, maxZ));
             let factor: number = boundedZ / z;
