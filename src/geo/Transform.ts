@@ -355,7 +355,19 @@ export class Transform {
             let z: number = Math.cos(lat) * Math.cos(lon);
             return [x, y, z];
         } else {
-            let v: THREE.Vector3 = new THREE.Vector3(sfm[0], sfm[1], this._focal);
+            let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
+            const dr: number = Math.sqrt(dxn * dxn + dyn * dyn);
+            let d: number = 1.0;
+
+            for (let i: number = 0; i < 10; i++) {
+                const r: number = dr / d;
+                d = 1 + this._ck1 * r ** 2 + this._ck2 * r ** 4;
+            }
+
+            const xn: number = dxn / d;
+            const yn: number = dyn / d;
+
+            let v: THREE.Vector3 = new THREE.Vector3(xn, yn, 1);
             v.normalize();
             return [v.x, v.y, v.z];
         }
@@ -394,9 +406,12 @@ export class Transform {
             ];
         } else {
             if (bearing[2] > 0) {
+                let [xn, yn]: number[] = [bearing[0] / bearing[2], bearing[1] / bearing[2]];
+                const r2: number = xn * xn + yn * yn;
+                const d: number = 1 + this._ck1 * r2 + this._ck2 * r2 ** 2;
                 return [
-                    bearing[0] * this._focal / bearing[2],
-                    bearing[1] * this._focal / bearing[2],
+                    this._focal * d * xn,
+                    this._focal * d * yn,
                 ];
             } else {
                 return [
