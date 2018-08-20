@@ -132,3 +132,52 @@ describe("Lines.segmentsIntersect", () => {
         expect(intersecting).toBe(true);
     });
 });
+
+describe("Lines.segmentIntersection", () => {
+    it("should have correct intersection when left to right", () => {
+        const s1: Lines.Segment = { p1: { x: 0, y: 0 }, p2: { x: 1, y: 1 } };
+        const s2: Lines.Segment = { p1: { x: 0, y: 1 }, p2: { x: 1, y: 0 } };
+
+        const intersection: Lines.Point = Lines.segmentIntersection(s1, s2);
+
+        expect(intersection.x).toBe(0.5);
+        expect(intersection.y).toBe(0.5);
+    });
+
+    it("should have correct intersection when right to left", () => {
+        const s1: Lines.Segment = { p1: { x: 1, y: 0 }, p2: { x: 0, y: 1 } };
+        const s2: Lines.Segment = { p1: { x: 1, y: 1 }, p2: { x: 0, y: 0 } };
+
+        const intersection: Lines.Point = Lines.segmentIntersection(s1, s2);
+
+        expect(intersection.x).toBe(0.5);
+        expect(intersection.y).toBe(0.5);
+    });
+
+    it("should have no intersection when parallel", () => {
+        const s1: Lines.Segment = { p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } };
+        const s2: Lines.Segment = { p1: { x: 0, y: 1 }, p2: { x: 1, y: 1 } };
+
+        const intersection: Lines.Point = Lines.segmentIntersection(s1, s2);
+
+        expect(intersection).toBeUndefined();
+    });
+
+    it("should have no intersection when parallel and overlapping", () => {
+        const s1: Lines.Segment = { p1: { x: 0, y: 0 }, p2: { x: 2, y: 0 } };
+        const s2: Lines.Segment = { p1: { x: 1, y: 0 }, p2: { x: 3, y: 0 } };
+
+        const intersection: Lines.Point = Lines.segmentIntersection(s1, s2);
+
+        expect(intersection).toBeUndefined();
+    });
+
+    it("should have no intersection when almost parallel ", () => {
+        const s1: Lines.Segment = { p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } };
+        const s2: Lines.Segment = { p1: { x: 0, y: 0 }, p2: { x: 1, y: 1e-12 } };
+
+        const intersection: Lines.Point = Lines.segmentIntersection(s1, s2);
+
+        expect(intersection).toBeUndefined();
+    });
+});
