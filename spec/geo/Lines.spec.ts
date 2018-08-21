@@ -86,13 +86,13 @@ describe("Lines.segmentsIntersect", () => {
     });
 
     // Intersection when parallel and overlapping
-    it("should intersect when parallel and overlapping", () => {
+    it("should not intersect when parallel and overlapping", () => {
         const s1: Lines.Segment = { p1: { x: 0, y: 0 }, p2: { x: 2, y: 0 } };
         const s2: Lines.Segment = { p1: { x: 1, y: 0 }, p2: { x: 3, y: 0 } };
 
         const intersecting: boolean = Lines.segmentsIntersect(s1, s2);
 
-        expect(intersecting).toBe(true);
+        expect(intersecting).toBe(false);
     });
 
     // Intersection when endpoint colinear
@@ -126,6 +126,25 @@ describe("Lines.segmentsIntersect", () => {
     it("should intersect when end points intersect", () => {
         const s1: Lines.Segment = { p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } };
         const s2: Lines.Segment = { p1: { x: 1, y: 1 }, p2: { x: 1, y: 0 } };
+
+        const intersecting: boolean = Lines.segmentsIntersect(s1, s2);
+
+        expect(intersecting).toBe(true);
+    });
+
+    // Almost parallel up to numerical issues
+    it("should not intersect when almost parallel", () => {
+        const s1: Lines.Segment = { p1: { x: 1, y: 0 }, p2: { x: 1 + 1e-6, y: 1 } };
+        const s2: Lines.Segment = { p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } };
+
+        const intersecting: boolean = Lines.segmentsIntersect(s1, s2);
+
+        expect(intersecting).toBe(false);
+    });
+
+    it("should intersect when not really parallel", () => {
+        const s1: Lines.Segment = { p1: { x: 1, y: 0 }, p2: { x: 1 + 1e-4, y: 1 } };
+        const s2: Lines.Segment = { p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } };
 
         const intersecting: boolean = Lines.segmentsIntersect(s1, s2);
 

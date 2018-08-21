@@ -23,7 +23,7 @@ function parallel(s1: Segment, s2: Segment): boolean {
     const u2: number = ux * ux + uy * uy;
     const v2: number = vx * vx + vy * vy;
 
-    const epsilon2: number = 1e-12;
+    const epsilon2: number = 1e-10;
 
     return cross * cross < epsilon2 * u2 * v2;
 }
@@ -37,6 +37,10 @@ function tripletOrientation(p1: Point, p2: Point, p3: Point): number {
 }
 
 export function segmentsIntersect(s1: Segment, s2: Segment): boolean {
+    if (parallel(s1, s2)) {
+        return false;
+    }
+
     const o1: number = tripletOrientation(s1.p1, s1.p2, s2.p1);
     const o2: number = tripletOrientation(s1.p1, s1.p2, s2.p2);
     const o3: number = tripletOrientation(s2.p1, s2.p2, s1.p1);
