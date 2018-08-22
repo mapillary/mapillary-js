@@ -529,3 +529,51 @@ describe("ViewportCoords.basicToCanvasSafe", () => {
         expect(canvas).not.toBe(null);
     });
 });
+
+describe("ViewportCoords.basicToViewportSafe", () => {
+    let transformHelper: TransformHelper;
+
+    beforeEach(() => {
+        transformHelper = new TransformHelper();
+    });
+
+    it("should be null when behind camera", () => {
+        const perspectiveCamera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();
+        perspectiveCamera.matrixWorldInverse = new THREE.Matrix4().identity();
+
+        const transform: Transform = transformHelper.createTransform();
+        spyOn(transform, "unprojectBasic").and.returnValue([1, 1, 1]);
+
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+
+        const [basicX, basicY]: number[] = [0, 0];
+        const canvas: number[] =
+            viewportCoords.basicToViewportSafe(
+                basicX,
+                basicY,
+                transform,
+                perspectiveCamera);
+
+        expect(canvas).toBe(null);
+    });
+
+    it("should not be null when in front of camera", () => {
+        const perspectiveCamera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();
+        perspectiveCamera.matrixWorldInverse = new THREE.Matrix4().makeScale(-1, -1, -1);
+
+        const transform: Transform = transformHelper.createTransform();
+        spyOn(transform, "unprojectBasic").and.returnValue([1, 1, 1]);
+
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+
+        const [basicX, basicY]: number[] = [0, 0];
+        const canvas: number[] =
+            viewportCoords.basicToViewportSafe(
+                basicX,
+                basicY,
+                transform,
+                perspectiveCamera);
+
+        expect(canvas).not.toBe(null);
+    });
+});

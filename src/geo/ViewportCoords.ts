@@ -77,15 +77,13 @@ export class ViewportCoords {
         camera: THREE.Camera):
         number[] {
 
-        const point3d: number[] = transform.unprojectBasic([basicX, basicY], this._unprojectDepth);
-        const pointCamera: number[] = this.worldToCamera(point3d, camera);
+        const viewport: number[] = this.basicToViewportSafe(basicX, basicY, transform, camera);
 
-        if (pointCamera[2] > 0) {
+        if (viewport === null) {
             return null;
         }
 
-        const [viewportX, viewportY]: number[] = this.cameraToViewport(pointCamera, camera);
-        const canvas: number[] = this.viewportToCanvas(viewportX, viewportY, container);
+        const canvas: number[] = this.viewportToCanvas(viewport[0], viewport[1], container);
 
         return canvas;
     }
@@ -110,6 +108,38 @@ export class ViewportCoords {
         number[] {
 
         const point3d: number[] = transform.unprojectBasic([basicX, basicY], this._unprojectDepth);
+        const viewport: number[] = this.projectToViewport(point3d, camera);
+
+        return viewport;
+    }
+
+    /**
+     * Convert basic coordinates to viewport coordinates safely. If 3D point is
+     * behind camera null will be returned.
+     *
+     * @description Transform origin and camera position needs to be the
+     * equal for reliable return value.
+     *
+     * @param {number} basicX - Basic X coordinate.
+     * @param {number} basicY - Basic Y coordinate.
+     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {THREE.Camera} camera - Camera used in rendering.
+     * @returns {Array<number>} 2D viewport coordinates.
+     */
+    public basicToViewportSafe(
+        basicX: number,
+        basicY: number,
+        transform: Transform,
+        camera: THREE.Camera):
+        number[] {
+
+        const point3d: number[] = transform.unprojectBasic([basicX, basicY], this._unprojectDepth);
+        const pointCamera: number[] = this.worldToCamera(point3d, camera);
+
+        if (pointCamera[2] > 0) {
+            return null;
+        }
+
         const viewport: number[] = this.projectToViewport(point3d, camera);
 
         return viewport;
