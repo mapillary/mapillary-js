@@ -158,6 +158,10 @@ export class StateContext implements IStateContext {
         this._state.rotate(delta);
     }
 
+    public rotateWithoutInertia(delta: IRotation): void {
+        this._state.rotateWithoutInertia(delta);
+    }
+
     public rotateBasic(basicRotation: number[]): void {
         this._state.rotateBasic(basicRotation);
     }

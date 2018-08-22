@@ -133,8 +133,8 @@ export class TraversingState extends InteractiveStateBase {
 
         this._updateRotation();
         if (!this._rotationDelta.isZero) {
-            this._applyRotation(this._previousCamera);
-            this._applyRotation(this._currentCamera);
+            this._applyRotation(this._rotationDelta, this._previousCamera);
+            this._applyRotation(this._rotationDelta, this._currentCamera);
         }
 
         this._updateRotationBasic();

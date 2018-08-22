@@ -88,6 +88,26 @@ export abstract class InteractiveStateBase extends StateBase {
         }
     }
 
+    public rotateWithoutInertia(rotationDelta: IRotation): void {
+        if (this._currentNode == null) {
+            return;
+        }
+
+        this._desiredZoom = this._zoom;
+        this._desiredLookat = null;
+        this._requestedBasicRotation = null;
+        this._requestedRotationDelta = null;
+
+        const threshold: number = Math.PI / (10 * Math.pow(2, this._zoom));
+        const delta: IRotation = {
+            phi: this._spatial.clamp(rotationDelta.phi, -threshold, threshold),
+            theta: this._spatial.clamp(rotationDelta.theta, -threshold, threshold),
+        };
+
+        this._applyRotation(delta, this._currentCamera);
+        this._applyRotation(delta, this._previousCamera);
+    }
+
     public rotateBasic(basicRotation: number[]): void {
         if (this._currentNode == null) {
             return;
@@ -249,7 +269,7 @@ export abstract class InteractiveStateBase extends StateBase {
         this._desiredZoom = this._zoom;
     }
 
-    protected _applyRotation(camera: Camera): void {
+    protected _applyRotation(delta: IRotation, camera: Camera): void {
         if (camera == null) {
             return;
         }
@@ -263,10 +283,10 @@ export abstract class InteractiveStateBase extends StateBase {
         let length: number = offset.length();
 
         let phi: number = Math.atan2(offset.y, offset.x);
-        phi += this._rotationDelta.phi;
+        phi += delta.phi;
 
         let theta: number = Math.atan2(Math.sqrt(offset.x * offset.x + offset.y * offset.y), offset.z);
-        theta += this._rotationDelta.theta;
+        theta += delta.theta;
         theta = Math.max(0.1, Math.min(Math.PI - 0.1, theta));
 
         offset.x = Math.sin(theta) * Math.cos(phi);
