@@ -23,8 +23,13 @@ void main()
     float u = scale_x * focal * d * x + 0.5;
     float v = - scale_y * focal * d * y + 0.5;
 
-    vec4 baseColor = texture2D(projectorTex, vec2(u, v));
-    baseColor.a = u >= 0. && u <= 1. && v >= 0. && v <= 1. ? opacity : 0.;
+    vec4 baseColor;
+    if (u >= 0. && u <= 1. && v >= 0. && v <= 1.) {
+        baseColor = texture2D(projectorTex, vec2(u, v));
+        baseColor.a = opacity;
+    } else {
+        baseColor = vec4(0.0, 0.0, 0.0, 0.0);
+    }
 
     gl_FragColor = baseColor;
 }
