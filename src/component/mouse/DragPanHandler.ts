@@ -70,8 +70,8 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
     private _activeMouseSubscription: Subscription;
     private _activeTouchSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
-    private _rotateBasicSubscription: Subscription;
-    private _rotateBasicWithoutInertiaSubscription: Subscription;
+    private _rotateSubscription: Subscription;
+    private _rotateWithoutInertiaSubscription: Subscription;
 
     constructor(
         component: Component<IMouseConfiguration>,
@@ -249,38 +249,38 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                             render.perspective)
                                 .sub(render.perspective.position);
 
-                    let deltaPhi: number = (movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
-                    let deltaTheta: number = (movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
+                    let phi: number = (movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
+                    let theta: number = (movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
                     const distances: number[] = ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
 
-                    if (distances[0] > 0 && deltaTheta < 0) {
-                        deltaTheta /= Math.max(1, 2e2 * distances[0]);
+                    if (distances[0] > 0 && theta < 0) {
+                        theta /= Math.max(1, 2e2 * distances[0]);
                     }
 
-                    if (distances[2] > 0 && deltaTheta > 0) {
-                        deltaTheta /= Math.max(1, 2e2 * distances[2]);
+                    if (distances[2] > 0 && theta > 0) {
+                        theta /= Math.max(1, 2e2 * distances[2]);
                     }
 
-                    if (distances[1] > 0 && deltaPhi < 0) {
-                        deltaPhi /= Math.max(1, 2e2 * distances[1]);
+                    if (distances[1] > 0 && phi < 0) {
+                        phi /= Math.max(1, 2e2 * distances[1]);
                     }
 
-                    if (distances[3] > 0 && deltaPhi > 0) {
-                        deltaPhi /= Math.max(1, 2e2 * distances[3]);
+                    if (distances[3] > 0 && phi > 0) {
+                        phi /= Math.max(1, 2e2 * distances[3]);
                     }
 
-                    return { phi: deltaPhi, theta: deltaTheta };
+                    return { phi: phi, theta: theta };
                 }),
             share());
 
-        this._rotateBasicWithoutInertiaSubscription = rotation$
+        this._rotateWithoutInertiaSubscription = rotation$
             .subscribe(
                 (rotation: IRotation): void => {
                     this._navigator.stateService.rotateWithoutInertia(rotation);
                 });
 
-        this._rotateBasicSubscription = rotation$.pipe(
+        this._rotateSubscription = rotation$.pipe(
             scan(
                 (rotationBuffer: [number, IRotation][], rotation: IRotation): [number, IRotation][] => {
                     this._drainBuffer(rotationBuffer);
@@ -312,6 +312,11 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                         rotation.theta /= count;
                     }
 
+                    const threshold: number = Math.PI / 18;
+
+                    rotation.phi = this._spatial.clamp(rotation.phi, -threshold, threshold);
+                    rotation.theta = this._spatial.clamp(rotation.theta, -threshold, threshold);
+
                     return rotation;
                 }))
             .subscribe(
@@ -324,13 +329,13 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
         this._activeMouseSubscription.unsubscribe();
         this._activeTouchSubscription.unsubscribe();
         this._preventDefaultSubscription.unsubscribe();
-        this._rotateBasicSubscription.unsubscribe();
-        this._rotateBasicWithoutInertiaSubscription.unsubscribe();
+        this._rotateSubscription.unsubscribe();
+        this._rotateWithoutInertiaSubscription.unsubscribe();
 
         this._activeMouseSubscription = null;
         this._activeTouchSubscription = null;
         this._preventDefaultSubscription = null;
-        this._rotateBasicSubscription = null;
+        this._rotateSubscription = null;
     }
 
     protected _getConfiguration(enable: boolean): IMouseConfiguration {
