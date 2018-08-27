@@ -88,6 +88,49 @@ export abstract class InteractiveStateBase extends StateBase {
         }
     }
 
+    public rotateUnbounded(delta: IRotation): void {
+        if (this._currentNode == null) {
+            return;
+        }
+
+        this._requestedBasicRotation = null;
+        this._requestedRotationDelta = null;
+
+        this._applyRotation(delta, this._currentCamera);
+        this._applyRotation(delta, this._previousCamera);
+
+        if (!this._desiredLookat) {
+            return;
+        }
+
+        const q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(this._currentCamera.up, new THREE.Vector3(0, 0, 1));
+        const qInverse: THREE.Quaternion = q.clone().inverse();
+
+        const offset: THREE.Vector3 = new THREE.Vector3()
+            .copy(this._desiredLookat)
+            .sub(this._camera.position)
+            .applyQuaternion(q);
+
+        const length: number = offset.length();
+
+        let phi: number = Math.atan2(offset.y, offset.x);
+        phi += delta.phi;
+
+        let theta: number = Math.atan2(Math.sqrt(offset.x * offset.x + offset.y * offset.y), offset.z);
+        theta += delta.theta;
+        theta = Math.max(0.1, Math.min(Math.PI - 0.1, theta));
+
+        offset.x = Math.sin(theta) * Math.cos(phi);
+        offset.y = Math.sin(theta) * Math.sin(phi);
+        offset.z = Math.cos(theta);
+
+        offset.applyQuaternion(qInverse);
+
+        this._desiredLookat
+            .copy(this._camera.position)
+            .add(offset.multiplyScalar(length));
+    }
+
     public rotateWithoutInertia(rotationDelta: IRotation): void {
         if (this._currentNode == null) {
             return;

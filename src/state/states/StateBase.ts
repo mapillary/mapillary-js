@@ -162,6 +162,8 @@ export abstract class StateBase implements IState {
 
     public abstract rotate(delta: IRotation): void;
 
+    public abstract rotateUnbounded(delta: IRotation): void;
+
     public abstract rotateWithoutInertia(delta: IRotation): void;
 
     public abstract rotateBasic(basicRotation: number[]): void;

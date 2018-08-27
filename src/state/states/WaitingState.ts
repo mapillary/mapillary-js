@@ -46,6 +46,8 @@ export class WaitingState extends StateBase {
 
     public rotate(delta: IRotation): void { return; }
 
+    public rotateUnbounded(delta: IRotation): void { return; }
+
     public rotateWithoutInertia(delta: IRotation): void { return; }
 
     public rotateBasic(basicRotation: number[]): void { return; }

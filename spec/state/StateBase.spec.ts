@@ -12,6 +12,7 @@ class TestStateBase extends StateBase {
     public move(delta: number): void { return; }
     public moveTo(position: number): void { return; }
     public rotate(delta: IRotation): void { return; }
+    public rotateUnbounded(delta: IRotation): void { return; }
     public rotateWithoutInertia(delta: IRotation): void { return; }
     public rotateBasic(basicRotation: number[]): void { return; }
     public rotateBasicUnbounded(basic: number[]): void { return; }
