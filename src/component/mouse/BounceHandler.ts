@@ -1,9 +1,12 @@
+import * as THREE from "three";
+
 import {empty as observableEmpty, combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
 
 import {first, map, distinctUntilChanged, switchMap} from "rxjs/operators";
 
 import {
     Component,
+    ImageBoundary,
     IMouseConfiguration,
     HandlerBase,
 } from "../../Component";
@@ -29,10 +32,6 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
-    private _basicDistanceThreshold: number;
-    private _basicRotationThreshold: number;
-    private _bounceCoeff: number;
-
     private _bounceSubscription: Subscription;
 
     constructor(
@@ -45,10 +44,6 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
 
         this._spatial = spatial;
         this._viewportCoords = viewportCoords;
-
-        this._basicDistanceThreshold = 1e-3;
-        this._basicRotationThreshold = 5e-2;
-        this._bounceCoeff = 1e-1;
     }
 
     protected _enable(): void {
@@ -77,64 +72,46 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
                             this._navigator.stateService.currentTransform$.pipe(first()));
                 }))
             .subscribe(
-                (args: [RenderCamera, Transform]): void => {
-                    let renderCamera: RenderCamera = args[0];
-                    let perspectiveCamera: THREE.PerspectiveCamera = renderCamera.perspective;
-                    let transform: Transform = args[1];
-
-                    if (!transform.hasValidScale && renderCamera.camera.focal < 0.1) {
+                ([render, transform]: [RenderCamera, Transform]): void => {
+                    if (!transform.hasValidScale && render.camera.focal < 0.1) {
                         return;
                     }
 
-                    if (renderCamera.perspective.aspect === 0 || renderCamera.perspective.aspect === Number.POSITIVE_INFINITY) {
+                    if (render.perspective.aspect === 0 || render.perspective.aspect === Number.POSITIVE_INFINITY) {
                         return;
                     }
 
-                    let distanceThreshold: number = this._basicDistanceThreshold / Math.pow(2, renderCamera.zoom);
-                    let basicCenter: number[] = this._viewportCoords.viewportToBasic(0, 0, transform, perspectiveCamera);
+                    const distances: number[] = ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
 
-                    if (Math.abs(basicCenter[0] - 0.5) < distanceThreshold && Math.abs(basicCenter[1] - 0.5) < distanceThreshold) {
+                    if (Math.max(...distances) < 0.01) {
                         return;
                     }
 
-                    let basicDistances: number[] = this._viewportCoords.getBasicDistances(transform, perspectiveCamera);
-                    let basicX: number = 0;
-                    let basicY: number = 0;
+                    const horizontalDistance: number = distances[1] - distances[3];
+                    const verticalDistance: number = distances[0] - distances[2];
 
-                    if (basicDistances[0] < distanceThreshold && basicDistances[1] < distanceThreshold &&
-                        basicDistances[2] < distanceThreshold && basicDistances[3] < distanceThreshold) {
-                        return;
-                    }
+                    const currentDirection: THREE.Vector3 = this._viewportCoords
+                        .unprojectFromViewport(0, 0, render.perspective)
+                        .sub(render.perspective.position);
 
-                    if (Math.abs(basicDistances[0] - basicDistances[2]) < distanceThreshold &&
-                        Math.abs(basicDistances[1] - basicDistances[3]) < distanceThreshold) {
-                        return;
-                    }
+                    const directionPhi: THREE.Vector3 = this._viewportCoords
+                            .unprojectFromViewport(horizontalDistance, 0, render.perspective)
+                            .sub(render.perspective.position);
 
-                    let coeff: number = this._bounceCoeff;
+                    const directionTheta: THREE.Vector3 = this._viewportCoords
+                        .unprojectFromViewport(0, verticalDistance, render.perspective)
+                        .sub(render.perspective.position);
 
-                    if (basicDistances[1] > 0 && basicDistances[3] === 0) {
-                        basicX = -coeff * basicDistances[1];
-                    } else if (basicDistances[1] === 0 && basicDistances[3] > 0) {
-                        basicX = coeff * basicDistances[3];
-                    } else if (basicDistances[1] > 0 && basicDistances[3] > 0) {
-                        basicX = coeff * (basicDistances[3] - basicDistances[1]) / 2;
-                    }
+                    let phi: number = (horizontalDistance > 0 ? 1 : -1) * directionPhi.angleTo(currentDirection);
+                    let theta: number = (verticalDistance > 0 ? 1 : -1) * directionTheta.angleTo(currentDirection);
 
-                    if (basicDistances[0] > 0 && basicDistances[2] === 0) {
-                        basicY = coeff * basicDistances[0];
-                    } else if (basicDistances[0] === 0 && basicDistances[2] > 0) {
-                        basicY = -coeff * basicDistances[2];
-                    } else if (basicDistances[0] > 0 && basicDistances[2] > 0) {
-                        basicY = coeff * (basicDistances[0] - basicDistances[2]) / 2;
-                    }
+                    const threshold: number = Math.PI / 60;
+                    const coeff: number = 1e-1;
 
-                    let rotationThreshold: number = this._basicRotationThreshold;
+                    phi = this._spatial.clamp(coeff * phi, -threshold, threshold);
+                    theta = this._spatial.clamp(coeff * theta, -threshold, threshold);
 
-                    basicX = this._spatial.clamp(basicX, -rotationThreshold, rotationThreshold);
-                    basicY = this._spatial.clamp(basicY, -rotationThreshold, rotationThreshold);
-
-                    this._navigator.stateService.rotateBasicUnbounded([basicX, basicY]);
+                    this._navigator.stateService.rotateUnbounded({ phi: phi, theta: theta });
                 });
     }
 
@@ -142,7 +119,7 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
         this._bounceSubscription.unsubscribe();
     }
 
-    protected _getConfiguration(enable: boolean): IMouseConfiguration {
+    protected _getConfiguration(): IMouseConfiguration {
         return { };
     }
 }
