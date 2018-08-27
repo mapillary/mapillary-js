@@ -30,6 +30,8 @@ export class Transform {
     private _ck1: number;
     private _ck2: number;
 
+    private _radialPeak: number;
+
     /**
      * Create a new transform instance.
      * @param {number} orientation - Image orientation.
@@ -86,6 +88,8 @@ export class Transform {
 
         this._ck1 = !!ck1 ? ck1 : 0;
         this._ck2 = !!ck2 ? ck2 : 0;
+
+        this._radialPeak = this._getRadialPeak(this._ck1, this._ck2);
     }
 
     public get ck1(): number {
@@ -356,11 +360,17 @@ export class Transform {
             return [x, y, z];
         } else {
             let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
+            const rp: number = this._radialPeak;
             const dr: number = Math.sqrt(dxn * dxn + dyn * dyn);
             let d: number = 1.0;
 
             for (let i: number = 0; i < 10; i++) {
-                const r: number = dr / d;
+                let r: number = dr / d;
+
+                if (r > rp) {
+                    r = rp;
+                }
+
                 d = 1 + this._ck1 * r ** 2 + this._ck2 * r ** 4;
             }
 
@@ -407,7 +417,13 @@ export class Transform {
         } else {
             if (bearing[2] > 0) {
                 let [xn, yn]: number[] = [bearing[0] / bearing[2], bearing[1] / bearing[2]];
-                const r2: number = xn * xn + yn * yn;
+                let r2: number = xn * xn + yn * yn;
+                const rp2: number = this._radialPeak ** 2;
+
+                if (r2 > rp2) {
+                    r2 = rp2;
+                }
+
                 const d: number = 1 + this._ck1 * r2 + this._ck2 * r2 ** 2;
                 return [
                     this._focal * d * xn,
@@ -598,6 +614,29 @@ export class Transform {
         return new THREE.Matrix4()
             .makeRotationAxis(axis, angle)
             .multiply(rt);
+    }
+
+    private _getRadialPeak(k1: number, k2: number): number {
+        const a: number = 5 * k2;
+        const b: number = 3 * k1;
+        const c: number = 1;
+        const d: number = b ** 2 - 4 * a * c;
+
+        if (d < 0) {
+            return undefined;
+        }
+
+        const root1: number = (-b - Math.sqrt(d)) / 2 / a;
+        const root2: number = (-b + Math.sqrt(d)) / 2 / a;
+
+        const minRoot: number = Math.min(root1, root2);
+        const maxRoot: number = Math.max(root1, root2);
+
+        return minRoot > 0 ?
+            Math.sqrt(minRoot) :
+            maxRoot > 0 ?
+                Math.sqrt(maxRoot) :
+                undefined;
     }
 
     /**
