@@ -30,6 +30,8 @@ export {DragPanHandler} from "./component/mouse/DragPanHandler";
 export {DoubleClickZoomHandler} from "./component/mouse/DoubleClickZoomHandler";
 export {ScrollZoomHandler} from "./component/mouse/ScrollZoomHandler";
 export {TouchZoomHandler} from "./component/mouse/TouchZoomHandler";
+import * as ImageBoundary from "./component/mouse/ImageBoundary";
+export {ImageBoundary};
 export {Popup} from "./component/popup/popup/Popup";
 export {PopupComponent} from "./component/popup/PopupComponent";
 export {PopupAlignment} from "./component/popup/popup/PopupAlignment";

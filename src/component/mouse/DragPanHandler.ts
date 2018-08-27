@@ -25,13 +25,12 @@ import * as THREE from "three";
 
 import {
     Component,
+    ImageBoundary,
     IMouseConfiguration,
     HandlerBase,
     MouseTouchPair,
 } from "../../Component";
 import {
-    Camera,
-    Lines,
     Spatial,
     Transform,
     ViewportCoords,
@@ -253,146 +252,21 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     let deltaPhi: number = (movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
                     let deltaTheta: number = (movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
-                    const boundaryPointsBasic: number[][] = this._basicBoundaryPoints(30);
-                    const boundaryPointsViewport: number[][] = boundaryPointsBasic
-                        .map(
-                            (basic: number[]) => {
-                                return this._viewportCoords.basicToViewportSafe(basic[0], basic[1], transform, render.perspective);
-                            });
+                    const distances: number[] = ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
 
-                    function _insideViewport(x: number, y: number): boolean {
-                        return x >= -1 && x <= 1 && y >= -1 && y <= 1;
-                    }
-
-                    const visibleBoundaryPoints: number[][] = [];
-                    const viewportSides: Lines.Point[] = [
-                        { x: -1, y: 1 },
-                        { x: 1, y: 1 },
-                        { x: 1, y: -1 },
-                        { x: -1, y: -1 }];
-
-                    const intersections: boolean[] = [false, false, false, false];
-
-                    for (let i: number = 0; i < boundaryPointsViewport.length; i++) {
-                        const p1: number[] = boundaryPointsViewport[i];
-                        const p2: number[] = boundaryPointsViewport[(i + 1) % boundaryPointsViewport.length];
-
-                        if (p1 === null) {
-                            continue;
-                        }
-
-                        if (p2 === null) {
-                            if (_insideViewport(p1[0], p1[1])) {
-                                visibleBoundaryPoints.push(p1);
-                            }
-
-                            continue;
-                        }
-
-                        const [x1, y1]: number[] = p1;
-                        const [x2, y2]: number[] = p2;
-
-                        if (_insideViewport(x1, y1)) {
-                            if (_insideViewport(x2, y2)) {
-                                visibleBoundaryPoints.push(p1);
-                            } else {
-                                for (let side: number = 0; side < 4; side++) {
-                                    const s1: Lines.Segment = { p1: { x: x1, y: y1 }, p2: { x: x2, y: y2 } };
-                                    const s2: Lines.Segment = { p1: viewportSides[side], p2: viewportSides[(side + 1) % 4] };
-
-                                    const intersecting: boolean = Lines.segmentsIntersect(s1, s2);
-
-                                    if (intersecting) {
-                                        const intersection: Lines.Point = Lines.segmentIntersection(s1, s2);
-
-                                        visibleBoundaryPoints.push(p1, [intersection.x, intersection.y]);
-                                        intersections[side] = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    const [topLeftBasicX, topLeftBasicY]: number[] =
-                        this._viewportCoords.viewportToBasic(-1, 1, transform, render.perspective);
-
-                    const [topRightBasicX, topRightBasicY]: number[] =
-                        this._viewportCoords.viewportToBasic(1, 1, transform, render.perspective);
-
-                    const [bottomRightBasicX, bottomRightBasicY]: number[] =
-                        this._viewportCoords.viewportToBasic(1, -1, transform, render.perspective);
-
-                    const [bottomLeftBasicX, bottomLeftBasicY]: number[] =
-                        this._viewportCoords.viewportToBasic(-1, -1, transform, render.perspective);
-
-                    function _insideBasic(x: number, y: number): boolean {
-                        return x >= 0 && x <= 1 && y >= 0 && y <= 1;
-                    }
-
-                    if (_insideBasic(topLeftBasicX, topLeftBasicY)) {
-                        intersections[3] = intersections[0] = true;
-                    }
-
-                    if (_insideBasic(topRightBasicX, topRightBasicY)) {
-                        intersections[0] = intersections[1] = true;
-                    }
-
-                    if (_insideBasic(bottomRightBasicX, bottomRightBasicY)) {
-                        intersections[1] = intersections[2] = true;
-                    }
-
-                    if (_insideBasic(bottomLeftBasicX, bottomLeftBasicY)) {
-                        intersections[2] = intersections[3] = true;
-                    }
-
-                    const maximums: number[] = [-1, -1, 1, 1];
-
-                    for (let visibleBoundaryPoint of visibleBoundaryPoints) {
-                        const x: number = visibleBoundaryPoint[0];
-                        const y: number = visibleBoundaryPoint[1];
-
-                        if (x > maximums[1]) {
-                            maximums[1] = x;
-                        }
-
-                        if (x < maximums[3]) {
-                            maximums[3] = x;
-                        }
-
-                        if (y > maximums[0]) {
-                            maximums[0] = y;
-                        }
-
-                        if (y < maximums[2]) {
-                            maximums[2] = y;
-                        }
-                    }
-
-                    const boundary: number[] = [1, 1, -1, -1];
-                    const distances: number[] = [];
-
-                    for (let side: number = 0; side < 4; side++) {
-                        if (intersections[side]) {
-                            distances.push(0);
-                            continue;
-                        }
-
-                        distances.push(Math.abs(boundary[side] - maximums[side]));
-                    }
-
-                    if (!intersections[0] && deltaTheta < 0) {
+                    if (distances[0] > 0 && deltaTheta < 0) {
                         deltaTheta /= Math.max(1, 2e2 * distances[0]);
                     }
 
-                    if (!intersections[2] && deltaTheta > 0) {
+                    if (distances[2] > 0 && deltaTheta > 0) {
                         deltaTheta /= Math.max(1, 2e2 * distances[2]);
                     }
 
-                    if (!intersections[1] && deltaPhi < 0) {
+                    if (distances[1] > 0 && deltaPhi < 0) {
                         deltaPhi /= Math.max(1, 2e2 * distances[1]);
                     }
 
-                    if (!intersections[3] && deltaPhi > 0) {
+                    if (distances[3] > 0 && deltaPhi > 0) {
                         deltaPhi /= Math.max(1, 2e2 * distances[3]);
                     }
 
