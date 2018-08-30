@@ -221,6 +221,15 @@ export class Transform {
     }
 
     /**
+     * Get radial peak.
+     * @returns {number} Value indicating the radius where the radial
+     * undistortion function peaks.
+     */
+    public get radialPeak(): number {
+        return this._radialPeak;
+    }
+
+    /**
      * Get width.
      *
      * @description Falls back to the node image width if

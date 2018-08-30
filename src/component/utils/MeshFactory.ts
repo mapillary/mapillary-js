@@ -249,6 +249,10 @@ export class MeshFactory {
                     type: "t",
                     value: texture,
                 },
+                radial_peak: {
+                    type: "f",
+                    value: transform.radialPeak,
+                },
                 scale_x: {
                     type: "f",
                     value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
