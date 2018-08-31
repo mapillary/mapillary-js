@@ -251,7 +251,7 @@ export class MeshFactory {
                 },
                 radial_peak: {
                     type: "f",
-                    value: transform.radialPeak,
+                    value: !!transform.radialPeak ? transform.radialPeak : 0,
                 },
                 scale_x: {
                     type: "f",
