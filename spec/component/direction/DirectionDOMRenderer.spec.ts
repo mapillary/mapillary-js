@@ -10,6 +10,8 @@ import {
     RenderMode,
 } from "../../../src/Render";
 import {Navigator} from "../../../src/Viewer";
+import {IFrame} from "../../../src/State";
+import { FrameHelper } from "../../helper/FrameHelper.spec";
 
 describe("DirectionDOMRenderer.ctor", () => {
     it("should be defined", () => {
@@ -164,9 +166,10 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(false);
 
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
-        renderCamera.camera.up.fromArray([0, 0, 1]);
-        renderCamera.camera.lookat.fromArray([1, 1, 0]);
-        renderCamera.updateRotation(renderCamera.camera);
+        const frame: IFrame = new FrameHelper().createFrame();
+        frame.state.camera.up.fromArray([0, 0, 1]);
+        frame.state.camera.lookat.fromArray([1, 1, 0]);
+        renderCamera.setFrame(frame);
         renderer.setRenderCamera(renderCamera);
 
         expect(renderer.needsRender).toBe(true);

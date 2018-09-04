@@ -2,7 +2,7 @@ import {NodeHelper} from "./NodeHelper.spec";
 import {TransformHelper} from "./TransformHelper.spec";
 
 import {IGPano} from "../../src/API";
-import {Transform} from "../../src/Geo";
+import {Transform, Camera} from "../../src/Geo";
 import {Node} from "../../src/Graph";
 import {IFrame} from "../../src/State";
 
@@ -19,8 +19,8 @@ export class FrameHelper {
             id: 0,
             state: {
                 alpha: 0,
-                camera: undefined,
-                currentCamera: undefined,
+                camera: new Camera(),
+                currentCamera: new Camera(),
                 currentIndex: 0,
                 currentNode: currentNode,
                 currentTransform: currentTransform,

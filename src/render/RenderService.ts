@@ -28,7 +28,7 @@ export class RenderService {
 
     private _renderMode$: BehaviorSubject<RenderMode>;
 
-    constructor(element: HTMLElement, currentFrame$: Observable<IFrame>, renderMode: RenderMode) {
+    constructor(element: HTMLElement, currentFrame$: Observable<IFrame>, renderMode: RenderMode, renderCamera?: RenderCamera) {
         this._element = element;
         this._currentFrame$ = currentFrame$;
 
@@ -64,54 +64,15 @@ export class RenderService {
                 (rc: RenderCamera, operation: IRenderCameraOperation): RenderCamera => {
                     return operation(rc);
                 },
-                new RenderCamera(this._element.offsetWidth, this._element.offsetHeight, renderMode)),
+                !!renderCamera ? renderCamera : new RenderCamera(this._element.offsetWidth, this._element.offsetHeight, renderMode)),
             publishReplay(1),
             refCount());
 
         this._renderCameraFrame$ = this._currentFrame$.pipe(
-            withLatestFrom(
-                this._renderCameraHolder$,
-                (frame: IFrame, renderCamera: RenderCamera): [IFrame, RenderCamera] => {
-                    return [frame, renderCamera];
-                }),
+            withLatestFrom(this._renderCameraHolder$),
             tap(
-                (args: [IFrame, RenderCamera]): void => {
-                    let frame: IFrame = args[0];
-                    let rc: RenderCamera = args[1];
-
-                    let camera: Camera = frame.state.camera;
-
-                    if (rc.alpha !== frame.state.alpha ||
-                        rc.zoom !== frame.state.zoom ||
-                        rc.camera.diff(camera) > 1e-9) {
-
-                        let currentTransform: Transform = frame.state.currentTransform;
-                        let previousTransform: Transform =
-                            frame.state.previousTransform != null ?
-                                frame.state.previousTransform :
-                                frame.state.currentTransform;
-
-                        let previousNode: Node =
-                            frame.state.previousNode != null ?
-                                frame.state.previousNode :
-                                frame.state.currentNode;
-
-                        rc.currentAspect = currentTransform.basicAspect;
-                        rc.currentPano = frame.state.currentNode.pano;
-                        rc.previousAspect = previousTransform.basicAspect;
-                        rc.previousPano = previousNode.pano;
-
-                        rc.alpha = frame.state.alpha;
-                        rc.zoom = frame.state.zoom;
-
-                        rc.camera.copy(camera);
-                        rc.updatePerspective(camera);
-                        rc.updateRotation(camera);
-
-                        rc.updateProjection();
-                    }
-
-                    rc.frameId = frame.id;
+                ([frame, rc]: [IFrame, RenderCamera]): void => {
+                    rc.setFrame(frame);
                 }),
             map(
                 (args: [IFrame, RenderCamera]): RenderCamera => {
@@ -130,10 +91,10 @@ export class RenderService {
 
         this._bearing$ = this._renderCamera$.pipe(
             map(
-                (renderCamera: RenderCamera): number => {
+                (rc: RenderCamera): number => {
                     let bearing: number =
                         this._spatial.radToDeg(
-                            this._spatial.azimuthalToBearing(renderCamera.rotation.phi));
+                            this._spatial.azimuthalToBearing(rc.rotation.phi));
 
                     return this._spatial.wrap(bearing, 0, 360);
                 }),
@@ -145,8 +106,7 @@ export class RenderService {
             map(
                 (size: ISize) => {
                     return (rc: RenderCamera): RenderCamera => {
-                        rc.updateAspect(size.width, size.height);
-                        rc.updateProjection();
+                        rc.setSize(size);
 
                         return rc;
                     };
@@ -158,8 +118,7 @@ export class RenderService {
             map(
                 (rm: RenderMode) => {
                     return (rc: RenderCamera): RenderCamera => {
-                        rc.renderMode = rm;
-                        rc.updateProjection();
+                        rc.setRenderMode(rm);
 
                         return rc;
                     };
