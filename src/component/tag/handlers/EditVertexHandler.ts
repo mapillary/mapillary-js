@@ -143,23 +143,21 @@ export class EditVertexHandler extends TagHandlerBase {
                 });
 
         this._updateGeometrySubscription = interaction$.pipe(
-            withLatestFrom(mouseMove$),
             switchMap(
-                ([interaction, mouseMove]: [IInteraction, MouseEvent]): Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
+                (interaction: IInteraction): Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
                     if (interaction.operation === TagOperation.None || !interaction.tag) {
                         return observableEmpty();
                     }
 
-                    const mouseDrag$: Observable<MouseEvent> = observableConcat(
-                            observableOf<MouseEvent>(mouseMove),
-                            this._container.mouseService
-                                .filtered$(
-                                    this._name,
-                                    this._container.mouseService.domMouseDrag$).pipe(
-                                filter(
-                                    (event: MouseEvent): boolean => {
-                                        return this._viewportCoords.insideElement(event, this._container.element);
-                                    })));
+                    const mouseDrag$: Observable<MouseEvent> =
+                        this._container.mouseService
+                            .filtered$(
+                                this._name,
+                                this._container.mouseService.domMouseDrag$).pipe(
+                            filter(
+                                (event: MouseEvent): boolean => {
+                                    return this._viewportCoords.insideElement(event, this._container.element);
+                                }));
 
                     return observableCombineLatest<MouseEvent, RenderCamera>(
                             mouseDrag$,
