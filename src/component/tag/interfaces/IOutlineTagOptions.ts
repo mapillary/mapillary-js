@@ -1,4 +1,5 @@
 import {Alignment} from "../../../Viewer";
+import {TagDomain} from "../../../Component";
 
 /**
  * Interface for the options that define the behavior and
@@ -8,7 +9,23 @@ import {Alignment} from "../../../Viewer";
  */
 export interface IOutlineTagOptions {
     /**
+     * The domain where lines between vertices are treated as straight.
+     *
+     * @description Only applicable for tags that renders polygons.
+     *
+     * If the domain is specified as two dimensional, editing of the
+     * polygon will be disabled.
+     *
+     * @default {TagDomain.TwoDimensional}
+     */
+    domain?: TagDomain;
+
+    /**
      * Indicate whether the tag geometry should be editable.
+     *
+     * @description Polygon tags with two dimensional domain
+     * are never editable.
+     *
      * @default false
      */
     editable?: boolean;

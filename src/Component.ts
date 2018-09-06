@@ -66,6 +66,7 @@ export {OutlineRenderTag} from "./component/tag/tag/OutlineRenderTag";
 export {OutlineCreateTag} from "./component/tag/tag/OutlineCreateTag";
 export {SpotTag} from "./component/tag/tag/SpotTag";
 export {SpotRenderTag} from "./component/tag/tag/SpotRenderTag";
+export {TagDomain} from "./component/tag/tag/TagDomain";
 export {TagComponent} from "./component/tag/TagComponent";
 export {TagCreator} from "./component/tag/TagCreator";
 export {TagDOMRenderer} from "./component/tag/TagDOMRenderer";

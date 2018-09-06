@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
@@ -438,7 +440,7 @@ export class RectGeometry extends VertexGeometry {
      * representing the rectangle.
      */
     public getPoints3d(transform: Transform): number[][] {
-        return this._getPoints2d(transform)
+        return this._getPoints2d()
             .map(
                 (point: number[]) => {
                     return transform.unprojectBasic(point, 200);
@@ -558,7 +560,9 @@ export class RectGeometry extends VertexGeometry {
 
     /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
-        return this._triangulate(this._rectToVertices2d(this._rect), this.getVertices3d(transform));
+        return this._triangulate(
+            this._project(this._getPoints2d(), transform),
+            this.getPoints3d(transform));
     }
 
     /**
@@ -585,12 +589,10 @@ export class RectGeometry extends VertexGeometry {
      * Get the 2D coordinates for the vertices of the rectangle with
      * interpolated points along the lines.
      *
-     * @param {Transform} transform - The transform of the node related to
-     * the rectangle.
      * @returns {Array<Array<number>>} Polygon array of 2D basic coordinates
      * representing the rectangle.
      */
-    private _getPoints2d(transform: Transform): number[][] {
+    private _getPoints2d(): number[][] {
         let vertices2d: number[][] = this._rectToVertices2d(this._rect);
 
         let sides: number = vertices2d.length - 1;

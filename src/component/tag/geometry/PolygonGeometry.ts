@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
@@ -200,7 +202,7 @@ export class PolygonGeometry extends VertexGeometry {
 
     /** @inheritdoc */
     public getPoints3d(transform: Transform): number[][] {
-        return this.getVertices3d(transform);
+        return this._getPoints3d(this._subsample(this._polygon, 0.01), transform);
     }
 
     /** @inheritdoc */
@@ -215,11 +217,7 @@ export class PolygonGeometry extends VertexGeometry {
 
     /** @inheritdoc */
     public getVertices3d(transform: Transform): number[][] {
-        return this._polygon
-            .map(
-                (point: number[]) => {
-                    return transform.unprojectBasic(point, 200);
-                });
+        return this._getPoints3d(this._polygon, transform);
     }
 
     /**
@@ -282,10 +280,18 @@ export class PolygonGeometry extends VertexGeometry {
         return transform.unprojectBasic(centroid2d, 200);
     }
 
+    public get3dDomainTriangles3d(transform: Transform): number[] {
+        return this._triangulate(
+            this._project(this._polygon, transform),
+            this.getVertices3d(transform),
+            this._holes,
+            this.getHoleVertices3d(transform));
+    }
+
     /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
         return this._triangulate(
-            this._polygon,
+            this._project(this._subsample(this._polygon, 0.01), transform),
             this.getPoints3d(transform),
             this._holes,
             this.getHoleVertices3d(transform));
@@ -301,6 +307,43 @@ export class PolygonGeometry extends VertexGeometry {
         let pole2d: number[] = this._getPoleOfInaccessibility2d(this._polygon.slice());
 
         return transform.unprojectBasic(pole2d, 200);
+    }
+
+    private _getPoints3d(points2d: number[][], transform: Transform): number[][] {
+        return points2d
+            .map(
+                (point: number[]) => {
+                    return transform.unprojectBasic(point, 200);
+                });
+    }
+
+    private _subsample(points2d: number[][], threshold: number): number[][] {
+        const subsampled: number[][] = [];
+        const length: number = points2d.length;
+
+        for (let index: number = 0; index < length; index++) {
+            const p1: number[] = points2d[index];
+            const p2: number[] = points2d[(index + 1) % length];
+
+            subsampled.push(p1);
+
+            const dist: number = Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+            const subsamples: number = Math.floor(dist / threshold);
+            const coeff: number = 1 / (subsamples + 1);
+
+            for (let i: number = 1; i <= subsamples; i++) {
+                const alpha: number = i * coeff;
+
+                const subsample: number[] = [
+                    (1 - alpha) * p1[0] + alpha * p2[0],
+                    (1 - alpha) * p1[1] + alpha * p2[1],
+                ];
+
+                subsampled.push(subsample);
+            }
+        }
+
+        return subsampled;
     }
 }
 

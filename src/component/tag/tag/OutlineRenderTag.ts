@@ -10,6 +10,7 @@ import {
     PolygonGeometry,
     RectGeometry,
     RenderTag,
+    TagDomain,
     TagOperation,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
@@ -287,7 +288,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     }
 
     private _createFill(): THREE.Mesh {
-        let triangles: number[] = this._tag.geometry.getTriangles3d(this._transform);
+        let triangles: number[] = this._getTriangles();
         let positions: Float32Array = new Float32Array(triangles);
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -335,8 +336,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     }
 
     private _createOutline(): THREE.Line {
-        let points3d: number[][] = this._tag.geometry.getPoints3d(this._transform);
-        return this._createLine(points3d);
+        return this._createLine(this._getPoints3d());
     }
 
     private _disposeFill(): void {
@@ -384,6 +384,22 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         return positions;
     }
 
+    private _getPoints3d(): number[][] {
+        return this._in3dDomain() ?
+            (<PolygonGeometry>this._tag.geometry).getVertices3d(this._transform) :
+            this._tag.geometry.getPoints3d(this._transform);
+    }
+
+    private _getTriangles(): number[] {
+        return this._in3dDomain() ?
+            (<PolygonGeometry>this._tag.geometry).get3dDomainTriangles3d(this._transform) :
+            this._tag.geometry.getTriangles3d(this._transform);
+    }
+
+    private _in3dDomain(): boolean {
+        return this._tag.geometry instanceof PolygonGeometry && this._tag.domain === TagDomain.ThreeDimensional;
+    }
+
     private _interact(operation: TagOperation, cursor?: InteractionCursor, vertexIndex?: number): (e: MouseEvent) => void {
         return (e: MouseEvent): void => {
             let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
@@ -401,7 +417,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     }
 
     private _updateFillGeometry(): void {
-        let triangles: number[] = this._tag.geometry.getTriangles3d(this._transform);
+        let triangles: number[] = this._getTriangles();
         let positions: Float32Array = new Float32Array(triangles);
 
         let geometry: THREE.BufferGeometry = <THREE.BufferGeometry>this._fill.geometry;
@@ -461,9 +477,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     }
 
     private _updateOulineGeometry(): void {
-        let points3d: number[][] = this._tag.geometry.getPoints3d(this._transform);
-
-        this._updateLine(this._outline, points3d);
+        this._updateLine(this._outline, this._getPoints3d());
     }
 
     private _updateOutlineMaterial(): void {

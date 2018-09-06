@@ -243,7 +243,10 @@ export class OutlineCreateTag {
     }
 
     private _createOutine(): THREE.Line {
-        const polygon3d: number[][] = this._geometry.getPoints3d(this._transform);
+        const polygon3d: number[][] = this._geometry instanceof RectGeometry ?
+            this._geometry.getPoints3d(this._transform) :
+            (<PolygonGeometry>this._geometry).getVertices3d(this._transform);
+
         const positions: Float32Array = this._getLinePositions(polygon3d);
 
         const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();

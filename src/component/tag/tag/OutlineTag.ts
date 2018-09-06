@@ -2,7 +2,10 @@ import {Subject} from "rxjs";
 
 import {
     IOutlineTagOptions,
+    PolygonGeometry,
+    RectGeometry,
     Tag,
+    TagDomain,
     VertexGeometry,
 } from "../../../Component";
 import {Alignment} from "../../../Viewer";
@@ -34,6 +37,7 @@ export class OutlineTag extends Tag {
 
     protected _geometry: VertexGeometry;
 
+    private _domain: TagDomain;
     private _editable: boolean;
     private _icon: string;
     private _iconFloat: Alignment;
@@ -64,7 +68,13 @@ export class OutlineTag extends Tag {
 
         options = !!options ? options : {};
 
-        this._editable = options.editable == null ? false : options.editable;
+        const domain: TagDomain = options.domain != null && geometry instanceof PolygonGeometry ?
+            options.domain : TagDomain.TwoDimensional;
+
+        const twoDimensionalPolygon: boolean = this._twoDimensionalPolygon(domain, geometry);
+
+        this._domain = domain;
+        this._editable = options.editable == null || twoDimensionalPolygon ? false : options.editable;
         this._fillColor = options.fillColor == null ? 0xFFFFFF : options.fillColor;
         this._fillOpacity = options.fillOpacity == null ? 0.0 : options.fillOpacity;
         this._icon = options.icon === undefined ? null : options.icon;
@@ -99,6 +109,17 @@ export class OutlineTag extends Tag {
     }
 
     /**
+     * Get domain property.
+     *
+     * @description Readonly property that can only be set in constructor.
+     *
+     * @returns Value indicating the domain of the tag.
+     */
+    public get domain(): TagDomain {
+        return this._domain;
+    }
+
+    /**
      * Get editable property.
      * @returns {boolean} Value indicating if tag is editable.
      */
@@ -113,6 +134,10 @@ export class OutlineTag extends Tag {
      * @fires Tag#changed
      */
     public set editable(value: boolean) {
+        if (this._twoDimensionalPolygon(this._domain, this._geometry)) {
+            return;
+        }
+
         this._editable = value;
         this._notifyChanged$.next(this);
     }
@@ -343,7 +368,9 @@ export class OutlineTag extends Tag {
      * @fires {Tag#changed}
      */
     public setOptions(options: IOutlineTagOptions): void {
-        this._editable = options.editable == null ? this._editable : options.editable;
+        const twoDimensionalPolygon: boolean = this._twoDimensionalPolygon(this._domain, this._geometry);
+
+        this._editable = twoDimensionalPolygon || options.editable == null ? this._editable : options.editable;
         this._icon = options.icon === undefined ? this._icon : options.icon;
         this._iconFloat = options.iconFloat == null ? this._iconFloat : options.iconFloat;
         this._iconIndex = options.iconIndex == null ? this._iconIndex : options.iconIndex;
@@ -355,6 +382,10 @@ export class OutlineTag extends Tag {
         this._text = options.text === undefined ? this._text : options.text;
         this._textColor = options.textColor == null ? this._textColor : options.textColor;
         this._notifyChanged$.next(this);
+    }
+
+    private _twoDimensionalPolygon(domain: TagDomain, geometry: VertexGeometry): boolean {
+        return domain !== TagDomain.ThreeDimensional && geometry instanceof PolygonGeometry;
     }
 }
 

@@ -1,5 +1,6 @@
 import earcut from "earcut";
 import * as polylabel from "@mapbox/polylabel";
+import * as THREE from "three";
 
 import {Geometry} from "../../../Component";
 import {Transform} from "../../../Geo";
@@ -168,6 +169,28 @@ export abstract class VertexGeometry extends Geometry {
         }
 
         return triangles;
+    }
+
+    protected _project(points2d: number[][], transform: Transform): number[][] {
+        const camera: THREE.Camera = new THREE.Camera();
+        camera.up.copy(transform.upVector());
+        camera.position.copy(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0)));
+        camera.lookAt(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 10)));
+        camera.updateMatrix();
+        camera.updateMatrixWorld(true);
+
+        const projected: number[][] = points2d
+            .map(
+                (point2d: number[]): number[] => {
+                    const pointWorld: number[] = transform.unprojectBasic(point2d, 10000);
+                    const pointCamera: THREE.Vector3 =
+                        new THREE.Vector3(pointWorld[0], pointWorld[1], pointWorld[2])
+                            .applyMatrix4(camera.matrixWorldInverse);
+
+                    return [pointCamera.x / pointCamera.z, pointCamera.y / pointCamera.z];
+                });
+
+        return projected;
     }
 }
 
