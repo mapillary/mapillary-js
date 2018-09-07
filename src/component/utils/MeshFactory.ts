@@ -22,17 +22,6 @@ export class MeshFactory {
         return mesh;
     }
 
-    public createScaledFlatMesh(node: Node, transform: Transform, dx: number, dy: number): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(node.image);
-        let materialParameters: THREE.ShaderMaterialParameters =
-            this._createPlaneMaterialParameters(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        let geometry: THREE.BufferGeometry = this._getFlatImagePlaneGeo(transform, dx, dy);
-
-        return new THREE.Mesh(geometry, material);
-    }
-
     public createFlatMesh(
         node: Node,
         transform: Transform,
@@ -224,7 +213,6 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-
                 focal: {
                     type: "f",
                     value: transform.focal,
@@ -279,20 +267,44 @@ export class MeshFactory {
                     type: "f",
                     value: 1,
                 },
+                focal: {
+                    type: "f",
+                    value: transform.focal,
+                },
+                k1: {
+                    type: "f",
+                    value: transform.ck1,
+                },
+                k2: {
+                    type: "f",
+                    value: transform.ck2,
+                },
                 opacity: {
                     type: "f",
                     value: 1,
                 },
                 projectorMat: {
                     type: "m4",
-                    value: transform.projectorMatrix(),
+                    value: transform.basicRt,
                 },
                 projectorTex: {
                     type: "t",
                     value: texture,
                 },
+                radial_peak: {
+                    type: "f",
+                    value: !!transform.radialPeak ? transform.radialPeak : 0,
+                },
+                scale_x: {
+                    type: "f",
+                    value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
+                },
+                scale_y: {
+                    type: "f",
+                    value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight,
+                },
             },
-            vertexShader: Shaders.perspective.vertex,
+            vertexShader: Shaders.perspectiveCurtain.vertex,
         };
 
         return materialParameters;
