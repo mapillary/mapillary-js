@@ -32,7 +32,7 @@ export class MeshFactory {
 
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters =
-            this._createPlaneMaterialParameters(transform, texture);
+            this._createDistortedPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
         let geometry: THREE.BufferGeometry = this._getFlatImagePlaneGeoFromBasic(transform, basicX0, basicX1, basicY0, basicY1);
@@ -50,6 +50,14 @@ export class MeshFactory {
             this._createCurtainMesh(node, transform);
     }
 
+    public createDistortedCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
+        if (node.pano) {
+            throw new Error("Cropped panoramas cannot have curtain.");
+        }
+
+        return this._createDistortedCurtainMesh(node, transform);
+    }
+
     private _createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(node.image);
         let materialParameters: THREE.ShaderMaterialParameters =
@@ -59,6 +67,17 @@ export class MeshFactory {
         let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
             this._getImagePlaneGeo(transform, node) :
             this._getRegularFlatImagePlaneGeo(transform);
+
+        return new THREE.Mesh(geometry, material);
+    }
+
+    private _createDistortedCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters =
+            this._createDistortedCurtainPlaneMaterialParameters(transform, texture);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        let geometry: THREE.BufferGeometry = this._getRegularFlatImagePlaneGeo(transform);
 
         return new THREE.Mesh(geometry, material);
     }
@@ -305,6 +324,62 @@ export class MeshFactory {
                 },
             },
             vertexShader: Shaders.perspectiveCurtain.vertex,
+        };
+
+        return materialParameters;
+    }
+
+    private _createDistortedCurtainPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        let materialParameters: THREE.ShaderMaterialParameters = {
+            depthWrite: false,
+            fragmentShader: Shaders.perspectiveDistortedCurtain.fragment,
+            side: THREE.DoubleSide,
+            transparent: true,
+            uniforms: {
+                curtain: {
+                    type: "f",
+                    value: 1,
+                },
+                opacity: {
+                    type: "f",
+                    value: 1,
+                },
+                projectorMat: {
+                    type: "m4",
+                    value: transform.projectorMatrix(),
+                },
+                projectorTex: {
+                    type: "t",
+                    value: texture,
+                },
+            },
+            vertexShader: Shaders.perspectiveDistortedCurtain.vertex,
+        };
+
+        return materialParameters;
+    }
+
+    private _createDistortedPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        let materialParameters: THREE.ShaderMaterialParameters = {
+            depthWrite: false,
+            fragmentShader: Shaders.perspectiveDistorted.fragment,
+            side: THREE.DoubleSide,
+            transparent: true,
+            uniforms: {
+                opacity: {
+                    type: "f",
+                    value: 1,
+                },
+                projectorMat: {
+                    type: "m4",
+                    value: transform.projectorMatrix(),
+                },
+                projectorTex: {
+                    type: "t",
+                    value: texture,
+                },
+            },
+            vertexShader: Shaders.perspectiveDistorted.vertex,
         };
 
         return materialParameters;

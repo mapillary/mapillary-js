@@ -348,7 +348,7 @@ export class SliderGLRenderer {
             }
         }
 
-        if (currentChanged) {
+        if (currentChanged || modeChanged) {
             if (this._currentKey in this._currentProviderDisposers) {
                 this._currentProviderDisposers[this._currentKey]();
 
@@ -357,9 +357,15 @@ export class SliderGLRenderer {
 
             this._currentKey = state.currentNode.key;
 
-            const imagePlane: THREE.Mesh = state.currentNode.pano && !state.currentNode.fullPano ?
-                this._factory.createMesh(state.currentNode, state.currentTransform) :
-                this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
+            const imagePlane: THREE.Mesh = mode === SliderMode.Stationary ?
+                state.currentNode.pano ?
+                    state.currentNode.fullPano ?
+                        this._factory.createCurtainMesh(state.currentNode, state.currentTransform) :
+                        this._factory.createMesh(state.currentNode, state.currentTransform) :
+                    this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform) :
+                state.currentNode.pano && !state.currentNode.fullPano ?
+                    this._factory.createMesh(state.currentNode, state.currentTransform) :
+                    this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
 
             this._scene.setImagePlanes([imagePlane]);
 
