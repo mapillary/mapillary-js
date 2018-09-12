@@ -23,4 +23,14 @@ export class Shaders {
         fragment: fs.readFileSync(path.join(__dirname, "./perspective_curtain.fragment.glsl"), "utf8"),
         vertex: fs.readFileSync(path.join(__dirname, "./perspective_curtain.vertex.glsl"), "utf8"),
     };
+
+    public static perspectiveDistorted: IShader = {
+        fragment: fs.readFileSync(path.join(__dirname, "./perspective_distorted.fragment.glsl"), "utf8"),
+        vertex: fs.readFileSync(path.join(__dirname, "./perspective_distorted.vertex.glsl"), "utf8"),
+    };
+
+    public static perspectiveDistortedCurtain: IShader = {
+        fragment: fs.readFileSync(path.join(__dirname, "./perspective_distorted_curtain.fragment.glsl"), "utf8"),
+        vertex: fs.readFileSync(path.join(__dirname, "./perspective_distorted_curtain.vertex.glsl"), "utf8"),
+    };
 }
