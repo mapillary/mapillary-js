@@ -37,6 +37,9 @@ import {TransitionMode} from "../State";
  * other options. The viewer exposes methods and events for programmatic
  * interaction.
  *
+ * In the case of asynchronous methods, MapillaryJS returns promises to
+ * the results. Notifications are always emitted through JavaScript events.
+ *
  * The viewer works with a few different coordinate systems.
  *
  * Container pixel coordinates

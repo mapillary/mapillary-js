@@ -442,7 +442,11 @@ export class Node {
     }
 
     /**
+     * @ignore
+     *
      * Get sequenceEdges$.
+     *
+     * @description Internal observable, should not be used as an API.
      *
      * @returns {Observable<IEdgeStatus>} Observable emitting
      * values describing the status of the sequence edges.
@@ -462,7 +466,11 @@ export class Node {
     }
 
     /**
+     * @ignore
+     *
      * Get spatialEdges$.
+     *
+     * @description Internal observable, should not be used as an API.
      *
      * @returns {Observable<IEdgeStatus>} Observable emitting
      * values describing the status of the spatial edges.
