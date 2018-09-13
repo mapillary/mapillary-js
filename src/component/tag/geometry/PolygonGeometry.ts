@@ -290,11 +290,22 @@ export class PolygonGeometry extends VertexGeometry {
 
     /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
+        const holes2d: number[][][] = [];
+        const holes3d: number[][][] = [];
+
+        for (let hole of this._holes) {
+            const hole2d: number[][] = this._project(this._subsample(hole, 0.01), transform);
+            const hole3d: number[][] = this._getPoints3d(hole2d, transform);
+
+            holes2d.push(hole2d);
+            holes3d.push(hole3d);
+        }
+
         return this._triangulate(
             this._project(this._subsample(this._polygon, 0.01), transform),
             this.getPoints3d(transform),
-            this._holes,
-            this.getHoleVertices3d(transform));
+            holes2d,
+            holes3d);
     }
 
     /** @inheritdoc */
