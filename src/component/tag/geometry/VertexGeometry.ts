@@ -23,7 +23,7 @@ export abstract class VertexGeometry extends Geometry {
 
     /**
      * Get the 3D coordinates for the vertices of the geometry with possibly
-     * interpolated points along the lines.
+     * subsampled points along the lines.
      *
      * @param {Transform} transform - The transform of the node related to
      * the geometry.

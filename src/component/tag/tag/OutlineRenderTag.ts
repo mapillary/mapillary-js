@@ -307,8 +307,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         let holes: THREE.Line[] = [];
 
         if (this._tag.geometry instanceof PolygonGeometry) {
-            let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._tag.geometry;
-            let holes3d: number[][][] = polygonGeometry.getHoleVertices3d(this._transform);
+            let holes3d: number[][][] = this._getHoles3d();
 
             for (let holePoints3d of holes3d) {
                 let hole: THREE.Line = this._createLine(holePoints3d);
@@ -384,6 +383,14 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         return positions;
     }
 
+    private _getHoles3d(): number[][][] {
+        const polygonGeometry: PolygonGeometry = <PolygonGeometry>this._tag.geometry;
+
+        return this._in3dDomain() ?
+            polygonGeometry.getHoleVertices3d(this._transform) :
+            polygonGeometry.getHolePoints3d(this._transform);
+    }
+
     private _getPoints3d(): number[][] {
         return this._in3dDomain() ?
             (<PolygonGeometry>this._tag.geometry).getVertices3d(this._transform) :
@@ -441,8 +448,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     }
 
     private _updateHoleGeometries(): void {
-        let polygonGeometry: PolygonGeometry = <PolygonGeometry>this._tag.geometry;
-        let holes3d: number[][][] = polygonGeometry.getHoleVertices3d(this._transform);
+        let holes3d: number[][][] = this._getHoles3d();
 
         if (holes3d.length !== this._holes.length) {
             throw new Error("Changing the number of holes is not supported.");

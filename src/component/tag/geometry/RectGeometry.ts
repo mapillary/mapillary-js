@@ -1,5 +1,3 @@
-import * as THREE from "three";
-
 import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 

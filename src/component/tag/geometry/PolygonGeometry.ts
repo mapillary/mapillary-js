@@ -1,5 +1,3 @@
-import * as THREE from "three";
-
 import {GeometryTagError, VertexGeometry} from "../../../Component";
 import {Transform} from "../../../Geo";
 
@@ -19,6 +17,8 @@ export class PolygonGeometry extends VertexGeometry {
     private _polygon: number[][];
     private _holes: number[][][];
 
+    private _subsampleThreshold: number;
+
     /**
      * Create a polygon geometry.
      *
@@ -31,6 +31,8 @@ export class PolygonGeometry extends VertexGeometry {
      */
     constructor(polygon: number[][], holes?: number[][][]) {
         super();
+
+        this._subsampleThreshold = 0.01;
 
         let polygonLength: number = polygon.length;
 
@@ -202,7 +204,9 @@ export class PolygonGeometry extends VertexGeometry {
 
     /** @inheritdoc */
     public getPoints3d(transform: Transform): number[][] {
-        return this._getPoints3d(this._subsample(this._polygon, 0.01), transform);
+        return this._getPoints3d(
+            this._subsample(this._polygon, this._subsampleThreshold),
+            transform);
     }
 
     /** @inheritdoc */
@@ -222,6 +226,26 @@ export class PolygonGeometry extends VertexGeometry {
 
     /**
      * Get a polygon representation of the 3D coordinates for the vertices of each hole
+     * of the geometry. Line segments between vertices will possibly be subsampled
+     * resulting in a larger number of points than the total number of vertices.
+     *
+     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @returns {Array<Array<Array<number>>>} Array of hole polygons in 3D world coordinates
+     * representing the vertices of each hole of the geometry.
+     * @ignore
+     */
+    public getHolePoints3d(transform: Transform): number[][][] {
+        return this._holes
+            .map(
+                (hole2d: number[][]): number[][] => {
+                    return this._getPoints3d(
+                        this._subsample(hole2d, this._subsampleThreshold),
+                        transform);
+                });
+    }
+
+    /**
+     * Get a polygon representation of the 3D coordinates for the vertices of each hole
      * of the geometry.
      *
      * @param {Transform} transform - The transform of the node related to the geometry.
@@ -229,19 +253,11 @@ export class PolygonGeometry extends VertexGeometry {
      * representing the vertices of each hole of the geometry.
      */
     public getHoleVertices3d(transform: Transform): number[][][] {
-        let holes3d: number[][][] = [];
-
-        for (let hole of this._holes) {
-            let hole3d: number[][] = hole
-                .map(
-                    (point: number[]) => {
-                        return transform.unprojectBasic(point, 200);
-                    });
-
-            holes3d.push(hole3d);
-        }
-
-        return holes3d;
+        return this._holes
+            .map(
+                (hole2d: number[][]): number[][] => {
+                    return this._getPoints3d(hole2d, transform);
+                });
     }
 
     /** @inheritdoc */
@@ -292,9 +308,10 @@ export class PolygonGeometry extends VertexGeometry {
     public getTriangles3d(transform: Transform): number[] {
         const holes2d: number[][][] = [];
         const holes3d: number[][][] = [];
+        const threshold: number = this._subsampleThreshold;
 
         for (let hole of this._holes) {
-            const hole2d: number[][] = this._project(this._subsample(hole, 0.01), transform);
+            const hole2d: number[][] = this._project(this._subsample(hole, threshold), transform);
             const hole3d: number[][] = this._getPoints3d(hole2d, transform);
 
             holes2d.push(hole2d);
@@ -302,7 +319,7 @@ export class PolygonGeometry extends VertexGeometry {
         }
 
         return this._triangulate(
-            this._project(this._subsample(this._polygon, 0.01), transform),
+            this._project(this._subsample(this._polygon, threshold), transform),
             this.getPoints3d(transform),
             holes2d,
             holes3d);
