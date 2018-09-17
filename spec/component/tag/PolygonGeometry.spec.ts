@@ -3,6 +3,8 @@ import {PolygonGeometry} from "../../../src/Component";
 import {Transform} from "../../../src/Geo";
 import {Node} from "../../../src/Graph";
 
+import {MockCreator} from "../../helper/MockCreator.spec";
+
 describe("PolygonGeometry.ctor", () => {
     it("should be defined", () => {
         let polygonGeometry: PolygonGeometry =
@@ -511,5 +513,115 @@ describe("RectGeometry.setCentroid2d", () => {
 
         expect(polygon[4][0]).toBeCloseTo(0.0, precision);
         expect(polygon[4][1]).toBeCloseTo(0.0, precision);
+    });
+});
+
+describe("PolygonGeometry.getVertex3d", () => {
+    it("should unproject and return the 3D vertex", () => {
+        const polygon: number[][] = [[0, 0], [0.1, 0], [0.1, 0], [0, 0]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const transform: Transform = new MockCreator().create(Transform, "Transform");
+        const unprojectSpy: jasmine.Spy = <jasmine.Spy>transform.unprojectBasic;
+        unprojectSpy.and.returnValue([1, 2, 3]);
+
+        expect(geometry.getVertex3d(1, transform)).toEqual([1, 2, 3]);
+
+        expect(unprojectSpy.calls.count()).toBe(1);
+        expect(unprojectSpy.calls.first().args[0]).toEqual([0.1, 0]);
+    });
+});
+
+describe("PolygonGeometry.getVertices3d", () => {
+    it("should unproject all vertices", () => {
+        const polygon: number[][] = [[0, 0], [0.1, 0], [0.1, 0.1], [0, 0.1], [0, 0]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const transform: Transform = new MockCreator().create(Transform, "Transform");
+        const unprojectSpy: jasmine.Spy = <jasmine.Spy>transform.unprojectBasic;
+        unprojectSpy.and.returnValue([1, 2, 3]);
+
+        expect(geometry.getVertices3d(transform).length).toBe(5);
+
+        expect(unprojectSpy.calls.count()).toBe(5);
+    });
+});
+
+describe("PolygonGeometry.getPoints3d", () => {
+    it("should subsample", () => {
+        const polygon: number[][] = [[0, 0], [0.1, 0], [0.1, 0.1], [0, 0]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const transform: Transform = new MockCreator().create(Transform, "Transform");
+        const unprojectSpy: jasmine.Spy = <jasmine.Spy>transform.unprojectBasic;
+        unprojectSpy.and.returnValue([1, 2, 3]);
+
+        expect(geometry.getPoints3d(transform).length).toBeGreaterThan(4);
+
+        expect(unprojectSpy.calls.count()).toBeGreaterThan(4);
+    });
+});
+
+describe("PolygonGeometry.getHoleVertices3d", () => {
+    it("should unproject all vertices", () => {
+        const polygon: number[][] = [[0, 0], [0.5, 0], [0.5, 0.5], [0, 0]];
+        const hole: number[][] = [[0.2, 0.2], [0.3, 0.2], [0.3, 0.3], [0.2, 0.2]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon, [hole]);
+
+        const transform: Transform = new MockCreator().create(Transform, "Transform");
+        const unprojectSpy: jasmine.Spy = <jasmine.Spy>transform.unprojectBasic;
+        unprojectSpy.and.returnValue([1, 2, 3]);
+
+        const holeVertices3d: number[][][] = geometry.getHoleVertices3d(transform);
+
+        expect(holeVertices3d.length).toBe(1);
+        expect(holeVertices3d[0].length).toBe(4);
+
+        expect(unprojectSpy.calls.count()).toBe(4);
+    });
+});
+
+describe("PolygonGeometry.getHolePoints3d", () => {
+    it("should subsample", () => {
+        const polygon: number[][] = [[0, 0], [0.5, 0], [0.5, 0.5], [0, 0]];
+        const hole: number[][] = [[0.2, 0.2], [0.3, 0.2], [0.3, 0.3], [0.2, 0.2]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon, [hole]);
+
+        const transform: Transform = new MockCreator().create(Transform, "Transform");
+        const unprojectSpy: jasmine.Spy = <jasmine.Spy>transform.unprojectBasic;
+        unprojectSpy.and.returnValue([1, 2, 3]);
+
+        const holeVertices3d: number[][][] = geometry.getHolePoints3d(transform);
+
+        expect(holeVertices3d.length).toBe(1);
+        expect(holeVertices3d[0].length).toBeGreaterThan(4);
+
+        expect(unprojectSpy.calls.count()).toBeGreaterThan(4);
+    });
+});
+
+describe("PolygonGeometry.get3dDomainTriangles", () => {
+    it("should return one triangle for four points", () => {
+        const polygon: number[][] = [[0, 0], [0.5, 0], [0.5, 0.5], [0, 0]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, undefined, [0, 0, 0], [0, 0, 0], undefined);
+
+        const triangles: number[] = geometry.get3dDomainTriangles3d(transform);
+
+        expect(triangles.length / 3).toBe(3);
+    });
+});
+
+describe("PolygonGeometry.getTriangles", () => {
+    it("should return more than one triangle for four points", () => {
+        const polygon: number[][] = [[0, 0], [0.5, 0], [0.5, 0.5], [0, 0]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, undefined, [0, 0, 0], [0, 0, 0], undefined);
+
+        const triangles: number[] = geometry.getTriangles3d(transform);
+
+        expect(triangles.length / 3).toBeGreaterThan(3);
     });
 });
