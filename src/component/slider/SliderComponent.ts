@@ -1102,6 +1102,25 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._glRenderSubscription.unsubscribe();
         this._domRenderSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
+        this._updateCurtainSubscription.unsubscribe();
+
+        this._textureProviderSubscription.unsubscribe();
+        this._setTextureProviderSubscription.unsubscribe();
+        this._setTileSizeSubscription.unsubscribe();
+        this._abortTextureProviderSubscription.unsubscribe();
+        this._setRegionOfInterestSubscription.unsubscribe();
+        this._hasTextureSubscription.unsubscribe();
+        this._updateBackgroundSubscription.unsubscribe();
+        this._updateTextureImageSubscription.unsubscribe();
+
+        this._textureProviderSubscriptionPrev.unsubscribe();
+        this._setTextureProviderSubscriptionPrev.unsubscribe();
+        this._setTileSizeSubscriptionPrev.unsubscribe();
+        this._abortTextureProviderSubscriptionPrev.unsubscribe();
+        this._setRegionOfInterestSubscriptionPrev.unsubscribe();
+        this._hasTextureSubscriptionPrev.unsubscribe();
+        this._updateBackgroundSubscriptionPrev.unsubscribe();
+        this._updateTextureImageSubscriptionPrev.unsubscribe();
 
         this.configure({ keys: null });
     }

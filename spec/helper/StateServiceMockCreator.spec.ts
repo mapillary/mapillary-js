@@ -8,7 +8,11 @@ import {
     Transform,
 } from "../../src/Geo";
 import {Node} from "../../src/Graph";
-import {IFrame, StateService} from "../../src/State";
+import {
+    IFrame,
+    StateService,
+    State,
+} from "../../src/State";
 
 export class StateServiceMockCreator extends MockCreatorBase<StateService> {
     public create(): StateService {
@@ -23,6 +27,7 @@ export class StateServiceMockCreator extends MockCreatorBase<StateService> {
         this._mockProperty(mock, "inMotion$", new Subject<boolean>());
         this._mockProperty(mock, "inTranslation$", new Subject<boolean>());
         this._mockProperty(mock, "reference$", new Subject<ILatLonAlt>());
+        this._mockProperty(mock, "state$", new Subject<State>());
 
         return mock;
     }
