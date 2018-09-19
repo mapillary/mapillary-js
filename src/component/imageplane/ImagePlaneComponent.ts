@@ -29,7 +29,7 @@ import {
 import {
     ComponentService,
     Component,
-    IImagePlaneConfiguration,
+    IComponentConfiguration,
     ImagePlaneGLRenderer,
 } from "../../Component";
 import {
@@ -69,7 +69,7 @@ interface IImagePlaneGLRendererOperation {
 
 type PositionLookat = [THREE.Vector3, THREE.Vector3, number, number, number];
 
-export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
+export class ImagePlaneComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "imagePlane";
 
     private _rendererOperation$: Subject<IImagePlaneGLRendererOperation>;
@@ -175,21 +175,11 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
                 }))
             .subscribe(this._rendererOperation$);
 
-        let textureProvider$: Observable<TextureProvider> = observableCombineLatest(
-                this._navigator.stateService.currentState$.pipe(
-                    distinctUntilChanged(
-                        undefined,
-                        (frame: IFrame): string => {
-                            return frame.state.currentNode.key;
-                        })),
-                this._configuration$).pipe(
-            filter(
-                (args: [IFrame, IImagePlaneConfiguration]): boolean => {
-                    return args[1].imageTiling === true;
-                }),
-            map(
-                (args: [IFrame, IImagePlaneConfiguration]): IFrame => {
-                    return args[0];
+        let textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
+            distinctUntilChanged(
+                undefined,
+                (frame: IFrame): string => {
+                    return frame.state.currentNode.key;
                 }),
             withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
@@ -435,8 +425,8 @@ export class ImagePlaneComponent extends Component<IImagePlaneConfiguration> {
         this._updateTextureImageSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IImagePlaneConfiguration {
-        return { imageTiling: false };
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return { };
     }
 }
 
