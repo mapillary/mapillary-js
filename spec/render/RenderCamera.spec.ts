@@ -84,7 +84,7 @@ describe("RenderCamera.setRenderMode", () => {
     });
 });
 
-describe("RenderCamera.setState", () => {
+describe("RenderCamera.setFrame", () => {
     it("should not be changed when not updated", () => {
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
@@ -120,5 +120,24 @@ describe("RenderCamera.setState", () => {
         renderCamera.setFrame(frame);
 
         expect(renderCamera.changed).toBe(false);
+    });
+});
+
+describe("RenderCamera.perspective.fov", () => {
+    it("should be set initially", () => {
+        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+
+        expect(renderCamera.perspective.fov).toBeDefined();
+        expect(renderCamera.perspective.fov).toBeGreaterThan(0);
+    });
+
+    it("should update fov", () => {
+        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+
+        const initialFov: number = renderCamera.perspective.fov;
+
+        renderCamera.setFrame(new FrameHelper().createFrame());
+
+        expect(renderCamera.perspective.fov).not.toBe(initialFov);
     });
 });

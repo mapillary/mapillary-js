@@ -48,6 +48,9 @@ export class RenderCamera {
     private _initialFov: number;
 
     constructor(elementWidth: number, elementHeight: number, renderMode: RenderMode) {
+        this._spatial = new Spatial();
+        this._viewportCoords = new ViewportCoords();
+
         this._initialFov = 50;
 
         this._alpha = -1;
@@ -70,9 +73,6 @@ export class RenderCamera {
 
         this._currentFov = this._initialFov;
         this._previousFov = this._initialFov;
-
-        this._spatial = new Spatial();
-        this._viewportCoords = new ViewportCoords();
 
         this._camera = new Camera();
 
@@ -271,7 +271,10 @@ export class RenderCamera {
                     const worldPoint: number[] = transform.unprojectBasic(basicPoint, 10000);
                     const cameraPoint: number[] = this._viewportCoords.worldToCamera(worldPoint, camera);
 
-                    return [cameraPoint[0] / -cameraPoint[2], cameraPoint[1] / -cameraPoint[2]];
+                    return [
+                        Math.abs(cameraPoint[0] / cameraPoint[2]),
+                        Math.abs(cameraPoint[1] / cameraPoint[2]),
+                    ];
                 });
 
         return projectedPoints;
