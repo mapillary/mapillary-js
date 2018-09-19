@@ -357,17 +357,21 @@ export class SliderGLRenderer {
 
             this._currentKey = state.currentNode.key;
 
-            const imagePlane: THREE.Mesh = mode === SliderMode.Stationary ?
-                state.currentNode.pano ?
-                    state.currentNode.fullPano ?
-                        this._factory.createCurtainMesh(state.currentNode, state.currentTransform) :
-                        this._factory.createMesh(state.currentNode, state.currentTransform) :
-                    this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform) :
-                state.currentNode.pano && !state.currentNode.fullPano ?
-                    this._factory.createMesh(state.currentNode, state.currentTransform) :
-                    this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
+            const imagePlanes: THREE.Mesh[] = [];
 
-            this._scene.setImagePlanes([imagePlane]);
+            if (state.currentNode.fullPano) {
+                imagePlanes.push(this._factory.createCurtainMesh(state.currentNode, state.currentTransform));
+            } else if (state.currentNode.pano && !state.currentNode.fullPano) {
+                imagePlanes.push(this._factory.createMesh(state.currentNode, state.currentTransform));
+            } else {
+                if (motionless) {
+                    imagePlanes.push(this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform));
+                } else {
+                    imagePlanes.push(this._factory.createCurtainMesh(state.currentNode, state.currentTransform));
+                }
+            }
+
+            this._scene.setImagePlanes(imagePlanes);
 
             this._updateCurtain();
         }
