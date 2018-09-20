@@ -106,7 +106,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         if (this._tag.icon != null && (isRect || isPerspective)) {
             const [iconBasicX, iconBasicY]: number[] = this._tag.geometry instanceof RectGeometry ?
                 this._tag.geometry.getVertex2d(this._tag.iconIndex) :
-                this._tag.geometry.getPoleOfAccessibility2d();
+                this._tag.geometry.getPoleOfInaccessibility2d();
 
             const iconCanvas: number[] =
                 this._viewportCoords.basicToCanvasSafe(
@@ -144,7 +144,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         } else if (this._tag.text != null && (isRect || isPerspective)) {
             const [textBasicX, textBasicY]: number[] = this._tag.geometry instanceof RectGeometry ?
                 this._tag.geometry.getVertex2d(3) :
-                this._tag.geometry.getPoleOfAccessibility2d();
+                this._tag.geometry.getPoleOfInaccessibility2d();
 
             const textCanvas: number[] =
                 this._viewportCoords.basicToCanvasSafe(

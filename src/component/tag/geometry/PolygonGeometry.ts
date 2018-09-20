@@ -331,12 +331,12 @@ export class PolygonGeometry extends VertexGeometry {
     }
 
     /** @inheritdoc */
-    public getPoleOfAccessibility2d(): number[] {
+    public getPoleOfInaccessibility2d(): number[] {
         return this._getPoleOfInaccessibility2d(this._polygon.slice());
     }
 
     /** @inheritdoc */
-    public getPoleOfAccessibility3d(transform: Transform): number[] {
+    public getPoleOfInaccessibility3d(transform: Transform): number[] {
         let pole2d: number[] = this._getPoleOfInaccessibility2d(this._polygon.slice());
 
         return transform.unprojectBasic(pole2d, 200);

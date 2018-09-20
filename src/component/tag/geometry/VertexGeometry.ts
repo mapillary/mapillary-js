@@ -40,7 +40,7 @@ export abstract class VertexGeometry extends Geometry {
      * @returns {Array<number>} 2D basic coordinates for the pole of inaccessibility.
      * @ignore
      */
-    public abstract getPoleOfAccessibility2d(): number[];
+    public abstract getPoleOfInaccessibility2d(): number[];
 
     /**
      * Get the polygon pole of inaccessibility, the most
@@ -51,7 +51,7 @@ export abstract class VertexGeometry extends Geometry {
      * @returns {Array<number>} 3D world coordinates for the pole of inaccessibility.
      * @ignore
      */
-    public abstract getPoleOfAccessibility3d(transform: Transform): number[];
+    public abstract getPoleOfInaccessibility3d(transform: Transform): number[];
 
     /**
      * Get the coordinates of a vertex from the polygon representation of the geometry.
