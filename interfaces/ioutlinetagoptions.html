@@ -91,6 +91,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ioutlinetagoptions.html#domain" class="tsd-kind-icon">domain</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ioutlinetagoptions.html#editable" class="tsd-kind-icon">editable</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ioutlinetagoptions.html#fillcolor" class="tsd-kind-icon">fill<wbr>Color</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ioutlinetagoptions.html#fillopacity" class="tsd-kind-icon">fill<wbr>Opacity</a></li>
@@ -111,12 +112,37 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="domain" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> domain</h3>
+					<div class="tsd-signature tsd-kind-icon">domain<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TagDomain</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L21">component/tag/interfaces/IOutlineTagOptions.ts:21</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The domain where lines between vertices are treated as straight.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Only applicable for tags that renders polygons.</p>
+								<p>If the domain is specified as two dimensional, editing of the
+								polygon will be disabled.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>{TagDomain.TwoDimensional}</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="editable" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> editable</h3>
 					<div class="tsd-signature tsd-kind-icon">editable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L14">component/tag/interfaces/IOutlineTagOptions.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L31">component/tag/interfaces/IOutlineTagOptions.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -124,6 +150,10 @@
 							<p>Indicate whether the tag geometry should be editable.</p>
 						</div>
 						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>Polygon tags with two dimensional domain
+								are never editable.</p>
+							</dd>
 							<dt>default</dt>
 							<dd><p>false</p>
 							</dd>
@@ -136,7 +166,7 @@
 					<div class="tsd-signature tsd-kind-icon">fill<wbr>Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L20">component/tag/interfaces/IOutlineTagOptions.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L37">component/tag/interfaces/IOutlineTagOptions.ts:37</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -156,7 +186,7 @@
 					<div class="tsd-signature tsd-kind-icon">fill<wbr>Opacity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L26">component/tag/interfaces/IOutlineTagOptions.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L43">component/tag/interfaces/IOutlineTagOptions.ts:43</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -176,7 +206,7 @@
 					<div class="tsd-signature tsd-kind-icon">icon<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L34">component/tag/interfaces/IOutlineTagOptions.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L51">component/tag/interfaces/IOutlineTagOptions.ts:51</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -194,10 +224,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="iconfloat" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> icon<wbr>Float</h3>
-					<div class="tsd-signature tsd-kind-icon">icon<wbr>Float<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Alignment.Bottom</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Alignment.BottomLeft</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Alignment.BottomRight</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Alignment.Center</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Alignment.Left</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Alignment.Right</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Alignment.Top</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Alignment.TopLeft</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Alignment.TopRight</span></div>
+					<div class="tsd-signature tsd-kind-icon">icon<wbr>Float<span class="tsd-signature-symbol">:</span> <a href="../enums/alignment.html" class="tsd-signature-type">Alignment</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L42">component/tag/interfaces/IOutlineTagOptions.ts:42</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L59">component/tag/interfaces/IOutlineTagOptions.ts:59</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -218,7 +248,7 @@
 					<div class="tsd-signature tsd-kind-icon">icon<wbr>Index<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L52">component/tag/interfaces/IOutlineTagOptions.ts:52</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L69">component/tag/interfaces/IOutlineTagOptions.ts:69</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -242,7 +272,7 @@
 					<div class="tsd-signature tsd-kind-icon">indicate<wbr>Vertices<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L60">component/tag/interfaces/IOutlineTagOptions.ts:60</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L77">component/tag/interfaces/IOutlineTagOptions.ts:77</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -263,7 +293,7 @@
 					<div class="tsd-signature tsd-kind-icon">line<wbr>Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L66">component/tag/interfaces/IOutlineTagOptions.ts:66</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L83">component/tag/interfaces/IOutlineTagOptions.ts:83</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -283,7 +313,7 @@
 					<div class="tsd-signature tsd-kind-icon">line<wbr>Opacity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L72">component/tag/interfaces/IOutlineTagOptions.ts:72</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L89">component/tag/interfaces/IOutlineTagOptions.ts:89</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -303,7 +333,7 @@
 					<div class="tsd-signature tsd-kind-icon">line<wbr>Width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L78">component/tag/interfaces/IOutlineTagOptions.ts:78</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L95">component/tag/interfaces/IOutlineTagOptions.ts:95</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -323,7 +353,7 @@
 					<div class="tsd-signature tsd-kind-icon">text<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L86">component/tag/interfaces/IOutlineTagOptions.ts:86</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L103">component/tag/interfaces/IOutlineTagOptions.ts:103</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -344,7 +374,7 @@
 					<div class="tsd-signature tsd-kind-icon">text<wbr>Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2f55883/src/component/tag/interfaces/IOutlineTagOptions.ts#L92">component/tag/interfaces/IOutlineTagOptions.ts:92</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/9fa78fa/src/component/tag/interfaces/IOutlineTagOptions.ts#L109">component/tag/interfaces/IOutlineTagOptions.ts:109</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -375,6 +405,9 @@
 					<li class="current tsd-kind-interface">
 						<a href="ioutlinetagoptions.html" class="tsd-kind-icon">IOutline<wbr>Tag<wbr>Options</a>
 						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ioutlinetagoptions.html#domain" class="tsd-kind-icon">domain</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ioutlinetagoptions.html#editable" class="tsd-kind-icon">editable</a>
 							</li>
