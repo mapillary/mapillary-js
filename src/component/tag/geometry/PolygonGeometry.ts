@@ -300,27 +300,32 @@ export class PolygonGeometry extends VertexGeometry {
         return this._triangulate(
             this._project(this._polygon, transform),
             this.getVertices3d(transform),
-            this._holes,
+            this._holes
+                .map(
+                    (hole2d: number[][]): number[][] => {
+                        return this._project(hole2d, transform);
+                    }),
             this.getHoleVertices3d(transform));
     }
 
     /** @inheritdoc */
     public getTriangles3d(transform: Transform): number[] {
-        const holes2d: number[][][] = [];
-        const holes3d: number[][][] = [];
         const threshold: number = this._subsampleThreshold;
 
-        for (let hole of this._holes) {
-            const hole2d: number[][] = this._project(this._subsample(hole, threshold), transform);
-            const hole3d: number[][] = this._getPoints3d(hole2d, transform);
+        const points2d: number[][] = this._project(this._subsample(this._polygon, threshold), transform);
+        const points3d: number[][] = this.getPoints3d(transform);
 
-            holes2d.push(hole2d);
-            holes3d.push(hole3d);
-        }
+        const holes2d: number[][][] = this._holes
+            .map(
+                (hole: number[][]): number[][] => {
+                    return this._project(this._subsample(hole, threshold), transform);
+                });
+
+        const holes3d: number[][][] = this.getHolePoints3d(transform);
 
         return this._triangulate(
-            this._project(this._subsample(this._polygon, threshold), transform),
-            this.getPoints3d(transform),
+            points2d,
+            points3d,
             holes2d,
             holes3d);
     }
