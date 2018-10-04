@@ -1,4 +1,4 @@
-import {first, switchMap} from "rxjs/operators";
+import {first, switchMap, distinctUntilChanged} from "rxjs/operators";
 import {Observable} from "rxjs";
 
 import {Node} from "../Graph";
@@ -145,7 +145,13 @@ export class ComponentController {
     }
 
     private _subscribeCoverComponent(): void {
-        this._coverComponent.configuration$.subscribe((conf: ICoverConfiguration) => {
+        this._coverComponent.configuration$.pipe(
+            distinctUntilChanged(
+                undefined,
+                (c: ICoverConfiguration): CoverState => {
+                    return c.state;
+                }))
+        .subscribe((conf: ICoverConfiguration) => {
             if (conf.state === CoverState.Loading) {
                 this._navigator.stateService.currentKey$.pipe(
                     first(),
@@ -163,7 +169,7 @@ export class ComponentController {
                                     first());
                         }))
                     .subscribe(
-                        (node: Node): void => {
+                        (): void => {
                             this._navigator.stateService.start();
                             this._navigator.cacheService.start();
                             this._observer.startEmit();

@@ -20,6 +20,7 @@ import {
 import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";
 import {NavigatorMockCreator} from "../helper/NavigatorMockCreator.spec";
 import {NodeMockCreator} from "../helper/NodeMockCreator.spec";
+import { MockCreator } from "../helper/MockCreator.spec";
 
 describe("ComponentController.ctor", () => {
     it("should be defined", () => {
@@ -305,5 +306,77 @@ describe("ComponentController.navigable", () => {
         expect(navigableChangedCount).toBe(1);
         expect(componentController.navigable).toBe(false);
         expect(componentService.coverActivated).toBe(true);
+    });
+});
+
+describe("ComponentController.activateCover", () => {
+    it("should not move again if deactivating cover twice", () => {
+        const container: Container = new ContainerMockCreator().create();
+        const navigator: Navigator = new NavigatorMockCreator().create();
+        const componentService: ComponentService = new ComponentService(container, navigator);
+        const observer: Observer = new MockCreator().create(Observer, "Observer");
+
+        (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
+        (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
+
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigator.moveToKey$;
+        const moveToKey$: Subject<Node> = new Subject<Node>();
+        moveToKeySpy.and.returnValue(moveToKey$);
+
+        const key: string = "key_key";
+        const componentController: ComponentController =
+            new ComponentController(
+                container,
+                navigator,
+                observer,
+                key,
+                { cover: true },
+                componentService);
+
+        componentController.deactivateCover();
+
+        (<Subject<string>>navigator.stateService.currentKey$).next(null);
+
+        expect(moveToKeySpy.calls.count()).toBe(1);
+
+        componentController.deactivateCover();
+
+        (<Subject<string>>navigator.stateService.currentKey$).next(null);
+
+        expect(moveToKeySpy.calls.count()).toBe(1);
+    });
+
+    it("should not stop again if activating cover twice", () => {
+        const container: Container = new ContainerMockCreator().create();
+        const navigator: Navigator = new NavigatorMockCreator().create();
+        const componentService: ComponentService = new ComponentService(container, navigator);
+        const observer: Observer = new MockCreator().create(Observer, "Observer");
+
+        (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
+        (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
+
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigator.moveToKey$;
+        const moveToKey$: Subject<Node> = new Subject<Node>();
+        moveToKeySpy.and.returnValue(moveToKey$);
+
+        const stopEmitSpy: jasmine.Spy = <jasmine.Spy>observer.stopEmit;
+
+        const key: string = "key_key";
+        const componentController: ComponentController =
+            new ComponentController(
+                container,
+                navigator,
+                observer,
+                key,
+                { cover: false },
+                componentService);
+
+        componentController.activateCover();
+
+        expect(stopEmitSpy.calls.count()).toBe(1);
+
+        componentController.activateCover();
+
+        expect(stopEmitSpy.calls.count()).toBe(1);
     });
 });
