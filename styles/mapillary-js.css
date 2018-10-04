@@ -27,3 +27,11 @@
 .mapillary-js-dom .domRenderer {
     pointer-events: auto;
 }
+
+.mapillary-js div {
+    box-sizing: content-box;
+}
+
+.mapillary-js input:focus {
+    background: none;
+}
