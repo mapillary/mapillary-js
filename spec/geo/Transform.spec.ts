@@ -461,7 +461,10 @@ describe("Transform.width", () => {
         let t: number[] = [0, 0, 0];
 
         let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+
+        const fillNode: IFillNode = helper.createFillNode();
+        fillNode.width = 0;
+        node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
             node.orientation,

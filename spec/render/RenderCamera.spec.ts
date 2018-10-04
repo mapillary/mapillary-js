@@ -131,7 +131,7 @@ describe("RenderCamera.perspective.fov", () => {
         expect(renderCamera.perspective.fov).toBeGreaterThan(0);
     });
 
-    it("should update fov", () => {
+    it("should be updated when setting frame", () => {
         const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         const initialFov: number = renderCamera.perspective.fov;
@@ -139,5 +139,57 @@ describe("RenderCamera.perspective.fov", () => {
         renderCamera.setFrame(new FrameHelper().createFrame());
 
         expect(renderCamera.perspective.fov).not.toBe(initialFov);
+    });
+
+    it("should increase when changing from fill to letterbox", () => {
+        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
+
+        renderCamera.setFrame(new FrameHelper().createFrame());
+
+        const fov: number = renderCamera.perspective.fov;
+
+        renderCamera.setRenderMode(RenderMode.Letterbox);
+
+        expect(renderCamera.perspective.fov).toBeGreaterThan(fov);
+    });
+
+    it("should decrease when increasing aspect", () => {
+        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
+
+        renderCamera.setFrame(new FrameHelper().createFrame());
+
+        const fov: number = renderCamera.perspective.fov;
+
+        renderCamera.setSize({ width: 5, height: 1 });
+
+        expect(renderCamera.perspective.fov).toBeLessThan(fov);
+    });
+
+    it("should be constant when decreasing aspect", () => {
+        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
+
+        renderCamera.setFrame(new FrameHelper().createFrame());
+
+        renderCamera.setSize({ width: 0.5, height: 1 });
+
+        const fov: number = renderCamera.perspective.fov;
+
+        renderCamera.setSize({ width: 0.1, height: 1 });
+
+        expect(renderCamera.perspective.fov).toBe(fov);
+    });
+
+    it("should decrease when increasing zoom", () => {
+        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
+
+        renderCamera.setFrame(new FrameHelper().createFrame());
+
+        const fov: number = renderCamera.perspective.fov;
+
+        const frame: IFrame = new FrameHelper().createFrame();
+        frame.state.zoom = 1;
+        renderCamera.setFrame(frame);
+
+        expect(renderCamera.perspective.fov).toBeLessThan(fov);
     });
 });

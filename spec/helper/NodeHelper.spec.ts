@@ -31,13 +31,13 @@ export class NodeHelper {
             cca: 0,
             cfocal: 0,
             gpano: null,
-            height: 0,
+            height: 1,
             merge_cc: 0,
             merge_version: 0,
             orientation: 0,
             private: false,
             user: { key: this._userKey, username: this._username },
-            width: 0,
+            width: 1,
         };
     }
 
@@ -52,7 +52,7 @@ export class NodeHelper {
             cfocal: 0,
             cl: { lat: 0, lon: 0 },
             gpano: null,
-            height: 0,
+            height: 1,
             key: this._nodeKey,
             l: { lat: 0, lon: 0},
             merge_cc: 0,
@@ -61,7 +61,7 @@ export class NodeHelper {
             private: false,
             sequence_key: this._sequenceKey,
             user: { key: this._userKey, username: this._username },
-            width: 0,
+            width: 1,
         };
     }
 
