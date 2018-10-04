@@ -53,6 +53,39 @@ describe("Popup.update", () => {
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup").length).toBe(1);
     });
 
+    it("should set mapillaryjs-popup-capture-pointer class by default", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup(undefined, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-capture-pointer").length)
+            .toBeGreaterThanOrEqual(1);
+    });
+
+    it("should not set mapillaryjs-popup-capture-pointer class when disabled", () => {
+        const viewportCoords: ViewportCoords = new ViewportCoords();
+        spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([50, 50]);
+
+        const popup: Popup = new Popup({ capturePointer: false }, viewportCoords);
+
+        const parentContainer: HTMLElement = document.createElement("div");
+        popup.setParentContainer(parentContainer);
+        popup.setBasicPoint([0.5, 0.5]);
+        popup.setText("Test");
+
+        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+
+        expect(parentContainer.querySelectorAll(".mapillaryjs-popup-capture-pointer").length).toBe(0);
+    });
+
     it("should translate to pixel value calculated from basic value", () => {
         const viewportCoords: ViewportCoords = new ViewportCoords();
         spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);

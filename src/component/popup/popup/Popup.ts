@@ -81,14 +81,16 @@ export class Popup {
     constructor(options?: IPopupOptions, viewportCoords?: ViewportCoords, dom?: DOM) {
         this._options = {};
 
-        if (!!options) {
-            this._options.capturePointer = options.capturePointer == null ? true : options.capturePointer;
-            this._options.clean = options.clean;
-            this._options.float = options.float;
-            this._options.offset = options.offset;
-            this._options.opacity = options.opacity;
-            this._options.position = options.position;
-        }
+        options = !!options ? options : {};
+
+        this._options.capturePointer = options.capturePointer === false ?
+            options.capturePointer : true;
+
+        this._options.clean = options.clean;
+        this._options.float = options.float;
+        this._options.offset = options.offset;
+        this._options.opacity = options.opacity;
+        this._options.position = options.position;
 
         this._dom = !!dom ? dom : new DOM();
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
