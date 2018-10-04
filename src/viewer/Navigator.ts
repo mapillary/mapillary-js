@@ -297,22 +297,22 @@ export class Navigator {
     private _makeRequest$(node$: Observable<Node>): Observable<Node> {
         const request$: ReplaySubject<Node> = new ReplaySubject<Node>(1);
         this._requestSubscription = request$
-            .subscribe(undefined, (e: Error): void => { /*noop*/ });
+            .subscribe(undefined, (): void => { /*noop*/ });
 
         this._request$ = request$;
 
         this._nodeRequestSubscription = node$
             .subscribe(
                 (node: Node): void => {
+                    this._request$ = null;
+
                     request$.next(node);
                     request$.complete();
-
-                    this._request$ = null;
                 },
                 (error: Error): void => {
-                    request$.error(error);
-
                     this._request$ = null;
+
+                    request$.error(error);
                 });
 
         return request$;

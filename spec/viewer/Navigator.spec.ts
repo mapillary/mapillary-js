@@ -296,6 +296,69 @@ describe("Navigator.moveToKey$", () => {
 
         cacheNodeSubject$.next(node);
     });
+
+    describe("Navigator.moveToKey$", () => {
+        it("should complete and not abort when another call is made in callback", () => {
+            let clientId: string = "clientId";
+            let apiV3: APIv3 = new APIv3(clientId);
+            let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+            let graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+            let loadingService: LoadingService = new LoadingService();
+            let stateService: StateService = new StateService();
+            let cacheService: CacheService = new CacheService(graphService, stateService);
+
+            spyOn(loadingService, "startLoading").and.stub();
+            spyOn(loadingService, "stopLoading").and.stub();
+
+            let key: string = "key1";
+            let sequenceKey: string = "sequenceKey";
+            let cacheNodeSubject$: Subject<Node> = new Subject<Node>();
+            let node: Node = new Node({
+                cl: { lat: 0, lon: 0 },
+                key: key,
+                l: { lat: 0, lon: 0 },
+                sequence_key: sequenceKey,
+            });
+
+            spyOn(graphService, "cacheNode$").and.returnValue(cacheNodeSubject$);
+            spyOn(stateService, "setNodes").and.stub();
+
+            let navigator: Navigator =
+                new Navigator(
+                    clientId,
+                    {},
+                    undefined,
+                    apiV3,
+                    graphService,
+                    imageLoadingService,
+                    loadingService,
+                    stateService,
+                    cacheService);
+
+            let successCount: number = 0;
+            let errorCount: number = 0;
+            let completeCount: number = 0;
+
+            navigator.moveToKey$(key)
+                .subscribe(
+                    (): void => {
+                        navigator.moveToKey$("key2").subscribe();
+                        successCount++;
+                    },
+                    (): void => {
+                        errorCount++;
+                    },
+                    (): void => {
+                        completeCount++;
+                    });
+
+            cacheNodeSubject$.next(node);
+
+            expect(successCount).toBe(1);
+            expect(errorCount).toBe(0);
+            expect(completeCount).toBe(1);
+        });
+    });
 });
 
 describe("Navigator.movedToKey$", () => {
