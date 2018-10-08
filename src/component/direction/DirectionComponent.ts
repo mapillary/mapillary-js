@@ -166,7 +166,8 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                 this._container.mouseService.mouseUp$.pipe(startWith(null))).pipe(
             map(
                 ([element]: [Element, RenderCamera, MouseEvent, MouseEvent]): string => {
-                    let elements: NodeListOf<Element> = element.getElementsByClassName("DirectionsPerspective");
+                    let elements: HTMLCollectionOf<Element> =
+                        <HTMLCollectionOf<Element>>element.getElementsByClassName("DirectionsPerspective");
 
                     for (let i: number = 0; i < elements.length; i++) {
                         let hovered: Element = elements.item(i).querySelector(":hover");

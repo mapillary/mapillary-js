@@ -1,4 +1,4 @@
-import {empty as observableEmpty, Observable} from "rxjs";
+import {empty as observableEmpty} from "rxjs";
 
 import {skip} from "rxjs/operators";
 import * as vd from "virtual-dom";
@@ -8,7 +8,6 @@ import {
     RenderMode,
     RenderService,
 } from "../../src/Render";
-import {IFrame} from "../../src/State";
 
 describe("DOMRenderer.ctor", () => {
     it("should be contructed", () => {
@@ -29,7 +28,8 @@ describe("DOMRenderer.render$", () => {
         domRenderer.element$
             .subscribe(
                 (e: Element): void => {
-                    let list: NodeListOf<Element> = e.getElementsByClassName("testdiv");
+                    let list: HTMLCollectionOf<Element> =
+                        <HTMLCollectionOf<Element>>e.getElementsByClassName("testdiv");
 
                     expect(list.length).toBe(1);
 
@@ -58,7 +58,8 @@ describe("DOMRenderer.render$", () => {
                     for (let i of [1, 2]) {
                         let className: string = "testdiv" + i.toString();
 
-                        let list: NodeListOf<Element> = e.getElementsByClassName(className);
+                        let list: HTMLCollectionOf<Element> =
+                            <HTMLCollectionOf<Element>>e.getElementsByClassName(className);
                         expect(list.length).toBe(1);
 
                         let testDiv: HTMLDivElement = <HTMLDivElement>list[0];
@@ -86,10 +87,12 @@ describe("DOMRenderer.render$", () => {
             skip(1))
             .subscribe(
                 (e: Element): void => {
-                    let list1: NodeListOf<Element> = e.getElementsByClassName("testdiv1");
+                    let list1: HTMLCollectionOf<Element> =
+                        <HTMLCollectionOf<Element>>e.getElementsByClassName("testdiv1");
                     expect(list1.length).toBe(0);
 
-                    let list2: NodeListOf<Element> = e.getElementsByClassName("testdiv2");
+                    let list2: HTMLCollectionOf<Element> =
+                        <HTMLCollectionOf<Element>>e.getElementsByClassName("testdiv2");
                     expect(list2.length).toBe(1);
 
                     let testDiv: HTMLDivElement = <HTMLDivElement>list2[0];
