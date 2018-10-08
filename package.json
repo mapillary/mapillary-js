@@ -42,28 +42,28 @@
     "@types/three": "^0.92.5",
     "@types/virtual-dom": "^2.0.27",
     "@types/when": "^2.4.31",
-    "autoprefixer": "^8.6.2",
-    "brfs": "^1.6.1",
-    "browserify": "^16.2.2",
+    "autoprefixer": "^9.1.5",
+    "brfs": "^2.0.1",
+    "browserify": "^16.2.3",
     "browserify-middleware": "^8.1.1",
-    "cssnano": "^3.10.0",
+    "cssnano": "^4.1.4",
     "exorcist": "^1.0.1",
     "express": "^4.16.3",
-    "husky": "^0.14.3",
+    "husky": "^1.1.1",
     "jasmine-core": "^3.2.1",
     "karma": "^3.0.0",
     "karma-browserify": "^5.3.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-firefox-launcher": "^1.1.0",
     "karma-jasmine": "^1.1.2",
-    "postcss-cli": "^5.0.0",
+    "postcss-cli": "^6.0.0",
     "postcss-middleware": "^1.1.4",
     "tsify": "^4.0.0",
     "tslint": "^5.10.0",
     "typedoc": "^0.11.1",
     "typedoc-default-themes": "~0.5.0",
     "typescript": "^2.9.2",
-    "uglify-js": "^3.4.0",
+    "uglify-js": "^3.4.9",
     "watchify": "^3.11.0"
   },
   "browser": {
@@ -88,11 +88,15 @@
     "lint": "npm run lint-spec && npm run lint-src",
     "lint-spec": "tslint -c tslint.json -p tsconfig.json \"spec/**/*.ts\"",
     "lint-src": "tslint -c tslint.json -p tsconfig.json \"src/**/*.ts\"",
-    "precommit": "npm run lint -q",
     "prepare": "npm run clean && npm run lint-src && npm run build-min && npm run build-dev && npm run build-css && npm run copy-assets",
-    "prepush": "npm test -q",
     "start": "node server.js",
     "test": "karma start --single-run",
     "test-watch": "karma start"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint -q",
+      "pre-push": "npm test -q"
+    }
   }
 }
