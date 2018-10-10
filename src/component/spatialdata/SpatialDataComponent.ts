@@ -1,5 +1,7 @@
 import {
     empty as observableEmpty,
+    of as observableOf,
+    zip as observableZip,
     Observable,
     Subscriber,
 } from "rxjs";
@@ -7,6 +9,8 @@ import {
 import {
     switchMap,
     catchError,
+    withLatestFrom,
+    map,
 } from "rxjs/operators";
 
 import {
@@ -14,7 +18,24 @@ import {
     Component,
     IComponentConfiguration,
     IReconstruction,
+    SpatialDataScene,
 } from "../../Component";
+import {
+    GeoCoords,
+    ILatLonAlt,
+    Spatial,
+    Transform,
+} from "../../Geo";
+import {
+    Node,
+} from "../../Graph";
+import {
+    IGLRenderHash,
+    GLRenderStage,
+} from "../../Render";
+import {
+    IFrame,
+} from "../../State";
 import {
     Urls,
 } from "../../Utils";
@@ -26,26 +47,54 @@ import {
 export class SpatialDataComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "spatialData";
 
+    private _geoCoords: GeoCoords;
+    private _scene: SpatialDataScene;
+    private _spatial: Spatial;
+
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
+
+        this._geoCoords = new GeoCoords();
+        this._scene = new SpatialDataScene();
+        this._spatial = new Spatial();
     }
 
     protected _activate(): void {
-        this._navigator.stateService.currentKey$.pipe(
+        this._navigator.stateService.currentNode$.pipe(
+            withLatestFrom(this._navigator.stateService.reference$),
             switchMap(
-                (key: string): Observable<any> => {
-                    return this._getAtomicReconstruction(key).pipe(
-                        catchError(
-                            (error: Error): Observable<IReconstruction> => {
-                                console.error(error);
+                ([node, reference]: [Node, ILatLonAlt]): Observable<[IReconstruction, Transform]> => {
+                    return observableZip(
+                        this._getAtomicReconstruction(node.key),
+                        this._createTransform(node, reference)).pipe(
+                            catchError(
+                                (error: Error): Observable<[IReconstruction, Transform]> => {
+                                    console.error(error);
 
-                                return observableEmpty();
-                            }));
+                                    return observableEmpty();
+                                }));
                 }))
             .subscribe(
-                (reconstruction: IReconstruction): void => {
-                    return;
+                ([reconstruction, transform]: [IReconstruction, Transform]): void => {
+                    this._scene.addReconstruction(reconstruction, transform);
                 });
+
+        this._navigator.stateService.currentState$.pipe(
+                map(
+                    (frame: IFrame): IGLRenderHash => {
+                        const scene: SpatialDataScene = this._scene;
+
+                        return {
+                            name: this._name,
+                            render: {
+                                frameId: frame.id,
+                                needsRender: scene.needsRender,
+                                render: scene.render.bind(scene),
+                                stage: GLRenderStage.Foreground,
+                            },
+                        };
+                    }))
+                .subscribe(this._container.glRenderer.render$);
     }
 
     protected _deactivate(): void {
@@ -54,6 +103,34 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
         return {};
+    }
+
+    private _createTransform(node: Node, reference: ILatLonAlt): Observable<Transform> {
+        const C: number[] = this._geoCoords.geodeticToEnu(
+            node.latLon.lat,
+            node.latLon.lon,
+            node.alt,
+            reference.lat,
+            reference.lon,
+            reference.alt);
+
+        const RC: THREE.Vector3 = this._spatial.rotate(C, node.rotation);
+        const translation: number[] = [-RC.x, -RC.y, -RC.z];
+        const transform: Transform = new Transform(
+            node.orientation,
+            node.width,
+            node.height,
+            node.focal,
+            node.scale,
+            node.gpano,
+            node.rotation,
+            translation,
+            node.image,
+            undefined,
+            node.ck1,
+            node.ck2);
+
+        return observableOf(transform);
     }
 
     private _getAtomicReconstruction(key: string): Observable<IReconstruction> {
