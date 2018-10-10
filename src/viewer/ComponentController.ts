@@ -109,6 +109,7 @@ export class ComponentController {
         this._uFalse(options.popup, "popup");
         this._uFalse(options.route, "route");
         this._uFalse(options.slider, "slider");
+        this._uFalse(options.spatialData, "spatialData");
         this._uFalse(options.tag, "tag");
 
         this._uTrue(options.attribution, "attribution");

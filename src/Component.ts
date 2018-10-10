@@ -42,6 +42,8 @@ export {RouteComponent} from "./component/RouteComponent";
 export {SequenceComponent} from "./component/sequence/SequenceComponent";
 export {SequenceDOMRenderer} from "./component/sequence/SequenceDOMRenderer";
 export {SequenceMode} from "./component/sequence/SequenceMode";
+export {SpatialDataComponent} from "./component/spatialdata/SpatialDataComponent";
+export {SpatialDataScene} from "./component/spatialdata/SpatialDataScene";
 export {ImagePlaneComponent} from "./component/imageplane/ImagePlaneComponent";
 export {ImagePlaneGLRenderer} from "./component/imageplane/ImagePlaneGLRenderer";
 export {Shaders} from "./component/shaders/Shaders";

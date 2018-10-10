@@ -14,6 +14,16 @@ export interface IUrlOptions {
     apiHost?: string;
 
     /**
+     * Atomic reconstruction host.
+     *
+     * @description Used for retrieving the atomic reconstruction
+     * for showing point clouds.
+     *
+     * @default {"d3necqxnn15whe.cloudfront.net"}
+     */
+    atomicReconstructionHost?: string;
+
+    /**
      * Explore host.
      *
      * @description Host used for links to the full

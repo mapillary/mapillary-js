@@ -13,4 +13,5 @@ export {ITagConfiguration} from "./ITagConfiguration";
 export {IShader} from "./IShader";
 export * from "../imageplane/interfaces/interfaces";
 export * from "../marker/interfaces/interfaces";
+export * from "../spatialdata/interfaces/interfaces";
 export * from "../tag/interfaces/interfaces";

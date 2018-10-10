@@ -163,6 +163,15 @@ export interface IComponentOptions {
     slider?: boolean | ISliderConfiguration;
 
     /**
+     * Enable an interface for showing spatial data in the viewer.
+     *
+     * @description Requires WebGL support.
+     *
+     * @default false
+     */
+    spatialData?: boolean;
+
+    /**
      * Contribute viewing stats to Mapillary.
      *
      * @default true
