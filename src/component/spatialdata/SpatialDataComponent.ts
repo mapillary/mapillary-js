@@ -1,5 +1,8 @@
+import * as geohash from "latlon-geohash";
+
 import {
     empty as observableEmpty,
+    from as observableFrom,
     of as observableOf,
     zip as observableZip,
     Observable,
@@ -11,6 +14,9 @@ import {
     catchError,
     withLatestFrom,
     map,
+    first,
+    mergeMap,
+    distinctUntilChanged,
 } from "rxjs/operators";
 
 import {
@@ -61,8 +67,27 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._navigator.stateService.currentNode$.pipe(
-            withLatestFrom(this._navigator.stateService.reference$),
+            map(
+                (node: Node): string => {
+                    return geohash.encode(node.computedLatLon.lat, node.computedLatLon.lon, 8);
+                }),
+            distinctUntilChanged(),
+            map(
+                (hash: string): geohash.Bounds => {
+                    return geohash.bounds(hash);
+                }),
             switchMap(
+                (bounds: geohash.Bounds): Observable<Node[]> => {
+                    return this._navigator.graphService.cacheBoundingBox$(
+                        { lat: bounds.sw.lat, lon: bounds.sw.lon },
+                        { lat: bounds.ne.lat, lon: bounds.ne.lon });
+                }),
+            switchMap(
+                (nodes: Node[]): Observable<Node> => {
+                    return observableFrom(nodes);
+                }),
+            withLatestFrom(this._navigator.stateService.reference$),
+            mergeMap(
                 ([node, reference]: [Node, ILatLonAlt]): Observable<[IReconstruction, Transform]> => {
                     return observableZip(
                         this._getAtomicReconstruction(node.key),
@@ -73,28 +98,29 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
 
                                     return observableEmpty();
                                 }));
-                }))
+                },
+                6))
             .subscribe(
                 ([reconstruction, transform]: [IReconstruction, Transform]): void => {
                     this._scene.addReconstruction(reconstruction, transform);
                 });
 
         this._navigator.stateService.currentState$.pipe(
-                map(
-                    (frame: IFrame): IGLRenderHash => {
-                        const scene: SpatialDataScene = this._scene;
+            map(
+                (frame: IFrame): IGLRenderHash => {
+                    const scene: SpatialDataScene = this._scene;
 
-                        return {
-                            name: this._name,
-                            render: {
-                                frameId: frame.id,
-                                needsRender: scene.needsRender,
-                                render: scene.render.bind(scene),
-                                stage: GLRenderStage.Foreground,
-                            },
-                        };
-                    }))
-                .subscribe(this._container.glRenderer.render$);
+                    return {
+                        name: this._name,
+                        render: {
+                            frameId: frame.id,
+                            needsRender: scene.needsRender,
+                            render: scene.render.bind(scene),
+                            stage: GLRenderStage.Foreground,
+                        },
+                    };
+                }))
+            .subscribe(this._container.glRenderer.render$);
     }
 
     protected _deactivate(): void {
@@ -125,7 +151,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
             node.gpano,
             node.rotation,
             translation,
-            node.image,
+            undefined,
             undefined,
             node.ck1,
             node.ck2);

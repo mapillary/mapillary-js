@@ -46,11 +46,12 @@ export class SpatialDataScene {
 
         const material: THREE.PointsMaterial = new THREE.PointsMaterial({
             size: 0.2,
-            sizeAttenuation: true,
             vertexColors: THREE.VertexColors,
         });
 
         this._points.add(new THREE.Points(geometry, material));
+
+        this._needsRender = true;
     }
 
     public render(
