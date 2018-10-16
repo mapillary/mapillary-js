@@ -1,17 +1,17 @@
 import * as geohash from "latlon-geohash";
 
 import {
-    of as observableOf,
-    zip as observableZip,
+    combineLatest as observableCombineLatest,
+    from as observableFrom,
     Observable,
 } from "rxjs";
 
 import {
     filter,
-    switchMap,
     withLatestFrom,
     map,
-    mergeMap,
+    distinctUntilChanged,
+    concatMap,
 } from "rxjs/operators";
 
 import {
@@ -63,27 +63,60 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._navigator.stateService.currentNode$.pipe(
+        const direction$: Observable<string> = this._container.renderService.bearing$.pipe(
+            map(
+                (bearing: number): string => {
+                    let direction: string = "";
+
+                    if (bearing > 292.5 || bearing <= 67.5) {
+                        direction += "n";
+                    }
+
+                    if (bearing > 112.5 && bearing <= 247.5) {
+                        direction += "s";
+                    }
+
+                    if (bearing > 22.5 && bearing <= 157.5) {
+                        direction += "e";
+                    }
+
+                    if (bearing > 202.5 && bearing <= 337.5) {
+                        direction += "w";
+                    }
+
+                    return direction;
+                }),
+            distinctUntilChanged());
+
+        const hash$: Observable<string> = this._navigator.stateService.currentNode$.pipe(
             map(
                 (node: Node): string => {
                     return geohash.encode(node.computedLatLon.lat, node.computedLatLon.lon, 8);
+                }));
+
+        observableCombineLatest(hash$, direction$).pipe(
+            concatMap(
+                ([hash, direction]: [string, string]): Observable<string> => {
+                    const neighbours: geohash.Neighbours = geohash.neighbours(hash);
+
+                    const hashes: string[] = [hash];
+                    hashes.push(neighbours[<keyof geohash.Neighbours>direction]);
+
+                    return observableFrom(hashes);
                 }),
             filter(
                 (hash: string): boolean => {
                     return !(this._cache.hasTile(hash) || this._cache.isCachingTile(hash));
                 }),
-            switchMap(
+            concatMap(
                 (hash: string): Observable<ReconstructionData> => {
                     return this._cache.cacheTile$(hash);
                 }),
             withLatestFrom(this._navigator.stateService.reference$),
-            mergeMap(
-                ([data, reference]: [ReconstructionData, ILatLonAlt]): Observable<[IReconstruction, Transform]> => {
-                    return observableZip(
-                        observableOf(data.reconstruction),
-                        observableOf(this._createTransform(data.data, reference)));
-                },
-                6))
+            map(
+                ([data, reference]: [ReconstructionData, ILatLonAlt]): [IReconstruction, Transform] => {
+                    return [data.reconstruction, this._createTransform(data.data, reference)];
+                }))
             .subscribe(
                 ([reconstruction, transform]: [IReconstruction, Transform]): void => {
                     if (!transform.hasValidScale) {
