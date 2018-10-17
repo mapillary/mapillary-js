@@ -2,6 +2,7 @@ import {ArgumentMapillaryError} from "../../Error";
 import {Node} from "../../Graph";
 import {
     Camera,
+    Geo,
     GeoCoords,
     ILatLonAlt,
     Transform,
@@ -60,7 +61,7 @@ export abstract class StateBase implements IState {
         this._trajectoryCameras = [];
 
         for (let node of this._trajectory) {
-            let translation: number[] = this._nodeToTranslation(node);
+            let translation: number[] = this._nodeToTranslation(node, this._reference);
             let transform: Transform = new Transform(
                 node.orientation,
                 node.width,
@@ -364,7 +365,7 @@ export abstract class StateBase implements IState {
                 throw new ArgumentMapillaryError("Assets must be cached when node is added to trajectory");
             }
 
-            let translation: number[] = this._nodeToTranslation(node);
+            let translation: number[] = this._nodeToTranslation(node, this.reference);
             let transform: Transform = new Transform(
                 node.orientation,
                 node.width,
@@ -390,7 +391,7 @@ export abstract class StateBase implements IState {
                 throw new ArgumentMapillaryError("Assets must be cached when added to trajectory");
             }
 
-            let translation: number[] = this._nodeToTranslation(node);
+            let translation: number[] = this._nodeToTranslation(node, this.reference);
             let transform: Transform = new Transform(
                 node.orientation,
                 node.width,
@@ -410,18 +411,11 @@ export abstract class StateBase implements IState {
         }
     }
 
-    private _nodeToTranslation(node: Node): number[] {
-        let C: number[] = this._geoCoords.geodeticToEnu(
-            node.latLon.lat,
-            node.latLon.lon,
-            node.alt,
-            this._reference.lat,
-            this._reference.lon,
-            this._reference.alt);
-
-        let RC: THREE.Vector3 = this._spatial.rotate(C, node.rotation);
-
-        return [-RC.x, -RC.y, -RC.z];
+    private _nodeToTranslation(node: Node, reference: ILatLonAlt): number[] {
+        return Geo.computeTranslation(
+            { alt: node.alt, lat: node.latLon.lat, lon: node.latLon.lon },
+            node.rotation,
+            reference);
     }
 
     private _sameConnectedComponent(): boolean {

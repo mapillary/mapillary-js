@@ -9,7 +9,6 @@ import {
 } from "rxjs";
 
 import {
-    filter,
     withLatestFrom,
     map,
     distinctUntilChanged,
@@ -27,6 +26,7 @@ import {
     SpatialDataScene,
 } from "../../Component";
 import {
+    Geo,
     GeoCoords,
     ILatLonAlt,
     Spatial,
@@ -155,16 +155,11 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
     }
 
     private _createTransform(data: NodeData, reference: ILatLonAlt): Transform {
-        const C: number[] = this._geoCoords.geodeticToEnu(
-            data.lat,
-            data.lon,
-            data.alt,
-            reference.lat,
-            reference.lon,
-            reference.alt);
+        const translation: number[] = Geo.computeTranslation(
+            { alt: data.alt, lat: data.lat, lon: data.lon },
+            data.rotation,
+            reference);
 
-        const RC: THREE.Vector3 = this._spatial.rotate(C, data.rotation);
-        const translation: number[] = [-RC.x, -RC.y, -RC.z];
         const transform: Transform = new Transform(
             data.orientation,
             data.width,
