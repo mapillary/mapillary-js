@@ -2,6 +2,7 @@ import * as geohash from "latlon-geohash";
 
 import {
     combineLatest as observableCombineLatest,
+    empty as observableEmpty,
     from as observableFrom,
     Observable,
 } from "rxjs";
@@ -97,20 +98,13 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
         observableCombineLatest(hash$, direction$).pipe(
             concatMap(
                 ([hash, direction]: [string, string]): Observable<string> => {
-                    const neighbours: geohash.Neighbours = geohash.neighbours(hash);
-
-                    const hashes: string[] = [hash];
-                    hashes.push(neighbours[<keyof geohash.Neighbours>direction]);
-
-                    return observableFrom(hashes);
-                }),
-            filter(
-                (hash: string): boolean => {
-                    return !(this._cache.hasTile(hash) || this._cache.isCachingTile(hash));
+                    return observableFrom(this._computeTiles(hash, direction));
                 }),
             concatMap(
                 (hash: string): Observable<ReconstructionData> => {
-                    return this._cache.cacheTile$(hash);
+                    return this._cache.hasTile(hash) || this._cache.isCachingTile(hash) ?
+                        observableEmpty() :
+                        this._cache.cacheTile$(hash);
                 }),
             withLatestFrom(this._navigator.stateService.reference$),
             map(
@@ -178,6 +172,54 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
             data.k2);
 
         return transform;
+    }
+
+    private _computeTiles(hash: string, direction: string): string[] {
+        const hashSet: Set<string> = new Set<string>();
+        const directions: string[] = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
+
+        this._computeTilesRecursive(hashSet, hash, direction, directions, 0, 2);
+
+        const hashes: string[] = [];
+        hashSet.forEach(
+            (h: string) => {
+                hashes.push(h);
+            });
+
+        return hashes;
+    }
+
+    private _computeTilesRecursive(
+        hashSet: Set<string>,
+        currentHash: string,
+        direction: string,
+        directions: string[],
+        currentDepth: number,
+        maxDepth: number): void {
+
+        hashSet.add(currentHash);
+
+        if (currentDepth === maxDepth) {
+            return;
+        }
+
+        const neighbours: geohash.Neighbours = geohash.neighbours(currentHash);
+        const directionIndex: number = directions.indexOf(direction);
+        const length: number = directions.length;
+
+        const directionNeighbours: string[] = [
+            neighbours[<keyof geohash.Neighbours>directions[this._modulo((directionIndex - 1), length)]],
+            neighbours[<keyof geohash.Neighbours>direction],
+            neighbours[<keyof geohash.Neighbours>directions[this._modulo((directionIndex + 1), length)]],
+        ];
+
+        for (let directionNeighbour of directionNeighbours) {
+            this._computeTilesRecursive(hashSet, directionNeighbour, direction, directions, currentDepth + 1, maxDepth);
+        }
+    }
+
+    private _modulo(a: number, n: number): number {
+        return ((a % n) + n) % n;
     }
 }
 
