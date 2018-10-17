@@ -27,25 +27,40 @@ export class SpatialDataScene {
 
     public addReconstruction(reconstruction: IReconstruction, transform: Transform): void {
         const srtInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
-        const geometry: THREE.Geometry = new THREE.Geometry();
-        const points: IReconstructionPoint[] = reconstruction.points;
+        const points: IReconstructionPoint[] = Object
+            .keys(reconstruction.points)
+            .map(
+                (key: string): IReconstructionPoint => {
+                    return reconstruction.points[key];
+                });
 
-        for (let id in points) {
-            if (!points.hasOwnProperty(id)) {
-                continue;
-            }
+        const numPoints: number = points.length;
+        const positions: Float32Array = new Float32Array(numPoints * 3);
+        const colors: Float32Array = new Float32Array(numPoints * 3);
 
-            const coords: number[] = points[id].coordinates;
-            const color: number[] = points[id].color;
+        for (let i: number = 0; i < numPoints; i++) {
+            const index: number = 3 * i;
+
+            const coords: number[] = points[i].coordinates;
             const point: THREE.Vector3 = new THREE.Vector3(coords[0], coords[1], coords[2])
                 .applyMatrix4(srtInverse);
 
-            geometry.vertices.push(point);
-            geometry.colors.push(new THREE.Color(color[0] / 255.0, color[1] / 255.0, color[2] / 255.0));
+            positions[index + 0] = point.x;
+            positions[index + 1] = point.y;
+            positions[index + 2] = point.z;
+
+            const color: number[] = points[i].color;
+            colors[index + 0] = color[0] / 255.0;
+            colors[index + 1] = color[1] / 255.0;
+            colors[index + 2] = color[2] / 255.0;
         }
 
+        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.addAttribute("color", new THREE.BufferAttribute(colors, 3));
+
         const material: THREE.PointsMaterial = new THREE.PointsMaterial({
-            size: 0.2,
+            size: 0.1,
             vertexColors: THREE.VertexColors,
         });
 
