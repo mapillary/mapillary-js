@@ -141,6 +141,20 @@ export class SpatialDataCache {
         return hash in this._tiles ? this._tiles[hash] : [];
     }
 
+    public uncache(keepHashes?: string[]): void {
+        for (let hash of Object.keys(this._tiles)) {
+            if (!(this._tiles.hasOwnProperty(hash))) {
+                continue;
+            }
+
+            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
+                continue;
+            }
+
+            delete this._tiles[hash];
+        }
+    }
+
     private _createNodeData(node: Node): NodeData {
         return {
             alt: node.alt,

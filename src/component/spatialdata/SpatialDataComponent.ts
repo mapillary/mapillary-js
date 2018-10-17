@@ -143,6 +143,9 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
     }
 
     protected _deactivate(): void {
+        this._cache.uncache();
+        this._scene.clear();
+
         this._addReconstructionSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
     }

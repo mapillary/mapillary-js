@@ -69,6 +69,16 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
+    public clear(): void {
+        for (const object3d of this._points.children.slice()) {
+            const points: THREE.Points = <THREE.Points>object3d;
+            points.geometry.dispose();
+            points.material.dispose();
+
+            this._points.remove(points);
+        }
+    }
+
     public render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
