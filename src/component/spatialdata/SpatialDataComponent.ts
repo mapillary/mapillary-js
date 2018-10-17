@@ -5,6 +5,7 @@ import {
     empty as observableEmpty,
     from as observableFrom,
     Observable,
+    Subscription,
 } from "rxjs";
 
 import {
@@ -54,6 +55,9 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
     private _scene: SpatialDataScene;
     private _spatial: Spatial;
 
+    private _addReconstructionSubscription: Subscription;
+    private _renderSubscription: Subscription;
+
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
@@ -95,7 +99,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                     return geohash.encode(node.computedLatLon.lat, node.computedLatLon.lon, 8);
                 }));
 
-        observableCombineLatest(hash$, direction$).pipe(
+        this._addReconstructionSubscription = observableCombineLatest(hash$, direction$).pipe(
             concatMap(
                 ([hash, direction]: [string, string]): Observable<string> => {
                     return observableFrom(this._computeTiles(hash, direction));
@@ -120,7 +124,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                     this._scene.addReconstruction(reconstruction, transform);
                 });
 
-        this._navigator.stateService.currentState$.pipe(
+        this._renderSubscription = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: IFrame): IGLRenderHash => {
                     const scene: SpatialDataScene = this._scene;
@@ -139,7 +143,8 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
     }
 
     protected _deactivate(): void {
-        return;
+        this._addReconstructionSubscription.unsubscribe();
+        this._renderSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
