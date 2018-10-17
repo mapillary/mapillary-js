@@ -75,6 +75,10 @@ export class SpatialDataCache {
             throw new Error("Hash needs to be level 8.");
         }
 
+        if (hash in this._tiles) {
+            throw new Error("Cannot cache tile that already exists.");
+        }
+
         if (hash in this._cachingTiles$) {
             return this._cachingTiles$[hash];
         }
