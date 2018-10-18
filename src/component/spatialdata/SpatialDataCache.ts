@@ -29,6 +29,9 @@ import {
     IReconstruction,
 } from "../../Component";
 import {
+    AbortMapillaryError,
+} from "../../Error";
+import {
     GraphService,
     Node,
 } from "../../Graph";
@@ -62,12 +65,14 @@ export class SpatialDataCache {
 
     private _tiles: { [hash: string]: ReconstructionData[] };
     private _cachingTiles$: { [hash: string]: Observable<ReconstructionData> };
+    private _cacheRequests: { [hash: string]: XMLHttpRequest[] };
 
     constructor(graphService: GraphService) {
         this._graphService = graphService;
 
         this._tiles = {};
         this._cachingTiles$ = {};
+        this._cacheRequests = {};
     }
 
     public cacheTile$(hash: string): Observable<ReconstructionData> {
@@ -84,6 +89,7 @@ export class SpatialDataCache {
         }
 
         this._tiles[hash] = [];
+        this._cacheRequests[hash] = [];
 
         const bounds: geohash.Bounds = geohash.bounds(hash);
         const sw: ILatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
@@ -98,12 +104,14 @@ export class SpatialDataCache {
                 (node: Node): Observable<[NodeData, IReconstruction]> => {
                     return observableZip(
                         observableOf(this._createNodeData(node)),
-                        this._getAtomicReconstruction(node.key))
+                        this._getAtomicReconstruction(node.key, this._cacheRequests[hash]))
                         .pipe(
                             retry(2),
                             catchError(
                                 (error: Error): Observable<[NodeData, IReconstruction]> => {
-                                    console.error(error);
+                                    if (!(error instanceof AbortMapillaryError)) {
+                                        console.error(error);
+                                    }
 
                                     return observableEmpty();
                                 }));
@@ -121,6 +129,10 @@ export class SpatialDataCache {
                 (): void => {
                     if (hash in this._cachingTiles$) {
                         delete this._cachingTiles$[hash];
+                    }
+
+                    if (hash in this._cacheRequests) {
+                        delete this._cacheRequests[hash];
                     }
                 }),
             publish(),
@@ -142,6 +154,16 @@ export class SpatialDataCache {
     }
 
     public uncache(keepHashes?: string[]): void {
+        for (let hash of Object.keys(this._cacheRequests)) {
+            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
+                continue;
+            }
+
+            for (const request of this._cacheRequests[hash]) {
+                request.abort();
+            }
+        }
+
         for (let hash of Object.keys(this._tiles)) {
             if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
                 continue;
@@ -169,10 +191,11 @@ export class SpatialDataCache {
         };
     }
 
-    private _getAtomicReconstruction(key: string): Observable<IReconstruction> {
+    private _getAtomicReconstruction(key: string, requests: XMLHttpRequest[]): Observable<IReconstruction> {
         return Observable.create(
             (subscriber: Subscriber<IReconstruction>): void => {
                 const xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
+
                 xmlHTTP.open("GET", Urls.atomicReconstruction(key), true);
                 xmlHTTP.responseType = "json";
                 xmlHTTP.timeout = 15000;
@@ -191,8 +214,10 @@ export class SpatialDataCache {
                 };
 
                 xmlHTTP.onabort = () => {
-                    subscriber.error(new Error(`Atomic reconstruction request was aborted (${key})`));
+                    subscriber.error(new AbortMapillaryError(`Atomic reconstruction request was aborted (${key})`));
                 };
+
+                requests.push(xmlHTTP);
 
                 xmlHTTP.send(null);
             });
