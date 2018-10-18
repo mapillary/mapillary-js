@@ -14,6 +14,7 @@ import {
     map,
     distinctUntilChanged,
     concatMap,
+    share,
 } from "rxjs/operators";
 
 import {
@@ -53,6 +54,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
     private _scene: SpatialDataScene;
 
     private _addReconstructionSubscription: Subscription;
+    private _uncacheSubscription: Subscription;
     private _renderSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -92,7 +94,9 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
             map(
                 (node: Node): string => {
                     return geohash.encode(node.computedLatLon.lat, node.computedLatLon.lon, 8);
-                }));
+                }),
+            distinctUntilChanged(),
+            share());
 
         this._addReconstructionSubscription = observableCombineLatest(hash$, direction$).pipe(
             concatMap(
@@ -119,6 +123,17 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                     this._scene.addReconstruction(reconstruction, transform, hash);
                 });
 
+        this._uncacheSubscription = hash$.pipe(
+            map(
+                (hash: string): string[] => {
+                    return this._adjacentComponent(hash, 3);
+                }))
+            .subscribe(
+                (keepHashes: string[]): void => {
+                    this._scene.clear(keepHashes);
+                    this._cache.uncache(keepHashes);
+                });
+
         this._renderSubscription = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: IFrame): IGLRenderHash => {
@@ -142,11 +157,52 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
         this._scene.clear();
 
         this._addReconstructionSubscription.unsubscribe();
+        this._uncacheSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
         return {};
+    }
+
+    private _adjacentComponent(hash: string, depth: number): string[] {
+        const hashSet: Set<string> = new Set<string>();
+        hashSet.add(hash);
+
+        this._adjacentComponentRecursive(hashSet, hash, 0, 2);
+
+        return this._setToArray(hashSet);
+    }
+
+    private _adjacentComponentRecursive(
+        hashSet: Set<string>,
+        currentHash: string,
+        currentDepth: number,
+        maxDepth: number): void {
+
+        if (currentDepth === maxDepth) {
+            return;
+        }
+
+        const neighbours: geohash.Neighbours = geohash.neighbours(currentHash);
+
+        const newHashes: string[] = [];
+        for (const direction in neighbours) {
+            if (!neighbours.hasOwnProperty(direction)) {
+                continue;
+            }
+
+            const neighbour: string = neighbours[<keyof geohash.Neighbours>direction];
+
+            if (!hashSet.has(neighbour)) {
+                hashSet.add(neighbour);
+                newHashes.push(neighbour);
+            }
+        }
+
+        for (const newHash of newHashes) {
+            this._adjacentComponentRecursive(hashSet, newHash, currentDepth + 1, maxDepth);
+        }
     }
 
     private _createTransform(data: NodeData, reference: ILatLonAlt): Transform {
@@ -178,13 +234,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
 
         this._computeTilesRecursive(hashSet, hash, direction, directions, 0, 2);
 
-        const hashes: string[] = [];
-        hashSet.forEach(
-            (h: string) => {
-                hashes.push(h);
-            });
-
-        return hashes;
+        return this._setToArray(hashSet);
     }
 
     private _computeTilesRecursive(
@@ -218,6 +268,17 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
 
     private _modulo(a: number, n: number): number {
         return ((a % n) + n) % n;
+    }
+
+    private _setToArray<T>(s: Set<T>): T[] {
+        const a: T[] = [];
+
+        s.forEach(
+            (value: T) => {
+                a.push(value);
+            });
+
+        return a;
     }
 }
 
