@@ -4,6 +4,7 @@ import {
     combineLatest as observableCombineLatest,
     empty as observableEmpty,
     from as observableFrom,
+    of as observableOf,
     Observable,
     Subscription,
 } from "rxjs";
@@ -27,9 +28,7 @@ import {
 } from "../../Component";
 import {
     Geo,
-    GeoCoords,
     ILatLonAlt,
-    Spatial,
     Transform,
 } from "../../Geo";
 import {
@@ -50,10 +49,8 @@ import {
 export class SpatialDataComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "spatialData";
 
-    private _geoCoords: GeoCoords;
     private _cache: SpatialDataCache;
     private _scene: SpatialDataScene;
-    private _spatial: Spatial;
 
     private _addReconstructionSubscription: Subscription;
     private _renderSubscription: Subscription;
@@ -61,10 +58,8 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._geoCoords = new GeoCoords();
         this._cache = new SpatialDataCache(navigator.graphService);
         this._scene = new SpatialDataScene();
-        this._spatial = new Spatial();
     }
 
     protected _activate(): void {
@@ -105,23 +100,23 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                     return observableFrom(this._computeTiles(hash, direction));
                 }),
             concatMap(
-                (hash: string): Observable<ReconstructionData> => {
+                (hash: string): Observable<[ReconstructionData, string]> => {
                     return this._cache.hasTile(hash) || this._cache.isCachingTile(hash) ?
                         observableEmpty() :
-                        this._cache.cacheTile$(hash);
+                        observableCombineLatest(this._cache.cacheTile$(hash), observableOf(hash));
                 }),
             withLatestFrom(this._navigator.stateService.reference$),
             map(
-                ([data, reference]: [ReconstructionData, ILatLonAlt]): [IReconstruction, Transform] => {
-                    return [data.reconstruction, this._createTransform(data.data, reference)];
+                ([[data, hash], reference]: [[ReconstructionData, string], ILatLonAlt]): [IReconstruction, Transform, string] => {
+                    return [data.reconstruction, this._createTransform(data.data, reference), hash];
                 }))
             .subscribe(
-                ([reconstruction, transform]: [IReconstruction, Transform]): void => {
+                ([reconstruction, transform, hash]: [IReconstruction, Transform, string]): void => {
                     if (!transform.hasValidScale) {
                         return;
                     }
 
-                    this._scene.addReconstruction(reconstruction, transform);
+                    this._scene.addReconstruction(reconstruction, transform, hash);
                 });
 
         this._renderSubscription = this._navigator.stateService.currentState$.pipe(

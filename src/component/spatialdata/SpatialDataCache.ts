@@ -143,10 +143,6 @@ export class SpatialDataCache {
 
     public uncache(keepHashes?: string[]): void {
         for (let hash of Object.keys(this._tiles)) {
-            if (!(this._tiles.hasOwnProperty(hash))) {
-                continue;
-            }
-
             if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
                 continue;
             }

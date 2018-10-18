@@ -9,23 +9,23 @@ import {
 import { IReconstructionPoint } from "./interfaces/interfaces";
 
 export class SpatialDataScene {
-    private _needsRender: boolean;
     private _scene: THREE.Scene;
-    private _points: THREE.Object3D;
+
+    private _needsRender: boolean;
+    private _points: { [hash: string]: THREE.Object3D };
 
     constructor(scene?: THREE.Scene) {
-        this._needsRender = false;
         this._scene = !!scene ? scene : new THREE.Scene();
 
-        this._points = new THREE.Object3D();
-        this._scene.add(this._points);
+        this._needsRender = false;
+        this._points = {};
     }
 
     public get needsRender(): boolean {
         return this._needsRender;
     }
 
-    public addReconstruction(reconstruction: IReconstruction, transform: Transform): void {
+    public addReconstruction(reconstruction: IReconstruction, transform: Transform, hash: string): void {
         const srtInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
         const points: IReconstructionPoint[] = Object
             .keys(reconstruction.points)
@@ -64,18 +64,31 @@ export class SpatialDataScene {
             vertexColors: THREE.VertexColors,
         });
 
-        this._points.add(new THREE.Points(geometry, material));
+        if (!(hash in this._points)) {
+            this._points[hash] = new THREE.Object3D();
+            this._scene.add(this._points[hash]);
+        }
+
+        this._points[hash].add(new THREE.Points(geometry, material));
 
         this._needsRender = true;
     }
 
-    public clear(): void {
-        for (const object3d of this._points.children.slice()) {
-            const points: THREE.Points = <THREE.Points>object3d;
-            points.geometry.dispose();
-            points.material.dispose();
+    public remove(hash: string): void {
+        if (!(hash in this._points)) {
+            return;
+        }
 
-            this._points.remove(points);
+        this._disposeTile(hash);
+    }
+
+    public clear(keepHashes?: string[]): void {
+        for (const hash of Object.keys(this._points)) {
+            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
+                continue;
+            }
+
+            this._disposeTile(hash);
         }
     }
 
@@ -86,6 +99,19 @@ export class SpatialDataScene {
         renderer.render(this._scene, perspectiveCamera);
 
         this._needsRender = false;
+    }
+
+    private _disposeTile(hash: string): void {
+        const tilePoints: THREE.Object3D = this._points[hash];
+
+        for (const points of tilePoints.children.slice()) {
+            (<THREE.Points>points).geometry.dispose();
+            (<THREE.Points>points).material.dispose();
+
+            tilePoints.remove(points);
+        }
+
+        delete this._points[hash];
     }
 }
 
