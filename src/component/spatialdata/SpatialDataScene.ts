@@ -12,7 +12,7 @@ export class SpatialDataScene {
     private _scene: THREE.Scene;
 
     private _needsRender: boolean;
-    private _points: { [hash: string]: THREE.Object3D };
+    private _points: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
 
     constructor(scene?: THREE.Scene) {
         this._scene = !!scene ? scene : new THREE.Scene();
@@ -65,13 +65,22 @@ export class SpatialDataScene {
         });
 
         if (!(hash in this._points)) {
-            this._points[hash] = new THREE.Object3D();
-            this._scene.add(this._points[hash]);
+            this._points[hash] = {
+                keys: [],
+                object: new THREE.Object3D(),
+            };
+
+            this._scene.add(this._points[hash].object);
         }
 
-        this._points[hash].add(new THREE.Points(geometry, material));
+        this._points[hash].object.add(new THREE.Points(geometry, material));
+        this._points[hash].keys.push(reconstruction.main_shot);
 
         this._needsRender = true;
+    }
+
+    public hasReconstruction(key: string, hash: string): boolean {
+        return hash in this._points && this._points[hash].keys.indexOf(key) !== -1;
     }
 
     public remove(hash: string): void {
@@ -102,7 +111,7 @@ export class SpatialDataScene {
     }
 
     private _disposeTile(hash: string): void {
-        const tilePoints: THREE.Object3D = this._points[hash];
+        const tilePoints: THREE.Object3D = this._points[hash].object;
 
         for (const points of tilePoints.children.slice()) {
             (<THREE.Points>points).geometry.dispose();

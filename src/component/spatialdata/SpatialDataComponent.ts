@@ -2,7 +2,6 @@ import * as geohash from "latlon-geohash";
 
 import {
     combineLatest as observableCombineLatest,
-    empty as observableEmpty,
     from as observableFrom,
     of as observableOf,
     Observable,
@@ -15,6 +14,11 @@ import {
     distinctUntilChanged,
     concatMap,
     share,
+    switchMap,
+    tap,
+    filter,
+    last,
+    mergeMap,
 } from "rxjs/operators";
 
 import {
@@ -90,28 +94,53 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                 }),
             distinctUntilChanged());
 
-        const hash$: Observable<string> = this._navigator.stateService.currentNode$.pipe(
-            map(
-                (node: Node): string => {
-                    return geohash.encode(node.computedLatLon.lat, node.computedLatLon.lon, 8);
+        const hash$: Observable<string> = this._navigator.stateService.reference$.pipe(
+            tap(
+                (): void => {
+                    this._scene.clear();
                 }),
-            distinctUntilChanged(),
+            switchMap(
+                (): Observable<string> => {
+                    return this._navigator.stateService.currentNode$.pipe(
+                        map(
+                            (node: Node): string => {
+                                return geohash.encode(node.latLon.lat, node.latLon.lon, 8);
+                            }),
+                        distinctUntilChanged());
+                }),
             share());
 
         this._addReconstructionSubscription = observableCombineLatest(hash$, direction$).pipe(
-            concatMap(
+            mergeMap(
                 ([hash, direction]: [string, string]): Observable<string> => {
                     return observableFrom(this._computeTiles(hash, direction));
                 }),
             concatMap(
-                (hash: string): Observable<[ReconstructionData, string]> => {
-                    return this._cache.hasTile(hash) || this._cache.isCachingTile(hash) ?
-                        observableEmpty() :
-                        observableCombineLatest(this._cache.cacheTile$(hash), observableOf(hash));
+                (hash: string): Observable<[string, ReconstructionData]> => {
+                    let tile$: Observable<ReconstructionData>;
+
+                    if (this._cache.hasTile(hash)) {
+                        tile$ = observableFrom(this._cache.getTile(hash));
+                    } else if (this._cache.isCachingTile(hash)) {
+                        tile$ = this._cache.cacheTile$(hash).pipe(
+                            last(null, {}),
+                            switchMap(
+                                (): Observable<ReconstructionData> => {
+                                    return observableFrom(this._cache.getTile(hash));
+                                }));
+                    } else {
+                        tile$ = this._cache.cacheTile$(hash);
+                    }
+
+                    return observableCombineLatest(observableOf(hash), tile$);
                 }),
             withLatestFrom(this._navigator.stateService.reference$),
+            filter(
+                ([[hash, data]]: [[string, ReconstructionData], ILatLonAlt]): boolean => {
+                    return !this._scene.hasReconstruction(data.reconstruction.main_shot, hash);
+                }),
             map(
-                ([[data, hash], reference]: [[ReconstructionData, string], ILatLonAlt]): [IReconstruction, Transform, string] => {
+                ([[hash, data], reference]: [[string, ReconstructionData], ILatLonAlt]): [IReconstruction, Transform, string] => {
                     return [data.reconstruction, this._createTransform(data.data, reference), hash];
                 }))
             .subscribe(
