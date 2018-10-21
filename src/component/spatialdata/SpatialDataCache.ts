@@ -13,12 +13,12 @@ import {
     switchMap,
     mergeMap,
     catchError,
-    retry,
     tap,
     publish,
     refCount,
     finalize,
     map,
+    filter,
 } from "rxjs/operators";
 
 import {
@@ -80,12 +80,12 @@ export class SpatialDataCache {
             throw new Error("Hash needs to be level 8.");
         }
 
-        if (hash in this._tiles) {
-            throw new Error("Cannot cache tile that already exists.");
-        }
-
         if (hash in this._cachingTiles$) {
             return this._cachingTiles$[hash];
+        }
+
+        if (hash in this._tiles) {
+            throw new Error("Cannot cache tile that already exists.");
         }
 
         this._tiles[hash] = [];
@@ -106,7 +106,6 @@ export class SpatialDataCache {
                         observableOf(this._createNodeData(node)),
                         this._getAtomicReconstruction(node.key, this._cacheRequests[hash]))
                         .pipe(
-                            retry(2),
                             catchError(
                                 (error: Error): Observable<[NodeData, IReconstruction]> => {
                                     if (!(error instanceof AbortMapillaryError)) {
@@ -120,6 +119,10 @@ export class SpatialDataCache {
             map(
                 ([nodeData, reconstruction]: [NodeData, IReconstruction]): ReconstructionData => {
                     return { data: nodeData, reconstruction: reconstruction };
+                }),
+            filter(
+                (): boolean => {
+                    return hash in this._tiles;
                 }),
             tap(
                 (data: ReconstructionData): void => {
@@ -146,7 +149,7 @@ export class SpatialDataCache {
     }
 
     public hasTile(hash: string): boolean {
-        return hash in this._tiles;
+        return !(hash in this._cachingTiles$) && hash in this._tiles;
     }
 
     public getTile(hash: string): ReconstructionData[] {
@@ -162,6 +165,8 @@ export class SpatialDataCache {
             for (const request of this._cacheRequests[hash]) {
                 request.abort();
             }
+
+            delete this._cacheRequests[hash];
         }
 
         for (let hash of Object.keys(this._tiles)) {
