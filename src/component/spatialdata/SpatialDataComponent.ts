@@ -152,15 +152,11 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                     this._scene.addReconstruction(reconstruction, transform, hash);
                 });
 
-        this._uncacheSubscription = hash$.pipe(
-            map(
-                (hash: string): string[] => {
-                    return this._adjacentComponent(hash, 3);
-                }))
+        this._uncacheSubscription = hash$
             .subscribe(
-                (keepHashes: string[]): void => {
-                    this._scene.clear(keepHashes);
-                    this._cache.uncache(keepHashes);
+                (hash: string): void => {
+                    this._scene.clear(this._adjacentComponent(hash, 3));
+                    this._cache.uncache(this._adjacentComponent(hash, 4));
                 });
 
         this._renderSubscription = this._navigator.stateService.currentState$.pipe(
@@ -198,7 +194,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
         const hashSet: Set<string> = new Set<string>();
         hashSet.add(hash);
 
-        this._adjacentComponentRecursive(hashSet, hash, 0, 2);
+        this._adjacentComponentRecursive(hashSet, hash, 0, depth);
 
         return this._setToArray(hashSet);
     }
