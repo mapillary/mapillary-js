@@ -57,7 +57,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
     private _cache: SpatialDataCache;
     private _scene: SpatialDataScene;
 
-    private _addReconstructionSubscription: Subscription;
+    private _addSubscription: Subscription;
     private _uncacheSubscription: Subscription;
     private _renderSubscription: Subscription;
 
@@ -110,7 +110,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                 }),
             share());
 
-        this._addReconstructionSubscription = observableCombineLatest(hash$, direction$).pipe(
+        this._addSubscription = observableCombineLatest(hash$, direction$).pipe(
             mergeMap(
                 ([hash, direction]: [string, string]): Observable<string> => {
                     return observableFrom(this._computeTiles(hash, direction));
@@ -137,7 +137,8 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
             withLatestFrom(this._navigator.stateService.reference$),
             filter(
                 ([[hash, data]]: [[string, ReconstructionData], ILatLonAlt]): boolean => {
-                    return !this._scene.hasReconstruction(data.reconstruction.main_shot, hash);
+                    return !this._scene.hasReconstruction(data.reconstruction.main_shot, hash) ||
+                        !this._scene.hasCamera(data.reconstruction.main_shot, hash);
                 }),
             map(
                 ([[hash, data], reference]: [[string, ReconstructionData], ILatLonAlt]): [IReconstruction, Transform, string] => {
@@ -145,11 +146,14 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                 }))
             .subscribe(
                 ([reconstruction, transform, hash]: [IReconstruction, Transform, string]): void => {
-                    if (!transform.hasValidScale) {
-                        return;
+                    if (transform.hasValidScale &&
+                        !this._scene.hasReconstruction(reconstruction.main_shot, hash)) {
+                        this._scene.addReconstruction(reconstruction, transform, hash);
                     }
 
-                    this._scene.addReconstruction(reconstruction, transform, hash);
+                    if (!this._scene.hasCamera(reconstruction.main_shot, hash)) {
+                        this._scene.addCamera(reconstruction.main_shot, transform, hash);
+                    }
                 });
 
         this._uncacheSubscription = hash$
@@ -181,7 +185,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
         this._cache.uncache();
         this._scene.clear();
 
-        this._addReconstructionSubscription.unsubscribe();
+        this._addSubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
     }

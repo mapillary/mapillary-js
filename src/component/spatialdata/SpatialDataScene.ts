@@ -12,17 +12,39 @@ export class SpatialDataScene {
     private _scene: THREE.Scene;
 
     private _needsRender: boolean;
+    private _cameras: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
     private _points: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
 
     constructor(scene?: THREE.Scene) {
         this._scene = !!scene ? scene : new THREE.Scene();
 
         this._needsRender = false;
+        this._cameras = {};
         this._points = {};
     }
 
     public get needsRender(): boolean {
         return this._needsRender;
+    }
+
+    public addCamera(key: string, transform: Transform, hash: string): void {
+        if (!!transform.gpano) {
+            return;
+        }
+
+        if (!(hash in this._cameras)) {
+            this._cameras[hash] = {
+                keys: [],
+                object: new THREE.Object3D(),
+            };
+
+            this._scene.add(this._cameras[hash].object);
+        }
+
+        this._cameras[hash].object.add(this._createRegularCamera(transform));
+        this._cameras[hash].keys.push(key);
+
+        this._needsRender = true;
     }
 
     public addReconstruction(reconstruction: IReconstruction, transform: Transform, hash: string): void {
@@ -79,6 +101,10 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
+    public hasCamera(key: string, hash: string): boolean {
+        return hash in this._cameras && this._cameras[hash].keys.indexOf(key) !== -1;
+    }
+
     public hasReconstruction(key: string, hash: string): boolean {
         return hash in this._points && this._points[hash].keys.indexOf(key) !== -1;
     }
@@ -88,7 +114,8 @@ export class SpatialDataScene {
             return;
         }
 
-        this._disposeTile(hash);
+        this._disposePoints(hash);
+        this._disposeCameras(hash);
     }
 
     public clear(keepHashes?: string[]): void {
@@ -97,7 +124,15 @@ export class SpatialDataScene {
                 continue;
             }
 
-            this._disposeTile(hash);
+            this._disposePoints(hash);
+        }
+
+        for (const hash of Object.keys(this._cameras)) {
+            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
+                continue;
+            }
+
+            this._disposeCameras(hash);
         }
     }
 
@@ -110,7 +145,66 @@ export class SpatialDataScene {
         this._needsRender = false;
     }
 
-    private _disposeTile(hash: string): void {
+    private _arrayToVector3(a: number[]): THREE.Vector3 {
+        return new THREE.Vector3(a[0], a[1], a[2]);
+    }
+
+    private _createFrame(transform: Transform, depth: number): THREE.Object3D {
+        const vertices: number[][] = [];
+        vertices.push(...this._subsample([0, 1], [0, 0], 20));
+        vertices.push(...this._subsample([0, 0], [1, 0], 20));
+        vertices.push(...this._subsample([1, 0], [1, 1], 20));
+
+        const frame: THREE.Geometry = new THREE.Geometry();
+
+        frame.vertices.push(...vertices
+            .map(
+                (basic: number[]): THREE.Vector3 => {
+                    return this._arrayToVector3(transform.unprojectBasic(basic, depth, true));
+                }));
+
+        return new THREE.Line(frame, new THREE.LineBasicMaterial());
+    }
+
+    private _createRegularCamera(transform: Transform): THREE.Object3D {
+        const depth: number = 0.2;
+        const origin: number [] = transform.unprojectBasic([0, 0], 0, true);
+        const topLeft: number[] = transform.unprojectBasic([0, 0], depth, true);
+        const topRight: number[] = transform.unprojectBasic([1, 0], depth, true);
+        const bottomRight: number[] = transform.unprojectBasic([1, 1], depth, true);
+        const bottomLeft: number[] = transform.unprojectBasic([0, 1], depth, true);
+
+        const geometry: THREE.Geometry = new THREE.Geometry();
+
+        geometry.vertices.push(
+            this._arrayToVector3(origin), this._arrayToVector3(topLeft),
+            this._arrayToVector3(origin), this._arrayToVector3(topRight),
+            this._arrayToVector3(origin), this._arrayToVector3(bottomRight),
+            this._arrayToVector3(origin), this._arrayToVector3(bottomLeft));
+
+        const camera: THREE.Object3D = new THREE.Object3D();
+        camera.children.push(new THREE.LineSegments(geometry, new THREE.LineBasicMaterial()));
+        camera.children.push(this._createFrame(transform, depth));
+
+        return camera;
+    }
+
+    private _disposeCameras(hash: string): void {
+        const tileCameras: THREE.Object3D = this._cameras[hash].object;
+
+        for (const camera of tileCameras.children.slice()) {
+            for (const child of camera.children) {
+                (<THREE.Line | THREE.LineSegments>child).geometry.dispose();
+                (<THREE.Line | THREE.LineSegments>child).material.dispose();
+            }
+
+            tileCameras.remove(camera);
+        }
+
+        delete this._cameras[hash];
+    }
+
+    private _disposePoints(hash: string): void {
         const tilePoints: THREE.Object3D = this._points[hash].object;
 
         for (const points of tilePoints.children.slice()) {
@@ -121,6 +215,30 @@ export class SpatialDataScene {
         }
 
         delete this._points[hash];
+    }
+
+    private _interpolate(a: number, b: number, alpha: number): number {
+        return a + alpha * (b - a);
+    }
+
+    private _subsample(p1: number[], p2: number[], subsamples: number): number[][] {
+        if (subsamples < 1) {
+            return [p1, p2];
+        }
+
+        const samples: number[][] = [];
+
+        for (let i: number = 0; i <= subsamples + 1; i++) {
+            const p: number[] = [];
+
+            for (let j: number = 0; j < 3; j++) {
+                p.push(this._interpolate(p1[j], p2[j], i / (subsamples + 1)));
+            }
+
+            samples.push(p);
+        }
+
+        return samples;
     }
 }
 

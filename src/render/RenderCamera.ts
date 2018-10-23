@@ -79,7 +79,7 @@ export class RenderCamera {
         this._perspective = new THREE.PerspectiveCamera(
             this._initialFov,
             this._computeAspect(elementWidth, elementHeight),
-            0.4,
+            0.16,
             10000);
 
         this._perspective.matrixAutoUpdate = false;
