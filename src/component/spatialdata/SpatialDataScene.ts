@@ -28,10 +28,6 @@ export class SpatialDataScene {
     }
 
     public addCamera(key: string, transform: Transform, hash: string): void {
-        if (!!transform.gpano) {
-            return;
-        }
-
         if (!(hash in this._cameras)) {
             this._cameras[hash] = {
                 keys: [],
@@ -41,7 +37,11 @@ export class SpatialDataScene {
             this._scene.add(this._cameras[hash].object);
         }
 
-        this._cameras[hash].object.add(this._createRegularCamera(transform));
+        const camera: THREE.Object3D = !!transform.gpano ?
+            this._createPanoCamera(transform) :
+            this._createRegularCamera(transform);
+
+        this._cameras[hash].object.add(camera);
         this._cameras[hash].keys.push(key);
 
         this._needsRender = true;
@@ -197,6 +197,65 @@ export class SpatialDataScene {
         frame.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices3d, 3), 3));
 
         return new THREE.Line(frame, new THREE.LineBasicMaterial());
+    }
+
+    private _createAxis(transform: Transform): THREE.Object3D {
+        const north: number[] = transform.unprojectBasic([0.5, 0], 0.22);
+        const south: number[] = transform.unprojectBasic([0.5, 1], 0.16);
+
+        const axis: THREE.BufferGeometry = new THREE.BufferGeometry();
+        axis.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray([north, south], 3), 3));
+
+        return new THREE.Line(axis, new THREE.LineBasicMaterial());
+    }
+
+    private _createLatitude(basicY: number, numVertices: number, transform: Transform): THREE.Object3D {
+        const positions: Float32Array = new Float32Array((numVertices + 1) * 3);
+
+        for (let i: number = 0; i <= numVertices; i++) {
+            const position: number[] = transform.unprojectBasic([i / numVertices, basicY], 0.16);
+            const index: number = 3 * i;
+
+            positions[index + 0] = position[0];
+            positions[index + 1] = position[1];
+            positions[index + 2] = position[2];
+        }
+
+        const latitude: THREE.BufferGeometry = new THREE.BufferGeometry();
+        latitude.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        return new THREE.Line(latitude, new THREE.LineBasicMaterial());
+    }
+
+    private _createLongitude(basicX: number, numVertices: number, transform: Transform): THREE.Object3D {
+        const positions: Float32Array = new Float32Array((numVertices + 1) * 3);
+
+        for (let i: number = 0; i <= numVertices; i++) {
+            const position: number[] = transform.unprojectBasic([basicX, i / numVertices], 0.16);
+            const index: number = 3 * i;
+
+            positions[index + 0] = position[0];
+            positions[index + 1] = position[1];
+            positions[index + 2] = position[2];
+        }
+
+        const latitude: THREE.BufferGeometry = new THREE.BufferGeometry();
+        latitude.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        return new THREE.Line(latitude, new THREE.LineBasicMaterial());
+    }
+
+    private _createPanoCamera(transform: Transform): THREE.Object3D {
+        const camera: THREE.Object3D = new THREE.Object3D();
+
+        camera.children.push(this._createAxis(transform));
+        camera.children.push(this._createLatitude(0.5, 10, transform));
+        camera.children.push(this._createLongitude(0, 6, transform));
+        camera.children.push(this._createLongitude(0.25, 6, transform));
+        camera.children.push(this._createLongitude(0.5, 6, transform));
+        camera.children.push(this._createLongitude(0.75, 6, transform));
+
+        return camera;
     }
 
     private _createRegularCamera(transform: Transform): THREE.Object3D {
