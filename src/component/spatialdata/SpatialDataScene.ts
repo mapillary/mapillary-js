@@ -145,45 +145,65 @@ export class SpatialDataScene {
         this._needsRender = false;
     }
 
-    private _arrayToVector3(a: number[]): THREE.Vector3 {
-        return new THREE.Vector3(a[0], a[1], a[2]);
+    private _arrayToFloatArray(a: number[][], columns: number): Float32Array {
+        const n: number = a.length;
+        const f: Float32Array = new Float32Array(n * columns);
+
+        for (let i: number = 0; i < n; i++) {
+            const item: number[] = a[i];
+            const index: number = 3 * i;
+
+            f[index + 0] = item[0];
+            f[index + 1] = item[1];
+            f[index + 2] = item[2];
+        }
+
+        return f;
     }
 
-    private _createFrame(transform: Transform, depth: number): THREE.Object3D {
-        const vertices: number[][] = [];
-        vertices.push(...this._subsample([0, 1], [0, 0], 20));
-        vertices.push(...this._subsample([0, 0], [1, 0], 20));
-        vertices.push(...this._subsample([1, 0], [1, 1], 20));
-
-        const frame: THREE.Geometry = new THREE.Geometry();
-
-        frame.vertices.push(...vertices
-            .map(
-                (basic: number[]): THREE.Vector3 => {
-                    return this._arrayToVector3(transform.unprojectBasic(basic, depth, true));
-                }));
-
-        return new THREE.Line(frame, new THREE.LineBasicMaterial());
-    }
-
-    private _createRegularCamera(transform: Transform): THREE.Object3D {
-        const depth: number = 0.2;
+    private _createDiagonals(transform: Transform, depth: number): THREE.Object3D {
         const origin: number [] = transform.unprojectBasic([0, 0], 0, true);
         const topLeft: number[] = transform.unprojectBasic([0, 0], depth, true);
         const topRight: number[] = transform.unprojectBasic([1, 0], depth, true);
         const bottomRight: number[] = transform.unprojectBasic([1, 1], depth, true);
         const bottomLeft: number[] = transform.unprojectBasic([0, 1], depth, true);
 
-        const geometry: THREE.Geometry = new THREE.Geometry();
+        const vertices: number[][] = [
+            origin, topLeft,
+            origin, topRight,
+            origin, bottomRight,
+            origin, bottomLeft,
+        ];
 
-        geometry.vertices.push(
-            this._arrayToVector3(origin), this._arrayToVector3(topLeft),
-            this._arrayToVector3(origin), this._arrayToVector3(topRight),
-            this._arrayToVector3(origin), this._arrayToVector3(bottomRight),
-            this._arrayToVector3(origin), this._arrayToVector3(bottomLeft));
+        const diagonals: THREE.BufferGeometry = new THREE.BufferGeometry();
+        diagonals.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices, 3), 3));
 
+        return new THREE.LineSegments(diagonals, new THREE.LineBasicMaterial());
+    }
+
+    private _createFrame(transform: Transform, depth: number): THREE.Object3D {
+        const vertices2d: number[][] = [];
+        vertices2d.push(...this._subsample([0, 1], [0, 0], 20));
+        vertices2d.push(...this._subsample([0, 0], [1, 0], 20));
+        vertices2d.push(...this._subsample([1, 0], [1, 1], 20));
+
+        const vertices3d: number[][] = vertices2d
+            .map(
+                (basic: number[]): number[] => {
+                    return transform.unprojectBasic(basic, depth, true);
+                });
+
+        const frame: THREE.BufferGeometry = new THREE.BufferGeometry();
+        frame.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices3d, 3), 3));
+
+        return new THREE.Line(frame, new THREE.LineBasicMaterial());
+    }
+
+    private _createRegularCamera(transform: Transform): THREE.Object3D {
+        const depth: number = 0.2;
         const camera: THREE.Object3D = new THREE.Object3D();
-        camera.children.push(new THREE.LineSegments(geometry, new THREE.LineBasicMaterial()));
+
+        camera.children.push(this._createDiagonals(transform, depth));
         camera.children.push(this._createFrame(transform, depth));
 
         return camera;
