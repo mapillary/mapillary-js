@@ -301,12 +301,15 @@ export class Transform {
      * Unproject basic coordinates to 3D world coordinates.
      *
      * @param {Array<number>} basic - 2D basic coordinates.
-     * @param {Array<number>} distance - Depth to unproject from camera center.
+     * @param {Array<number>} distance - Distance to unproject from camera center.
+     * @param {boolean} [depth] - Treat the distance value as depth from camera center.
+     *                            Only applicable for perspective images. Will be
+     *                            ignored for panoramas.
      * @returns {Array<number>} Unprojected 3D world coordinates.
      */
-    public unprojectBasic(basic: number[], distance: number): number[] {
+    public unprojectBasic(basic: number[], distance: number, depth?: boolean): number[] {
         let sfm: number[] = this._basicToSfm(basic);
-        return this.unprojectSfM(sfm, distance);
+        return this.unprojectSfM(sfm, distance, depth);
     }
 
     /**
@@ -325,16 +328,27 @@ export class Transform {
      * Unproject SfM coordinates to a 3D world coordinates.
      *
      * @param {Array<number>} sfm - 2D SfM coordinates.
-     * @param {Array<number>} distance - Depth to unproject from camera center.
+     * @param {Array<number>} distance - Distance to unproject from camera center.
+     * @param {boolean} [depth] - Treat the distance value as depth from camera center.
+     *                            Only applicable for perspective images. Will be
+     *                            ignored for panoramas.
      * @returns {Array<number>} Unprojected 3D world coordinates.
      */
-    public unprojectSfM(sfm: number[], distance: number): number[] {
+    public unprojectSfM(sfm: number[], distance: number, depth?: boolean): number[] {
         let bearing: number[] = this._sfmToBearing(sfm);
-        let v: THREE.Vector4 = new THREE.Vector4(
-            distance * bearing[0],
-            distance * bearing[1],
-            distance * bearing[2],
-            1);
+
+        const v: THREE.Vector4 = depth && !this.gpano ?
+            new THREE.Vector4(
+                distance * bearing[0] / bearing[2],
+                distance * bearing[1] / bearing[2],
+                distance,
+                1) :
+            new THREE.Vector4(
+                distance * bearing[0],
+                distance * bearing[1],
+                distance * bearing[2],
+                1);
+
         v.applyMatrix4(new THREE.Matrix4().getInverse(this._rt));
         return [v.x / v.w, v.y / v.w, v.z / v.w];
     }
