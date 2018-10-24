@@ -10,16 +10,22 @@ import { IReconstructionPoint } from "./interfaces/interfaces";
 
 export class SpatialDataScene {
     private _scene: THREE.Scene;
+    private _raycaster: THREE.Raycaster;
 
     private _needsRender: boolean;
     private _cameras: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
+    private _cameraKeys: { [hash: string]: { [id: string]: string } };
+    private _interactiveObjects: THREE.Object3D[];
     private _points: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
 
-    constructor(scene?: THREE.Scene) {
+    constructor(scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._scene = !!scene ? scene : new THREE.Scene();
+        this._raycaster = !!raycaster ? raycaster : new THREE.Raycaster(undefined, undefined, 0.8);
 
         this._needsRender = false;
         this._cameras = {};
+        this._cameraKeys = {};
+        this._interactiveObjects = [];
         this._points = {};
     }
 
@@ -43,6 +49,15 @@ export class SpatialDataScene {
 
         this._cameras[hash].object.add(camera);
         this._cameras[hash].keys.push(key);
+
+        if (!(hash in this._cameraKeys)) {
+            this._cameraKeys[hash] = {};
+        }
+
+        for (const child of camera.children) {
+            this._cameraKeys[hash][child.uuid] = key;
+            this._interactiveObjects.push(child);
+        }
 
         this._needsRender = true;
     }
@@ -107,6 +122,25 @@ export class SpatialDataScene {
 
     public hasReconstruction(key: string, hash: string): boolean {
         return hash in this._points && this._points[hash].keys.indexOf(key) !== -1;
+    }
+
+    public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string {
+        this._raycaster.setFromCamera(new THREE.Vector2(viewportX, viewportY), camera);
+
+        const intersects: THREE.Intersection[] = this._raycaster.intersectObjects(this._interactiveObjects);
+        for (const intersect of intersects) {
+            for (const hash in this._cameraKeys) {
+                if (!this._cameraKeys.hasOwnProperty(hash)) {
+                    continue;
+                }
+
+                if (intersect.object.uuid in this._cameraKeys[hash]) {
+                    return this._cameraKeys[hash][intersect.object.uuid];
+                }
+            }
+        }
+
+        return null;
     }
 
     public remove(hash: string): void {
@@ -275,12 +309,20 @@ export class SpatialDataScene {
             for (const child of camera.children) {
                 (<THREE.Line | THREE.LineSegments>child).geometry.dispose();
                 (<THREE.Line | THREE.LineSegments>child).material.dispose();
+
+                const index: number = this._interactiveObjects.indexOf(child);
+                if (index !== -1) {
+                    this._interactiveObjects.splice(index, 1);
+                } else {
+                    console.warn(`Object does not exist (${child.id}) for ${hash}`);
+                }
             }
 
             tileCameras.remove(camera);
         }
 
         delete this._cameras[hash];
+        delete this._cameraKeys[hash];
     }
 
     private _disposePoints(hash: string): void {

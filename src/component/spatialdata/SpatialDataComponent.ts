@@ -2,6 +2,7 @@ import * as geohash from "latlon-geohash";
 
 import {
     combineLatest as observableCombineLatest,
+    empty as observableEmpty,
     from as observableFrom,
     of as observableOf,
     Observable,
@@ -9,6 +10,7 @@ import {
 } from "rxjs";
 
 import {
+    catchError,
     withLatestFrom,
     map,
     distinctUntilChanged,
@@ -35,6 +37,7 @@ import {
     Geo,
     ILatLonAlt,
     Transform,
+    ViewportCoords,
 } from "../../Geo";
 import {
     Node,
@@ -42,6 +45,7 @@ import {
 import {
     IGLRenderHash,
     GLRenderStage,
+    RenderCamera,
 } from "../../Render";
 import {
     IFrame,
@@ -56,16 +60,19 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
 
     private _cache: SpatialDataCache;
     private _scene: SpatialDataScene;
+    private _viewportCoords: ViewportCoords;
 
     private _addSubscription: Subscription;
-    private _uncacheSubscription: Subscription;
+    private _moveSubscription: Subscription;
     private _renderSubscription: Subscription;
+    private _uncacheSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
         this._cache = new SpatialDataCache(navigator.graphService);
         this._scene = new SpatialDataScene();
+        this._viewportCoords = new ViewportCoords();
     }
 
     protected _activate(): void {
@@ -163,6 +170,29 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                     this._cache.uncache(this._adjacentComponent(hash, 4));
                 });
 
+        this._moveSubscription = this._container.mouseService.dblClick$.pipe(
+            withLatestFrom(this._container.renderService.renderCamera$),
+            switchMap(
+                ([event, render]: [MouseEvent, RenderCamera]): Observable<Node> => {
+                    const element: HTMLElement = this._container.element;
+                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
+                    const viewport: number[] = this._viewportCoords.canvasToViewport(
+                        canvasX,
+                        canvasY,
+                        element);
+
+                    const key: string = this._scene.intersectObjects(viewport, render.perspective);
+
+                    return !!key ?
+                        this._navigator.moveToKey$(key).pipe(
+                            catchError(
+                                (): Observable<Node> => {
+                                    return observableEmpty();
+                                })) :
+                        observableEmpty();
+                }))
+            .subscribe();
+
         this._renderSubscription = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: IFrame): IGLRenderHash => {
@@ -186,8 +216,9 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
         this._scene.clear();
 
         this._addSubscription.unsubscribe();
-        this._uncacheSubscription.unsubscribe();
+        this._moveSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
+        this._uncacheSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
