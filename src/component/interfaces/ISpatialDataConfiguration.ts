@@ -11,6 +11,7 @@ import {IComponentConfiguration} from "../../Component";
  *         component: {
  *             spatialData: {
  *                 camerasVisible: true,
+ *                 pointsVisible: true,
  *             },
  *         },
  *     })
@@ -23,6 +24,14 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * @default false
      */
     camerasVisible?: boolean;
+
+    /**
+     * Specify if the points should be visible or not.
+     *
+     * @default true
+     */
+    pointsVisible?: boolean;
+
 }
 
 export default ISpatialDataConfiguration;

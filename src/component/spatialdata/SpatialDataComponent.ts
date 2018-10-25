@@ -21,13 +21,11 @@ import {
     filter,
     last,
     mergeMap,
-    skip,
 } from "rxjs/operators";
 
 import {
     ComponentService,
     Component,
-    IComponentConfiguration,
     IReconstruction,
     ISpatialDataConfiguration,
     NodeData,
@@ -65,7 +63,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _viewportCoords: ViewportCoords;
 
     private _addSubscription: Subscription;
+    private _cameraVisibilitySubscription: Subscription;
     private _moveSubscription: Subscription;
+    private _pointVisibilitySubscription: Subscription;
     private _renderSubscription: Subscription;
     private _uncacheSubscription: Subscription;
 
@@ -165,7 +165,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     }
                 });
 
-        this._configuration$.pipe(
+        this._cameraVisibilitySubscription = this._configuration$.pipe(
             map(
                 (configuration: ISpatialDataConfiguration): boolean => {
                     return configuration.camerasVisible;
@@ -174,6 +174,17 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             .subscribe(
                 (camerasVisible: boolean): void => {
                     this._scene.setCameraVisibility(camerasVisible);
+                });
+
+        this._pointVisibilitySubscription = this._configuration$.pipe(
+            map(
+                (configuration: ISpatialDataConfiguration): boolean => {
+                    return configuration.pointsVisible;
+                }),
+            distinctUntilChanged())
+            .subscribe(
+                (pointsVisible: boolean): void => {
+                    this._scene.setPointVisibility(pointsVisible);
                 });
 
         this._uncacheSubscription = hash$
@@ -229,7 +240,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._scene.clear();
 
         this._addSubscription.unsubscribe();
+        this._cameraVisibilitySubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
+        this._pointVisibilitySubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
     }

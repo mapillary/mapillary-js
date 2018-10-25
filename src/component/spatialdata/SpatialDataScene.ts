@@ -20,6 +20,7 @@ export class SpatialDataScene {
     private _points: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
 
     private _camerasVisible: boolean;
+    private _pointsVisible: boolean;
 
     constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._scene = !!scene ? scene : new THREE.Scene();
@@ -113,6 +114,7 @@ export class SpatialDataScene {
                 object: new THREE.Object3D(),
             };
 
+            this._points[hash].object.visible = this._pointsVisible;
             this._scene.add(this._points[hash].object);
         }
 
@@ -167,6 +169,23 @@ export class SpatialDataScene {
         }
 
         this._camerasVisible = visible;
+        this._needsRender = true;
+    }
+
+    public setPointVisibility(visible: boolean): void {
+        if (visible === this._pointsVisible) {
+            return;
+        }
+
+        for (const hash in this._points) {
+            if (!this._points.hasOwnProperty(hash)) {
+                continue;
+            }
+
+            this._points[hash].object.visible = visible;
+        }
+
+        this._pointsVisible = visible;
         this._needsRender = true;
     }
 
