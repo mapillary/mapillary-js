@@ -7,6 +7,11 @@ import {IGPano, IProject, IUser} from "../../API";
  */
 export interface IFillNode {
     /**
+     * Original EXIF altitude, in meters above sea level.
+     */
+    altitude?: number;
+
+    /**
      * Scale of atomic reconstruction.
      */
     atomic_scale?: number;

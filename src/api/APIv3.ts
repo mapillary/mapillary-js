@@ -109,6 +109,7 @@ export class APIv3 {
         ];
 
         this._propertiesSpatial = [
+            "altitude",
             "atomic_scale",
             "ca",
             "calt",
