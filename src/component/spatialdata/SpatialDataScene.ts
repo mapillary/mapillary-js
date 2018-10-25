@@ -2,11 +2,12 @@ import * as THREE from "three";
 
 import {
     IReconstruction,
+    IReconstructionPoint,
+    ISpatialDataConfiguration,
 } from "../../Component";
 import {
     Transform,
 } from "../../Geo";
-import { IReconstructionPoint } from "./interfaces/interfaces";
 
 export class SpatialDataScene {
     private _scene: THREE.Scene;
@@ -18,7 +19,9 @@ export class SpatialDataScene {
     private _interactiveObjects: THREE.Object3D[];
     private _points: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
 
-    constructor(scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
+    private _camerasVisible: boolean;
+
+    constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._scene = !!scene ? scene : new THREE.Scene();
         this._raycaster = !!raycaster ? raycaster : new THREE.Raycaster(undefined, undefined, 0.8);
 
@@ -27,6 +30,8 @@ export class SpatialDataScene {
         this._cameraKeys = {};
         this._interactiveObjects = [];
         this._points = {};
+
+        this._camerasVisible = configuration.camerasVisible;
     }
 
     public get needsRender(): boolean {
@@ -40,6 +45,7 @@ export class SpatialDataScene {
                 object: new THREE.Object3D(),
             };
 
+            this._cameras[hash].object.visible = this._camerasVisible;
             this._scene.add(this._cameras[hash].object);
         }
 
@@ -125,6 +131,10 @@ export class SpatialDataScene {
     }
 
     public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string {
+        if (!this._camerasVisible) {
+            return null;
+        }
+
         this._raycaster.setFromCamera(new THREE.Vector2(viewportX, viewportY), camera);
 
         const intersects: THREE.Intersection[] = this._raycaster.intersectObjects(this._interactiveObjects);
@@ -141,6 +151,23 @@ export class SpatialDataScene {
         }
 
         return null;
+    }
+
+    public setCameraVisibility(visible: boolean): void {
+        if (visible === this._camerasVisible) {
+            return;
+        }
+
+        for (const hash in this._cameras) {
+            if (!this._cameras.hasOwnProperty(hash)) {
+                continue;
+            }
+
+            this._cameras[hash].object.visible = visible;
+        }
+
+        this._camerasVisible = visible;
+        this._needsRender = true;
     }
 
     public remove(hash: string): void {

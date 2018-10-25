@@ -9,6 +9,7 @@ export {IRouteConfiguration, IRoutePath, IRouteInfoKey} from "./IRouteConfigurat
 export {ISliderConfiguration, ISliderKeys, SliderMode} from "./ISliderConfiguration";
 export {IComponentConfiguration} from "./IComponentConfiguration";
 export {ISequenceConfiguration} from "./ISequenceConfiguration";
+export {ISpatialDataConfiguration} from "./ISpatialDataConfiguration";
 export {ITagConfiguration} from "./ITagConfiguration";
 export {IShader} from "./IShader";
 export * from "../imageplane/interfaces/interfaces";

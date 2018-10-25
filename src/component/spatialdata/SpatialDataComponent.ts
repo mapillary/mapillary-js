@@ -21,6 +21,7 @@ import {
     filter,
     last,
     mergeMap,
+    skip,
 } from "rxjs/operators";
 
 import {
@@ -28,6 +29,7 @@ import {
     Component,
     IComponentConfiguration,
     IReconstruction,
+    ISpatialDataConfiguration,
     NodeData,
     ReconstructionData,
     SpatialDataCache,
@@ -55,7 +57,7 @@ import {
     Navigator,
 } from "../../Viewer";
 
-export class SpatialDataComponent extends Component<IComponentConfiguration> {
+export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
 
     private _cache: SpatialDataCache;
@@ -71,7 +73,7 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
         super(name, container, navigator);
 
         this._cache = new SpatialDataCache(navigator.graphService);
-        this._scene = new SpatialDataScene();
+        this._scene = new SpatialDataScene(this._getDefaultConfiguration);
         this._viewportCoords = new ViewportCoords();
     }
 
@@ -163,6 +165,17 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
                     }
                 });
 
+        this._configuration$.pipe(
+            map(
+                (configuration: ISpatialDataConfiguration): boolean => {
+                    return configuration.camerasVisible;
+                }),
+            distinctUntilChanged())
+            .subscribe(
+                (camerasVisible: boolean): void => {
+                    this._scene.setCameraVisibility(camerasVisible);
+                });
+
         this._uncacheSubscription = hash$
             .subscribe(
                 (hash: string): void => {
@@ -221,8 +234,8 @@ export class SpatialDataComponent extends Component<IComponentConfiguration> {
         this._uncacheSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IComponentConfiguration {
-        return {};
+    protected _getDefaultConfiguration(): ISpatialDataConfiguration {
+        return { camerasVisible: false };
     }
 
     private _adjacentComponent(hash: string, depth: number): string[] {

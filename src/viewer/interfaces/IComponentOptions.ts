@@ -7,6 +7,7 @@ import {
     INavigationConfiguration,
     ISequenceConfiguration,
     ISliderConfiguration,
+    ISpatialDataConfiguration,
     ITagConfiguration,
 } from "../../Component";
 
@@ -169,7 +170,7 @@ export interface IComponentOptions {
      *
      * @default false
      */
-    spatialData?: boolean;
+    spatialData?: boolean | ISpatialDataConfiguration;
 
     /**
      * Contribute viewing stats to Mapillary.
