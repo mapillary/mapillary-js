@@ -11,7 +11,8 @@ import {IComponentConfiguration} from "../../Component";
  *         component: {
  *             spatialData: {
  *                 camerasVisible: true,
- *                 pointsVisible: true,
+ *                 pointsVisible: false,
+ *                 positionsVisible: true,
  *             },
  *         },
  *     })
@@ -31,6 +32,13 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * @default true
      */
     pointsVisible?: boolean;
+
+    /**
+     * Specify if the original GPS positions should be visible or not.
+     *
+     * @default false
+     */
+    positionsVisible?: boolean;
 
 }
 

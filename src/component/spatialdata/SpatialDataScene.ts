@@ -18,9 +18,11 @@ export class SpatialDataScene {
     private _cameraKeys: { [hash: string]: { [id: string]: string } };
     private _interactiveObjects: THREE.Object3D[];
     private _points: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
+    private _positions: { [hash: string]: { keys: string[]; object: THREE.Object3D; } };
 
     private _camerasVisible: boolean;
     private _pointsVisible: boolean;
+    private _positionsVisible: boolean;
 
     constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._scene = !!scene ? scene : new THREE.Scene();
@@ -31,8 +33,11 @@ export class SpatialDataScene {
         this._cameraKeys = {};
         this._interactiveObjects = [];
         this._points = {};
+        this._positions = {};
 
         this._camerasVisible = configuration.camerasVisible;
+        this._pointsVisible = configuration.pointsVisible;
+        this._positionsVisible = configuration.positionsVisible;
     }
 
     public get needsRender(): boolean {
@@ -69,7 +74,7 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
-    public addReconstruction(reconstruction: IReconstruction, transform: Transform, hash: string): void {
+    public addPoints(reconstruction: IReconstruction, transform: Transform, hash: string): void {
         const srtInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
         const points: IReconstructionPoint[] = Object
             .keys(reconstruction.points)
@@ -124,11 +129,37 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
+    public addPosition(transform: Transform, originalPosition: number[], key: string, hash: string): void {
+        if (!(hash in this._positions)) {
+            this._positions[hash] = {
+                keys: [],
+                object: new THREE.Object3D(),
+            };
+
+            this._positions[hash].object.visible = this._positionsVisible;
+            this._scene.add(this._positions[hash].object);
+        }
+
+        const computedPosition: number[] = transform.unprojectBasic([0, 0], 0);
+        const vertices: number[][] = [originalPosition, computedPosition];
+        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        geometry.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices, 3), 3));
+
+        const position: THREE.Object3D = new THREE.Line(
+            geometry,
+            new THREE.LineBasicMaterial({ color: new THREE.Color(1, 0, 0) }));
+
+        this._positions[hash].object.add(position);
+        this._positions[hash].keys.push(key);
+
+        this._needsRender = true;
+    }
+
     public hasCamera(key: string, hash: string): boolean {
         return hash in this._cameras && this._cameras[hash].keys.indexOf(key) !== -1;
     }
 
-    public hasReconstruction(key: string, hash: string): boolean {
+    public hasPoints(key: string, hash: string): boolean {
         return hash in this._points && this._points[hash].keys.indexOf(key) !== -1;
     }
 
@@ -189,6 +220,23 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
+    public setPositionVisibility(visible: boolean): void {
+        if (visible === this._positionsVisible) {
+            return;
+        }
+
+        for (const hash in this._positions) {
+            if (!this._positions.hasOwnProperty(hash)) {
+                continue;
+            }
+
+            this._positions[hash].object.visible = visible;
+        }
+
+        this._positionsVisible = visible;
+        this._needsRender = true;
+    }
+
     public remove(hash: string): void {
         if (!(hash in this._points)) {
             return;
@@ -196,9 +244,18 @@ export class SpatialDataScene {
 
         this._disposePoints(hash);
         this._disposeCameras(hash);
+        this._disposePositions(hash);
     }
 
     public clear(keepHashes?: string[]): void {
+        for (const hash of Object.keys(this._cameras)) {
+            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
+                continue;
+            }
+
+            this._disposeCameras(hash);
+        }
+
         for (const hash of Object.keys(this._points)) {
             if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
                 continue;
@@ -207,12 +264,12 @@ export class SpatialDataScene {
             this._disposePoints(hash);
         }
 
-        for (const hash of Object.keys(this._cameras)) {
+        for (const hash of Object.keys(this._positions)) {
             if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
                 continue;
             }
 
-            this._disposeCameras(hash);
+            this._disposePositions(hash);
         }
     }
 
@@ -382,6 +439,19 @@ export class SpatialDataScene {
         }
 
         delete this._points[hash];
+    }
+
+    private _disposePositions(hash: string): void {
+        const tilePositions: THREE.Object3D = this._positions[hash].object;
+
+        for (const position of tilePositions.children.slice()) {
+            (<THREE.Points>position).geometry.dispose();
+            (<THREE.Points>position).material.dispose();
+
+            tilePositions.remove(position);
+        }
+
+        delete this._positions[hash];
     }
 
     private _interpolate(a: number, b: number, alpha: number): number {

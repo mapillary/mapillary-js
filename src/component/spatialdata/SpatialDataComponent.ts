@@ -35,6 +35,7 @@ import {
 } from "../../Component";
 import {
     Geo,
+    GeoCoords,
     ILatLonAlt,
     Transform,
     ViewportCoords,
@@ -61,11 +62,13 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _cache: SpatialDataCache;
     private _scene: SpatialDataScene;
     private _viewportCoords: ViewportCoords;
+    private _geoCoords: GeoCoords;
 
     private _addSubscription: Subscription;
     private _cameraVisibilitySubscription: Subscription;
     private _moveSubscription: Subscription;
     private _pointVisibilitySubscription: Subscription;
+    private _positionVisibilitySubscription: Subscription;
     private _renderSubscription: Subscription;
     private _uncacheSubscription: Subscription;
 
@@ -75,6 +78,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._cache = new SpatialDataCache(navigator.graphService);
         this._scene = new SpatialDataScene(this._getDefaultConfiguration);
         this._viewportCoords = new ViewportCoords();
+        this._geoCoords = new GeoCoords();
     }
 
     protected _activate(): void {
@@ -146,22 +150,27 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             withLatestFrom(this._navigator.stateService.reference$),
             filter(
                 ([[hash, data]]: [[string, ReconstructionData], ILatLonAlt]): boolean => {
-                    return !this._scene.hasReconstruction(data.reconstruction.main_shot, hash) ||
+                    return !this._scene.hasPoints(data.reconstruction.main_shot, hash) ||
                         !this._scene.hasCamera(data.reconstruction.main_shot, hash);
                 }),
             map(
-                ([[hash, data], reference]: [[string, ReconstructionData], ILatLonAlt]): [IReconstruction, Transform, string] => {
-                    return [data.reconstruction, this._createTransform(data.data, reference), hash];
+                ([[hash, data], reference]: [[string, ReconstructionData], ILatLonAlt]): [IReconstruction, Transform, number[], string] => {
+                    return [
+                        data.reconstruction,
+                        this._createTransform(data.data, reference),
+                        this._computeOriginalPosition(data.data, reference),
+                        hash];
                 }))
             .subscribe(
-                ([reconstruction, transform, hash]: [IReconstruction, Transform, string]): void => {
+                ([reconstruction, transform, position, hash]: [IReconstruction, Transform, number[], string]): void => {
                     if (transform.hasValidScale &&
-                        !this._scene.hasReconstruction(reconstruction.main_shot, hash)) {
-                        this._scene.addReconstruction(reconstruction, transform, hash);
+                        !this._scene.hasPoints(reconstruction.main_shot, hash)) {
+                        this._scene.addPoints(reconstruction, transform, hash);
                     }
 
                     if (!this._scene.hasCamera(reconstruction.main_shot, hash)) {
                         this._scene.addCamera(reconstruction.main_shot, transform, hash);
+                        this._scene.addPosition(transform, position, reconstruction.main_shot, hash);
                     }
                 });
 
@@ -172,8 +181,8 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }),
             distinctUntilChanged())
             .subscribe(
-                (camerasVisible: boolean): void => {
-                    this._scene.setCameraVisibility(camerasVisible);
+                (visible: boolean): void => {
+                    this._scene.setCameraVisibility(visible);
                 });
 
         this._pointVisibilitySubscription = this._configuration$.pipe(
@@ -183,8 +192,19 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }),
             distinctUntilChanged())
             .subscribe(
-                (pointsVisible: boolean): void => {
-                    this._scene.setPointVisibility(pointsVisible);
+                (visible: boolean): void => {
+                    this._scene.setPointVisibility(visible);
+                });
+
+        this._positionVisibilitySubscription = this._configuration$.pipe(
+            map(
+                (configuration: ISpatialDataConfiguration): boolean => {
+                    return configuration.positionsVisible;
+                }),
+            distinctUntilChanged())
+            .subscribe(
+                (visible: boolean): void => {
+                    this._scene.setPositionVisibility(visible);
                 });
 
         this._uncacheSubscription = hash$
@@ -243,12 +263,13 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._cameraVisibilitySubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
         this._pointVisibilitySubscription.unsubscribe();
+        this._positionVisibilitySubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ISpatialDataConfiguration {
-        return { camerasVisible: false };
+        return { camerasVisible: false, pointsVisible: true, positionsVisible: false };
     }
 
     private _adjacentComponent(hash: string, depth: number): string[] {
@@ -289,6 +310,16 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         for (const newHash of newHashes) {
             this._adjacentComponentRecursive(hashSet, newHash, currentDepth + 1, maxDepth);
         }
+    }
+
+    private _computeOriginalPosition(data: NodeData, reference: ILatLonAlt): number[] {
+        return this._geoCoords.geodeticToEnu(
+            data.originalLat,
+            data.originalLon,
+            data.originalAlt,
+            reference.lat,
+            reference.lon,
+            reference.alt);
     }
 
     private _createTransform(data: NodeData, reference: ILatLonAlt): Transform {

@@ -50,6 +50,9 @@ export type NodeData = {
     lat: number;
     lon: number;
     orientation: number;
+    originalLat: number;
+    originalLon: number;
+    originalAlt: number;
     rotation: number[];
     scale: number;
     width: number;
@@ -190,6 +193,9 @@ export class SpatialDataCache {
             lat: node.latLon.lat,
             lon: node.latLon.lon,
             orientation: node.orientation,
+            originalAlt: node.originalAlt,
+            originalLat: node.originalLatLon.lat,
+            originalLon: node.originalLatLon.lon,
             rotation: [node.rotation[0], node.rotation[1], node.rotation[2]],
             scale: node.scale,
             width: node.width,
