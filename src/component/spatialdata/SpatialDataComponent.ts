@@ -110,7 +110,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         const hash$: Observable<string> = this._navigator.stateService.reference$.pipe(
             tap(
                 (): void => {
-                    this._scene.clear();
+                    this._scene.uncache();
                 }),
             switchMap(
                 (): Observable<string> => {
@@ -150,8 +150,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             withLatestFrom(this._navigator.stateService.reference$),
             filter(
                 ([[hash, data]]: [[string, ReconstructionData], ILatLonAlt]): boolean => {
-                    return !this._scene.hasPoints(data.reconstruction.main_shot, hash) ||
-                        !this._scene.hasCamera(data.reconstruction.main_shot, hash);
+                    return !this._scene.hasReconstruction(data.reconstruction.main_shot, hash);
                 }),
             map(
                 ([[hash, data], reference]: [[string, ReconstructionData], ILatLonAlt]): [IReconstruction, Transform, number[], string] => {
@@ -163,15 +162,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }))
             .subscribe(
                 ([reconstruction, transform, position, hash]: [IReconstruction, Transform, number[], string]): void => {
-                    if (transform.hasValidScale &&
-                        !this._scene.hasPoints(reconstruction.main_shot, hash)) {
-                        this._scene.addPoints(reconstruction, transform, hash);
-                    }
-
-                    if (!this._scene.hasCamera(reconstruction.main_shot, hash)) {
-                        this._scene.addCamera(reconstruction.main_shot, transform, hash);
-                        this._scene.addPosition(transform, position, reconstruction.main_shot, hash);
-                    }
+                    this._scene.addReconstruction(reconstruction, transform, position, hash);
                 });
 
         this._cameraVisibilitySubscription = this._configuration$.pipe(
@@ -210,7 +201,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._uncacheSubscription = hash$
             .subscribe(
                 (hash: string): void => {
-                    this._scene.clear(this._adjacentComponent(hash, 3));
+                    this._scene.uncache(this._adjacentComponent(hash, 3));
                     this._cache.uncache(this._adjacentComponent(hash, 4));
                 });
 
@@ -257,7 +248,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
     protected _deactivate(): void {
         this._cache.uncache();
-        this._scene.clear();
+        this._scene.uncache();
 
         this._addSubscription.unsubscribe();
         this._cameraVisibilitySubscription.unsubscribe();
