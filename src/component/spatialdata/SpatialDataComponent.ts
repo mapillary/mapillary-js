@@ -316,7 +316,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         return this._geoCoords.geodeticToEnu(
             data.originalLat,
             data.originalLon,
-            data.originalAlt,
+            data.alt,
             reference.lat,
             reference.lon,
             reference.alt);
