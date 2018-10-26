@@ -104,18 +104,20 @@ export class SpatialDataCache {
                 }),
             mergeMap(
                 (node: Node): Observable<[NodeData, IReconstruction]> => {
-                    return observableZip(
-                        observableOf(this._createNodeData(node)),
-                        this._getAtomicReconstruction(node.key, this._cacheRequests[hash]))
-                        .pipe(
-                            catchError(
-                                (error: Error): Observable<[NodeData, IReconstruction]> => {
-                                    if (!(error instanceof AbortMapillaryError)) {
-                                        console.error(error);
-                                    }
+                        return !this._cacheRequests[hash] ?
+                            observableEmpty() :
+                            observableZip(
+                                observableOf(this._createNodeData(node)),
+                                this._getAtomicReconstruction(node.key, this._cacheRequests[hash]))
+                                .pipe(
+                                    catchError(
+                                        (error: Error): Observable<[NodeData, IReconstruction]> => {
+                                            if (!(error instanceof AbortMapillaryError)) {
+                                                console.error(error);
+                                            }
 
-                                    return observableEmpty();
-                                }));
+                                            return observableEmpty();
+                                        }));
                 },
                 6),
             map(
