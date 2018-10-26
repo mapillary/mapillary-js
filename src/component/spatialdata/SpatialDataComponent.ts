@@ -55,6 +55,7 @@ import {
     Container,
     Navigator,
 } from "../../Viewer";
+import PlayService from "../../viewer/PlayService";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
@@ -123,10 +124,24 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }),
             share());
 
-        this._addSubscription = observableCombineLatest(hash$, direction$).pipe(
+        const sequencePlay$: Observable<boolean> = observableCombineLatest(
+            this._navigator.playService.playing$,
+            this._navigator.playService.speed$).pipe(
+            map(
+                ([playing, speed]: [boolean, number]): boolean => {
+                    return playing && speed > PlayService.sequenceSpeed;
+                }),
+            distinctUntilChanged());
+
+        this._addSubscription = observableCombineLatest(
+            hash$,
+            direction$,
+            sequencePlay$).pipe(
             mergeMap(
-                ([hash, direction]: [string, string]): Observable<string> => {
-                    return observableFrom(this._computeTiles(hash, direction));
+                ([hash, direction, sequencePlay]: [string, string, boolean]): Observable<string> => {
+                    return sequencePlay ?
+                        observableFrom([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
+                        observableFrom(this._computeTiles(hash, direction));
                 }),
             concatMap(
                 (hash: string): Observable<[string, ReconstructionData]> => {
@@ -205,7 +220,13 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     this._cache.uncache(this._adjacentComponent(hash, 4));
                 });
 
-        this._moveSubscription = this._container.mouseService.dblClick$.pipe(
+        this._moveSubscription = this._navigator.playService.playing$.pipe(
+            switchMap(
+                (playing: boolean): Observable<MouseEvent> => {
+                    return playing ?
+                        observableEmpty() :
+                        this._container.mouseService.dblClick$;
+                }),
             withLatestFrom(this._container.renderService.renderCamera$),
             switchMap(
                 ([event, render]: [MouseEvent, RenderCamera]): Observable<Node> => {

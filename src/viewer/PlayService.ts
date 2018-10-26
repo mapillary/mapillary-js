@@ -47,6 +47,8 @@ import {
 } from "../State";
 
 export class PlayService {
+    public static readonly sequenceSpeed: number = 0.54;
+
     private _graphService: GraphService;
     private _stateService: StateService;
     private _graphCalculator: GraphCalculator;
@@ -134,7 +136,7 @@ export class PlayService {
         this._graphModeSubscription = this._speed$.pipe(
             map(
                 (speed: number): GraphMode => {
-                    return speed > 0.54 ? GraphMode.Sequence : GraphMode.Spatial;
+                    return speed > PlayService.sequenceSpeed ? GraphMode.Sequence : GraphMode.Spatial;
                 }),
             distinctUntilChanged())
             .subscribe(
