@@ -376,6 +376,11 @@ export class StateService {
         return this._appendNode$;
     }
 
+    public earth(): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.earth(); });
+    }
+
     public traverse(): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.traverse(); });
@@ -460,6 +465,11 @@ export class StateService {
     public moveTo(position: number): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
+    }
+
+    public pan(direction: number[]): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.pan(direction); });
     }
 
     /**

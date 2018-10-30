@@ -1,17 +1,9 @@
 import {
-    IGPano,
-} from "../../API";
-import {
-    Camera,
-    Transform,
-} from "../../Geo";
-import {
     Node,
 } from "../../Graph";
 import {
     IState,
     InteractiveStateBase,
-    IRotation,
     StateBase,
     TraversingState,
     WaitingState,
@@ -34,10 +26,6 @@ export class InteractiveWaitingState extends InteractiveStateBase {
         return new WaitingState(this);
     }
 
-    public waitInteractively(): StateBase {
-        throw new Error("Not implemented");
-    }
-
     public prepend(nodes: Node[]): void {
         super.prepend(nodes);
 
@@ -49,8 +37,6 @@ export class InteractiveWaitingState extends InteractiveStateBase {
 
         this._motionless = this._motionlessTransition();
     }
-
-    public setSpeed(speed: number): void { return; }
 
     public move(delta: number): void {
         this._alpha = Math.max(0, Math.min(1, this._alpha + delta));

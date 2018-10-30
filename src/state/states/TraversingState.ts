@@ -2,13 +2,10 @@ import * as THREE from "three";
 import * as UnitBezier from "@mapbox/unitbezier";
 
 import {
-    IGPano,
-} from "../../API";
-import {
+    EarthState,
     IState,
     InteractiveStateBase,
     InteractiveWaitingState,
-    RotationDelta,
     StateBase,
     WaitingState,
 } from "../../State";
@@ -37,8 +34,8 @@ export class TraversingState extends InteractiveStateBase {
         this._useBezier = false;
     }
 
-    public traverse(): StateBase {
-        throw new Error("Not implemented");
+    public earth(): StateBase {
+        return new EarthState(this);
     }
 
     public wait(): StateBase {
@@ -93,14 +90,6 @@ export class TraversingState extends InteractiveStateBase {
         if (this._trajectory.length < 3) {
             this._useBezier = true;
         }
-    }
-
-    public move(delta: number): void {
-        throw new Error("Not implemented");
-    }
-
-    public moveTo(delta: number): void {
-        throw new Error("Not implemented");
     }
 
     public setSpeed(speed: number): void {

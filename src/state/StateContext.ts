@@ -1,4 +1,5 @@
 import {
+    EarthState,
     InteractiveWaitingState,
     IStateContext,
     StateBase,
@@ -30,6 +31,10 @@ export class StateContext implements IStateContext {
         });
     }
 
+    public earth(): void {
+        this._state = this._state.earth();
+    }
+
     public traverse(): void {
         this._state = this._state.traverse();
     }
@@ -43,7 +48,9 @@ export class StateContext implements IStateContext {
     }
 
     public get state(): State {
-        if (this._state instanceof TraversingState) {
+        if (this._state instanceof EarthState) {
+            return State.Earth;
+        } else if (this._state instanceof TraversingState) {
             return State.Traversing;
         } else if (this._state instanceof WaitingState) {
             return State.Waiting;
@@ -200,5 +207,9 @@ export class StateContext implements IStateContext {
 
     public setTransitionMode(mode: TransitionMode): void {
         this._state.setTransitionMode(mode);
+    }
+
+    public pan(direction: number[]): void {
+        this._state.pan(direction);
     }
 }

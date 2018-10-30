@@ -9,6 +9,7 @@ import {Node} from "../../Graph";
 export interface IStateContext extends ICurrentState {
     state: State;
 
+    earth(): void;
     traverse(): void;
     wait(): void;
     waitInteractively(): void;
@@ -39,4 +40,6 @@ export interface IStateContext extends ICurrentState {
 
     setSpeed(speed: number): void;
     setTransitionMode(mode: TransitionMode): void;
+
+    pan(direction: number[]): void;
 }

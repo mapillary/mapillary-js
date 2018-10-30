@@ -5,6 +5,7 @@ export {StateBase} from "./state/states/StateBase";
 export {StateContext} from "./state/StateContext";
 export {StateService} from "./state/StateService";
 export {TransitionMode} from "./state/TransitionMode";
+export {EarthState} from "./state/states/EarthState";
 export {InteractiveStateBase} from "./state/states/InteractiveStateBase";
 export {InteractiveWaitingState} from "./state/states/InteractiveWaitingState";
 export {TraversingState} from "./state/states/TraversingState";

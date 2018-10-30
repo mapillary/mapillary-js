@@ -151,35 +151,43 @@ export abstract class StateBase implements IState {
         return this._transitionMode;
     }
 
-    public abstract traverse(): StateBase;
+    public earth(): StateBase { throw new Error("Not implemented"); }
 
-    public abstract wait(): StateBase;
+    public traverse(): StateBase { throw new Error("Not implemented"); }
 
-    public abstract waitInteractively(): StateBase;
+    public wait(): StateBase { throw new Error("Not implemented"); }
 
-    public abstract move(delta: number): void;
+    public waitInteractively(): StateBase { throw new Error("Not implemented"); }
 
-    public abstract moveTo(position: number): void;
+    public move(delta: number): void { /*noop*/ }
 
-    public abstract rotate(delta: IRotation): void;
+    public moveTo(position: number): void { /*noop*/ }
 
-    public abstract rotateUnbounded(delta: IRotation): void;
+    public pan(direction: number[]): void { /*noop*/ }
 
-    public abstract rotateWithoutInertia(delta: IRotation): void;
+    public rotate(delta: IRotation): void { /*noop*/ }
 
-    public abstract rotateBasic(basicRotation: number[]): void;
+    public rotateUnbounded(delta: IRotation): void { /*noop*/ }
 
-    public abstract rotateBasicUnbounded(basicRotation: number[]): void;
+    public rotateWithoutInertia(delta: IRotation): void { /*noop*/ }
 
-    public abstract rotateBasicWithoutInertia(basicRotation: number[]): void;
+    public rotateBasic(basicRotation: number[]): void { /*noop*/ }
 
-    public abstract rotateToBasic(basic: number[]): void;
+    public rotateBasicUnbounded(basicRotation: number[]): void { /*noop*/ }
 
-    public abstract setSpeed(speed: number): void;
+    public rotateBasicWithoutInertia(basicRotation: number[]): void { /*noop*/ }
 
-    public abstract zoomIn(delta: number, reference: number[]): void;
+    public rotateToBasic(basic: number[]): void { /*noop*/ }
 
-    public abstract update(fps: number): void;
+    public setSpeed(speed: number): void { /*noop*/ }
+
+    public zoomIn(delta: number, reference: number[]): void { /*noop*/ }
+
+    public update(fps: number): void { /*noop*/ }
+
+    public setCenter(center: number[]): void { /*noop*/ }
+
+    public setZoom(zoom: number): void { /*noop*/ }
 
     public append(nodes: Node[]): void {
         if (nodes.length < 1) {
@@ -273,11 +281,7 @@ export abstract class StateBase implements IState {
         this._transitionMode = mode;
     }
 
-    public abstract setCenter(center: number[]): void;
-
-    public abstract setZoom(zoom: number): void;
-
-    protected abstract _getAlpha(): number;
+    protected _getAlpha(): number { return 1; }
 
     protected _setCurrent(): void {
         this._setCurrentNode();
