@@ -28,6 +28,7 @@ export * from "./component/mouse/HandlerTypes";
 export {BounceHandler} from "./component/mouse/BounceHandler";
 export {DragPanHandler} from "./component/mouse/DragPanHandler";
 export {DoubleClickZoomHandler} from "./component/mouse/DoubleClickZoomHandler";
+export {EarthControlHandler} from "./component/mouse/EarthControlHandler";
 export {ScrollZoomHandler} from "./component/mouse/ScrollZoomHandler";
 export {TouchZoomHandler} from "./component/mouse/TouchZoomHandler";
 import * as ImageBoundary from "./component/mouse/ImageBoundary";

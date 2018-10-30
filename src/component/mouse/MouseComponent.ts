@@ -6,6 +6,7 @@ import {
     Component,
     DoubleClickZoomHandler,
     DragPanHandler,
+    EarthControlHandler,
     IMouseConfiguration,
     ScrollZoomHandler,
     TouchZoomHandler,
@@ -43,6 +44,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
     private _bounceHandler: BounceHandler;
     private _doubleClickZoomHandler: DoubleClickZoomHandler;
     private _dragPanHandler: DragPanHandler;
+    private _earthControlHandler: EarthControlHandler;
     private _scrollZoomHandler: ScrollZoomHandler;
     private _touchZoomHandler: TouchZoomHandler;
 
@@ -57,6 +59,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._bounceHandler = new BounceHandler(this, container, navigator, viewportCoords, spatial);
         this._doubleClickZoomHandler = new DoubleClickZoomHandler(this, container, navigator, viewportCoords);
         this._dragPanHandler = new DragPanHandler(this, container, navigator, viewportCoords, spatial);
+        this._earthControlHandler = new EarthControlHandler(this, container, navigator, viewportCoords);
         this._scrollZoomHandler = new ScrollZoomHandler(this, container, navigator, viewportCoords);
         this._touchZoomHandler = new TouchZoomHandler(this, container, navigator, viewportCoords);
     }
@@ -99,6 +102,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
 
     protected _activate(): void {
         this._bounceHandler.enable();
+        this._earthControlHandler.enable();
 
         this._configurationSubscription = this._configuration$
             .subscribe(
@@ -139,6 +143,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._bounceHandler.disable();
         this._doubleClickZoomHandler.disable();
         this._dragPanHandler.disable();
+        this._earthControlHandler.disable();
         this._scrollZoomHandler.disable();
         this._touchZoomHandler.disable();
     }
