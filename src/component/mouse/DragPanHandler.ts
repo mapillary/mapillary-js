@@ -64,9 +64,6 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
-    private _basicRotationThreshold: number;
-    private _forceCoeff: number;
-
     private _activeMouseSubscription: Subscription;
     private _activeTouchSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
@@ -83,9 +80,6 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
 
         this._spatial = spatial;
         this._viewportCoords = viewportCoords;
-
-        this._basicRotationThreshold = 5e-2;
-        this._forceCoeff = 2e-1;
     }
 
     protected _enable(): void {
@@ -351,24 +345,6 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
         }
 
         return buffer;
-    }
-
-    private _basicBoundaryPoints(pointsPerSide: number): number[][] {
-        let points: number[][] = [];
-        let os: number[][] = [[0, 0], [1, 0], [1, 1], [0, 1]];
-        let ds: number[][] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
-
-        for (let side: number = 0; side < 4; ++side) {
-            let o: number[] = os[side];
-            let d: number[] = ds[side];
-
-            for (let i: number = 0; i < pointsPerSide; ++i) {
-                points.push([o[0] + d[0] * i / pointsPerSide,
-                             o[1] + d[1] * i / pointsPerSide]);
-            }
-        }
-
-        return points;
     }
 }
 
