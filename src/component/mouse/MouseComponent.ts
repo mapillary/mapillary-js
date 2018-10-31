@@ -59,7 +59,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._bounceHandler = new BounceHandler(this, container, navigator, viewportCoords, spatial);
         this._doubleClickZoomHandler = new DoubleClickZoomHandler(this, container, navigator, viewportCoords);
         this._dragPanHandler = new DragPanHandler(this, container, navigator, viewportCoords, spatial);
-        this._earthControlHandler = new EarthControlHandler(this, container, navigator, viewportCoords);
+        this._earthControlHandler = new EarthControlHandler(this, container, navigator, viewportCoords, spatial);
         this._scrollZoomHandler = new ScrollZoomHandler(this, container, navigator, viewportCoords);
         this._touchZoomHandler = new TouchZoomHandler(this, container, navigator, viewportCoords);
     }

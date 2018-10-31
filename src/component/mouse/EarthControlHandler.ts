@@ -28,6 +28,7 @@ import {
     HandlerBase,
 } from "../../Component";
 import {
+    Spatial,
     Transform,
     ViewportCoords,
 } from "../../Geo";
@@ -45,6 +46,7 @@ import {
 
 export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     private _viewportCoords: ViewportCoords;
+    private _spatial: Spatial;
 
     private _dollySubscription: Subscription;
     private _orbitSubscription: Subscription;
@@ -55,9 +57,11 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
         component: Component<IMouseConfiguration>,
         container: Container,
         navigator: Navigator,
-        viewportCoords: ViewportCoords) {
+        viewportCoords: ViewportCoords,
+        spatial: Spatial) {
         super(component, container, navigator);
 
+        this._spatial = spatial;
         this._viewportCoords = viewportCoords;
     }
 
@@ -163,6 +167,12 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                                 .normalize();
 
                     const n: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
+
+                    if (Math.abs(this._spatial.angleToPlane(currentDirection.toArray(), n.toArray())) < Math.PI / 90 ||
+                        Math.abs(this._spatial.angleToPlane(previousDirection.toArray(), n.toArray())) < Math.PI / 90) {
+                        return [0, 0, 0];
+                    }
+
                     const p0: THREE.Vector3 = new THREE.Vector3().fromArray(transform.unprojectBasic([0.5, 0.5], 0));
                     p0.z -= 2;
 
@@ -173,6 +183,11 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
 
                     const currentIntersection: THREE.Vector3 = l0.clone().add(currentDirection.multiplyScalar(currentD));
                     const previousIntersection: THREE.Vector3 = l0.clone().add(previousDirection.multiplyScalar(previousD));
+
+                    if (this._viewportCoords.worldToCamera(currentIntersection.toArray(), render.perspective)[2] > 0 ||
+                        this._viewportCoords.worldToCamera(previousIntersection.toArray(), render.perspective)[2] > 0) {
+                        return [0, 0, 0];
+                    }
 
                     const direction: number[] = currentIntersection.clone().sub(previousIntersection).multiplyScalar(-1).toArray();
 
