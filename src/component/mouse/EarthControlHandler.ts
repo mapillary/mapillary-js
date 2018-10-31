@@ -1,8 +1,9 @@
 import * as THREE from "three";
 
 import {
-    empty as observableEmpty,
     concat as observableConcat,
+    combineLatest as observableCombinLatest,
+    empty as observableEmpty,
     merge as observableMerge,
     of as observableOf,
     Subscription,
@@ -18,6 +19,7 @@ import {
     pairwise,
     startWith,
     takeWhile,
+    distinctUntilChanged,
 } from "rxjs/operators";
 
 import {
@@ -33,6 +35,7 @@ import {
     RenderCamera,
 } from "../../Render";
 import {
+    IRotation,
     State,
 } from "../../State";
 import {
@@ -43,6 +46,7 @@ import {
 export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     private _viewportCoords: ViewportCoords;
 
+    private _orbitSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
     private _truckSubscription: Subscription;
 
@@ -76,41 +80,59 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                     event.preventDefault();
                 });
 
-        this._truckSubscription = earth$.pipe(
+        const control$: Observable<boolean> = observableMerge(
+            this._container.keyboardService.keyDown$.pipe(
+                switchMap(
+                    (event: KeyboardEvent): Observable<boolean> => {
+                        return event.ctrlKey ?
+                            observableOf(true) :
+                            observableEmpty();
+                    })),
+            this._container.keyboardService.keyUp$.pipe(
+                switchMap(
+                    (event: KeyboardEvent): Observable<boolean> => {
+                        return !event.ctrlKey ?
+                            observableOf(false) :
+                            observableEmpty();
+                    }))).pipe(
+            startWith(false),
+            distinctUntilChanged());
+
+        this._truckSubscription = observableCombinLatest(earth$, control$).pipe(
             switchMap(
-                (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
-                    if (!earth) {
+                ([earth, control]: [boolean, boolean]): Observable<[MouseEvent, MouseEvent]> => {
+                    if (!earth || control) {
                         return observableEmpty();
                     }
 
                     return this._container.mouseService
-                    .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
-                    switchMap(
-                        (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
-                            const mouseDragging$: Observable<MouseEvent> = observableConcat(
-                                observableOf(mouseDragStart),
-                                this._container.mouseService
-                                    .filtered$(this._component.name, this._container.mouseService.mouseDrag$));
+                        .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
+                        switchMap(
+                            (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
+                                const mouseDragging$: Observable<MouseEvent> = observableConcat(
+                                    observableOf(mouseDragStart),
+                                    this._container.mouseService
+                                        .filtered$(this._component.name, this._container.mouseService.mouseDrag$));
 
-                            const mouseDragEnd$: Observable<MouseEvent> = this._container.mouseService
-                                .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
-                                map(
-                                    (e: Event): MouseEvent => {
-                                        return null;
-                                    }));
+                                const mouseDragEnd$: Observable<MouseEvent> = this._container.mouseService
+                                    .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
+                                    map(
+                                        (e: Event): MouseEvent => {
+                                            return null;
+                                        }));
 
-                            return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
-                                takeWhile(
-                                    (e: MouseEvent): boolean => {
-                                        return !!e;
-                                    }),
-                                startWith(null));
-                        }),
-                    pairwise(),
-                    filter(
-                        (pair: [MouseEvent, MouseEvent]): boolean => {
-                            return pair[0] != null && pair[1] != null;
-                        }));
+                                return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
+                                    takeWhile(
+                                        (e: MouseEvent): boolean => {
+                                            return !!e;
+                                        }),
+                                    startWith(null));
+                            }),
+                        pairwise(),
+                        filter(
+                            (pair: [MouseEvent, MouseEvent]): boolean => {
+                                return pair[0] != null && pair[1] != null;
+                            }));
                 }),
             withLatestFrom(
                 this._container.renderService.renderCamera$,
@@ -159,9 +181,68 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                 (direction: number[]): void => {
                     this._navigator.stateService.truck(direction);
                 });
+
+        this._orbitSubscription = observableCombinLatest(earth$, control$).pipe(
+            switchMap(
+                ([earth, control]: [boolean, boolean]): Observable<[MouseEvent, MouseEvent]> => {
+                    if (!(earth && control)) {
+                        return observableEmpty();
+                    }
+
+                    return this._container.mouseService
+                        .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
+                        switchMap(
+                            (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
+                                const mouseDragging$: Observable<MouseEvent> = observableConcat(
+                                    observableOf(mouseDragStart),
+                                    this._container.mouseService
+                                        .filtered$(this._component.name, this._container.mouseService.mouseDrag$));
+
+                                const mouseDragEnd$: Observable<MouseEvent> = this._container.mouseService
+                                    .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
+                                    map(
+                                        (e: Event): MouseEvent => {
+                                            return null;
+                                        }));
+
+                                return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
+                                    takeWhile(
+                                        (e: MouseEvent): boolean => {
+                                            return !!e;
+                                        }),
+                                    startWith(null));
+                            }),
+                        pairwise(),
+                        filter(
+                            (pair: [MouseEvent, MouseEvent]): boolean => {
+                                return pair[0] != null && pair[1] != null;
+                            }));
+                }),
+            map(
+                ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {
+                    const element: HTMLElement = this._container.element;
+
+                    const currentCanvas: number[] = this._viewportCoords.canvasPosition(current, element);
+                    const [currentX, currentY]: number[] =
+                        this._viewportCoords.canvasToViewport(currentCanvas[0], currentCanvas[1], element);
+
+                    const previousCanvas: number[] = this._viewportCoords.canvasPosition(previous, element);
+                    const [previousX, previousY]: number[] =
+                        this._viewportCoords.canvasToViewport(previousCanvas[0], previousCanvas[1], element);
+
+                    const phi: number = (previousX - currentX) * Math.PI;
+                    const theta: number = (currentY - previousY) * Math.PI / 2;
+
+                    return { phi: phi, theta: theta };
+                }))
+            .subscribe(
+                (rotation: IRotation): void => {
+                    this._navigator.stateService.orbit(rotation);
+                });
     }
 
     protected _disable(): void {
+        this._orbitSubscription.unsubscribe();
         this._preventDefaultSubscription.unsubscribe();
         this._truckSubscription.unsubscribe();
     }
