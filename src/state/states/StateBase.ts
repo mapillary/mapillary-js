@@ -187,6 +187,8 @@ export abstract class StateBase implements IState {
 
     public setZoom(zoom: number): void { /*noop*/ }
 
+    public orbit(rotation: IRotation): void { /*noop*/ }
+
     public truck(direction: number[]): void { /*noop*/ }
 
     public append(nodes: Node[]): void {

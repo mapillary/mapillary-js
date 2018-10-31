@@ -41,5 +41,6 @@ export interface IStateContext extends ICurrentState {
     setSpeed(speed: number): void;
     setTransitionMode(mode: TransitionMode): void;
 
+    orbit(rotation: IRotation): void;
     truck(direction: number[]): void;
 }

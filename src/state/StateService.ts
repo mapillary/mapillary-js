@@ -467,6 +467,11 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
+    public orbit(rotation: IRotation): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.orbit(rotation); });
+    }
+
     public truck(direction: number[]): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.truck(direction); });

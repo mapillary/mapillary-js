@@ -209,6 +209,10 @@ export class StateContext implements IStateContext {
         this._state.setTransitionMode(mode);
     }
 
+    public orbit(rotation: IRotation): void {
+        this._state.orbit(rotation);
+    }
+
     public truck(direction: number[]): void {
         this._state.truck(direction);
     }
