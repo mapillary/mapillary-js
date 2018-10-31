@@ -209,7 +209,7 @@ export class StateContext implements IStateContext {
         this._state.setTransitionMode(mode);
     }
 
-    public pan(direction: number[]): void {
-        this._state.pan(direction);
+    public truck(direction: number[]): void {
+        this._state.truck(direction);
     }
 }

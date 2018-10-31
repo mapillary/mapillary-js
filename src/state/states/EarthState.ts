@@ -35,7 +35,7 @@ export class EarthState extends StateBase {
         return new InteractiveWaitingState(this);
     }
 
-    public pan(direction: number[]): void {
+    public truck(direction: number[]): void {
         this._camera.position.add(new THREE.Vector3().fromArray(direction));
         this._camera.lookat.add(new THREE.Vector3().fromArray(direction));
     }

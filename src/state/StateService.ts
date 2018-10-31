@@ -467,9 +467,9 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
-    public pan(direction: number[]): void {
+    public truck(direction: number[]): void {
         this._inMotionOperation$.next(true);
-        this._invokeContextOperation((context: IStateContext) => { context.pan(direction); });
+        this._invokeContextOperation((context: IStateContext) => { context.truck(direction); });
     }
 
     /**

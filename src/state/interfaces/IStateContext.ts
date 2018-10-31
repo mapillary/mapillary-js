@@ -41,5 +41,5 @@ export interface IStateContext extends ICurrentState {
     setSpeed(speed: number): void;
     setTransitionMode(mode: TransitionMode): void;
 
-    pan(direction: number[]): void;
+    truck(direction: number[]): void;
 }

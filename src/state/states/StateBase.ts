@@ -163,8 +163,6 @@ export abstract class StateBase implements IState {
 
     public moveTo(position: number): void { /*noop*/ }
 
-    public pan(direction: number[]): void { /*noop*/ }
-
     public rotate(delta: IRotation): void { /*noop*/ }
 
     public rotateUnbounded(delta: IRotation): void { /*noop*/ }
@@ -188,6 +186,8 @@ export abstract class StateBase implements IState {
     public setCenter(center: number[]): void { /*noop*/ }
 
     public setZoom(zoom: number): void { /*noop*/ }
+
+    public truck(direction: number[]): void { /*noop*/ }
 
     public append(nodes: Node[]): void {
         if (nodes.length < 1) {

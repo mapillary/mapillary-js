@@ -43,8 +43,8 @@ import {
 export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     private _viewportCoords: ViewportCoords;
 
-    private _panSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
+    private _truckSubscription: Subscription;
 
     constructor(
         component: Component<IMouseConfiguration>,
@@ -76,7 +76,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                     event.preventDefault();
                 });
 
-        this._panSubscription = earth$.pipe(
+        this._truckSubscription = earth$.pipe(
             switchMap(
                 (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
                     if (!earth) {
@@ -157,13 +157,13 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                 }))
             .subscribe(
                 (direction: number[]): void => {
-                    this._navigator.stateService.pan(direction);
+                    this._navigator.stateService.truck(direction);
                 });
     }
 
     protected _disable(): void {
-        this._panSubscription.unsubscribe();
         this._preventDefaultSubscription.unsubscribe();
+        this._truckSubscription.unsubscribe();
     }
 
     protected _getConfiguration(): IMouseConfiguration {
