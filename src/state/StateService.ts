@@ -467,6 +467,11 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.moveTo(position); });
     }
 
+    public dolly(delta: number): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.dolly(delta); });
+    }
+
     public orbit(rotation: IRotation): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.orbit(rotation); });

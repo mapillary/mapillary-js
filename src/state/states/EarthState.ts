@@ -40,15 +40,31 @@ export class EarthState extends StateBase {
         return new InteractiveWaitingState(this);
     }
 
+    public dolly(delta: number): void {
+        const camera: Camera = this._camera;
+        const offset: THREE.Vector3 = new THREE.Vector3()
+            .copy(camera.position)
+            .sub(camera.lookat);
+
+        const length: number = offset.length();
+        const scaled: number = length * Math.pow(2, -delta);
+        const clipped: number = Math.max(1, Math.min(scaled, 1000));
+
+        offset.normalize();
+        offset.multiplyScalar(clipped);
+
+        camera.position.copy(camera.lookat).add(offset);
+    }
+
     public orbit(rotation: IRotation): void {
         const camera: Camera = this._camera;
-        let q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3( 0, 0, 1 ));
-        let qInverse: THREE.Quaternion = q.clone().inverse();
+        const q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3( 0, 0, 1 ));
+        const qInverse: THREE.Quaternion = q.clone().inverse();
 
-        let offset: THREE.Vector3 = new THREE.Vector3();
+        const offset: THREE.Vector3 = new THREE.Vector3();
         offset.copy(camera.position).sub(camera.lookat);
         offset.applyQuaternion(q);
-        let length: number = offset.length();
+        const length: number = offset.length();
 
         let phi: number = Math.atan2(offset.y, offset.x);
         phi += rotation.phi;

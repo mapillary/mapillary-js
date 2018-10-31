@@ -209,6 +209,10 @@ export class StateContext implements IStateContext {
         this._state.setTransitionMode(mode);
     }
 
+    public dolly(delta: number): void {
+        this._state.dolly(delta);
+    }
+
     public orbit(rotation: IRotation): void {
         this._state.orbit(rotation);
     }
