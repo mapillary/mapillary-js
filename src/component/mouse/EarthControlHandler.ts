@@ -144,54 +144,38 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                 this._navigator.stateService.currentTransform$),
             map(
                 ([[previous, current], render, transform]: [[MouseEvent, MouseEvent], RenderCamera, Transform]): number[] => {
-                    const element: HTMLElement = this._container.element;
+                    const planeNormal: number[] = [0, 0, 1];
+                    const planePoint: number[] = transform.unprojectBasic([0.5, 0.5], 0);
+                    planePoint[2] -= 2;
 
-                    const [currentX, currentY]: number[] = this._viewportCoords.canvasPosition(current, element);
-                    const currentDirection: THREE.Vector3 =
-                        this._viewportCoords.unprojectFromCanvas(
-                            currentX,
-                            currentY,
-                            element,
-                            render.perspective)
-                                .sub(render.perspective.position)
-                                .normalize();
+                    const currentIntersection: THREE.Vector3 = this._planeIntersection(
+                        current,
+                        planeNormal,
+                        planePoint,
+                        render.perspective,
+                        this._container.element);
 
-                    const [previousX, previousY]: number[] = this._viewportCoords.canvasPosition(previous, element);
-                    const previousDirection: THREE.Vector3 =
-                        this._viewportCoords.unprojectFromCanvas(
-                            previousX,
-                            previousY,
-                            element,
-                            render.perspective)
-                                .sub(render.perspective.position)
-                                .normalize();
+                    const previousIntersection: THREE.Vector3 = this._planeIntersection(
+                        previous,
+                        planeNormal,
+                        planePoint,
+                        render.perspective,
+                        this._container.element);
 
-                    const n: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
-
-                    if (Math.abs(this._spatial.angleToPlane(currentDirection.toArray(), n.toArray())) < Math.PI / 90 ||
-                        Math.abs(this._spatial.angleToPlane(previousDirection.toArray(), n.toArray())) < Math.PI / 90) {
-                        return [0, 0, 0];
+                    if (!currentIntersection || !previousIntersection) {
+                        return null;
                     }
 
-                    const p0: THREE.Vector3 = new THREE.Vector3().fromArray(transform.unprojectBasic([0.5, 0.5], 0));
-                    p0.z -= 2;
-
-                    const l0: THREE.Vector3 = render.perspective.position.clone();
-
-                    const currentD: number = p0.clone().sub(l0).dot(n) / currentDirection.clone().dot(n);
-                    const previousD: number = p0.clone().sub(l0).dot(n) / previousDirection.clone().dot(n);
-
-                    const currentIntersection: THREE.Vector3 = l0.clone().add(currentDirection.multiplyScalar(currentD));
-                    const previousIntersection: THREE.Vector3 = l0.clone().add(previousDirection.multiplyScalar(previousD));
-
-                    if (this._viewportCoords.worldToCamera(currentIntersection.toArray(), render.perspective)[2] > 0 ||
-                        this._viewportCoords.worldToCamera(previousIntersection.toArray(), render.perspective)[2] > 0) {
-                        return [0, 0, 0];
-                    }
-
-                    const direction: number[] = currentIntersection.clone().sub(previousIntersection).multiplyScalar(-1).toArray();
+                    const direction: number[] = new THREE.Vector3()
+                        .subVectors(currentIntersection, previousIntersection)
+                        .multiplyScalar(-1)
+                        .toArray();
 
                     return direction;
+                }),
+            filter(
+                (direction: number[]): boolean => {
+                    return !!direction;
                 }))
             .subscribe(
                 (direction: number[]): void => {
@@ -236,15 +220,8 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                 }),
             map(
                 ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {
-                    const element: HTMLElement = this._container.element;
-
-                    const currentCanvas: number[] = this._viewportCoords.canvasPosition(current, element);
-                    const [currentX, currentY]: number[] =
-                        this._viewportCoords.canvasToViewport(currentCanvas[0], currentCanvas[1], element);
-
-                    const previousCanvas: number[] = this._viewportCoords.canvasPosition(previous, element);
-                    const [previousX, previousY]: number[] =
-                        this._viewportCoords.canvasToViewport(previousCanvas[0], previousCanvas[1], element);
+                    const [currentX, currentY]: number[] = this._eventToViewport(current, this._container.element);
+                    const [previousX, previousY]: number[] = this._eventToViewport(previous, this._container.element);
 
                     const phi: number = (previousX - currentX) * Math.PI;
                     const theta: number = (currentY - previousY) * Math.PI / 2;
@@ -295,6 +272,49 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
 
     protected _getConfiguration(): IMouseConfiguration {
         return { };
+    }
+
+    private _eventToViewport(event: MouseEvent, element: HTMLElement): number[] {
+        const previousCanvas: number[] = this._viewportCoords.canvasPosition(event, element);
+
+        return this._viewportCoords.canvasToViewport(previousCanvas[0], previousCanvas[1], element);
+    }
+
+    private _planeIntersection(
+        event: MouseEvent,
+        planeNormal: number[],
+        planePoint: number[],
+        camera: THREE.Camera,
+        element: HTMLElement): THREE.Vector3 {
+
+        const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
+        const direction: THREE.Vector3 =
+            this._viewportCoords
+                .unprojectFromCanvas(
+                    canvasX,
+                    canvasY,
+                    element,
+                    camera)
+                .sub(camera.position)
+                .normalize();
+
+        if (Math.abs(this._spatial.angleToPlane(direction.toArray(), planeNormal)) < Math.PI / 90) {
+            return null;
+        }
+
+        const l0: THREE.Vector3 = camera.position.clone();
+        const n: THREE.Vector3 = new THREE.Vector3().fromArray(planeNormal);
+        const p0: THREE.Vector3 = new THREE.Vector3().fromArray(planePoint);
+
+        const d: number = new THREE.Vector3().subVectors(p0, l0).dot(n) / direction.clone().dot(n);
+
+        const intersection: THREE.Vector3 = new THREE.Vector3().addVectors(l0, direction.multiplyScalar(d));
+
+        if (this._viewportCoords.worldToCamera(intersection.toArray(), camera)[2] > 0) {
+            return null;
+        }
+
+        return intersection;
     }
 }
 
