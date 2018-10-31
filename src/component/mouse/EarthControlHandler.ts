@@ -46,6 +46,7 @@ import {
 export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     private _viewportCoords: ViewportCoords;
 
+    private _dollySubscription: Subscription;
     private _orbitSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
     private _truckSubscription: Subscription;
@@ -239,9 +240,39 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                 (rotation: IRotation): void => {
                     this._navigator.stateService.orbit(rotation);
                 });
+
+        this._dollySubscription = earth$.pipe(
+            switchMap(
+                (earth: boolean): Observable<WheelEvent> => {
+                    if (!earth) {
+                        return observableEmpty();
+                    }
+
+                    return this._container.mouseService
+                        .filteredWheel$(this._component.name, this._container.mouseService.mouseWheel$);
+                }),
+            map(
+                (event: WheelEvent): number => {
+                    let delta: number = event.deltaY;
+
+                    if (event.deltaMode === 1) {
+                        delta = 40 * delta;
+                    } else if (event.deltaMode === 2) {
+                        delta = 800 * delta;
+                    }
+
+                    const canvasSize: number[] = this._viewportCoords.containerToCanvas(this._container.element);
+
+                    return -delta / canvasSize[1];
+                }))
+            .subscribe(
+                (delta: number): void => {
+                    this._navigator.stateService.dolly(delta);
+                });
     }
 
     protected _disable(): void {
+        this._dollySubscription.unsubscribe();
         this._orbitSubscription.unsubscribe();
         this._preventDefaultSubscription.unsubscribe();
         this._truckSubscription.unsubscribe();
