@@ -11,6 +11,7 @@ import {IComponentConfiguration} from "../../Component";
  *         component: {
  *             spatialData: {
  *                 camerasVisible: true,
+ *                 connectedComponents: true,
  *                 pointsVisible: false,
  *                 positionsVisible: true,
  *             },
@@ -25,6 +26,16 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * @default false
      */
     camerasVisible?: boolean;
+
+    /**
+     * Specify if the color of the cameras should
+     * indicate the connected components they belong to.
+     *
+     * @description Only applicable when cameras are visible.
+     *
+     * @default false
+     */
+    connectedComponents?: boolean;
 
     /**
      * Specify if the points should be visible or not.

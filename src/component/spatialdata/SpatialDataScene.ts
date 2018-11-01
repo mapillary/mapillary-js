@@ -13,12 +13,14 @@ export class SpatialDataScene {
     private _scene: THREE.Scene;
     private _raycaster: THREE.Raycaster;
 
+    private _connectedComponentColors: { [id: string]: string };
     private _needsRender: boolean;
     private _interactiveObjects: THREE.Object3D[];
     private _reconstructions: {
         [hash: string]: {
             cameraKeys: { [id: string]: string };
             cameras: THREE.Object3D;
+            connectedComponents: { [id: string]: THREE.Object3D[] };
             keys: string[];
             points: THREE.Object3D;
             positions: THREE.Object3D;
@@ -28,11 +30,13 @@ export class SpatialDataScene {
     private _camerasVisible: boolean;
     private _pointsVisible: boolean;
     private _positionsVisible: boolean;
+    private _visualizeConnectedComponents: boolean;
 
     constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._scene = !!scene ? scene : new THREE.Scene();
         this._raycaster = !!raycaster ? raycaster : new THREE.Raycaster(undefined, undefined, 0.8);
 
+        this._connectedComponentColors = {};
         this._needsRender = false;
         this._interactiveObjects = [];
         this._reconstructions = {};
@@ -40,6 +44,7 @@ export class SpatialDataScene {
         this._camerasVisible = configuration.camerasVisible;
         this._pointsVisible = configuration.pointsVisible;
         this._positionsVisible = configuration.positionsVisible;
+        this._visualizeConnectedComponents = configuration.connectedComponents;
     }
 
     public get needsRender(): boolean {
@@ -50,12 +55,14 @@ export class SpatialDataScene {
         reconstruction: IReconstruction,
         transform: Transform,
         originalPosition: number[],
+        connectedComponent: string,
         hash: string): void {
 
         if (!(hash in this._reconstructions)) {
             this._reconstructions[hash] = {
                 cameraKeys: {},
                 cameras: new THREE.Object3D(),
+                connectedComponents: {},
                 keys: [],
                 points: new THREE.Object3D(),
                 positions: new THREE.Object3D(),
@@ -71,6 +78,10 @@ export class SpatialDataScene {
                 this._reconstructions[hash].positions);
         }
 
+        if (!(connectedComponent in this._reconstructions[hash].connectedComponents)) {
+            this._reconstructions[hash].connectedComponents[connectedComponent] = [];
+        }
+
         if (transform.hasValidScale) {
             this._reconstructions[hash].points.add(this._createPoints(reconstruction, transform));
         }
@@ -81,6 +92,11 @@ export class SpatialDataScene {
             this._reconstructions[hash].cameraKeys[child.uuid] = reconstruction.main_shot;
             this._interactiveObjects.push(child);
         }
+
+        this._reconstructions[hash].connectedComponents[connectedComponent].push(camera);
+
+        const color: string = this._getColor(connectedComponent, this._visualizeConnectedComponents);
+        this._setCameraColor(color, camera);
 
         this._reconstructions[hash].positions.add(this._createPosition(transform, originalPosition));
 
@@ -175,6 +191,36 @@ export class SpatialDataScene {
         }
 
         this._positionsVisible = visible;
+        this._needsRender = true;
+    }
+
+    public setConnectedComponentVisualization(visualize: boolean): void {
+        if (visualize === this._visualizeConnectedComponents) {
+            return;
+        }
+
+        for (const hash in this._reconstructions) {
+            if (!this._reconstructions.hasOwnProperty(hash)) {
+                continue;
+            }
+
+            const connectedComponents: { [id: number]: THREE.Object3D[] } =
+                this._reconstructions[hash].connectedComponents;
+
+            for (const connectedComponent in connectedComponents) {
+                if (!connectedComponents.hasOwnProperty(connectedComponent)) {
+                    continue;
+                }
+
+                const color: string = this._getColor(connectedComponent, visualize);
+
+                for (const camera of connectedComponents[connectedComponent]) {
+                    this._setCameraColor(color, camera);
+                }
+            }
+        }
+
+        this._visualizeConnectedComponents = visualize;
         this._needsRender = true;
     }
 
@@ -419,8 +465,32 @@ export class SpatialDataScene {
         delete this._reconstructions[hash];
     }
 
+    private _getColor(connectedComponent: string, visualizeConnectedComponents: boolean): string {
+        return visualizeConnectedComponents ?
+            this._getConnectedComponentColor(connectedComponent) :
+            "#FFFFFF";
+    }
+
+    private _getConnectedComponentColor(connectedComponent: string): string {
+        if (!(connectedComponent in this._connectedComponentColors)) {
+            this._connectedComponentColors[connectedComponent] = this._randomColor();
+        }
+
+        return this._connectedComponentColors[connectedComponent];
+    }
+
     private _interpolate(a: number, b: number, alpha: number): number {
         return a + alpha * (b - a);
+    }
+
+    private _randomColor(): string {
+        return `hsl(${Math.floor(360 * Math.random())}, 100%, 65%)`;
+    }
+
+    private _setCameraColor(color: string, camera: THREE.Object3D): void {
+        for (const child of camera.children) {
+            (<THREE.LineBasicMaterial>(<THREE.Line>child).material).color = new THREE.Color(color);
+        }
     }
 
     private _subsample(p1: number[], p2: number[], subsamples: number): number[][] {

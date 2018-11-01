@@ -72,6 +72,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _positionVisibilitySubscription: Subscription;
     private _renderSubscription: Subscription;
     private _uncacheSubscription: Subscription;
+    private _visualizeConnectedComponentSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -168,16 +169,22 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     return !this._scene.hasReconstruction(data.reconstruction.main_shot, hash);
                 }),
             map(
-                ([[hash, data], reference]: [[string, ReconstructionData], ILatLonAlt]): [IReconstruction, Transform, number[], string] => {
+                ([[hash, data], reference]: [[string, ReconstructionData], ILatLonAlt]):
+                [ReconstructionData, Transform, number[], string] => {
                     return [
-                        data.reconstruction,
+                        data,
                         this._createTransform(data.data, reference),
                         this._computeOriginalPosition(data.data, reference),
                         hash];
                 }))
             .subscribe(
-                ([reconstruction, transform, position, hash]: [IReconstruction, Transform, number[], string]): void => {
-                    this._scene.addReconstruction(reconstruction, transform, position, hash);
+                ([data, transform, position, hash]: [ReconstructionData, Transform, number[], string]): void => {
+                    this._scene.addReconstruction(
+                        data.reconstruction,
+                        transform,
+                        position,
+                        data.data.mergeCC.toString(),
+                        hash);
                 });
 
         this._cameraVisibilitySubscription = this._configuration$.pipe(
@@ -211,6 +218,17 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             .subscribe(
                 (visible: boolean): void => {
                     this._scene.setPositionVisibility(visible);
+                });
+
+        this._visualizeConnectedComponentSubscription = this._configuration$.pipe(
+            map(
+                (configuration: ISpatialDataConfiguration): boolean => {
+                    return configuration.connectedComponents;
+                }),
+            distinctUntilChanged())
+            .subscribe(
+                (visualize: boolean): void => {
+                    this._scene.setConnectedComponentVisualization(visualize);
                 });
 
         this._uncacheSubscription = hash$
@@ -278,6 +296,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._positionVisibilitySubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
+        this._visualizeConnectedComponentSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ISpatialDataConfiguration {

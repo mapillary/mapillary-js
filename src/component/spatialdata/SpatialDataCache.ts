@@ -49,6 +49,7 @@ export type NodeData = {
     key: string,
     lat: number;
     lon: number;
+    mergeCC: number;
     orientation: number;
     originalLat: number;
     originalLon: number;
@@ -193,6 +194,7 @@ export class SpatialDataCache {
             key: node.key,
             lat: node.latLon.lat,
             lon: node.latLon.lon,
+            mergeCC: node.mergeCC,
             orientation: node.orientation,
             originalLat: node.originalLatLon.lat,
             originalLon: node.originalLatLon.lon,
