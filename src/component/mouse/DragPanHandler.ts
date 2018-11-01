@@ -29,6 +29,7 @@ import {
     IMouseConfiguration,
     HandlerBase,
     MouseTouchPair,
+    MouseOperator,
 } from "../../Component";
 import {
     Spatial,
@@ -155,34 +156,8 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                         return observableEmpty();
                     }
 
-                    const mouseDrag$: Observable<[MouseEvent, MouseEvent]> = this._container.mouseService
-                        .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
-                        switchMap(
-                            (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
-                                const mouseDragging$: Observable<MouseEvent> = observableConcat(
-                                    observableOf(mouseDragStart),
-                                    this._container.mouseService
-                                        .filtered$(this._component.name, this._container.mouseService.mouseDrag$));
-
-                                const mouseDragEnd$: Observable<MouseEvent> = this._container.mouseService
-                                    .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
-                                    map(
-                                        (e: Event): MouseEvent => {
-                                            return null;
-                                        }));
-
-                                return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
-                                    takeWhile(
-                                        (e: MouseEvent): boolean => {
-                                            return !!e;
-                                        }),
-                                    startWith(null));
-                            }),
-                        pairwise(),
-                        filter(
-                            (pair: [MouseEvent, MouseEvent]): boolean => {
-                                return pair[0] != null && pair[1] != null;
-                            }));
+                    const mouseDrag$: Observable<[MouseEvent, MouseEvent]> =
+                        MouseOperator.filteredPairwiseMouseDrag$(this._component.name, this._container.mouseService);
 
                     const singleTouchDrag$: Observable<[Touch, Touch]> = observableMerge(
                             this._container.touchService.singleTouchDragStart$,

@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 import {
-    concat as observableConcat,
     combineLatest as observableCombinLatest,
     empty as observableEmpty,
     merge as observableMerge,
@@ -16,9 +15,7 @@ import {
     withLatestFrom,
     share,
     switchMap,
-    pairwise,
     startWith,
-    takeWhile,
     distinctUntilChanged,
 } from "rxjs/operators";
 
@@ -26,6 +23,7 @@ import {
     Component,
     IMouseConfiguration,
     HandlerBase,
+    MouseOperator,
 } from "../../Component";
 import {
     Spatial,
@@ -110,34 +108,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                         return observableEmpty();
                     }
 
-                    return this._container.mouseService
-                        .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
-                        switchMap(
-                            (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
-                                const mouseDragging$: Observable<MouseEvent> = observableConcat(
-                                    observableOf(mouseDragStart),
-                                    this._container.mouseService
-                                        .filtered$(this._component.name, this._container.mouseService.mouseDrag$));
-
-                                const mouseDragEnd$: Observable<MouseEvent> = this._container.mouseService
-                                    .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
-                                    map(
-                                        (e: Event): MouseEvent => {
-                                            return null;
-                                        }));
-
-                                return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
-                                    takeWhile(
-                                        (e: MouseEvent): boolean => {
-                                            return !!e;
-                                        }),
-                                    startWith(null));
-                            }),
-                        pairwise(),
-                        filter(
-                            (pair: [MouseEvent, MouseEvent]): boolean => {
-                                return pair[0] != null && pair[1] != null;
-                            }));
+                    return MouseOperator.filteredPairwiseMouseDrag$(this._component.name, this._container.mouseService);
                 }),
             withLatestFrom(
                 this._container.renderService.renderCamera$,
@@ -189,34 +160,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                         return observableEmpty();
                     }
 
-                    return this._container.mouseService
-                        .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
-                        switchMap(
-                            (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
-                                const mouseDragging$: Observable<MouseEvent> = observableConcat(
-                                    observableOf(mouseDragStart),
-                                    this._container.mouseService
-                                        .filtered$(this._component.name, this._container.mouseService.mouseDrag$));
-
-                                const mouseDragEnd$: Observable<MouseEvent> = this._container.mouseService
-                                    .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
-                                    map(
-                                        (e: Event): MouseEvent => {
-                                            return null;
-                                        }));
-
-                                return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
-                                    takeWhile(
-                                        (e: MouseEvent): boolean => {
-                                            return !!e;
-                                        }),
-                                    startWith(null));
-                            }),
-                        pairwise(),
-                        filter(
-                            (pair: [MouseEvent, MouseEvent]): boolean => {
-                                return pair[0] != null && pair[1] != null;
-                            }));
+                    return MouseOperator.filteredPairwiseMouseDrag$(this._component.name, this._container.mouseService);
                 }),
             map(
                 ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {

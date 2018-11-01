@@ -3,6 +3,7 @@ export {ComponentService} from "./component/ComponentService";
 export {HandlerBase} from "./component/utils/HandlerBase";
 export {MeshFactory} from "./component/utils/MeshFactory";
 export {MeshScene} from "./component/utils/MeshScene";
+export {MouseOperator} from "./component/utils/MouseOperator";
 export {AttributionComponent} from "./component/AttributionComponent";
 export {BackgroundComponent} from "./component/BackgroundComponent";
 export {BearingComponent} from "./component/BearingComponent";
