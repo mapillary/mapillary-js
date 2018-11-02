@@ -307,14 +307,14 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         const hashSet: Set<string> = new Set<string>();
         hashSet.add(hash);
 
-        this._adjacentComponentRecursive(hashSet, hash, 0, depth);
+        this._adjacentComponentRecursive(hashSet, [hash], 0, depth);
 
         return this._setToArray(hashSet);
     }
 
     private _adjacentComponentRecursive(
         hashSet: Set<string>,
-        currentHash: string,
+        currentHashes: string[],
         currentDepth: number,
         maxDepth: number): void {
 
@@ -322,25 +322,29 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             return;
         }
 
-        const neighbours: geohash.Neighbours = geohash.neighbours(currentHash);
+        const neighbours: string[] = [];
+
+        for (const hash of currentHashes) {
+            const hashNeighbours: geohash.Neighbours = geohash.neighbours(hash);
+
+            for (const direction in hashNeighbours) {
+                if (!hashNeighbours.hasOwnProperty(direction)) {
+                    continue;
+                }
+
+                neighbours.push(hashNeighbours[<keyof geohash.Neighbours>direction]);
+            }
+        }
 
         const newHashes: string[] = [];
-        for (const direction in neighbours) {
-            if (!neighbours.hasOwnProperty(direction)) {
-                continue;
-            }
-
-            const neighbour: string = neighbours[<keyof geohash.Neighbours>direction];
-
+        for (const neighbour of neighbours) {
             if (!hashSet.has(neighbour)) {
                 hashSet.add(neighbour);
                 newHashes.push(neighbour);
             }
         }
 
-        for (const newHash of newHashes) {
-            this._adjacentComponentRecursive(hashSet, newHash, currentDepth + 1, maxDepth);
-        }
+        this._adjacentComponentRecursive(hashSet, newHashes, currentDepth + 1, maxDepth);
     }
 
     private _computeOriginalPosition(data: NodeData, reference: ILatLonAlt): number[] {
