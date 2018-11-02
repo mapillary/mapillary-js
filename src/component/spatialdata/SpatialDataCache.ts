@@ -214,8 +214,12 @@ export class SpatialDataCache {
                 xmlHTTP.timeout = 15000;
 
                 xmlHTTP.onload = () => {
-                    subscriber.next(xmlHTTP.response);
-                    subscriber.complete();
+                    if (!xmlHTTP.response) {
+                        subscriber.error(new Error(`Atomic reconstruction does not exist (${key})`));
+                    } else {
+                        subscriber.next(xmlHTTP.response);
+                        subscriber.complete();
+                    }
                 };
 
                 xmlHTTP.onerror = () => {
