@@ -83,32 +83,18 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                     event.preventDefault();
                 });
 
-        const control$: Observable<boolean> = observableMerge(
-            this._container.keyboardService.keyDown$.pipe(
-                switchMap(
-                    (event: KeyboardEvent): Observable<boolean> => {
-                        return event.ctrlKey ?
-                            observableOf(true) :
-                            observableEmpty();
-                    })),
-            this._container.keyboardService.keyUp$.pipe(
-                switchMap(
-                    (event: KeyboardEvent): Observable<boolean> => {
-                        return !event.ctrlKey ?
-                            observableOf(false) :
-                            observableEmpty();
-                    }))).pipe(
-            startWith(false),
-            distinctUntilChanged());
-
-        this._truckSubscription = observableCombinLatest(earth$, control$).pipe(
+        this._truckSubscription = earth$.pipe(
             switchMap(
-                ([earth, control]: [boolean, boolean]): Observable<[MouseEvent, MouseEvent]> => {
-                    if (!earth || control) {
+                (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
+                    if (!earth) {
                         return observableEmpty();
                     }
 
-                    return MouseOperator.filteredPairwiseMouseDrag$(this._component.name, this._container.mouseService);
+                    return MouseOperator.filteredPairwiseMouseDrag$(this._component.name, this._container.mouseService).pipe(
+                        filter(
+                            ([e1, e2]: [MouseEvent, MouseEvent]): boolean => {
+                                return !(e1.ctrlKey && e2.ctrlKey);
+                            }));
                 }),
             withLatestFrom(
                 this._container.renderService.renderCamera$,
@@ -153,14 +139,18 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                     this._navigator.stateService.truck(direction);
                 });
 
-        this._orbitSubscription = observableCombinLatest(earth$, control$).pipe(
+        this._orbitSubscription = earth$.pipe(
             switchMap(
-                ([earth, control]: [boolean, boolean]): Observable<[MouseEvent, MouseEvent]> => {
-                    if (!(earth && control)) {
+                (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
+                    if (!earth) {
                         return observableEmpty();
                     }
 
-                    return MouseOperator.filteredPairwiseMouseDrag$(this._component.name, this._container.mouseService);
+                    return MouseOperator.filteredPairwiseMouseDrag$(this._component.name, this._container.mouseService).pipe(
+                        filter(
+                            ([e1, e2]: [MouseEvent, MouseEvent]): boolean => {
+                                return e1.ctrlKey && e2.ctrlKey;
+                            }));
                 }),
             map(
                 ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {
