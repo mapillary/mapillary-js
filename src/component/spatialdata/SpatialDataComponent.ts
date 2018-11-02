@@ -183,7 +183,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         data.reconstruction,
                         transform,
                         position,
-                        data.data.mergeCC.toString(),
+                        !!data.data.mergeCC ? data.data.mergeCC.toString() : "",
                         hash);
                 });
 
