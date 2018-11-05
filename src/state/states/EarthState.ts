@@ -22,9 +22,9 @@ export class EarthState extends StateBase {
             .normalize();
 
         this._camera.lookat.copy(this._camera.position);
-        this._camera.position.z = state.camera.position.z + 10;
-        this._camera.position.x = state.camera.position.x - 8 * viewingDirection.x;
-        this._camera.position.y = state.camera.position.y - 8 * viewingDirection.y;
+        this._camera.position.z = state.camera.position.z + 20;
+        this._camera.position.x = state.camera.position.x - 16 * viewingDirection.x;
+        this._camera.position.y = state.camera.position.y - 16 * viewingDirection.y;
         this._camera.up.set(0, 0, 1);
     }
 

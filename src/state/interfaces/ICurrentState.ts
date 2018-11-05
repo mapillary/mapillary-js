@@ -1,5 +1,6 @@
-import {Node} from "../../Graph";
 import {Camera, ILatLonAlt, Transform} from "../../Geo";
+import {Node} from "../../Graph";
+import {State} from "../../State";
 
 export interface ICurrentState {
     reference: ILatLonAlt;
@@ -16,4 +17,5 @@ export interface ICurrentState {
     currentTransform: Transform;
     previousTransform: Transform;
     motionless: boolean;
+    state: State;
 }

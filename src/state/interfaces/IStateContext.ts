@@ -7,8 +7,6 @@ import {
 import {Node} from "../../Graph";
 
 export interface IStateContext extends ICurrentState {
-    state: State;
-
     earth(): void;
     traverse(): void;
     wait(): void;

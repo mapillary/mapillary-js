@@ -1,4 +1,4 @@
-import {empty as observableEmpty, BehaviorSubject, Observable, Subscription, Subject} from "rxjs";
+import {empty as observableEmpty, BehaviorSubject, Subscription, Subject} from "rxjs";
 
 import {map} from "rxjs/operators";
 import * as THREE from "three";
@@ -14,8 +14,7 @@ import {
     RenderService,
     ISize,
 } from "../../src/Render";
-import {Camera} from "../../src/Geo";
-import {IFrame, ICurrentState, FrameGenerator} from "../../src/State";
+import {IFrame} from "../../src/State";
 import { FrameHelper } from "../helper/FrameHelper.spec";
 
 class RendererMock implements THREE.Renderer {

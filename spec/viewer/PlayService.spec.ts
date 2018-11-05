@@ -4,7 +4,6 @@ import {take, first, skip} from "rxjs/operators";
 
 import {
     APIv3,
-    ICoreNode,
     IFullNode,
 } from "../../src/API";
 import { EdgeDirection } from "../../src/Edge";
@@ -22,6 +21,7 @@ import {
     ICurrentState,
     IFrame,
     StateService,
+    State,
 } from "../../src/State";
 import {
     PlayService,
@@ -230,6 +230,7 @@ let createState: () => ICurrentState = (): ICurrentState => {
         previousNode: null,
         previousTransform: null,
         reference: null,
+        state: State.Traversing,
         trajectory: null,
         zoom: 0,
     };

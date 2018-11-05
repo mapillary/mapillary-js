@@ -4,7 +4,7 @@ import {TransformHelper} from "./TransformHelper.spec";
 import {IGPano} from "../../src/API";
 import {Transform, Camera} from "../../src/Geo";
 import {Node} from "../../src/Graph";
-import {IFrame} from "../../src/State";
+import {IFrame, State} from "../../src/State";
 
 export class FrameHelper {
     private _nodeHelper: NodeHelper = new NodeHelper();
@@ -30,6 +30,7 @@ export class FrameHelper {
                 previousNode: undefined,
                 previousTransform: undefined,
                 reference: { alt: 0, lat: 0, lon: 0 },
+                state: State.Traversing,
                 trajectory: [currentNode],
                 zoom: 0,
             },

@@ -13,6 +13,7 @@ import {
 import {
     IRotation,
     IFrame,
+    State,
 } from "../State";
 import { ICurrentState } from "../state/interfaces/interfaces";
 
@@ -38,6 +39,8 @@ export class RenderCamera {
 
     private _currentPano: boolean;
     private _previousPano: boolean;
+
+    private _state: State;
 
     private _currentProjectedPoints: number[][];
     private _previousProjectedPoints: number[][];
@@ -67,6 +70,8 @@ export class RenderCamera {
 
         this._currentPano = false;
         this._previousPano = false;
+
+        this._state = null;
 
         this._currentProjectedPoints = [];
         this._previousProjectedPoints = [];
@@ -122,6 +127,12 @@ export class RenderCamera {
     public setFrame(frame: IFrame): void {
         const state: ICurrentState = frame.state;
 
+        if (state.state !== this._state) {
+            this._state = state.state;
+
+            this._changed = true;
+        }
+
         const currentNodeId: string = state.currentNode.key;
         const previousNodeId: string = !!state.previousNode ? state.previousNode.key : null;
 
@@ -159,10 +170,12 @@ export class RenderCamera {
         if (this._changed || alpha !== this._alpha) {
             this._alpha = alpha;
 
-            this._perspective.fov = this._interpolateFov(
-                this._currentFov,
-                this._previousFov,
-                this._alpha);
+            this._perspective.fov = this._state === State.Earth ?
+                60 :
+                this._interpolateFov(
+                    this._currentFov,
+                    this._previousFov,
+                    this._alpha);
 
             this._changed = true;
         }

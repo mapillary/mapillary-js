@@ -22,6 +22,7 @@ import {
     ICurrentState,
     IFrame,
     StateService,
+    State,
 } from "../../src/State";
 import {
     CacheService,
@@ -43,6 +44,7 @@ let createState: () => ICurrentState = (): ICurrentState => {
         previousNode: null,
         previousTransform: null,
         reference: null,
+        state: State.Traversing,
         trajectory: null,
         zoom: 0,
     };

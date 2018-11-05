@@ -1,4 +1,4 @@
-import {of as observableOf, Observable, Subject} from "rxjs";
+import {of as observableOf, Subject} from "rxjs";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
 
@@ -17,6 +17,7 @@ import {
     ICurrentState,
     IFrame,
     StateService,
+    State,
 } from "../../src/State";
 import {
     CacheService,
@@ -107,6 +108,7 @@ let createState: () => ICurrentState = (): ICurrentState => {
         previousNode: null,
         previousTransform: null,
         reference: null,
+        state: State.Traversing,
         trajectory: null,
         zoom: 0,
     };

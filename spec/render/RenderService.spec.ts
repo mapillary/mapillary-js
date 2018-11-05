@@ -1,9 +1,9 @@
-import {empty as observableEmpty, Observable, Subject} from "rxjs";
+import {empty as observableEmpty, Subject} from "rxjs";
 
 import {skip, first, take, count} from "rxjs/operators";
 
 import {ISize, RenderCamera, RenderMode, RenderService} from "../../src/Render";
-import {IFrame, ICurrentState} from "../../src/State";
+import {IFrame} from "../../src/State";
 import {Camera} from "../../src/Geo";
 import { FrameHelper } from "../helper/FrameHelper.spec";
 
