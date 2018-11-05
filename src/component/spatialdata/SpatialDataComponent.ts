@@ -73,6 +73,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _pointVisibilitySubscription: Subscription;
     private _positionVisibilitySubscription: Subscription;
     private _renderSubscription: Subscription;
+    private _tileVisibilitySubscription: Subscription;
     private _uncacheSubscription: Subscription;
     private _visualizeConnectedComponentSubscription: Subscription;
 
@@ -80,7 +81,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         super(name, container, navigator);
 
         this._cache = new SpatialDataCache(navigator.graphService);
-        this._scene = new SpatialDataScene(this._getDefaultConfiguration);
+        this._scene = new SpatialDataScene(this._getDefaultConfiguration());
         this._viewportCoords = new ViewportCoords();
         this._geoCoords = new GeoCoords();
     }
@@ -173,7 +174,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         }));
                 }),
             switchMap(
-                (hashes: string[]): Observable<[string, NodeData[]]> => {
+                (hashes: string[]): Observable<string> => {
                     return observableFrom(hashes).pipe(
                         mergeMap(
                             (h: string): Observable<[string, NodeData[]]> => {
@@ -194,10 +195,14 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
                                 return observableCombineLatest(observableOf(h), tile$);
                             },
-                            1));
+                            1),
+                        map(
+                            ([hash]: [string, NodeData[]]): string => {
+                                return hash;
+                            }));
                 }),
             concatMap(
-                ([hash]: [string, NodeData[]]): Observable<[string, ReconstructionData]> => {
+                (hash: string): Observable<[string, ReconstructionData]> => {
                     let reconstructions$: Observable<ReconstructionData>;
 
                     if (this._cache.hasReconstructions(hash)) {
@@ -218,6 +223,14 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     return observableCombineLatest(observableOf(hash), reconstructions$);
                 }),
             withLatestFrom(this._navigator.stateService.reference$),
+            tap(
+                ([[hash], reference]: [[string, ReconstructionData], ILatLonAlt]): boolean => {
+                    if (this._scene.hasTile(hash)) {
+                        return;
+                    }
+
+                    this._scene.addTile(this._computeTileBBox(hash, reference), hash);
+                }),
             filter(
                 ([[hash, data]]: [[string, ReconstructionData], ILatLonAlt]): boolean => {
                     return !this._scene.hasReconstruction(data.reconstruction.main_shot, hash);
@@ -272,6 +285,17 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             .subscribe(
                 (visible: boolean): void => {
                     this._scene.setPositionVisibility(visible);
+                });
+
+        this._tileVisibilitySubscription = this._configuration$.pipe(
+            map(
+                (configuration: ISpatialDataConfiguration): boolean => {
+                    return configuration.tilesVisible;
+                }),
+            distinctUntilChanged())
+            .subscribe(
+                (visible: boolean): void => {
+                    this._scene.setTileVisibility(visible);
                 });
 
         this._visualizeConnectedComponentSubscription = this._configuration$.pipe(
@@ -350,12 +374,13 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._pointVisibilitySubscription.unsubscribe();
         this._positionVisibilitySubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
+        this._tileVisibilitySubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
         this._visualizeConnectedComponentSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ISpatialDataConfiguration {
-        return { camerasVisible: false, pointsVisible: true, positionsVisible: false };
+        return { camerasVisible: false, pointsVisible: true, positionsVisible: false, tilesVisible: false };
     }
 
     private _adjacentComponent(hash: string, depth: number): string[] {
@@ -410,6 +435,28 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             reference.lat,
             reference.lon,
             reference.alt);
+    }
+
+    private _computeTileBBox(hash: string, reference: ILatLonAlt): number[][] {
+        const bounds: geohash.Bounds = geohash.bounds(hash);
+
+        const sw: number[] = this._geoCoords.geodeticToEnu(
+            bounds.sw.lat,
+            bounds.sw.lon,
+            0,
+            reference.lat,
+            reference.lon,
+            reference.alt);
+
+        const ne: number[] = this._geoCoords.geodeticToEnu(
+            bounds.ne.lat,
+            bounds.ne.lon,
+            0,
+            reference.lat,
+            reference.lon,
+            reference.alt);
+
+        return [sw, ne];
     }
 
     private _createTransform(data: NodeData, reference: ILatLonAlt): Transform {

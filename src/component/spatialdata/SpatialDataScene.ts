@@ -27,9 +27,12 @@ export class SpatialDataScene {
         };
     };
 
+    private _tiles: { [hash: string]: THREE.Object3D };
+
     private _camerasVisible: boolean;
     private _pointsVisible: boolean;
     private _positionsVisible: boolean;
+    private _tilesVisible: boolean;
     private _visualizeConnectedComponents: boolean;
 
     constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
@@ -40,10 +43,12 @@ export class SpatialDataScene {
         this._needsRender = false;
         this._interactiveObjects = [];
         this._reconstructions = {};
+        this._tiles = {};
 
         this._camerasVisible = configuration.camerasVisible;
         this._pointsVisible = configuration.pointsVisible;
         this._positionsVisible = configuration.positionsVisible;
+        this._tilesVisible = configuration.tilesVisible;
         this._visualizeConnectedComponents = configuration.connectedComponents;
     }
 
@@ -105,18 +110,58 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
+    public addTile(tileBBox: number[][], hash: string): void {
+        if (this.hasTile(hash)) {
+            return;
+        }
+
+        const sw: number[] = tileBBox[0];
+        const ne: number[] = tileBBox[1];
+
+        const geometry: THREE.Geometry = new THREE.Geometry();
+        geometry.vertices.push(
+            new THREE.Vector3().fromArray(sw),
+            new THREE.Vector3(sw[0], ne[1], (sw[2] + ne[2]) / 2),
+            new THREE.Vector3().fromArray(ne),
+            new THREE.Vector3(ne[0], sw[1], (sw[2] + ne[2]) / 2),
+            new THREE.Vector3().fromArray(sw));
+
+        const tile: THREE.Object3D = new THREE.Line(geometry, new THREE.LineBasicMaterial());
+
+        this._tiles[hash] = new THREE.Object3D();
+        this._tiles[hash].visible = this._tilesVisible;
+        this._tiles[hash].add(tile);
+        this._scene.add(this._tiles[hash]);
+
+        this._needsRender = true;
+    }
+
     public uncache(keepHashes?: string[]): void {
         for (const hash of Object.keys(this._reconstructions)) {
             if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
                 continue;
             }
 
+            this._disposeReconstruction(hash);
+        }
+
+        for (const hash of Object.keys(this._tiles)) {
+            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
+                continue;
+            }
+
             this._disposeTile(hash);
         }
+
+        this._needsRender = true;
     }
 
     public hasReconstruction(key: string, hash: string): boolean {
         return hash in this._reconstructions && this._reconstructions[hash].keys.indexOf(key) !== -1;
+    }
+
+    public hasTile(hash: string): boolean {
+        return hash in this._tiles;
     }
 
     public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string {
@@ -191,6 +236,23 @@ export class SpatialDataScene {
         }
 
         this._positionsVisible = visible;
+        this._needsRender = true;
+    }
+
+    public setTileVisibility(visible: boolean): void {
+        if (visible === this._tilesVisible) {
+            return;
+        }
+
+        for (const hash in this._tiles) {
+            if (!this._tiles.hasOwnProperty(hash)) {
+                continue;
+            }
+
+            this._tiles[hash].visible = visible;
+        }
+
+        this._tilesVisible = visible;
         this._needsRender = true;
     }
 
@@ -420,8 +482,8 @@ export class SpatialDataScene {
 
         for (const camera of tileCameras.children.slice()) {
             for (const child of camera.children) {
-                (<THREE.Line | THREE.LineSegments>child).geometry.dispose();
-                (<THREE.Line | THREE.LineSegments>child).material.dispose();
+                (<THREE.Line>child).geometry.dispose();
+                (<THREE.Line>child).material.dispose();
 
                 const index: number = this._interactiveObjects.indexOf(child);
                 if (index !== -1) {
@@ -433,6 +495,8 @@ export class SpatialDataScene {
 
             tileCameras.remove(camera);
         }
+
+        this._scene.remove(tileCameras);
     }
 
     private _disposePoints(hash: string): void {
@@ -444,6 +508,8 @@ export class SpatialDataScene {
 
             tilePoints.remove(points);
         }
+
+        this._scene.remove(tilePoints);
     }
 
     private _disposePositions(hash: string): void {
@@ -455,14 +521,31 @@ export class SpatialDataScene {
 
             tilePositions.remove(position);
         }
+
+        this._scene.remove(tilePositions);
     }
 
-    private _disposeTile(hash: string): void {
+    private _disposeReconstruction(hash: string): void {
         this._disposeCameras(hash);
         this._disposePoints(hash);
         this._disposePositions(hash);
 
         delete this._reconstructions[hash];
+    }
+
+    private _disposeTile(hash: string): void {
+        const tile: THREE.Object3D = this._tiles[hash];
+
+        for (const line of tile.children.slice()) {
+            (<THREE.Line>line).geometry.dispose();
+            (<THREE.Line>line).material.dispose();
+
+            tile.remove(line);
+        }
+
+        this._scene.remove(tile);
+
+        delete this._tiles[hash];
     }
 
     private _getColor(connectedComponent: string, visualizeConnectedComponents: boolean): string {

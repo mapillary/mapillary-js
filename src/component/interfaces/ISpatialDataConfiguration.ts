@@ -14,6 +14,7 @@ import {IComponentConfiguration} from "../../Component";
  *                 connectedComponents: true,
  *                 pointsVisible: false,
  *                 positionsVisible: true,
+ *                 tilesVisible: true,
  *             },
  *         },
  *     })
@@ -50,6 +51,13 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * @default false
      */
     positionsVisible?: boolean;
+
+    /**
+     * Specify if the currently rendered tiles should be indicted on the ground.
+     *
+     * @default false
+     */
+    tilesVisible?: boolean;
 
 }
 
