@@ -127,7 +127,7 @@ export class RenderCamera {
 
         if (currentNodeId !== this._currentNodeId) {
             this._currentNodeId = currentNodeId;
-            this._currentPano = state.currentTransform.fullPano;
+            this._currentPano = !!state.currentTransform.gpano;
             this._currentProjectedPoints = this._computeProjectedPoints(state.currentTransform);
 
             this._changed = true;
@@ -135,7 +135,7 @@ export class RenderCamera {
 
         if (previousNodeId !== this._previousNodeId) {
             this._previousNodeId = previousNodeId;
-            this._previousPano = state.previousTransform.fullPano;
+            this._previousPano = !!state.previousTransform.gpano;
             this._previousProjectedPoints = this._computeProjectedPoints(state.previousTransform);
 
             this._changed = true;
