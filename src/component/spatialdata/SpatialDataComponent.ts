@@ -15,18 +15,19 @@ import {
     map,
     distinctUntilChanged,
     concatMap,
-    share,
     switchMap,
     tap,
     filter,
     last,
     mergeMap,
+    first,
+    refCount,
+    publishReplay,
 } from "rxjs/operators";
 
 import {
     ComponentService,
     Component,
-    IReconstruction,
     ISpatialDataConfiguration,
     NodeData,
     ReconstructionData,
@@ -56,6 +57,7 @@ import {
     Navigator,
 } from "../../Viewer";
 import PlayService from "../../viewer/PlayService";
+import State from "../../state/State";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
@@ -107,7 +109,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
                     return direction;
                 }),
-            distinctUntilChanged());
+            distinctUntilChanged(),
+            publishReplay(1),
+            refCount());
 
         const hash$: Observable<string> = this._navigator.stateService.reference$.pipe(
             tap(
@@ -123,7 +127,8 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                             }),
                         distinctUntilChanged());
                 }),
-            share());
+            publishReplay(1),
+            refCount());
 
         const sequencePlay$: Observable<boolean> = observableCombineLatest(
             this._navigator.playService.playing$,
@@ -132,36 +137,85 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 ([playing, speed]: [boolean, number]): boolean => {
                     return playing && speed > PlayService.sequenceSpeed;
                 }),
-            distinctUntilChanged());
+            distinctUntilChanged(),
+            publishReplay(1),
+            refCount());
 
-        this._addSubscription = observableCombineLatest(
-            hash$,
-            direction$,
-            sequencePlay$).pipe(
-            mergeMap(
-                ([hash, direction, sequencePlay]: [string, string, boolean]): Observable<string> => {
-                    return sequencePlay ?
-                        observableFrom([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
-                        observableFrom(this._computeTiles(hash, direction));
+        this._addSubscription = this._navigator.stateService.state$.pipe(
+            map(
+                (state: State): boolean => {
+                    return state === State.Earth;
+                }),
+            distinctUntilChanged(),
+            switchMap(
+                (earth: boolean): Observable<string[]> => {
+                    if (earth) {
+                        return observableCombineLatest(
+                            hash$,
+                            sequencePlay$).pipe(
+                            mergeMap(
+                                ([hash, sequencePlay]: [string, boolean]): Observable<string[]> => {
+                                return sequencePlay ?
+                                    observableOf([hash]) :
+                                    observableOf(this._adjacentComponent(hash, 4));
+                            }));
+                    }
+
+                    return observableCombineLatest(
+                        hash$,
+                        sequencePlay$,
+                        direction$).pipe(
+                        mergeMap(
+                            ([hash, sequencePlay, direction]: [string, boolean, string]): Observable<string[]> => {
+                                return sequencePlay ?
+                                    observableOf([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
+                                    observableOf(this._computeTiles(hash, direction));
+                        }));
+                }),
+            switchMap(
+                (hashes: string[]): Observable<[string, NodeData[]]> => {
+                    return observableFrom(hashes).pipe(
+                        mergeMap(
+                            (h: string): Observable<[string, NodeData[]]> => {
+                                let tile$: Observable<NodeData[]>;
+
+                                if (this._cache.hasTile(h)) {
+                                    tile$ = observableOf(this._cache.getTile(h));
+                                } else if (this._cache.isCachingTile(h)) {
+                                    tile$ = this._cache.cacheTile$(h).pipe(
+                                        last(null, {}),
+                                        switchMap(
+                                            (): Observable<NodeData[]> => {
+                                                return observableOf(this._cache.getTile(h));
+                                            }));
+                                } else {
+                                    tile$ = this._cache.cacheTile$(h);
+                                }
+
+                                return observableCombineLatest(observableOf(h), tile$);
+                            },
+                            1));
                 }),
             concatMap(
-                (hash: string): Observable<[string, ReconstructionData]> => {
-                    let tile$: Observable<ReconstructionData>;
+                ([hash]: [string, NodeData[]]): Observable<[string, ReconstructionData]> => {
+                    let reconstructions$: Observable<ReconstructionData>;
 
-                    if (this._cache.hasTile(hash)) {
-                        tile$ = observableFrom(this._cache.getTile(hash));
-                    } else if (this._cache.isCachingTile(hash)) {
-                        tile$ = this._cache.cacheTile$(hash).pipe(
+                    if (this._cache.hasReconstructions(hash)) {
+                        reconstructions$ = observableFrom(this._cache.getReconstructions(hash));
+                    } else if (this._cache.isCachingReconstructions(hash)) {
+                        reconstructions$ = this._cache.cacheReconstructions$(hash).pipe(
                             last(null, {}),
                             switchMap(
                                 (): Observable<ReconstructionData> => {
-                                    return observableFrom(this._cache.getTile(hash));
+                                    return observableFrom(this._cache.getReconstructions(hash));
                                 }));
+                    } else if (this._cache.hasTile(hash)) {
+                        reconstructions$ = this._cache.cacheReconstructions$(hash);
                     } else {
-                        tile$ = this._cache.cacheTile$(hash);
+                        reconstructions$ = observableEmpty();
                     }
 
-                    return observableCombineLatest(observableOf(hash), tile$);
+                    return observableCombineLatest(observableOf(hash), reconstructions$);
                 }),
             withLatestFrom(this._navigator.stateService.reference$),
             filter(
@@ -234,8 +288,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._uncacheSubscription = hash$
             .subscribe(
                 (hash: string): void => {
-                    this._scene.uncache(this._adjacentComponent(hash, 3));
-                    this._cache.uncache(this._adjacentComponent(hash, 4));
+                    const keepHashes: string[] = this._adjacentComponent(hash, 4);
+                    this._scene.uncache(keepHashes);
+                    this._cache.uncache(keepHashes);
                 });
 
         this._moveSubscription = this._navigator.playService.playing$.pipe(

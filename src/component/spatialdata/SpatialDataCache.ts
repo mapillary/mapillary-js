@@ -66,59 +66,76 @@ export type ReconstructionData = {
 export class SpatialDataCache {
     private _graphService: GraphService;
 
-    private _tiles: { [hash: string]: ReconstructionData[] };
-    private _cachingTiles$: { [hash: string]: Observable<ReconstructionData> };
     private _cacheRequests: { [hash: string]: XMLHttpRequest[] };
+    private _reconstructions: { [hash: string]: ReconstructionData[] };
+    private _tiles: { [hash: string]: NodeData[] };
+
+    private _cachingReconstructions$: { [hash: string]: Observable<ReconstructionData> };
+    private _cachingTiles$: { [hash: string]: Observable<NodeData[]> };
 
     constructor(graphService: GraphService) {
         this._graphService = graphService;
 
         this._tiles = {};
-        this._cachingTiles$ = {};
         this._cacheRequests = {};
+        this._reconstructions = {};
+
+        this._cachingReconstructions$ = {};
+        this._cachingTiles$ = {};
     }
 
-    public cacheTile$(hash: string): Observable<ReconstructionData> {
-        if (hash.length !== 8) {
-            throw new Error("Hash needs to be level 8.");
+    public cacheReconstructions$(hash: string): Observable<ReconstructionData> {
+        if (!(hash in this._tiles)) {
+            throw new Error("Cannot cache reconstructions of a non-existing tile.");
         }
 
-        if (hash in this._cachingTiles$) {
-            return this._cachingTiles$[hash];
+        if (this.hasReconstructions(hash)) {
+            throw new Error("Cannot cache reconstructions that already exists.");
         }
 
-        if (hash in this._tiles) {
-            throw new Error("Cannot cache tile that already exists.");
+        if (hash in this._cachingReconstructions$) {
+            return this._cachingReconstructions$[hash];
         }
 
-        this._tiles[hash] = [];
+        const tile: NodeData[] = [];
+
+        if (hash in this._reconstructions) {
+            const reconstructionKeys: string[] =
+                this.getReconstructions(hash)
+                    .map(
+                        (reconstruction: ReconstructionData): string => {
+                            return reconstruction.data.key;
+                        });
+
+            for (const node of this.getTile(hash)) {
+                if (reconstructionKeys.indexOf(node.key) === -1) {
+                    tile.push(node);
+                }
+            }
+        } else {
+            tile.push(...this.getTile(hash));
+
+            this._reconstructions[hash] = [];
+        }
+
         this._cacheRequests[hash] = [];
-
-        const bounds: geohash.Bounds = geohash.bounds(hash);
-        const sw: ILatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
-        const ne: ILatLon = { lat: bounds.ne.lat, lon: bounds.ne.lon };
-
-        this._cachingTiles$[hash] = this._graphService.cacheBoundingBox$(sw, ne).pipe(
-            switchMap(
-                (nodes: Node[]): Observable<Node> => {
-                    return observableFrom(nodes);
-                }),
+        this._cachingReconstructions$[hash] = observableFrom(tile).pipe(
             mergeMap(
-                (node: Node): Observable<[NodeData, IReconstruction]> => {
-                        return !this._cacheRequests[hash] ?
-                            observableEmpty() :
-                            observableZip(
-                                observableOf(this._createNodeData(node)),
-                                this._getAtomicReconstruction(node.key, this._cacheRequests[hash]))
-                                .pipe(
-                                    catchError(
-                                        (error: Error): Observable<[NodeData, IReconstruction]> => {
-                                            if (!(error instanceof AbortMapillaryError)) {
-                                                console.error(error);
-                                            }
+                (nodeData: NodeData): Observable<[NodeData, IReconstruction]> => {
+                    return !this._cacheRequests[hash] ?
+                        observableEmpty() :
+                        observableZip(
+                            observableOf(nodeData),
+                            this._getAtomicReconstruction(nodeData.key, this._cacheRequests[hash]))
+                            .pipe(
+                                catchError(
+                                    (error: Error): Observable<[NodeData, IReconstruction]> => {
+                                        if (!(error instanceof AbortMapillaryError)) {
+                                            console.error(error);
+                                        }
 
-                                            return observableEmpty();
-                                        }));
+                                        return observableEmpty();
+                                    }));
                 },
                 6),
             map(
@@ -127,16 +144,16 @@ export class SpatialDataCache {
                 }),
             filter(
                 (): boolean => {
-                    return hash in this._tiles;
+                    return hash in this._reconstructions;
                 }),
             tap(
                 (data: ReconstructionData): void => {
-                    this._tiles[hash].push(data);
+                    this._reconstructions[hash].push(data);
                 }),
             finalize(
                 (): void => {
-                    if (hash in this._cachingTiles$) {
-                        delete this._cachingTiles$[hash];
+                    if (hash in this._cachingReconstructions$) {
+                        delete this._cachingReconstructions$[hash];
                     }
 
                     if (hash in this._cacheRequests) {
@@ -146,18 +163,88 @@ export class SpatialDataCache {
             publish(),
             refCount());
 
+        return this._cachingReconstructions$[hash];
+    }
+
+    public cacheTile$(hash: string): Observable<NodeData[]> {
+        if (hash.length !== 8) {
+            throw new Error("Hash needs to be level 8.");
+        }
+
+        if (this.hasTile(hash)) {
+            throw new Error("Cannot cache tile that already exists.");
+
+        }
+
+        if (hash in this._cachingTiles$) {
+            return this._cachingTiles$[hash];
+        }
+
+        const bounds: geohash.Bounds = geohash.bounds(hash);
+        const sw: ILatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
+        const ne: ILatLon = { lat: bounds.ne.lat, lon: bounds.ne.lon };
+
+        this._tiles[hash] = [];
+        this._cachingTiles$[hash] = this._graphService.cacheBoundingBox$(sw, ne).pipe(
+            catchError(
+                (): Observable<Node[]> => {
+                    delete this._tiles[hash];
+
+                    return observableEmpty();
+                }),
+            map(
+                (nodes: Node[]): NodeData[] => {
+                    return nodes
+                        .map(
+                            (n: Node): NodeData => {
+                                return this._createNodeData(n);
+                            });
+                }),
+            filter(
+                (): boolean => {
+                    return hash in this._tiles;
+                }),
+            tap(
+                (nodeData: NodeData[]): void => {
+                    this._tiles[hash].push(...nodeData);
+
+                    delete this._cachingTiles$[hash];
+                }),
+            finalize(
+                (): void => {
+                    if (hash in this._cachingTiles$) {
+                        delete this._cachingTiles$[hash];
+                    }
+                }),
+            publish(),
+            refCount());
+
         return this._cachingTiles$[hash];
+    }
+
+    public isCachingReconstructions(hash: string): boolean {
+        return hash in this._cachingReconstructions$;
     }
 
     public isCachingTile(hash: string): boolean {
         return hash in this._cachingTiles$;
     }
 
+    public hasReconstructions(hash: string): boolean {
+        return !(hash in this._cachingReconstructions$) &&
+            hash in this._reconstructions &&
+            this._reconstructions[hash].length === this._tiles[hash].length;
+    }
+
     public hasTile(hash: string): boolean {
         return !(hash in this._cachingTiles$) && hash in this._tiles;
     }
 
-    public getTile(hash: string): ReconstructionData[] {
+    public getReconstructions(hash: string): ReconstructionData[] {
+        return hash in this._reconstructions ? this._reconstructions[hash] : [];
+    }
+
+    public getTile(hash: string): NodeData[] {
         return hash in this._tiles ? this._tiles[hash] : [];
     }
 
@@ -172,6 +259,14 @@ export class SpatialDataCache {
             }
 
             delete this._cacheRequests[hash];
+        }
+
+        for (let hash of Object.keys(this._reconstructions)) {
+            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
+                continue;
+            }
+
+            delete this._reconstructions[hash];
         }
 
         for (let hash of Object.keys(this._tiles)) {
