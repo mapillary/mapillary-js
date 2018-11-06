@@ -1,0 +1,300 @@
+import * as geohash from "latlon-geohash";
+
+import { Subject } from "rxjs";
+
+import {SpatialDataCache, ReconstructionData} from "../../../src/Component";
+import {
+    GraphService,
+    Node,
+} from "../../../src/Graph";
+
+import GraphServiceMockCreator from "../../helper/GraphServiceMockCreator.spec";
+import NodeHelper from "../../helper/NodeHelper.spec";
+
+describe("SpatialDataCache.ctor", () => {
+    it("should be defined", () => {
+        const cache: SpatialDataCache =
+            new SpatialDataCache(new GraphServiceMockCreator().create());
+
+        expect(cache).toBeDefined();
+    });
+});
+
+describe("SpatialDataCache.cacheTile$", () => {
+    it("should call cache bouding box", () => {
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
+        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+
+        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
+        boundsSpy.and.returnValue({
+            ne: { lat: 1, lon: 2 },
+            sw: { lat: -1, lon: -2 },
+        });
+
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+
+        const hash: string = "12345678";
+        cache.cacheTile$(hash);
+
+        expect(boundsSpy.calls.count()).toBe(1);
+
+        expect(cacheBoundingBoxSpy.calls.count()).toBe(1);
+        expect(cacheBoundingBoxSpy.calls.first().args[0].lat).toBe(-1);
+        expect(cacheBoundingBoxSpy.calls.first().args[0].lon).toBe(-2);
+        expect(cacheBoundingBoxSpy.calls.first().args[1].lat).toBe(1);
+        expect(cacheBoundingBoxSpy.calls.first().args[1].lon).toBe(2);
+    });
+
+    it("should throw if hash is wrong level", () => {
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+
+        expect(() => { cache.cacheTile$("1234567"); }).toThrowError(Error);
+        expect(() => { cache.cacheTile$("123456789"); }).toThrowError(Error);
+    });
+
+    it("should be caching tile", () => {
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
+        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+
+        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
+        boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
+
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+
+        const hash: string = "00000000";
+
+        expect(cache.isCachingTile(hash)).toBe(false);
+
+        cache.cacheTile$(hash);
+
+        expect(cache.isCachingTile(hash)).toBe(true);
+    });
+
+    it("should cache tile", () => {
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
+        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+
+        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
+        boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
+
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+
+        const hash: string = "00000000";
+
+        expect(cache.hasTile(hash)).toBe(false);
+
+        cache.cacheTile$(hash)
+            .subscribe();
+
+        const node: Node = new NodeHelper().createNode();
+        cacheBoundingBox$.next([node]);
+
+        expect(cache.isCachingTile(hash)).toBe(false);
+        expect(cache.hasTile(hash)).toBe(true);
+        expect(cache.getTile(hash).length).toBe(1);
+        expect(cache.getTile(hash)[0].key).toBe(node.key);
+    });
+
+    it("should catch error", (done: Function) => {
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
+        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+
+        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
+        boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
+
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+
+        const hash: string = "00000000";
+
+        cache.cacheTile$(hash)
+            .subscribe();
+
+        cacheBoundingBox$.error(new Error());
+
+        expect(cache.isCachingTile(hash)).toBe(false);
+        expect(cache.hasTile(hash)).toBe(false);
+
+        let tileEmitCount: number = 0;
+        cache.cacheTile$(hash)
+            .subscribe(
+                (): void => {
+                    tileEmitCount++;
+                },
+                undefined,
+                (): void => {
+                    expect(tileEmitCount).toBe(0);
+                    done();
+                });
+    });
+});
+
+describe("SpatialDataCache.cacheReconstructions$", () => {
+    class XMLHTTPRequestMock {
+        public response: {};
+        public responseType: string;
+        public timeout: number;
+
+        public onload: (e: Event) => any;
+        public onerror: (e: Event) => any;
+        public ontimeout: (e: Event) => any;
+        public onabort: (e: Event) => any;
+
+        public abort(): void { this.onabort(new Event("abort")); }
+        public open(...args: any[]): void { return; }
+        public send(...args: any[]): void { return; }
+    }
+
+    const cacheTile: (
+        hash: string,
+        cache: SpatialDataCache,
+        graphService: GraphService,
+        nodes: Node[]) => void = (
+            hash: string,
+            cache: SpatialDataCache,
+            graphService: GraphService,
+            nodes: Node[]): void => {
+
+        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
+        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+
+        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
+        boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
+
+        cache.cacheTile$(hash)
+            .subscribe();
+
+        cacheBoundingBox$.next(nodes);
+
+        expect(cache.hasTile(hash)).toBe(true);
+    };
+
+    it("should cache a reconstruction", (done: Function) => {
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const node: Node = new NodeHelper().createNode();
+        const hash: string = "00000000";
+
+        cacheTile(hash, cache, graphService, [node]);
+
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        let emitCount: number = 0;
+        cache.cacheReconstructions$(hash)
+            .subscribe(
+                (data: ReconstructionData): void => {
+                    expect(data.reconstruction.main_shot).toBe(node.key);
+                    emitCount++;
+                },
+                undefined,
+                (): void => {
+                    expect(emitCount).toBe(1);
+                    expect(cache.hasReconstructions(hash)).toBe(true);
+                    done();
+                });
+
+        requestMock.response = { points: [], main_shot: node.key };
+        requestMock.onload(new Event("load"));
+    });
+
+    it("should filter out a non existing reconstruction", (done: Function) => {
+        spyOn(console, "error").and.stub();
+
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const node: Node = new NodeHelper().createNode();
+        const hash: string = "00000000";
+
+        cacheTile(hash, cache, graphService, [node]);
+
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        let emitCount: number = 0;
+        cache.cacheReconstructions$(hash)
+            .subscribe(
+                (): void => {
+                    emitCount++;
+                },
+                undefined,
+                (): void => {
+                    expect(emitCount).toBe(0);
+                    expect(cache.hasReconstructions(hash)).toBe(true);
+                    expect(cache.getReconstructions(hash).length).toBe(0);
+                    done();
+                });
+
+        requestMock.response = null;
+        requestMock.onload(new Event("load"));
+    });
+
+    it("should filter out reconstruction on error", (done: Function) => {
+        spyOn(console, "error").and.stub();
+
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const node: Node = new NodeHelper().createNode();
+        const hash: string = "00000000";
+
+        cacheTile(hash, cache, graphService, [node]);
+
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        let emitCount: number = 0;
+        cache.cacheReconstructions$(hash)
+            .subscribe(
+                (): void => {
+                    emitCount++;
+                },
+                undefined,
+                (): void => {
+                    expect(emitCount).toBe(0);
+                    expect(cache.hasReconstructions(hash)).toBe(true);
+                    expect(cache.getReconstructions(hash).length).toBe(0);
+                    done();
+                });
+
+        requestMock.onerror(new Event("error"));
+    });
+
+    it("should abort on uncache", (done: Function) => {
+        spyOn(console, "error").and.stub();
+
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const node: Node = new NodeHelper().createNode();
+        const hash: string = "00000000";
+
+        cacheTile(hash, cache, graphService, [node]);
+
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        let emitCount: number = 0;
+        cache.cacheReconstructions$(hash)
+            .subscribe(
+                (): void => {
+                    emitCount++;
+                },
+                undefined,
+                (): void => {
+                    expect(emitCount).toBe(0);
+                    expect(cache.hasReconstructions(hash)).toBe(false);
+                    expect(cache.isCachingReconstructions(hash)).toBe(false);
+                    done();
+                });
+
+        cache.uncache();
+    });
+});

@@ -10,7 +10,6 @@ import {
 } from "rxjs";
 
 import {
-    switchMap,
     mergeMap,
     catchError,
     tap,
@@ -130,9 +129,11 @@ export class SpatialDataCache {
                             .pipe(
                                 catchError(
                                     (error: Error): Observable<[NodeData, IReconstruction]> => {
-                                        if (!(error instanceof AbortMapillaryError)) {
-                                            console.error(error);
+                                        if (error instanceof AbortMapillaryError) {
+                                            return observableEmpty();
                                         }
+
+                                        console.error(error);
 
                                         return observableOf(<[NodeData, IReconstruction]>[nodeData, null]);
                                     }));
