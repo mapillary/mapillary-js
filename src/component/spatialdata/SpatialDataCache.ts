@@ -134,7 +134,7 @@ export class SpatialDataCache {
                                             console.error(error);
                                         }
 
-                                        return observableEmpty();
+                                        return observableOf(<[NodeData, IReconstruction]>[nodeData, null]);
                                     }));
                 },
                 6),
@@ -149,6 +149,10 @@ export class SpatialDataCache {
             tap(
                 (data: ReconstructionData): void => {
                     this._reconstructions[hash].push(data);
+                }),
+            filter(
+                (data: ReconstructionData): boolean => {
+                    return !!data.reconstruction;
                 }),
             finalize(
                 (): void => {
@@ -241,7 +245,13 @@ export class SpatialDataCache {
     }
 
     public getReconstructions(hash: string): ReconstructionData[] {
-        return hash in this._reconstructions ? this._reconstructions[hash] : [];
+        return hash in this._reconstructions ?
+            this._reconstructions[hash]
+                .filter(
+                    (data: ReconstructionData): boolean => {
+                        return !!data.reconstruction;
+                    }) :
+            [];
     }
 
     public getTile(hash: string): NodeData[] {
