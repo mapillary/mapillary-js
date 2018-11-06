@@ -11,6 +11,7 @@
         "./src/component/interfaces/INavigationConfiguration.ts",
         "./src/component/interfaces/ISequenceConfiguration.ts",
         "./src/component/interfaces/ISliderConfiguration.ts",
+        "./src/component/interfaces/ISpatialDataConfiguration.ts",
         "./src/component/interfaces/ITagConfiguration.ts",
         "./src/component/keyboard/KeyboardComponent.ts",
         "./src/component/keyboard/KeyPlayHandler.ts",

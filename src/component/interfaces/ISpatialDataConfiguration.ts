@@ -12,6 +12,7 @@ import {IComponentConfiguration} from "../../Component";
  *             spatialData: {
  *                 camerasVisible: true,
  *                 connectedComponents: true,
+ *                 earthControls: true,
  *                 pointsVisible: false,
  *                 positionsVisible: true,
  *                 tilesVisible: true,
@@ -27,6 +28,17 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * @default false
      */
     camerasVisible?: boolean;
+
+    /**
+     * Specify if the camera should be controlled in earth
+     * mode.
+     *
+     * @description This is an experimental configuration property that
+     * may be removed in a future minor release.
+     *
+     * @default false
+     */
+    earthControls?: boolean;
 
     /**
      * Specify if the color of the cameras should

@@ -69,6 +69,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
     private _addSubscription: Subscription;
     private _cameraVisibilitySubscription: Subscription;
+    private _earthControlsSubscription: Subscription;
     private _moveSubscription: Subscription;
     private _pointVisibilitySubscription: Subscription;
     private _positionVisibilitySubscription: Subscription;
@@ -362,14 +363,40 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     };
                 }))
             .subscribe(this._container.glRenderer.render$);
+
+        this._earthControlsSubscription = this._configuration$.pipe(
+            map(
+                (configuration: ISpatialDataConfiguration): boolean => {
+                    return configuration.earthControls;
+                }),
+            distinctUntilChanged(),
+            withLatestFrom(this._navigator.stateService.state$))
+            .subscribe(
+                ([earth, state]: [boolean, State]): void => {
+                    if (earth && state !== State.Earth) {
+                        this._navigator.stateService.earth();
+                    } else if (!earth && state === State.Earth) {
+                        this._navigator.stateService.traverse();
+                    }
+                });
     }
 
     protected _deactivate(): void {
+        this._navigator.stateService.state$.pipe(
+            first())
+            .subscribe(
+                (state: State): void => {
+                    if (state === State.Earth) {
+                        this._navigator.stateService.traverse();
+                    }
+                });
+
         this._cache.uncache();
         this._scene.uncache();
 
         this._addSubscription.unsubscribe();
         this._cameraVisibilitySubscription.unsubscribe();
+        this._earthControlsSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
         this._pointVisibilitySubscription.unsubscribe();
         this._positionVisibilitySubscription.unsubscribe();
