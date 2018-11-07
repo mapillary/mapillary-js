@@ -53,10 +53,6 @@ import {
     Navigator,
 } from "../../Viewer";
 
-interface IConfigurationOperation {
-    (configuration: ISequenceConfiguration): ISequenceConfiguration;
-}
-
 /**
  * @class SequenceComponent
  * @classdesc Component showing navigation arrows for sequence directions
@@ -69,10 +65,22 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     /**
      * Event fired when playing starts or stops.
      *
-     * @event PlayerComponent#playingchanged
+     * @event SequenceComponent#playingchanged
      * @type {boolean} Indicates whether the player is playing.
      */
     public static playingchanged: string = "playingchanged";
+
+    /**
+     * Event fired when the hovered key changes.
+     *
+     * @description Emits the key of the node for the direction
+     * arrow that is being hovered. When the mouse leaves a
+     * direction arrow null is emitted.
+     *
+     * @event SequenceComponent#hoveredkeychanged
+     * @type {string} The hovered key, null if no key is hovered.
+     */
+    public static hoveredkeychanged: string = "hoveredkeychanged";
 
     private _sequenceDOMRenderer: SequenceDOMRenderer;
     private _scheduler: Scheduler;
@@ -81,6 +89,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     private _hoveredKey$: Observable<string>;
     private _containerWidth$: Subject<number>;
 
+    private _emitHoveredKeySubscription: Subscription;
     private _renderSubscription: Subscription;
     private _playingSubscription: Subscription;
     private _containerWidthSubscription: Subscription;
@@ -527,9 +536,16 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 }),
             distinctUntilChanged())
             .subscribe(this._hoveredKeySubject$);
+
+        this._emitHoveredKeySubscription = this._hoveredKey$
+            .subscribe(
+                (key: string): void => {
+                    this.fire(SequenceComponent.hoveredkeychanged, key);
+                });
     }
 
     protected _deactivate(): void {
+        this._emitHoveredKeySubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
         this._playingSubscription.unsubscribe();
         this._containerWidthSubscription.unsubscribe();

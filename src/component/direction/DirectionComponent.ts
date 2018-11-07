@@ -21,15 +21,28 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "direction";
 
+    /**
+     * Event fired when the hovered key changes.
+     *
+     * @description Emits the key of the node for the direction
+     * arrow that is being hovered. When the mouse leaves a
+     * direction arrow null is emitted.
+     *
+     * @event DirectionComponent#hoveredkeychanged
+     * @type {string} The hovered key, null if no key is hovered.
+     */
+    public static hoveredkeychanged: string = "hoveredkeychanged";
+
     private _renderer: DirectionDOMRenderer;
 
     private _hoveredKeySubject$: Subject<string>;
     private _hoveredKey$: Observable<string>;
 
     private _configurationSubscription: Subscription;
+    private _emitHoveredKeySubscription: Subscription;
+    private _hoveredKeySubscription: Subscription;
     private _nodeSubscription: Subscription;
     private _renderCameraSubscription: Subscription;
-    private _hoveredKeySubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator, directionDOMRenderer?: DirectionDOMRenderer) {
         super(name, container, navigator);
@@ -181,13 +194,20 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                 }),
             distinctUntilChanged())
             .subscribe(this._hoveredKeySubject$);
+
+        this._emitHoveredKeySubscription = this._hoveredKey$
+            .subscribe(
+                (key: string): void => {
+                    this.fire(DirectionComponent.hoveredkeychanged, key);
+                });
     }
 
     protected _deactivate(): void {
         this._configurationSubscription.unsubscribe();
+        this._emitHoveredKeySubscription.unsubscribe();
+        this._hoveredKeySubscription.unsubscribe();
         this._nodeSubscription.unsubscribe();
         this._renderCameraSubscription.unsubscribe();
-        this._hoveredKeySubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IDirectionConfiguration {
