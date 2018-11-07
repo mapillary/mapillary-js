@@ -50,6 +50,7 @@ export class PointGeometry extends Geometry {
      * basic coordinates of the point itself.
      *
      * @returns {Array<number>} 2D basic coordinates representing the centroid.
+     * @ignore
      */
     public getCentroid2d(): number[] {
         return this._point.slice();
@@ -61,6 +62,7 @@ export class PointGeometry extends Geometry {
      *
      * @param {Transform} transform - The transform of the node related to the point.
      * @returns {Array<number>} 3D world coordinates representing the centroid.
+     * @ignore
      */
     public getCentroid3d(transform: Transform): number[] {
         return transform.unprojectBasic(this._point, 200);
@@ -71,6 +73,7 @@ export class PointGeometry extends Geometry {
      *
      * @param {Array<number>} value - The new value of the centroid.
      * @param {Transform} transform - The transform of the node related to the point.
+     * @ignore
      */
     public setCentroid2d(value: number[], transform: Transform): void {
         let changed: number[] = [

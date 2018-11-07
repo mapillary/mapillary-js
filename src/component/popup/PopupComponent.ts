@@ -75,6 +75,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
     private _updateAllSubscription: Subscription;
     private _updateAddedChangedSubscription: Subscription;
 
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator, dom?: DOM) {
         super(name, container, navigator);
 

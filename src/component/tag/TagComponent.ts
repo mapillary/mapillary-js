@@ -214,6 +214,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _createHandlers: { [K in keyof typeof TagMode]: CreateHandlerBase };
     private _editVertexHandler: EditVertexHandler;
 
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 

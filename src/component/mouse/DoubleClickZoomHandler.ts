@@ -36,6 +36,7 @@ export class DoubleClickZoomHandler extends HandlerBase<IMouseConfiguration> {
 
     private _zoomSubscription: Subscription;
 
+    /** @ignore */
     constructor(
         component: Component<IMouseConfiguration>,
         container: Container,

@@ -50,6 +50,7 @@ export class RectGeometry extends VertexGeometry {
      * @returns {number} Index representing the current anchor property if
      * achoring indexing has been initialized. If anchor indexing has not been
      * initialized or has been terminated undefined will be returned.
+     * @ignore
      */
     public get anchorIndex(): number {
         return this._anchorIndex;
@@ -60,6 +61,7 @@ export class RectGeometry extends VertexGeometry {
      *
      * @returns {boolean} Boolean determining whether the rect geometry is
      * inverted. For panoramas the rect geometrye may be inverted.
+     * @ignore
      */
     public get inverted(): boolean {
         return this._inverted;
@@ -82,6 +84,7 @@ export class RectGeometry extends VertexGeometry {
      *
      * @throws {Error} If anchor indexing has already been initialized.
      * @throws {Error} If index is not valid (0 to 3).
+     * @ignore
      */
     public initializeAnchorIndexing(index?: number): void {
         if (this._anchorIndex !== undefined) {
@@ -97,6 +100,7 @@ export class RectGeometry extends VertexGeometry {
 
     /**
      * Terminate anchor indexing to disable setting pposite vertex.
+     * @ignore
      */
     public terminateAnchorIndexing(): void {
         this._anchorIndex = undefined;
@@ -112,6 +116,7 @@ export class RectGeometry extends VertexGeometry {
      * @param {Transform} transform - The transform of the node related to the rectangle.
      *
      * @throws {Error} When anchor indexing has not been initialized.
+     * @ignore
      */
     public setOppositeVertex2d(opposite: number[], transform: Transform): void {
         if (this._anchorIndex === undefined) {
@@ -296,6 +301,7 @@ export class RectGeometry extends VertexGeometry {
      * @param {number} index - The index of the vertex to be set.
      * @param {Array<number>} value - The new value of the vertex.
      * @param {Transform} transform - The transform of the node related to the rectangle.
+     * @ignore
      */
     public setVertex2d(index: number, value: number[], transform: Transform): void {
         let original: number[] = this._rect.slice();
@@ -374,7 +380,7 @@ export class RectGeometry extends VertexGeometry {
         this._notifyChanged$.next(this);
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public setCentroid2d(value: number[], transform: Transform): void {
         let original: number[] = this._rect.slice();
 
@@ -436,6 +442,7 @@ export class RectGeometry extends VertexGeometry {
      * the rectangle.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates
      * representing the rectangle.
+     * @ignore
      */
     public getPoints3d(transform: Transform): number[][] {
         return this._getPoints2d()
@@ -455,6 +462,7 @@ export class RectGeometry extends VertexGeometry {
      *
      * @param {number} index - Vertex index.
      * @returns {Array<number>} Array representing the 2D basic coordinates of the vertex.
+     * @ignore
      */
     public getVertex2d(index: number): number[] {
         return this._rectToVertices2d(this._rect)[index];
@@ -469,6 +477,7 @@ export class RectGeometry extends VertexGeometry {
      *
      * @param {number} index - Vertex index.
      * @returns {Array<number>} Array representing the 2D basic coordinates of the vertex.
+     * @ignore
      */
     public getNonAdjustedVertex2d(index: number): number[] {
         return this._rectToNonAdjustedVertices2d(this._rect)[index];
@@ -485,6 +494,7 @@ export class RectGeometry extends VertexGeometry {
      * @param {Transform} transform - The transform of the node related to the geometry.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
      * the vertices of the geometry.
+     * @ignore
      */
     public getVertex3d(index: number, transform: Transform): number[] {
         return transform.unprojectBasic(this._rectToVertices2d(this._rect)[index], 200);
@@ -498,6 +508,7 @@ export class RectGeometry extends VertexGeometry {
      *
      * @returns {Array<Array<number>>} Polygon array of 2D basic coordinates representing
      * the rectangle vertices.
+     * @ignore
      */
     public getVertices2d(): number[][] {
         return this._rectToVertices2d(this._rect);
@@ -512,6 +523,7 @@ export class RectGeometry extends VertexGeometry {
      * @param {Transform} transform - The transform of the node related to the rectangle.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
      * the rectangle vertices.
+     * @ignore
      */
     public getVertices3d(transform: Transform): number[][] {
         return this._rectToVertices2d(this._rect)
@@ -521,7 +533,7 @@ export class RectGeometry extends VertexGeometry {
                 });
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getCentroid2d(): number[] {
         const rect: number[] = this._rect;
 
@@ -537,26 +549,28 @@ export class RectGeometry extends VertexGeometry {
         return [centroidX, centroidY];
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getCentroid3d(transform: Transform): number[] {
         const centroid2d: number[] = this.getCentroid2d();
 
         return transform.unprojectBasic(centroid2d, 200);
     }
 
-    /** @inheritdoc */
+    /**
+     * @ignore
+     */
     public getPoleOfInaccessibility2d(): number[] {
         return this._getPoleOfInaccessibility2d(this._rectToVertices2d(this._rect));
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getPoleOfInaccessibility3d(transform: Transform): number[] {
         let pole2d: number[] = this._getPoleOfInaccessibility2d(this._rectToVertices2d(this._rect));
 
         return transform.unprojectBasic(pole2d, 200);
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getTriangles3d(transform: Transform): number[] {
         return this._triangulate(
             this._project(this._getPoints2d(), transform),
@@ -570,6 +584,7 @@ export class RectGeometry extends VertexGeometry {
      * @param {Array<number>} bottomRight - The bottom-right coordinates to validate
      * @returns {boolean} Value indicating whether the provided bottom-right coordinates
      * are valid.
+     * @ignore
      */
     public validate(bottomRight: number[]): boolean {
         let rect: number[] = this._rect;

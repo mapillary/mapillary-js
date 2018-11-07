@@ -45,6 +45,7 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
 
     private _configurationSubscription: Subscription;
 
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 

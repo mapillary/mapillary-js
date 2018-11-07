@@ -38,6 +38,7 @@ export class KeyZoomHandler extends HandlerBase<IKeyboardConfiguration> {
 
     private _viewportCoords: ViewportCoords;
 
+    /** @ignore */
     constructor(
         component: Component<IKeyboardConfiguration>,
         container: Container,

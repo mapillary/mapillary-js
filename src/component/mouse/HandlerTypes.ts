@@ -1,11 +1,7 @@
-/**
- * @ignore
- */
+/** @ignore */
 export type MouseTouchPair = [MouseEvent, MouseEvent] | [Touch, Touch];
 
-/**
- * @ignore
- */
+/** @ignore */
 export type ClientTouch = {
     clientX: number;
     clientY: number;

@@ -9,9 +9,6 @@ import {
 import {EventEmitter} from "../Utils";
 
 export abstract class Component<TConfiguration extends IComponentConfiguration> extends EventEmitter {
-    /**
-     * Component name. Used when interacting with component through the Viewer's API.
-     */
     public static componentName: string = "not_worthy";
 
     protected _activated: boolean;
@@ -54,6 +51,7 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
         return this._activated;
     }
 
+    /** @ignore */
     public get activated$(): Observable<boolean> {
         return this._activated$;
     }
@@ -67,10 +65,17 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
         return this._getDefaultConfiguration();
     }
 
+    /** @ignore */
     public get configuration$(): Observable<TConfiguration> {
         return this._configuration$;
     }
 
+    /**
+     * Get name.
+     *
+     * @description The name of the component. Used when interacting with the
+     * component through the Viewer's API.
+     */
     public get name(): string {
         return this._name;
     }
@@ -108,6 +113,8 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
     /**
      * Detect the viewer's new width and height and resize the component's
      * rendered elements accordingly if applicable.
+     *
+     * @ignore
      */
     public resize(): void { return; }
 

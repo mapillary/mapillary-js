@@ -57,6 +57,7 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
 
     private _keyDownSubscription: Subscription;
 
+    /** @ignore */
     constructor(
         component: Component<IKeyboardConfiguration>,
         container: Container,

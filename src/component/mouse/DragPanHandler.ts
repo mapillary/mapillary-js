@@ -1,6 +1,4 @@
 import {
-    concat as observableConcat,
-    of as observableOf,
     empty as observableEmpty,
     merge as observableMerge,
     Observable,
@@ -13,11 +11,9 @@ import {
     map,
     share,
     switchMap,
-    takeWhile,
     withLatestFrom,
     pairwise,
     filter,
-    startWith,
     distinctUntilChanged,
 } from "rxjs/operators";
 
@@ -71,6 +67,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
     private _rotateSubscription: Subscription;
     private _rotateWithoutInertiaSubscription: Subscription;
 
+    /** @ignore */
     constructor(
         component: Component<IMouseConfiguration>,
         container: Container,
@@ -88,7 +85,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
              this._container.mouseService
                 .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
                 map(
-                    (event: MouseEvent): boolean => {
+                    (): boolean => {
                         return true;
                     }),
                 share());
@@ -97,7 +94,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
              this._container.mouseService
                 .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
                 map(
-                    (event: Event): boolean => {
+                    (): boolean => {
                         return false;
                     }),
                 share());
@@ -128,14 +125,14 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
         let touchMovingStarted$: Observable<boolean> =
             this._container.touchService.singleTouchDragStart$.pipe(
                 map(
-                    (event: TouchEvent): boolean => {
+                    (): boolean => {
                         return true;
                     }));
 
         let touchMovingStopped$: Observable<boolean> =
             this._container.touchService.singleTouchDragEnd$.pipe(
                 map(
-                    (event: TouchEvent): boolean => {
+                    (): boolean => {
                         return false;
                     }));
 
@@ -163,7 +160,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                             this._container.touchService.singleTouchDragStart$,
                             this._container.touchService.singleTouchDrag$,
                             this._container.touchService.singleTouchDragEnd$.pipe(
-                                map((t: TouchEvent): TouchEvent => { return null; }))).pipe(
+                                map((): TouchEvent => { return null; }))).pipe(
                         map(
                             (event: TouchEvent): Touch => {
                                 return event != null && event.touches.length > 0 ?

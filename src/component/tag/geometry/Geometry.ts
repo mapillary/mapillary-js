@@ -14,6 +14,7 @@ export abstract class Geometry {
      * Create a geometry.
      *
      * @constructor
+     * @ignore
      */
     constructor() {
         this._notifyChanged$ = new Subject<Geometry>();

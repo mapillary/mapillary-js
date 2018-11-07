@@ -14,6 +14,7 @@ export abstract class HandlerBase<TConfiguration extends IComponentConfiguration
 
     protected _enabled: boolean;
 
+    /** @ignore */
     constructor(component: Component<TConfiguration>, container: Container, navigator: Navigator) {
         this._component = component;
         this._container = container;

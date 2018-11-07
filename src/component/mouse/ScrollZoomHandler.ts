@@ -39,6 +39,7 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
     private _preventDefaultSubscription: Subscription;
     private _zoomSubscription: Subscription;
 
+    /** @ignore */
     constructor(
         component: Component<IMouseConfiguration>,
         container: Container,

@@ -26,6 +26,11 @@ export abstract class Marker {
         return this._id;
     }
 
+    /**
+     * Get geometry.
+     *
+     * @ignore
+     */
     public get geometry(): THREE.Object3D {
         return this._geometry;
     }
@@ -38,6 +43,7 @@ export abstract class Marker {
         return this._latLon;
     }
 
+    /** @ignore */
     public createGeometry(position: number[]): void {
         if (!!this._geometry) {
             return;
@@ -49,6 +55,7 @@ export abstract class Marker {
         this._geometry.updateMatrixWorld(true);
     }
 
+    /** @ignore */
     public disposeGeometry(): void {
         if (!this._geometry) {
             return;
@@ -59,6 +66,7 @@ export abstract class Marker {
         this._geometry = undefined;
     }
 
+    /** @ignore */
     public getInteractiveObjects(): THREE.Object3D[] {
         if (!this._geometry) {
             return [];
@@ -67,6 +75,7 @@ export abstract class Marker {
         return this._getInteractiveObjects();
     }
 
+    /** @ignore */
     public lerpAltitude(alt: number, alpha: number): void {
         if (!this._geometry) {
             return;
@@ -75,6 +84,7 @@ export abstract class Marker {
         this._geometry.position.z = (1 - alpha) * this._geometry.position.z + alpha * alt;
     }
 
+    /** @ignore */
     public updatePosition(position: number[], latLon?: ILatLon): void {
         if (!!latLon) {
             this._latLon.lat = latLon.lat;

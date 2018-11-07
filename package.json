@@ -79,7 +79,7 @@
     "build-css": "cat styles/*.css | postcss --use autoprefixer --use cssnano -o dist/mapillary.min.css",
     "build-dev": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug | exorcist dist/mapillary.js.map > dist/mapillary.js",
     "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary.js.map > dist/mapillary.js'",
-    "build-docs": "typedoc --tsconfig tsconfig.docs.json --mode file --theme default --excludePrivate --excludeExternals --name MapillaryJS --out docs/",
+    "build-docs": "typedoc --tsconfig tsconfig.docs.json --mode file --theme default --excludePrivate --excludeProtected --excludeExternals  --name MapillaryJS --out docs/",
     "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs -c -m > dist/mapillary.min.js",
     "clean": "npm run clean-dist && npm run clean-docs",
     "clean-dist": "rm -rf dist && mkdir dist",

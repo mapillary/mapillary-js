@@ -37,6 +37,7 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * may be removed in a future minor release.
      *
      * @default false
+     * @ignore
      */
     earthControls?: boolean;
 

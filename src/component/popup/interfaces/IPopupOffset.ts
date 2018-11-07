@@ -21,6 +21,7 @@
  * }
  *
  * var popup = new Mapillary.PopupComponent.Popup({ offset: offset });
+ * ```
  */
 export interface IPopupOffset {
     bottom: number[];

@@ -16,6 +16,7 @@ export abstract class VertexGeometry extends Geometry {
      * Create a vertex geometry.
      *
      * @constructor
+     * @ignore
      */
     constructor() {
         super();

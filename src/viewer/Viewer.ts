@@ -213,27 +213,23 @@ export class Viewer extends EventEmitter {
     public static spatialedgeschanged: string = "spatialedgeschanged";
 
     /**
-     * @ignore
      * Private component controller object which manages component states.
      */
     private _componentController: ComponentController;
 
     /**
-     * @ignore
      * Private container object which maintains the DOM Element,
      * renderers and relevant services.
      */
     private _container: Container;
 
     /**
-     * @ignore
      * Private observer object which observes the viewer state and
      * fires events on behalf of the viewer.
      */
     private _observer: Observer;
 
     /**
-     * @ignore
      * Private navigator object which controls navigation throught
      * the vast seas of Mapillary.
      */

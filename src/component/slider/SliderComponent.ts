@@ -152,6 +152,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _updateBackgroundSubscriptionPrev: Subscription;
     private _updateTextureImageSubscriptionPrev: Subscription;
 
+    /** @ignore */
     constructor (name: string, container: Container, navigator: Navigator, viewportCoords?: ViewportCoords) {
         super(name, container, navigator);
 

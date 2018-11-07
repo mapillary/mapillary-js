@@ -99,20 +99,18 @@ export class Popup {
     }
 
     /**
-     * @ignore
-     *
      * @description Internal observable used by the component to
      * render the popup when its position or content has changed.
+     * @ignore
      */
     public get changed$(): Observable<Popup> {
         return this._notifyChanged$;
     }
 
     /**
-     * @ignore
-     *
      * @description Internal method used by the component to
      * remove all references to the popup.
+     * @ignore
      */
     public remove(): void {
         if (this._content && this._content.parentNode) {
@@ -269,20 +267,18 @@ export class Popup {
     }
 
     /**
-     * @ignore
-     *
      * @description Internal method for attaching the popup to
      * its parent container so that it is rendered in the DOM tree.
+     * @ignore
      */
     public setParentContainer(parentContainer: HTMLElement): void {
         this._parentContainer = parentContainer;
     }
 
     /**
-     * @ignore
-     *
      * @description Internal method for updating the rendered
      * position of the popup called by the popup component.
+     * @ignore
      */
     public update(renderCamera: RenderCamera, size: ISize, transform: Transform): void {
         if (!this._parentContainer || !this._content) {

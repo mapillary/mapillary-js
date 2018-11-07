@@ -50,6 +50,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
 
     private _configurationSubscription: Subscription;
 
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 

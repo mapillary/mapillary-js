@@ -107,6 +107,7 @@ export class PolygonGeometry extends VertexGeometry {
      * Add a vertex to the polygon by appending it after the last vertex.
      *
      * @param {Array<number>} vertex - Vertex to add.
+     * @ignore
      */
     public addVertex2d(vertex: number[]): void {
         let clamped: number[] = [
@@ -127,6 +128,7 @@ export class PolygonGeometry extends VertexGeometry {
      *
      * @param {number} index - Vertex index.
      * @returns {Array<number>} Array representing the 2D basic coordinates of the vertex.
+     * @ignore
      */
     public getVertex2d(index: number): number[] {
         return this._polygon[index].slice();
@@ -136,6 +138,7 @@ export class PolygonGeometry extends VertexGeometry {
      * Remove a vertex from the polygon.
      *
      * @param {number} index - The index of the vertex to remove.
+     * @ignore
      */
     public removeVertex2d(index: number): void {
         if (index < 0 ||
@@ -157,7 +160,7 @@ export class PolygonGeometry extends VertexGeometry {
         this._notifyChanged$.next(this);
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public setVertex2d(index: number, value: number[], transform: Transform): void {
         let changed: number[] = [
             Math.max(0, Math.min(1, value[0])),
@@ -174,7 +177,7 @@ export class PolygonGeometry extends VertexGeometry {
         this._notifyChanged$.next(this);
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public setCentroid2d(value: number[], transform: Transform): void {
         let xs: number[] = this._polygon.map((point: number[]): number => { return point[0]; });
         let ys: number[] = this._polygon.map((point: number[]): number => { return point[1]; });
@@ -202,24 +205,24 @@ export class PolygonGeometry extends VertexGeometry {
         this._notifyChanged$.next(this);
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getPoints3d(transform: Transform): number[][] {
         return this._getPoints3d(
             this._subsample(this._polygon, this._subsampleThreshold),
             transform);
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getVertex3d(index: number, transform: Transform): number[] {
         return transform.unprojectBasic(this._polygon[index], 200);
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getVertices2d(): number[][] {
         return this._polygon.slice();
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getVertices3d(transform: Transform): number[][] {
         return this._getPoints3d(this._polygon, transform);
     }
@@ -251,6 +254,7 @@ export class PolygonGeometry extends VertexGeometry {
      * @param {Transform} transform - The transform of the node related to the geometry.
      * @returns {Array<Array<Array<number>>>} Array of hole polygons in 3D world coordinates
      * representing the vertices of each hole of the geometry.
+     * @ignore
      */
     public getHoleVertices3d(transform: Transform): number[][][] {
         return this._holes
@@ -260,7 +264,7 @@ export class PolygonGeometry extends VertexGeometry {
                 });
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getCentroid2d(): number[] {
         let polygon: number[][] = this._polygon;
 
@@ -289,13 +293,14 @@ export class PolygonGeometry extends VertexGeometry {
         return [centroidX, centroidY];
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getCentroid3d(transform: Transform): number[] {
         let centroid2d: number[] = this.getCentroid2d();
 
         return transform.unprojectBasic(centroid2d, 200);
     }
 
+    /** @ignore */
     public get3dDomainTriangles3d(transform: Transform): number[] {
         return this._triangulate(
             this._project(this._polygon, transform),
@@ -308,7 +313,7 @@ export class PolygonGeometry extends VertexGeometry {
             this.getHoleVertices3d(transform));
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getTriangles3d(transform: Transform): number[] {
         const threshold: number = this._subsampleThreshold;
 
@@ -330,12 +335,12 @@ export class PolygonGeometry extends VertexGeometry {
             holes3d);
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getPoleOfInaccessibility2d(): number[] {
         return this._getPoleOfInaccessibility2d(this._polygon.slice());
     }
 
-    /** @inheritdoc */
+    /** @ignore */
     public getPoleOfInaccessibility3d(transform: Transform): number[] {
         let pole2d: number[] = this._getPoleOfInaccessibility2d(this._polygon.slice());
 

@@ -33,7 +33,7 @@ import {ImageSize} from "../Viewer";
  *
  * At last there exist a `latLon` property which evaluates to
  * the `computedLatLon` from SfM if it exists but falls back
- * to the `originalLatLon` from the EXIF GPS otherwise {@link Node.latlon}.
+ * to the `originalLatLon` from the EXIF GPS otherwise {@link Node.latLon}.
  *
  * Everything that is done in in the Viewer is based on the SfM positions,
  * i.e. `computedLatLon`. That is why the smooth transitions go in the right
@@ -57,6 +57,7 @@ export class Node {
      * Nodes can not be added to the library through any API method.
      *
      * @param {ICoreNode} coreNode - Raw core node data.
+     * @ignore
      */
     constructor(core: ICoreNode) {
         this._cache = null;
@@ -74,6 +75,8 @@ export class Node {
      *
      * @returns {boolean} Value indicating whether all assets have been
      * cached.
+     *
+     * @ignore
      */
     public get assetsCached(): boolean {
         return this._core != null &&
@@ -130,10 +133,26 @@ export class Node {
         return this._fill.captured_with_camera_uuid;
     }
 
+    /**
+     * Get ck1.
+     *
+     * @description Will not be set if SfM has not been run.
+     *
+     * @returns {number} SfM computed radial distortion parameter
+     * k1.
+     */
     public get ck1(): number {
         return this._fill.ck1;
     }
 
+    /**
+     * Get ck2.
+     *
+     * @description Will not be set if SfM has not been run.
+     *
+     * @returns {number} SfM computed radial distortion parameter
+     * k2.
+     */
     public get ck2(): number {
         return this._fill.ck2;
     }
@@ -181,6 +200,8 @@ export class Node {
      *
      * @returns {boolean} Value indicating whether the node has all
      * properties filled.
+     *
+     * @ignore
      */
     public get full(): boolean {
         return this._fill != null;
@@ -237,6 +258,8 @@ export class Node {
      *
      * @returns {Observable<HTMLImageElement>} Observable emitting
      * the cached image when it is updated.
+     *
+     * @ignore
      */
     public get image$(): Observable<HTMLImageElement> {
         return this._cache.image$;
@@ -442,14 +465,14 @@ export class Node {
     }
 
     /**
-     * @ignore
-     *
      * Get sequenceEdges$.
      *
      * @description Internal observable, should not be used as an API.
      *
      * @returns {Observable<IEdgeStatus>} Observable emitting
      * values describing the status of the sequence edges.
+     *
+     * @ignore
      */
     public get sequenceEdges$(): Observable<IEdgeStatus> {
         return this._cache.sequenceEdges$;
@@ -466,14 +489,14 @@ export class Node {
     }
 
     /**
-     * @ignore
-     *
      * Get spatialEdges$.
      *
      * @description Internal observable, should not be used as an API.
      *
      * @returns {Observable<IEdgeStatus>} Observable emitting
      * values describing the status of the spatial edges.
+     *
+     * @ignore
      */
     public get spatialEdges$(): Observable<IEdgeStatus> {
         return this._cache.spatialEdges$;
@@ -517,19 +540,32 @@ export class Node {
      *
      * @returns {Observable<Node>} Observable emitting this node whenever the
      * load status has changed and when the mesh or image has been fully loaded.
+     *
+     * @ignore
      */
     public cacheAssets$(): Observable<Node> {
         return this._cache.cacheAssets$(this.key, this.pano, this.merged).pipe(
             map(
-                (cache: NodeCache): Node => {
+                (): Node => {
                     return this;
                 }));
     }
 
+    /**
+     * Cache the image asset.
+     *
+     * @description Use for caching a differently sized image than
+     * the one currently held by the node.
+     *
+     * @returns {Observable<Node>} Observable emitting this node whenever the
+     * load status has changed and when the mesh or image has been fully loaded.
+     *
+     * @ignore
+     */
     public cacheImage$(imageSize: ImageSize): Observable<Node> {
         return this._cache.cacheImage$(this.key, imageSize).pipe(
             map(
-                (cache: NodeCache): Node => {
+                (): Node => {
                     return this;
                 }));
     }
@@ -541,6 +577,7 @@ export class Node {
      * internally by the library.
      *
      * @param {Array<IEdge>} edges - Sequence edges to cache.
+     * @ignore
      */
     public cacheSequenceEdges(edges: IEdge[]): void {
         this._cache.cacheSequenceEdges(edges);
@@ -553,6 +590,7 @@ export class Node {
      * internally by the library.
      *
      * @param {Array<IEdge>} edges - Spatial edges to cache.
+     * @ignore
      */
     public cacheSpatialEdges(edges: IEdge[]): void {
         this._cache.cacheSpatialEdges(edges);
@@ -562,6 +600,7 @@ export class Node {
      * Dispose the node.
      *
      * @description Disposes all cached assets.
+     * @ignore
      */
     public dispose(): void {
         if (this._cache != null) {
@@ -580,6 +619,7 @@ export class Node {
      * the library.
      *
      * @param {NodeCache} cache - The node cache to set as cache.
+     * @ignore
      */
     public initializeCache(cache: NodeCache): void {
         if (this._cache != null) {
@@ -596,6 +636,7 @@ export class Node {
      * the library.
      *
      * @param {IFillNode} fill - The fill node struct.
+     * @ignore
      */
     public makeFull(fill: IFillNode): void {
         if (fill == null) {
@@ -607,6 +648,8 @@ export class Node {
 
     /**
      * Reset the sequence edges.
+     *
+     * @ignore
      */
     public resetSequenceEdges(): void {
         this._cache.resetSequenceEdges();
@@ -614,6 +657,8 @@ export class Node {
 
     /**
      * Reset the spatial edges.
+     *
+     * @ignore
      */
     public resetSpatialEdges(): void {
         this._cache.resetSpatialEdges();
@@ -622,6 +667,8 @@ export class Node {
     /**
      * Clears the image and mesh assets, aborts
      * any outstanding requests and resets edges.
+     *
+     * @ignore
      */
     public uncache(): void {
         if (this._cache == null) {

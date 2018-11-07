@@ -27,6 +27,7 @@ export class NavigationComponent extends Component<IComponentConfiguration> {
     private _spaTopNames: { [dir: string]: string };
     private _spaBottomNames: { [dir: string]: string };
 
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 

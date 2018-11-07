@@ -148,6 +148,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     private _setChangedSubscription: Subscription;
     private _updateMarkerSubscription: Subscription;
 
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
