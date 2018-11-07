@@ -10,7 +10,7 @@ import {Transform} from "../../../Geo";
  * @example
  * ```
  * var basicPolygon = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5], [0.5, 0.3]];
- * var polygonGeometry = new Mapillary.TagComponent.PointGeometry(basicPolygon);
+ * var polygonGeometry = new Mapillary.TagComponent.PolygonGeometry(basicPolygon);
  * ```
  */
 export class PolygonGeometry extends VertexGeometry {
