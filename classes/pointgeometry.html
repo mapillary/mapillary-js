@@ -75,8 +75,7 @@
 						</dd>
 						<dt>example</dt>
 						<dd><pre><code><span class="hljs-attribute">var basicPoint</span> = [0.5, 0.7];
-<span class="hljs-attribute">var pointGeometry</span> = new Mapillary.TagComponent.PointGeometry(basicPoint);
-</code></pre></dd>
+<span class="hljs-attribute">var pointGeometry</span> = new Mapillary.TagComponent.PointGeometry(basicPoint);</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -84,7 +83,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">Geometry</span>
+						<a href="geometry.html" class="tsd-signature-type">Geometry</a>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">PointGeometry</span>
@@ -103,25 +102,10 @@
 								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="pointgeometry.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-inherited tsd-is-private-protected">
-							<h3>Properties</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="pointgeometry.html#_notifychanged_" class="tsd-kind-icon">_notify<wbr>Changed$</a></li>
-							</ul>
-						</section>
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="pointgeometry.html#changed_" class="tsd-kind-icon">changed$</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="pointgeometry.html#point" class="tsd-kind-icon">point</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Methods</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="pointgeometry.html#getcentroid2d" class="tsd-kind-icon">get<wbr>Centroid2d</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="pointgeometry.html#getcentroid3d" class="tsd-kind-icon">get<wbr>Centroid3d</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="pointgeometry.html#setcentroid2d" class="tsd-kind-icon">set<wbr>Centroid2d</a></li>
 							</ul>
 						</section>
 					</div>
@@ -140,7 +124,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Geometry.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/145721c/src/component/tag/geometry/PointGeometry.ts#L16">component/tag/geometry/PointGeometry.ts:16</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/4d4da2b/src/component/tag/geometry/PointGeometry.ts#L16">component/tag/geometry/PointGeometry.ts:16</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -172,54 +156,8 @@
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited tsd-is-private-protected">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-					<a name="_notifychanged_" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _notify<wbr>Changed$</h3>
-					<div class="tsd-signature tsd-kind-icon">_notify<wbr>Changed$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Geometry</span><span class="tsd-signature-symbol">&gt;</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from Geometry._notifyChanged$</p>
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/145721c/src/component/tag/geometry/Geometry.ts#L11">component/tag/geometry/Geometry.ts:11</a></li>
-						</ul>
-					</aside>
-				</section>
-			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Accessors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-					<a name="changed_" class="tsd-anchor"></a>
-					<h3>changed$</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> changed$<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Geometry</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from Geometry.changed$</p>
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/145721c/src/component/tag/geometry/Geometry.ts#L31">component/tag/geometry/Geometry.ts:31</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get changed observable.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>description</dt>
-									<dd><p>Emits the geometry itself every time the geometry
-										has changed.</p>
-									</dd>
-									<dt>ignore</dt>
-									<dd></dd>
-								</dl>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Geometry</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable emitting the geometry instance.</p>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="point" class="tsd-anchor"></a>
 					<h3>point</h3>
@@ -230,7 +168,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/145721c/src/component/tag/geometry/PointGeometry.ts#L44">component/tag/geometry/PointGeometry.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/4d4da2b/src/component/tag/geometry/PointGeometry.ts#L44">component/tag/geometry/PointGeometry.ts:44</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -240,106 +178,6 @@
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
 							<p>Array representing the basic coordinates of the point.</p>
-						</li>
-					</ul>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-					<a name="getcentroid2d" class="tsd-anchor"></a>
-					<h3>get<wbr>Centroid2d</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Centroid2d<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Overrides Geometry.getCentroid2d</p>
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/145721c/src/component/tag/geometry/PointGeometry.ts#L54">component/tag/geometry/PointGeometry.ts:54</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get the 2D basic coordinates for the centroid of the point, i.e. the 2D
-									basic coordinates of the point itself.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
-							<p>2D basic coordinates representing the centroid.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-					<a name="getcentroid3d" class="tsd-anchor"></a>
-					<h3>get<wbr>Centroid3d</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Centroid3d<span class="tsd-signature-symbol">(</span>transform<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Transform</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Overrides Geometry.getCentroid3d</p>
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/145721c/src/component/tag/geometry/PointGeometry.ts#L65">component/tag/geometry/PointGeometry.ts:65</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get the 3D world coordinates for the centroid of the point, i.e. the 3D
-									world coordinates of the point itself.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>transform: <span class="tsd-signature-type">Transform</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The transform of the node related to the point.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
-							<p>3D world coordinates representing the centroid.</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-					<a name="setcentroid2d" class="tsd-anchor"></a>
-					<h3>set<wbr>Centroid2d</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Centroid2d<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span>, transform<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Transform</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Overrides Geometry.setCentroid2d</p>
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/145721c/src/component/tag/geometry/PointGeometry.ts#L75">component/tag/geometry/PointGeometry.ts:75</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Set the centroid of the point, i.e. the point coordinates.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>value: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The new value of the centroid.</p>
-									</div>
-								</li>
-								<li>
-									<h5>transform: <span class="tsd-signature-type">Transform</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The transform of the node related to the point.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -363,23 +201,8 @@
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 								<a href="pointgeometry.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="pointgeometry.html#_notifychanged_" class="tsd-kind-icon">_notify<wbr>Changed$</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="pointgeometry.html#changed_" class="tsd-kind-icon">changed$</a>
-							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="pointgeometry.html#point" class="tsd-kind-icon">point</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-								<a href="pointgeometry.html#getcentroid2d" class="tsd-kind-icon">get<wbr>Centroid2d</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-								<a href="pointgeometry.html#getcentroid3d" class="tsd-kind-icon">get<wbr>Centroid3d</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-								<a href="pointgeometry.html#setcentroid2d" class="tsd-kind-icon">set<wbr>Centroid2d</a>
 							</li>
 						</ul>
 					</li>
