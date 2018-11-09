@@ -103,6 +103,8 @@ describe("SpatialDataCache.cacheTile$", () => {
     });
 
     it("should catch error", (done: Function) => {
+        spyOn(console, "error").and.stub();
+
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
         const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
@@ -296,5 +298,45 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                 });
 
         cache.uncache();
+    });
+
+    it("should only request reconstruction once if called twice before completing", () => {
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const node: Node = new NodeHelper().createNode();
+        const hash: string = "00000000";
+
+        cacheTile(hash, cache, graphService, [node]);
+
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        const sendSpy: jasmine.Spy = spyOn(requestMock, "send");
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        let emitCount1: number = 0;
+        cache.cacheReconstructions$(hash)
+            .subscribe(
+                (): void => {
+                    emitCount1++;
+                });
+
+        expect(sendSpy.calls.count()).toBe(1);
+
+        let emitCount2: number = 0;
+        cache.cacheReconstructions$(hash)
+            .subscribe(
+                (): void => {
+                    emitCount2++;
+                });
+
+        requestMock.response = { points: [], main_shot: node.key };
+        requestMock.onload(new Event("load"));
+
+        expect(emitCount1).toBe(1);
+        expect(emitCount2).toBe(1);
+
+        expect(sendSpy.calls.count()).toBe(1);
+
+        expect(cache.isCachingReconstructions(hash)).toBe(false);
+        expect(cache.hasReconstructions(hash)).toBe(true);
     });
 });

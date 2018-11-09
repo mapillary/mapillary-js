@@ -84,7 +84,7 @@ export class SpatialDataCache {
     }
 
     public cacheReconstructions$(hash: string): Observable<ReconstructionData> {
-        if (!(hash in this._tiles)) {
+        if (!this.hasTile(hash)) {
             throw new Error("Cannot cache reconstructions of a non-existing tile.");
         }
 
@@ -92,7 +92,7 @@ export class SpatialDataCache {
             throw new Error("Cannot cache reconstructions that already exists.");
         }
 
-        if (hash in this._cachingReconstructions$) {
+        if (this.isCachingReconstructions(hash)) {
             return this._cachingReconstructions$[hash];
         }
 
@@ -181,7 +181,7 @@ export class SpatialDataCache {
 
         }
 
-        if (hash in this._cachingTiles$) {
+        if (this.hasTile(hash)) {
             return this._cachingTiles$[hash];
         }
 
@@ -192,7 +192,9 @@ export class SpatialDataCache {
         this._tiles[hash] = [];
         this._cachingTiles$[hash] = this._graphService.cacheBoundingBox$(sw, ne).pipe(
             catchError(
-                (): Observable<Node[]> => {
+                (error: Error): Observable<Node[]> => {
+                    console.error(error);
+
                     delete this._tiles[hash];
 
                     return observableEmpty();
