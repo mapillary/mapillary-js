@@ -47,7 +47,7 @@ describe("DirectionComponent.activate", () => {
     it("should set edges when node spatial edges emits", () => {
         const containerMock: Container = new ContainerMockCreator().create();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({}, document.createElement("div"));
+        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({}, { height: 1, width: 1 });
         const setEdgesSpy: jasmine.Spy = spyOn(renderer, "setEdges").and.stub();
 
         const directionComponent: DirectionComponent =
@@ -71,7 +71,7 @@ describe("DirectionComponent.activate", () => {
     it("should set edges when distinguishing sequence with cached sequence", () => {
         const containerMock: Container = new ContainerMockCreator().create();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({ distinguishSequence: true }, document.createElement("div"));
+        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({ distinguishSequence: true }, { height: 1, width: 1 });
         const setEdgesSpy: jasmine.Spy = spyOn(renderer, "setEdges").and.stub();
 
         const directionComponent: DirectionComponent =
@@ -99,7 +99,7 @@ describe("DirectionComponent.activate", () => {
     it("should set edges when distinguishing sequence with uncached sequence", () => {
         const containerMock: Container = new ContainerMockCreator().create();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({ distinguishSequence: true }, document.createElement("div"));
+        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({ distinguishSequence: true }, { height: 1, width: 1 });
         const setEdgesSpy: jasmine.Spy = spyOn(renderer, "setEdges").and.stub();
 
         const directionComponent: DirectionComponent =
@@ -133,7 +133,7 @@ describe("DirectionComponent.activate", () => {
 
         const containerMock: Container = new ContainerMockCreator().create();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({ distinguishSequence: true }, document.createElement("div"));
+        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({ distinguishSequence: true }, { height: 1, width: 1 });
         const setEdgesSpy: jasmine.Spy = spyOn(renderer, "setEdges").and.stub();
 
         const directionComponent: DirectionComponent =

@@ -94,10 +94,6 @@ export class ComponentController {
         this._coverComponent.configure({ state: CoverState.Loading });
     }
 
-    public resize(): void {
-        this._componentService.resize();
-    }
-
     private _initializeComponents(): void {
         let options: IComponentOptions = this._options;
 

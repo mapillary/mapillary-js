@@ -14,6 +14,7 @@ import {
     IEdgeStatus,
     Node,
 } from "../../Graph";
+import {ISize} from "../../Render";
 import {
     Container,
     Navigator,
@@ -156,10 +157,7 @@ export class SequenceDOMRenderer {
         return vd.h("div.SequenceContainer", [stepper, controls, playback, timeline]);
     }
 
-    public getContainerWidth(element: HTMLElement, configuration: ISequenceConfiguration): number {
-        let elementWidth: number = element.offsetWidth;
-        let elementHeight: number = element.offsetHeight;
-
+    public getContainerWidth(size: ISize, configuration: ISequenceConfiguration): number {
         let minWidth: number = configuration.minWidth;
         let maxWidth: number = configuration.maxWidth;
         if (maxWidth < minWidth) {
@@ -167,9 +165,9 @@ export class SequenceDOMRenderer {
         }
 
         let relativeWidth: number =
-            (elementWidth - this._minThresholdWidth) / (this._maxThresholdWidth - this._minThresholdWidth);
+            (size.width - this._minThresholdWidth) / (this._maxThresholdWidth - this._minThresholdWidth);
         let relativeHeight: number =
-            (elementHeight - this._minThresholdHeight) / (this._maxThresholdHeight - this._minThresholdHeight);
+            (size.height - this._minThresholdHeight) / (this._maxThresholdHeight - this._minThresholdHeight);
 
         let coeff: number = Math.max(0, Math.min(1, Math.min(relativeWidth, relativeHeight)));
 

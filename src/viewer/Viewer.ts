@@ -631,7 +631,6 @@ export class Viewer extends EventEmitter {
      */
     public resize(): void {
         this._container.renderService.resize$.next(null);
-        this._componentController.resize();
     }
 
     /**

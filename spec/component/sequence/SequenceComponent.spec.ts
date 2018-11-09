@@ -11,6 +11,7 @@ import {
     Node,
     Sequence,
 } from "../../../src/Graph";
+import {ISize} from "../../../src/Render";
 import {
     Container,
     Navigator,
@@ -273,6 +274,7 @@ describe("SequenceComponent.activate", () => {
         component.activate();
 
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
+        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
@@ -304,6 +306,7 @@ describe("SequenceComponent.activate", () => {
         component.activate();
 
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
+        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const nodeKey1: string = "nodeKey1";
@@ -342,6 +345,7 @@ describe("SequenceComponent.activate", () => {
         component.activate();
 
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
+        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const nodeKey1: string = "nodeKey1";
@@ -394,6 +398,7 @@ describe("SequenceComponent.activate", () => {
         component.activate();
 
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
+        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const sequenceKey2: string = "sequenceKey2";
@@ -458,6 +463,7 @@ describe("SequenceComponent.activate", () => {
         component.activate();
 
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
+        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const nodeKey1: string = "nodeKey1";
@@ -506,6 +512,7 @@ describe("SequenceComponent.activate", () => {
         component.activate();
 
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
+        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const nodeKey1: string = "nodeKey1";

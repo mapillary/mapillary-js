@@ -1,5 +1,6 @@
 import {IDirectionConfiguration} from "../../Component";
 import {Spatial} from "../../Geo";
+import {ISize} from "../../Render";
 
 /**
  * @class DirectionDOMCalculator
@@ -39,7 +40,7 @@ export class DirectionDOMCalculator {
 
     private _shadowOffset: number;
 
-    constructor(configuration: IDirectionConfiguration, element: HTMLElement) {
+    constructor(configuration: IDirectionConfiguration, size: ISize) {
         this._spatial = new Spatial();
 
         this._minThresholdWidth = 320;
@@ -48,7 +49,7 @@ export class DirectionDOMCalculator {
         this._maxThresholdHeight = 820;
 
         this._configure(configuration);
-        this._resize(element);
+        this._resize(size);
         this._reset();
     }
 
@@ -133,13 +134,12 @@ export class DirectionDOMCalculator {
 
     /**
      * Resizes all properties according to the width and height
-     * of the element.
+     * of the size object.
      *
-     * @param {HTMLElement} element The container element from which to extract
-     * the width and height.
+     * @param {ISize} size The size of the container element.
      */
-    public resize(element: HTMLElement): void {
-        this._resize(element);
+    public resize(size: ISize): void {
+        this._resize(size);
         this._reset();
     }
 
@@ -173,9 +173,9 @@ export class DirectionDOMCalculator {
         this._maxWidth = this._getMaxWidth(configuration.minWidth, configuration.maxWidth);
     }
 
-    private _resize(element: HTMLElement): void {
-        this._elementWidth = element.offsetWidth;
-        this._elementHeight = element.offsetHeight;
+    private _resize(size: ISize): void {
+        this._elementWidth = size.width;
+        this._elementHeight = size.height;
     }
 
     private _reset(): void {

@@ -1,11 +1,24 @@
 import * as vd from "virtual-dom";
 
-import {DirectionDOMCalculator, IDirectionConfiguration} from "../../Component";
-import {EdgeDirection, IEdge} from "../../Edge";
+import {
+    DirectionDOMCalculator,
+    IDirectionConfiguration,
+} from "../../Component";
+import {
+    EdgeDirection,
+    IEdge,
+} from "../../Edge";
 import {AbortMapillaryError} from "../../Error";
 import {Spatial} from "../../Geo";
-import {IEdgeStatus, Node, Sequence} from "../../Graph";
-import {RenderCamera} from "../../Render";
+import {
+    IEdgeStatus,
+    Node,
+    Sequence,
+} from "../../Graph";
+import {
+    ISize,
+    RenderCamera,
+} from "../../Render";
 import {IRotation} from "../../State";
 import {Navigator} from "../../Viewer";
 
@@ -38,9 +51,9 @@ export class DirectionDOMRenderer {
 
     private _isEdge: boolean = false;
 
-    constructor(configuration: IDirectionConfiguration, element: HTMLElement) {
+    constructor(configuration: IDirectionConfiguration, size: ISize) {
         this._spatial = new Spatial();
-        this._calculator = new DirectionDOMCalculator(configuration, element);
+        this._calculator = new DirectionDOMCalculator(configuration, size);
 
         this._node = null;
 
@@ -178,10 +191,10 @@ export class DirectionDOMRenderer {
      * Detect the element's width and height and resize
      * elements accordingly.
      *
-     * @param {HTMLElement} element Viewer container element.
+     * @param {ISize} size Size of vßiewer container element.
      */
-    public resize(element: HTMLElement): void {
-        this._calculator.resize(element);
+    public resize(size: ISize): void {
+        this._calculator.resize(size);
 
         this._setNeedsRender();
     }

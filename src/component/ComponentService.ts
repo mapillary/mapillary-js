@@ -113,17 +113,6 @@ export class ComponentService {
         }
     }
 
-    public resize(): void {
-        for (const componentName in this._components) {
-            if (!this._components.hasOwnProperty(componentName)) {
-                continue;
-            }
-
-            const component: IActiveComponent = this._components[componentName];
-            component.component.resize();
-        }
-    }
-
     public get<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
         return <TComponent>this._components[name].component;
     }

@@ -46,8 +46,10 @@ import {
     Node,
     Sequence,
 } from "../../Graph";
-import {IVNodeHash} from "../../Render";
-import {IFrame} from "../../State";
+import {
+    ISize,
+    IVNodeHash,
+} from "../../Render";
 import {
     Container,
     Navigator,
@@ -240,22 +242,6 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
      */
     public setVisible(visible: boolean): void {
         this.configure({ visible: visible });
-    }
-
-    /** @inheritdoc */
-    public resize(): void {
-        this._configuration$.pipe(
-            first(),
-            map(
-                (configuration: ISequenceConfiguration): number => {
-                    return this._sequenceDOMRenderer.getContainerWidth(
-                        this._container.element,
-                        configuration);
-                }))
-            .subscribe(
-                (containerWidth: number): void => {
-                    this._containerWidth$.next(containerWidth);
-                });
     }
 
     protected _activate(): void {
@@ -485,18 +471,20 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     this._navigator.playService.setDirection(direction);
                 });
 
-        this._containerWidthSubscription = this._configuration$.pipe(
-            distinctUntilChanged(
-                (value1: [number, number], value2: [number, number]): boolean => {
-                    return value1[0] === value2[0] && value1[1] === value2[1];
-                },
-                (configuration: ISequenceConfiguration) => {
-                    return [configuration.minWidth, configuration.maxWidth];
-                }),
+        this._containerWidthSubscription = observableCombineLatest(
+            this._container.renderService.size$,
+            this._configuration$.pipe(
+                distinctUntilChanged(
+                    (value1: [number, number], value2: [number, number]): boolean => {
+                        return value1[0] === value2[0] && value1[1] === value2[1];
+                    },
+                    (configuration: ISequenceConfiguration) => {
+                        return [configuration.minWidth, configuration.maxWidth];
+                    }))).pipe(
             map(
-                (configuration: ISequenceConfiguration): number => {
+                ([size, configuration]: [ISize, ISequenceConfiguration]): number => {
                     return this._sequenceDOMRenderer.getContainerWidth(
-                        this._container.element,
+                        size,
                         configuration);
                 }))
             .subscribe(this._containerWidth$);

@@ -21,8 +21,7 @@ describe("DirectionDOMRenderer.ctor", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         expect(renderer).toBeDefined();
     });
@@ -42,8 +41,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         expect(renderer.needsRender).toBe(false);
     });
@@ -55,8 +53,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
@@ -73,8 +70,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
@@ -97,9 +93,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
         renderCamera.camera.up.fromArray([0, 0, 1]);
@@ -116,9 +110,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         configuration.maxWidth = 300;
         renderer.setConfiguration(configuration);
@@ -133,11 +125,9 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
-
-        renderer.resize(element);
+        renderer.resize({ height: 1, width: 1 });
 
         expect(renderer.needsRender).toBe(false);
     });
@@ -149,8 +139,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
@@ -182,8 +171,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
@@ -211,8 +199,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
             minWidth: 100,
         };
 
-        let element: HTMLElement = document.createElement("div");
-        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, element);
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
         let node: Node = new Node(helper.createCoreNode());
         node.makeFull(helper.createFillNode());
@@ -227,7 +214,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(false);
 
-        renderer.resize(element);
+        renderer.resize({ height: 1, width: 1 });
 
         expect(renderer.needsRender).toBe(true);
     });

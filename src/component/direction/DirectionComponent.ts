@@ -1,7 +1,24 @@
-import {of as observableOf, combineLatest as observableCombineLatest, Observable, Subscription, Subject} from "rxjs";
-
-import {switchMap, share, startWith, withLatestFrom, map, filter, distinctUntilChanged, tap, catchError} from "rxjs/operators";
 import * as vd from "virtual-dom";
+
+import {
+    of as observableOf,
+    combineLatest as observableCombineLatest,
+    Observable,
+    Subscription,
+    Subject,
+} from "rxjs";
+
+import {
+    switchMap,
+    share,
+    startWith,
+    withLatestFrom,
+    map,
+    filter,
+    distinctUntilChanged,
+    tap,
+    catchError,
+} from "rxjs/operators";
 
 import {
     ComponentService,
@@ -10,7 +27,11 @@ import {
     IDirectionConfiguration,
 } from "../../Component";
 import {IEdgeStatus, Node, Sequence} from "../../Graph";
-import {IVNodeHash, RenderCamera} from "../../Render";
+import {
+    ISize,
+    IVNodeHash,
+    RenderCamera,
+} from "../../Render";
 import {Container, Navigator} from "../../Viewer";
 
 /**
@@ -43,13 +64,16 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
     private _hoveredKeySubscription: Subscription;
     private _nodeSubscription: Subscription;
     private _renderCameraSubscription: Subscription;
+    private _resizeSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator, directionDOMRenderer?: DirectionDOMRenderer) {
         super(name, container, navigator);
 
         this._renderer = !!directionDOMRenderer ?
             directionDOMRenderer :
-            new DirectionDOMRenderer(this.defaultConfiguration, container.element);
+            new DirectionDOMRenderer(
+                this.defaultConfiguration,
+                { height: container.element.offsetHeight, width: container.element.offsetWidth });
 
         this._hoveredKeySubject$ = new Subject<string>();
 
@@ -114,16 +138,17 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
         this.configure({ maxWidth: maxWidth });
     }
 
-    /** @inheritdoc */
-    public resize(): void {
-        this._renderer.resize(this._container.element);
-    }
-
     protected _activate(): void {
         this._configurationSubscription = this._configuration$
             .subscribe(
                 (configuration: IDirectionConfiguration): void => {
                     this._renderer.setConfiguration(configuration);
+                });
+
+        this._resizeSubscription = this._container.renderService.size$
+            .subscribe(
+                (size: ISize): void => {
+                    this._renderer.resize(size);
                 });
 
         this._nodeSubscription = this._navigator.stateService.currentNode$.pipe(
