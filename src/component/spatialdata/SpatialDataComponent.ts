@@ -88,6 +88,22 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     }
 
     protected _activate(): void {
+        this._earthControlsSubscription = this._configuration$.pipe(
+            map(
+                (configuration: ISpatialDataConfiguration): boolean => {
+                    return configuration.earthControls;
+                }),
+            distinctUntilChanged(),
+            withLatestFrom(this._navigator.stateService.state$))
+            .subscribe(
+                ([earth, state]: [boolean, State]): void => {
+                    if (earth && state !== State.Earth) {
+                        this._navigator.stateService.earth();
+                    } else if (!earth && state === State.Earth) {
+                        this._navigator.stateService.traverse();
+                    }
+                });
+
         const direction$: Observable<string> = this._container.renderService.bearing$.pipe(
             map(
                 (bearing: number): string => {
@@ -143,36 +159,42 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._addSubscription = this._navigator.stateService.state$.pipe(
-            map(
-                (state: State): boolean => {
-                    return state === State.Earth;
-                }),
-            distinctUntilChanged(),
-            switchMap(
-                (earth: boolean): Observable<string[]> => {
-                    if (earth) {
-                        return observableCombineLatest(
-                            hash$,
-                            sequencePlay$).pipe(
-                            mergeMap(
-                                ([hash, sequencePlay]: [string, boolean]): Observable<string[]> => {
-                                return sequencePlay ?
-                                    observableOf([hash]) :
-                                    observableOf(this._adjacentComponent(hash, 4));
-                            }));
+        this._addSubscription = observableCombineLatest(
+            this._navigator.stateService.state$.pipe(
+                map(
+                    (state: State): boolean => {
+                        return state === State.Earth;
+                    }),
+                distinctUntilChanged()),
+            hash$,
+            sequencePlay$,
+            direction$).pipe(
+            distinctUntilChanged(
+                (
+                    [e1, h1, s1, d1]: [boolean, string, boolean, string],
+                    [e2, h2, s2, d2]: [boolean, string, boolean, string]): boolean => {
+
+                    if (e1 !== e2) {
+                        return false;
                     }
 
-                    return observableCombineLatest(
-                        hash$,
-                        sequencePlay$,
-                        direction$).pipe(
-                        mergeMap(
-                            ([hash, sequencePlay, direction]: [string, boolean, string]): Observable<string[]> => {
-                                return sequencePlay ?
-                                    observableOf([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
-                                    observableOf(this._computeTiles(hash, direction));
-                        }));
+                    if (e1) {
+                        return h1 === h2 && s1 === s2;
+                    }
+
+                    return h1 === h2 && s1 === s2 && d1 === d2;
+                }),
+            concatMap(
+                ([earth, hash, sequencePlay, direction]: [boolean, string, boolean, string]): Observable<string[]> => {
+                    if (earth) {
+                        return sequencePlay ?
+                            observableOf([hash]) :
+                            observableOf(this._adjacentComponent(hash, 4));
+                    }
+
+                    return sequencePlay ?
+                        observableOf([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
+                        observableOf(this._computeTiles(hash, direction));
                 }),
             switchMap(
                 (hashes: string[]): Observable<string> => {
@@ -363,34 +385,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     };
                 }))
             .subscribe(this._container.glRenderer.render$);
-
-        this._earthControlsSubscription = this._configuration$.pipe(
-            map(
-                (configuration: ISpatialDataConfiguration): boolean => {
-                    return configuration.earthControls;
-                }),
-            distinctUntilChanged(),
-            withLatestFrom(this._navigator.stateService.state$))
-            .subscribe(
-                ([earth, state]: [boolean, State]): void => {
-                    if (earth && state !== State.Earth) {
-                        this._navigator.stateService.earth();
-                    } else if (!earth && state === State.Earth) {
-                        this._navigator.stateService.traverse();
-                    }
-                });
     }
 
     protected _deactivate(): void {
-        this._navigator.stateService.state$.pipe(
-            first())
-            .subscribe(
-                (state: State): void => {
-                    if (state === State.Earth) {
-                        this._navigator.stateService.traverse();
-                    }
-                });
-
         this._cache.uncache();
         this._scene.uncache();
 
@@ -404,6 +401,15 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._tileVisibilitySubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
         this._visualizeConnectedComponentSubscription.unsubscribe();
+
+        this._navigator.stateService.state$.pipe(
+            first())
+            .subscribe(
+                (state: State): void => {
+                    if (state === State.Earth) {
+                        this._navigator.stateService.traverse();
+                    }
+                });
     }
 
     protected _getDefaultConfiguration(): ISpatialDataConfiguration {
