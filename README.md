@@ -70,7 +70,7 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [MapillaryJS + Leaflet ESRI](https://bl.ocks.org/oscarlorentzon/5a0b23ea8259db871bed2a724ee3afec)
 - [MapillaryJS + Leaflet Tangram](https://bl.ocks.org/oscarlorentzon/6f0d316fee85320c552a4ed6838566a2)
 - [MapillaryJS + Mapbox GL JS](https://bl.ocks.org/oscarlorentzon/0b7c5763225029268fce0324af2b2b3a)
-- [MapillaryJS + OpenLayers](https://codepen.io/mdiener21/pen/Mzagxw)
+- [MapillaryJS + OpenLayers](https://bl.ocks.org/oscarlorentzon/1a21ea14f9249517356d6d52afe092b5)
 
 ### Components
 
