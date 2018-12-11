@@ -347,11 +347,11 @@ export class Popup {
         }
 
         if (pointPixel == null) {
-            this._container.style.visibility = "hidden";
+            this._container.style.display = "none";
             return;
         }
 
-        this._container.style.visibility = "visible";
+        this._container.style.display = "";
 
         if (!float) {
             const width: number = this._container.offsetWidth;

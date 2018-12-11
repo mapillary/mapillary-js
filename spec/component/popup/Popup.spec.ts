@@ -135,9 +135,9 @@ describe("Popup.update", () => {
 
         popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
 
-        const visibility: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.visibility;
+        const display: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.display;
 
-        expect(visibility).toBe("visible");
+        expect(display).toBe("");
     });
 
     it("should not be visible if behind camera", () => {
@@ -153,9 +153,9 @@ describe("Popup.update", () => {
 
         popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
 
-        const visibility: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.visibility;
+        const display: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.display;
 
-        expect(visibility).toBe("hidden");
+        expect(display).toBe("none");
     });
 
     it("should float to top when float is automatic", () => {
