@@ -26,7 +26,6 @@ import {
     bufferCount,
 } from "rxjs/operators";
 
-import {ViewportCoords} from "../Geo";
 import {
     IMouseClaim,
     IMouseDeferPixels,
@@ -79,10 +78,7 @@ export class MouseService {
         container: EventTarget,
         canvasContainer: EventTarget,
         domContainer: EventTarget,
-        doc: EventTarget,
-        viewportCoords?: ViewportCoords) {
-
-        viewportCoords = viewportCoords != null ? viewportCoords : new ViewportCoords();
+        doc: EventTarget) {
 
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
 
