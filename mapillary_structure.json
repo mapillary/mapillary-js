@@ -1,0 +1,37 @@
+{
+  "description": "JavaScript & WebGL library for street level imagery rendering.",
+  "frameworks": [
+    "threejs",
+    "rxjs"
+  ],
+  "language": "typescript",
+  "maintainers": [
+    "oscarlorentzon"
+  ],
+  "providers": [
+    {
+    "dependencies": [
+      {
+        "name": "api_v3"
+      },
+      {
+        "name": "aws_s3"
+      },
+      {
+        "name": "image_tile_service"
+      }
+    ],
+    "description": "JavaScript & WebGL library for street level imagery rendering.",
+    "extDependencies": [],
+    "name": "mapillary_js_provider",
+    "services": [
+      {
+        "description": "JavaScript & WebGL library for street level imagery rendering.",
+        "name": "mapillary_js_library"
+      }
+    ],
+    "type": "library"
+    }
+  ],
+  "repo": "mapillary-js"
+}
