@@ -42,7 +42,7 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
         expect(retrievableTransparentObjects[0] instanceof THREE.Mesh).toBe(true);
     });
 
-    it("should not return any objects if for panoramas", () => {
+    it("should not return any objects for rects in panoramas", () => {
         const geometry: RectGeometry = new RectGeometry([0, 0, 1, 1]);
         const outlineTag: OutlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
         const outlineRenderTag: OutlineRenderTag =
@@ -58,6 +58,30 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
         const retrievableObjects: THREE.Object3D[] = outlineRenderTag.getRetrievableObjects();
 
         expect(retrievableObjects.length).toBe(0);
+    });
+
+    it("should return mesh object for polygon in panoramas", () => {
+        const geometry: PolygonGeometry = new PolygonGeometry([
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [0, 0],
+        ]);
+        const outlineTag: OutlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
+        const outlineRenderTag: OutlineRenderTag =
+            new OutlineRenderTag(outlineTag, new TransformHelper().createTransform({
+                CroppedAreaImageHeightPixels: 1,
+                CroppedAreaImageWidthPixels: 1,
+                 CroppedAreaLeftPixels: 0,
+                 CroppedAreaTopPixels: 0,
+                 FullPanoHeightPixels: 1,
+                 FullPanoWidthPixels: 1,
+            }));
+
+        const retrievableObjects: THREE.Object3D[] = outlineRenderTag.getRetrievableObjects();
+
+        expect(retrievableObjects.length).toBe(1);
     });
 });
 

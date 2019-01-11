@@ -4,7 +4,6 @@ import * as vd from "virtual-dom";
 import {Subscription} from "rxjs";
 
 import {
-    Geometry,
     InteractionCursor,
     OutlineTag,
     PolygonGeometry,
@@ -34,7 +33,11 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
 
         this._fill = !transform.gpano ?
             this._createFill() :
-            null;
+            transform.fullPano &&
+            tag.domain === TagDomain.TwoDimensional &&
+            tag.geometry instanceof PolygonGeometry ?
+                this._createFill() :
+                null;
 
         this._holes = this._tag.lineWidth >= 1 ?
             this._createHoles() :
@@ -46,7 +49,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
 
         this._geometryChangedSubscription = this._tag.geometry.changed$
             .subscribe(
-                (geometry: Geometry): void => {
+                (): void => {
                     if (this._fill != null) {
                         this._updateFillGeometry();
                     }
@@ -62,7 +65,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
 
         this._changedSubscription = this._tag.changed$
             .subscribe(
-                (changedTag: OutlineTag): void => {
+                (): void => {
                     let glObjectsChanged: boolean = false;
 
                     if (this._fill != null) {

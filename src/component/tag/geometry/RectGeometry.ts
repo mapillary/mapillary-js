@@ -572,9 +572,11 @@ export class RectGeometry extends VertexGeometry {
 
     /** @ignore */
     public getTriangles3d(transform: Transform): number[] {
-        return this._triangulate(
-            this._project(this._getPoints2d(), transform),
-            this.getPoints3d(transform));
+        return transform.fullPano ?
+            [] :
+            this._triangulate(
+                this._project(this._getPoints2d(), transform),
+                this.getPoints3d(transform));
     }
 
     /**
