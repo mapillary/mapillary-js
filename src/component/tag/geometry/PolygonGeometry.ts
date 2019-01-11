@@ -17,8 +17,6 @@ export class PolygonGeometry extends VertexGeometry {
     private _polygon: number[][];
     private _holes: number[][][];
 
-    private _subsampleThreshold: number;
-
     /**
      * Create a polygon geometry.
      *
@@ -31,8 +29,6 @@ export class PolygonGeometry extends VertexGeometry {
      */
     constructor(polygon: number[][], holes?: number[][][]) {
         super();
-
-        this._subsampleThreshold = 0.01;
 
         let polygonLength: number = polygon.length;
 
@@ -208,7 +204,7 @@ export class PolygonGeometry extends VertexGeometry {
     /** @ignore */
     public getPoints3d(transform: Transform): number[][] {
         return this._getPoints3d(
-            this._subsample(this._polygon, this._subsampleThreshold),
+            this._subsample(this._polygon),
             transform);
     }
 
@@ -242,7 +238,7 @@ export class PolygonGeometry extends VertexGeometry {
             .map(
                 (hole2d: number[][]): number[][] => {
                     return this._getPoints3d(
-                        this._subsample(hole2d, this._subsampleThreshold),
+                        this._subsample(hole2d),
                         transform);
                 });
     }
@@ -322,15 +318,13 @@ export class PolygonGeometry extends VertexGeometry {
                 transform);
         }
 
-        const threshold: number = this._subsampleThreshold;
-
-        const points2d: number[][] = this._project(this._subsample(this._polygon, threshold), transform);
+        const points2d: number[][] = this._project(this._subsample(this._polygon), transform);
         const points3d: number[][] = this.getPoints3d(transform);
 
         const holes2d: number[][][] = this._holes
             .map(
                 (hole: number[][]): number[][] => {
-                    return this._project(this._subsample(hole, threshold), transform);
+                    return this._project(this._subsample(hole), transform);
                 });
 
         const holes3d: number[][][] = this.getHolePoints3d(transform);
