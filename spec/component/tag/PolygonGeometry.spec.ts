@@ -601,7 +601,7 @@ describe("PolygonGeometry.getHolePoints3d", () => {
 });
 
 describe("PolygonGeometry.get3dDomainTriangles", () => {
-    it("should return one triangle for four points", () => {
+    it("should return one triangle for three points", () => {
         const polygon: number[][] = [[0, 0], [0.5, 0], [0.5, 0.5], [0, 0]];
         const geometry: PolygonGeometry = new PolygonGeometry(polygon);
 
@@ -614,7 +614,18 @@ describe("PolygonGeometry.get3dDomainTriangles", () => {
 });
 
 describe("PolygonGeometry.getTriangles", () => {
-    it("should return more than one triangle for four points", () => {
+    it("should return one triangle for three close points", () => {
+        const polygon: number[][] = [[0, 0], [1e-4, 0], [1e-4, 1e-4], [0, 0]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, undefined, [0, 0, 0], [0, 0, 0], undefined);
+
+        const triangles: number[] = geometry.getTriangles3d(transform);
+
+        expect(triangles.length / (3 * 3)).toBe(1);
+    });
+
+    it("should return multiple triangles becasue of interpolation for three points", () => {
         const polygon: number[][] = [[0, 0], [0.5, 0], [0.5, 0.5], [0, 0]];
         const geometry: PolygonGeometry = new PolygonGeometry(polygon);
 
@@ -622,6 +633,26 @@ describe("PolygonGeometry.getTriangles", () => {
 
         const triangles: number[] = geometry.getTriangles3d(transform);
 
-        expect(triangles.length / 3).toBeGreaterThan(3);
+        expect(triangles.length / (3 * 3)).toBeGreaterThan(1);
+    });
+
+    it("should return two triangles for four close points for a panorama", () => {
+        const polygon: number[][] = [[0, 0], [1e-4, 0], [1e-4, 1e-4], [0, 1e-4], [0, 0]];
+        const geometry: PolygonGeometry = new PolygonGeometry(polygon);
+
+        const gpano: IGPano = {
+            CroppedAreaImageHeightPixels: 0,
+            CroppedAreaImageWidthPixels: 0,
+            CroppedAreaLeftPixels: 0,
+            CroppedAreaTopPixels: 0,
+            FullPanoHeightPixels: 0,
+            FullPanoWidthPixels: 0,
+        };
+
+        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, gpano, [0, 0, 0], [0, 0, 0], undefined);
+
+        const triangles: number[] = geometry.getTriangles3d(transform);
+
+        expect(triangles.length / (3 * 3)).toBe(2);
     });
 });

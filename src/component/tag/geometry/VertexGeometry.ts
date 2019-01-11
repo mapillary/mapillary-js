@@ -301,13 +301,14 @@ export abstract class VertexGeometry extends Geometry {
         }
 
         const triangles: number[] = [];
+        const threshold: number = this._subsampleThreshold;
         const camera: THREE.Camera = this._createCamera(
             transform.upVector().toArray(),
             transform.unprojectSfM([0, 0], 0),
             transform.unprojectBasic(lookat2d, 10));
 
         for (const intersection of intersections) {
-            const subsampledPolygon2d: number[][] = this._subsample(intersection[0], 0.005);
+            const subsampledPolygon2d: number[][] = this._subsample(intersection[0], threshold);
 
             const polygon2d: number[][] = this._deunproject(subsampledPolygon2d, transform, camera);
             const polygon3d: number[][] = this._unproject(subsampledPolygon2d, transform);
@@ -315,7 +316,7 @@ export abstract class VertexGeometry extends Geometry {
             const polygonHoles2d: number[][][] = [];
             const polygonHoles3d: number[][][] = [];
             for (let i: number = 1; i < intersection.length; i++) {
-                let subsampledHole2d: number[][] = this._subsample(intersection[i], 0.005);
+                let subsampledHole2d: number[][] = this._subsample(intersection[i], threshold);
 
                 const hole2d: number[][] = this._deunproject(subsampledHole2d, transform, camera);
                 const hole3d: number[][] = this._unproject(subsampledHole2d, transform);
