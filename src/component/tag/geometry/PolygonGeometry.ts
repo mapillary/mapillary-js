@@ -315,6 +315,13 @@ export class PolygonGeometry extends VertexGeometry {
 
     /** @ignore */
     public getTriangles3d(transform: Transform): number[] {
+        if (transform.fullPano) {
+            return this._triangulatePano(
+                this._polygon.slice(),
+                this.holes.slice(),
+                transform);
+        }
+
         const threshold: number = this._subsampleThreshold;
 
         const points2d: number[][] = this._project(this._subsample(this._polygon, threshold), transform);
@@ -353,35 +360,6 @@ export class PolygonGeometry extends VertexGeometry {
                 (point: number[]) => {
                     return transform.unprojectBasic(point, 200);
                 });
-    }
-
-    private _subsample(points2d: number[][], threshold: number): number[][] {
-        const subsampled: number[][] = [];
-        const length: number = points2d.length;
-
-        for (let index: number = 0; index < length; index++) {
-            const p1: number[] = points2d[index];
-            const p2: number[] = points2d[(index + 1) % length];
-
-            subsampled.push(p1);
-
-            const dist: number = Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
-            const subsamples: number = Math.floor(dist / threshold);
-            const coeff: number = 1 / (subsamples + 1);
-
-            for (let i: number = 1; i <= subsamples; i++) {
-                const alpha: number = i * coeff;
-
-                const subsample: number[] = [
-                    (1 - alpha) * p1[0] + alpha * p2[0],
-                    (1 - alpha) * p1[1] + alpha * p2[1],
-                ];
-
-                subsampled.push(subsample);
-            }
-        }
-
-        return subsampled;
     }
 }
 

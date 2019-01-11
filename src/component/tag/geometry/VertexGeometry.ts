@@ -1,4 +1,5 @@
 import earcut from "earcut";
+import * as martinez from "martinez-polygon-clipping";
 import * as polylabel from "@mapbox/polylabel";
 import * as THREE from "three";
 
@@ -130,6 +131,35 @@ export abstract class VertexGeometry extends Geometry {
         return pole2d;
     }
 
+    protected _subsample(points2d: number[][], threshold: number): number[][] {
+        const subsampled: number[][] = [];
+        const length: number = points2d.length;
+
+        for (let index: number = 0; index < length; index++) {
+            const p1: number[] = points2d[index];
+            const p2: number[] = points2d[(index + 1) % length];
+
+            subsampled.push(p1);
+
+            const dist: number = Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+            const subsamples: number = Math.floor(dist / threshold);
+            const coeff: number = 1 / (subsamples + 1);
+
+            for (let i: number = 1; i <= subsamples; i++) {
+                const alpha: number = i * coeff;
+
+                const subsample: number[] = [
+                    (1 - alpha) * p1[0] + alpha * p2[0],
+                    (1 - alpha) * p1[1] + alpha * p2[1],
+                ];
+
+                subsampled.push(subsample);
+            }
+        }
+
+        return subsampled;
+    }
+
     /**
      * Triangulates a 2d polygon and returns the triangle
      * representation as a flattened array of 3d points.
@@ -192,6 +222,128 @@ export abstract class VertexGeometry extends Geometry {
                 });
 
         return projected;
+    }
+
+    protected _triangulatePano(points2d: number[][], holes: number[][][], transform: Transform): number[] {
+        const triangles: number[] = [];
+        const epsilon: number = 1e-9;
+        const subareasX: number = 3;
+        const subareasY: number = 3;
+
+        for (let x: number = 0; x < subareasX; x++) {
+            for (let y: number = 0; y < subareasY; y++) {
+                const bbox: number[] = [
+                    x / subareasX,
+                    y / subareasY,
+                    (x + 1) / subareasX + epsilon,
+                    (y + 1) / subareasY + epsilon,
+                ];
+
+                if (x === 0) {
+                    bbox[0] -= epsilon;
+                } else {
+                    bbox[0] += epsilon;
+                }
+
+                if (y === 0) {
+                    bbox[1] -= epsilon;
+                } else {
+                    bbox[1] += epsilon;
+                }
+
+                const lookat: number[] = [
+                    (2 * x + 1) / (subareasX * 2),
+                    (2 * y + 1) / (subareasY * 2),
+                ];
+
+                triangles.push(...this._triangulateSubarea(bbox, lookat, points2d, holes, transform));
+            }
+        }
+
+        return triangles;
+    }
+
+    private _triangulateSubarea(
+        bbox: number[],
+        lookatBasic: number[],
+        points2d: number[][],
+        holes: number[][][],
+        transform: Transform): number[] {
+
+        const camera: THREE.Camera = new THREE.Camera();
+        camera.up.copy(transform.upVector());
+        camera.position.copy(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0)));
+        camera.lookAt(new THREE.Vector3().fromArray(transform.unprojectBasic(lookatBasic, 10)));
+        camera.updateMatrix();
+        camera.updateMatrixWorld(true);
+
+        const bboxPoints: number[][] = [
+            [bbox[0], bbox[1]],
+            [bbox[0], bbox[3]],
+            [bbox[2], bbox[3]],
+            [bbox[2], bbox[1]],
+            [bbox[0], bbox[1]],
+        ];
+
+        const intersection: martinez.MultiPolygon = <martinez.MultiPolygon>martinez.intersection([points2d, ...holes], [bboxPoints]);
+        if (!intersection) {
+            return [];
+        }
+
+        const triangles: number[] = [];
+
+        for (let i: number = 0; i < intersection.length; i++) {
+            let clipped: number[][] = this._subsample(intersection[i][0], 0.005);
+
+            const p2s: number[][] = clipped
+                .map(
+                    (point2d: number[]): number[] => {
+                        const pointWorld: number[] = transform.unprojectBasic(point2d, 10000);
+                        const pointCamera: THREE.Vector3 =
+                            new THREE.Vector3(pointWorld[0], pointWorld[1], pointWorld[2])
+                                .applyMatrix4(camera.matrixWorldInverse);
+
+                        return [pointCamera.x / pointCamera.z, pointCamera.y / pointCamera.z];
+                    });
+
+            const p3s: number[][] = clipped
+                .map(
+                    (point: number[]) => {
+                        return transform.unprojectBasic(point, 200);
+                    });
+
+            const holes2d: number[][][] = [];
+            const holes3d: number[][][] = [];
+
+            for (let j: number = 1; j < intersection[i].length; j++) {
+
+                let hc: number[][] = this._subsample(intersection[i][j], 0.005);
+
+                const h2s: number[][] = hc
+                    .map(
+                        (point2d: number[]): number[] => {
+                            const pointWorld: number[] = transform.unprojectBasic(point2d, 10000);
+                            const pointCamera: THREE.Vector3 =
+                                new THREE.Vector3(pointWorld[0], pointWorld[1], pointWorld[2])
+                                    .applyMatrix4(camera.matrixWorldInverse);
+
+                            return [pointCamera.x / pointCamera.z, pointCamera.y / pointCamera.z];
+                        });
+
+                const h3s: number[][] = hc
+                    .map(
+                        (point: number[]) => {
+                            return transform.unprojectBasic(point, 200);
+                        });
+
+                holes2d.push(h2s);
+                holes3d.push(h3s);
+            }
+
+            triangles.push(...this._triangulate(p2s, p3s, holes2d, holes3d));
+        }
+
+        return triangles;
     }
 }
 
