@@ -26,6 +26,7 @@ import {
     LoadingService,
     PlayService,
 } from "../Viewer";
+import { PanService } from "./PanService";
 
 export class Navigator {
     private _apiV3: APIv3;
@@ -35,6 +36,7 @@ export class Navigator {
     private _imageLoadingService: ImageLoadingService;
     private _loadingService: LoadingService;
     private _loadingName: string;
+    private _panService: PanService;
     private _playService: PlayService;
     private _stateService: StateService;
 
@@ -55,7 +57,8 @@ export class Navigator {
         loadingService?: LoadingService,
         stateService?: StateService,
         cacheService?: CacheService,
-        playService?: PlayService) {
+        playService?: PlayService,
+        panService?: PanService) {
 
         this._apiV3 = apiV3 != null ? apiV3 : new APIv3(clientId, token);
 
@@ -77,6 +80,10 @@ export class Navigator {
         this._playService = playService != null ?
             playService :
             new PlayService(this._graphService, this._stateService);
+
+        this._panService = panService != null ?
+            panService :
+            new PanService(this._graphService, this._stateService);
 
         this._keyRequested$ = new BehaviorSubject<string>(null);
         this._movedToKey$ = new BehaviorSubject<string>(null);
@@ -108,6 +115,10 @@ export class Navigator {
 
     public get movedToKey$(): Observable<string> {
         return this._movedToKey$;
+    }
+
+    public get panService(): PanService {
+        return this._panService;
     }
 
     public get playService(): PlayService {
