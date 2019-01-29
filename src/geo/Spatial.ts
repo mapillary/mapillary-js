@@ -230,6 +230,16 @@ export class Spatial {
         return Math.asin(projection / norm);
     }
 
+    public azimuthal(direction: number[], up: number[]): number {
+        const directionVector: THREE.Vector3 = new THREE.Vector3().fromArray(direction);
+        const upVector: THREE.Vector3 = new THREE.Vector3().fromArray(up);
+
+        const upProjection: number = directionVector.clone().dot(upVector);
+        const planeProjection: THREE.Vector3 = directionVector.clone().sub(upVector.clone().multiplyScalar(upProjection));
+
+        return Math.atan2(planeProjection.y, planeProjection.x);
+    }
+
     /**
      * Calculates the distance between two coordinates
      * (latitude longitude pairs) in meters according to
