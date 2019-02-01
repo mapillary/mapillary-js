@@ -60,10 +60,22 @@ export class PanService {
                         .cacheBoundingBox$(bounds[0], bounds[1]).pipe(
                             map(
                                 (nodes: Node[]): Node[] => {
+                                    if (current.pano) {
+                                        return [];
+                                    }
+
                                     const potential: Node[] = [];
 
                                     for (const node of nodes) {
                                         if (node.key === current.key) {
+                                            continue;
+                                        }
+
+                                        if (node.mergeCC !== current.mergeCC) {
+                                            continue;
+                                        }
+
+                                        if (node.pano) {
                                             continue;
                                         }
 
