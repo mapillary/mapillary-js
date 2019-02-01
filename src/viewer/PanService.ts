@@ -2,7 +2,6 @@ import * as THREE from "three";
 
 import {
     of as observableOf,
-    from as observableFrom,
     combineLatest as observableCombineLatest,
     Observable,
 } from "rxjs";
@@ -10,7 +9,6 @@ import {
 import {
     map,
     switchMap,
-    mergeMap,
     withLatestFrom,
     share,
 } from "rxjs/operators";
@@ -34,7 +32,7 @@ export class PanService {
     private _geoCoords: GeoCoords;
     private _spatial: Spatial;
 
-    private _panNodes: Observable<[Node, Transform]>;
+    private _panNodes: Observable<[Node, Transform][]>;
 
     constructor(
         graphService: GraphService,
@@ -51,7 +49,7 @@ export class PanService {
 
         this._panNodes = this._stateService.currentNode$.pipe(
             switchMap(
-                (current: Node): Observable<[Node, Transform]> => {
+                (current: Node): Observable<[Node, Transform][]> => {
                     const current$: Observable<Node> = observableOf(current);
 
                     const bounds: ILatLon[] = this._graphCalculator.boundingBoxCorners(current.computedLatLon, 20);
@@ -117,7 +115,9 @@ export class PanService {
                                 const currentProjectedPoints: number[][] = this._computeProjectedPoints(currentTransform);
                                 const currentHFov: number = this._computeHorizontalFov(currentProjectedPoints) / 180 * Math.PI;
 
-                                const panNodes: [Node, Transform][] = [];
+                                const preferredOverlap: number = Math.PI / 8;
+                                let left: [number, Node, Transform] = undefined;
+                                let right: [number, Node, Transform] = undefined;
 
                                 for (const a of adjacent) {
                                     const translation: number[] = Geo.computeTranslation(
@@ -159,27 +159,43 @@ export class PanService {
                                     }
 
                                     if (overlap > 0 && overlap < Math.PI / 4) {
-                                        panNodes.push([a, transform]);
+                                        if (directionChange > 0) {
+                                            if (!left) {
+                                                left = [overlap, a, transform];
+                                            } else {
+                                                if (Math.abs(overlap - preferredOverlap) < Math.abs(left[0] - preferredOverlap)) {
+                                                    left = [overlap, a, transform];
+                                                }
+                                            }
+                                        } else {
+                                            if (!right) {
+                                                right = [overlap, a, transform];
+                                            } else {
+                                                if (Math.abs(overlap - preferredOverlap) < Math.abs(right[0] - preferredOverlap)) {
+                                                    right = [overlap, a, transform];
+                                                }
+                                            }
+                                        }
                                     }
                                 }
 
+                                const panNodes: [Node, Transform][] = [];
+
+                                if (!!left) {
+                                    panNodes.push([left[1], left[2]]);
+                                }
+
+                                if (!!right) {
+                                    panNodes.push([right[1], right[2]]);
+                                }
+
                                 return panNodes;
-                            }),
-                        mergeMap(
-                            (nts: [Node, Transform][]): Observable<[Node, Transform]> => {
-                                return observableFrom(nts).pipe(
-                                    mergeMap(
-                                        ([n, t]: [Node, Transform]): Observable<[Node, Transform]> => {
-                                            return observableCombineLatest(
-                                                this._graphService.cacheNode$(n.key),
-                                                observableOf(t));
-                                        }));
                             }));
                 }),
             share());
     }
 
-    public get panNodes$(): Observable<[Node, Transform]> {
+    public get panNodes$(): Observable<[Node, Transform][]> {
         return this._panNodes;
     }
 
