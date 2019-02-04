@@ -21,11 +21,11 @@ void main()
     float y = vRstq.y;
     float z = vRstq.z;
 
-    float r2 = sqrt(x * x + y * y);
-    float theta = atan(r2, z);
+    float r = sqrt(x * x + y * y);
+    float theta = atan(r, z);
     float theta2 = theta * theta;
     float theta_d = theta * (1.0 + theta2 * (k1 + theta2 * k2));
-    float s = focal * theta_d / r2;
+    float s = focal * theta_d / r;
 
     float u = scale_x * s * x + 0.5;
     float v = -scale_y * s * y + 0.5;

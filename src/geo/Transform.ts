@@ -19,6 +19,7 @@ export class Transform {
     private _basicAspect: number;
 
     private _gpano: IGPano;
+    private _projectionType: string;
 
     private _rt: THREE.Matrix4;
     private _srt: THREE.Matrix4;
@@ -78,6 +79,7 @@ export class Transform {
         this._scale = this._getValue(scale, 0);
 
         this._gpano = gpano != null ? gpano : null;
+        this._projectionType = "perspective";  // TODO: get this from the arguments
 
         this._rt = this._getRt(rotation, translation);
         this._srt = this._getSrt(this._rt, this._scale);
@@ -98,6 +100,10 @@ export class Transform {
 
     public get ck2(): number {
         return this._ck2;
+    }
+
+    public get projectionType(): string {
+        return this._projectionType;
     }
 
     /**
@@ -381,21 +387,20 @@ export class Transform {
             let y: number = -Math.sin(lat);
             let z: number = Math.cos(lat) * Math.cos(lon);
             return [x, y, z];
+        } else if (this._projectionType === "fisheye") {
+            let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
+            const dTheta: number = Math.sqrt(dxn * dxn + dyn * dyn);
+            let d: number = this._distortionFromDistortedRadius(dTheta, this._ck1, this._ck2, this._radialPeak);
+            let theta: number = dTheta / d;
+            let z: number = Math.cos(theta);
+            let r: number = Math.sin(theta);
+            let x: number = r * dxn / dTheta;
+            let y: number = r * dyn / dTheta;
+            return [x, y, z];
         } else {
             let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
-            const rp: number = this._radialPeak;
             const dr: number = Math.sqrt(dxn * dxn + dyn * dyn);
-            let d: number = 1.0;
-
-            for (let i: number = 0; i < 10; i++) {
-                let r: number = dr / d;
-
-                if (r > rp) {
-                    r = rp;
-                }
-
-                d = 1 + this._ck1 * r ** 2 + this._ck2 * r ** 4;
-            }
+            let d: number = this._distortionFromDistortedRadius(dr, this._ck1, this._ck2, this._radialPeak);
 
             const xn: number = dxn / d;
             const yn: number = dyn / d;
@@ -404,6 +409,24 @@ export class Transform {
             v.normalize();
             return [v.x, v.y, v.z];
         }
+    }
+
+    /** Compute distortion given the distorted radius.
+     *
+     *  Solves for d in the equation
+     *    y = d(x, k1, k2) * x
+     * given the distorted radius, y.
+     */
+    private _distortionFromDistortedRadius(distortedRadius: number, k1: number, k2: number, radialPeak: number): number {
+        let d: number = 1.0;
+        for (let i: number = 0; i < 10; i++) {
+            let radius: number = distortedRadius / d;
+            if (radius > radialPeak) {
+                radius = radialPeak;
+            }
+            d = 1 + k1 * radius ** 2 + k2 * radius ** 4;
+        }
+        return d;
     }
 
     /**
@@ -437,6 +460,26 @@ export class Transform {
                 (fullPanoPixel[0] - this.gpano.CroppedAreaLeftPixels - this.gpano.CroppedAreaImageWidthPixels / 2) / size,
                 (fullPanoPixel[1] - this.gpano.CroppedAreaTopPixels - this.gpano.CroppedAreaImageHeightPixels / 2) / size,
             ];
+        } else if (this._projectionType === "fisheye") {
+            if (bearing[2] > 0) {
+                const [x, y, z]: number[] = bearing;
+                const r: number = Math.sqrt(x * x + y * y);
+                let theta: number = Math.atan2(r, z);
+
+                if (theta > this._radialPeak) {
+                    theta = this._radialPeak;
+                }
+
+                const distortion: number = 1.0 + theta ** 2 * (this._ck1 + theta ** 2 * this._ck2);
+                const s: number = this._focal * distortion * theta / r;
+
+                return [s * x, s * y];
+            } else {
+                return [
+                    bearing[0] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
+                    bearing[1] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
+                ];
+            }
         } else {
             if (bearing[2] > 0) {
                 let [xn, yn]: number[] = [bearing[0] / bearing[2], bearing[1] / bearing[2]];
