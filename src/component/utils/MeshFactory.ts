@@ -17,7 +17,9 @@ export class MeshFactory {
     public createMesh(node: Node, transform: Transform): THREE.Mesh {
         let mesh: THREE.Mesh = node.pano ?
             this._createImageSphere(node, transform) :
-            this._createImagePlane(node, transform);
+            this._createImagePlaneFisheye(node, transform);
+            // TODO(pau): select image plane from transform's projection type
+            // this._createImagePlane(node, transform);
 
         return mesh;
     }
@@ -113,6 +115,18 @@ export class MeshFactory {
         let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
             this._getImagePlaneGeo(transform, node) :
             this._getRegularFlatImagePlaneGeo(transform);
+
+        return new THREE.Mesh(geometry, material);
+    }
+
+    private _createImagePlaneFisheye(node: Node, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParametersFisheye(transform, texture);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
+            this._getImagePlaneGeoFisheye(transform, node) :
+            this._getRegularFlatImagePlaneGeoFisheye(transform);
 
         return new THREE.Mesh(geometry, material);
     }
@@ -270,6 +284,56 @@ export class MeshFactory {
                 },
             },
             vertexShader: Shaders.perspective.vertex,
+        };
+
+        return materialParameters;
+    }
+
+    private _createPlaneMaterialParametersFisheye(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        let materialParameters: THREE.ShaderMaterialParameters = {
+            depthWrite: false,
+            fragmentShader: Shaders.fisheye.fragment,
+            side: THREE.DoubleSide,
+            transparent: true,
+            uniforms: {
+                focal: {
+                    type: "f",
+                    value: transform.focal,
+                },
+                k1: {
+                    type: "f",
+                    value: transform.ck1,
+                },
+                k2: {
+                    type: "f",
+                    value: transform.ck2,
+                },
+                opacity: {
+                    type: "f",
+                    value: 1,
+                },
+                projectorMat: {
+                    type: "m4",
+                    value: transform.basicRt,
+                },
+                projectorTex: {
+                    type: "t",
+                    value: texture,
+                },
+                radial_peak: {
+                    type: "f",
+                    value: !!transform.radialPeak ? transform.radialPeak : 0,
+                },
+                scale_x: {
+                    type: "f",
+                    value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
+                },
+                scale_y: {
+                    type: "f",
+                    value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight,
+                },
+            },
+            vertexShader: Shaders.fisheye.vertex,
         };
 
         return materialParameters;
@@ -486,6 +550,47 @@ export class MeshFactory {
         return geometry;
     }
 
+    private _getImagePlaneGeoFisheye(transform: Transform, node: Node): THREE.BufferGeometry {
+        let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
+
+        // push everything at least 5 meters in front of the camera
+        let minZ: number = 5.0 * transform.scale;
+        let maxZ: number = this._imagePlaneDepth * transform.scale;
+
+        let vertices: number[] = node.mesh.vertices;
+        let numVertices: number = vertices.length / 3;
+        let positions: Float32Array = new Float32Array(vertices.length);
+        for (let i: number = 0; i < numVertices; ++i) {
+            let index: number = 3 * i;
+            let x: number = vertices[index + 0];
+            let y: number = vertices[index + 1];
+            let z: number = vertices[index + 2];
+
+            let boundedZ: number = Math.max(minZ, Math.min(z, maxZ));
+            let factor: number = boundedZ / z;
+            let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, boundedZ);
+
+            p.applyMatrix4(t);
+
+            positions[index + 0] = p.x;
+            positions[index + 1] = p.y;
+            positions[index + 2] = p.z;
+        }
+
+        let faces: number[] = node.mesh.faces;
+        let indices: Uint16Array = new Uint16Array(faces.length);
+        for (let i: number = 0; i < faces.length; ++i) {
+            indices[i] = faces[i];
+        }
+
+        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+
+        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+
+        return geometry;
+    }
+
     private _getFlatImageSphereGeo(transform: Transform): THREE.Geometry {
         let gpano: IGPano = transform.gpano;
         let phiStart: number = 2 * Math.PI * gpano.CroppedAreaLeftPixels / gpano.FullPanoWidthPixels;
@@ -519,6 +624,26 @@ export class MeshFactory {
     }
 
     private _getFlatImagePlaneGeo(transform: Transform, dx: number, dy: number): THREE.BufferGeometry {
+        let vertices: number[][] = [];
+        vertices.push(transform.unprojectSfM([-dx, -dy], this._imagePlaneDepth));
+        vertices.push(transform.unprojectSfM([dx, -dy], this._imagePlaneDepth));
+        vertices.push(transform.unprojectSfM([dx, dy], this._imagePlaneDepth));
+        vertices.push(transform.unprojectSfM([-dx, dy], this._imagePlaneDepth));
+
+        return this._createFlatGeometry(vertices);
+    }
+
+    private _getRegularFlatImagePlaneGeoFisheye(transform: Transform): THREE.BufferGeometry {
+        let width: number = transform.width;
+        let height: number = transform.height;
+        let size: number = Math.max(width, height);
+        let dx: number = width / 2.0 / size;
+        let dy: number = height / 2.0 / size;
+
+        return this._getFlatImagePlaneGeoFisheye(transform, dx, dy);
+    }
+
+    private _getFlatImagePlaneGeoFisheye(transform: Transform, dx: number, dy: number): THREE.BufferGeometry {
         let vertices: number[][] = [];
         vertices.push(transform.unprojectSfM([-dx, -dy], this._imagePlaneDepth));
         vertices.push(transform.unprojectSfM([dx, -dy], this._imagePlaneDepth));
