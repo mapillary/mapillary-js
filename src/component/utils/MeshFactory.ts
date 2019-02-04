@@ -15,13 +15,13 @@ export class MeshFactory {
     }
 
     public createMesh(node: Node, transform: Transform): THREE.Mesh {
-        let mesh: THREE.Mesh = node.pano ?
-            this._createImageSphere(node, transform) :
-            this._createImagePlaneFisheye(node, transform);
-            // TODO(pau): select image plane from transform's projection type
-            // this._createImagePlane(node, transform);
-
-        return mesh;
+        if (node.pano) {
+            return this._createImageSphere(node, transform);
+        } else if (transform.projectionType === "fisheye") {
+            return this._createImagePlaneFisheye(node, transform);
+        } else {
+            return this._createImagePlane(node, transform);
+        }
     }
 
     public createFlatMesh(
