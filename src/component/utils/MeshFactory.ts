@@ -566,9 +566,10 @@ export class MeshFactory {
             let y: number = vertices[index + 1];
             let z: number = vertices[index + 2];
 
-            let boundedZ: number = Math.max(minZ, Math.min(z, maxZ));
-            let factor: number = boundedZ / z;
-            let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, boundedZ);
+            let l: number = Math.sqrt(x * x + y * y + z * z);
+            let boundedL: number = Math.max(minZ, Math.min(l, maxZ));
+            let factor: number = boundedL / l;
+            let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, z * factor);
 
             p.applyMatrix4(t);
 
