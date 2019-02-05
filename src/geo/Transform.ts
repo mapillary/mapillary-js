@@ -91,7 +91,11 @@ export class Transform {
 
         this._ck1 = !!ck1 ? ck1 : 0;
         this._ck2 = !!ck2 ? ck2 : 0;
-        this._projectionType = !!projectionType ? projectionType : "perspective";
+        this._projectionType = !!projectionType ?
+            projectionType :
+            !!gpano ?
+                "equirectangular" :
+                "perspective";
 
         this._radialPeak = this._getRadialPeak(this._ck1, this._ck2);
     }
