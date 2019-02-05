@@ -37,9 +37,11 @@ import {
 import {
     Urls,
 } from "../../Utils";
+import { CameraProjection } from "../../api/interfaces/CameraProjection";
 
 export type NodeData = {
     alt: number;
+    cameraProjection: CameraProjection;
     focal: number;
     gpano: IGPano;
     height: number;
@@ -294,6 +296,7 @@ export class SpatialDataCache {
     private _createNodeData(node: Node): NodeData {
         return {
             alt: node.alt,
+            cameraProjection: node.cameraProjection,
             focal: node.focal,
             gpano: node.gpano,
             height: node.height,

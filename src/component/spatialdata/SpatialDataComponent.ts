@@ -510,7 +510,8 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             undefined,
             undefined,
             data.k1,
-            data.k2);
+            data.k2,
+            data.cameraProjection);
 
         return transform;
     }
