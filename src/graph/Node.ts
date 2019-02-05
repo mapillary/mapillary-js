@@ -112,6 +112,17 @@ export class Node {
     }
 
     /**
+     * Get cameraProjection.
+     *
+     * @description Will be undefined if SfM has not been run.
+     *
+     * @returns {number} The camera projection of the image.
+     */
+    public get cameraProjection(): "perspective" | "fisheye" | "equirectangular" {
+        return this._fill.camera_projection_type;
+    }
+
+    /**
      * Get capturedAt.
      *
      * @returns {number} Timestamp when the image was captured.

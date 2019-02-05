@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import {IGPano} from "../API";
+import { CameraProjection } from "../api/interfaces/CameraProjection";
 
 /**
  * @class Transform
@@ -19,7 +20,6 @@ export class Transform {
     private _basicAspect: number;
 
     private _gpano: IGPano;
-    private _projectionType: string;
 
     private _rt: THREE.Matrix4;
     private _srt: THREE.Matrix4;
@@ -30,6 +30,7 @@ export class Transform {
 
     private _ck1: number;
     private _ck2: number;
+    private _projectionType: CameraProjection;
 
     private _radialPeak: number;
 
@@ -57,7 +58,8 @@ export class Transform {
         image: HTMLImageElement,
         textureScale?: number[],
         ck1?: number,
-        ck2?: number) {
+        ck2?: number,
+        projectionType?: CameraProjection) {
 
         this._orientation = this._getValue(orientation, 1);
 
@@ -79,7 +81,6 @@ export class Transform {
         this._scale = this._getValue(scale, 0);
 
         this._gpano = gpano != null ? gpano : null;
-        this._projectionType = "perspective";  // TODO: get this from the arguments
 
         this._rt = this._getRt(rotation, translation);
         this._srt = this._getSrt(this._rt, this._scale);
@@ -90,6 +91,7 @@ export class Transform {
 
         this._ck1 = !!ck1 ? ck1 : 0;
         this._ck2 = !!ck2 ? ck2 : 0;
+        this._projectionType = !!projectionType ? projectionType : "perspective";
 
         this._radialPeak = this._getRadialPeak(this._ck1, this._ck2);
     }

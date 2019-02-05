@@ -110,8 +110,10 @@ export class APIv3 {
 
         this._propertiesSpatial = [
             "atomic_scale",
+            "c_rotation",
             "ca",
             "calt",
+            "camera_projection_type",
             "cca",
             "cfocal",
             "ck1",
@@ -120,7 +122,6 @@ export class APIv3 {
             "height",
             "merge_cc",
             "merge_version",
-            "c_rotation",
             "orientation",
             "width",
         ];

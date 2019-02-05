@@ -1,4 +1,5 @@
 import {IGPano, IProject, IUser} from "../../API";
+import { CameraProjection } from "./CameraProjection";
 
 /**
  * Interface that describes the raw filling node properties.
@@ -50,8 +51,14 @@ export interface IFillNode {
      */
     cfocal?: number;
 
+    /**
+     * SfM computed radial distortion parameter.
+     */
     ck1?: number;
 
+    /**
+     * SfM computed radial distortion parameter.
+     */
     ck2?: number;
 
     /**
@@ -94,6 +101,11 @@ export interface IFillNode {
      * Project the image belongs to.
      */
     project?: IProject;
+
+    /**
+     * Projection type of captured image.
+     */
+    camera_projection_type?: CameraProjection;
 
     /**
      * User who uploaded the image.
