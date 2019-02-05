@@ -47,9 +47,13 @@ export class MeshFactory {
             throw new Error("Cropped panoramas cannot have curtain.");
         }
 
-        return node.pano ?
-            this._createSphereCurtainMesh(node, transform) :
-            this._createCurtainMesh(node, transform);
+        if (node.pano) {
+            return this._createSphereCurtainMesh(node, transform);
+        } else if (transform.cameraProjection === "fisheye") {
+            return this._createCurtainMeshFisheye(node, transform);
+        } else {
+            return this._createCurtainMesh(node, transform);
+        }
     }
 
     public createDistortedCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
@@ -68,6 +72,19 @@ export class MeshFactory {
 
         let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
             this._getImagePlaneGeo(transform, node) :
+            this._getRegularFlatImagePlaneGeo(transform);
+
+        return new THREE.Mesh(geometry, material);
+    }
+
+    private _createCurtainMeshFisheye(node: Node, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(node.image);
+        let materialParameters: THREE.ShaderMaterialParameters =
+            this._createCurtainPlaneMaterialParametersFisheye(transform, texture);
+        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
+
+        let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
+            this._getImagePlaneGeoFisheye(transform, node) :
             this._getRegularFlatImagePlaneGeo(transform);
 
         return new THREE.Mesh(geometry, material);
@@ -334,6 +351,60 @@ export class MeshFactory {
                 },
             },
             vertexShader: Shaders.fisheye.vertex,
+        };
+
+        return materialParameters;
+    }
+
+    private _createCurtainPlaneMaterialParametersFisheye(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        let materialParameters: THREE.ShaderMaterialParameters = {
+            depthWrite: false,
+            fragmentShader: Shaders.fisheyeCurtain.fragment,
+            side: THREE.DoubleSide,
+            transparent: true,
+            uniforms: {
+                curtain: {
+                    type: "f",
+                    value: 1,
+                },
+                focal: {
+                    type: "f",
+                    value: transform.focal,
+                },
+                k1: {
+                    type: "f",
+                    value: transform.ck1,
+                },
+                k2: {
+                    type: "f",
+                    value: transform.ck2,
+                },
+                opacity: {
+                    type: "f",
+                    value: 1,
+                },
+                projectorMat: {
+                    type: "m4",
+                    value: transform.basicRt,
+                },
+                projectorTex: {
+                    type: "t",
+                    value: texture,
+                },
+                radial_peak: {
+                    type: "f",
+                    value: !!transform.radialPeak ? transform.radialPeak : 0,
+                },
+                scale_x: {
+                    type: "f",
+                    value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
+                },
+                scale_y: {
+                    type: "f",
+                    value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight,
+                },
+            },
+            vertexShader: Shaders.fisheyeCurtain.vertex,
         };
 
         return materialParameters;
