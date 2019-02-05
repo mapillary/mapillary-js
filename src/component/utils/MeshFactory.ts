@@ -17,7 +17,7 @@ export class MeshFactory {
     public createMesh(node: Node, transform: Transform): THREE.Mesh {
         if (node.pano) {
             return this._createImageSphere(node, transform);
-        } else if (transform.projectionType === "fisheye") {
+        } else if (transform.cameraProjection === "fisheye") {
             return this._createImagePlaneFisheye(node, transform);
         } else {
             return this._createImagePlane(node, transform);
