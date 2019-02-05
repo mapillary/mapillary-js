@@ -23,6 +23,11 @@ void main()
 
     float r = sqrt(x * x + y * y);
     float theta = atan(r, z);
+
+    if (radial_peak > 0. && theta > radial_peak) {
+        theta = radial_peak;
+    }
+
     float theta2 = theta * theta;
     float theta_d = theta * (1.0 + theta2 * (k1 + theta2 * k2));
     float s = focal * theta_d / r;
