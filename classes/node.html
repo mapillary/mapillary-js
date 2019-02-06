@@ -110,6 +110,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="node.html#alt" class="tsd-kind-icon">alt</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="node.html#ca" class="tsd-kind-icon">ca</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="node.html#cameraprojection" class="tsd-kind-icon">camera<wbr>Projection</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="node.html#camerauuid" class="tsd-kind-icon">camera<wbr>Uuid</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="node.html#capturedat" class="tsd-kind-icon">captured<wbr>At</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="node.html#ck1" class="tsd-kind-icon">ck1</a></li>
@@ -160,7 +161,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L97">graph/Node.ts:97</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L97">graph/Node.ts:97</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -189,7 +190,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L110">graph/Node.ts:110</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L110">graph/Node.ts:110</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -210,6 +211,39 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="cameraprojection" class="tsd-anchor"></a>
+					<h3>camera<wbr>Projection</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> cameraProjection<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"perspective"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"fisheye"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"equirectangular"</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L121">graph/Node.ts:121</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get cameraProjection.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>description</dt>
+									<dd><p>Will be undefined if SfM has not been run.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">"perspective"</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">"fisheye"</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">"equirectangular"</span>
+							</h4>
+							<p>The camera projection of the image.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="camerauuid" class="tsd-anchor"></a>
 					<h3>camera<wbr>Uuid</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
@@ -219,7 +253,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L132">graph/Node.ts:132</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L143">graph/Node.ts:143</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -249,7 +283,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L119">graph/Node.ts:119</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L130">graph/Node.ts:130</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -272,7 +306,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L144">graph/Node.ts:144</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L155">graph/Node.ts:155</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -301,7 +335,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L156">graph/Node.ts:156</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L167">graph/Node.ts:167</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -330,7 +364,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L168">graph/Node.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L179">graph/Node.ts:179</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -359,7 +393,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L180">graph/Node.ts:180</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L191">graph/Node.ts:191</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -388,7 +422,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L191">graph/Node.ts:191</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L202">graph/Node.ts:202</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -416,7 +450,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L216">graph/Node.ts:216</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L227">graph/Node.ts:227</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -440,7 +474,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L231">graph/Node.ts:231</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L242">graph/Node.ts:242</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -468,7 +502,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L241">graph/Node.ts:241</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L252">graph/Node.ts:252</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -492,7 +526,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L252">graph/Node.ts:252</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L263">graph/Node.ts:263</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -520,7 +554,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L273">graph/Node.ts:273</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L284">graph/Node.ts:284</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -543,7 +577,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L287">graph/Node.ts:287</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L298">graph/Node.ts:298</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -574,7 +608,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L297">graph/Node.ts:297</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L308">graph/Node.ts:308</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -598,7 +632,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L323">graph/Node.ts:323</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L334">graph/Node.ts:334</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -628,7 +662,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L332">graph/Node.ts:332</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L343">graph/Node.ts:343</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -651,7 +685,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L308">graph/Node.ts:308</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L319">graph/Node.ts:319</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -676,7 +710,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L344">graph/Node.ts:344</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L355">graph/Node.ts:355</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -705,7 +739,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L355">graph/Node.ts:355</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L366">graph/Node.ts:366</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -730,7 +764,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L364">graph/Node.ts:364</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L375">graph/Node.ts:375</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -753,7 +787,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L374">graph/Node.ts:374</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L385">graph/Node.ts:385</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -777,7 +811,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L384">graph/Node.ts:384</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L395">graph/Node.ts:395</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -801,7 +835,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L394">graph/Node.ts:394</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L405">graph/Node.ts:405</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -825,7 +859,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L405">graph/Node.ts:405</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L416">graph/Node.ts:416</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -849,7 +883,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L419">graph/Node.ts:419</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L430">graph/Node.ts:430</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -880,7 +914,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L432">graph/Node.ts:432</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L443">graph/Node.ts:443</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -908,7 +942,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L443">graph/Node.ts:443</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L454">graph/Node.ts:454</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -936,7 +970,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L463">graph/Node.ts:463</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L474">graph/Node.ts:474</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -960,7 +994,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L453">graph/Node.ts:453</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L464">graph/Node.ts:464</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -984,7 +1018,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L487">graph/Node.ts:487</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L498">graph/Node.ts:498</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1008,7 +1042,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L511">graph/Node.ts:511</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L522">graph/Node.ts:522</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1032,7 +1066,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L521">graph/Node.ts:521</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L532">graph/Node.ts:532</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1056,7 +1090,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/c91f6055/src/graph/Node.ts#L531">graph/Node.ts:531</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/47764b89/src/graph/Node.ts#L542">graph/Node.ts:542</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1092,6 +1126,9 @@
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="node.html#ca" class="tsd-kind-icon">ca</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="node.html#cameraprojection" class="tsd-kind-icon">camera<wbr>Projection</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="node.html#camerauuid" class="tsd-kind-icon">camera<wbr>Uuid</a>
