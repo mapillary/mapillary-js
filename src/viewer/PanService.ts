@@ -212,13 +212,14 @@ export class PanService {
             node.assetsCached ? node.image : undefined,
             undefined,
             node.ck1,
-            node.ck2);
+            node.ck2,
+            node.cameraProjection);
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {
-        const os: number[][] = [[0.5, 0], [1, 0]];
-        const ds: number[][] = [[0.5, 0], [0, 0.5]];
-        const pointsPerSide: number = 100;
+        const os: number[][] = [[1, 0]];
+        const ds: number[][] = [[0, 0.5]];
+        const pointsPerSide: number = 40;
 
         const basicPoints: number[][] = [];
 
@@ -263,7 +264,7 @@ export class PanService {
                     return this._coordToFov(projectedPoint[0]);
                 });
 
-        const fov: number = Math.max(...fovs);
+        const fov: number = Math.min(...fovs);
 
         return fov;
     }
