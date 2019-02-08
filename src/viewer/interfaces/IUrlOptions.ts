@@ -19,7 +19,7 @@ export interface IUrlOptions {
      * @description Used for retrieving the atomic reconstruction
      * for showing point clouds.
      *
-     * @default {"d3necqxnn15whe.cloudfront.net"}
+     * @default {"atomic-reconstructions.mapillary.com"}
      */
     atomicReconstructionHost?: string;
 
@@ -38,7 +38,7 @@ export interface IUrlOptions {
      *
      * @description Used for retrieving image thumbnails.
      *
-     * @default {"d1cuyjsrcm0gby.cloudfront.net"}
+     * @default {"images.mapillary.com"}
      */
     imageHost?: string;
 
@@ -48,7 +48,7 @@ export interface IUrlOptions {
      * @description Used for retrieving high resolution
      * image tiles when zooming.
      *
-     * @default {"d2qb1440i7l50o.cloudfront.net"}
+     * @default {"loris.mapillary.com"}
      */
     imageTileHost?: string;
 
@@ -58,7 +58,7 @@ export interface IUrlOptions {
      * @description Used for retriving a 3D mesh for
      * each image.
      *
-     * @default {"d1brzeo354iq2l.cloudfront.net"}
+     * @default {"meshes.mapillary.com"}
      */
     meshHost?: string;
 
