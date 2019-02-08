@@ -2,11 +2,11 @@ import {IUrlOptions} from "../Viewer";
 
 export class Urls {
     private static _apiHost: string = "a.mapillary.com";
-    private static _atomicReconstructionHost: string = "d3necqxnn15whe.cloudfront.net";
+    private static _atomicReconstructionHost: string = "atomic-reconstructions.mapillary.com";
     private static _exploreHost: string = "www.mapillary.com";
-    private static _imageHost: string = "d1cuyjsrcm0gby.cloudfront.net";
-    private static _imageTileHost: string = "d2qb1440i7l50o.cloudfront.net";
-    private static _meshHost: string = "d1brzeo354iq2l.cloudfront.net";
+    private static _imageHost: string = "images.mapillary.com";
+    private static _imageTileHost: string = "loris.mapillary.com";
+    private static _meshHost: string = "meshes.mapillary.com";
     private static _origin: string = "mapillary.webgl";
     private static _scheme: string = "https";
 
