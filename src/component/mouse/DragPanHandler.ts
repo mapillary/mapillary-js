@@ -43,6 +43,7 @@ import {
     Container,
     Navigator,
 } from "../../Viewer";
+import Node from "../../graph/Node";
 
 /**
  * The `DragPanHandler` allows the user to pan the viewer image by clicking and dragging the cursor.
@@ -178,9 +179,10 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 }),
             withLatestFrom(
                 this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$),
+                this._navigator.stateService.currentTransform$,
+                this._navigator.panService.panNodes$),
             map(
-                ([events, render, transform]: [MouseTouchPair, RenderCamera, Transform]): IRotation => {
+                ([events, render, transform, nts]: [MouseTouchPair, RenderCamera, Transform, [Node, Transform][]]): IRotation => {
                     let previousEvent: MouseEvent | Touch = events[0];
                     let event: MouseEvent | Touch = events[1];
 
@@ -219,6 +221,16 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     let theta: number = (movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
                     const distances: number[] = ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
+
+                    for (const [, t] of nts) {
+                        const d: number[] = ImageBoundary.viewportDistances(t, render.perspective, this._viewportCoords);
+
+                        for (let i: number = 0; i < distances.length; i++) {
+                            if (d[i] < distances[i]) {
+                                distances[i] = d[i];
+                            }
+                        }
+                    }
 
                     if (distances[0] > 0 && theta < 0) {
                         theta /= Math.max(1, 2e2 * distances[0]);
