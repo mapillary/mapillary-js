@@ -301,10 +301,20 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                         map(
                             ([camera, size, transform]: [RenderCamera, ISize, Transform]):
                             [IRegionOfInterest, TextureProvider] => {
+                                const basic: number[] = new ViewportCoords().viewportToBasic(0, 0, transform, camera.perspective);
+
+                                if (basic[0] < 0 || basic[1] < 0 || basic[0] > 1 || basic[1] > 1) {
+                                    return undefined;
+                                }
+
                                 return [
                                     this._roiCalculator.computeRegionOfInterest(camera, size, transform),
                                     provider,
                                 ];
+                            }),
+                        filter(
+                            (args: [IRegionOfInterest, TextureProvider]): boolean => {
+                                return !!args;
                             }));
                 }),
             filter(
