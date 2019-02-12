@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import {empty as observableEmpty, combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
 
-import {first, map, distinctUntilChanged, switchMap} from "rxjs/operators";
+import {first, map, distinctUntilChanged, switchMap, withLatestFrom} from "rxjs/operators";
 
 import {
     Component,
@@ -23,6 +23,7 @@ import {
     Container,
     Navigator,
 } from "../../Viewer";
+import Node from "../../graph/Node";
 
 /**
  * The `BounceHandler` ensures that the viewer bounces back to the image
@@ -70,9 +71,10 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
                         observableCombineLatest(
                             this._container.renderService.renderCamera$,
                             this._navigator.stateService.currentTransform$.pipe(first()));
-                }))
+                }),
+            withLatestFrom(this._navigator.panService.panNodes$))
             .subscribe(
-                ([render, transform]: [RenderCamera, Transform]): void => {
+                ([[render, transform], nts]: [[RenderCamera, Transform], [Node, Transform][]]): void => {
                     if (!transform.hasValidScale && render.camera.focal < 0.1) {
                         return;
                     }
@@ -82,6 +84,22 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
                     }
 
                     const distances: number[] = ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
+
+                    const basic: number[] = this._viewportCoords.viewportToBasic(0, 0, transform, render.perspective);
+
+                    if ((basic[0] < 0 || basic[0] > 1) && nts.length > 0) {
+                        distances[0] = distances[2] = 0;
+                    }
+
+                    for (const [, t] of nts) {
+                        const d: number[] = ImageBoundary.viewportDistances(t, render.perspective, this._viewportCoords);
+
+                        for (let i: number = 1; i < distances.length; i += 2) {
+                            if (d[i] < distances[i]) {
+                                distances[i] = d[i];
+                            }
+                        }
+                    }
 
                     if (Math.max(...distances) < 0.01) {
                         return;
