@@ -1,6 +1,9 @@
+import * as THREE from "three";
+
 import {
     empty as observableEmpty,
     of as observableOf,
+    from as observableFrom,
     combineLatest as observableCombineLatest,
     Observable,
     Subscription,
@@ -24,6 +27,7 @@ import {
     map,
     publish,
     distinctUntilChanged,
+    mergeMap,
 } from "rxjs/operators";
 
 import {
@@ -33,7 +37,9 @@ import {
     ImagePlaneGLRenderer,
 } from "../../Component";
 import {
+    GeoCoords,
     Transform,
+    Geo,
 } from "../../Geo";
 import {
     ICurrentState,
@@ -50,7 +56,9 @@ import {
     ISize,
     RenderCamera,
 } from "../../Render";
-import {Node as GraphNode} from "../../Graph";
+import {
+    Node as GraphNode,
+} from "../../Graph";
 import {
     ImageTileLoader,
     ImageTileStore,
@@ -62,6 +70,8 @@ import {
     Settings,
     Urls,
 } from "../../Utils";
+import ViewportCoords from "../../geo/ViewportCoords";
+import Spatial from "../../geo/Spatial";
 
 interface IImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
@@ -403,6 +413,38 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                 (imn: [HTMLImageElement, GraphNode]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateTextureImage(imn[0], imn[1]);
+
+                        return renderer;
+                    };
+                }))
+            .subscribe(this._rendererOperation$);
+
+        this._navigator.panService.panNodes$.pipe(
+            map(
+                (): IImagePlaneGLRendererOperation => {
+                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                        renderer.clearPeripheryPlanes();
+
+                        return renderer;
+                    };
+                }))
+            .subscribe(this._rendererOperation$);
+
+        this._navigator.panService.panNodes$.pipe(
+            mergeMap(
+                (nts: [GraphNode, Transform][]): Observable<[GraphNode, Transform]> => {
+                    return observableFrom(nts).pipe(
+                        mergeMap(
+                            ([n, t]: [GraphNode, Transform]): Observable<[GraphNode, Transform]> => {
+                                return observableCombineLatest(
+                                    this._navigator.graphService.cacheNode$(n.key),
+                                    observableOf(t));
+                            }));
+                }),
+            map(
+                ([n, t]: [GraphNode, Transform]): IImagePlaneGLRendererOperation => {
+                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                        renderer.addPeripheryPlane(n, t);
 
                         return renderer;
                     };
