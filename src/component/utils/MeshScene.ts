@@ -5,16 +5,20 @@ import {IShaderMaterial} from "../../Component";
 export class MeshScene {
     public scene: THREE.Scene;
     public sceneOld: THREE.Scene;
+    public peripheryScene: THREE.Scene;
 
     public imagePlanes: THREE.Mesh[];
     public imagePlanesOld: THREE.Mesh[];
+    public peripheryPlanes: THREE.Mesh[];
 
     constructor() {
         this.scene = new THREE.Scene();
         this.sceneOld = new THREE.Scene();
+        this.peripheryScene = new THREE.Scene();
 
         this.imagePlanes = [];
         this.imagePlanesOld = [];
+        this.peripheryPlanes = [];
     }
 
     public updateImagePlanes(planes: THREE.Mesh[]): void {
@@ -52,6 +56,18 @@ export class MeshScene {
         this.addImagePlanes(planes);
     }
 
+    public addPeripheryPlanes(planes: THREE.Mesh[]): void {
+        for (let plane of planes) {
+            this.peripheryScene.add(plane);
+            this.peripheryPlanes.push(plane);
+        }
+    }
+
+    public setPeripheryPlanes(planes: THREE.Mesh[]): void {
+        this._clearPeriphery();
+        this.addPeripheryPlanes(planes);
+    }
+
     public setImagePlanesOld(planes: THREE.Mesh[]): void {
         this._clearOld();
         this.addImagePlanesOld(planes);
@@ -70,6 +86,11 @@ export class MeshScene {
     private _clearOld(): void {
         this._dispose(this.imagePlanesOld, this.sceneOld);
         this.imagePlanesOld.length = 0;
+    }
+
+    private _clearPeriphery(): void {
+        this._dispose(this.peripheryPlanes, this.peripheryScene);
+        this.peripheryPlanes.length = 0;
     }
 
     private _dispose(planes: THREE.Mesh[], scene: THREE.Scene): void {
