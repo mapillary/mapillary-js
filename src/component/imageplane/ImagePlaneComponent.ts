@@ -450,6 +450,73 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                     };
                 }))
             .subscribe(this._rendererOperation$);
+
+        const panTrigger$: Observable<boolean> = observableCombineLatest(
+            this._container.mouseService.active$,
+            this._navigator.stateService.inMotion$).pipe(
+                map(
+                    ([active, inMotion]: [boolean, boolean]): boolean => {
+                        return !(active || inMotion);
+                    }),
+                filter(
+                    (trigger: boolean): boolean => {
+                        return trigger;
+                    }));
+
+        this._navigator.panService.panNodes$.pipe(
+            switchMap(
+                (nts: [GraphNode, Transform][]): Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]> => {
+                    return panTrigger$.pipe(
+                        withLatestFrom(
+                            this._container.renderService.renderCamera$,
+                            this._navigator.stateService.currentNode$,
+                            this._navigator.stateService.currentTransform$),
+                        mergeMap(
+                            ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, GraphNode, Transform]):
+                            Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]> => {
+                                return observableOf(
+                                    [
+                                        renderCamera,
+                                        currentNode,
+                                        currentTransform,
+                                        nts,
+                                    ] as [RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]);
+                            }));
+                }),
+            switchMap(
+                ([camera, cn, ct, nts]: [RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]): Observable<GraphNode> => {
+                    const direction: THREE.Vector3 = camera.camera.lookat.clone().sub(camera.camera.position);
+
+                    const cd: THREE.Vector3 = new Spatial().viewingDirection(cn.rotation);
+                    const ca: number = cd.angleTo(direction);
+                    const closest: [number, string] = [ca, undefined];
+                    const basic: number[] = new ViewportCoords().viewportToBasic(0, 0, ct, camera.perspective);
+
+                    if (basic[0] >= 0 && basic[0] <= 1 && basic[1] >= 0 && basic[1] <= 1) {
+                        closest[0] = Number.NEGATIVE_INFINITY;
+                    }
+
+                    for (const [n, t] of nts) {
+                        const d: THREE.Vector3 = new Spatial().viewingDirection(n.rotation);
+                        const a: number = d.angleTo(direction);
+
+                        if (a < closest[0]) {
+                            closest[0] = a;
+                            closest[1] = n.key;
+                        }
+                    }
+
+                    if (!closest[1]) {
+                        return observableEmpty();
+                    }
+
+                    return this._navigator.moveToKey$(closest[1]).pipe(
+                        catchError(
+                            (): Observable<GraphNode> => {
+                                return observableEmpty();
+                            }));
+                }))
+            .subscribe();
     }
 
     protected _deactivate(): void {
