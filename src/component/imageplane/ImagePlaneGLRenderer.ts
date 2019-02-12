@@ -13,6 +13,7 @@ import {
     IFrame,
 } from "../../State";
 import {TextureProvider} from "../../Tiles";
+import { Transform } from "../../geo/Transform";
 
 export class ImagePlaneGLRenderer {
     private _factory: MeshFactory;
@@ -54,6 +55,19 @@ export class ImagePlaneGLRenderer {
     }
 
     public indicateNeedsRender(): void {
+        this._needsRender = true;
+    }
+
+    public addPeripheryPlane(node: Node, transform: Transform): void {
+        const mesh: THREE.Mesh = this._factory.createMesh(node, transform);
+        this._scene.addPeripheryPlanes([mesh]);
+
+        this._needsRender = true;
+    }
+
+    public clearPeripheryPlanes(): void {
+        this._scene.setPeripheryPlanes([]);
+
         this._needsRender = true;
     }
 
@@ -140,6 +154,12 @@ export class ImagePlaneGLRenderer {
             (<IShaderMaterial>plane.material).uniforms.opacity.value = this._alphaOld;
         }
 
+        const peripheryAlpha: number = this._scene.imagePlanesOld.length ? 1 : Math.floor(this._alpha);
+        for (let plane of this._scene.peripheryPlanes) {
+            (<IShaderMaterial>plane.material).uniforms.opacity.value = peripheryAlpha;
+        }
+
+        renderer.render(this._scene.peripheryScene, perspectiveCamera);
         renderer.render(this._scene.scene, perspectiveCamera);
         renderer.render(this._scene.sceneOld, perspectiveCamera);
 
