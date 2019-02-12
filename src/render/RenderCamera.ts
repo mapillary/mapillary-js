@@ -303,10 +303,7 @@ export class RenderCamera {
         let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
         let up: THREE.Vector3 = camera.up.clone();
 
-        let upProjection: number = direction.clone().dot(up);
-        let planeProjection: THREE.Vector3 = direction.clone().sub(up.clone().multiplyScalar(upProjection));
-
-        let phi: number = Math.atan2(planeProjection.y, planeProjection.x);
+        let phi: number = this._spatial.azimuthal(direction.toArray(), up.toArray());
         let theta: number = Math.PI / 2 - this._spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
 
         return { phi: phi, theta: theta };
