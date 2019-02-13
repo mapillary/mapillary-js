@@ -24,30 +24,34 @@ import Spatial from "../geo/Spatial";
 import { StateService } from "../state/StateService";
 import { Transform } from "../geo/Transform";
 import ViewportCoords from "../geo/ViewportCoords";
+import PlayService from "./PlayService";
 
 export class PanService {
     private _graphService: GraphService;
+    private _playService: PlayService;
     private _stateService: StateService;
     private _graphCalculator: GraphCalculator;
     private _geoCoords: GeoCoords;
     private _spatial: Spatial;
 
-    private _panNodes: Observable<[Node, Transform][]>;
+    private _panNodes$: Observable<[Node, Transform][]>;
 
     constructor(
         graphService: GraphService,
         stateService: StateService,
+        playService: PlayService,
         geoCoords?: GeoCoords,
         graphCalculator?: GraphCalculator,
         spatial?: Spatial) {
 
         this._graphService = graphService;
+        this._playService = playService;
         this._stateService = stateService;
         this._geoCoords = !!geoCoords ? geoCoords : new GeoCoords();
         this._graphCalculator = !!graphCalculator ? graphCalculator : new GraphCalculator(this._geoCoords);
         this._spatial = !!spatial ? spatial : new Spatial();
 
-        this._panNodes = this._stateService.currentNode$.pipe(
+        const panNodes$: Observable<[Node, Transform][]> = this._stateService.currentNode$.pipe(
             switchMap(
                 (current: Node): Observable<[Node, Transform][]> => {
                     const current$: Observable<Node> = observableOf(current);
@@ -191,12 +195,18 @@ export class PanService {
 
                                 return panNodes;
                             }));
+                }));
+
+        this._panNodes$ = this._playService.playing$.pipe(
+            switchMap(
+                (playing: boolean): Observable<[Node, Transform][]> => {
+                    return playing ? observableOf([]) : panNodes$;
                 }),
             share());
     }
 
     public get panNodes$(): Observable<[Node, Transform][]> {
-        return this._panNodes;
+        return this._panNodes$;
     }
 
     private _createTransform(node: Node, translation: number[]): Transform {
