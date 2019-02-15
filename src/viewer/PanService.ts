@@ -11,6 +11,7 @@ import {
     switchMap,
     withLatestFrom,
     share,
+    distinctUntilChanged,
 } from "rxjs/operators";
 
 import * as Geo from "../geo/Geo";
@@ -25,10 +26,10 @@ import { StateService } from "../state/StateService";
 import { Transform } from "../geo/Transform";
 import ViewportCoords from "../geo/ViewportCoords";
 import PlayService from "./PlayService";
+import { IFrame } from "../State";
 
 export class PanService {
     private _graphService: GraphService;
-    private _playService: PlayService;
     private _stateService: StateService;
     private _graphCalculator: GraphCalculator;
     private _geoCoords: GeoCoords;
@@ -39,13 +40,11 @@ export class PanService {
     constructor(
         graphService: GraphService,
         stateService: StateService,
-        playService: PlayService,
         geoCoords?: GeoCoords,
         graphCalculator?: GraphCalculator,
         spatial?: Spatial) {
 
         this._graphService = graphService;
-        this._playService = playService;
         this._stateService = stateService;
         this._geoCoords = !!geoCoords ? geoCoords : new GeoCoords();
         this._graphCalculator = !!graphCalculator ? graphCalculator : new GraphCalculator(this._geoCoords);
@@ -197,10 +196,15 @@ export class PanService {
                             }));
                 }));
 
-        this._panNodes$ = this._playService.playing$.pipe(
+        this._panNodes$ = this._stateService.currentState$.pipe(
+            map(
+                (frame: IFrame): boolean => {
+                    return frame.state.nodesAhead > 0;
+                }),
+            distinctUntilChanged(),
             switchMap(
-                (playing: boolean): Observable<[Node, Transform][]> => {
-                    return playing ? observableOf([]) : panNodes$;
+                (traversing: boolean): Observable<[Node, Transform][]> => {
+                    return traversing ? observableOf([]) : panNodes$;
                 }),
             share());
     }
