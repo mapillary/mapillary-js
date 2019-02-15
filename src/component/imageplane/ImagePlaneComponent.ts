@@ -28,6 +28,7 @@ import {
     publish,
     distinctUntilChanged,
     mergeMap,
+    share,
 } from "rxjs/operators";
 
 import {
@@ -440,7 +441,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                 }))
             .subscribe(this._rendererOperation$);
 
-        this._navigator.panService.panNodes$.pipe(
+        const cachedPanNodes$: Observable<[GraphNode, Transform]> = this._navigator.panService.panNodes$.pipe(
             mergeMap(
                 (nts: [GraphNode, Transform][]): Observable<[GraphNode, Transform]> => {
                     return observableFrom(nts).pipe(
@@ -451,10 +452,34 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                                     observableOf(t));
                             }));
                 }),
+            share());
+
+        cachedPanNodes$.pipe(
             map(
                 ([n, t]: [GraphNode, Transform]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.addPeripheryPlane(n, t);
+
+                        return renderer;
+                    };
+                }))
+            .subscribe(this._rendererOperation$);
+
+        cachedPanNodes$.pipe(
+            mergeMap(
+                ([n]: [GraphNode, Transform]): Observable<GraphNode> => {
+                    return ImageSize.Size2048 > Math.max(n.image.width, n.image.height) ?
+                        n.cacheImage$(ImageSize.Size2048).pipe(
+                            catchError(
+                                (): Observable<GraphNode> => {
+                                    return observableEmpty();
+                                })) :
+                        observableEmpty();
+                }),
+            map(
+                (n: GraphNode): IImagePlaneGLRendererOperation => {
+                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                        renderer.updateTextureImage(n.image, n);
 
                         return renderer;
                     };
@@ -506,7 +531,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                         closest[0] = Number.NEGATIVE_INFINITY;
                     }
 
-                    for (const [n, t] of nts) {
+                    for (const [n] of nts) {
                         const d: THREE.Vector3 = new Spatial().viewingDirection(n.rotation);
                         const a: number = d.angleTo(direction);
 
