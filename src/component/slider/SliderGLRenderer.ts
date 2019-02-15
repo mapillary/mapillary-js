@@ -104,19 +104,24 @@ export class SliderGLRenderer {
     }
 
     public updateTexture(image: HTMLImageElement, node: Node): void {
-        let imagePlanes: THREE.Mesh[] = node.key === this._currentKey ?
-            this._scene.imagePlanes :
+        const planes: { [key: string]: THREE.Mesh } = node.key === this._currentKey ?
+            this._scene.planes :
             node.key === this._previousKey ?
-                this._scene.imagePlanesOld :
-                [];
+                this._scene.planesOld :
+                {};
 
-        if (imagePlanes.length === 0) {
+        if (Object.keys(planes).length === 0) {
             return;
         }
 
         this._needsRender = true;
 
-        for (let plane of imagePlanes) {
+        for (const key in planes) {
+            if (!planes.hasOwnProperty(key)) {
+                continue;
+            }
+
+            const plane: THREE.Mesh = planes[key];
             let material: IShaderMaterial = <IShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
@@ -132,7 +137,14 @@ export class SliderGLRenderer {
 
         this._needsRender = true;
 
-        for (let plane of this._scene.imagePlanes) {
+        const planes: { [key: string]: THREE.Mesh } = this._scene.planes;
+
+        for (const key in planes) {
+            if (!planes.hasOwnProperty(key)) {
+                continue;
+            }
+
+            const plane: THREE.Mesh = planes[key];
             let material: IShaderMaterial = <IShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
@@ -237,7 +249,14 @@ export class SliderGLRenderer {
     }
 
     private _updateCurtain(): void {
-        for (let plane of this._scene.imagePlanes) {
+        const planes: { [key: string]: THREE.Mesh } = this._scene.planes;
+
+        for (const key in planes) {
+            if (!planes.hasOwnProperty(key)) {
+                continue;
+            }
+
+            const plane: THREE.Mesh = planes[key];
             let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
 
             if (!!shaderMaterial.uniforms.curtain) {
@@ -274,7 +293,7 @@ export class SliderGLRenderer {
         }
 
         if (this.disabled) {
-            this._scene.setImagePlanesOld([]);
+            this._scene.setImagePlanesOld({});
         } else {
             if (previousChanged || modeChanged) {
                 const previousNode: Node = state.previousNode;
@@ -344,7 +363,9 @@ export class SliderGLRenderer {
                     }
                 }
 
-                this._scene.setImagePlanesOld([mesh]);
+                const previousPlanes: { [key: string]: THREE.Mesh } = {};
+                previousPlanes[previousNode.key] = mesh;
+                this._scene.setImagePlanesOld(previousPlanes);
             }
         }
 
@@ -357,21 +378,21 @@ export class SliderGLRenderer {
 
             this._currentKey = state.currentNode.key;
 
-            const imagePlanes: THREE.Mesh[] = [];
+            const planes: { [key: string]: THREE.Mesh } = {};
 
             if (state.currentNode.fullPano) {
-                imagePlanes.push(this._factory.createCurtainMesh(state.currentNode, state.currentTransform));
+                planes[state.currentNode.key] = this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
             } else if (state.currentNode.pano && !state.currentNode.fullPano) {
-                imagePlanes.push(this._factory.createMesh(state.currentNode, state.currentTransform));
+                planes[state.currentNode.key] = this._factory.createMesh(state.currentNode, state.currentTransform);
             } else {
                 if (motionless) {
-                    imagePlanes.push(this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform));
+                    planes[state.currentNode.key] = this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform);
                 } else {
-                    imagePlanes.push(this._factory.createCurtainMesh(state.currentNode, state.currentTransform));
+                    planes[state.currentNode.key] = this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
                 }
             }
 
-            this._scene.setImagePlanes(imagePlanes);
+            this._scene.setImagePlanes(planes);
 
             this._updateCurtain();
         }
@@ -380,7 +401,14 @@ export class SliderGLRenderer {
     private _updateTexture(texture: THREE.Texture): void {
         this._needsRender = true;
 
-        for (let plane of this._scene.imagePlanes) {
+        const planes: { [key: string]: THREE.Mesh } = this._scene.planes;
+
+        for (const key in planes) {
+            if (!planes.hasOwnProperty(key)) {
+                continue;
+            }
+
+            const plane: THREE.Mesh = planes[key];
             let material: IShaderMaterial = <IShaderMaterial>plane.material;
 
             let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
@@ -394,7 +422,14 @@ export class SliderGLRenderer {
     private _updateTexturePrev(texture: THREE.Texture): void {
         this._needsRender = true;
 
-        for (let plane of this._scene.imagePlanesOld) {
+        const planes: { [key: string]: THREE.Mesh } = this._scene.planesOld;
+
+        for (const key in planes) {
+            if (!planes.hasOwnProperty(key)) {
+                continue;
+            }
+
+            const plane: THREE.Mesh = planes[key];
             let material: IShaderMaterial = <IShaderMaterial>plane.material;
 
             let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
