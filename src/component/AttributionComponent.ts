@@ -61,12 +61,8 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
         const imageBy: string = compact ? `${username}` : `image by ${username}`;
         const imageByContent: vd.VNode = vd.h("div.AttributionUsername", { textContent: imageBy }, []);
 
-        const date: string[] = new Date(capturedAt).toDateString().split(" ");
-        const formatted: string = (date.length > 3 ?
-            compact ?
-                [date[3]] :
-                [date[1], date[2] + ",", date[3]] :
-            date).join(" ");
+        const date: Date = new Date(capturedAt);
+        const formatted: string = compact ? date.toLocaleDateString() : date.toLocaleString();
 
         const dateContent: vd.VNode = vd.h("div.AttributionDate", { textContent: formatted }, []);
 
@@ -80,7 +76,7 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
 
         return vd.h("div.AttributionContainer" + compactClass, {}, [mapillaryLink, imageLink]);
     }
-    }
+}
 
 ComponentService.register(AttributionComponent);
 export default AttributionComponent;
