@@ -25,7 +25,6 @@ import Spatial from "../geo/Spatial";
 import { StateService } from "../state/StateService";
 import { Transform } from "../geo/Transform";
 import ViewportCoords from "../geo/ViewportCoords";
-import PlayService from "./PlayService";
 import { IFrame } from "../State";
 
 export class PanService {

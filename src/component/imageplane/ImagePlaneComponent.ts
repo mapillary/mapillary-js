@@ -447,7 +447,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
             .subscribe(this._rendererOperation$);
 
         const cachedPanNodes$: Observable<[GraphNode, Transform]> = this._navigator.panService.panNodes$.pipe(
-            mergeMap(
+            switchMap(
                 (nts: [GraphNode, Transform][]): Observable<[GraphNode, Transform]> => {
                     return observableFrom(nts).pipe(
                         mergeMap(
