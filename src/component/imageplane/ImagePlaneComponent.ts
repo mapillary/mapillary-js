@@ -99,6 +99,11 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
     private _updateBackgroundSubscription: Subscription;
     private _updateTextureImageSubscription: Subscription;
 
+    private _clearPeripheryPlaneSubscription: Subscription;
+    private _addPeripheryPlaneSubscription: Subscription;
+    private _updatePeripheryPlaneTextureSubscription: Subscription;
+    private _moveToPeripheryNodeSubscription: Subscription;
+
     private _imageTileLoader: ImageTileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
 
@@ -430,7 +435,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                 }))
             .subscribe(this._rendererOperation$);
 
-        this._navigator.panService.panNodes$.pipe(
+        this._clearPeripheryPlaneSubscription = this._navigator.panService.panNodes$.pipe(
             map(
                 (): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -454,7 +459,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                 }),
             share());
 
-        cachedPanNodes$.pipe(
+        this._addPeripheryPlaneSubscription = cachedPanNodes$.pipe(
             map(
                 ([n, t]: [GraphNode, Transform]): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -465,7 +470,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                 }))
             .subscribe(this._rendererOperation$);
 
-        cachedPanNodes$.pipe(
+        this._updatePeripheryPlaneTextureSubscription = cachedPanNodes$.pipe(
             mergeMap(
                 ([n]: [GraphNode, Transform]): Observable<GraphNode> => {
                     return ImageSize.Size2048 > Math.max(n.image.width, n.image.height) ?
@@ -498,7 +503,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                         return trigger;
                     }));
 
-        this._navigator.panService.panNodes$.pipe(
+        this._moveToPeripheryNodeSubscription = this._navigator.panService.panNodes$.pipe(
             switchMap(
                 (nts: [GraphNode, Transform][]): Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]> => {
                     return panTrigger$.pipe(
@@ -567,6 +572,11 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
         this._textureProviderSubscription.unsubscribe();
         this._updateBackgroundSubscription.unsubscribe();
         this._updateTextureImageSubscription.unsubscribe();
+
+        this._clearPeripheryPlaneSubscription.unsubscribe();
+        this._addPeripheryPlaneSubscription.unsubscribe();
+        this._updatePeripheryPlaneTextureSubscription.unsubscribe();
+        this._moveToPeripheryNodeSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
