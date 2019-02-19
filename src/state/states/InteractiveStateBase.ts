@@ -76,6 +76,10 @@ export abstract class InteractiveStateBase extends StateBase {
             return;
         }
 
+        if (rotationDelta.phi === 0 && rotationDelta.theta === 0) {
+            return;
+        }
+
         this._desiredZoom = this._zoom;
         this._desiredLookat = null;
         this._requestedBasicRotation = null;
