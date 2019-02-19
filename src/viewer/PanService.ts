@@ -160,7 +160,7 @@ export class PanService {
                                         }
                                     }
 
-                                    if (overlap > 0 && overlap < Math.PI / 4) {
+                                    if (overlap > 0 && overlap < currentHFov / 2 && overlap < hFov / 2) {
                                         if (directionChange > 0) {
                                             if (!left) {
                                                 left = [overlap, a, transform];
@@ -232,7 +232,7 @@ export class PanService {
     private _computeProjectedPoints(transform: Transform): number[][] {
         const os: number[][] = [[1, 0]];
         const ds: number[][] = [[0, 0.5]];
-        const pointsPerSide: number = 40;
+        const pointsPerSide: number = 20;
 
         const basicPoints: number[][] = [];
 
