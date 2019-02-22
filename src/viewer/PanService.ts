@@ -79,15 +79,7 @@ export class PanService {
                                             continue;
                                         }
 
-                                        const [x, y, z]: number[] = this._geoCoords.geodeticToEnu(
-                                            node.latLon.lat,
-                                            node.latLon.lon,
-                                            node.alt,
-                                            current.latLon.lat,
-                                            current.latLon.lon,
-                                            current.alt);
-
-                                        if (x * x + y * y + z * z > 16) {
+                                        if (this._distance(node, current) > 4) {
                                             continue;
                                         }
 
@@ -160,21 +152,27 @@ export class PanService {
                                         }
                                     }
 
+                                    const distanceCost: number = this._distance(a, cn);
+                                    const timeCost: number = Math.min(this._timeDifference(a, cn), 4);
+                                    const overlapCost: number = 20 * Math.abs(overlap - preferredOverlap);
+
+                                    const cost: number = distanceCost + timeCost + overlapCost;
+
                                     if (overlap > 0 && overlap < currentHFov / 2 && overlap < hFov / 2) {
                                         if (directionChange > 0) {
                                             if (!left) {
-                                                left = [overlap, a, transform];
+                                                left = [cost, a, transform];
                                             } else {
-                                                if (Math.abs(overlap - preferredOverlap) < Math.abs(left[0] - preferredOverlap)) {
-                                                    left = [overlap, a, transform];
+                                                if (cost < left[0]) {
+                                                    left = [cost, a, transform];
                                                 }
                                             }
                                         } else {
                                             if (!right) {
-                                                right = [overlap, a, transform];
+                                                right = [cost, a, transform];
                                             } else {
-                                                if (Math.abs(overlap - preferredOverlap) < Math.abs(right[0] - preferredOverlap)) {
-                                                    right = [overlap, a, transform];
+                                                if (cost < right[0]) {
+                                                    right = [cost, a, transform];
                                                 }
                                             }
                                         }
@@ -210,6 +208,22 @@ export class PanService {
 
     public get panNodes$(): Observable<[Node, Transform][]> {
         return this._panNodes$;
+    }
+
+    private _distance(node: Node, reference: Node): number {
+        const [x, y, z]: number[] = this._geoCoords.geodeticToEnu(
+            node.latLon.lat,
+            node.latLon.lon,
+            node.alt,
+            reference.latLon.lat,
+            reference.latLon.lon,
+            reference.alt);
+
+        return Math.sqrt(x * x + y * y + z * z);
+    }
+
+    private _timeDifference(node: Node, reference: Node): number {
+        return Math.abs(node.capturedAt - reference.capturedAt) / (1000 * 60 * 60 * 24 * 30);
     }
 
     private _createTransform(node: Node, translation: number[]): Transform {
