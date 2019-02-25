@@ -33,6 +33,7 @@ export class PanService {
     private _graphCalculator: GraphCalculator;
     private _geoCoords: GeoCoords;
     private _spatial: Spatial;
+    private _viewportCoords: ViewportCoords;
 
     private _panNodes$: Observable<[Node, Transform][]>;
 
@@ -41,13 +42,15 @@ export class PanService {
         stateService: StateService,
         geoCoords?: GeoCoords,
         graphCalculator?: GraphCalculator,
-        spatial?: Spatial) {
+        spatial?: Spatial,
+        viewportCoords?: ViewportCoords) {
 
         this._graphService = graphService;
         this._stateService = stateService;
         this._geoCoords = !!geoCoords ? geoCoords : new GeoCoords();
         this._graphCalculator = !!graphCalculator ? graphCalculator : new GraphCalculator(this._geoCoords);
         this._spatial = !!spatial ? spatial : new Spatial();
+        this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
 
         const panNodes$: Observable<[Node, Transform][]> = this._stateService.currentNode$.pipe(
             switchMap(
@@ -107,6 +110,7 @@ export class PanService {
                                     2 * Math.PI);
 
                                 const currentProjectedPoints: number[][] = this._computeProjectedPoints(currentTransform);
+
                                 const currentHFov: number = this._computeHorizontalFov(currentProjectedPoints) / 180 * Math.PI;
 
                                 const preferredOverlap: number = Math.PI / 8;
@@ -244,44 +248,11 @@ export class PanService {
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {
-        const os: number[][] = [[1, 0]];
-        const ds: number[][] = [[0, 0.5]];
-        const pointsPerSide: number = 20;
+        const vertices: number[][] = [[1, 0]];
+        const directions: number[][] = [[0, 0.5]];
+        const pointsPerLine: number = 20;
 
-        const basicPoints: number[][] = [];
-
-        for (let side: number = 0; side < os.length; ++side) {
-            const o: number[] = os[side];
-            const d: number[] = ds[side];
-
-            for (let i: number = 0; i <= pointsPerSide; ++i) {
-                basicPoints.push([o[0] + d[0] * i / pointsPerSide,
-                                o[1] + d[1] * i / pointsPerSide]);
-            }
-        }
-
-        const camera: THREE.Camera = new THREE.Camera();
-        camera.up.copy(transform.upVector());
-        camera.position.copy(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0)));
-        camera.lookAt(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 10)));
-        camera.updateMatrix();
-        camera.updateMatrixWorld(true);
-
-        const viewportCoords: ViewportCoords = new ViewportCoords();
-
-        const projectedPoints: number[][] = basicPoints
-            .map(
-                (basicPoint: number[]): number[] => {
-                    const worldPoint: number[] = transform.unprojectBasic(basicPoint, 10000);
-                    const cameraPoint: number[] = viewportCoords.worldToCamera(worldPoint, camera);
-
-                    return [
-                        Math.abs(cameraPoint[0] / cameraPoint[2]),
-                        Math.abs(cameraPoint[1] / cameraPoint[2]),
-                    ];
-                });
-
-        return projectedPoints;
+        return Geo.computeProjectedPoints(transform, vertices, directions, pointsPerLine, this._viewportCoords);
     }
 
     private _computeHorizontalFov(projectedPoints: number[][]): number {
