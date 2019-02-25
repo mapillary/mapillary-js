@@ -5,11 +5,9 @@ import * as when from "when";
 
 import {ILatLon} from "../API";
 import {EdgeDirection} from "../Edge";
-import {AbortMapillaryError} from "../Error";
 import {
     FilterExpression,
     Node,
-    IEdgeStatus,
 } from "../Graph";
 import {
     ComponentController,
@@ -489,7 +487,7 @@ export class Viewer extends EventEmitter {
      * longitude.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
-     * @throws {AbortMapillaryError} When a subsequent move request is made
+     * @throws  {@link AbortMapillaryError} When a subsequent move request is made
      * before the move close to call has completed.
      *
      * @example
@@ -527,7 +525,7 @@ export class Viewer extends EventEmitter {
      * or the edges has not yet been cached.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
-     * @throws {AbortMapillaryError} When a subsequent move request is made
+     * @throws  {@link AbortMapillaryError} When a subsequent move request is made
      * before the move dir call has completed.
      *
      * @example
@@ -561,7 +559,7 @@ export class Viewer extends EventEmitter {
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
-     * @throws {AbortMapillaryError} When a subsequent move request is made
+     * @throws  {@link AbortMapillaryError} When a subsequent move request is made
      * before the move to key call has completed.
      *
      * @example
