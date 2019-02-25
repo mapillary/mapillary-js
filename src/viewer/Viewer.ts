@@ -9,6 +9,7 @@ import {AbortMapillaryError} from "../Error";
 import {
     FilterExpression,
     Node,
+    IEdgeStatus,
 } from "../Graph";
 import {
     ComponentController,
@@ -86,7 +87,7 @@ export class Viewer extends EventEmitter {
      * Fired when the viewing direction of the camera changes.
      *
      * @description Related to the computed compass angle
-     * ({@link Node.computedCa}) from SfM, not the original EXIF compass
+     * ({@link Node.computedCA}) from SfM, not the original EXIF compass
      * angle.
      *
      * @event
@@ -99,14 +100,14 @@ export class Viewer extends EventEmitter {
      * Fired when a pointing device (usually a mouse) is pressed and released at
      * the same point in the viewer.
      * @event
-     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
      */
     public static click: string = "click";
 
     /**
      * Fired when the right button of the mouse is clicked within the viewer.
      * @event
-     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
      */
     public static contextmenu: string = "contextmenu";
 
@@ -114,7 +115,7 @@ export class Viewer extends EventEmitter {
      * Fired when a pointing device (usually a mouse) is clicked twice at
      * the same point in the viewer.
      * @event
-     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
      */
     public static dblclick: string = "dblclick";
 
@@ -128,7 +129,7 @@ export class Viewer extends EventEmitter {
     /**
      * Fired when a pointing device (usually a mouse) is pressed within the viewer.
      * @event
-     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
      */
     public static mousedown: string = "mousedown";
 
@@ -136,28 +137,28 @@ export class Viewer extends EventEmitter {
      * Fired when a pointing device (usually a mouse) is moved within the viewer.
      * @description Will not fire when the mouse is actively used, e.g. for drag pan.
      * @event
-     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
      */
     public static mousemove: string = "mousemove";
 
     /**
      * Fired when a pointing device (usually a mouse) leaves the viewer's canvas.
      * @event
-     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
      */
     public static mouseout: string = "mouseout";
 
     /**
      * Fired when a pointing device (usually a mouse) is moved onto the viewer's canvas.
      * @event
-     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
      */
     public static mouseover: string = "mouseover";
 
     /**
      * Fired when a pointing device (usually a mouse) is released within the viewer.
      * @event
-     * @type {IViewerMouseEvent} event - Viewer mouse event data.
+     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
      */
     public static mouseup: string = "mouseup";
 
@@ -194,21 +195,21 @@ export class Viewer extends EventEmitter {
     /**
      * Fired every time the viewer navigates to a new node.
      * @event
-     * @type {Node} node - Current node.
+     * @type  {@link Node} node - Current node.
      */
     public static nodechanged: string = "nodechanged";
 
     /**
      * Fired every time the sequence edges of the current node changes.
      * @event
-     * @type {IEdgeStatus} status - The edge status object.
+     * @type  {@link IEdgeStatus} status - The edge status object.
      */
     public static sequenceedgeschanged: string = "sequenceedgeschanged";
 
     /**
      * Fired every time the spatial edges of the current node changes.
      * @event
-     * @type {IEdgeStatus} status - The edge status object.
+     * @type  {@link IEdgeStatus} status - The edge status object.
      */
     public static spatialedgeschanged: string = "spatialedgeschanged";
 
@@ -306,7 +307,7 @@ export class Viewer extends EventEmitter {
      * Return a boolean indicating if the viewer is in a navigable state.
      *
      * @description The navigable state indicates if the viewer supports
-     * moving, i.e. calling the {@link moveToKey}, {@link moveDir`}
+     * moving, i.e. calling the {@link moveToKey}, {@link moveDir}
      * and {@link moveCloseTo} methods or changing the authentication state,
      * i.e. calling {@link setAuthToken}. The viewer will not be in a navigable
      * state if the cover is activated and the viewer has been supplied a key.
