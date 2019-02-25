@@ -304,6 +304,8 @@ export class Node {
      *
      * @returns {ILoadStatus} Value indicating the load status
      * of the mesh and image.
+     *
+     * @ignore
      */
     public get loadStatus(): ILoadStatus {
         return this._cache.loadStatus;
@@ -470,6 +472,8 @@ export class Node {
      *
      * @returns {IEdgeStatus} Value describing the status of the
      * sequence edges.
+     *
+     * @ignore
      */
     public get sequenceEdges(): IEdgeStatus {
         return this._cache.sequenceEdges;
@@ -494,6 +498,8 @@ export class Node {
      *
      * @returns {IEdgeStatus} Value describing the status of the
      * spatial edges.
+     *
+     * @ignore
      */
     public get spatialEdges(): IEdgeStatus {
         return this._cache.spatialEdges;
