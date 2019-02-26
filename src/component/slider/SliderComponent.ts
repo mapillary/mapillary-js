@@ -92,7 +92,7 @@ import {
  * components when activating the slider component to avoid
  * interfering UI elements.
  *
- * To retrive and use the marker component
+ * To retrive and use the slider component
  *
  * @example
  * ```
@@ -107,7 +107,7 @@ import {
  *
  * viewer.activateComponent("slider");
  *
- * var sliderComponent = viewer.getComponent("marker");
+ * var sliderComponent = viewer.getComponent("slider");
  * ```
  */
 export class SliderComponent extends Component<ISliderConfiguration> {
