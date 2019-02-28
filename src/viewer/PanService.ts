@@ -156,13 +156,21 @@ export class PanService {
                                         }
                                     }
 
+                                    const nonOverlap: number = Math.abs(hFov - overlap);
+
                                     const distanceCost: number = this._distance(a, cn);
                                     const timeCost: number = Math.min(this._timeDifference(a, cn), 4);
                                     const overlapCost: number = 20 * Math.abs(overlap - preferredOverlap);
+                                    const fovCost: number = Math.min(5, 1 / Math.min(hFov / currentHFov, 1));
+                                    const nonOverlapCost: number = overlap > 0 ? -2 * nonOverlap : 0;
 
-                                    const cost: number = distanceCost + timeCost + overlapCost;
+                                    const cost: number = distanceCost + timeCost + overlapCost + fovCost + nonOverlapCost;
 
-                                    if (overlap > 0 && overlap < currentHFov / 2 && overlap < hFov / 2) {
+                                    if (overlap > 0 &&
+                                        overlap < 0.5 * currentHFov &&
+                                        overlap < 0.5 * hFov &&
+                                        nonOverlap > 0.5 * currentHFov) {
+
                                         if (directionChange > 0) {
                                             if (!left) {
                                                 left = [cost, a, transform];
