@@ -52,7 +52,8 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
             map(
                 (frame: IFrame): boolean => {
                     return frame.state.alpha < 1;
-                }));
+                }),
+            distinctUntilChanged());
 
         this._bounceSubscription = observableCombineLatest(
                 inTransition$,
