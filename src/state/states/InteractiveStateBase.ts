@@ -446,7 +446,9 @@ export abstract class InteractiveStateBase extends StateBase {
             return;
         }
 
-        this._rotationDelta.multiply(this._rotationAcceleration);
+        const alpha: number = this.currentNode.fullPano ? 1 : this._alpha;
+
+        this._rotationDelta.multiply(this._rotationAcceleration * alpha);
         this._rotationDelta.threshold(this._rotationThreshold);
     }
 
