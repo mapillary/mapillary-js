@@ -491,12 +491,20 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                 }))
             .subscribe(this._rendererOperation$);
 
+        const inTransition$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
+            map(
+                (frame: IFrame): boolean => {
+                    return frame.state.alpha < 1;
+                }),
+            distinctUntilChanged());
+
         const panTrigger$: Observable<boolean> = observableCombineLatest(
             this._container.mouseService.active$,
-            this._navigator.stateService.inMotion$).pipe(
+            this._navigator.stateService.inMotion$,
+            inTransition$).pipe(
                 map(
-                    ([active, inMotion]: [boolean, boolean]): boolean => {
-                        return !(active || inMotion);
+                    ([active, inMotion, inTransition]: [boolean, boolean, boolean]): boolean => {
+                        return !(active || inMotion || inTransition);
                     }),
                 filter(
                     (trigger: boolean): boolean => {
