@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import {empty as observableEmpty, combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
 
-import {first, map, distinctUntilChanged, switchMap, withLatestFrom} from "rxjs/operators";
+import {first, map, distinctUntilChanged, switchMap, withLatestFrom, startWith} from "rxjs/operators";
 
 import {
     Component,
@@ -73,7 +73,7 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
                             this._container.renderService.renderCamera$,
                             this._navigator.stateService.currentTransform$.pipe(first()));
                 }),
-            withLatestFrom(this._navigator.panService.panNodes$))
+            withLatestFrom(this._navigator.panService.panNodes$.pipe(startWith([]))))
             .subscribe(
                 ([[render, transform], nts]: [[RenderCamera, Transform], [Node, Transform][]]): void => {
                     if (!transform.hasValidScale && render.camera.focal < 0.1) {

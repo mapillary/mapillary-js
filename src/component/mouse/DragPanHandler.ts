@@ -15,6 +15,7 @@ import {
     pairwise,
     filter,
     distinctUntilChanged,
+    startWith,
 } from "rxjs/operators";
 
 import * as THREE from "three";
@@ -180,7 +181,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
             withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
-                this._navigator.panService.panNodes$),
+                this._navigator.panService.panNodes$.pipe(startWith([]))),
             map(
                 ([events, render, transform, nts]: [MouseTouchPair, RenderCamera, Transform, [Node, Transform][]]): IRotation => {
                     let previousEvent: MouseEvent | Touch = events[0];
