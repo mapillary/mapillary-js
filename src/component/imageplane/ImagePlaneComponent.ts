@@ -453,7 +453,13 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                         mergeMap(
                             ([n, t]: [GraphNode, Transform]): Observable<[GraphNode, Transform]> => {
                                 return observableCombineLatest(
-                                    this._navigator.graphService.cacheNode$(n.key),
+                                    this._navigator.graphService.cacheNode$(n.key).pipe(
+                                        catchError(
+                                            (error: Error): Observable<GraphNode> => {
+                                                console.error(`Failed to cache periphery node (${n.key})`, error);
+
+                                                return observableEmpty();
+                                            })),
                                     observableOf(t));
                             }));
                 }),
