@@ -3,6 +3,7 @@ import * as THREE from "three";
 import {
     of as observableOf,
     combineLatest as observableCombineLatest,
+    empty as observableEmpty,
     Observable,
 } from "rxjs";
 
@@ -12,6 +13,7 @@ import {
     withLatestFrom,
     share,
     distinctUntilChanged,
+    catchError,
 } from "rxjs/operators";
 
 import * as Geo from "../geo/Geo";
@@ -61,6 +63,12 @@ export class PanService {
 
                     const adjacent$: Observable<Node[]> = this._graphService
                         .cacheBoundingBox$(bounds[0], bounds[1]).pipe(
+                            catchError(
+                                (error: Error): Observable<Node> => {
+                                    console.error(`Failed to cache periphery bounding box (${current.key})`, error);
+
+                                    return observableEmpty();
+                                }),
                             map(
                                 (nodes: Node[]): Node[] => {
                                     if (current.pano) {

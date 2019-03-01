@@ -22,7 +22,7 @@ describe("PanService.ctor", () => {
 });
 
 describe("PanService.panNodes$", () => {
-    it("should be defined when constructed", (done: Function) => {
+    it("should emit", (done: Function) => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
 
@@ -41,7 +41,42 @@ describe("PanService.panNodes$", () => {
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
         (<Subject<ILatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         cacheBoundingBoxSubject.next([]);
+    });
+});
 
-        expect(panService).toBeDefined();
+describe("PanService.panNodes$", () => {
+    it("should catch error and keep emitting", () => {
+        spyOn(console, "error").and.stub();
+
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const stateService: StateService = new StateServiceMockCreator().create();
+
+        const erroredCacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(erroredCacheBoundingBoxSubject);
+
+        const panService: PanService = new PanService(graphService, stateService);
+
+        let emitCount: number = 0;
+        panService.panNodes$.subscribe(
+            (): void => {
+                emitCount++;
+            });
+
+        (<Subject<IFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
+        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
+        (<Subject<ILatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+        erroredCacheBoundingBoxSubject.error(new Error());
+
+        expect(emitCount).toBe(0);
+
+        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
+
+        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
+        (<Subject<ILatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+
+        cacheBoundingBoxSubject.next([]);
+
+        expect(emitCount).toBe(1);
     });
 });
