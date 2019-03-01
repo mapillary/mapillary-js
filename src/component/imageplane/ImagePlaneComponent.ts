@@ -506,11 +506,12 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         const panTrigger$: Observable<boolean> = observableCombineLatest(
             this._container.mouseService.active$,
+            this._container.touchService.active$,
             this._navigator.stateService.inMotion$,
             inTransition$).pipe(
                 map(
-                    ([active, inMotion, inTransition]: [boolean, boolean, boolean]): boolean => {
-                        return !(active || inMotion || inTransition);
+                    ([mouseActive, touchActive, inMotion, inTransition]: [boolean, boolean, boolean, boolean]): boolean => {
+                        return !(mouseActive || touchActive || inMotion || inTransition);
                     }),
                 filter(
                     (trigger: boolean): boolean => {
