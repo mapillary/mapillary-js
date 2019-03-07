@@ -1,7 +1,7 @@
 import {distinctUntilChanged, map} from "rxjs/operators";
 import * as vd from "virtual-dom";
 
-import {Observable, Subscription} from "rxjs";
+import {Observable, Subscription, combineLatest as observableCombineLatest} from "rxjs";
 
 import {
     Component,
@@ -9,19 +9,18 @@ import {
     IComponentConfiguration,
 } from "../Component";
 import {
-    Spatial,
-    Transform,
+    Spatial, Transform,
 } from "../Geo";
 import {Node} from "../Graph";
 import {
     IVNodeHash,
     RenderCamera,
 } from "../Render";
-import {IFrame} from "../State";
 import {
     Container,
     Navigator,
 } from "../Viewer";
+import { IFrame } from "../state/interfaces/IFrame";
 
 export class BearingComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "bearing";
@@ -57,14 +56,53 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                         Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
                 }));
 
-        this._renderSubscription = cameraBearingFov$.pipe(
+        let nodeBearingFov$: Observable<[number, number]> = this._navigator.stateService.currentState$.pipe(
+            distinctUntilChanged(
+                undefined,
+                (frame: IFrame): string => {
+                    return frame.state.currentNode.key;
+                }),
             map(
-                ([bearing, fov]: [number, number]): IVNodeHash => {
+                (frame: IFrame): [number, number] => {
+                    let node: Node = frame.state.currentNode;
+                    let transform: Transform = frame.state.currentTransform;
+
+                    if (node.pano) {
+                        let panoHFov: number = 2 * Math.PI * node.gpano.CroppedAreaImageWidthPixels / node.gpano.FullPanoWidthPixels;
+
+                        return [this._spatial.degToRad(node.ca), panoHFov];
+                    }
+
+                    let size: number = Math.max(transform.basicWidth, transform.basicHeight);
+
+                    if (size <= 0) {
+                    console.warn(
+                        `Original image size (${transform.basicWidth}, ${transform.basicHeight}) is invalid (${node.key}. ` +
+                        "Not showing available fov.");
+                }
+
+                    let hFov: number = size > 0 ?
+                    2 * Math.atan(0.5 * transform.basicWidth / (size * transform.focal)) :
+                    0;
+
+                    return [this._spatial.degToRad(node.ca), hFov];
+                }),
+            distinctUntilChanged(
+                (a1: [number, number], a2: [number, number]): boolean => {
+                    return Math.abs(a2[0] - a1[0]) < this._distinctThreshold &&
+                        Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
+                }));
+
+        this._renderSubscription = observableCombineLatest(
+            cameraBearingFov$,
+            nodeBearingFov$).pipe(
+            map(
+                ([[cb, cf], [nb, nf]]: [[number, number], [number, number]] ): IVNodeHash => {
                     const background: vd.VNode = vd.h("div.BearingIndicatorBackground", {}, []);
-                    const backgroundCircle: vd.VNode = vd.h("div.BearingIndicatorBackgroundCircle", {}, []);
-                    const north: vd.VNode = this._createNorth(bearing);
+                    const fovIndicator: vd.VNode = this._createFovIndicator(nf);
+                    const north: vd.VNode = this._createNorth(cb);
                     const cameraSector: vd.VNode = this._createCircleSectorCompass(
-                            this._createCircleSector(Math.max(Math.PI / 20, fov), "#FFF"));
+                            this._createCircleSector(Math.max(Math.PI / 20, cf), "#FFF"));
 
                     return {
                         name: this._name,
@@ -73,7 +111,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                             { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
                             [
                                 background,
-                                backgroundCircle,
+                                fovIndicator,
                                 north,
                                 cameraSector,
                             ]),
@@ -88,6 +126,86 @@ export class BearingComponent extends Component<IComponentConfiguration> {
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
         return {};
+    }
+
+    private _createFovIndicator(fov: number): vd.VNode {
+        const arc: vd.VNode = this._createFovArc(fov);
+
+        const group: vd.VNode =
+            vd.h(
+                "g",
+                {
+                    attributes: { transform: "translate(19,19)" },
+                    namespace: this._svgNamespace,
+                },
+                [arc]);
+
+        const svg: vd.VNode =
+            vd.h(
+                "svg",
+                {
+                    attributes: { viewBox: "0 0 38 38" },
+                    namespace: this._svgNamespace,
+                    style: {
+                        height: "38px",
+                        left: "2px",
+                        position: "absolute",
+                        top: "2px",
+                        width: "38px",
+                    },
+                },
+                [group]);
+
+        return svg;
+    }
+
+    private _createFovArc(fov: number): vd.VNode {
+        const radius: number = 17.75;
+        const strokeWidth: number = 2.5;
+
+        if (fov > 2 * Math.PI - Math.PI / 90) {
+            return vd.h(
+                "circle",
+                {
+                    attributes: {
+                        cx: "0",
+                        cy: "0",
+                        "fill-opacity": "0",
+                        r: `${radius}`,
+                        stroke: "#FFF",
+                        "stroke-width":
+                        `${strokeWidth}`,
+                    },
+                    namespace: this._svgNamespace,
+                },
+                []);
+        }
+
+        let arcStart: number = -Math.PI / 2 - fov / 2;
+        let arcEnd: number = arcStart + fov;
+
+        let startX: number = radius * Math.cos(arcStart);
+        let startY: number = radius * Math.sin(arcStart);
+
+        let endX: number = radius * Math.cos(arcEnd);
+        let endY: number = radius * Math.sin(arcEnd);
+
+        let largeArc: number = fov >= Math.PI ? 1 : 0;
+
+        let description: string = `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY}`;
+
+        return vd.h(
+            "path",
+            {
+                attributes: {
+                    d: description,
+                    "fill-opacity": "0",
+                    stroke: "#FFF",
+                    "stroke-width": `${strokeWidth}`,
+                },
+                namespace: this._svgNamespace,
+            },
+            []);
     }
 
     private _createCircleSectorCompass(cameraSector: vd.VNode): vd.VNode {
@@ -107,11 +225,11 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                     attributes: { viewBox: "0 0 2 2" },
                     namespace: this._svgNamespace,
                     style: {
-                        height: "30px",
-                        left: "4px",
+                        height: "28px",
+                        left: "7px",
                         position: "absolute",
-                        top: "4px",
-                        width: "30px",
+                        top: "7px",
+                        width: "28px",
                     },
                 },
                 [group]);
