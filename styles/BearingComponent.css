@@ -9,6 +9,16 @@
 }
 
 .BearingIndicatorBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 42px;
+    height: 42px;
+    opacity: 0.5;
+    transform-origin: 50% 50%;
+}
+
+.BearingIndicatorBackgroundCircle {
     pointer-events: auto;
     position: absolute;
     top: 0;
@@ -16,7 +26,27 @@
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background-color:rgba(0, 0, 0, 0.5);
+    background-color: #000;
+}
+
+.BearingIndicatorBackgroundArrowContainer {
+    position: absolute;
+    left: 15px;
+    top: -3.5px;
+    height: 8px;
+    width: 12px;
+    overflow: hidden;
+}
+
+.BearingIndicatorBackgroundArrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    left: 0;
+    top: 2px;
+    background-color: #000;
+    transform: rotate(45deg);
+    border-radius: 2px;
 }
 
 .BearingNorthContainer {

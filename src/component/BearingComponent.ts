@@ -102,7 +102,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
             nodeBearingFov$).pipe(
             map(
                 ([[cb, cf], [no, nf]]: [[number, number], [number, number]] ): IVNodeHash => {
-                    const background: vd.VNode = vd.h("div.BearingIndicatorBackground", {}, []);
+                    const background: vd.VNode = this._createBackground(cb);
                     const fovIndicator: vd.VNode = this._createFovIndicator(nf, no);
                     const north: vd.VNode = this._createNorth(cb);
                     const cameraSector: vd.VNode = this._createCircleSectorCompass(
@@ -283,6 +283,20 @@ export class BearingComponent extends Component<IComponentConfiguration> {
             [north]);
 
         return container;
+    }
+
+    private _createBackground(bearing: number): vd.VNode {
+        return vd.h(
+            "div.BearingIndicatorBackground",
+            { style: { transform: `rotateZ(${-bearing * 180 / Math.PI}deg)` } },
+            [
+                vd.h("div.BearingIndicatorBackgroundCircle", []),
+                vd.h(
+                    "div.BearingIndicatorBackgroundArrowContainer",
+                    [
+                        vd.h("div.BearingIndicatorBackgroundArrow", []),
+                    ]),
+            ]);
     }
 }
 
