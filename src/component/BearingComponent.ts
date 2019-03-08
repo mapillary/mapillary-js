@@ -9,7 +9,7 @@ import {
     IComponentConfiguration,
 } from "../Component";
 import {
-    Spatial, Transform,
+    Spatial, Transform, Geo,
 } from "../Geo";
 import {Node} from "../Graph";
 import {
@@ -21,11 +21,14 @@ import {
     Navigator,
 } from "../Viewer";
 import { IFrame } from "../state/interfaces/IFrame";
+import ViewportCoords from "../geo/ViewportCoords";
 
 export class BearingComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "bearing";
 
     private _spatial: Spatial;
+    private _viewportCoords: ViewportCoords;
+
     private _svgNamespace: string;
     private _distinctThreshold: number;
 
@@ -35,6 +38,8 @@ export class BearingComponent extends Component<IComponentConfiguration> {
         super(name, container, navigator);
 
         this._spatial = new Spatial();
+        this._viewportCoords = new ViewportCoords();
+
         this._svgNamespace = "http://www.w3.org/2000/svg";
         this._distinctThreshold = Math.PI / 360;
     }
@@ -66,8 +71,8 @@ export class BearingComponent extends Component<IComponentConfiguration> {
             this._container.renderService.bearing$).pipe(
                 map(
                     ([frame, bearing]: [IFrame, number]): [number, number] => {
-                        let node: Node = frame.state.currentNode;
-                        let transform: Transform = frame.state.currentTransform;
+                        const node: Node = frame.state.currentNode;
+                        const transform: Transform = frame.state.currentTransform;
 
                         const offset: number = this._spatial.degToRad(node.ca - bearing);
 
@@ -77,17 +82,8 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                             return [offset, panoHFov];
                         }
 
-                        let size: number = Math.max(transform.basicWidth, transform.basicHeight);
-
-                        if (size <= 0) {
-                        console.warn(
-                            `Original image size (${transform.basicWidth}, ${transform.basicHeight}) is invalid (${node.key}. ` +
-                            "Not showing available fov.");
-                    }
-
-                        let hFov: number = size > 0 ?
-                        2 * Math.atan(0.5 * transform.basicWidth / (size * transform.focal)) :
-                        0;
+                        const currentProjectedPoints: number[][] = this._computeProjectedPoints(transform);
+                        const hFov: number = this._computeHorizontalFov(currentProjectedPoints) / 180 * Math.PI;
 
                         return [offset, hFov];
                     }),
@@ -297,6 +293,30 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                         vd.h("div.BearingIndicatorBackgroundArrow", []),
                     ]),
             ]);
+    }
+
+    private _computeProjectedPoints(transform: Transform): number[][] {
+        const vertices: number[][] = [[1, 0]];
+        const directions: number[][] = [[0, 0.5]];
+        const pointsPerLine: number = 12;
+
+        return Geo.computeProjectedPoints(transform, vertices, directions, pointsPerLine, this._viewportCoords);
+    }
+
+    private _computeHorizontalFov(projectedPoints: number[][]): number {
+        const fovs: number[] = projectedPoints
+            .map(
+                (projectedPoint: number[]): number => {
+                    return this._coordToFov(projectedPoint[0]);
+                });
+
+        const fov: number = Math.min(...fovs);
+
+        return fov;
+    }
+
+    private _coordToFov(x: number): number {
+        return 2 * Math.atan(x) * 180 / Math.PI;
     }
 }
 
