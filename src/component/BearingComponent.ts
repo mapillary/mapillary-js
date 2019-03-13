@@ -98,8 +98,6 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                             }
                         }
 
-                        console.log(hFovLeft, hFovRight);
-
                         return [offset, hFovLeft, hFovRight];
                     }),
                 distinctUntilChanged(
