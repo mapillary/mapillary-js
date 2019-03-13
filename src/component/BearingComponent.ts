@@ -1,4 +1,4 @@
-import {distinctUntilChanged, map} from "rxjs/operators";
+import {distinctUntilChanged, map, switchMap} from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {Observable, Subscription, combineLatest as observableCombineLatest} from "rxjs";
@@ -45,7 +45,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        let cameraBearingFov$: Observable<[number, number]> = this._container.renderService.renderCamera$.pipe(
+        const cameraBearingFov$: Observable<[number, number]> = this._container.renderService.renderCamera$.pipe(
             map(
                 (rc: RenderCamera): [number, number] => {
                     let vFov: number = this._spatial.degToRad(rc.perspective.fov);
@@ -61,16 +61,17 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                         Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
                 }));
 
-        let nodeBearingFov$: Observable<[number, number]> = observableCombineLatest(
+        const nodeBearingFov$: Observable<[number, number, number]> = observableCombineLatest(
             this._navigator.stateService.currentState$.pipe(
                 distinctUntilChanged(
                     undefined,
                     (frame: IFrame): string => {
                         return frame.state.currentNode.key;
                     })),
-            this._container.renderService.bearing$).pipe(
+            this._container.renderService.bearing$,
+            this._navigator.panService.panNodes$).pipe(
                 map(
-                    ([frame, bearing]: [IFrame, number]): [number, number] => {
+                    ([frame, bearing, panNodes]: [IFrame, number, [Node, Transform, number][]]): [number, number, number] => {
                         const node: Node = frame.state.currentNode;
                         const transform: Transform = frame.state.currentTransform;
 
@@ -79,27 +80,45 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                         if (node.pano) {
                             let panoHFov: number = 2 * Math.PI * node.gpano.CroppedAreaImageWidthPixels / node.gpano.FullPanoWidthPixels;
 
-                            return [offset, panoHFov];
+                            return [offset, panoHFov / 2, panoHFov / 2];
                         }
 
                         const currentProjectedPoints: number[][] = this._computeProjectedPoints(transform);
-                        const hFov: number = this._computeHorizontalFov(currentProjectedPoints) / 180 * Math.PI;
+                        const hFov: number = this._spatial.degToRad(this._computeHorizontalFov(currentProjectedPoints));
 
-                        return [offset, hFov];
+                        let hFovLeft: number = hFov / 2;
+                        let hFovRight: number = hFov / 2;
+
+                        for (const [n, , f] of panNodes) {
+                            const diff: number = this._spatial.wrap(n.ca - node.ca, -180, 180);
+                            if (diff < 0) {
+                                hFovLeft = this._spatial.degToRad(Math.abs(diff)) + f / 2;
+                            } else {
+                                hFovRight = this._spatial.degToRad(Math.abs(diff)) + f / 2;
+                            }
+                        }
+
+                        console.log(hFovLeft, hFovRight);
+
+                        return [offset, hFovLeft, hFovRight];
                     }),
                 distinctUntilChanged(
-                    (a1: [number, number], a2: [number, number]): boolean => {
-                        return Math.abs(a2[0] - a1[0]) < this._distinctThreshold &&
-                            Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
+                    (
+                        [offset1, hFovLeft1, hFovRight1]: [number, number, number],
+                        [offset2, hFovLeft2, hFovRight2]: [number, number, number]): boolean => {
+
+                        return Math.abs(offset2 - offset1) < this._distinctThreshold &&
+                            Math.abs(hFovLeft2 - hFovLeft1) < this._distinctThreshold &&
+                            Math.abs(hFovRight2 - hFovRight1) < this._distinctThreshold;
                     }));
 
         this._renderSubscription = observableCombineLatest(
             cameraBearingFov$,
             nodeBearingFov$).pipe(
             map(
-                ([[cb, cf], [no, nf]]: [[number, number], [number, number]] ): IVNodeHash => {
+                ([[cb, cf], [no, nfl, nfr]]: [[number, number], [number, number, number]] ): IVNodeHash => {
                     const background: vd.VNode = this._createBackground(cb);
-                    const fovIndicator: vd.VNode = this._createFovIndicator(nf, no);
+                    const fovIndicator: vd.VNode = this._createFovIndicator(nfl, nfr, no);
                     const north: vd.VNode = this._createNorth(cb);
                     const cameraSector: vd.VNode = this._createCircleSectorCompass(
                             this._createCircleSector(Math.max(Math.PI / 20, cf), "#FFF"));
@@ -128,8 +147,8 @@ export class BearingComponent extends Component<IComponentConfiguration> {
         return {};
     }
 
-    private _createFovIndicator(fov: number, offset: number): vd.VNode {
-        const arc: vd.VNode = this._createFovArc(fov);
+    private _createFovIndicator(fovLeft: number, fovRigth: number, offset: number): vd.VNode {
+        const arc: vd.VNode = this._createFovArc(fovLeft, fovRigth);
 
         const group: vd.VNode =
             vd.h(
@@ -160,9 +179,10 @@ export class BearingComponent extends Component<IComponentConfiguration> {
         return svg;
     }
 
-    private _createFovArc(fov: number): vd.VNode {
+    private _createFovArc(fovLeft: number, fovRigth: number): vd.VNode {
         const radius: number = 17.75;
         const strokeWidth: number = 2.5;
+        const fov: number = fovLeft + fovRigth;
 
         if (fov > 2 * Math.PI - Math.PI / 90) {
             return vd.h(
@@ -182,7 +202,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
                 []);
         }
 
-        let arcStart: number = -Math.PI / 2 - fov / 2;
+        let arcStart: number = -Math.PI / 2 - fovLeft;
         let arcEnd: number = arcStart + fov;
 
         let startX: number = radius * Math.cos(arcStart);
@@ -275,7 +295,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
         const north: vd.VNode = vd.h("div.BearingNorth", []);
         const container: vd.VNode = vd.h(
             "div.BearingNorthContainer",
-            { style: { transform: `rotateZ(${-bearing * 180 / Math.PI}deg)` } },
+            { style: { transform: `rotateZ(${this._spatial.radToDeg(-bearing)}deg)` } },
             [north]);
 
         return container;
@@ -284,7 +304,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
     private _createBackground(bearing: number): vd.VNode {
         return vd.h(
             "div.BearingIndicatorBackground",
-            { style: { transform: `rotateZ(${-bearing * 180 / Math.PI}deg)` } },
+            { style: { transform: `rotateZ(${this._spatial.radToDeg(-bearing)}deg)` } },
             [
                 vd.h("div.BearingIndicatorBackgroundCircle", []),
                 vd.h(
@@ -316,7 +336,7 @@ export class BearingComponent extends Component<IComponentConfiguration> {
     }
 
     private _coordToFov(x: number): number {
-        return 2 * Math.atan(x) * 180 / Math.PI;
+        return this._spatial.radToDeg(2 * Math.atan(x));
     }
 }
 
