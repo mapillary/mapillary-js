@@ -111,12 +111,22 @@ export class CoverComponent extends Component<ICoverConfiguration> {
         const cover: string = configuration.state === CoverState.Loading ? "div.Cover.CoverLoading" : "div.Cover";
         const coverButton: vd.VNode = vd.h(
             "div.CoverButton",
-            { onclick: (): void => { this.configure({ state: CoverState.Loading }); } },
             [vd.h("div.CoverButtonIcon", [])]);
 
         const coverLogo: vd.VNode = vd.h("a.CoverLogo", {href: Urls.explore, target: "_blank"}, []);
+        const coverIndicator: vd.VNode = vd.h(
+            "div.CoverIndicator",
+            { onclick: (): void => { this.configure({ state: CoverState.Loading }); } },
+            []);
 
-        return vd.h(cover, [this._getCoverBackgroundVNode(configuration), coverButton, coverLogo]);
+        return vd.h(
+            cover,
+            [
+                this._getCoverBackgroundVNode(configuration),
+                coverIndicator,
+                coverButton,
+                coverLogo,
+            ]);
     }
 
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
