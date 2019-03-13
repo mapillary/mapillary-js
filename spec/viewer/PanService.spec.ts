@@ -32,7 +32,7 @@ describe("PanService.panNodes$", () => {
         const panService: PanService = new PanService(graphService, stateService);
 
         panService.panNodes$.subscribe(
-            (nodes: [Node, Transform][]): void => {
+            (nodes: [Node, Transform, number][]): void => {
                 expect(nodes.length).toBe(0);
                 done();
             });

@@ -230,7 +230,7 @@ describe("DragPanHandler.enable", () => {
         const frame: IFrame = new FrameHelper().createFrame();
         (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
 
-        (<Subject<[GraphNode, Transform][]>>navigatorMock.panService.panNodes$).next([]);
+        (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
         .next(new RenderCamera(1, 1, RenderMode.Fill));
@@ -268,7 +268,7 @@ describe("DragPanHandler.enable", () => {
         const frame: IFrame = new FrameHelper().createFrame();
         (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
 
-        (<Subject<[GraphNode, Transform][]>>navigatorMock.panService.panNodes$).next([]);
+        (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
         .next(new RenderCamera(1, 1, RenderMode.Fill));
@@ -307,7 +307,7 @@ describe("DragPanHandler.enable", () => {
         const frame: IFrame = new FrameHelper().createFrame();
         (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
 
-        (<Subject<[GraphNode, Transform][]>>navigatorMock.panService.panNodes$).next([]);
+        (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
         .next(new RenderCamera(1, 1, RenderMode.Fill));
@@ -347,7 +347,7 @@ describe("DragPanHandler.enable", () => {
         const frame: IFrame = new FrameHelper().createFrame();
         (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
 
-        (<Subject<[GraphNode, Transform][]>>navigatorMock.panService.panNodes$).next([]);
+        (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
         .next(new RenderCamera(1, 1, RenderMode.Fill));

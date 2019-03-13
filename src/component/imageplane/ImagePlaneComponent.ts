@@ -436,6 +436,10 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
             .subscribe(this._rendererOperation$);
 
         this._clearPeripheryPlaneSubscription = this._navigator.panService.panNodes$.pipe(
+            filter(
+                (panNodes: []): boolean => {
+                    return panNodes.length === 0;
+                }),
             map(
                 (): IImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -448,10 +452,10 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         const cachedPanNodes$: Observable<[GraphNode, Transform]> = this._navigator.panService.panNodes$.pipe(
             switchMap(
-                (nts: [GraphNode, Transform][]): Observable<[GraphNode, Transform]> => {
+                (nts: [GraphNode, Transform, number][]): Observable<[GraphNode, Transform]> => {
                     return observableFrom(nts).pipe(
                         mergeMap(
-                            ([n, t]: [GraphNode, Transform]): Observable<[GraphNode, Transform]> => {
+                            ([n, t]: [GraphNode, Transform, number]): Observable<[GraphNode, Transform]> => {
                                 return observableCombineLatest(
                                     this._navigator.graphService.cacheNode$(n.key).pipe(
                                         catchError(
@@ -520,7 +524,9 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._moveToPeripheryNodeSubscription = this._navigator.panService.panNodes$.pipe(
             switchMap(
-                (nts: [GraphNode, Transform][]): Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]> => {
+                (nts: [GraphNode, Transform, number][]):
+                    Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]> => {
+
                     return panTrigger$.pipe(
                         withLatestFrom(
                             this._container.renderService.renderCamera$,
@@ -528,18 +534,18 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                             this._navigator.stateService.currentTransform$),
                         mergeMap(
                             ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, GraphNode, Transform]):
-                            Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]> => {
+                            Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]> => {
                                 return observableOf(
                                     [
                                         renderCamera,
                                         currentNode,
                                         currentTransform,
                                         nts,
-                                    ] as [RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]);
+                                    ] as [RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]);
                             }));
                 }),
             switchMap(
-                ([camera, cn, ct, nts]: [RenderCamera, GraphNode, Transform, [GraphNode, Transform][]]): Observable<GraphNode> => {
+                ([camera, cn, ct, nts]: [RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]): Observable<GraphNode> => {
                     const direction: THREE.Vector3 = camera.camera.lookat.clone().sub(camera.camera.position);
 
                     const cd: THREE.Vector3 = new Spatial().viewingDirection(cn.rotation);

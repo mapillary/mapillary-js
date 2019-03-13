@@ -14,6 +14,7 @@ import {
     share,
     distinctUntilChanged,
     catchError,
+    startWith,
 } from "rxjs/operators";
 
 import * as Geo from "../geo/Geo";
@@ -37,7 +38,7 @@ export class PanService {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
-    private _panNodes$: Observable<[Node, Transform][]>;
+    private _panNodes$: Observable<[Node, Transform, number][]>;
 
     constructor(
         graphService: GraphService,
@@ -54,9 +55,9 @@ export class PanService {
         this._spatial = !!spatial ? spatial : new Spatial();
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
 
-        const panNodes$: Observable<[Node, Transform][]> = this._stateService.currentNode$.pipe(
+        const panNodes$: Observable<[Node, Transform, number][]> = this._stateService.currentNode$.pipe(
             switchMap(
-                (current: Node): Observable<[Node, Transform][]> => {
+                (current: Node): Observable<[Node, Transform, number][]> => {
                     const current$: Observable<Node> = observableOf(current);
 
                     const bounds: ILatLon[] = this._graphCalculator.boundingBoxCorners(current.computedLatLon, 20);
@@ -103,7 +104,7 @@ export class PanService {
                     return observableCombineLatest(current$, adjacent$).pipe(
                         withLatestFrom(this._stateService.reference$),
                         map(
-                            ([[cn, adjacent], reference]: [[Node, Node[]], ILatLonAlt]): [Node, Transform][] => {
+                            ([[cn, adjacent], reference]: [[Node, Node[]], ILatLonAlt]): [Node, Transform, number][] => {
                                 const currentDirection: THREE.Vector3 = this._spatial.viewingDirection(cn.rotation);
                                 const currentTranslation: number[] = Geo.computeTranslation(
                                     { lat: cn.latLon.lat, lon: cn.latLon.lon, alt: cn.alt },
@@ -122,8 +123,8 @@ export class PanService {
                                 const currentHFov: number = this._computeHorizontalFov(currentProjectedPoints) / 180 * Math.PI;
 
                                 const preferredOverlap: number = Math.PI / 8;
-                                let left: [number, Node, Transform] = undefined;
-                                let right: [number, Node, Transform] = undefined;
+                                let left: [number, Node, Transform, number] = undefined;
+                                let right: [number, Node, Transform, number] = undefined;
 
                                 for (const a of adjacent) {
                                     const translation: number[] = Geo.computeTranslation(
@@ -181,36 +182,37 @@ export class PanService {
 
                                         if (directionChange > 0) {
                                             if (!left) {
-                                                left = [cost, a, transform];
+                                                left = [cost, a, transform, hFov];
                                             } else {
                                                 if (cost < left[0]) {
-                                                    left = [cost, a, transform];
+                                                    left = [cost, a, transform, hFov];
                                                 }
                                             }
                                         } else {
                                             if (!right) {
-                                                right = [cost, a, transform];
+                                                right = [cost, a, transform, hFov];
                                             } else {
                                                 if (cost < right[0]) {
-                                                    right = [cost, a, transform];
+                                                    right = [cost, a, transform, hFov];
                                                 }
                                             }
                                         }
                                     }
                                 }
 
-                                const panNodes: [Node, Transform][] = [];
+                                const panNodes: [Node, Transform, number][] = [];
 
                                 if (!!left) {
-                                    panNodes.push([left[1], left[2]]);
+                                    panNodes.push([left[1], left[2], left[3]]);
                                 }
 
                                 if (!!right) {
-                                    panNodes.push([right[1], right[2]]);
+                                    panNodes.push([right[1], right[2], right[3]]);
                                 }
 
                                 return panNodes;
-                            }));
+                            }),
+                        startWith([]));
                 }));
 
         this._panNodes$ = this._stateService.currentState$.pipe(
@@ -220,13 +222,13 @@ export class PanService {
                 }),
             distinctUntilChanged(),
             switchMap(
-                (traversing: boolean): Observable<[Node, Transform][]> => {
+                (traversing: boolean): Observable<[Node, Transform, number][]> => {
                     return traversing ? observableOf([]) : panNodes$;
                 }),
             share());
     }
 
-    public get panNodes$(): Observable<[Node, Transform][]> {
+    public get panNodes$(): Observable<[Node, Transform, number][]> {
         return this._panNodes$;
     }
 
