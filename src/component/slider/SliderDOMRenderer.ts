@@ -71,6 +71,7 @@ export class SliderDOMRenderer {
             const modeVisible: boolean = !(motionless || pano);
             if (modeVisible) {
                 children.push(this._createModeButton(mode));
+                children.push(this._createModeButton2d(mode));
             }
 
             children.push(this._createPositionInput(position, modeVisible));
@@ -85,18 +86,37 @@ export class SliderDOMRenderer {
     private _createModeButton(mode: SliderMode): vd.VNode {
         const properties: vd.createProperties = {
             onclick: (): void => {
-                this._notifyModeChanged$.next(
-                    mode === SliderMode.Motion ?
-                        SliderMode.Stationary :
-                        SliderMode.Motion);
+                if (mode === SliderMode.Motion) {
+                    return;
+                }
+
+                this._notifyModeChanged$.next(SliderMode.Motion);
             },
         };
 
         const className: string = mode === SliderMode.Stationary ?
-            "SliderModeButtonPressed" :
+            "SliderModeButtonDisabled" :
             "SliderModeButton";
 
         return vd.h("div." + className, properties, [vd.h("div.SliderModeIcon", [])]);
+    }
+
+    private _createModeButton2d(mode: SliderMode): vd.VNode {
+        const properties: vd.createProperties = {
+            onclick: (): void => {
+                if (mode === SliderMode.Stationary) {
+                    return;
+                }
+
+                this._notifyModeChanged$.next(SliderMode.Stationary);
+            },
+        };
+
+        const className: string = mode === SliderMode.Motion ?
+            "SliderModeButton2dDisabled" :
+            "SliderModeButton2d";
+
+        return vd.h("div." + className, properties, [vd.h("div.SliderModeIcon2d", [])]);
     }
 
     private _createPositionInput(position: number, modeVisible: boolean): vd.VNode {
@@ -123,7 +143,7 @@ export class SliderDOMRenderer {
         };
 
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
-        const width: number = Math.max(215, Math.min(400, boundingRect.width - 105)) - 68 + (modeVisible ? 0 : 36);
+        const width: number = Math.max(215, Math.min(400, boundingRect.width - 105)) - 84 + (modeVisible ? 0 : 52);
 
         const positionInput: vd.VNode = vd.h(
             "input.SliderPosition",
