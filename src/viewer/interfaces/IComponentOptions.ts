@@ -1,4 +1,5 @@
 import {
+    IBearingConfiguration,
     ICacheConfiguration,
     IDirectionConfiguration,
     IKeyboardConfiguration,
@@ -9,6 +10,7 @@ import {
     ISliderConfiguration,
     ISpatialDataConfiguration,
     ITagConfiguration,
+    IZoomConfiguration,
 } from "../../Component";
 
 /**
@@ -36,7 +38,7 @@ export interface IComponentOptions {
      *
      * @default true
      */
-    bearing?: boolean;
+    bearing?: boolean | IBearingConfiguration;
 
     /**
      * Cache images around the current one.
@@ -195,7 +197,7 @@ export interface IComponentOptions {
      *
      * @default true
      */
-    zoom?: boolean;
+    zoom?: boolean | IZoomConfiguration;
 }
 
 export default IComponentOptions;

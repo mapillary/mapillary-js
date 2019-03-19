@@ -6,7 +6,6 @@ import {Observable, Subscription, combineLatest as observableCombineLatest} from
 import {
     Component,
     ComponentService,
-    IComponentConfiguration,
 } from "../Component";
 import {
     Spatial, Transform, Geo,
@@ -26,6 +25,22 @@ import IBearingConfiguration from "./interfaces/IBearingConfiguration";
 import ISize from "../render/interfaces/ISize";
 import ComponentSize from "./utils/ComponentSize";
 
+/**
+ * @class BearingComponent
+ *
+ * @classdesc Component for indicating bearing and field of view.
+ *
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer(
+ *     "<element-id>",
+ *     "<client-id>",
+ *     "<my key>");
+ *
+ * var bearingComponent = viewer.getComponent("bearing");
+ * bearingComponent.configure({ size: Mapillary.ComponentSize.Small });
+ * ```
+ */
 export class BearingComponent extends Component<IBearingConfiguration> {
     public static componentName: string = "bearing";
 

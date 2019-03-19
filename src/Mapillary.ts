@@ -14,7 +14,10 @@ export {
     ImageSize,
     Viewer,
 } from "./Viewer";
-export {SliderMode} from "./Component";
+export {
+    SliderMode,
+    ComponentSize,
+} from "./Component";
 
 import * as TagComponent from "./component/tag/Tag";
 export {TagComponent};

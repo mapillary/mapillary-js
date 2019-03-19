@@ -1,3 +1,4 @@
+export {IBearingConfiguration} from "./IBearingConfiguration";
 export {ICacheConfiguration, ICacheDepth} from "./ICacheConfiguration";
 export {CoverState, ICoverConfiguration} from "./ICoverConfiguration";
 export {IDirectionConfiguration} from "./IDirectionConfiguration";
@@ -11,6 +12,7 @@ export {IComponentConfiguration} from "./IComponentConfiguration";
 export {ISequenceConfiguration} from "./ISequenceConfiguration";
 export {ISpatialDataConfiguration} from "./ISpatialDataConfiguration";
 export {ITagConfiguration} from "./ITagConfiguration";
+export {IZoomConfiguration} from "./IZoomConfiguration";
 export {IShader} from "./IShader";
 export * from "../imageplane/interfaces/interfaces";
 export * from "../marker/interfaces/interfaces";

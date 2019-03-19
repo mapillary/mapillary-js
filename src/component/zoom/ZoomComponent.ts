@@ -6,7 +6,6 @@ import * as vd from "virtual-dom";
 import {
     ComponentService,
     Component,
-    IComponentConfiguration,
 } from "../../Component";
 import {
     Transform,
@@ -28,6 +27,22 @@ import IZoomConfiguration from "../interfaces/IZoomConfiguration";
 import ISize from "../../render/interfaces/ISize";
 import ComponentSize from "../utils/ComponentSize";
 
+/**
+ * @class ZoomComponent
+ *
+ * @classdesc Component rendering UI elements used for zooming.
+ *
+ * @example
+ * ```
+ * var viewer = new Mapillary.Viewer(
+ *     "<element-id>",
+ *     "<client-id>",
+ *     "<my key>");
+ *
+ * var zoomComponent = viewer.getComponent("zoom");
+ * zoomComponent.configure({ size: Mapillary.ComponentSize.Small });
+ * ```
+ */
 export class ZoomComponent extends Component<IZoomConfiguration> {
     public static componentName: string = "zoom";
 
