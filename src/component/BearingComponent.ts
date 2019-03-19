@@ -163,7 +163,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
             vd.h(
                 "g",
                 {
-                    attributes: { transform: "translate(19,19)" },
+                    attributes: { transform: "translate(18,18)" },
                     namespace: this._svgNamespace,
                 },
                 [arc]);
@@ -172,15 +172,15 @@ export class BearingComponent extends Component<IBearingConfiguration> {
             vd.h(
                 "svg",
                 {
-                    attributes: { viewBox: "0 0 38 38" },
+                    attributes: { viewBox: "0 0 36 36" },
                     namespace: this._svgNamespace,
                     style: {
-                        height: "38px",
+                        height: "36px",
                         left: "2px",
                         position: "absolute",
                         top: "2px",
                         transform: `rotateZ(${this._spatial.radToDeg(offset)}deg)`,
-                        width: "38px",
+                        width: "36px",
                     },
                 },
                 [group]);
@@ -189,7 +189,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
     }
 
     private _createFovArc(fovLeft: number, fovRigth: number): vd.VNode {
-        const radius: number = 17.75;
+        const radius: number = 16.75;
         const strokeWidth: number = 2.5;
         const fov: number = fovLeft + fovRigth;
 
@@ -255,11 +255,11 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                     attributes: { viewBox: "0 0 2 2" },
                     namespace: this._svgNamespace,
                     style: {
-                        height: "28px",
+                        height: "26px",
                         left: "7px",
                         position: "absolute",
                         top: "7px",
-                        width: "28px",
+                        width: "26px",
                     },
                 },
                 [group]);

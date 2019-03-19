@@ -1,25 +1,25 @@
 .BearingIndicatorContainer {
     bottom: 34px;
-    height: 42px;
+    height: 40px;
     pointer-events: none;
     position: absolute;
-    right: 8px;
-    width: 42px;
+    right: 10px;
+    width: 40px;
     z-index: 10;
 }
 
 .BearingIndicatorContainer.BearingCompact {
     transform: scale(0.6);
     bottom: 16px;
-    right: 1px;
+    right: 2px;
 }
 
 .BearingIndicatorBackground {
     position: absolute;
     top: 0;
     left: 0;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     opacity: 0.5;
     transform-origin: 50% 50%;
 }
@@ -29,15 +29,15 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background-color: #000;
 }
 
 .BearingIndicatorBackgroundArrowContainer {
     position: absolute;
-    left: 15px;
+    left: 14px;
     top: -3.5px;
     height: 8px;
     width: 12px;
@@ -57,10 +57,10 @@
 
 .BearingNorthContainer {
     position: absolute;
-    left: 17px;
+    left: 16px;
     top: -1px;
     width: 8px;
-    height: 22px;
+    height: 21px;
     transform-origin: 50% 100%;
 }
 
