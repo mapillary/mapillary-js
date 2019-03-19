@@ -414,7 +414,8 @@ export class TagComponent extends Component<ITagConfiguration> {
      * tags that do not have a fill will also be returned if the point is inside
      * the geometry of the tag. Tags with point geometries can not be retrieved.
      *
-     * No tag ids will be returned for panoramas.
+     * No tag ids will be returned for polygons rendered in cropped panoramas or
+     * rectangles rendered in panoramas.
      *
      * Notice that the pixelPoint argument requires x, y coordinates from pixel space.
      *
