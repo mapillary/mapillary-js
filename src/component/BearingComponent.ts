@@ -1,4 +1,4 @@
-import {distinctUntilChanged, map, switchMap} from "rxjs/operators";
+import {distinctUntilChanged, map} from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {Observable, Subscription, combineLatest as observableCombineLatest} from "rxjs";
@@ -22,8 +22,11 @@ import {
 } from "../Viewer";
 import { IFrame } from "../state/interfaces/IFrame";
 import ViewportCoords from "../geo/ViewportCoords";
+import IBearingConfiguration from "./interfaces/IBearingConfiguration";
+import ISize from "../render/interfaces/ISize";
+import ComponentSize from "./utils/ComponentSize";
 
-export class BearingComponent extends Component<IComponentConfiguration> {
+export class BearingComponent extends Component<IBearingConfiguration> {
     public static componentName: string = "bearing";
 
     private _spatial: Spatial;
@@ -112,19 +115,27 @@ export class BearingComponent extends Component<IComponentConfiguration> {
 
         this._renderSubscription = observableCombineLatest(
             cameraBearingFov$,
-            nodeBearingFov$).pipe(
+            nodeBearingFov$,
+            this._configuration$,
+            this._container.renderService.size$).pipe(
             map(
-                ([[cb, cf], [no, nfl, nfr]]: [[number, number], [number, number, number]] ): IVNodeHash => {
+                ([[cb, cf], [no, nfl, nfr], configuration, size]:
+                    [[number, number], [number, number, number], IBearingConfiguration, ISize]): IVNodeHash => {
+
                     const background: vd.VNode = this._createBackground(cb);
                     const fovIndicator: vd.VNode = this._createFovIndicator(nfl, nfr, no);
                     const north: vd.VNode = this._createNorth(cb);
                     const cameraSector: vd.VNode = this._createCircleSectorCompass(
                             this._createCircleSector(Math.max(Math.PI / 20, cf), "#FFF"));
 
+                    const compact: string = configuration.size === ComponentSize.Small ||
+                        configuration.size === ComponentSize.Automatic && size.width < 640 ?
+                        ".BearingCompact" : "";
+
                     return {
                         name: this._name,
                         vnode: vd.h(
-                            "div.BearingIndicatorContainer",
+                            "div.BearingIndicatorContainer" + compact,
                             { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
                             [
                                 background,
@@ -141,8 +152,8 @@ export class BearingComponent extends Component<IComponentConfiguration> {
         this._renderSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IComponentConfiguration {
-        return {};
+    protected _getDefaultConfiguration(): IBearingConfiguration {
+        return { size: ComponentSize.Automatic };
     }
 
     private _createFovIndicator(fovLeft: number, fovRigth: number, offset: number): vd.VNode {
