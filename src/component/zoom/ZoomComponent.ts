@@ -1,4 +1,4 @@
-import {combineLatest as observableCombineLatest, Observable, Subject, Subscription} from "rxjs";
+import {combineLatest as observableCombineLatest, Subject, Subscription} from "rxjs";
 
 import {withLatestFrom, map} from "rxjs/operators";
 import * as vd from "virtual-dom";
@@ -24,8 +24,11 @@ import {
     Container,
     Navigator,
 } from "../../Viewer";
+import IZoomConfiguration from "../interfaces/IZoomConfiguration";
+import ISize from "../../render/interfaces/ISize";
+import ComponentSize from "../utils/ComponentSize";
 
-export class ZoomComponent extends Component<IComponentConfiguration> {
+export class ZoomComponent extends Component<IZoomConfiguration> {
     public static componentName: string = "zoom";
 
     private _viewportCoords: ViewportCoords;
@@ -46,13 +49,13 @@ export class ZoomComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         this._renderSubscription = observableCombineLatest(
                 this._navigator.stateService.currentState$,
-                this._navigator.stateService.state$).pipe(
+                this._navigator.stateService.state$,
+                this._configuration$,
+                this._container.renderService.size$).pipe(
             map(
-                ([frame, state]: [IFrame, State]): [number, State] => {
-                    return [frame.state.zoom, state];
-                }),
-            map(
-                ([zoom, state]: [number, State]): IVNodeHash => {
+                ([frame, state, configuration, size]: [IFrame, State, IZoomConfiguration, ISize]): IVNodeHash => {
+                    const zoom: number = frame.state.zoom;
+
                     const zoomInIcon: vd.VNode = vd.h("div.ZoomInIcon", []);
                     const zoomInButton: vd.VNode = zoom >= 3 || state === State.Waiting ?
                         vd.h("div.ZoomInButtonDisabled", [zoomInIcon]) :
@@ -63,10 +66,14 @@ export class ZoomComponent extends Component<IComponentConfiguration> {
                         vd.h("div.ZoomOutButtonDisabled", [zoomOutIcon]) :
                         vd.h("div.ZoomOutButton", { onclick: (): void => { this._zoomDelta$.next(-1); } }, [zoomOutIcon]);
 
+                    const compact: string = configuration.size === ComponentSize.Small ||
+                        configuration.size === ComponentSize.Automatic && size.width < 640 ?
+                        ".ZoomCompact" : "";
+
                     return {
                         name: this._name,
                         vnode: vd.h(
-                            "div.ZoomContainer",
+                            "div.ZoomContainer" + compact,
                             { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
                             [zoomInButton, zoomOutButton]),
                     };
@@ -91,8 +98,8 @@ export class ZoomComponent extends Component<IComponentConfiguration> {
         this._zoomSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IComponentConfiguration {
-        return {};
+    protected _getDefaultConfiguration(): IZoomConfiguration {
+        return { size: ComponentSize.Automatic };
     }
 }
 

@@ -2,8 +2,8 @@
     position: absolute;
     bottom: 88px;
     right: 14px;
-    height: 62px;
-    width: 30px;
+    height: 66px;
+    width: 32px;
     pointer-events: none;
     z-index: 10;
 }
@@ -13,7 +13,7 @@
 .ZoomOutButton,
 .ZoomOutButtonDisabled {
     width: 100%;
-    height: 30px;
+    height: 32px;
     pointer-events: auto;
     background: rgba(0, 0, 0, 0.5);
     cursor: pointer;
@@ -45,8 +45,36 @@
     background-size: contain;
     background-repeat: no-repeat;
     opacity: 1;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
+}
+
+.ZoomCompact.ZoomContainer {
+    height: 34px;
+    width: 16px;
+    bottom: 58px;
+}
+
+.ZoomCompact .ZoomInButton,
+.ZoomCompact .ZoomInButtonDisabled,
+.ZoomCompact .ZoomOutButton,
+.ZoomCompact .ZoomOutButtonDisabled,
+.ZoomCompact .ZoomInIcon,
+.ZoomCompact .ZoomOutIcon {
+    width: 16px;
+    height: 16px;
+}
+
+.ZoomCompact .ZoomInButton,
+.ZoomCompact .ZoomInButtonDisabled {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.ZoomCompact .ZoomOutButton,
+.ZoomCompact .ZoomOutButtonDisabled {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
 }
 
 .ZoomInIcon {
