@@ -1,5 +1,6 @@
 import {distinctUntilChanged, map, switchMap, takeWhile, scan, skip} from "rxjs/operators";
 import * as vd from "virtual-dom";
+import * as UnitBezier from "@mapbox/unitbezier";
 
 import {
     Observable,
@@ -69,6 +70,9 @@ export class BearingComponent extends Component<IBearingConfiguration> {
     private _svgNamespace: string;
     private _distinctThreshold: number;
 
+    private _animationSpeed: number;
+    private _unitBezier: UnitBezier;
+
     private _renderSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -79,6 +83,9 @@ export class BearingComponent extends Component<IBearingConfiguration> {
 
         this._svgNamespace = "http://www.w3.org/2000/svg";
         this._distinctThreshold = Math.PI / 360;
+
+        this._animationSpeed = 0.075;
+        this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
     }
 
     protected _activate(): void {
@@ -168,7 +175,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                 { alpha: 0, curr: [0, 0, 0], prev: [0, 0, 0] }),
             map(
                 (state: NodeFovState): NodeFov => {
-                    const alpha: number = state.alpha;
+                    const alpha: number = this._unitBezier.solve(state.alpha);
                     const curr: NodeFov = state.curr;
                     const prev: NodeFov = state.prev;
 
@@ -182,7 +189,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
             map(
                 (nbf: NodeFov): INodeFovOperation => {
                     return (state: NodeFovState): NodeFovState => {
-                        const a: number = state.alpha;
+                        const a: number = this._unitBezier.solve(state.alpha);
                         const c: NodeFov = state.curr;
                         const p: NodeFov = state.prev;
 
@@ -209,12 +216,16 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                         skip(1),
                         scan<RenderCamera, number>(
                             (alpha: number): number => {
-                                return alpha + 0.1;
+                                return alpha + this._animationSpeed;
                             },
                             0),
                         takeWhile(
                             (alpha: number): boolean => {
-                                return alpha <= 1 + 1e-6;
+                                return alpha <= 1 + this._animationSpeed;
+                            }),
+                        map(
+                            (alpha: number): number => {
+                                return Math.min(alpha, 1);
                             }));
                 }),
             map(
