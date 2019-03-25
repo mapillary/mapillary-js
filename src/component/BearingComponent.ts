@@ -1,7 +1,12 @@
-import {distinctUntilChanged, map} from "rxjs/operators";
+import {distinctUntilChanged, map, switchMap, takeWhile, scan, skip} from "rxjs/operators";
 import * as vd from "virtual-dom";
 
-import {Observable, Subscription, combineLatest as observableCombineLatest} from "rxjs";
+import {
+    Observable,
+    Subscription,
+    combineLatest as observableCombineLatest,
+    Subject,
+} from "rxjs";
 
 import {
     Component,
@@ -24,6 +29,20 @@ import ViewportCoords from "../geo/ViewportCoords";
 import IBearingConfiguration from "./interfaces/IBearingConfiguration";
 import ISize from "../render/interfaces/ISize";
 import ComponentSize from "./utils/ComponentSize";
+
+type NodeFov = [number, number];
+
+type NodeBearingFov = [number, number, number];
+
+type NodeFovState = {
+    alpha: number,
+    curr: NodeFov,
+    prev: NodeFov,
+};
+
+interface INodeFovOperation {
+    (state: NodeFovState): NodeFovState;
+}
 
 /**
  * @class BearingComponent
@@ -79,26 +98,23 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                         Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
                 }));
 
-        const nodeBearingFov$: Observable<[number, number, number]> = observableCombineLatest(
+        const nodeFov$: Observable<NodeFov> = observableCombineLatest(
             this._navigator.stateService.currentState$.pipe(
                 distinctUntilChanged(
                     undefined,
                     (frame: IFrame): string => {
                         return frame.state.currentNode.key;
                     })),
-            this._container.renderService.bearing$,
             this._navigator.panService.panNodes$).pipe(
                 map(
-                    ([frame, bearing, panNodes]: [IFrame, number, [Node, Transform, number][]]): [number, number, number] => {
+                    ([frame, panNodes]: [IFrame, [Node, Transform, number][]]): NodeFov => {
                         const node: Node = frame.state.currentNode;
                         const transform: Transform = frame.state.currentTransform;
-
-                        const offset: number = this._spatial.degToRad(node.ca - bearing);
 
                         if (node.pano) {
                             let panoHFov: number = 2 * Math.PI * node.gpano.CroppedAreaImageWidthPixels / node.gpano.FullPanoWidthPixels;
 
-                            return [offset, panoHFov / 2, panoHFov / 2];
+                            return [panoHFov / 2, panoHFov / 2];
                         }
 
                         const currentProjectedPoints: number[][] = this._computeProjectedPoints(transform);
@@ -116,16 +132,109 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                             }
                         }
 
-                        return [offset, hFovLeft, hFovRight];
+                        return [hFovLeft, hFovRight];
                     }),
                 distinctUntilChanged(
                     (
-                        [offset1, hFovLeft1, hFovRight1]: [number, number, number],
-                        [offset2, hFovLeft2, hFovRight2]: [number, number, number]): boolean => {
+                        [hFovLeft1, hFovRight1]: NodeFov,
+                        [hFovLeft2, hFovRight2]: NodeFov): boolean => {
 
-                        return Math.abs(offset2 - offset1) < this._distinctThreshold &&
-                            Math.abs(hFovLeft2 - hFovLeft1) < this._distinctThreshold &&
+                        return Math.abs(hFovLeft2 - hFovLeft1) < this._distinctThreshold &&
                             Math.abs(hFovRight2 - hFovRight1) < this._distinctThreshold;
+                    }));
+
+        const offset$: Observable<number> = observableCombineLatest(
+            this._navigator.stateService.currentState$.pipe(
+                distinctUntilChanged(
+                    undefined,
+                    (frame: IFrame): string => {
+                        return frame.state.currentNode.key;
+                    })),
+            this._container.renderService.bearing$).pipe(
+                map(
+                    ([frame, bearing]: [IFrame, number]): number => {
+                        const offset: number = this._spatial.degToRad(frame.state.currentNode.ca - bearing);
+
+                        return offset;
+                    }));
+
+        const nodeFovOperation$: Subject<INodeFovOperation> = new Subject<INodeFovOperation>();
+
+        const smoothNodeFov$: Observable<NodeFov> = nodeFovOperation$.pipe(
+            scan(
+                (state: NodeFovState, operation: INodeFovOperation): NodeFovState => {
+                    return operation(state);
+                },
+                { alpha: 0, curr: [0, 0, 0], prev: [0, 0, 0] }),
+            map(
+                (state: NodeFovState): NodeFov => {
+                    const alpha: number = state.alpha;
+                    const curr: NodeFov = state.curr;
+                    const prev: NodeFov = state.prev;
+
+                    return [
+                        this._interpolate(prev[0], curr[0], alpha),
+                        this._interpolate(prev[1], curr[1], alpha),
+                    ];
+                }));
+
+        nodeFov$.pipe(
+            map(
+                (nbf: NodeFov): INodeFovOperation => {
+                    return (state: NodeFovState): NodeFovState => {
+                        const a: number = state.alpha;
+                        const c: NodeFov = state.curr;
+                        const p: NodeFov = state.prev;
+
+                        const prev: NodeFov = [
+                            this._interpolate(p[0], c[0], a),
+                            this._interpolate(p[1], c[1], a),
+                        ];
+
+                        const curr: NodeFov = <NodeFov>nbf.slice();
+
+                        return {
+                            alpha: 0,
+                            curr: curr,
+                            prev: prev,
+                        };
+                    };
+                }))
+            .subscribe(nodeFovOperation$);
+
+        nodeFov$.pipe(
+            switchMap(
+                (): Observable<number> => {
+                    return this._container.renderService.renderCameraFrame$.pipe(
+                        skip(1),
+                        scan<RenderCamera, number>(
+                            (alpha: number): number => {
+                                return alpha + 0.1;
+                            },
+                            0),
+                        takeWhile(
+                            (alpha: number): boolean => {
+                                return alpha <= 1 + 1e-6;
+                            }));
+                }),
+            map(
+                (alpha: number): INodeFovOperation => {
+                    return (nbfState: NodeFovState): NodeFovState => {
+                        return {
+                            alpha: alpha,
+                            curr: <NodeFov>nbfState.curr.slice(),
+                            prev: <NodeFov>nbfState.prev.slice(),
+                        };
+                    };
+                }))
+            .subscribe(nodeFovOperation$);
+
+        const nodeBearingFov$: Observable<NodeBearingFov> = observableCombineLatest(
+            offset$,
+            smoothNodeFov$).pipe(
+                map(
+                    ([offset, fov]: [number, NodeFov]): NodeBearingFov => {
+                        return [offset, fov[0], fov[1]];
                     }));
 
         this._renderSubscription = observableCombineLatest(
@@ -361,6 +470,10 @@ export class BearingComponent extends Component<IBearingConfiguration> {
 
     private _coordToFov(x: number): number {
         return this._spatial.radToDeg(2 * Math.atan(x));
+    }
+
+    private _interpolate(x1: number, x2: number, alpha: number): number {
+        return (1 - alpha) * x1 + alpha * x2;
     }
 }
 
