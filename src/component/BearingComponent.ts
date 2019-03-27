@@ -74,6 +74,8 @@ export class BearingComponent extends Component<IBearingConfiguration> {
     private _unitBezier: UnitBezier;
 
     private _renderSubscription: Subscription;
+    private _fovSubscription: Subscription;
+    private _fovAnimationSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -185,7 +187,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                     ];
                 }));
 
-        nodeFov$.pipe(
+        this._fovSubscription = nodeFov$.pipe(
             map(
                 (nbf: NodeFov): INodeFovOperation => {
                     return (state: NodeFovState): NodeFovState => {
@@ -209,7 +211,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                 }))
             .subscribe(nodeFovOperation$);
 
-        nodeFov$.pipe(
+        this._fovAnimationSubscription = nodeFov$.pipe(
             switchMap(
                 (): Observable<number> => {
                     return this._container.renderService.renderCameraFrame$.pipe(
@@ -285,6 +287,8 @@ export class BearingComponent extends Component<IBearingConfiguration> {
 
     protected _deactivate(): void {
         this._renderSubscription.unsubscribe();
+        this._fovSubscription.unsubscribe();
+        this._fovAnimationSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IBearingConfiguration {
