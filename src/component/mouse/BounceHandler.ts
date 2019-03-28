@@ -73,9 +73,9 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
                             this._container.renderService.renderCamera$,
                             this._navigator.stateService.currentTransform$.pipe(first()));
                 }),
-            withLatestFrom(this._navigator.panService.panNodes$.pipe(startWith([]))))
+            withLatestFrom(this._navigator.panService.panNodes$))
             .subscribe(
-                ([[render, transform], nts]: [[RenderCamera, Transform], [Node, Transform][]]): void => {
+                ([[render, transform], nts]: [[RenderCamera, Transform], [Node, Transform, number][]]): void => {
                     if (!transform.hasValidScale && render.camera.focal < 0.1) {
                         return;
                     }

@@ -78,10 +78,11 @@ describe("PanService.panNodes$", () => {
         const panService: PanService = new PanService(graphService, stateService);
 
         let emitCount: number = 0;
-        panService.panNodes$.subscribe(
-            (): void => {
-                emitCount++;
-            });
+        panService.panNodes$.pipe(skip(1))
+            .subscribe(
+                (): void => {
+                    emitCount++;
+                });
 
         (<Subject<IFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());

@@ -11,10 +11,11 @@ import {
     map,
     switchMap,
     withLatestFrom,
-    share,
     distinctUntilChanged,
     catchError,
     startWith,
+    publishReplay,
+    refCount,
 } from "rxjs/operators";
 
 import * as Geo from "../geo/Geo";
@@ -225,7 +226,11 @@ export class PanService {
                 (traversing: boolean): Observable<[Node, Transform, number][]> => {
                     return traversing ? observableOf([]) : panNodes$;
                 }),
-            share());
+            startWith([]),
+            publishReplay(1),
+            refCount());
+
+        this._panNodes$.subscribe();
     }
 
     public get panNodes$(): Observable<[Node, Transform, number][]> {

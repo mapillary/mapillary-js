@@ -181,9 +181,9 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
             withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
-                this._navigator.panService.panNodes$.pipe(startWith([]))),
+                this._navigator.panService.panNodes$),
             map(
-                ([events, render, transform, nts]: [MouseTouchPair, RenderCamera, Transform, [Node, Transform][]]): IRotation => {
+                ([events, render, transform, nts]: [MouseTouchPair, RenderCamera, Transform, [Node, Transform, number][]]): IRotation => {
                     let previousEvent: MouseEvent | Touch = events[0];
                     let event: MouseEvent | Touch = events[1];
 
