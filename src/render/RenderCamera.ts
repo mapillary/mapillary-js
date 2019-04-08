@@ -227,6 +227,10 @@ export class RenderCamera {
     }
 
     private _computeCurrentFov(): number {
+        if (this._perspective.aspect === 0) {
+            return 0;
+        }
+
         if (!this._currentNodeId) {
             return this._initialFov;
         }
@@ -244,6 +248,10 @@ export class RenderCamera {
     }
 
     private _computePreviousFov(): number {
+        if (this._perspective.aspect === 0) {
+            return 0;
+        }
+
         if (!this._currentNodeId) {
             return this._initialFov;
         }
