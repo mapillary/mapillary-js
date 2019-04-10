@@ -92,6 +92,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#baseimagesize" class="tsd-kind-icon">base<wbr>Image<wbr>Size</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#basepanoramasize" class="tsd-kind-icon">base<wbr>Panorama<wbr>Size</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#combinedpanning" class="tsd-kind-icon">combined<wbr>Panning</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#component" class="tsd-kind-icon">component</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#maximagesize" class="tsd-kind-icon">max<wbr>Image<wbr>Size</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ivieweroptions.html#rendermode" class="tsd-kind-icon">render<wbr>Mode</a></li>
@@ -111,7 +112,7 @@
 					<div class="tsd-signature tsd-kind-icon">base<wbr>Image<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/baef3e73/src/viewer/interfaces/IViewerOptions.ts#L15">viewer/interfaces/IViewerOptions.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L15">viewer/interfaces/IViewerOptions.ts:15</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -131,7 +132,7 @@
 					<div class="tsd-signature tsd-kind-icon">base<wbr>Panorama<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/baef3e73/src/viewer/interfaces/IViewerOptions.ts#L21">viewer/interfaces/IViewerOptions.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L21">viewer/interfaces/IViewerOptions.ts:21</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -146,12 +147,32 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="combinedpanning" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> combined<wbr>Panning</h3>
+					<div class="tsd-signature tsd-kind-icon">combined<wbr>Panning<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L27">viewer/interfaces/IViewerOptions.ts:27</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Value specifying if combined panning should be enabled.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>true</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="component" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> component</h3>
 					<div class="tsd-signature tsd-kind-icon">component<span class="tsd-signature-symbol">:</span> <a href="icomponentoptions.html" class="tsd-signature-type">IComponentOptions</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/baef3e73/src/viewer/interfaces/IViewerOptions.ts#L26">viewer/interfaces/IViewerOptions.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L32">viewer/interfaces/IViewerOptions.ts:32</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -166,7 +187,7 @@
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Image<wbr>Size<span class="tsd-signature-symbol">:</span> <a href="../enums/imagesize.html" class="tsd-signature-type">ImageSize</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/baef3e73/src/viewer/interfaces/IViewerOptions.ts#L33">viewer/interfaces/IViewerOptions.ts:33</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L39">viewer/interfaces/IViewerOptions.ts:39</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -187,7 +208,7 @@
 					<div class="tsd-signature tsd-kind-icon">render<wbr>Mode<span class="tsd-signature-symbol">:</span> <a href="../enums/rendermode.html" class="tsd-signature-type">RenderMode</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/baef3e73/src/viewer/interfaces/IViewerOptions.ts#L39">viewer/interfaces/IViewerOptions.ts:39</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L45">viewer/interfaces/IViewerOptions.ts:45</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -207,7 +228,7 @@
 					<div class="tsd-signature tsd-kind-icon">sprite<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/baef3e73/src/viewer/interfaces/IViewerOptions.ts#L45">viewer/interfaces/IViewerOptions.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L51">viewer/interfaces/IViewerOptions.ts:51</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -223,7 +244,7 @@
 					<div class="tsd-signature tsd-kind-icon">transition<wbr>Mode<span class="tsd-signature-symbol">:</span> <a href="../enums/transitionmode.html" class="tsd-signature-type">TransitionMode</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/baef3e73/src/viewer/interfaces/IViewerOptions.ts#L51">viewer/interfaces/IViewerOptions.ts:51</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L57">viewer/interfaces/IViewerOptions.ts:57</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -243,7 +264,7 @@
 					<div class="tsd-signature tsd-kind-icon">url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">IUrlOptions</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/baef3e73/src/viewer/interfaces/IViewerOptions.ts#L56">viewer/interfaces/IViewerOptions.ts:56</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/8b6fc2f3/src/viewer/interfaces/IViewerOptions.ts#L62">viewer/interfaces/IViewerOptions.ts:62</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -274,6 +295,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ivieweroptions.html#basepanoramasize" class="tsd-kind-icon">base<wbr>Panorama<wbr>Size</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ivieweroptions.html#combinedpanning" class="tsd-kind-icon">combined<wbr>Panning</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ivieweroptions.html#component" class="tsd-kind-icon">component</a>
