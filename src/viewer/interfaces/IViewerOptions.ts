@@ -21,6 +21,12 @@ export interface IViewerOptions {
     basePanoramaSize?: ImageSize;
 
     /**
+     * Value specifying if combined panning should be enabled.
+     * @default true
+     */
+    combinedPanning?: boolean;
+
+    /**
      * The component options.
      */
     component?: IComponentOptions;

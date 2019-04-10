@@ -319,6 +319,15 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Activate the combined panning functionality.
+     *
+     * @description The combined panning functionality is active by default.
+     */
+    public activateCombinedPanning(): void {
+        this._navigator.panService.enable();
+    }
+
+    /**
      * Activate a component.
      *
      * @param {string} name - Name of the component which will become active.
@@ -337,6 +346,16 @@ export class Viewer extends EventEmitter {
      */
     public activateCover(): void {
         this._componentController.activateCover();
+    }
+
+    /**
+     * Deactivate the combined panning functionality.
+     *
+     * @description Deactivating the combined panning functionality
+     * could be needed in scenarios involving sequence only navigation.
+     */
+    public deactivateCombinedPanning(): void {
+        this._navigator.panService.disable();
     }
 
     /**

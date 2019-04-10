@@ -83,7 +83,7 @@ export class Navigator {
 
         this._panService = panService != null ?
             panService :
-            new PanService(this._graphService, this._stateService);
+            new PanService(this._graphService, this._stateService, options.combinedPanning);
 
         this._keyRequested$ = new BehaviorSubject<string>(null);
         this._movedToKey$ = new BehaviorSubject<string>(null);

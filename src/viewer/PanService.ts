@@ -5,6 +5,8 @@ import {
     combineLatest as observableCombineLatest,
     empty as observableEmpty,
     Observable,
+    Subject,
+    Subscription,
 } from "rxjs";
 
 import {
@@ -31,6 +33,12 @@ import { Transform } from "../geo/Transform";
 import ViewportCoords from "../geo/ViewportCoords";
 import { IFrame } from "../State";
 
+enum PanMode {
+    Disabled,
+    Enabled,
+    Started,
+}
+
 export class PanService {
     private _graphService: GraphService;
     private _stateService: StateService;
@@ -39,11 +47,16 @@ export class PanService {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
+    private _panNodesSubject$: Subject<[Node, Transform, number][]>;
     private _panNodes$: Observable<[Node, Transform, number][]>;
+    private _panNodesSubscription: Subscription;
+
+    private _mode: PanMode;
 
     constructor(
         graphService: GraphService,
         stateService: StateService,
+        enabled?: boolean,
         geoCoords?: GeoCoords,
         graphCalculator?: GraphCalculator,
         spatial?: Spatial,
@@ -55,6 +68,45 @@ export class PanService {
         this._graphCalculator = !!graphCalculator ? graphCalculator : new GraphCalculator(this._geoCoords);
         this._spatial = !!spatial ? spatial : new Spatial();
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
+
+        this._mode = enabled !== false ? PanMode.Enabled : PanMode.Disabled;
+
+        this._panNodesSubject$ = new Subject<[Node, Transform, number][]>();
+        this._panNodes$ = this._panNodesSubject$.pipe(
+            startWith([]),
+            publishReplay(1),
+            refCount());
+
+        this._panNodes$.subscribe();
+    }
+
+    public get panNodes$(): Observable<[Node, Transform, number][]> {
+        return this._panNodes$;
+    }
+
+    public enable(): void {
+        if (this._mode !== PanMode.Disabled) {
+            return;
+        }
+
+        this._mode = PanMode.Enabled;
+        this.start();
+    }
+
+    public disable(): void {
+        if (this._mode === PanMode.Disabled) {
+            return;
+        }
+
+        this.stop();
+
+        this._mode = PanMode.Disabled;
+    }
+
+    public start(): void {
+        if (this._mode !== PanMode.Enabled) {
+            return;
+        }
 
         const panNodes$: Observable<[Node, Transform, number][]> = this._stateService.currentNode$.pipe(
             switchMap(
@@ -216,7 +268,7 @@ export class PanService {
                         startWith([]));
                 }));
 
-        this._panNodes$ = this._stateService.currentState$.pipe(
+        this._panNodesSubscription = this._stateService.currentState$.pipe(
             map(
                 (frame: IFrame): boolean => {
                     return frame.state.nodesAhead > 0;
@@ -225,16 +277,24 @@ export class PanService {
             switchMap(
                 (traversing: boolean): Observable<[Node, Transform, number][]> => {
                     return traversing ? observableOf([]) : panNodes$;
-                }),
-            startWith([]),
-            publishReplay(1),
-            refCount());
+                }))
+            .subscribe(
+                (panNodes: [Node, Transform, number][]): void => {
+                    this._panNodesSubject$.next(panNodes);
+                });
 
-        this._panNodes$.subscribe();
+        this._mode = PanMode.Started;
     }
 
-    public get panNodes$(): Observable<[Node, Transform, number][]> {
-        return this._panNodes$;
+    public stop(): void {
+        if (this._mode !== PanMode.Started) {
+            return;
+        }
+
+        this._panNodesSubscription.unsubscribe();
+        this._panNodesSubject$.next([]);
+
+        this._mode = PanMode.Enabled;
     }
 
     private _distance(node: Node, reference: Node): number {

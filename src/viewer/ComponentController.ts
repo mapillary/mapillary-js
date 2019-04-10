@@ -65,6 +65,7 @@ export class ComponentController {
                         this._subscribeCoverComponent();
                         this._navigator.stateService.start();
                         this._navigator.cacheService.start();
+                        this._navigator.panService.start();
                         this._observer.startEmit();
                     });
         }
@@ -169,6 +170,7 @@ export class ComponentController {
                         (): void => {
                             this._navigator.stateService.start();
                             this._navigator.cacheService.start();
+                            this._navigator.panService.start();
                             this._observer.startEmit();
                             this._coverComponent.configure({ state: CoverState.Hidden });
                             this._componentService.deactivateCover();
@@ -184,6 +186,7 @@ export class ComponentController {
                 this._navigator.stateService.stop();
                 this._navigator.cacheService.stop();
                 this._navigator.playService.stop();
+                this._navigator.panService.stop();
                 this._componentService.activateCover();
                 this._setNavigable(conf.key == null);
             }
