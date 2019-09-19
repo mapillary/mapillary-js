@@ -67,6 +67,30 @@ describe("PanService.panNodes$", () => {
         cacheBoundingBoxSubject.next([]);
     });
 
+    it("should emit empty when not merged", (done: Function) => {
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const stateService: StateService = new StateServiceMockCreator().create();
+
+        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
+
+        const panService: PanService = new PanService(graphService, stateService);
+        panService.start();
+
+        panService.panNodes$.pipe(
+            skip(1))
+            .subscribe(
+            (nodes: [Node, Transform, number][]): void => {
+                expect(nodes.length).toBe(0);
+                done();
+            });
+
+        (<Subject<IFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
+        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createUnmergedNode());
+        (<Subject<ILatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+        cacheBoundingBoxSubject.next([]);
+    });
+
     it("should catch error and keep emitting", () => {
         spyOn(console, "error").and.stub();
 

@@ -55,8 +55,8 @@ export class NodeHelper {
             height: 1,
             key: this._nodeKey,
             l: { lat: 0, lon: 0},
-            merge_cc: 0,
-            merge_version: 0,
+            merge_cc: 1,
+            merge_version: 1,
             orientation: 0,
             private: false,
             sequence_key: this._sequenceKey,
@@ -67,6 +67,25 @@ export class NodeHelper {
 
     public createNode(gpano?: IGPano): Node {
         let fullNode: IFullNode = this.createFullNode();
+        fullNode.gpano = gpano;
+
+        let node: Node = new Node(fullNode);
+        node.makeFull(fullNode);
+
+        return node;
+    }
+
+    public createUnmergedNode(gpano?: IGPano): Node {
+        let fullNode: IFullNode = this.createFullNode();
+
+        fullNode.atomic_scale = undefined;
+        fullNode.ca = undefined;
+        fullNode.calt = undefined;
+        fullNode.cfocal = undefined;
+        fullNode.cl = undefined;
+        fullNode.merge_cc = undefined;
+        fullNode.merge_version = undefined;
+
         fullNode.gpano = gpano;
 
         let node: Node = new Node(fullNode);

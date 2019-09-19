@@ -111,9 +111,13 @@ export class PanService {
         const panNodes$: Observable<[Node, Transform, number][]> = this._stateService.currentNode$.pipe(
             switchMap(
                 (current: Node): Observable<[Node, Transform, number][]> => {
+                    if (!current.merged) {
+                        return observableOf([]);
+                    }
+
                     const current$: Observable<Node> = observableOf(current);
 
-                    const bounds: ILatLon[] = this._graphCalculator.boundingBoxCorners(current.computedLatLon, 20);
+                    const bounds: ILatLon[] = this._graphCalculator.boundingBoxCorners(current.latLon, 20);
 
                     const adjacent$: Observable<Node[]> = this._graphService
                         .cacheBoundingBox$(bounds[0], bounds[1]).pipe(
