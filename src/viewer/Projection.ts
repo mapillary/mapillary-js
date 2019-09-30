@@ -26,7 +26,7 @@ export class Projection {
         transform: Transform): number[] {
 
         return this._viewportCoords
-            .basicToCanvas(basicPoint[0], basicPoint[1], container, transform, render.perspective);
+            .basicToCanvasSafe(basicPoint[0], basicPoint[1], container, transform, render.perspective);
     }
 
     public canvasToBasic(
@@ -117,6 +117,28 @@ export class Projection {
             reference.alt);
 
         return { lat: lat, lon: lon };
+    }
+
+    public latLonToCanvas(
+        latLon: ILatLon,
+        container: HTMLElement,
+        render: RenderCamera,
+        reference: ILatLonAlt): number[] {
+
+        const point3d: number[] = this._geoCoords.geodeticToEnu(
+            latLon.lat,
+            latLon.lon,
+            0,
+            reference.lat,
+            reference.lon,
+            reference.alt);
+
+        const canvas: number[] = this._viewportCoords.projectToCanvasSafe(
+            point3d,
+            container,
+            render.perspective);
+
+        return canvas;
     }
 }
 

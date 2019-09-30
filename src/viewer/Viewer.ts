@@ -742,11 +742,52 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Project an ILatLon representing geographicalcoordinates to
+     * canvas pixel coordinates.
+     *
+     * @description The geographical coordinates may not always correspond to pixel
+     * coordinates. In the case of no correspondence the returned value will
+     * be `null`.
+     *
+     * The projection is performed from the ground plane, i.e.
+     * the altitude with respect to the ground plane for the geographical
+     * point is zero.
+     *
+     * Note that whenever the camera moves, the result of the method will be
+     * different.
+     *
+     * @param {ILatLon} latLon - Geographical coordinates to project.
+     * @returns {Promise<Array<number>>} Promise to the pixel coordinates corresponding
+     * to the latLon.
+     *
+     * @example
+     * ```
+     * viewer.project({ lat: 0, lon: 0 })
+     *     .then((pixelPoint) => { console.log(pixelPoint); });
+     * ```
+     */
+    public project(latLon: ILatLon): when.Promise<number[]> {
+        return when.promise<number[]>(
+            (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
+                this._observer.project$(latLon)
+                    .subscribe(
+                        (pixelPoint: number[]): void => {
+                            resolve(pixelPoint);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
      * Project basic image coordinates for the current node to canvas pixel
      * coordinates.
      *
      * @description The basic image coordinates may not always correspond to a
-     * pixel point that lies in the visible area of the viewer container.
+     * pixel point that lies in the visible area of the viewer container. In the
+     * case of no correspondence the returned value can be `null`.
+     *
      *
      * @param {Array<number>} basicPoint - Basic images coordinates to project.
      * @returns {Promise<Array<number>>} Promise to the pixel coordinates corresponding
@@ -1009,6 +1050,9 @@ export class Viewer extends EventEmitter {
      * @description The pixel point may not always correspond to geographical
      * coordinates. In the case of no correspondence the returned value will
      * be `null`.
+     *
+     * The unprojection to a latLon will be performed towards the ground plane, i.e.
+     * the altitude with respect to the ground plane for the returned latLon is zero.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
      * @returns {Promise<ILatLon>} Promise to the latLon corresponding to the pixel point.

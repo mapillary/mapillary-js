@@ -412,6 +412,34 @@ export class ViewportCoords {
     }
 
     /**
+     * Project 3D world coordinates to canvas coordinates safely. If 3D
+     * point is behind camera null will be returned.
+     *
+     * @param {Array<number>} point3D - 3D world coordinates.
+     * @param {HTMLElement} container - The viewer container.
+     * @param {THREE.Camera} camera - Camera used in rendering.
+     * @returns {Array<number>} 2D canvas coordinates.
+     */
+    public projectToCanvasSafe(
+        point3d: number[],
+        container: { offsetHeight: number, offsetWidth: number },
+        camera: THREE.Camera):
+        number[] {
+
+        const pointCamera: number[] = this.worldToCamera(point3d, camera);
+
+        if (pointCamera[2] > 0) {
+            return null;
+        }
+
+        const viewport: number[] = this.projectToViewport(point3d, camera);
+        const canvas: number[] =
+            this.viewportToCanvas(viewport[0], viewport[1], container);
+
+        return canvas;
+    }
+
+    /**
      * Project 3D world coordinates to viewport coordinates.
      *
      * @param {Array<number>} point3D - 3D world coordinates.

@@ -92,6 +92,25 @@ export class Observer {
         return this._projection;
     }
 
+    public project$(latLon: ILatLon): Observable<number[]> {
+        return observableCombineLatest(
+            this._container.renderService.renderCamera$,
+            this._navigator.stateService.reference$).pipe(
+            first(),
+            map(
+                ([render, reference]: [RenderCamera, ILatLonAlt]): number[] => {
+                    const canvasPoint: number[] = this._projection.latLonToCanvas(
+                        latLon,
+                        this._container.element,
+                        render,
+                        reference);
+
+                    return !!canvasPoint ?
+                        [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])] :
+                        null;
+                }));
+    }
+
     public projectBasic$(basicPoint: number[]): Observable<number[]> {
         return observableCombineLatest(
                 this._container.renderService.renderCamera$,
@@ -105,7 +124,9 @@ export class Observer {
                         render,
                         transform);
 
-                    return [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])];
+                    return !!canvasPoint ?
+                        [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])] :
+                        null;
                 }));
     }
 
