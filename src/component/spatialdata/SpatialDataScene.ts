@@ -276,13 +276,13 @@ export class SpatialDataScene {
 
         const intersects: THREE.Intersection[] = this._raycaster.intersectObjects(this._interactiveObjects);
         for (const intersect of intersects) {
-            for (const hash in this._reconstructions) {
-                if (!this._reconstructions.hasOwnProperty(hash)) {
+            for (const hash in this._nodes) {
+                if (!this._nodes.hasOwnProperty(hash)) {
                     continue;
                 }
 
-                if (intersect.object.uuid in this._reconstructions[hash].cameraKeys) {
-                    return this._reconstructions[hash].cameraKeys[intersect.object.uuid];
+                if (intersect.object.uuid in this._nodes[hash].cameraKeys) {
+                    return this._nodes[hash].cameraKeys[intersect.object.uuid];
                 }
             }
         }
