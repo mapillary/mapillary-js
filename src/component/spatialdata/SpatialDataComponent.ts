@@ -23,6 +23,7 @@ import {
     first,
     refCount,
     publishReplay,
+    publish,
 } from "rxjs/operators";
 
 import {
@@ -30,7 +31,6 @@ import {
     Component,
     ISpatialDataConfiguration,
     NodeData,
-    ReconstructionData,
     SpatialDataCache,
     SpatialDataScene,
 } from "../../Component";
@@ -58,6 +58,7 @@ import {
 } from "../../Viewer";
 import PlayService from "../../viewer/PlayService";
 import State from "../../state/State";
+import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
@@ -67,7 +68,6 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _viewportCoords: ViewportCoords;
     private _geoCoords: GeoCoords;
 
-    private _addSubscription: Subscription;
     private _cameraVisibilitySubscription: Subscription;
     private _earthControlsSubscription: Subscription;
     private _moveSubscription: Subscription;
@@ -159,7 +159,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._addSubscription = observableCombineLatest(
+        const hashes$: Observable<string[]> = observableCombineLatest(
             this._navigator.stateService.state$.pipe(
                 map(
                     (state: State): boolean => {
@@ -196,49 +196,93 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         observableOf([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
                         observableOf(this._computeTiles(hash, direction));
                 }),
+            publish(),
+            refCount());
+
+        const tile$: Observable<[string, NodeData[]]> = hashes$.pipe(
             switchMap(
-                (hashes: string[]): Observable<string> => {
+                (hashes: string[]): Observable<[string, NodeData[]]> => {
                     return observableFrom(hashes).pipe(
                         mergeMap(
                             (h: string): Observable<[string, NodeData[]]> => {
-                                let tile$: Observable<NodeData[]>;
+                                let t$: Observable<NodeData[]>;
 
                                 if (this._cache.hasTile(h)) {
-                                    tile$ = observableOf(this._cache.getTile(h));
+                                    t$ = observableOf(this._cache.getTile(h));
                                 } else if (this._cache.isCachingTile(h)) {
-                                    tile$ = this._cache.cacheTile$(h).pipe(
+                                    t$ = this._cache.cacheTile$(h).pipe(
                                         last(null, {}),
                                         switchMap(
                                             (): Observable<NodeData[]> => {
                                                 return observableOf(this._cache.getTile(h));
                                             }));
                                 } else {
-                                    tile$ = this._cache.cacheTile$(h);
+                                    t$ = this._cache.cacheTile$(h);
                                 }
 
-                                return observableCombineLatest(observableOf(h), tile$);
+                                return observableCombineLatest(observableOf(h), t$);
                             },
-                            1),
-                        map(
-                            ([hash]: [string, NodeData[]]): string => {
-                                return hash;
-                            }));
-                }),
-            concatMap(
-                (hash: string): Observable<[string, ReconstructionData]> => {
-                    let reconstructions$: Observable<ReconstructionData>;
+                            1));
+                        }),
+            publish(),
+            refCount());
 
-                    if (this._cache.hasReconstructions(hash)) {
-                        reconstructions$ = observableFrom(this._cache.getReconstructions(hash));
-                    } else if (this._cache.isCachingReconstructions(hash)) {
-                        reconstructions$ = this._cache.cacheReconstructions$(hash).pipe(
+        tile$.pipe(
+            withLatestFrom(this._navigator.stateService.reference$),
+            tap(
+                ([[hash], reference]: [[string, NodeData[]], ILatLonAlt]): void => {
+                    if (this._scene.hasTile(hash)) {
+                        return;
+                    }
+
+                    this._scene.addTile(this._computeTileBBox(hash, reference), hash);
+                }))
+            .subscribe();
+
+        tile$.pipe(
+            withLatestFrom(this._navigator.stateService.reference$),
+            mergeMap(
+                ([[hash, data], reference]: [[string, NodeData[]], ILatLonAlt]):
+                Observable<[NodeData, Transform, number[], string]> => {
+                    const items: [NodeData, Transform, number[], string][] = [];
+
+                    for (const d of data) {
+                        items.push([
+                            d,
+                            this._createTransform(d, reference),
+                            this._computeOriginalPosition(d, reference),
+                            hash,
+                        ]);
+                    }
+
+                    return observableFrom(items);
+                }))
+            .subscribe(
+                ([data, transform, position, hash]: [NodeData, Transform, number[], string]): void => {
+                    this._scene.addNode(
+                        data.key,
+                        transform,
+                        position,
+                        !!data.mergeCC ? data.mergeCC.toString() : "",
+                        hash);
+                });
+
+        tile$.pipe(
+            concatMap(
+                ([hash]: [string, NodeData[]]): Observable<[string, IClusterReconstruction]> => {
+                    let reconstructions$: Observable<IClusterReconstruction>;
+
+                    if (this._cache.hasClusterReconstructions(hash)) {
+                        reconstructions$ = observableFrom(this._cache.getClusterReconstructions(hash));
+                    } else if (this._cache.isCachingClusterReconstructions(hash)) {
+                        reconstructions$ = this._cache.cacheClusterReconstructions$(hash).pipe(
                             last(null, {}),
                             switchMap(
-                                (): Observable<ReconstructionData> => {
-                                    return observableFrom(this._cache.getReconstructions(hash));
+                                (): Observable<IClusterReconstruction> => {
+                                    return observableFrom(this._cache.getClusterReconstructions(hash));
                                 }));
                     } else if (this._cache.hasTile(hash)) {
-                        reconstructions$ = this._cache.cacheReconstructions$(hash);
+                        reconstructions$ = this._cache.cacheClusterReconstructions$(hash);
                     } else {
                         reconstructions$ = observableEmpty();
                     }
@@ -246,34 +290,23 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     return observableCombineLatest(observableOf(hash), reconstructions$);
                 }),
             withLatestFrom(this._navigator.stateService.reference$),
-            tap(
-                ([[hash], reference]: [[string, ReconstructionData], ILatLonAlt]): boolean => {
-                    if (this._scene.hasTile(hash)) {
-                        return;
-                    }
-
-                    this._scene.addTile(this._computeTileBBox(hash, reference), hash);
-                }),
             filter(
-                ([[hash, data]]: [[string, ReconstructionData], ILatLonAlt]): boolean => {
-                    return !this._scene.hasReconstruction(data.reconstruction.main_shot, hash);
+                ([[hash, reconstruction]]: [[string, IClusterReconstruction], ILatLonAlt]): boolean => {
+                    return !this._scene.hasClusterReconstruction(reconstruction.key, hash);
                 }),
             map(
-                ([[hash, data], reference]: [[string, ReconstructionData], ILatLonAlt]):
-                [ReconstructionData, Transform, number[], string] => {
+                ([[hash, reconstruction], reference]: [[string, IClusterReconstruction], ILatLonAlt]):
+                [IClusterReconstruction, number[], string] => {
                     return [
-                        data,
-                        this._createTransform(data.data, reference),
-                        this._computeOriginalPosition(data.data, reference),
+                        reconstruction,
+                        this._computeTranslation(reconstruction, reference),
                         hash];
                 }))
             .subscribe(
-                ([data, transform, position, hash]: [ReconstructionData, Transform, number[], string]): void => {
-                    this._scene.addReconstruction(
-                        data.reconstruction,
-                        transform,
-                        position,
-                        !!data.data.mergeCC ? data.data.mergeCC.toString() : "",
+                ([reconstruction, translation, hash]: [IClusterReconstruction, number[], string]): void => {
+                    this._scene.addClusterReconstruction(
+                        reconstruction,
+                        translation,
                         hash);
                 });
 
@@ -391,7 +424,6 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._cache.uncache();
         this._scene.uncache();
 
-        this._addSubscription.unsubscribe();
         this._cameraVisibilitySubscription.unsubscribe();
         this._earthControlsSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
@@ -552,6 +584,10 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         for (let directionNeighbour of directionNeighbours) {
             this._computeTilesRecursive(hashSet, directionNeighbour, direction, directions, currentDepth + 1, maxDepth);
         }
+    }
+
+    private _computeTranslation(reconstruction: IClusterReconstruction, reference: ILatLonAlt): number[] {
+        return [0, 0, 0];
     }
 
     private _modulo(a: number, n: number): number {
