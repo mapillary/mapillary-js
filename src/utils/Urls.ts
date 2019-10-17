@@ -3,6 +3,7 @@ import {IUrlOptions} from "../Viewer";
 export class Urls {
     private static _apiHost: string = "a.mapillary.com";
     private static _atomicReconstructionHost: string = "atomic-reconstructions.mapillary.com";
+    private static _clusterReconstructionHost: string = "cluster-reconstructions.mapillary.com";
     private static _exploreHost: string = "www.mapillary.com";
     private static _imageHost: string = "images.mapillary.com";
     private static _imageTileHost: string = "loris.mapillary.com";
@@ -28,6 +29,10 @@ export class Urls {
 
     public static atomicReconstruction(key: string): string {
         return `${Urls._scheme}://${Urls._atomicReconstructionHost}/${key}/sfm/v1.0/atomic_reconstruction.json`;
+    }
+
+    public static clusterReconstruction(key: string): string {
+        return `${Urls._scheme}://${Urls._clusterReconstructionHost}/${key}/v1.0/aligned.jsonz`;
     }
 
     public static exporeImage(key: string): string {
@@ -63,6 +68,10 @@ export class Urls {
 
         if (!!options.atomicReconstructionHost) {
             Urls._atomicReconstructionHost = options.atomicReconstructionHost;
+        }
+
+        if (!!options.clusterReconstructionHost) {
+            Urls._clusterReconstructionHost = options.clusterReconstructionHost;
         }
 
         if (!!options.exploreHost) {
