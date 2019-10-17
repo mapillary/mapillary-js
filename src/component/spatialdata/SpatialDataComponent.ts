@@ -587,7 +587,13 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     }
 
     private _computeTranslation(reconstruction: IClusterReconstruction, reference: ILatLonAlt): number[] {
-        return [0, 0, 0];
+        return this._geoCoords.geodeticToEnu(
+            reconstruction.reference_lla.latitude,
+            reconstruction.reference_lla.longitude,
+            reconstruction.reference_lla.altitude,
+            reference.lat,
+            reference.lon,
+            reference.alt);
     }
 
     private _modulo(a: number, n: number): number {
