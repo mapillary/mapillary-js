@@ -7,6 +7,7 @@ import {
 import {Node} from "../../src/Graph";
 
 export class NodeHelper {
+    private _clusterKey: string = "ckey";
     private _nodeKey: string = "nkey";
     private _sequenceKey: string = "skey";
     private _userKey: string = "ukey";
@@ -30,6 +31,7 @@ export class NodeHelper {
             captured_at: 0,
             cca: 0,
             cfocal: 0,
+            cluster_key: this._clusterKey,
             gpano: null,
             height: 1,
             merge_cc: 0,
@@ -51,6 +53,7 @@ export class NodeHelper {
             cca: 0,
             cfocal: 0,
             cl: { lat: 0, lon: 0 },
+            cluster_key: this._clusterKey,
             gpano: null,
             height: 1,
             key: this._nodeKey,

@@ -45,6 +45,7 @@ describe("PointGeometry.setVertex2d", () => {
             captured_at: 0,
             cca: 0,
             cfocal: 0,
+            cluster_key: "ckey",
             gpano: gpano,
             height: 0,
             merge_cc: 0,

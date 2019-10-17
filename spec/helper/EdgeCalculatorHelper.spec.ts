@@ -59,6 +59,7 @@ export class EdgeCalculatorHelper {
             captured_at: capturedAt,
             cca: 0,
             cfocal: 0,
+            cluster_key: "ckey",
             gpano: gpano,
             height: 0,
             merge_cc: mergeCC,

@@ -145,6 +145,16 @@ export class Node {
     }
 
     /**
+     * Get clusterKey.
+     *
+     * @returns {string} Unique key of the SfM cluster to which
+     * the node belongs.
+     */
+    public get clusterKey(): string {
+        return this._fill.cluster_key;
+    }
+
+    /**
      * Get ck1.
      *
      * @description Will not be set if SfM has not been run.

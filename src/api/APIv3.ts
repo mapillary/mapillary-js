@@ -110,6 +110,7 @@ export class APIv3 {
 
         this._propertiesSpatial = [
             "atomic_scale",
+            "cluster_key",
             "c_rotation",
             "ca",
             "calt",

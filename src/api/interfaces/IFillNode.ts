@@ -13,6 +13,11 @@ export interface IFillNode {
     atomic_scale?: number;
 
     /**
+     * Key of SfM cluster that the node is part of.
+     */
+    cluster_key: string;
+
+    /**
      * Rotation vector in angle axis representation.
      */
     c_rotation?: number[];
