@@ -1,4 +1,5 @@
 import * as geohash from "latlon-geohash";
+import * as pako from "pako";
 
 import {
     empty as observableEmpty,
@@ -38,10 +39,12 @@ import {
     Urls,
 } from "../../Utils";
 import { CameraProjection } from "../../api/interfaces/CameraProjection";
+import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 
 export type NodeData = {
     alt: number;
     cameraProjection: CameraProjection;
+    clusterKey: string;
     focal: number;
     gpano: IGPano;
     height: number;
@@ -71,6 +74,12 @@ export class SpatialDataCache {
     private _reconstructions: { [hash: string]: ReconstructionData[] };
     private _tiles: { [hash: string]: NodeData[] };
 
+    private _clusterReconstructions: { [key: string]: IClusterReconstruction };
+    private _tileClusters: { [hash: string]: string[] };
+    private _tileClusterReconstructions: { [hash: string]: IClusterReconstruction[] };
+    private _clusterReconstructionTiles: { [key: string]: string[] };
+
+    private _cachingClusterReconstructions$: { [hash: string]: Observable<IClusterReconstruction> };
     private _cachingReconstructions$: { [hash: string]: Observable<ReconstructionData> };
     private _cachingTiles$: { [hash: string]: Observable<NodeData[]> };
 
@@ -81,8 +90,83 @@ export class SpatialDataCache {
         this._cacheRequests = {};
         this._reconstructions = {};
 
+        this._clusterReconstructions = {};
+        this._tileClusters = {};
+        this._tileClusterReconstructions = {};
+        this._clusterReconstructionTiles = {};
+
         this._cachingReconstructions$ = {};
         this._cachingTiles$ = {};
+
+        this._cachingClusterReconstructions$ = {};
+    }
+
+    public cacheClusterReconstructions$(hash: string): Observable<IClusterReconstruction> {
+        if (!this.hasTile(hash)) {
+            throw new Error("Cannot cache reconstructions of a non-existing tile.");
+        }
+
+        if (this.hasReconstructions(hash)) {
+            throw new Error("Cannot cache reconstructions that already exists.");
+        }
+
+        if (this.isCachingReconstructions(hash)) {
+            return this._cachingClusterReconstructions$[hash];
+        }
+
+        const clusterKeys: string[] = this.getTile(hash)
+            .map(
+                (nd: NodeData): string => {
+                    return nd.clusterKey;
+                })
+            .filter(
+                (v: string, i: number, a: string[]) => {
+                    return a.indexOf(v) === i;
+                });
+
+        this._tileClusterReconstructions[hash] = [];
+
+        this._tileClusters[hash] = clusterKeys;
+        this._cacheRequests[hash] = [];
+
+        this._cachingClusterReconstructions$[hash] =  observableFrom(clusterKeys).pipe(
+            mergeMap(
+                (key: string): Observable<IClusterReconstruction> => {
+                    return this._getClusterReconstruction$(key, this._cacheRequests[hash])
+                        .pipe(
+                            catchError(
+                                (error: Error): Observable<IClusterReconstruction> => {
+                                    if (error instanceof AbortMapillaryError) {
+                                        return observableEmpty();
+                                    }
+
+                                    console.error(error);
+
+                                    return observableEmpty();
+                                }));
+                }),
+            filter(
+                (): boolean => {
+                    return hash in this._tileClusterReconstructions;
+                }),
+            tap(
+                (reconstruction: IClusterReconstruction): void => {
+                    this._tileClusterReconstructions[hash].push(reconstruction);
+                }),
+            finalize(
+                (): void => {
+                    if (hash in this._cachingClusterReconstructions$) {
+                        delete this._cachingClusterReconstructions$[hash];
+                    }
+
+                    if (hash in this._cacheRequests) {
+                        delete this._cacheRequests[hash];
+                    }
+                }),
+            publish(),
+            refCount());
+
+        return this._cachingClusterReconstructions$[hash];
     }
 
     public cacheReconstructions$(hash: string): Observable<ReconstructionData> {
@@ -231,12 +315,22 @@ export class SpatialDataCache {
         return this._cachingTiles$[hash];
     }
 
+    public isCachingClusterReconstructions(hash: string): boolean {
+        return hash in this._cachingClusterReconstructions$;
+    }
+
     public isCachingReconstructions(hash: string): boolean {
         return hash in this._cachingReconstructions$;
     }
 
     public isCachingTile(hash: string): boolean {
         return hash in this._cachingTiles$;
+    }
+
+    public hasClusterReconstructions(hash: string): boolean {
+        return !(hash in this._cachingClusterReconstructions$) &&
+            hash in this._tileClusterReconstructions &&
+            this._tileClusterReconstructions[hash].length === this._tileClusters[hash].length;
     }
 
     public hasReconstructions(hash: string): boolean {
@@ -249,7 +343,13 @@ export class SpatialDataCache {
         return !(hash in this._cachingTiles$) && hash in this._tiles;
     }
 
-    public getReconstructions(hash: string): ReconstructionData[] {
+    public  getClusterReconstructions(hash: string): IClusterReconstruction[] {
+        return hash in this._tileClusterReconstructions ?
+            this._tileClusterReconstructions[hash] :
+            [];
+    }
+
+    public  getReconstructions(hash: string): ReconstructionData[] {
         return hash in this._reconstructions ?
             this._reconstructions[hash]
                 .filter(
@@ -297,6 +397,7 @@ export class SpatialDataCache {
         return {
             alt: node.alt,
             cameraProjection: node.cameraProjection,
+            clusterKey: "cluster_key",
             focal: node.focal,
             gpano: node.gpano,
             height: node.height,
@@ -348,6 +449,49 @@ export class SpatialDataCache {
                 requests.push(xmlHTTP);
 
                 xmlHTTP.send(null);
+            });
+    }
+
+    private _getClusterReconstruction$(clusterKey: string, requests: XMLHttpRequest[]): Observable<IClusterReconstruction> {
+        return Observable.create(
+            (subscriber: Subscriber<IClusterReconstruction>): void => {
+                const xhr: XMLHttpRequest = new XMLHttpRequest();
+
+                let url: string = Urls.clusterReconstruction(clusterKey);
+
+                xhr.open("GET", "aligned.jsonz", true);
+                xhr.responseType = "arraybuffer";
+                xhr.timeout = 15000;
+
+                xhr.onload = () => {
+                    if (!xhr.response) {
+                        subscriber.error(new Error(`Cluster reconstruction retreival failed (${clusterKey})`));
+                    } else {
+                        const inflated: string = pako.inflate(xhr.response, { to: "string" });
+                        const reconstructions: IClusterReconstruction[] = JSON.parse(inflated);
+                        const reconstruction: IClusterReconstruction = reconstructions[0];
+                        reconstruction.key = clusterKey;
+
+                        subscriber.next(reconstruction);
+                        subscriber.complete();
+                    }
+                };
+
+                xhr.onerror = () => {
+                    subscriber.error(new Error(`Failed to get atomic reconstruction (${clusterKey})`));
+                };
+
+                xhr.ontimeout = () => {
+                    subscriber.error(new Error(`Cluster reconstruction request timed out (${clusterKey})`));
+                };
+
+                xhr.onabort = () => {
+                    subscriber.error(new AbortMapillaryError(`Cluster reconstruction request was aborted (${clusterKey})`));
+                };
+
+                requests.push(xhr);
+
+                xhr.send(null);
             });
     }
 }
