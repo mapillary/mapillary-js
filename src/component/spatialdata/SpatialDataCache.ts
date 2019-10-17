@@ -397,7 +397,7 @@ export class SpatialDataCache {
         return {
             alt: node.alt,
             cameraProjection: node.cameraProjection,
-            clusterKey: "cluster_key",
+            clusterKey: node.clusterKey,
             focal: node.focal,
             gpano: node.gpano,
             height: node.height,
@@ -452,25 +452,23 @@ export class SpatialDataCache {
             });
     }
 
-    private _getClusterReconstruction$(clusterKey: string, requests: XMLHttpRequest[]): Observable<IClusterReconstruction> {
+    private _getClusterReconstruction$(key: string, requests: XMLHttpRequest[]): Observable<IClusterReconstruction> {
         return Observable.create(
             (subscriber: Subscriber<IClusterReconstruction>): void => {
                 const xhr: XMLHttpRequest = new XMLHttpRequest();
 
-                let url: string = Urls.clusterReconstruction(clusterKey);
-
-                xhr.open("GET", "aligned.jsonz", true);
+                xhr.open("GET", Urls.clusterReconstruction(key), true);
                 xhr.responseType = "arraybuffer";
                 xhr.timeout = 15000;
 
                 xhr.onload = () => {
                     if (!xhr.response) {
-                        subscriber.error(new Error(`Cluster reconstruction retreival failed (${clusterKey})`));
+                        subscriber.error(new Error(`Cluster reconstruction retreival failed (${key})`));
                     } else {
                         const inflated: string = pako.inflate(xhr.response, { to: "string" });
                         const reconstructions: IClusterReconstruction[] = JSON.parse(inflated);
                         const reconstruction: IClusterReconstruction = reconstructions[0];
-                        reconstruction.key = clusterKey;
+                        reconstruction.key = key;
 
                         subscriber.next(reconstruction);
                         subscriber.complete();
@@ -478,15 +476,15 @@ export class SpatialDataCache {
                 };
 
                 xhr.onerror = () => {
-                    subscriber.error(new Error(`Failed to get atomic reconstruction (${clusterKey})`));
+                    subscriber.error(new Error(`Failed to get atomic reconstruction (${key})`));
                 };
 
                 xhr.ontimeout = () => {
-                    subscriber.error(new Error(`Cluster reconstruction request timed out (${clusterKey})`));
+                    subscriber.error(new Error(`Cluster reconstruction request timed out (${key})`));
                 };
 
                 xhr.onabort = () => {
-                    subscriber.error(new AbortMapillaryError(`Cluster reconstruction request was aborted (${clusterKey})`));
+                    subscriber.error(new AbortMapillaryError(`Cluster reconstruction request was aborted (${key})`));
                 };
 
                 requests.push(xhr);
