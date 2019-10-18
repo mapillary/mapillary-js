@@ -68,6 +68,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _viewportCoords: ViewportCoords;
     private _geoCoords: GeoCoords;
 
+    private _addNodeSubscription: Subscription;
+    private _addReconstructionSubscription: Subscription;
+    private _addTileSubscription: Subscription;
     private _cameraVisibilitySubscription: Subscription;
     private _earthControlsSubscription: Subscription;
     private _moveSubscription: Subscription;
@@ -227,7 +230,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             publish(),
             refCount());
 
-        tile$.pipe(
+        this._addTileSubscription = tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$),
             tap(
                 ([[hash], reference]: [[string, NodeData[]], ILatLonAlt]): void => {
@@ -239,7 +242,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }))
             .subscribe();
 
-        tile$.pipe(
+        this._addNodeSubscription = tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$),
             mergeMap(
                 ([[hash, data], reference]: [[string, NodeData[]], ILatLonAlt]):
@@ -267,7 +270,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         hash);
                 });
 
-        tile$.pipe(
+        this._addReconstructionSubscription = tile$.pipe(
             concatMap(
                 ([hash]: [string, NodeData[]]): Observable<[string, IClusterReconstruction]> => {
                     let reconstructions$: Observable<IClusterReconstruction>;
@@ -424,6 +427,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._cache.uncache();
         this._scene.uncache();
 
+        this._addNodeSubscription.unsubscribe();
+        this._addReconstructionSubscription.unsubscribe();
+        this._addTileSubscription.unsubscribe();
         this._cameraVisibilitySubscription.unsubscribe();
         this._earthControlsSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
