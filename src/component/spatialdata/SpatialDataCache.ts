@@ -76,7 +76,6 @@ export class SpatialDataCache {
 
     private _clusterReconstructions: { [key: string]: IClusterReconstruction };
     private _tileClusters: { [hash: string]: string[] };
-    private _tileClusterReconstructions: { [hash: string]: IClusterReconstruction[] };
     private _clusterReconstructionTiles: { [key: string]: string[] };
 
     private _cachingClusterReconstructions$: { [hash: string]: Observable<IClusterReconstruction> };
@@ -92,7 +91,6 @@ export class SpatialDataCache {
 
         this._clusterReconstructions = {};
         this._tileClusters = {};
-        this._tileClusterReconstructions = {};
         this._clusterReconstructionTiles = {};
 
         this._cachingReconstructions$ = {};
@@ -124,14 +122,16 @@ export class SpatialDataCache {
                     return a.indexOf(v) === i;
                 });
 
-        this._tileClusterReconstructions[hash] = [];
-
         this._tileClusters[hash] = clusterKeys;
         this._cacheRequests[hash] = [];
 
         this._cachingClusterReconstructions$[hash] =  observableFrom(clusterKeys).pipe(
             mergeMap(
                 (key: string): Observable<IClusterReconstruction> => {
+                    if (this._hasClusterReconstruction(key)) {
+                        return observableOf(this._getClusterReconstruction(key));
+                    }
+
                     return this._getClusterReconstruction$(key, this._cacheRequests[hash])
                         .pipe(
                             catchError(
@@ -147,11 +147,21 @@ export class SpatialDataCache {
                 }),
             filter(
                 (): boolean => {
-                    return hash in this._tileClusterReconstructions;
+                    return hash in this._tileClusters;
                 }),
             tap(
                 (reconstruction: IClusterReconstruction): void => {
-                    this._tileClusterReconstructions[hash].push(reconstruction);
+                    if (!this._hasClusterReconstruction(reconstruction.key)) {
+                        this._clusterReconstructions[reconstruction.key] = reconstruction;
+                    }
+
+                    if (!(reconstruction.key in this._clusterReconstructionTiles)) {
+                        this._clusterReconstructionTiles[reconstruction.key] = [];
+                    }
+
+                    if (this._clusterReconstructionTiles[reconstruction.key].indexOf(hash) === -1) {
+                        this._clusterReconstructionTiles[reconstruction.key].push(hash);
+                    }
                 }),
             finalize(
                 (): void => {
@@ -328,9 +338,18 @@ export class SpatialDataCache {
     }
 
     public hasClusterReconstructions(hash: string): boolean {
-        return !(hash in this._cachingClusterReconstructions$) &&
-            hash in this._tileClusterReconstructions &&
-            this._tileClusterReconstructions[hash].length === this._tileClusters[hash].length;
+        if (hash in this._cachingClusterReconstructions$ ||
+            !(hash in this._tileClusters)) {
+            return false;
+        }
+
+        for (const key of this._tileClusters[hash]) {
+            if (!(key in this._clusterReconstructions)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public hasReconstructions(hash: string): boolean {
@@ -343,13 +362,16 @@ export class SpatialDataCache {
         return !(hash in this._cachingTiles$) && hash in this._tiles;
     }
 
-    public  getClusterReconstructions(hash: string): IClusterReconstruction[] {
-        return hash in this._tileClusterReconstructions ?
-            this._tileClusterReconstructions[hash] :
+    public getClusterReconstructions(hash: string): IClusterReconstruction[] {
+        return hash in this._tileClusters ?
+            this._tileClusters[hash].map(
+                (key: string): IClusterReconstruction => {
+                    return this._clusterReconstructions[key];
+                }) :
             [];
     }
 
-    public  getReconstructions(hash: string): ReconstructionData[] {
+    public getReconstructions(hash: string): ReconstructionData[] {
         return hash in this._reconstructions ?
             this._reconstructions[hash]
                 .filter(
@@ -382,6 +404,34 @@ export class SpatialDataCache {
             }
 
             delete this._reconstructions[hash];
+        }
+
+        for (let hash of Object.keys(this._tileClusters)) {
+            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
+                continue;
+            }
+
+            for (const key of this._tileClusters[hash]) {
+                if (!(key in this._clusterReconstructionTiles)) {
+                    continue;
+                }
+
+                const index: number = this._clusterReconstructionTiles[key].indexOf(hash);
+                if (index === -1) {
+                    continue;
+                }
+
+                this._clusterReconstructionTiles[key].splice(index, 1);
+
+                if (this._clusterReconstructionTiles[key].length > 0) {
+                    continue;
+                }
+
+                delete this._clusterReconstructionTiles[key];
+                delete this._clusterReconstructions[key];
+            }
+
+            delete this._tileClusters[hash];
         }
 
         for (let hash of Object.keys(this._tiles)) {
@@ -452,6 +502,10 @@ export class SpatialDataCache {
             });
     }
 
+    private _getClusterReconstruction(key: string): IClusterReconstruction {
+        return this._clusterReconstructions[key];
+    }
+
     private _getClusterReconstruction$(key: string, requests: XMLHttpRequest[]): Observable<IClusterReconstruction> {
         return Observable.create(
             (subscriber: Subscriber<IClusterReconstruction>): void => {
@@ -491,6 +545,10 @@ export class SpatialDataCache {
 
                 xhr.send(null);
             });
+    }
+
+    private _hasClusterReconstruction(key: string): boolean {
+        return key in this._clusterReconstructions;
     }
 }
 
