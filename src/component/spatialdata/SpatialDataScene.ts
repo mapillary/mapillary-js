@@ -251,7 +251,7 @@ export class SpatialDataScene {
     }
 
     public uncache(keepHashes?: string[]): void {
-        for (const hash of Object.keys(this._reconstructions)) {
+        for (const hash of Object.keys(this._tileClusterReconstructions)) {
             if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
                 continue;
             }
@@ -677,17 +677,6 @@ export class SpatialDataScene {
     }
 
     private _disposePoints(hash: string): void {
-        const tilePoints: THREE.Object3D = this._reconstructions[hash].points;
-
-        for (const points of tilePoints.children.slice()) {
-            (<THREE.Points>points).geometry.dispose();
-            (<THREE.Points>points).material.dispose();
-
-            tilePoints.remove(points);
-        }
-
-        this._scene.remove(tilePoints);
-
         for (const key of this._tileClusterReconstructions[hash].keys) {
             if (!(key in this._clusterReconstructions)) {
                 continue;
