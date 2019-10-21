@@ -113,6 +113,10 @@ export class SpatialDataCache {
         }
 
         const clusterKeys: string[] = this.getTile(hash)
+            .filter(
+                (nd: NodeData): boolean => {
+                    return !!nd.clusterKey;
+                })
             .map(
                 (nd: NodeData): string => {
                     return nd.clusterKey;
