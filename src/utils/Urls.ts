@@ -2,7 +2,6 @@ import {IUrlOptions} from "../Viewer";
 
 export class Urls {
     private static _apiHost: string = "a.mapillary.com";
-    private static _atomicReconstructionHost: string = "atomic-reconstructions.mapillary.com";
     private static _clusterReconstructionHost: string = "cluster-reconstructions.mapillary.com";
     private static _exploreHost: string = "www.mapillary.com";
     private static _imageHost: string = "images.mapillary.com";
@@ -25,10 +24,6 @@ export class Urls {
 
     public static get tileDomain(): string {
         return Urls._imageTileHost;
-    }
-
-    public static atomicReconstruction(key: string): string {
-        return `${Urls._scheme}://${Urls._atomicReconstructionHost}/${key}/sfm/v1.0/atomic_reconstruction.json`;
     }
 
     public static clusterReconstruction(key: string): string {
@@ -64,10 +59,6 @@ export class Urls {
 
         if (!!options.apiHost) {
             Urls._apiHost = options.apiHost;
-        }
-
-        if (!!options.atomicReconstructionHost) {
-            Urls._atomicReconstructionHost = options.atomicReconstructionHost;
         }
 
         if (!!options.clusterReconstructionHost) {

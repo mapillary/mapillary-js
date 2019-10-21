@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 import {
-    IReconstruction,
     IReconstructionPoint,
     ISpatialDataConfiguration,
 } from "../../Component";
@@ -17,16 +16,6 @@ export class SpatialDataScene {
     private _connectedComponentColors: { [id: string]: string };
     private _needsRender: boolean;
     private _interactiveObjects: THREE.Object3D[];
-    private _reconstructions: {
-        [hash: string]: {
-            cameraKeys: { [id: string]: string };
-            cameras: THREE.Object3D;
-            connectedComponents: { [id: string]: THREE.Object3D[] };
-            keys: string[];
-            points: THREE.Object3D;
-            positions: THREE.Object3D;
-        };
-    };
 
     private _tileClusterReconstructions: {
         [hash: string]: {
@@ -66,7 +55,6 @@ export class SpatialDataScene {
         this._connectedComponentColors = {};
         this._needsRender = false;
         this._interactiveObjects = [];
-        this._reconstructions = {};
         this._nodes = {};
         this._tiles = {};
         this._tileClusterReconstructions = {};
@@ -170,60 +158,6 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
-    public addReconstruction(
-        reconstruction: IReconstruction,
-        transform: Transform,
-        originalPosition: number[],
-        connectedComponent: string,
-        hash: string): void {
-
-        if (!(hash in this._reconstructions)) {
-            this._reconstructions[hash] = {
-                cameraKeys: {},
-                cameras: new THREE.Object3D(),
-                connectedComponents: {},
-                keys: [],
-                points: new THREE.Object3D(),
-                positions: new THREE.Object3D(),
-            };
-
-            this._reconstructions[hash].cameras.visible = this._camerasVisible;
-            this._reconstructions[hash].points.visible = this._pointsVisible;
-            this._reconstructions[hash].positions.visible = this._positionsVisible;
-
-            this._scene.add(
-                this._reconstructions[hash].cameras,
-                this._reconstructions[hash].points,
-                this._reconstructions[hash].positions);
-        }
-
-        if (!(connectedComponent in this._reconstructions[hash].connectedComponents)) {
-            this._reconstructions[hash].connectedComponents[connectedComponent] = [];
-        }
-
-        if (transform.hasValidScale) {
-            this._reconstructions[hash].points.add(this._createPoints(reconstruction, transform));
-        }
-
-        const camera: THREE.Object3D = this._createCamera(transform);
-        this._reconstructions[hash].cameras.add(camera);
-        for (const child of camera.children) {
-            this._reconstructions[hash].cameraKeys[child.uuid] = reconstruction.main_shot;
-            this._interactiveObjects.push(child);
-        }
-
-        this._reconstructions[hash].connectedComponents[connectedComponent].push(camera);
-
-        const color: string = this._getColor(connectedComponent, this._visualizeConnectedComponents);
-        this._setCameraColor(color, camera);
-
-        this._reconstructions[hash].positions.add(this._createPosition(transform, originalPosition));
-
-        this._reconstructions[hash].keys.push(reconstruction.main_shot);
-
-        this._needsRender = true;
-    }
-
     public addTile(tileBBox: number[][], hash: string): void {
         if (this.hasTile(hash)) {
             return;
@@ -283,11 +217,6 @@ export class SpatialDataScene {
             this._clusterReconstructions[key].tiles.indexOf(hash) !== -1;
     }
 
-    public hasReconstruction(key: string, hash: string): boolean {
-        return hash in this._reconstructions &&
-            this._reconstructions[hash].keys.indexOf(key) !== -1;
-    }
-
     public hasTile(hash: string): boolean {
         return hash in this._tiles;
     }
@@ -335,14 +264,6 @@ export class SpatialDataScene {
     public setPointVisibility(visible: boolean): void {
         if (visible === this._pointsVisible) {
             return;
-        }
-
-        for (const hash in this._reconstructions) {
-            if (!this._reconstructions.hasOwnProperty(hash)) {
-                continue;
-            }
-
-            this._reconstructions[hash].points.visible = visible;
         }
 
         for (const key in this._clusterReconstructions) {
@@ -591,48 +512,6 @@ export class SpatialDataScene {
         return new THREE.Points(geometry, material);
     }
 
-    private _createPoints(reconstruction: IReconstruction, transform: Transform): THREE.Object3D {
-        const srtInverse: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
-        const points: IReconstructionPoint[] = Object
-            .keys(reconstruction.points)
-            .map(
-                (key: string): IReconstructionPoint => {
-                    return reconstruction.points[key];
-                });
-
-        const numPoints: number = points.length;
-        const positions: Float32Array = new Float32Array(numPoints * 3);
-        const colors: Float32Array = new Float32Array(numPoints * 3);
-
-        for (let i: number = 0; i < numPoints; i++) {
-            const index: number = 3 * i;
-
-            const coords: number[] = points[i].coordinates;
-            const point: THREE.Vector3 = new THREE.Vector3(coords[0], coords[1], coords[2])
-                .applyMatrix4(srtInverse);
-
-            positions[index + 0] = point.x;
-            positions[index + 1] = point.y;
-            positions[index + 2] = point.z;
-
-            const color: number[] = points[i].color;
-            colors[index + 0] = color[0] / 255.0;
-            colors[index + 1] = color[1] / 255.0;
-            colors[index + 2] = color[2] / 255.0;
-        }
-
-        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-        geometry.addAttribute("color", new THREE.BufferAttribute(colors, 3));
-
-        const material: THREE.PointsMaterial = new THREE.PointsMaterial({
-            size: 0.1,
-            vertexColors: THREE.VertexColors,
-        });
-
-        return new THREE.Points(geometry, material);
-    }
-
     private _createPosition(transform: Transform, originalPosition: number[]): THREE.Object3D {
         const computedPosition: number[] = transform.unprojectBasic([0, 0], 0);
         const vertices: number[][] = [originalPosition, computedPosition];
@@ -726,8 +605,6 @@ export class SpatialDataScene {
 
     private _disposeReconstruction(hash: string): void {
         this._disposePoints(hash);
-
-        delete this._reconstructions[hash];
 
         delete this._tileClusterReconstructions[hash];
     }

@@ -14,16 +14,6 @@ export interface IUrlOptions {
     apiHost?: string;
 
     /**
-     * Atomic reconstruction host.
-     *
-     * @description Used for retrieving the atomic reconstructions
-     * for showing point clouds.
-     *
-     * @default {"atomic-reconstructions.mapillary.com"}
-     */
-    atomicReconstructionHost?: string;
-
-    /**
      * Cluster reconstruction host.
      *
      * @description Used for retrieving the cluster reconstructions
