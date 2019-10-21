@@ -28,9 +28,15 @@ export class SpatialDataScene {
         };
     };
 
-    private _clusterReconstructions: {
+    private _tileClusterReconstructions: {
         [hash: string]: {
             keys: string[];
+        };
+    };
+
+    private _clusterReconstructions: {
+        [key: string]: {
+            tiles: string[];
             points: THREE.Object3D;
         };
     };
@@ -63,6 +69,7 @@ export class SpatialDataScene {
         this._reconstructions = {};
         this._nodes = {};
         this._tiles = {};
+        this._tileClusterReconstructions = {};
         this._clusterReconstructions = {};
 
         this._camerasVisible = configuration.camerasVisible;
@@ -81,21 +88,37 @@ export class SpatialDataScene {
         translation: number[],
         hash: string): void {
 
-        if (!(hash in this._clusterReconstructions)) {
-            this._clusterReconstructions[hash] = {
+        const key: string = reconstruction.key;
+
+        if (!(hash in this._tileClusterReconstructions)) {
+            this._tileClusterReconstructions[hash] = {
                 keys: [],
-                points: new THREE.Object3D(),
             };
-
-            this._clusterReconstructions[hash].points.visible = this._pointsVisible;
-
-            this._scene.add(
-                this._clusterReconstructions[hash].points);
         }
 
-        this._clusterReconstructions[hash].points.add(this._createClusterPoints(reconstruction, translation));
+        this._tileClusterReconstructions[hash].keys.push(key);
 
-        this._clusterReconstructions[hash].keys.push(reconstruction.key);
+        if (!(key in this._clusterReconstructions)) {
+            this._clusterReconstructions[key] = {
+                points: new THREE.Object3D(),
+                tiles: [],
+            };
+
+            this._clusterReconstructions[key].points.visible = this._pointsVisible;
+            this._clusterReconstructions[key].points.add(
+                this._createClusterPoints(reconstruction, translation));
+
+            this._scene.add(
+                this._clusterReconstructions[key].points);
+        }
+
+        if (this._clusterReconstructions[key].tiles.indexOf(hash) === -1) {
+            this._clusterReconstructions[key].tiles.push(hash);
+        }
+
+        if (this._tileClusterReconstructions[hash].keys.indexOf(key) === -1) {
+            this._tileClusterReconstructions[hash].keys.push(key);
+        }
 
         this._needsRender = true;
     }
@@ -256,11 +279,13 @@ export class SpatialDataScene {
     }
 
     public hasClusterReconstruction(key: string, hash: string): boolean {
-        return hash in this._clusterReconstructions && this._clusterReconstructions[hash].keys.indexOf(key) !== -1;
+        return key in this._clusterReconstructions &&
+            this._clusterReconstructions[key].tiles.indexOf(hash) !== -1;
     }
 
     public hasReconstruction(key: string, hash: string): boolean {
-        return hash in this._reconstructions && this._reconstructions[hash].keys.indexOf(key) !== -1;
+        return hash in this._reconstructions &&
+            this._reconstructions[hash].keys.indexOf(key) !== -1;
     }
 
     public hasTile(hash: string): boolean {
@@ -320,12 +345,12 @@ export class SpatialDataScene {
             this._reconstructions[hash].points.visible = visible;
         }
 
-        for (const hash in this._clusterReconstructions) {
-            if (!this._clusterReconstructions.hasOwnProperty(hash)) {
+        for (const key in this._clusterReconstructions) {
+            if (!this._clusterReconstructions.hasOwnProperty(key)) {
                 continue;
             }
 
-            this._clusterReconstructions[hash].points.visible = visible;
+            this._clusterReconstructions[key].points.visible = visible;
         }
 
         this._pointsVisible = visible;
@@ -662,6 +687,32 @@ export class SpatialDataScene {
         }
 
         this._scene.remove(tilePoints);
+
+        for (const key of this._tileClusterReconstructions[hash].keys) {
+            if (!(key in this._clusterReconstructions)) {
+                continue;
+            }
+
+            const index: number = this._clusterReconstructions[key].tiles.indexOf(hash);
+            if (index === -1) {
+                continue;
+            }
+
+            this._clusterReconstructions[key].tiles.splice(index, 1);
+
+            if (this._clusterReconstructions[key].tiles.length > 0) {
+                continue;
+            }
+
+            for (const points of this._clusterReconstructions[key].points.children.slice()) {
+                (<THREE.Points>points).geometry.dispose();
+                (<THREE.Points>points).material.dispose();
+            }
+
+            this._scene.remove(this._clusterReconstructions[key].points);
+
+            delete this._clusterReconstructions[key];
+        }
     }
 
     private _disposePositions(hash: string): void {
@@ -688,6 +739,8 @@ export class SpatialDataScene {
         this._disposePoints(hash);
 
         delete this._reconstructions[hash];
+
+        delete this._tileClusterReconstructions[hash];
     }
 
     private _disposeTile(hash: string): void {
