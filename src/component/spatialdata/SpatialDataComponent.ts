@@ -232,35 +232,21 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 });
 
         this._addNodeSubscription = tile$.pipe(
-            withLatestFrom(this._navigator.stateService.reference$),
-            mergeMap(
-                ([[hash, data], reference]: [[string, NodeData[]], ILatLonAlt]):
-                Observable<[NodeData, Transform, number[], string]> => {
-                    const items: [NodeData, Transform, number[], string][] = [];
-
-                    for (const d of data) {
-                        items.push([
-                            d,
-                            this._createTransform(d, reference),
-                            this._computeOriginalPosition(d, reference),
-                            hash,
-                        ]);
-                    }
-
-                    return observableFrom(items);
-                }))
+            withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([data, transform, position, hash]: [NodeData, Transform, number[], string]): void => {
-                    if (this._scene.hasNode(data.key, hash)) {
-                        return;
-                    }
+                ([[hash, datas], reference]: [[string, [NodeData]], ILatLonAlt]): void => {
+                    for (const data of datas) {
+                        if (this._scene.hasNode(data.key, hash)) {
+                            continue;
+                        }
 
-                    this._scene.addNode(
-                        data.key,
-                        transform,
-                        position,
-                        !!data.mergeCC ? data.mergeCC.toString() : "",
-                        hash);
+                        this._scene.addNode(
+                            data.key,
+                            this._createTransform(data, reference),
+                            this._computeOriginalPosition(data, reference),
+                            !!data.mergeCC ? data.mergeCC.toString() : "",
+                            hash);
+                        }
                 });
 
         this._addReconstructionSubscription = tile$.pipe(
@@ -285,28 +271,16 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
                     return observableCombineLatest(observableOf(hash), reconstructions$);
                 }),
-            withLatestFrom(this._navigator.stateService.reference$),
-            filter(
-                ([[hash, reconstruction]]: [[string, IClusterReconstruction], ILatLonAlt]): boolean => {
-                    return !this._scene.hasClusterReconstruction(reconstruction.key, hash);
-                }),
-            map(
-                ([[hash, reconstruction], reference]: [[string, IClusterReconstruction], ILatLonAlt]):
-                [IClusterReconstruction, number[], string] => {
-                    return [
-                        reconstruction,
-                        this._computeTranslation(reconstruction, reference),
-                        hash];
-                }))
+            withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([reconstruction, translation, hash]: [IClusterReconstruction, number[], string]): void => {
+                ([[hash, reconstruction], reference]: [[string, IClusterReconstruction], ILatLonAlt]): void => {
                     if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
                         return;
                     }
 
                     this._scene.addClusterReconstruction(
                         reconstruction,
-                        translation,
+                        this._computeTranslation(reconstruction, reference),
                         hash);
                 });
 
