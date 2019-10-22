@@ -360,6 +360,11 @@ export class SpatialDataCache {
                     } else {
                         const inflated: string = pako.inflate(xhr.response, { to: "string" });
                         const reconstructions: IClusterReconstruction[] = JSON.parse(inflated);
+
+                        if (reconstructions.length < 1) {
+                            subscriber.error(new Error(`No cluster reconstruction exists (${key})`));
+                        }
+
                         const reconstruction: IClusterReconstruction = reconstructions[0];
                         reconstruction.key = key;
 
@@ -369,7 +374,7 @@ export class SpatialDataCache {
                 };
 
                 xhr.onerror = () => {
-                    subscriber.error(new Error(`Failed to get atomic reconstruction (${key})`));
+                    subscriber.error(new Error(`Failed to get cluster reconstruction (${key})`));
                 };
 
                 xhr.ontimeout = () => {
