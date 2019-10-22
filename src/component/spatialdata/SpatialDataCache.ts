@@ -187,13 +187,10 @@ export class SpatialDataCache {
         const sw: ILatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
         const ne: ILatLon = { lat: bounds.ne.lat, lon: bounds.ne.lon };
 
-        this._tiles[hash] = [];
         this._cachingTiles$[hash] = this._graphService.cacheBoundingBox$(sw, ne).pipe(
             catchError(
                 (error: Error): Observable<Node[]> => {
                     console.error(error);
-
-                    delete this._tiles[hash];
 
                     return observableEmpty();
                 }),
@@ -207,10 +204,11 @@ export class SpatialDataCache {
                 }),
             filter(
                 (): boolean => {
-                    return hash in this._tiles;
+                    return !(hash in this._tiles);
                 }),
             tap(
                 (nodeData: NodeData[]): void => {
+                    this._tiles[hash] = [];
                     this._tiles[hash].push(...nodeData);
 
                     delete this._cachingTiles$[hash];
