@@ -1,4 +1,5 @@
 import {IComponentConfiguration} from "../../Component";
+import { CameraVisualizationMode } from "../spatialdata/SpatialData";
 
 /**
  * Interface for configuration of spatial data component.
@@ -30,6 +31,13 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
     camerasVisible?: boolean;
 
     /**
+     * Specify the camera visualization mode.
+     *
+     * @default CameraVisualizationMode.Default
+     */
+    cameraVisualizationMode?: CameraVisualizationMode;
+
+    /**
      * Specify if the camera should be controlled in earth
      * mode.
      *
@@ -42,12 +50,7 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
     earthControls?: boolean;
 
     /**
-     * Specify if the color of the cameras should
-     * indicate the connected components they belong to.
-     *
-     * @description Only applicable when cameras are visible.
-     *
-     * @default false
+     * @deprecated since v2.19.0
      */
     connectedComponents?: boolean;
 

@@ -59,6 +59,7 @@ import {
 import PlayService from "../../viewer/PlayService";
 import State from "../../state/State";
 import IClusterReconstruction from "./interfaces/IClusterReconstruction";
+import CameraVisualizationMode from "./CameraVisualizationMode";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
@@ -79,7 +80,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _renderSubscription: Subscription;
     private _tileVisibilitySubscription: Subscription;
     private _uncacheSubscription: Subscription;
-    private _visualizeConnectedComponentSubscription: Subscription;
+    private _cameraVisualizationModeSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -241,10 +242,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         }
 
                         this._scene.addNode(
-                            data.key,
+                            data,
                             this._createTransform(data, reference),
                             this._computeOriginalPosition(data, reference),
-                            !!data.mergeCC ? data.mergeCC.toString() : "",
                             hash);
                         }
                 });
@@ -328,15 +328,15 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     this._scene.setTileVisibility(visible);
                 });
 
-        this._visualizeConnectedComponentSubscription = this._configuration$.pipe(
+        this._cameraVisualizationModeSubscription = this._configuration$.pipe(
             map(
-                (configuration: ISpatialDataConfiguration): boolean => {
-                    return configuration.connectedComponents;
+                (configuration: ISpatialDataConfiguration): CameraVisualizationMode => {
+                    return configuration.cameraVisualizationMode;
                 }),
             distinctUntilChanged())
             .subscribe(
-                (visualize: boolean): void => {
-                    this._scene.setConnectedComponentVisualization(visualize);
+                (mode: CameraVisualizationMode): void => {
+                    this._scene.setCameraVisualizationMode(mode);
                 });
 
         this._uncacheSubscription = hash$
@@ -409,7 +409,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._renderSubscription.unsubscribe();
         this._tileVisibilitySubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
-        this._visualizeConnectedComponentSubscription.unsubscribe();
+        this._cameraVisualizationModeSubscription.unsubscribe();
 
         this._navigator.stateService.state$.pipe(
             first())

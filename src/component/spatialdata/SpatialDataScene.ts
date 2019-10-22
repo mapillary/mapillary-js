@@ -8,12 +8,14 @@ import {
     Transform,
 } from "../../Geo";
 import IClusterReconstruction from "./interfaces/IClusterReconstruction";
+import CameraVisualizationMode from "./CameraVisualizationMode";
+import { NodeData } from "./SpatialDataCache";
 
 export class SpatialDataScene {
     private _scene: THREE.Scene;
     private _raycaster: THREE.Raycaster;
 
-    private _connectedComponentColors: { [id: string]: string };
+    private _cameraColors: { [id: string]: string };
     private _needsRender: boolean;
     private _interactiveObjects: THREE.Object3D[];
 
@@ -32,27 +34,29 @@ export class SpatialDataScene {
 
     private _nodes: {
         [hash: string]: {
-            cameraKeys: { [id: string]: string };
             cameras: THREE.Object3D;
+            cameraKeys: { [id: string]: string };
+            clusters: { [id: string]: THREE.Object3D[] };
             connectedComponents: { [id: string]: THREE.Object3D[] };
             keys: string[];
             positions: THREE.Object3D;
+            sequences: { [id: string]: THREE.Object3D[] };
         };
     };
 
     private _tiles: { [hash: string]: THREE.Object3D };
 
+    private _cameraVisualizationMode: CameraVisualizationMode;
     private _camerasVisible: boolean;
     private _pointsVisible: boolean;
     private _positionsVisible: boolean;
     private _tilesVisible: boolean;
-    private _visualizeConnectedComponents: boolean;
 
     constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._scene = !!scene ? scene : new THREE.Scene();
         this._raycaster = !!raycaster ? raycaster : new THREE.Raycaster(undefined, undefined, 0.8);
 
-        this._connectedComponentColors = {};
+        this._cameraColors = {};
         this._needsRender = false;
         this._interactiveObjects = [];
         this._nodes = {};
@@ -60,11 +64,14 @@ export class SpatialDataScene {
         this._tileClusterReconstructions = {};
         this._clusterReconstructions = {};
 
+        this._cameraVisualizationMode = !!configuration.cameraVisualizationMode ?
+            configuration.cameraVisualizationMode :
+            CameraVisualizationMode.Default;
+
         this._camerasVisible = configuration.camerasVisible;
         this._pointsVisible = configuration.pointsVisible;
         this._positionsVisible = configuration.positionsVisible;
         this._tilesVisible = configuration.tilesVisible;
-        this._visualizeConnectedComponents = configuration.connectedComponents;
     }
 
     public get needsRender(): boolean {
@@ -114,11 +121,14 @@ export class SpatialDataScene {
     }
 
     public addNode(
-        key: string,
+        data: NodeData,
         transform: Transform,
         originalPosition: number[],
-        connectedComponent: string,
         hash: string): void {
+        const key: string = data.key;
+        const clusterKey: string = data.clusterKey;
+        const sequenceKey: string = data.sequenceKey;
+        const connectedComponent: string = !!data.mergeCC ? data.mergeCC.toString() : "";
 
         if (this.hasNode(key, hash)) {
             return;
@@ -128,9 +138,11 @@ export class SpatialDataScene {
             this._nodes[hash] = {
                 cameraKeys: {},
                 cameras: new THREE.Object3D(),
+                clusters: {},
                 connectedComponents: {},
                 keys: [],
                 positions: new THREE.Object3D(),
+                sequences: {},
             };
 
             this._nodes[hash].cameras.visible = this._camerasVisible;
@@ -145,6 +157,14 @@ export class SpatialDataScene {
             this._nodes[hash].connectedComponents[connectedComponent] = [];
         }
 
+        if (!(clusterKey in this._nodes[hash].clusters)) {
+            this._nodes[hash].clusters[clusterKey] = [];
+        }
+
+        if (!(sequenceKey in this._nodes[hash].sequences)) {
+            this._nodes[hash].sequences[sequenceKey] = [];
+        }
+
         const camera: THREE.Object3D = this._createCamera(transform);
         this._nodes[hash].cameras.add(camera);
         for (const child of camera.children) {
@@ -153,8 +173,16 @@ export class SpatialDataScene {
         }
 
         this._nodes[hash].connectedComponents[connectedComponent].push(camera);
+        this._nodes[hash].clusters[clusterKey].push(camera);
+        this._nodes[hash].sequences[sequenceKey].push(camera);
 
-        const color: string = this._getColor(connectedComponent, this._visualizeConnectedComponents);
+        const id: string = this._getId(
+            clusterKey,
+            connectedComponent,
+            sequenceKey,
+            this._cameraVisualizationMode);
+
+        const color: string = this._getColor(id, this._cameraVisualizationMode);
         this._setCameraColor(color, camera);
 
         this._nodes[hash].positions.add(this._createPosition(transform, originalPosition));
@@ -323,8 +351,8 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
-    public setConnectedComponentVisualization(visualize: boolean): void {
-        if (visualize === this._visualizeConnectedComponents) {
+    public setCameraVisualizationMode(mode: CameraVisualizationMode): void {
+        if (mode === this._cameraVisualizationMode) {
             return;
         }
 
@@ -333,23 +361,37 @@ export class SpatialDataScene {
                 continue;
             }
 
-            const connectedComponents: { [id: number]: THREE.Object3D[] } =
-                this._nodes[hash].connectedComponents;
+            let cameras: { [id: number]: THREE.Object3D[] } = undefined;
 
-            for (const connectedComponent in connectedComponents) {
-                if (!connectedComponents.hasOwnProperty(connectedComponent)) {
+            if (mode === CameraVisualizationMode.Cluster) {
+                cameras = this._nodes[hash].clusters;
+            } else if (mode === CameraVisualizationMode.ConnectedComponent) {
+                cameras = this._nodes[hash].connectedComponents;
+            } else if (mode === CameraVisualizationMode.Sequence) {
+                cameras = this._nodes[hash].sequences;
+            } else {
+                for (const child of this._nodes[hash].cameras.children) {
+                    const color: string = this._getColor("", mode);
+                    this._setCameraColor(color, child);
+                }
+
+                continue;
+            }
+
+            for (const id in cameras) {
+                if (!cameras.hasOwnProperty(id)) {
                     continue;
                 }
 
-                const color: string = this._getColor(connectedComponent, visualize);
+                const color: string = this._getColor(id, mode);
 
-                for (const camera of connectedComponents[connectedComponent]) {
+                for (const camera of cameras[id]) {
                     this._setCameraColor(color, camera);
                 }
             }
         }
 
-        this._visualizeConnectedComponents = visualize;
+        this._cameraVisualizationMode = mode;
         this._needsRender = true;
     }
 
@@ -634,18 +676,35 @@ export class SpatialDataScene {
         delete this._tiles[hash];
     }
 
-    private _getColor(connectedComponent: string, visualizeConnectedComponents: boolean): string {
-        return visualizeConnectedComponents ?
-            this._getConnectedComponentColor(connectedComponent) :
+    private _getColor(id: string, mode: CameraVisualizationMode): string {
+        return mode !== CameraVisualizationMode.Default && id.length > 0 ?
+            this._getCameraColor(id) :
             "#FFFFFF";
     }
 
-    private _getConnectedComponentColor(connectedComponent: string): string {
-        if (!(connectedComponent in this._connectedComponentColors)) {
-            this._connectedComponentColors[connectedComponent] = this._randomColor();
+    private _getCameraColor(id: string): string {
+        if (!(id in this._cameraColors)) {
+            this._cameraColors[id] = this._randomColor();
         }
 
-        return this._connectedComponentColors[connectedComponent];
+        return this._cameraColors[id];
+    }
+
+    private _getId(
+        clusterKey: string,
+        connectedComponent: string,
+        sequenceKey: string,
+        mode: CameraVisualizationMode): string {
+        switch (mode) {
+            case CameraVisualizationMode.Cluster:
+                return clusterKey;
+            case CameraVisualizationMode.ConnectedComponent:
+                return connectedComponent;
+            case CameraVisualizationMode.Sequence:
+                return sequenceKey;
+            default:
+                return "";
+        }
     }
 
     private _interpolate(a: number, b: number, alpha: number): number {

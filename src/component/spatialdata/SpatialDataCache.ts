@@ -56,6 +56,7 @@ export type NodeData = {
     originalLon: number;
     rotation: number[];
     scale: number;
+    sequenceKey: string;
     width: number;
 };
 
@@ -335,6 +336,7 @@ export class SpatialDataCache {
             originalLon: node.originalLatLon.lon,
             rotation: [node.rotation[0], node.rotation[1], node.rotation[2]],
             scale: node.scale,
+            sequenceKey: node.sequenceKey,
             width: node.width,
         };
     }

@@ -27,3 +27,6 @@ export {MarkerComponent};
 
 import * as PopupComponent from "./component/popup/Popup";
 export {PopupComponent};
+
+import * as SpatialDataComponent from "./component/spatialdata/SpatialData";
+export {SpatialDataComponent};
