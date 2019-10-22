@@ -215,7 +215,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
                                 return observableCombineLatest(observableOf(h), t$);
                             },
-                            1));
+                            6));
                         }),
             publish(),
             refCount());

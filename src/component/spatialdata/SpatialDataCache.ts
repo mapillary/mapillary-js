@@ -135,7 +135,8 @@ export class SpatialDataCache {
 
                                     return observableEmpty();
                                 }));
-                }),
+                },
+                6),
             filter(
                 (): boolean => {
                     return hash in this._tileClusters;
