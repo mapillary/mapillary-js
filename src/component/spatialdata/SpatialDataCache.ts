@@ -177,10 +177,9 @@ export class SpatialDataCache {
 
         if (this.hasTile(hash)) {
             throw new Error("Cannot cache tile that already exists.");
-
         }
 
-        if (this.hasTile(hash)) {
+        if (this.isCachingTile(hash)) {
             return this._cachingTiles$[hash];
         }
 

@@ -76,15 +76,11 @@ export class SpatialDataScene {
         translation: number[],
         hash: string): void {
 
-        const key: string = reconstruction.key;
-
-        if (!(hash in this._tileClusterReconstructions)) {
-            this._tileClusterReconstructions[hash] = {
-                keys: [],
-            };
+        if (this.hasClusterReconstruction(reconstruction.key, hash)) {
+            return;
         }
 
-        this._tileClusterReconstructions[hash].keys.push(key);
+        const key: string = reconstruction.key;
 
         if (!(key in this._clusterReconstructions)) {
             this._clusterReconstructions[key] = {
@@ -104,6 +100,12 @@ export class SpatialDataScene {
             this._clusterReconstructions[key].tiles.push(hash);
         }
 
+        if (!(hash in this._tileClusterReconstructions)) {
+            this._tileClusterReconstructions[hash] = {
+                keys: [],
+            };
+        }
+
         if (this._tileClusterReconstructions[hash].keys.indexOf(key) === -1) {
             this._tileClusterReconstructions[hash].keys.push(key);
         }
@@ -117,6 +119,10 @@ export class SpatialDataScene {
         originalPosition: number[],
         connectedComponent: string,
         hash: string): void {
+
+        if (this.hasNode(key, hash)) {
+            return;
+        }
 
         if (!(hash in this._nodes)) {
             this._nodes[hash] = {
@@ -219,6 +225,10 @@ export class SpatialDataScene {
 
     public hasTile(hash: string): boolean {
         return hash in this._tiles;
+    }
+
+    public hasNode(key: string, hash: string): boolean {
+        return hash in this._nodes && this._nodes[hash].keys.indexOf(key) !== -1;
     }
 
     public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string {

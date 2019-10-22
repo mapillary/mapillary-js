@@ -208,20 +208,10 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     return observableFrom(hashes).pipe(
                         mergeMap(
                             (h: string): Observable<[string, NodeData[]]> => {
-                                let t$: Observable<NodeData[]>;
-
-                                if (this._cache.hasTile(h)) {
-                                    t$ = observableOf(this._cache.getTile(h));
-                                } else if (this._cache.isCachingTile(h)) {
-                                    t$ = this._cache.cacheTile$(h).pipe(
-                                        last(null, {}),
-                                        switchMap(
-                                            (): Observable<NodeData[]> => {
-                                                return observableOf(this._cache.getTile(h));
-                                            }));
-                                } else {
-                                    t$ = this._cache.cacheTile$(h);
-                                }
+                                const t$: Observable<NodeData[]> =
+                                    this._cache.hasTile(h) ?
+                                        observableOf(this._cache.getTile(h)) :
+                                        this._cache.cacheTile$(h);
 
                                 return observableCombineLatest(observableOf(h), t$);
                             },
@@ -231,16 +221,15 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             refCount());
 
         this._addTileSubscription = tile$.pipe(
-            withLatestFrom(this._navigator.stateService.reference$),
-            tap(
+            withLatestFrom(this._navigator.stateService.reference$))
+            .subscribe(
                 ([[hash], reference]: [[string, NodeData[]], ILatLonAlt]): void => {
                     if (this._scene.hasTile(hash)) {
                         return;
                     }
 
                     this._scene.addTile(this._computeTileBBox(hash, reference), hash);
-                }))
-            .subscribe();
+                });
 
         this._addNodeSubscription = tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$),
@@ -262,6 +251,10 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }))
             .subscribe(
                 ([data, transform, position, hash]: [NodeData, Transform, number[], string]): void => {
+                    if (this._scene.hasNode(data.key, hash)) {
+                        return;
+                    }
+
                     this._scene.addNode(
                         data.key,
                         transform,
@@ -307,6 +300,10 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }))
             .subscribe(
                 ([reconstruction, translation, hash]: [IClusterReconstruction, number[], string]): void => {
+                    if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
+                        return;
+                    }
+
                     this._scene.addClusterReconstruction(
                         reconstruction,
                         translation,
