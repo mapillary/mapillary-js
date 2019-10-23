@@ -256,11 +256,16 @@ export class SpatialDataCache {
 
     public getClusterReconstructions(hash: string): IClusterReconstruction[] {
         return hash in this._tileClusters ?
-            this._tileClusters[hash].map(
-                (key: string): IClusterReconstruction => {
-                    return this._clusterReconstructions[key];
-                }) :
-            [];
+            this._tileClusters[hash]
+                .map(
+                    (key: string): IClusterReconstruction => {
+                        return this._clusterReconstructions[key];
+                    })
+                .filter(
+                    (reconstruction: IClusterReconstruction): boolean => {
+                        return !!reconstruction;
+                    }) :
+                [];
     }
 
     public getTile(hash: string): NodeData[] {

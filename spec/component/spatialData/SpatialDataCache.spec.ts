@@ -1,4 +1,5 @@
 import * as geohash from "latlon-geohash";
+import * as pako from "pako";
 
 import { Subject } from "rxjs";
 
@@ -10,6 +11,7 @@ import {
 
 import GraphServiceMockCreator from "../../helper/GraphServiceMockCreator.spec";
 import NodeHelper from "../../helper/NodeHelper.spec";
+import IClusterReconstruction from "../../../src/component/spatialdata/interfaces/IClusterReconstruction";
 
 describe("SpatialDataCache.ctor", () => {
     it("should be defined", () => {
@@ -180,7 +182,6 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         expect(cache.hasTile(hash)).toBe(true);
     };
 
-    /*
     it("should cache a reconstruction", (done: Function) => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cache: SpatialDataCache = new SpatialDataCache(graphService);
@@ -193,30 +194,34 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         let emitCount: number = 0;
-        cache.cacheReconstructions$(hash)
+        cache.cacheClusterReconstructions$(hash)
             .subscribe(
-                (data: ReconstructionData): void => {
-                    expect(data.reconstruction.main_shot).toBe(node.key);
+                (r: IClusterReconstruction): void => {
+                    expect(r.key).toBe(node.clusterKey);
                     emitCount++;
                 },
                 undefined,
                 (): void => {
                     expect(emitCount).toBe(1);
-                    expect(cache.hasReconstructions(hash)).toBe(true);
+                    expect(cache.hasClusterReconstructions(hash)).toBe(true);
                     done();
                 });
 
-        requestMock.response = { points: [], main_shot: node.key };
+        const response: string = pako.deflate(
+            JSON.stringify([{ points: [], refererence_lla: { altitude: 0, latitude: 0, longitude: 0} }]),
+            { to: "string" });
+
+        requestMock.response = response;
         requestMock.onload(new Event("load"));
     });
 
-    it("should filter out a non existing reconstruction", (done: Function) => {
+    it("should not have a non-existing reconstruction", (done: Function) => {
         spyOn(console, "error").and.stub();
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cache: SpatialDataCache = new SpatialDataCache(graphService);
         const node: Node = new NodeHelper().createNode();
-        const hash: string = "00000000";
+        const hash: string = "00000001";
 
         cacheTile(hash, cache, graphService, [node]);
 
@@ -224,7 +229,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         let emitCount: number = 0;
-        cache.cacheReconstructions$(hash)
+        cache.cacheClusterReconstructions$(hash)
             .subscribe(
                 (): void => {
                     emitCount++;
@@ -232,8 +237,8 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                 undefined,
                 (): void => {
                     expect(emitCount).toBe(0);
-                    expect(cache.hasReconstructions(hash)).toBe(true);
-                    expect(cache.getReconstructions(hash).length).toBe(0);
+                    expect(cache.hasClusterReconstructions(hash)).toBe(false);
+                    expect(cache.getClusterReconstructions(hash).length).toBe(0);
                     done();
                 });
 
@@ -241,7 +246,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         requestMock.onload(new Event("load"));
     });
 
-    it("should filter out reconstruction on error", (done: Function) => {
+    it("should not have an errored reconstruction", (done: Function) => {
         spyOn(console, "error").and.stub();
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -255,7 +260,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         let emitCount: number = 0;
-        cache.cacheReconstructions$(hash)
+        cache.cacheClusterReconstructions$(hash)
             .subscribe(
                 (): void => {
                     emitCount++;
@@ -263,8 +268,8 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                 undefined,
                 (): void => {
                     expect(emitCount).toBe(0);
-                    expect(cache.hasReconstructions(hash)).toBe(true);
-                    expect(cache.getReconstructions(hash).length).toBe(0);
+                    expect(cache.hasClusterReconstructions(hash)).toBe(false);
+                    expect(cache.getClusterReconstructions(hash).length).toBe(0);
                     done();
                 });
 
@@ -285,7 +290,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         let emitCount: number = 0;
-        cache.cacheReconstructions$(hash)
+        cache.cacheClusterReconstructions$(hash)
             .subscribe(
                 (): void => {
                     emitCount++;
@@ -293,8 +298,8 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                 undefined,
                 (): void => {
                     expect(emitCount).toBe(0);
-                    expect(cache.hasReconstructions(hash)).toBe(false);
-                    expect(cache.isCachingReconstructions(hash)).toBe(false);
+                    expect(cache.hasClusterReconstructions(hash)).toBe(false);
+                    expect(cache.isCachingTile(hash)).toBe(false);
                     done();
                 });
 
@@ -314,7 +319,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         let emitCount1: number = 0;
-        cache.cacheReconstructions$(hash)
+        cache.cacheClusterReconstructions$(hash)
             .subscribe(
                 (): void => {
                     emitCount1++;
@@ -323,13 +328,17 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         expect(sendSpy.calls.count()).toBe(1);
 
         let emitCount2: number = 0;
-        cache.cacheReconstructions$(hash)
+        cache.cacheClusterReconstructions$(hash)
             .subscribe(
                 (): void => {
                     emitCount2++;
                 });
 
-        requestMock.response = { points: [], main_shot: node.key };
+        const response: string = pako.deflate(
+            JSON.stringify([{ points: [], refererence_lla: { altitude: 0, latitude: 0, longitude: 0} }]),
+            { to: "string" });
+
+        requestMock.response = response;
         requestMock.onload(new Event("load"));
 
         expect(emitCount1).toBe(1);
@@ -337,8 +346,9 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
 
         expect(sendSpy.calls.count()).toBe(1);
 
-        expect(cache.isCachingReconstructions(hash)).toBe(false);
-        expect(cache.hasReconstructions(hash)).toBe(true);
+        expect(cache.isCachingClusterReconstructions(hash)).toBe(false);
+        expect(cache.hasClusterReconstructions(hash)).toBe(true);
+        expect(cache.getClusterReconstructions(hash).length).toBe(1);
+        expect(cache.getClusterReconstructions(hash)[0].key).toBe(node.clusterKey);
     });
-    */
 });
