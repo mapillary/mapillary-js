@@ -81,6 +81,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _tileVisibilitySubscription: Subscription;
     private _uncacheSubscription: Subscription;
     private _cameraVisualizationModeSubscription: Subscription;
+    private _ccToModeSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -328,6 +329,19 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     this._scene.setTileVisibility(visible);
                 });
 
+        this._ccToModeSubscription = this._configuration$.pipe(
+            map(
+                (configuration: ISpatialDataConfiguration): CameraVisualizationMode => {
+                    return configuration.connectedComponents === true ?
+                        CameraVisualizationMode.ConnectedComponent :
+                        CameraVisualizationMode.Default;
+                }),
+            distinctUntilChanged())
+            .subscribe(
+                (mode: CameraVisualizationMode): void => {
+                    this.configure({ cameraVisualizationMode: mode });
+                });
+
         this._cameraVisualizationModeSubscription = this._configuration$.pipe(
             map(
                 (configuration: ISpatialDataConfiguration): CameraVisualizationMode => {
@@ -410,6 +424,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._tileVisibilitySubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
         this._cameraVisualizationModeSubscription.unsubscribe();
+        this._ccToModeSubscription.unsubscribe();
 
         this._navigator.stateService.state$.pipe(
             first())
@@ -422,7 +437,14 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     }
 
     protected _getDefaultConfiguration(): ISpatialDataConfiguration {
-        return { camerasVisible: false, pointsVisible: true, positionsVisible: false, tilesVisible: false };
+        return {
+            cameraVisualizationMode: CameraVisualizationMode.Default,
+            camerasVisible: false,
+            connectedComponents: false,
+            pointsVisible: true,
+            positionsVisible: false,
+            tilesVisible: false,
+        };
     }
 
     private _adjacentComponent(hash: string, depth: number): string[] {

@@ -68,6 +68,11 @@ export class SpatialDataScene {
             configuration.cameraVisualizationMode :
             CameraVisualizationMode.Default;
 
+        if (this._cameraVisualizationMode === CameraVisualizationMode.Default &&
+            configuration.connectedComponents === true) {
+            this._cameraVisualizationMode = CameraVisualizationMode.ConnectedComponent;
+        }
+
         this._camerasVisible = configuration.camerasVisible;
         this._pointsVisible = configuration.pointsVisible;
         this._positionsVisible = configuration.positionsVisible;
