@@ -450,6 +450,18 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Returns the HTML element containing the viewer's <canvas> element.
+     *
+     * @description This is the element to which event bindings for viewer
+     * interactivity (such as panning and zooming) are attached.
+     *
+     * @returns {HTMLElement} The container viewer's <canvas> element.
+     */
+    public getCanvasContainer(): HTMLElement {
+        return this._container.canvasContainer;
+    }
+
+    /**
      * Get the basic coordinates of the current image that is
      * at the center of the viewport.
      *
