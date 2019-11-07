@@ -129,6 +129,22 @@ export class RenderCamera {
         return 90 - this._spatial.radToDeg(this._rotation.theta);
     }
 
+    public fovToZoom(fov: number): number {
+        fov = Math.min(90, Math.max(0, fov));
+
+        const currentFov: number = this._computeCurrentFov(0);
+        const actualFov: number = this._alpha === 1 ?
+            currentFov :
+            this._interpolateFov(currentFov, this._computePreviousFov(0), this._alpha);
+
+        const y0: number = Math.tan(actualFov / 2 * Math.PI / 180);
+        const y1: number = Math.tan(fov / 2 * Math.PI / 180);
+
+        const zoom: number = Math.log(y0 / y1) / Math.log(2);
+
+        return zoom;
+    }
+
     public setFrame(frame: IFrame): void {
         const state: ICurrentState = frame.state;
 
@@ -166,8 +182,8 @@ export class RenderCamera {
         }
 
         if (this._changed) {
-            this._currentFov = this._computeCurrentFov();
-            this._previousFov = this._computePreviousFov();
+            this._currentFov = this._computeCurrentFov(this.zoom);
+            this._previousFov = this._computePreviousFov(this._zoom);
         }
 
         const alpha: number = state.alpha;
@@ -230,7 +246,7 @@ export class RenderCamera {
         return elementWidth === 0 ? 0 : elementWidth / elementHeight;
     }
 
-    private _computeCurrentFov(): number {
+    private _computeCurrentFov(zoom: number): number {
         if (this._perspective.aspect === 0) {
             return 0;
         }
@@ -240,18 +256,18 @@ export class RenderCamera {
         }
 
         return this._currentPano ?
-            this._yToFov(1, this._zoom) :
-            this._computeVerticalFov(this._currentProjectedPoints, this._renderMode, this._zoom, this.perspective.aspect);
+            this._yToFov(1, zoom) :
+            this._computeVerticalFov(this._currentProjectedPoints, this._renderMode, zoom, this.perspective.aspect);
     }
 
     private _computeFov(): number {
-        this._currentFov = this._computeCurrentFov();
-        this._previousFov = this._computePreviousFov();
+        this._currentFov = this._computeCurrentFov(this._zoom);
+        this._previousFov = this._computePreviousFov(this._zoom);
 
         return this._interpolateFov(this._currentFov, this._previousFov, this._alpha);
     }
 
-    private _computePreviousFov(): number {
+    private _computePreviousFov(zoom: number): number {
         if (this._perspective.aspect === 0) {
             return 0;
         }
@@ -263,8 +279,8 @@ export class RenderCamera {
         return !this._previousNodeId ?
             this._currentFov :
             this._previousPano ?
-                this._yToFov(1, this._zoom) :
-                this._computeVerticalFov(this._previousProjectedPoints, this._renderMode, this._zoom, this.perspective.aspect);
+                this._yToFov(1, zoom) :
+                this._computeVerticalFov(this._previousProjectedPoints, this._renderMode, zoom, this.perspective.aspect);
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {

@@ -919,6 +919,32 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Set the viewer's current vertical field of view.
+     *
+     * @description Sets the vertical field of view rendered
+     * on the viewer canvas measured in degrees. The value
+     * will be clamped to be able to set a valid zoom level
+     * based on the projection model of the current image and
+     * the viewer's current render mode.
+     *
+     * @param {number} fov - Vertical field of view in degrees.
+     *
+     * @example
+     * ```
+     * viewer.setFieldOfView(45);
+     * ```
+     */
+    public setFieldOfView(fov: number): void {
+        this._container.renderService.renderCamera$.pipe(
+            first())
+            .subscribe(
+                (rc: RenderCamera): void => {
+                    const zoom: number = rc.fovToZoom(fov);
+                    this._navigator.stateService.setZoom(zoom);
+                });
+    }
+
+    /**
      * Set the viewer's render mode.
      *
      * @param {RenderMode} renderMode - Render mode.
