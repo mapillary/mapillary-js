@@ -124,6 +124,14 @@ export class Viewer extends EventEmitter {
     public static dblclick: string = "dblclick";
 
     /**
+     * Fired when the viewer's vertical field of view changes.
+     *
+     * @event
+     * @type  {@link IViewerEvent} event - The event object.
+     */
+    public static fovchanged: string = "fovchanged";
+
+    /**
      * Fired when the viewer is loading more data.
      * @event
      * @type {boolean} loading - Boolean indicating whether the viewer is loading.
@@ -198,14 +206,26 @@ export class Viewer extends EventEmitter {
 
     /**
      * Fired every time the viewer navigates to a new node.
+     *
      * @event
      * @type  {@link Node} node - Current node.
      */
     public static nodechanged: string = "nodechanged";
 
     /**
+     * Fired when the viewer's position changes.
+     *
+     * @description The viewer's position changes when transitioning
+     * between nodes.
+     *
+     * @event
+     * @type  {@link IViewerEvent} event - The event object.
+     */
+    public static positionchanged: string = "positionchanged";
+
+    /**
      * Fired when the viewer's point of view changes. The point of view changes
-     * when the bearing, tilt, or horizontal field of view changes.
+     * when the bearing, or tilt changes.
      *
      * @event
      * @type  {@link IViewerEvent} event - The event object.
@@ -484,6 +504,35 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Get the viewer's current vertical field of view.
+     *
+     * @description The vertical field of view rendered on the viewer canvas
+     * measured in degrees.
+     *
+     * @returns {Promise<number>} Promise to the current field of view
+     * of the viewer camera.
+     *
+     * @example
+     * ```
+     * viewer.getFieldOfView().then((fov) => { console.log(fov); });
+     * ```
+     */
+    public getFieldOfView(): when.Promise<number> {
+        return when.promise<number>(
+            (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
+                this._container.renderService.renderCamera$.pipe(
+                    first())
+                    .subscribe(
+                        (rc: RenderCamera): void => {
+                            resolve(rc.perspective.fov);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
      * Get the viewer's current point of view.
      *
      * @returns {Promise<IPointOfView>} Promise to the current point of view
@@ -505,7 +554,6 @@ export class Viewer extends EventEmitter {
                         ([rc, bearing]: [RenderCamera, number]): void => {
                             resolve({
                                 bearing: bearing,
-                                fov: rc.perspective.fov,
                                 tilt: rc.getTilt(),
                             });
                         },

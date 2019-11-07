@@ -43,7 +43,9 @@ export class Observer {
 
     private _bearingSubscription: Subscription;
     private _currentNodeSubscription: Subscription;
+    private _fovSubscription: Subscription;
     private _moveSubscription: Subscription;
+    private _positionSubscription: Subscription;
     private _povSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
@@ -210,24 +212,59 @@ export class Observer {
                     this._eventEmitter.fire(event.type, event);
                 });
 
-        this._povSubscription = this._container.renderService.renderCamera$.pipe(
+        this._positionSubscription = this._container.renderService.renderCamera$.pipe(
             distinctUntilChanged(
-                ([phi1, theta1, fov1], [phi2, theta2, fov2]): boolean => {
-                    return this._closeTo(phi1, phi2, 1e-3) &&
-                        this._closeTo(theta1, theta2, 1e-3) &&
-                        this._closeTo(fov1, fov2, 1e-2);
+                ([x1, y1], [x2, y2]): boolean => {
+                    return this._closeTo(x1, x2, 1e-2) &&
+                        this._closeTo(y1, y2, 1e-2);
                 },
-                (rc: RenderCamera): [number, number, number] => {
-                    return [rc.rotation.phi, rc.rotation.theta, rc.perspective.fov];
+                (rc: RenderCamera): number[] => {
+                    return rc.camera.position.toArray();
                 }))
             .subscribe(
-                (r): void => {
-                    console.log(r.frameId);
+                (): void => {
+                    this._eventEmitter.fire(
+                        Viewer.positionchanged,
+                        {
+                            target: this._eventEmitter,
+                            type: Viewer.positionchanged,
+                        });
+                });
+
+        this._povSubscription = this._container.renderService.renderCamera$.pipe(
+            distinctUntilChanged(
+                ([phi1, theta1], [phi2, theta2]): boolean => {
+                    return this._closeTo(phi1, phi2, 1e-3) &&
+                        this._closeTo(theta1, theta2, 1e-3);
+                },
+                (rc: RenderCamera): [number, number] => {
+                    return [rc.rotation.phi, rc.rotation.theta];
+                }))
+            .subscribe(
+                (): void => {
                     this._eventEmitter.fire(
                         Viewer.povchanged,
                         {
                             target: this._eventEmitter,
                             type: Viewer.povchanged,
+                        });
+                });
+
+        this._fovSubscription = this._container.renderService.renderCamera$.pipe(
+            distinctUntilChanged(
+                (fov1, fov2): boolean => {
+                    return this._closeTo(fov1, fov2, 1e-2);
+                },
+                (rc: RenderCamera): number => {
+                    return rc.perspective.fov;
+                }))
+            .subscribe(
+                (): void => {
+                    this._eventEmitter.fire(
+                        Viewer.fovchanged,
+                        {
+                            target: this._eventEmitter,
+                            type: Viewer.fovchanged,
                         });
                 });
     }
@@ -241,7 +278,9 @@ export class Observer {
 
         this._bearingSubscription.unsubscribe();
         this._currentNodeSubscription.unsubscribe();
+        this._fovSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
+        this._positionSubscription.unsubscribe();
         this._povSubscription.unsubscribe();
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
@@ -249,7 +288,9 @@ export class Observer {
 
         this._bearingSubscription = null;
         this._currentNodeSubscription = null;
+        this._fovSubscription = null;
         this._moveSubscription = null;
+        this._positionSubscription = null;
         this._povSubscription = null;
         this._sequenceEdgesSubscription = null;
         this._spatialEdgesSubscription = null;

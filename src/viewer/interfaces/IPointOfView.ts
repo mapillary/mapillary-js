@@ -16,12 +16,6 @@ export interface IPointOfView {
      * Ranges from 90° (directly upwards) to -90° (directly downwards).
      */
     tilt: number;
-
-    /**
-     * The vertical field of view rendered on the viewer canvas
-     * measured in degrees.
-     */
-    fov: number;
 }
 
 export default IPointOfView;
