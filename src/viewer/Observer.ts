@@ -88,6 +88,10 @@ export class Observer {
         return this._navigable$;
     }
 
+    public get projection(): Projection {
+        return this._projection;
+    }
+
     public projectBasic$(basicPoint: number[]): Observable<number[]> {
         return observableCombineLatest(
                 this._container.renderService.renderCamera$,

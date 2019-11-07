@@ -33,6 +33,7 @@ import {RenderMode} from "../Render";
 import {TransitionMode} from "../State";
 import { IPointOfView } from "./interfaces/interfaces";
 import RenderCamera from "../render/RenderCamera";
+import ILatLonAlt from "../geo/interfaces/ILatLonAlt";
 
 /**
  * @class Viewer
@@ -556,6 +557,34 @@ export class Viewer extends EventEmitter {
                                 bearing: bearing,
                                 tilt: rc.getTilt(),
                             });
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
+     * Get the viewer's current position
+     *
+     * @returns {Promise<ILatLon>} Promise to the viewers's current
+     * position.
+     *
+     * @example
+     * ```
+     * viewer.getPosition().then((pos) => { console.log(pos); });
+     * ```
+     */
+    public getPosition(): when.Promise<ILatLon> {
+        return when.promise<ILatLon>(
+            (resolve: (value: ILatLon) => void, reject: (reason: Error) => void): void => {
+                observableCombineLatest(
+                    this._container.renderService.renderCamera$,
+                    this._navigator.stateService.reference$).pipe(
+                    first())
+                    .subscribe(
+                        ([render, reference]: [RenderCamera, ILatLonAlt]): void => {
+                            resolve(this._observer.projection.cameraToLatLon(render, reference));
                         },
                         (error: Error): void => {
                             reject(error);

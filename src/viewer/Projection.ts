@@ -105,6 +105,19 @@ export class Projection {
 
         return unprojection;
     }
+
+    public cameraToLatLon(render: RenderCamera, reference: ILatLonAlt): ILatLon {
+        const position: THREE.Vector3 = render.camera.position;
+        const [lat, lon]: number[] = this._geoCoords.enuToGeodetic(
+            position.x,
+            position.y,
+            position.z,
+            reference.lat,
+            reference.lon,
+            reference.alt);
+
+        return { lat: lat, lon: lon };
+    }
 }
 
 export default Projection;
