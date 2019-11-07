@@ -746,8 +746,12 @@ export class Viewer extends EventEmitter {
      * canvas pixel coordinates.
      *
      * @description The geographical coordinates may not always correspond to pixel
-     * coordinates. In the case of no correspondence the returned value will
+     * coordinates, e.g. if the geographical coordinates have a position behind the
+     * viewer camera. In the case of no correspondence the returned value will
      * be `null`.
+     *
+     * If the distance from the viewer camera position to the provided lat-lon
+     * is more than 1000 meters `null` will be returned.
      *
      * The projection is performed from the ground plane, i.e.
      * the altitude with respect to the ground plane for the geographical
@@ -763,7 +767,13 @@ export class Viewer extends EventEmitter {
      * @example
      * ```
      * viewer.project({ lat: 0, lon: 0 })
-     *     .then((pixelPoint) => { console.log(pixelPoint); });
+     *     .then((pixelPoint) => {
+     *          if (!pixelPoint) {
+     *              console.log("no correspondence");
+     *          }
+     *
+     *          console.log(pixelPoint);
+     *     });
      * ```
      */
     public project(latLon: ILatLon): when.Promise<number[]> {

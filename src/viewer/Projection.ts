@@ -9,13 +9,16 @@ import {
 } from "../Geo";
 import {RenderCamera} from "../Render";
 import {IUnprojection} from "../Viewer";
+import Spatial from "../geo/Spatial";
 
 export class Projection {
     private _geoCoords: GeoCoords;
+    private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
-    constructor(geoCoords?: GeoCoords, viewportCoords?: ViewportCoords) {
+    constructor(geoCoords?: GeoCoords, viewportCoords?: ViewportCoords, spatial?: Spatial) {
         this._geoCoords = !!geoCoords ? geoCoords : new GeoCoords();
+        this._spatial = !!spatial ? spatial : new Spatial();
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
     }
 
@@ -139,6 +142,14 @@ export class Projection {
             render.perspective);
 
         return canvas;
+    }
+
+    public distanceBetweenLatLons(latLon1: ILatLon, latLon2: ILatLon): number {
+        return this._spatial.distanceFromLatLon(
+            latLon1.lat,
+            latLon1.lon,
+            latLon2.lat,
+            latLon2.lon);
     }
 }
 

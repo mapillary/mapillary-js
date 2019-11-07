@@ -95,10 +95,15 @@ export class Observer {
     public project$(latLon: ILatLon): Observable<number[]> {
         return observableCombineLatest(
             this._container.renderService.renderCamera$,
+            this._navigator.stateService.currentNode$,
             this._navigator.stateService.reference$).pipe(
             first(),
             map(
-                ([render, reference]: [RenderCamera, ILatLonAlt]): number[] => {
+                ([render, node, reference]: [RenderCamera, Node, ILatLonAlt]): number[] => {
+                    if (this._projection.distanceBetweenLatLons(latLon, node.latLon) > 1000) {
+                        return null;
+                    }
+
                     const canvasPoint: number[] = this._projection.latLonToCanvas(
                         latLon,
                         this._container.element,
