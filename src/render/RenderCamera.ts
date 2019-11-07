@@ -125,6 +125,10 @@ export class RenderCamera {
         return this._zoom;
     }
 
+    public getTilt(): number {
+        return 90 - this._spatial.radToDeg(this._rotation.theta);
+    }
+
     public setFrame(frame: IFrame): void {
         const state: ICurrentState = frame.state;
 

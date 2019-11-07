@@ -44,6 +44,7 @@ export class Observer {
     private _bearingSubscription: Subscription;
     private _currentNodeSubscription: Subscription;
     private _moveSubscription: Subscription;
+    private _povSubscription: Subscription;
     private _sequenceEdgesSubscription: Subscription;
     private _spatialEdgesSubscription: Subscription;
     private _viewerMouseEventSubscription: Subscription;
@@ -208,6 +209,27 @@ export class Observer {
                 (event: IViewerMouseEvent): void => {
                     this._eventEmitter.fire(event.type, event);
                 });
+
+        this._povSubscription = this._container.renderService.renderCamera$.pipe(
+            distinctUntilChanged(
+                ([phi1, theta1, fov1], [phi2, theta2, fov2]): boolean => {
+                    return this._closeTo(phi1, phi2, 1e-3) &&
+                        this._closeTo(theta1, theta2, 1e-3) &&
+                        this._closeTo(fov1, fov2, 1e-2);
+                },
+                (rc: RenderCamera): [number, number, number] => {
+                    return [rc.rotation.phi, rc.rotation.theta, rc.perspective.fov];
+                }))
+            .subscribe(
+                (r): void => {
+                    console.log(r.frameId);
+                    this._eventEmitter.fire(
+                        Viewer.povchanged,
+                        {
+                            target: this._eventEmitter,
+                            type: Viewer.povchanged,
+                        });
+                });
     }
 
     public stopEmit(): void {
@@ -220,6 +242,7 @@ export class Observer {
         this._bearingSubscription.unsubscribe();
         this._currentNodeSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
+        this._povSubscription.unsubscribe();
         this._sequenceEdgesSubscription.unsubscribe();
         this._spatialEdgesSubscription.unsubscribe();
         this._viewerMouseEventSubscription.unsubscribe();
@@ -227,6 +250,7 @@ export class Observer {
         this._bearingSubscription = null;
         this._currentNodeSubscription = null;
         this._moveSubscription = null;
+        this._povSubscription = null;
         this._sequenceEdgesSubscription = null;
         this._spatialEdgesSubscription = null;
         this._viewerMouseEventSubscription = null;
@@ -265,6 +289,10 @@ export class Observer {
                         render,
                         transform);
                 }));
+    }
+
+    private _closeTo(v1: number, v2: number, absoluteTolerance: number): boolean {
+        return Math.abs(v1 - v2) <= absoluteTolerance;
     }
 
     private _mapMouseEvent$(type: string, mouseEvent$: Observable<MouseEvent>): Observable<[string, MouseEvent]> {

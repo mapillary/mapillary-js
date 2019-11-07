@@ -1,4 +1,8 @@
-import {throwError as observableThrowError, Observable} from "rxjs";
+import {
+    throwError as observableThrowError,
+    combineLatest as observableCombineLatest,
+    Observable,
+} from "rxjs";
 
 import {first} from "rxjs/operators";
 import * as when from "when";
@@ -27,6 +31,8 @@ import {
 } from "../Utils";
 import {RenderMode} from "../Render";
 import {TransitionMode} from "../State";
+import { IPointOfView } from "./interfaces/interfaces";
+import RenderCamera from "../render/RenderCamera";
 
 /**
  * @class Viewer
@@ -196,6 +202,15 @@ export class Viewer extends EventEmitter {
      * @type  {@link Node} node - Current node.
      */
     public static nodechanged: string = "nodechanged";
+
+    /**
+     * Fired when the viewer's point of view changes. The point of view changes
+     * when the bearing, tilt, or horizontal field of view changes.
+     *
+     * @event
+     * @type  {@link IViewerEvent} event - The event object.
+     */
+    public static povchanged: string = "povchanged";
 
     /**
      * Fired every time the sequence edges of the current node changes.
@@ -466,6 +481,38 @@ export class Viewer extends EventEmitter {
      */
     public getContainer(): HTMLElement {
         return this._container.element;
+    }
+
+    /**
+     * Get the viewer's current point of view.
+     *
+     * @returns {Promise<IPointOfView>} Promise to the current point of view
+     * of the viewer camera.
+     *
+     * @example
+     * ```
+     * viewer.getPointOfView().then((pov) => { console.log(pov); });
+     * ```
+     */
+    public getPointOfView(): when.Promise<IPointOfView> {
+        return when.promise<IPointOfView>(
+            (resolve: (value: IPointOfView) => void, reject: (reason: Error) => void): void => {
+                observableCombineLatest(
+                    this._container.renderService.renderCamera$,
+                    this._container.renderService.bearing$).pipe(
+                    first())
+                    .subscribe(
+                        ([rc, bearing]: [RenderCamera, number]): void => {
+                            resolve({
+                                bearing: bearing,
+                                fov: rc.perspective.fov,
+                                tilt: rc.getTilt(),
+                            });
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
     }
 
     /**
