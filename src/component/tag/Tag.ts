@@ -1,5 +1,6 @@
 export {GeometryTagError} from "./error/GeometryTagError";
 export {PointGeometry} from "./geometry/PointGeometry";
+export {PointsGeometry} from "./geometry/PointsGeometry";
 export {RectGeometry} from "./geometry/RectGeometry";
 export {PolygonGeometry} from "./geometry/PolygonGeometry";
 export {IOutlineTagOptions} from "./interfaces/IOutlineTagOptions";

@@ -119,9 +119,6 @@ export class PolygonGeometry extends VertexGeometry {
     /**
      * Get the coordinates of a vertex from the polygon representation of the geometry.
      *
-     * @description The first vertex represents the bottom-left corner with the rest of
-     * the vertices following in clockwise order.
-     *
      * @param {number} index - Vertex index.
      * @returns {Array<number>} Array representing the 2D basic coordinates of the vertex.
      * @ignore

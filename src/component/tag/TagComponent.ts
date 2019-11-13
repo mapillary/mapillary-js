@@ -61,6 +61,8 @@ import {
     ISpriteAtlas,
     Navigator,
 } from "../../Viewer";
+import { ExtremePointCreateTag } from "./tag/ExtremePointCreateTag";
+import { CreatePointsHandler } from "./handlers/CreatePointsHandler";
 
 /**
  * @class TagComponent
@@ -189,6 +191,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _renderTags$: Observable<RenderTag<Tag>[]>;
     private _tagChanged$: Observable<Tag>;
     private _renderTagGLChanged$: Observable<RenderTag<Tag>>;
+    private _extremeCreateGeometryChanged$: Observable<ExtremePointCreateTag>;
     private _createGeometryChanged$: Observable<OutlineCreateTag>;
     private _createGLObjectsChanged$: Observable<OutlineCreateTag>;
 
@@ -226,6 +229,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._createHandlers = {
             "CreatePoint": new CreatePointHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
+            "CreatePoints": new CreatePointsHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
             "CreatePolygon": new CreatePolygonHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
             "CreateRect": new CreateRectHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
             "CreateRectDrag": new CreateRectDragHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
@@ -288,6 +292,15 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._createGeometryChanged$ = this._tagCreator.tag$.pipe(
             switchMap(
                 (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
+                    return tag != null ?
+                        tag.geometryChanged$ :
+                        observableEmpty();
+                }),
+            share());
+
+        this._extremeCreateGeometryChanged$ = this._tagCreator.extremeTag$.pipe(
+            switchMap(
+                (tag: ExtremePointCreateTag): Observable<ExtremePointCreateTag> => {
                     return tag != null ?
                         tag.geometryChanged$ :
                         observableEmpty();
@@ -574,6 +587,16 @@ export class TagComponent extends Component<ITagConfiguration> {
                 }))
             .subscribe((): void => { this.changeMode(TagMode.Default); });
 
+        this._stopCreateSubscription = this._tagCreator.extremeTag$.pipe(
+            switchMap(
+                (tag: ExtremePointCreateTag): Observable<void> => {
+                    return tag != null ?
+                        tag.aborted$.pipe(
+                            map((t: ExtremePointCreateTag): void => { return null; })) :
+                        observableEmpty();
+                }))
+            .subscribe((): void => { this.changeMode(TagMode.Default); });
+
         this._setGLCreateTagSubscription = this._tagCreator.tag$
             .subscribe(
                 (tag: OutlineCreateTag): void => {
@@ -620,13 +643,17 @@ export class TagComponent extends Component<ITagConfiguration> {
                 this._tagChanged$.pipe(startWith(null)),
                 observableMerge(
                     this._tagCreator.tag$,
-                    this._createGeometryChanged$).pipe(startWith(null))).pipe(
+                    this._createGeometryChanged$).pipe(startWith(null)),
+                observableMerge(
+                    this._tagCreator.extremeTag$,
+                    this._extremeCreateGeometryChanged$).pipe(startWith(null))).pipe(
             map(
-                ([renderTags, rc, atlas, size, tag, ct]: [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ISize, Tag, OutlineCreateTag]):
+                ([renderTags, rc, atlas, size, tag, ct, ect]:
+                [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ISize, Tag, OutlineCreateTag, ExtremePointCreateTag]):
                     IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
+                        vnode: this._tagDomRenderer.render(renderTags, ct, ect, atlas, rc.perspective, size),
                     };
                 }))
             .subscribe(this._container.domRenderer.render$);
@@ -666,6 +693,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._tagSet.deactivate();
 
         this._tagCreator.delete$.next(null);
+        this._tagCreator.deleteExtreme$.next(null);
 
         this._updateGLObjectsSubscription.unsubscribe();
         this._updateTagSceneSubscription.unsubscribe();
