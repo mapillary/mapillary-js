@@ -5,10 +5,10 @@ import {
     OutlineCreateTag,
     RenderTag,
     Tag,
+    ExtremePointCreateTag,
 } from "../../Component";
 import {ISize} from "../../Render";
 import {ISpriteAtlas} from "../../Viewer";
-import { ExtremePointCreateTag } from "./tag/ExtremePointCreateTag";
 
 export class TagDOMRenderer {
     public render(

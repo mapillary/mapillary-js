@@ -20,14 +20,12 @@ import {
 } from "rxjs/operators";
 
 import {
-    CreateVertexHandler,
-    PolygonGeometry,
     Geometry,
+    CreateHandlerBase,
+    ExtremePointCreateTag,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
-import CreateHandlerBase from "./CreateHandlerBase";
 import { RenderCamera } from "../../../Render";
-import { ExtremePointCreateTag } from "../tag/ExtremePointCreateTag";
 
 export class CreatePointsHandler extends CreateHandlerBase {
     private _addPointSubscription: Subscription;
@@ -40,7 +38,7 @@ export class CreatePointsHandler extends CreateHandlerBase {
         this._container.mouseService.deferPixels(this._name, 4);
 
         const transformChanged$: Observable<void> = this._navigator.stateService.currentTransform$.pipe(
-            map((transform: Transform): void => { /*noop*/ }),
+            map((): void => { /*noop*/ }),
             publishReplay(1),
             refCount());
 

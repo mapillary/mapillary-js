@@ -1,6 +1,5 @@
-import {GeometryTagError} from "../../../Component";
+import {Geometry, GeometryTagError} from "../../../Component";
 import {Transform} from "../../../Geo";
-import Geometry from "./Geometry";
 
 /**
  * @class PointsGeometry
@@ -151,19 +150,7 @@ export class PointsGeometry extends Geometry {
         return transform.unprojectBasic(centroid2d, 200);
     }
 
-    public setCentroid2d(value: number[], transform: Transform): void {
-        throw new Error("Not implemented");
-    }
-
-    private _getPoints3d(points2d: number[][], transform: Transform): number[][] {
-        return points2d
-            .map(
-                (point: number[]) => {
-                    return transform.unprojectBasic(point, 200);
-                });
-    }
-
-    private _getRect2d(): number[] {
+    public getRect2d(transform: Transform): number[] {
         let minX: number = 1;
         let maxX: number = 0;
         let minY: number = 1;
@@ -174,7 +161,7 @@ export class PointsGeometry extends Geometry {
                 minX = point[0];
             }
 
-            if (point[1] > maxX) {
+            if (point[0] > maxX) {
                 maxX = point[0];
             }
 
@@ -188,6 +175,18 @@ export class PointsGeometry extends Geometry {
         }
 
         return [minX, minY, maxX, maxY];
+    }
+
+    public setCentroid2d(value: number[], transform: Transform): void {
+        throw new Error("Not implemented");
+    }
+
+    private _getPoints3d(points2d: number[][], transform: Transform): number[][] {
+        return points2d
+            .map(
+                (point: number[]) => {
+                    return transform.unprojectBasic(point, 200);
+                });
     }
 }
 

@@ -87,3 +87,5 @@ export class PointGeometry extends Geometry {
         this._notifyChanged$.next(this);
     }
 }
+
+export default PointGeometry;

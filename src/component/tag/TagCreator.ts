@@ -7,11 +7,11 @@ import {
     OutlineCreateTag,
     PolygonGeometry,
     RectGeometry,
+    ExtremePointCreateTag,
+    PointsGeometry,
 } from "../../Component";
 import {Transform} from "../../Geo";
 import {Navigator} from "../../Viewer";
-import { ExtremePointCreateTag } from "./tag/ExtremePointCreateTag";
-import PointsGeometry from "./geometry/PointsGeometry";
 
 interface ICreateTagOperation {
     (tag: OutlineCreateTag): OutlineCreateTag;
