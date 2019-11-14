@@ -156,7 +156,9 @@ export class PointsGeometry extends Geometry {
         let minY: number = 1;
         let maxY: number = 0;
 
-        for (const point of this._points) {
+        const points: number[][] = this._points;
+
+        for (const point of points) {
             if (point[0] < minX) {
                 minX = point[0];
             }
@@ -171,6 +173,41 @@ export class PointsGeometry extends Geometry {
 
             if (point[1] > maxY) {
                 maxY = point[1];
+            }
+        }
+
+        if (transform.fullPano) {
+            const indices: number[] = [];
+            for (let i: number = 0; i < points.length; i++) {
+                indices[i] = i;
+            }
+
+            indices.sort(
+                (a, b): number => {
+                    return points[a][0] < points[b][0] ?
+                        -1 :
+                        points[a][0] > points[b][0] ?
+                            1 :
+                            a < b ? -1 : 1;
+                });
+
+            let maxDistanceX: number = points[indices[0]][0] + 1 - points[indices[indices.length - 1]][0];
+            let leftMostIndex: number = 0;
+
+            for (let i: number = 0; i < indices.length - 1; i++) {
+                const index1: number = indices[i];
+                const index2: number = indices[i + 1];
+                const distanceX: number = points[index2][0] - points[index1][0];
+
+                if (distanceX > maxDistanceX) {
+                    maxDistanceX = distanceX;
+                    leftMostIndex = i + 1;
+                }
+            }
+
+            if (leftMostIndex > 0) {
+                minX = points[indices[leftMostIndex]][0];
+                maxX = points[indices[leftMostIndex - 1]][0];
             }
         }
 

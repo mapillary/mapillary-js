@@ -19,9 +19,10 @@ export class ExtremePointCreateTag {
     private _aborted$: Subject<ExtremePointCreateTag>;
     private _created$: Subject<ExtremePointCreateTag>;
 
-    private _geometryChangedSubscription: Subscription;
     private _glObjectsChanged$: Subject<ExtremePointCreateTag>;
     private _glObjects: THREE.Object3D[];
+
+    private _geometryChangedSubscription: Subscription;
 
     constructor(
         geometry: PointsGeometry,
@@ -41,15 +42,11 @@ export class ExtremePointCreateTag {
 
         this._glObjectsChanged$ = new Subject<ExtremePointCreateTag>();
 
-        this._geometry.changed$
+        this._geometryChangedSubscription = this._geometry.changed$
             .subscribe(
                 (pointsGeometry: PointsGeometry): void => {
-                    this._setRect(pointsGeometry.getRect2d(transform), transform);
-                });
+                    this._rectGeometry = new RectGeometry(pointsGeometry.getRect2d(transform));
 
-        this._geometryChangedSubscription = this._rectGeometry.changed$
-            .subscribe(
-                (rectGeometry: RectGeometry): void => {
                     this._disposeOutline();
                     this._outline = this._createOutine();
                     this._glObjects = [this._outline];
@@ -86,7 +83,10 @@ export class ExtremePointCreateTag {
                 }));
     }
 
-    public dispose(): void { /* noop */ }
+    public dispose(): void {
+        this._geometryChangedSubscription.unsubscribe();
+        this._disposeOutline();
+     }
 
     public getDOMObjects(camera: THREE.Camera, size: ISize): vd.VNode[] {
         const container: { offsetHeight: number, offsetWidth: number } = {
@@ -205,15 +205,6 @@ export class ExtremePointCreateTag {
         const transform: string = `translate(-50%,-50%) translate(${canvasX}px,${canvasY}px)`;
 
         return transform;
-    }
-
-    private _setRect(rect: number[], transform: Transform): void {
-        const [x0, y0, x1, y1]: number[] = rect;
-
-        this._rectGeometry.setVertex2d(0, [x0, y1], transform);
-        this._rectGeometry.setVertex2d(1, [x0, y0], transform);
-        this._rectGeometry.setVertex2d(2, [x1, y0], transform);
-        this._rectGeometry.setVertex2d(3, [x1, y1], transform);
     }
 
     private _createOutine(): THREE.Line {
