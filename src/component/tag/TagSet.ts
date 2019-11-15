@@ -9,6 +9,8 @@ import {
     Tag,
 } from "../../Component";
 import {Transform} from "../../Geo";
+import ExtremePointTag from "./tag/ExtremePointTag";
+import ExtremePointRenderTag from "./tag/ExtremePointRenderTag";
 
 export class TagSet {
     private _active: boolean;
@@ -84,7 +86,11 @@ export class TagSet {
         this._assertActivationState(false);
 
         for (const tag of tags) {
-            if (!(tag instanceof OutlineTag || tag instanceof SpotTag)) {
+            if (!(
+                tag instanceof OutlineTag ||
+                tag instanceof SpotTag ||
+                tag instanceof ExtremePointTag
+                )) {
                 throw new Error("Tag type not supported");
             }
 
@@ -175,6 +181,8 @@ export class TagSet {
             this._hash[tag.id] = new OutlineRenderTag(<OutlineTag>tag, transform);
         } else if (tag instanceof SpotTag) {
             this._hash[tag.id] = new SpotRenderTag(<SpotTag>tag, transform);
+        } else if (tag instanceof ExtremePointTag) {
+            this._hash[tag.id] = new ExtremePointRenderTag(<ExtremePointTag>tag, transform);
         } else {
             throw new Error("Tag type not supported");
         }

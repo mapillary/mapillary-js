@@ -98,6 +98,10 @@ export class PointsGeometry extends Geometry {
         this._notifyChanged$.next(this);
     }
 
+    public setVertex2d(index: number, value: number[], transform: Transform): void {
+        this.setPoint2d(index, value, transform);
+    }
+
     /** @ignore */
     public setPoint2d(index: number, value: number[], transform: Transform): void {
         const changed: number[] = [

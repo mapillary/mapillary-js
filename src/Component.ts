@@ -68,8 +68,10 @@ export {CreateRectDragHandler} from "./component/tag/handlers/CreateRectDragHand
 export {EditVertexHandler} from "./component/tag/handlers/EditVertexHandler";
 export {Tag} from "./component/tag/tag/Tag";
 export {OutlineTag} from "./component/tag/tag/OutlineTag";
+export {ExtremePointTag} from "./component/tag/tag/ExtremePointTag";
 export {RenderTag} from "./component/tag/tag/RenderTag";
 export {OutlineRenderTag} from "./component/tag/tag/OutlineRenderTag";
+export {ExtremePointRenderTag} from "./component/tag/tag/ExtremePointRenderTag";
 export {OutlineCreateTag} from "./component/tag/tag/OutlineCreateTag";
 export {SpotTag} from "./component/tag/tag/SpotTag";
 export {SpotRenderTag} from "./component/tag/tag/SpotRenderTag";
