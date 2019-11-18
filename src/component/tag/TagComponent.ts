@@ -32,10 +32,10 @@ import {
     CreatePolygonHandler,
     CreateRectHandler,
     CreateRectDragHandler,
+    CreateTag,
     EditVertexHandler,
     Geometry,
     ITagConfiguration,
-    OutlineCreateTag,
     RenderTag,
     Tag,
     TagCreator,
@@ -43,7 +43,6 @@ import {
     TagMode,
     TagScene,
     TagSet,
-    ExtremePointCreateTag,
     CreatePointsHandler,
 } from "../../Component";
 import {
@@ -191,10 +190,8 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _renderTags$: Observable<RenderTag<Tag>[]>;
     private _tagChanged$: Observable<Tag>;
     private _renderTagGLChanged$: Observable<RenderTag<Tag>>;
-    private _extremeCreateGeometryChanged$: Observable<ExtremePointCreateTag>;
-    private _createGeometryChanged$: Observable<OutlineCreateTag>;
-    private _createGLObjectsChanged$: Observable<OutlineCreateTag>;
-    private _extremeCreateGLObjectsChanged$: Observable<ExtremePointCreateTag>;
+    private _createGeometryChanged$: Observable<CreateTag<Geometry>>;
+    private _createGLObjectsChanged$: Observable<CreateTag<Geometry>>;
 
     private _creatingConfiguration$: Observable<ITagConfiguration>;
 
@@ -203,9 +200,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
     private _stopCreateSubscription: Subscription;
     private _setGLCreateTagSubscription: Subscription;
-    private _setGLExtremeCreateTagSubscription: Subscription;
     private _createGLObjectsChangedSubscription: Subscription;
-    private _extremeCreateGLObjectsChangedSubscription: Subscription;
 
     private _handlerStopCreateSubscription: Subscription;
     private _handlerEnablerSubscription: Subscription;
@@ -294,16 +289,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._createGeometryChanged$ = this._tagCreator.tag$.pipe(
             switchMap(
-                (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
-                    return tag != null ?
-                        tag.geometryChanged$ :
-                        observableEmpty();
-                }),
-            share());
-
-        this._extremeCreateGeometryChanged$ = this._tagCreator.extremeTag$.pipe(
-            switchMap(
-                (tag: ExtremePointCreateTag): Observable<ExtremePointCreateTag> => {
+                (tag: CreateTag<Geometry>): Observable<CreateTag<Geometry>> => {
                     return tag != null ?
                         tag.geometryChanged$ :
                         observableEmpty();
@@ -312,16 +298,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._createGLObjectsChanged$ = this._tagCreator.tag$.pipe(
             switchMap(
-                (tag: OutlineCreateTag): Observable<OutlineCreateTag> => {
-                    return tag != null ?
-                        tag.glObjectsChanged$ :
-                        observableEmpty();
-                }),
-            share());
-
-        this._extremeCreateGLObjectsChanged$ = this._tagCreator.extremeTag$.pipe(
-            switchMap(
-                (tag: ExtremePointCreateTag): Observable<ExtremePointCreateTag> => {
+                (tag: CreateTag<Geometry>): Observable<CreateTag<Geometry>> => {
                     return tag != null ?
                         tag.glObjectsChanged$ :
                         observableEmpty();
@@ -552,12 +529,12 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._fireCreateGeometryEventSubscription = this._tagCreator.tag$.pipe(
             skipWhile(
-                (tag: OutlineCreateTag): boolean => {
+                (tag: CreateTag<Geometry>): boolean => {
                     return tag == null;
                 }),
             distinctUntilChanged())
             .subscribe(
-                (tag: OutlineCreateTag): void => {
+                (tag: CreateTag<Geometry>): void => {
                     const eventType: string = tag != null ?
                         TagComponent.creategeometrystart :
                         TagComponent.creategeometryend;
@@ -585,33 +562,23 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._fireTagsChangedSubscription = this._renderTags$
             .subscribe(
-                (tags: RenderTag<Tag>[]): void => {
+                (): void => {
                     this.fire(TagComponent.tagschanged, this);
                 });
 
         this._stopCreateSubscription = this._tagCreator.tag$.pipe(
             switchMap(
-                (tag: OutlineCreateTag): Observable<void> => {
+                (tag: CreateTag<Geometry>): Observable<void> => {
                     return tag != null ?
                         tag.aborted$.pipe(
-                            map((t: OutlineCreateTag): void => { return null; })) :
-                        observableEmpty();
-                }))
-            .subscribe((): void => { this.changeMode(TagMode.Default); });
-
-        this._stopCreateSubscription = this._tagCreator.extremeTag$.pipe(
-            switchMap(
-                (tag: ExtremePointCreateTag): Observable<void> => {
-                    return tag != null ?
-                        tag.aborted$.pipe(
-                            map((t: ExtremePointCreateTag): void => { return null; })) :
+                            map((): void => { return null; })) :
                         observableEmpty();
                 }))
             .subscribe((): void => { this.changeMode(TagMode.Default); });
 
         this._setGLCreateTagSubscription = this._tagCreator.tag$
             .subscribe(
-                (tag: OutlineCreateTag): void => {
+                (tag: CreateTag<Geometry>): void => {
                     if (this._tagScene.hasCreateTag()) {
                         this._tagScene.removeCreateTag();
                     }
@@ -621,28 +588,10 @@ export class TagComponent extends Component<ITagConfiguration> {
                     }
                 });
 
-        this._setGLExtremeCreateTagSubscription = this._tagCreator.extremeTag$
-            .subscribe(
-                (tag: ExtremePointCreateTag): void => {
-                    if (this._tagScene.hasExtremeCreateTag()) {
-                        this._tagScene.removeExtremeCreateTag();
-                    }
-
-                    if (tag != null) {
-                        this._tagScene.addExtremeCreateTag(tag);
-                    }
-                });
-
         this._createGLObjectsChangedSubscription = this._createGLObjectsChanged$
             .subscribe(
-                (tag: OutlineCreateTag): void => {
+                (tag: CreateTag<Geometry>): void => {
                     this._tagScene.updateCreateTagObjects(tag);
-                });
-
-        this._extremeCreateGLObjectsChangedSubscription = this._extremeCreateGLObjectsChanged$
-            .subscribe(
-                (tag: ExtremePointCreateTag): void => {
-                    this._tagScene.updateExtremeCreateTagObjects(tag);
                 });
 
         this._updateGLObjectsSubscription = this._renderTagGLChanged$
@@ -653,7 +602,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._updateTagSceneSubscription = this._tagChanged$
             .subscribe(
-                (tag: Tag): void => {
+                (): void => {
                     this._tagScene.update();
                 });
 
@@ -661,7 +610,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                 this._renderTags$.pipe(
                     startWith([]),
                     tap(
-                        (tags: RenderTag<Tag>[]): void => {
+                        (): void => {
                             this._container.domRenderer.render$.next({
                                 name: this._name,
                                 vnode: this._tagDomRenderer.clear(),
@@ -673,17 +622,14 @@ export class TagComponent extends Component<ITagConfiguration> {
                 this._tagChanged$.pipe(startWith(null)),
                 observableMerge(
                     this._tagCreator.tag$,
-                    this._createGeometryChanged$).pipe(startWith(null)),
-                observableMerge(
-                    this._tagCreator.extremeTag$,
-                    this._extremeCreateGeometryChanged$).pipe(startWith(null))).pipe(
+                    this._createGeometryChanged$).pipe(startWith(null))).pipe(
             map(
-                ([renderTags, rc, atlas, size, tag, ct, ect]:
-                [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ISize, Tag, OutlineCreateTag, ExtremePointCreateTag]):
+                ([renderTags, rc, atlas, size, , ct]:
+                [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ISize, Tag, CreateTag<Geometry>]):
                     IVNodeHash => {
                     return {
                         name: this._name,
-                        vnode: this._tagDomRenderer.render(renderTags, ct, ect, atlas, rc.perspective, size),
+                        vnode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
                     };
                 }))
             .subscribe(this._container.domRenderer.render$);
@@ -723,7 +669,6 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._tagSet.deactivate();
 
         this._tagCreator.delete$.next(null);
-        this._tagCreator.deleteExtreme$.next(null);
 
         this._updateGLObjectsSubscription.unsubscribe();
         this._updateTagSceneSubscription.unsubscribe();
@@ -731,8 +676,6 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._stopCreateSubscription.unsubscribe();
         this._setGLCreateTagSubscription.unsubscribe();
         this._createGLObjectsChangedSubscription.unsubscribe();
-        this._extremeCreateGLObjectsChangedSubscription.unsubscribe();
-        this._setGLExtremeCreateTagSubscription.unsubscribe();
 
         this._domSubscription.unsubscribe();
         this._glSubscription.unsubscribe();

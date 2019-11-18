@@ -2,10 +2,10 @@ import * as THREE from "three";
 import * as vd from "virtual-dom";
 
 import {
-    OutlineCreateTag,
     RenderTag,
     Tag,
-    ExtremePointCreateTag,
+    CreateTag,
+    Geometry,
 } from "../../Component";
 import {ISize} from "../../Render";
 import {ISpriteAtlas} from "../../Viewer";
@@ -13,8 +13,7 @@ import {ISpriteAtlas} from "../../Viewer";
 export class TagDOMRenderer {
     public render(
         tags: RenderTag<Tag>[],
-        createTag: OutlineCreateTag,
-        extremeCreateTag: ExtremePointCreateTag,
+        createTag: CreateTag<Geometry>,
         atlas: ISpriteAtlas,
         camera: THREE.PerspectiveCamera,
         size: ISize): vd.VNode {
@@ -27,10 +26,6 @@ export class TagDOMRenderer {
 
         if (createTag != null) {
             vNodes = vNodes.concat(createTag.getDOMObjects(camera, size));
-        }
-
-        if (extremeCreateTag != null) {
-            vNodes = vNodes.concat(extremeCreateTag.getDOMObjects(camera, size));
         }
 
         return vd.h("div.TagContainer", {}, vNodes);

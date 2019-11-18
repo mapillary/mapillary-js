@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import {OutlineCreateTag, RenderTag, Tag, ExtremePointCreateTag} from "../../Component";
+import {RenderTag, Tag, CreateTag, Geometry} from "../../Component";
 
 type TagObjects = {
     tag: RenderTag<Tag>;
@@ -9,18 +9,12 @@ type TagObjects = {
 };
 
 type CreateTagObjects = {
-    tag: OutlineCreateTag;
-    objects: THREE.Object3D[];
-};
-
-type ExtremeCreateTagObjects = {
-    tag: ExtremePointCreateTag;
+    tag: CreateTag<Geometry>;
     objects: THREE.Object3D[];
 };
 
 export class TagScene {
     private _createTag: CreateTagObjects;
-    private _extremeCreateTag: ExtremeCreateTagObjects;
     private _needsRender: boolean;
     private _objectTags: { [uuid: string]: string };
     private _raycaster: THREE.Raycaster;
@@ -30,7 +24,6 @@ export class TagScene {
 
     constructor(scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._createTag = null;
-        this._extremeCreateTag = null;
         this._needsRender = false;
         this._raycaster = !!raycaster ? raycaster : new THREE.Raycaster();
         this._scene = !!scene ? scene : new THREE.Scene();
@@ -56,22 +49,12 @@ export class TagScene {
         this._needsRender = true;
     }
 
-    public addCreateTag(tag: OutlineCreateTag): void {
+    public addCreateTag(tag: CreateTag<Geometry>): void {
         for (const object of tag.glObjects) {
             this._scene.add(object);
         }
 
         this._createTag = { tag: tag, objects: tag.glObjects };
-
-        this._needsRender = true;
-    }
-
-    public addExtremeCreateTag(tag: ExtremePointCreateTag): void {
-        for (const object of tag.glObjects) {
-            this._scene.add(object);
-        }
-
-        this._extremeCreateTag = { tag: tag, objects: tag.glObjects };
 
         this._needsRender = true;
     }
@@ -94,10 +77,6 @@ export class TagScene {
 
     public hasCreateTag(): boolean {
         return this._createTag != null;
-    }
-
-    public hasExtremeCreateTag(): boolean {
-        return this._extremeCreateTag != null;
     }
 
     public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string[] {
@@ -145,21 +124,6 @@ export class TagScene {
         this._needsRender = true;
     }
 
-    public removeExtremeCreateTag(): void {
-        if (this._extremeCreateTag == null) {
-            return;
-        }
-
-        for (const object of this._extremeCreateTag.objects) {
-            this._scene.remove(object);
-        }
-
-        this._extremeCreateTag.tag.dispose();
-        this._extremeCreateTag = null;
-
-        this._needsRender = true;
-    }
-
     public render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.Renderer): void {
@@ -173,7 +137,7 @@ export class TagScene {
         this._needsRender = true;
     }
 
-    public updateCreateTagObjects(tag: OutlineCreateTag): void {
+    public updateCreateTagObjects(tag: CreateTag<Geometry>): void {
         if (this._createTag.tag !== tag) {
             throw new Error("Create tags do not have the same reference.");
         }
@@ -187,24 +151,6 @@ export class TagScene {
         }
 
         this._createTag.objects = tag.glObjects;
-
-        this._needsRender = true;
-    }
-
-    public updateExtremeCreateTagObjects(tag: ExtremePointCreateTag): void {
-        if (this._extremeCreateTag.tag !== tag) {
-            throw new Error("Create tags do not have the same reference.");
-        }
-
-        for (let object of this._extremeCreateTag.objects) {
-            this._scene.remove(object);
-        }
-
-        for (const object of tag.glObjects) {
-            this._scene.add(object);
-        }
-
-        this._extremeCreateTag.objects = tag.glObjects;
 
         this._needsRender = true;
     }

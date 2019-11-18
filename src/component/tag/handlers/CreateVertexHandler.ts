@@ -22,7 +22,7 @@ import {
 import {
     CreateHandlerBase,
     Geometry,
-    OutlineCreateTag,
+    CreateTag,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
 import {RenderCamera} from "../../../Render";
@@ -40,7 +40,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
         this._container.mouseService.deferPixels(this._name, 4);
 
         const transformChanged$: Observable<void> = this._navigator.stateService.currentTransform$.pipe(
-            map((transform: Transform): void => { /*noop*/ }),
+            map((): void => { /*noop*/ }),
             publishReplay(1),
             refCount());
 
@@ -61,7 +61,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
 
         this._setVertexSubscription = this._tagCreator.tag$.pipe(
             switchMap(
-                (tag: OutlineCreateTag): Observable<[OutlineCreateTag, MouseEvent, RenderCamera, Transform]> => {
+                (tag: CreateTag<Geometry>): Observable<[CreateTag<Geometry>, MouseEvent, RenderCamera, Transform]> => {
                     return !!tag ?
                         observableCombineLatest(
                                 observableOf(tag),
@@ -73,7 +73,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                         observableEmpty();
                 }))
             .subscribe(
-                ([tag, event, camera, transform]: [OutlineCreateTag, MouseEvent, RenderCamera, Transform]): void => {
+                ([tag, event, camera, transform]: [CreateTag<Geometry>, MouseEvent, RenderCamera, Transform]): void => {
                     const basicPoint: number[] = this._mouseEventToBasic(
                         event,
                         this._container.element,
@@ -85,7 +85,7 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
 
         this._addPointSubscription = this._tagCreator.tag$.pipe(
             switchMap(
-                (tag: OutlineCreateTag): Observable<[OutlineCreateTag, number[]]> => {
+                (tag: CreateTag<Geometry>): Observable<[CreateTag<Geometry>, number[]]> => {
                     return !!tag ?
                         observableCombineLatest(
                                 observableOf(tag),
@@ -93,17 +93,17 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                         observableEmpty();
                 }))
             .subscribe(
-                ([tag, basicPoint]: [OutlineCreateTag, number[]]): void => {
+                ([tag, basicPoint]: [CreateTag<Geometry>, number[]]): void => {
                     this._addPoint(tag, basicPoint);
                 });
 
         this._geometryCreateSubscription = this._tagCreator.tag$.pipe(
             switchMap(
-                (tag: OutlineCreateTag): Observable<Geometry> => {
+                (tag: CreateTag<Geometry>): Observable<Geometry> => {
                     return !!tag ?
                         tag.created$.pipe(
                             map(
-                                (t: OutlineCreateTag): Geometry => {
+                                (t: CreateTag<Geometry>): Geometry => {
                                     return t.geometry;
                                 })) :
                         observableEmpty();
@@ -111,9 +111,9 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
             .subscribe(this._geometryCreated$);
     }
 
-    protected abstract _addPoint(tag: OutlineCreateTag, basicPoint: number[]): void;
+    protected abstract _addPoint(tag: CreateTag<Geometry>, basicPoint: number[]): void;
 
-    protected abstract _setVertex2d(tag: OutlineCreateTag, basicPoint: number[], transform: Transform): void;
+    protected abstract _setVertex2d(tag: CreateTag<Geometry>, basicPoint: number[], transform: Transform): void;
 
     protected _disableCreate(): void {
         this._container.mouseService.undeferPixels(this._name);
