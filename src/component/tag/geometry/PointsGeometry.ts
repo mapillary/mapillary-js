@@ -130,19 +130,18 @@ export class PointsGeometry extends Geometry {
     }
 
     /** @ignore */
-    public getCentroid2d(): number[] {
-        const points: number[][] = this._points;
-
-        let centroidX: number = 0;
-        let centroidY: number = 0;
-
-        for (let i: number = 0; i < points.length - 1; i++) {
-            centroidX += points[i][0];
-            centroidY += points[i][1];
+    public getCentroid2d(transform?: Transform): number[] {
+        if (!transform) {
+            throw new GeometryTagError("Get centroid must be called with a transform for points geometries.");
         }
 
-        centroidX /= points.length;
-        centroidY /= points.length;
+        const [minX, minY, maxX, maxY]: number[] = this.getRect2d(transform);
+
+        const centroidX: number = minX < maxX ?
+            (minX + maxX) / 2 :
+            ((minX + maxX + 1) / 2) % 1;
+
+        const centroidY: number = (minY + maxY) / 2;
 
         return [centroidX, centroidY];
     }
