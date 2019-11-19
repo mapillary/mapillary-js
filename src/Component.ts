@@ -70,6 +70,7 @@ export {Tag} from "./component/tag/tag/Tag";
 export {OutlineTag} from "./component/tag/tag/OutlineTag";
 export {ExtremePointTag} from "./component/tag/tag/ExtremePointTag";
 export {RenderTag} from "./component/tag/tag/RenderTag";
+export {OutlineRenderTagBase} from "./component/tag/tag/OutlineRenderTagBase";
 export {OutlineRenderTag} from "./component/tag/tag/OutlineRenderTag";
 export {ExtremePointRenderTag} from "./component/tag/tag/ExtremePointRenderTag";
 export {SpotTag} from "./component/tag/tag/SpotTag";

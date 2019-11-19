@@ -1,16 +1,14 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Subscription} from "rxjs";
-
 import {
     InteractionCursor,
     OutlineTag,
     PolygonGeometry,
     RectGeometry,
-    RenderTag,
     TagDomain,
     TagOperation,
+    OutlineRenderTagBase,
 } from "../../../Component";
 import {Transform} from "../../../Geo";
 import {ISize} from "../../../Render";
@@ -20,13 +18,8 @@ import {ISpriteAtlas} from "../../../Viewer";
  * @class OutlineRenderTag
  * @classdesc Tag visualizing the properties of an OutlineTag.
  */
-export class OutlineRenderTag extends RenderTag<OutlineTag> {
-    private _fill: THREE.Mesh;
+export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
     private _holes: THREE.Line[];
-    private _outline: THREE.Line;
-
-    private _changedSubscription: Subscription;
-    private _geometryChangedSubscription: Subscription;
 
     constructor(tag: OutlineTag, transform: Transform) {
         super(tag, transform);
@@ -46,56 +39,14 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         this._outline = this._tag.lineWidth >= 1 ?
             this._createOutline() :
             null;
-
-        this._geometryChangedSubscription = this._tag.geometry.changed$
-            .subscribe(
-                (): void => {
-                    if (this._fill != null) {
-                        this._updateFillGeometry();
-                    }
-
-                    if (this._holes.length > 0) {
-                        this._updateHoleGeometries();
-                    }
-
-                    if (this._outline != null) {
-                        this._updateOulineGeometry();
-                    }
-                });
-
-        this._changedSubscription = this._tag.changed$
-            .subscribe(
-                (): void => {
-                    let glObjectsChanged: boolean = false;
-
-                    if (this._fill != null) {
-                        this._updateFillMaterial(<THREE.MeshBasicMaterial>this._fill.material);
-                    }
-
-                    if (this._outline == null) {
-                        if (this._tag.lineWidth >= 1) {
-                            this._holes = this._createHoles();
-                            this._outline = this._createOutline();
-                            glObjectsChanged = true;
-                        }
-                    } else {
-                        this._updateHoleMaterials();
-                        this._updateOutlineMaterial();
-                    }
-
-                    if (glObjectsChanged) {
-                        this._glObjectsChanged$.next(this);
-                    }
-                });
     }
 
     public dispose(): void {
+        super.dispose();
+
         this._disposeFill();
         this._disposeHoles();
         this._disposeOutline();
-
-        this._changedSubscription.unsubscribe();
-        this._geometryChangedSubscription.unsubscribe();
     }
 
     public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[] {
@@ -120,7 +71,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                     camera);
 
             if (iconCanvas != null) {
-                const interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                const interact: (e: MouseEvent) => void = (): void => {
                     this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
                 };
 
@@ -164,7 +115,7 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
                     `translate(${textCanvasX}px,${textCanvasY}px)` :
                     `translate(-50%, -50%) translate(${textCanvasX}px,${textCanvasY}px)`;
 
-                const interact: (e: MouseEvent) => void = (e: MouseEvent): void => {
+                const interact: (e: MouseEvent) => void = (): void => {
                     this._interact$.next({ offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: this._tag });
                 };
 
@@ -286,24 +237,66 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         return this._fill != null ? [this._fill] : [];
     }
 
-    private _colorToCss(color: number): string {
-        return "#" + ("000000" + color.toString(16)).substr(-6);
+    protected _onGeometryChanged(): void {
+        if (this._fill != null) {
+            this._updateFillGeometry();
+        }
+
+        if (this._holes.length > 0) {
+            this._updateHoleGeometries();
+        }
+
+        if (this._outline != null) {
+            this._updateOulineGeometry();
+        }
     }
 
-    private _createFill(): THREE.Mesh {
-        let triangles: number[] = this._getTriangles();
-        let positions: Float32Array = new Float32Array(triangles);
+    protected _onTagChanged(): boolean {
+        let glObjectsChanged: boolean = false;
 
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-        geometry.computeBoundingSphere();
+        if (this._fill != null) {
+            this._updateFillMaterial(<THREE.MeshBasicMaterial>this._fill.material);
+        }
 
-        let material: THREE.MeshBasicMaterial =
-            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+        if (this._outline == null) {
+            if (this._tag.lineWidth >= 1) {
+                this._holes = this._createHoles();
+                this._outline = this._createOutline();
+                glObjectsChanged = true;
+            }
+        } else {
+            this._updateHoleMaterials();
+            this._updateOutlineMaterial();
+        }
 
-        this._updateFillMaterial(material);
+        return glObjectsChanged;
+    }
 
-        return new THREE.Mesh(geometry, material);
+    protected _getPoints3d(): number[][] {
+        return this._in3dDomain() ?
+            (<PolygonGeometry>this._tag.geometry).getVertices3d(this._transform) :
+            this._tag.geometry.getPoints3d(this._transform);
+    }
+
+    protected _getTriangles(): number[] {
+        return this._in3dDomain() ?
+            (<PolygonGeometry>this._tag.geometry).get3dDomainTriangles3d(this._transform) :
+            this._tag.geometry.getTriangles3d(this._transform);
+    }
+
+    protected _updateFillMaterial(material: THREE.MeshBasicMaterial): void {
+        material.color = new THREE.Color(this._tag.fillColor);
+        material.opacity = this._tag.fillOpacity;
+        material.needsUpdate = true;
+    }
+
+    protected _updateLineBasicMaterial(material: THREE.LineBasicMaterial): void {
+        material.color = new THREE.Color(this._tag.lineColor);
+        material.linewidth = Math.max(this._tag.lineWidth, 1);
+        material.visible = this._tag.lineWidth >= 1 && this._tag.lineOpacity > 0;
+        material.opacity = this._tag.lineOpacity;
+        material.transparent = this._tag.lineOpacity < 1;
+        material.needsUpdate = true;
     }
 
     private _createHoles(): THREE.Line[] {
@@ -321,36 +314,6 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         return holes;
     }
 
-    private _createLine(points3d: number[][]): THREE.Line {
-        let positions: Float32Array = this._getLinePositions(points3d);
-
-        let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-        geometry.computeBoundingSphere();
-
-        let material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial();
-        this._updateLineBasicMaterial(material);
-
-        const line: THREE.Line = new THREE.Line(geometry, material);
-        line.renderOrder = 1;
-
-        return line;
-    }
-
-    private _createOutline(): THREE.Line {
-        return this._createLine(this._getPoints3d());
-    }
-
-    private _disposeFill(): void {
-        if (this._fill == null) {
-            return;
-        }
-
-        this._fill.geometry.dispose();
-        (<THREE.Material>this._fill.material).dispose();
-        this._fill = null;
-    }
-
     private _disposeHoles(): void {
         for (let hole of this._holes) {
             hole.geometry.dispose();
@@ -358,32 +321,6 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
         }
 
         this._holes = [];
-    }
-
-    private _disposeOutline(): void {
-        if (this._outline == null) {
-            return;
-        }
-
-        this._outline.geometry.dispose();
-        this._outline.material.dispose();
-        this._outline = null;
-    }
-
-    private _getLinePositions(points3d: number[][]): Float32Array {
-        let length: number = points3d.length;
-        let positions: Float32Array = new Float32Array(length * 3);
-
-        for (let i: number = 0; i < length; ++i) {
-            let index: number = 3 * i;
-            let position: number[] = points3d[i];
-
-            positions[index + 0] = position[0];
-            positions[index + 1] = position[1];
-            positions[index + 2] = position[2];
-        }
-
-        return positions;
     }
 
     private _getHoles3d(): number[][][] {
@@ -394,60 +331,8 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
             polygonGeometry.getHolePoints3d(this._transform);
     }
 
-    private _getPoints3d(): number[][] {
-        return this._in3dDomain() ?
-            (<PolygonGeometry>this._tag.geometry).getVertices3d(this._transform) :
-            this._tag.geometry.getPoints3d(this._transform);
-    }
-
-    private _getTriangles(): number[] {
-        return this._in3dDomain() ?
-            (<PolygonGeometry>this._tag.geometry).get3dDomainTriangles3d(this._transform) :
-            this._tag.geometry.getTriangles3d(this._transform);
-    }
-
     private _in3dDomain(): boolean {
         return this._tag.geometry instanceof PolygonGeometry && this._tag.domain === TagDomain.ThreeDimensional;
-    }
-
-    private _interact(operation: TagOperation, cursor?: InteractionCursor, vertexIndex?: number): (e: MouseEvent) => void {
-        return (e: MouseEvent): void => {
-            let offsetX: number = e.offsetX - (<HTMLElement>e.target).offsetWidth / 2;
-            let offsetY: number = e.offsetY - (<HTMLElement>e.target).offsetHeight / 2;
-
-            this._interact$.next({
-                cursor: cursor,
-                offsetX: offsetX,
-                offsetY: offsetY,
-                operation: operation,
-                tag: this._tag,
-                vertexIndex: vertexIndex,
-            });
-        };
-    }
-
-    private _updateFillGeometry(): void {
-        let triangles: number[] = this._getTriangles();
-        let positions: Float32Array = new Float32Array(triangles);
-
-        let geometry: THREE.BufferGeometry = <THREE.BufferGeometry>this._fill.geometry;
-        let attribute: THREE.BufferAttribute = <THREE.BufferAttribute>geometry.getAttribute("position");
-
-        if (attribute.array.length === positions.length) {
-            attribute.set(positions);
-            attribute.needsUpdate = true;
-        } else {
-            geometry.removeAttribute("position");
-            geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-        }
-
-        geometry.computeBoundingSphere();
-    }
-
-    private _updateFillMaterial(material: THREE.MeshBasicMaterial): void {
-        material.color = new THREE.Color(this._tag.fillColor);
-        material.opacity = this._tag.fillOpacity;
-        material.needsUpdate = true;
     }
 
     private _updateHoleGeometries(): void {
@@ -466,41 +351,12 @@ export class OutlineRenderTag extends RenderTag<OutlineTag> {
     }
 
     private _updateHoleMaterials(): void {
-        for (let hole of this._holes) {
-            let material: THREE.LineBasicMaterial = <THREE.LineBasicMaterial>hole.material;
-
-            this._updateLineBasicMaterial(material);
+        for (const hole of this._holes) {
+            this._updateLineBasicMaterial(<THREE.LineBasicMaterial>hole.material);
         }
     }
 
-    private _updateLine(line: THREE.Line, points3d: number[][]): void {
-        let positions: Float32Array = this._getLinePositions(points3d);
-
-        let geometry: THREE.BufferGeometry = <THREE.BufferGeometry>line.geometry;
-        let attribute: THREE.BufferAttribute = <THREE.BufferAttribute>geometry.getAttribute("position");
-
-        attribute.set(positions);
-        attribute.needsUpdate = true;
-
-        geometry.computeBoundingSphere();
-    }
-
-    private _updateOulineGeometry(): void {
-        this._updateLine(this._outline, this._getPoints3d());
-    }
-
     private _updateOutlineMaterial(): void {
-        let material: THREE.LineBasicMaterial = <THREE.LineBasicMaterial>this._outline.material;
-
-        this._updateLineBasicMaterial(material);
-    }
-
-    private _updateLineBasicMaterial(material: THREE.LineBasicMaterial): void {
-        material.color = new THREE.Color(this._tag.lineColor);
-        material.linewidth = Math.max(this._tag.lineWidth, 1);
-        material.visible = this._tag.lineWidth >= 1 && this._tag.lineOpacity > 0;
-        material.opacity = this._tag.lineOpacity;
-        material.transparent = this._tag.lineOpacity < 1;
-        material.needsUpdate = true;
+        this._updateLineBasicMaterial(<THREE.LineBasicMaterial>this._outline.material);
     }
 }
