@@ -4,11 +4,11 @@ import {Transform} from "../../../Geo";
 /**
  * @class PointsGeometry
  *
- * @classdesc Represents a point set geometry in the 2D basic image coordinate system.
+ * @classdesc Represents a point set in the 2D basic image coordinate system.
  *
  * @example
  * ```
- * var points = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5], [0.5, 0.3]];
+ * var points = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5]];
  * var pointsGeometry = new Mapillary.TagComponent.PointsGeometry(points);
  * ```
  */
@@ -98,6 +98,7 @@ export class PointsGeometry extends Geometry {
         this._notifyChanged$.next(this);
     }
 
+    /** @ignore */
     public setVertex2d(index: number, value: number[], transform: Transform): void {
         this.setPoint2d(index, value, transform);
     }
@@ -153,6 +154,7 @@ export class PointsGeometry extends Geometry {
         return transform.unprojectBasic(centroid2d, 200);
     }
 
+    /** @ignore */
     public getRect2d(transform: Transform): number[] {
         let minX: number = 1;
         let maxX: number = 0;
@@ -217,6 +219,7 @@ export class PointsGeometry extends Geometry {
         return [minX, minY, maxX, maxY];
     }
 
+    /** @ignore */
     public setCentroid2d(value: number[], transform: Transform): void {
         throw new Error("Not implemented");
     }

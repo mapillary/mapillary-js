@@ -5,14 +5,15 @@ import {
 import PointsGeometry from "../geometry/PointsGeometry";
 
 /**
- * @class OutlineTag
+ * @class ExtremePointTag
  *
- * @classdesc Tag holding properties for visualizing a geometry outline.
+ * @classdesc Tag holding properties for visualizing a extreme points
+ * and their outline.
  *
  * @example
  * ```
- * var geometry = new Mapillary.TagComponent.RectGeometry([0.3, 0.3, 0.5, 0.4]);
- * var tag = new Mapillary.TagComponent.OutlineTag(
+ * var geometry = new Mapillary.TagComponent.PointsGeometry([[0.3, 0.3], [0.5, 0.4]]);
+ * var tag = new Mapillary.TagComponent.ExtremePointTag(
  *     "id-1",
  *     geometry
  *     { editable: true, lineColor: 0xff0000 });
@@ -39,7 +40,7 @@ export class ExtremePointTag extends Tag {
      * @param {string} id - Unique identifier of the tag.
      * @param {PointsGeometry} geometry - Geometry defining points of tag.
      * @param {IExtremePointTagOptions} options - Options defining the visual appearance and
-     * behavior of the outline tag.
+     * behavior of the extreme point tag.
      */
     constructor(id: string, geometry: PointsGeometry, options?: IExtremePointTagOptions) {
         super(id, geometry);
@@ -200,7 +201,7 @@ export class ExtremePointTag extends Tag {
      * @description Sets all the option properties provided and keeps
      * the rest of the values as is.
      *
-     * @param {IExtremePointTagOptions} options - Outline tag options
+     * @param {IExtremePointTagOptions} options - Extreme point tag options
      *
      * @fires {Tag#changed}
      */
