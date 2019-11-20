@@ -10,6 +10,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
     private _rectGeometry: RectGeometry;
     private _options: IExtremePointCreateTagOptions;
     private _outline: THREE.Line;
+    private _completerLine: THREE.Line;
 
     constructor(
         geometry: PointsGeometry,
@@ -39,7 +40,6 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
 
     public dispose(): void {
         super.dispose();
-        this._disposeLine(this._outline);
         this._disposeObjects();
      }
 
@@ -137,22 +137,37 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
     }
 
     protected _onGeometryChanged(): void {
-        this._rectGeometry = new RectGeometry(this._geometry.getRect2d(this._transform));
-
-        this._disposeLine(this._outline);
         this._disposeObjects();
+
+        this._rectGeometry = new RectGeometry(this._geometry.getRect2d(this._transform));
         this._createGlObjects();
     }
 
     private _createGlObjects(): void {
-        const polygon3d: number[][] = this._rectGeometry.getPoints3d(this._transform);
+        this._glObjects = [];
 
+        const polygon3d: number[][] = this._rectGeometry.getPoints3d(this._transform);
         this._outline = this._createOutine(polygon3d, this._options.color);
-        this._glObjects = [this._outline];
+        this._glObjects.push(this._outline);
+
+        if (this._geometry.points.length < 3 || this._options.indicateCompleter !== true) {
+            return;
+        }
+
+        const completer3d: number[][] = [
+            this._rectGeometry.getCentroid3d(this._transform),
+            this._geometry.getPoint3d(this._geometry.points.length - 1, this._transform),
+        ];
+        this._completerLine = this._createOutine(completer3d, 0xd7ffd6);
+        this._glObjects.push(this._completerLine);
+
     }
 
     private _disposeObjects(): void {
+        this._disposeLine(this._outline);
+        this._disposeLine(this._completerLine);
         this._outline = null;
-        this._glObjects = [];
+        this._completerLine = null;
+        this._glObjects = null;
     }
 }
