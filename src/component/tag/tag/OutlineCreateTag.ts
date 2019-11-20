@@ -34,6 +34,16 @@ export class OutlineCreateTag extends CreateTag<VertexGeometry> {
         this._createGlObjects();
     }
 
+    public create(): void {
+        if (this._geometry instanceof RectGeometry) {
+            this._created$.next(this);
+        } else if (this._geometry instanceof PolygonGeometry) {
+            const polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
+            polygonGeometry.removeVertex2d(polygonGeometry.polygon.length - 2);
+            this._created$.next(this);
+        }
+    }
+
     public dispose(): void {
         super.dispose();
         this._disposeLine(this._outline);

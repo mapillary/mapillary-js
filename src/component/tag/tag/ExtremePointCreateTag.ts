@@ -19,10 +19,22 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
 
         super(geometry, transform, viewportCoords);
 
-        this._options = { color: options.color == null ? 0xFFFFFF : options.color };
+        this._options = {
+            color: options.color == null ? 0xFFFFFF : options.color,
+            indicateCompleter: options.indicateCompleter == null ? true : options.indicateCompleter,
+        };
 
         this._rectGeometry = new RectGeometry(this._geometry.getRect2d(transform));
         this._createGlObjects();
+    }
+
+    public create(): void {
+        if (this._geometry.points.length < 3) {
+            return;
+        }
+
+        this._geometry.removePoint2d(this._geometry.points.length - 1);
+        this._created$.next(this);
     }
 
     public dispose(): void {
@@ -85,7 +97,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
             vNodes.push(vd.h("div.TagVertex", pointProperties, []));
         }
 
-        if (length > 2) {
+        if (length > 2 && this._options.indicateCompleter === true) {
             const [centroidX, centroidY]: number[] = this._geometry.getCentroid2d(this._transform);
             const centroidCanvas: number[] =
             this._viewportCoords.basicToCanvasSafe(

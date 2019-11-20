@@ -78,6 +78,8 @@ export abstract class CreateTag<T extends Geometry> {
 
     public abstract getDOMObjects(camera: THREE.Camera, size: ISize): vd.VNode[];
 
+    public abstract create(): void;
+
     public dispose(): void {
         this._geometryChangedSubscription.unsubscribe();
     }

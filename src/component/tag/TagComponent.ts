@@ -359,6 +359,49 @@ export class TagComponent extends Component<ITagConfiguration> {
     }
 
     /**
+     * Force the creation of a geometry programatically using its
+     * current vertices.
+     *
+     * @description The method only has an effect when the tag
+     * mode is either of the following modes:
+     *
+     * TagMode.CreatePoints
+     * TagMode.CreatePolygon
+     * TagMode.CreateRect
+     * TagMode.CreateRectDrag
+     *
+     * In the case of points or polygon creation, only the created
+     * vertices are used, i.e. the mouse position is disregarded.
+     *
+     * In the case of rectangle creation the position of the mouse
+     * at the time of the method call is used as one of the vertices
+     * defining the rectangle.
+     *
+     * @fires TagComponent.geometrycreated
+     *
+     * @example
+     * ```
+     * tagComponent.on("geometrycreated", function(geometry) {
+     *     console.log(geometry);
+     * });
+     *
+     * tagComponent.create();
+     * ```
+     */
+    public create(): void {
+        this._tagCreator.replayedTag$.pipe(
+            first(),
+            filter(
+                (tag: CreateTag<Geometry>): boolean => {
+                    return !!tag;
+                }))
+            .subscribe(
+                (tag: CreateTag<Geometry>): void => {
+                    tag.create();
+                });
+    }
+
+    /**
      * Change the current tag mode.
      *
      * @description Change the tag mode to one of the create modes for creating new geometries.
@@ -693,6 +736,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     protected _getDefaultConfiguration(): ITagConfiguration {
         return {
             createColor: 0xFFFFFF,
+            indicatePointsCompleter: true,
             mode: TagMode.Default,
         };
     }

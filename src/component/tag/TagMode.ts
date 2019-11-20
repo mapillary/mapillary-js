@@ -14,6 +14,10 @@ export enum TagMode {
      * Create a point geometry through a click.
      */
     CreatePoint,
+
+    /**
+     * Create a points geometry through clicks.
+     */
     CreatePoints,
 
     /**

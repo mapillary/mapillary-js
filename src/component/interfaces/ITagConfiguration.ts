@@ -30,6 +30,13 @@ export interface ITagConfiguration extends IComponentConfiguration {
     createColor?: number;
 
     /**
+     * Show an indicator at the centroid of the points geometry
+     * that creates the geometry when clicked.
+     * @default true
+     */
+    indicatePointsCompleter?: boolean;
+
+    /**
      * The interaction mode of the tag component.
      *
      * @default TagMode.Default

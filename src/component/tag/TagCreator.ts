@@ -1,4 +1,4 @@
-import {scan, share, withLatestFrom, map} from "rxjs/operators";
+import {scan, share, withLatestFrom, map, publishReplay, refCount} from "rxjs/operators";
 import {Observable, Subject} from "rxjs";
 
 import {
@@ -25,6 +25,7 @@ export class TagCreator {
 
     private _tagOperation$: Subject<ICreateTagOperation>;
     private _tag$: Observable<CreateTag<Geometry>>;
+    private _replayedTag$: Observable<CreateTag<Geometry>>;
 
     private _createPoints$: Subject<number[]>;
     private _createPolygon$: Subject<number[]>;
@@ -49,6 +50,12 @@ export class TagCreator {
                 null),
             share());
 
+        this._replayedTag$ = this._tag$.pipe(
+            publishReplay(1),
+            refCount());
+
+        this._replayedTag$.subscribe();
+
         this._createPoints$.pipe(
             withLatestFrom(
                 this._component.configuration$,
@@ -61,7 +68,13 @@ export class TagCreator {
                             [coord[0], coord[1]],
                         ]);
 
-                        return new ExtremePointCreateTag(geometry, { color: conf.createColor }, transform);
+                        return new ExtremePointCreateTag(
+                            geometry,
+                            {
+                                color: conf.createColor,
+                                indicateCompleter: conf.indicatePointsCompleter,
+                            },
+                            transform);
                     };
                 }))
             .subscribe(this._tagOperation$);
@@ -131,6 +144,10 @@ export class TagCreator {
 
     public get tag$(): Observable<CreateTag<Geometry>> {
         return this._tag$;
+    }
+
+    public get replayedTag$(): Observable<CreateTag<Geometry>> {
+        return this._replayedTag$;
     }
 }
 
