@@ -62,6 +62,7 @@ import {
     ISpriteAtlas,
     Navigator,
 } from "../../Viewer";
+import PointsGeometry from "./geometry/PointsGeometry";
 
 /**
  * @class TagComponent
@@ -359,6 +360,37 @@ export class TagComponent extends Component<ITagConfiguration> {
     }
 
     /**
+     * Calculate the smallest rectangle containing all the points
+     * in the points geometry.
+     *
+     * @description The result may be different depending on if the
+     * current node is an equirectangular panorama or not. If the
+     * current node is an equirectangular panorama the rectangle may
+     * wrap the horizontal border of the image.
+     *
+     * @returns {Promise<Array<number>>} Promise to the rectangle
+     * on the format specified for the {@link RectGeometry} in basic
+     * coordinates.
+     */
+    public calculateRect(geometry: PointsGeometry): when.Promise<number[]> {
+        return when.promise<number[]>((resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
+            this._navigator.stateService.currentTransform$.pipe(
+                first(),
+                map(
+                    (transform: Transform): number[] => {
+                        return geometry.getRect2d(transform);
+                    }))
+                .subscribe(
+                    (rect: number[]): void => {
+                        resolve(rect);
+                    },
+                    (error: Error): void => {
+                        reject(error);
+                    });
+        });
+    }
+
+    /**
      * Force the creation of a geometry programatically using its
      * current vertices.
      *
@@ -470,7 +502,8 @@ export class TagComponent extends Component<ITagConfiguration> {
      * If no tag at exist the pixel point, an empty array will be returned.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates on the viewer element.
-     * @returns {Array<string>} Ids of the tags that contain the specified pixel point.
+     * @returns {Promise<Array<string>>} Promise to the ids of the tags that
+     * contain the specified pixel point.
      *
      * @example
      * ```
