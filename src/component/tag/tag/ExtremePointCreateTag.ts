@@ -124,7 +124,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
 
                 const pointProperties: vd.createProperties = {
                     style: {
-                        background: "#d7ffd6",
+                        background: this._colorToBackground(this._options.color),
                         transform: transform,
                     },
                 };
@@ -158,7 +158,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
             this._rectGeometry.getCentroid3d(this._transform),
             this._geometry.getPoint3d(this._geometry.points.length - 1, this._transform),
         ];
-        this._completerLine = this._createOutine(completer3d, 0xd7ffd6);
+        this._completerLine = this._createOutine(completer3d, this._options.color);
         this._glObjects.push(this._completerLine);
 
     }
