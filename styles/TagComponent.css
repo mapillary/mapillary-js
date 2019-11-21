@@ -76,6 +76,20 @@
     height: 6px;
 }
 
+.TagDot {
+    pointer-events: none;
+    border-radius: 1.5px;
+    width: 3px;
+    height: 3px;
+    background-color: green;
+}
+
+.TagVertex.TagLarger {
+    border-radius: 4px;
+    width: 8px;
+    height: 8px;
+}
+
 .TagInteractor,
 .TagCompleter,
 .TagSpotInteractor {
@@ -84,6 +98,12 @@
     width: 14px;
     height: 14px;
     opacity: 0;
+}
+
+.TagCompleter.TagLarger {
+    border-radius: 8px;
+    width: 16px;
+    height: 16px;
 }
 
 .TagInteractor,

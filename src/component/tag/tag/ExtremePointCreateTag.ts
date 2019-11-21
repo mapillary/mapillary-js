@@ -10,7 +10,6 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
     private _rectGeometry: RectGeometry;
     private _options: IExtremePointCreateTagOptions;
     private _outline: THREE.Line;
-    private _completerLine: THREE.Line;
 
     constructor(
         geometry: PointsGeometry,
@@ -120,7 +119,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
                     style: { transform: transform },
                 };
 
-                vNodes.push(vd.h("div.TagCompleter", completerProperties, []));
+                vNodes.push(vd.h("div.TagCompleter.TagLarger", completerProperties, []));
 
                 const pointProperties: vd.createProperties = {
                     style: {
@@ -129,7 +128,15 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
                     },
                 };
 
-                vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+                vNodes.push(vd.h("div.TagVertex.TagLarger", pointProperties, []));
+
+                const dotProperties: vd.createProperties = {
+                    style: {
+                        transform: transform,
+                    },
+                };
+
+                vNodes.push(vd.h("div.TagDot", dotProperties, []));
             }
         }
 
@@ -149,25 +156,11 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
         const polygon3d: number[][] = this._rectGeometry.getPoints3d(this._transform);
         this._outline = this._createOutine(polygon3d, this._options.color);
         this._glObjects.push(this._outline);
-
-        if (this._geometry.points.length < 3 || this._options.indicateCompleter !== true) {
-            return;
-        }
-
-        const completer3d: number[][] = [
-            this._rectGeometry.getCentroid3d(this._transform),
-            this._geometry.getPoint3d(this._geometry.points.length - 1, this._transform),
-        ];
-        this._completerLine = this._createOutine(completer3d, this._options.color);
-        this._glObjects.push(this._completerLine);
-
     }
 
     private _disposeObjects(): void {
         this._disposeLine(this._outline);
-        this._disposeLine(this._completerLine);
         this._outline = null;
-        this._completerLine = null;
         this._glObjects = null;
     }
 }
