@@ -21,6 +21,17 @@ export class TransformHelper {
             [0, 0, 0],
             null);
     }
+
+    public createFullGPano(): IGPano {
+        return {
+            CroppedAreaImageHeightPixels: 1,
+            CroppedAreaImageWidthPixels: 1,
+            CroppedAreaLeftPixels: 0,
+            CroppedAreaTopPixels: 0,
+            FullPanoHeightPixels: 1,
+            FullPanoWidthPixels: 1,
+        };
+    }
 }
 
 export default TransformHelper;
