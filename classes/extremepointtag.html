@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>OutlineTag | MapillaryJS</title>
+	<title>ExtremePointTag | MapillaryJS</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="outlinetag.html">OutlineTag</a>
+					<a href="extremepointtag.html">ExtremePointTag</a>
 				</li>
 			</ul>
-			<h1>Class OutlineTag</h1>
+			<h1>Class ExtremePointTag</h1>
 		</div>
 	</div>
 </header>
@@ -68,14 +68,15 @@
 				<div class="tsd-comment tsd-typography">
 					<dl class="tsd-comment-tags">
 						<dt>class</dt>
-						<dd><p>OutlineTag</p>
+						<dd><p>ExtremePointTag</p>
 						</dd>
 						<dt>classdesc</dt>
-						<dd><p>Tag holding properties for visualizing a geometry outline.</p>
+						<dd><p>Tag holding properties for visualizing a extreme points
+							and their outline.</p>
 						</dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-keyword">var</span> geometry = <span class="hljs-keyword">new</span> Mapillary.TagComponent.RectGeometry([<span class="hljs-number">0.3</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">0.4</span>]);
-<span class="hljs-keyword">var</span> tag = <span class="hljs-keyword">new</span> Mapillary.TagComponent.OutlineTag(
+						<dd><pre><code><span class="hljs-keyword">var</span> geometry = <span class="hljs-keyword">new</span> Mapillary.TagComponent.PointsGeometry([[<span class="hljs-number">0.3</span>, <span class="hljs-number">0.3</span>], [<span class="hljs-number">0.5</span>, <span class="hljs-number">0.4</span>]]);
+<span class="hljs-keyword">var</span> tag = <span class="hljs-keyword">new</span> Mapillary.TagComponent.ExtremePointTag(
     <span class="hljs-string">"id-1"</span>,
     geometry
     { editable: <span class="hljs-literal">true</span>, lineColor: <span class="hljs-number">0xff0000</span> });
@@ -91,7 +92,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<span class="tsd-signature-type">Tag</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">OutlineTag</span>
+								<span class="target">ExtremePointTag</span>
 							</li>
 						</ul>
 					</li>
@@ -104,45 +105,37 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="outlinetag.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="extremepointtag.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Events</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-event tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="outlinetag.html#changed" class="tsd-kind-icon">changed</a></li>
-								<li class="tsd-kind-event tsd-parent-kind-class tsd-is-static"><a href="outlinetag.html#click" class="tsd-kind-icon">click</a></li>
-								<li class="tsd-kind-event tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="outlinetag.html#geometrychanged" class="tsd-kind-icon">geometrychanged</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="extremepointtag.html#changed" class="tsd-kind-icon">changed</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="extremepointtag.html#geometrychanged" class="tsd-kind-icon">geometrychanged</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="outlinetag.html#click_" class="tsd-kind-icon">click$</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="outlinetag.html#domain" class="tsd-kind-icon">domain</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#editable" class="tsd-kind-icon">editable</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#fillcolor" class="tsd-kind-icon">fill<wbr>Color</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#fillopacity" class="tsd-kind-icon">fill<wbr>Opacity</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite"><a href="outlinetag.html#geometry" class="tsd-kind-icon">geometry</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#icon" class="tsd-kind-icon">icon</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#iconfloat" class="tsd-kind-icon">icon<wbr>Float</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#iconindex" class="tsd-kind-icon">icon<wbr>Index</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="outlinetag.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#indicatevertices" class="tsd-kind-icon">indicate<wbr>Vertices</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#linecolor" class="tsd-kind-icon">line<wbr>Color</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#lineopacity" class="tsd-kind-icon">line<wbr>Opacity</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#linewidth" class="tsd-kind-icon">line<wbr>Width</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#text" class="tsd-kind-icon">text</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="outlinetag.html#textcolor" class="tsd-kind-icon">text<wbr>Color</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="extremepointtag.html#editable" class="tsd-kind-icon">editable</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="extremepointtag.html#fillcolor" class="tsd-kind-icon">fill<wbr>Color</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="extremepointtag.html#fillopacity" class="tsd-kind-icon">fill<wbr>Opacity</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite"><a href="extremepointtag.html#geometry" class="tsd-kind-icon">geometry</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="extremepointtag.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="extremepointtag.html#indicatevertices" class="tsd-kind-icon">indicate<wbr>Vertices</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="extremepointtag.html#linecolor" class="tsd-kind-icon">line<wbr>Color</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="extremepointtag.html#lineopacity" class="tsd-kind-icon">line<wbr>Opacity</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="extremepointtag.html#linewidth" class="tsd-kind-icon">line<wbr>Width</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="outlinetag.html#fire" class="tsd-kind-icon">fire</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="outlinetag.html#off" class="tsd-kind-icon">off</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="outlinetag.html#on" class="tsd-kind-icon">on</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="outlinetag.html#setoptions" class="tsd-kind-icon">set<wbr>Options</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="extremepointtag.html#fire" class="tsd-kind-icon">fire</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="extremepointtag.html#off" class="tsd-kind-icon">off</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="extremepointtag.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="extremepointtag.html#setoptions" class="tsd-kind-icon">set<wbr>Options</a></li>
 							</ul>
 						</section>
 					</div>
@@ -154,19 +147,19 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Outline<wbr>Tag<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, geometry<span class="tsd-signature-symbol">: </span><a href="vertexgeometry.html" class="tsd-signature-type">VertexGeometry</a>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/ioutlinetagoptions.html" class="tsd-signature-type">IOutlineTagOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="outlinetag.html" class="tsd-signature-type">OutlineTag</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Extreme<wbr>Point<wbr>Tag<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, geometry<span class="tsd-signature-symbol">: </span><a href="pointsgeometry.html" class="tsd-signature-type">PointsGeometry</a>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/iextremepointtagoptions.html" class="tsd-signature-type">IExtremePointTagOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="extremepointtag.html" class="tsd-signature-type">ExtremePointTag</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides Tag.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L54">component/tag/tag/OutlineTag.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L33">component/tag/tag/ExtremePointTag.ts:33</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Create an outline tag.</p>
+									<p>Create an extreme point tag.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>override</dt>
@@ -186,29 +179,29 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 									</div>
 								</li>
 								<li>
-									<h5>geometry: <a href="vertexgeometry.html" class="tsd-signature-type">VertexGeometry</a></h5>
+									<h5>geometry: <a href="pointsgeometry.html" class="tsd-signature-type">PointsGeometry</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>Geometry defining vertices of tag.</p>
+											<p>Geometry defining points of tag.</p>
 										</div>
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../interfaces/ioutlinetagoptions.html" class="tsd-signature-type">IOutlineTagOptions</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../interfaces/iextremepointtagoptions.html" class="tsd-signature-type">IExtremePointTagOptions</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
 											<p>Options defining the visual appearance and
-											behavior of the outline tag.</p>
+											behavior of the extreme point tag.</p>
 										</div>
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="outlinetag.html" class="tsd-signature-type">OutlineTag</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="extremepointtag.html" class="tsd-signature-type">ExtremePointTag</a></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Events</h2>
 				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="changed" class="tsd-anchor"></a>
@@ -228,26 +221,6 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<dl class="tsd-comment-tags">
 							<dt>type</dt>
 							<dd><p>{Tag} The tag instance that has changed.</p>
-							</dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class tsd-is-static">
-					<a name="click" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> click</h3>
-					<div class="tsd-signature tsd-kind-icon">click<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;click&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L36">component/tag/tag/OutlineTag.ts:36</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Event fired when the icon of the outline tag is clicked.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>type</dt>
-							<dd><p>{OutlineTag} The tag instance that was clicked.</p>
 							</dd>
 						</dl>
 					</div>
@@ -276,62 +249,6 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Accessors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="click_" class="tsd-anchor"></a>
-					<h3>click$</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> click$<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="outlinetag.html" class="tsd-signature-type">OutlineTag</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L107">component/tag/tag/OutlineTag.ts:107</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Click observable.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>description</dt>
-									<dd><p>An observable emitting the tag when the icon of the
-										tag has been clicked.</p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="outlinetag.html" class="tsd-signature-type">OutlineTag</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="domain" class="tsd-anchor"></a>
-					<h3>domain</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> domain<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">TagDomain</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L118">component/tag/tag/OutlineTag.ts:118</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get domain property.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>description</dt>
-									<dd><p>Readonly property that can only be set in constructor.</p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">TagDomain</span></h4>
-							<p>Value indicating the domain of the tag.</p>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
 					<a name="editable" class="tsd-anchor"></a>
 					<h3>editable</h3>
@@ -343,7 +260,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L126">component/tag/tag/OutlineTag.ts:126</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L63">component/tag/tag/ExtremePointTag.ts:63</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -357,7 +274,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L136">component/tag/tag/OutlineTag.ts:136</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L73">component/tag/tag/ExtremePointTag.ts:73</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -392,7 +309,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L149">component/tag/tag/OutlineTag.ts:149</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L82">component/tag/tag/ExtremePointTag.ts:82</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -405,7 +322,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L159">component/tag/tag/OutlineTag.ts:159</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L92">component/tag/tag/ExtremePointTag.ts:92</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -439,7 +356,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L168">component/tag/tag/OutlineTag.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L101">component/tag/tag/ExtremePointTag.ts:101</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -452,7 +369,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L178">component/tag/tag/OutlineTag.ts:178</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L111">component/tag/tag/ExtremePointTag.ts:111</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -479,14 +396,14 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 					<a name="geometry" class="tsd-anchor"></a>
 					<h3>geometry</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> geometry<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="vertexgeometry.html" class="tsd-signature-type">VertexGeometry</a></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> geometry<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="pointsgeometry.html" class="tsd-signature-type">PointsGeometry</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides Tag.geometry</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L184">component/tag/tag/OutlineTag.ts:184</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L117">component/tag/tag/ExtremePointTag.ts:117</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -495,148 +412,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 									<dd></dd>
 								</dl>
 							</div>
-							<h4 class="tsd-returns-title">Returns <a href="vertexgeometry.html" class="tsd-signature-type">VertexGeometry</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
-					<a name="icon" class="tsd-anchor"></a>
-					<h3>icon</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> icon<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> icon<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L192">component/tag/tag/OutlineTag.ts:192</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get icon property.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L202">component/tag/tag/OutlineTag.ts:202</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Set icon property.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>fires</dt>
-									<dd><p>Tag#changed</p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>value: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
-					<a name="iconfloat" class="tsd-anchor"></a>
-					<h3>icon<wbr>Float</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> iconFloat<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../enums/alignment.html" class="tsd-signature-type">Alignment</a></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> iconFloat<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><a href="../enums/alignment.html" class="tsd-signature-type">Alignment</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L211">component/tag/tag/OutlineTag.ts:211</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get icon float property.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="../enums/alignment.html" class="tsd-signature-type">Alignment</a></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L221">component/tag/tag/OutlineTag.ts:221</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Set icon float property.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>fires</dt>
-									<dd><p>Tag#changed</p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>value: <a href="../enums/alignment.html" class="tsd-signature-type">Alignment</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
-					<a name="iconindex" class="tsd-anchor"></a>
-					<h3>icon<wbr>Index</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> iconIndex<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> iconIndex<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L230">component/tag/tag/OutlineTag.ts:230</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get icon index property.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L240">component/tag/tag/OutlineTag.ts:240</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Set icon index property.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>fires</dt>
-									<dd><p>Tag#changed</p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>value: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="pointsgeometry.html" class="tsd-signature-type">PointsGeometry</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -674,7 +450,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L250">component/tag/tag/OutlineTag.ts:250</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L126">component/tag/tag/ExtremePointTag.ts:126</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -689,7 +465,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L260">component/tag/tag/OutlineTag.ts:260</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L136">component/tag/tag/ExtremePointTag.ts:136</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -725,7 +501,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L269">component/tag/tag/OutlineTag.ts:269</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L145">component/tag/tag/ExtremePointTag.ts:145</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -738,7 +514,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L279">component/tag/tag/OutlineTag.ts:279</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L155">component/tag/tag/ExtremePointTag.ts:155</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -772,7 +548,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L288">component/tag/tag/OutlineTag.ts:288</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L164">component/tag/tag/ExtremePointTag.ts:164</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -785,7 +561,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L298">component/tag/tag/OutlineTag.ts:298</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L174">component/tag/tag/ExtremePointTag.ts:174</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -819,7 +595,7 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L307">component/tag/tag/OutlineTag.ts:307</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L183">component/tag/tag/ExtremePointTag.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -832,106 +608,12 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L317">component/tag/tag/OutlineTag.ts:317</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L193">component/tag/tag/ExtremePointTag.ts:193</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Set line width property.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>fires</dt>
-									<dd><p>Tag#changed</p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>value: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
-					<a name="text" class="tsd-anchor"></a>
-					<h3>text</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> text<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> text<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L326">component/tag/tag/OutlineTag.ts:326</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get text property.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L336">component/tag/tag/OutlineTag.ts:336</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Set text property.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>fires</dt>
-									<dd><p>Tag#changed</p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>value: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
-					<a name="textcolor" class="tsd-anchor"></a>
-					<h3>text<wbr>Color</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> textColor<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> textColor<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L345">component/tag/tag/OutlineTag.ts:345</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get text color property.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L355">component/tag/tag/OutlineTag.ts:355</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Set text color property.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>fires</dt>
@@ -1059,13 +741,13 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 					<a name="setoptions" class="tsd-anchor"></a>
 					<h3>set<wbr>Options</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Options<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../interfaces/ioutlinetagoptions.html" class="tsd-signature-type">IOutlineTagOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Options<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../interfaces/iextremepointtagoptions.html" class="tsd-signature-type">IExtremePointTagOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/OutlineTag.ts#L370">component/tag/tag/OutlineTag.ts:370</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/2aff68f6/src/component/tag/tag/ExtremePointTag.ts#L208">component/tag/tag/ExtremePointTag.ts:208</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1085,9 +767,9 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>options: <a href="../interfaces/ioutlinetagoptions.html" class="tsd-signature-type">IOutlineTagOptions</a></h5>
+									<h5>options: <a href="../interfaces/iextremepointtagoptions.html" class="tsd-signature-type">IExtremePointTagOptions</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Outline tag options</p>
+										<p>Extreme point tag options</p>
 									</div>
 								</li>
 							</ul>
@@ -1110,79 +792,55 @@ tagComponent.<span class="hljs-keyword">add</span>([tag]);</code></pre></dd>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
-						<a href="outlinetag.html" class="tsd-kind-icon">Outline<wbr>Tag</a>
+						<a href="extremepointtag.html" class="tsd-kind-icon">Extreme<wbr>Point<wbr>Tag</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-								<a href="outlinetag.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="extremepointtag.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-event tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-								<a href="outlinetag.html#changed" class="tsd-kind-icon">changed</a>
-							</li>
-							<li class=" tsd-kind-event tsd-parent-kind-class tsd-is-static">
-								<a href="outlinetag.html#click" class="tsd-kind-icon">click</a>
+								<a href="extremepointtag.html#changed" class="tsd-kind-icon">changed</a>
 							</li>
 							<li class=" tsd-kind-event tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-								<a href="outlinetag.html#geometrychanged" class="tsd-kind-icon">geometrychanged</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="outlinetag.html#click_" class="tsd-kind-icon">click$</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="outlinetag.html#domain" class="tsd-kind-icon">domain</a>
+								<a href="extremepointtag.html#geometrychanged" class="tsd-kind-icon">geometrychanged</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#editable" class="tsd-kind-icon">editable</a>
+								<a href="extremepointtag.html#editable" class="tsd-kind-icon">editable</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#fillcolor" class="tsd-kind-icon">fill<wbr>Color</a>
+								<a href="extremepointtag.html#fillcolor" class="tsd-kind-icon">fill<wbr>Color</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#fillopacity" class="tsd-kind-icon">fill<wbr>Opacity</a>
+								<a href="extremepointtag.html#fillopacity" class="tsd-kind-icon">fill<wbr>Opacity</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite">
-								<a href="outlinetag.html#geometry" class="tsd-kind-icon">geometry</a>
-							</li>
-							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#icon" class="tsd-kind-icon">icon</a>
-							</li>
-							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#iconfloat" class="tsd-kind-icon">icon<wbr>Float</a>
-							</li>
-							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#iconindex" class="tsd-kind-icon">icon<wbr>Index</a>
+								<a href="extremepointtag.html#geometry" class="tsd-kind-icon">geometry</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="outlinetag.html#id" class="tsd-kind-icon">id</a>
+								<a href="extremepointtag.html#id" class="tsd-kind-icon">id</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#indicatevertices" class="tsd-kind-icon">indicate<wbr>Vertices</a>
+								<a href="extremepointtag.html#indicatevertices" class="tsd-kind-icon">indicate<wbr>Vertices</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#linecolor" class="tsd-kind-icon">line<wbr>Color</a>
+								<a href="extremepointtag.html#linecolor" class="tsd-kind-icon">line<wbr>Color</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#lineopacity" class="tsd-kind-icon">line<wbr>Opacity</a>
+								<a href="extremepointtag.html#lineopacity" class="tsd-kind-icon">line<wbr>Opacity</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#linewidth" class="tsd-kind-icon">line<wbr>Width</a>
-							</li>
-							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#text" class="tsd-kind-icon">text</a>
-							</li>
-							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="outlinetag.html#textcolor" class="tsd-kind-icon">text<wbr>Color</a>
+								<a href="extremepointtag.html#linewidth" class="tsd-kind-icon">line<wbr>Width</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="outlinetag.html#fire" class="tsd-kind-icon">fire</a>
+								<a href="extremepointtag.html#fire" class="tsd-kind-icon">fire</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="outlinetag.html#off" class="tsd-kind-icon">off</a>
+								<a href="extremepointtag.html#off" class="tsd-kind-icon">off</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="outlinetag.html#on" class="tsd-kind-icon">on</a>
+								<a href="extremepointtag.html#on" class="tsd-kind-icon">on</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="outlinetag.html#setoptions" class="tsd-kind-icon">set<wbr>Options</a>
+								<a href="extremepointtag.html#setoptions" class="tsd-kind-icon">set<wbr>Options</a>
 							</li>
 						</ul>
 					</li>
