@@ -33,11 +33,11 @@ export class Container {
 
     private _dom: DOM;
 
-    constructor (id: string, stateService: StateService, options: IViewerOptions, dom?: DOM) {
+    constructor (id: string, stateService: StateService, options: IViewerOptions, container?: HTMLElement, dom?: DOM) {
         this.id = id;
         this._dom = !!dom ? dom : new DOM();
 
-        this._container = this._dom.document.getElementById(id);
+        this._container = !!container ? container : this._dom.document.getElementById(id);
 
         if (!this._container) {
             throw new Error(`Container '${id}' not found.`);
