@@ -54,7 +54,7 @@ export function isWebGLSupported(): boolean {
     const canvas: HTMLCanvasElement = document.createElement("canvas");
     const context: WebGLRenderingContext =
         canvas.getContext("webgl", webGLContextAttributes) ||
-        canvas.getContext("experimental-webgl", webGLContextAttributes);
+        <WebGLRenderingContext>canvas.getContext("experimental-webgl", webGLContextAttributes);
 
     if (!context) {
         return false;

@@ -39,7 +39,7 @@
     "@types/falcor-http-datasource": "^0.1.19",
     "@types/jasmine": "^2.8.9",
     "@types/latlon-geohash": "^1.1.0",
-    "@types/node": "^10.11.4",
+    "@types/node": "^14.0.9",
     "@types/pako": "^1.0.1",
     "@types/rbush": "^2.0.2",
     "@types/three": "^0.92.24",
@@ -65,7 +65,7 @@
     "tslint": "^5.11.0",
     "typedoc": "^0.12.0",
     "typedoc-default-themes": "~0.5.0",
-    "typescript": "^3.1.1",
+    "typescript": "^3.9.3",
     "uglify-js": "^3.4.9",
     "watchify": "^3.11.0"
   },

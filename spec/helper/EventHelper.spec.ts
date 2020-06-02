@@ -56,16 +56,14 @@ export class EventHelper {
     }
 
     public static createUIEvent(eventType: string, canBubbleArg?: boolean, cancelableArg?: boolean, detailArg?: number): UIEvent {
-        const uiEvent: UIEvent = document.createEvent("UIEvent");
-
-        uiEvent.initUIEvent(
+        return new UIEvent(
             eventType,
-            canBubbleArg,
-            cancelableArg,
-            window,
-            detailArg);
-
-        return uiEvent;
+            {
+                bubbles: canBubbleArg,
+                cancelable: cancelableArg,
+                detail: detailArg,
+                view: window,
+            });
     }
 
     public static createWheelEvent(eventType: string, params: WheelEventInit, target?: EventTarget): WheelEvent {

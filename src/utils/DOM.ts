@@ -11,7 +11,7 @@ export class DOM {
 
     public createElement<K extends keyof HTMLElementTagNameMap>(
         tagName: K, className?: string, container?: HTMLElement): HTMLElementTagNameMap[K] {
-        const element: HTMLElement = this._document.createElement(tagName);
+        const element: HTMLElementTagNameMap[K] = this._document.createElement(tagName);
 
         if (!!className) {
             element.className = className;
