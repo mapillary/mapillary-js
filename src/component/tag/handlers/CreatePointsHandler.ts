@@ -7,12 +7,12 @@ import {
 import {Transform} from "../../../Geo";
 
 export class CreatePointsHandler extends CreateVertexHandler {
-    protected _addPoint(tag: ExtremePointCreateTag, basicPoint: number[]): void {
-        tag.geometry.addPoint2d(basicPoint);
-    }
-
     protected get _create$(): Subject<number[]> {
         return this._tagCreator.createPoints$;
+    }
+
+    protected _addPoint(tag: ExtremePointCreateTag, basicPoint: number[]): void {
+        tag.geometry.addPoint2d(basicPoint);
     }
 
     protected _getNameExtension(): string {

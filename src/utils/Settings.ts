@@ -8,6 +8,18 @@ export class Settings {
     private static _basePanoramaSize: number;
     private static _maxImageSize: number;
 
+    public static get baseImageSize(): number {
+        return Settings._baseImageSize;
+    }
+
+    public static get basePanoramaSize(): number {
+        return Settings._basePanoramaSize;
+    }
+
+    public static get maxImageSize(): number {
+        return Settings._maxImageSize;
+    }
+
     public static setOptions(options: IViewerOptions): void {
         Settings._baseImageSize = options.baseImageSize != null ?
             options.baseImageSize :
@@ -20,18 +32,6 @@ export class Settings {
         Settings._maxImageSize = options.maxImageSize != null ?
             options.maxImageSize :
             ImageSize.Size2048;
-    }
-
-    public static get baseImageSize(): number {
-        return Settings._baseImageSize;
-    }
-
-    public static get basePanoramaSize(): number {
-        return Settings._basePanoramaSize;
-    }
-
-    public static get maxImageSize(): number {
-        return Settings._maxImageSize;
     }
 }
 

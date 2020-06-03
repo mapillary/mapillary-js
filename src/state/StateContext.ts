@@ -31,22 +31,6 @@ export class StateContext implements IStateContext {
         });
     }
 
-    public earth(): void {
-        this._state = this._state.earth();
-    }
-
-    public traverse(): void {
-        this._state = this._state.traverse();
-    }
-
-    public wait(): void {
-        this._state = this._state.wait();
-    }
-
-    public waitInteractively(): void {
-        this._state = this._state.waitInteractively();
-    }
-
     public get state(): State {
         if (this._state instanceof EarthState) {
             return State.Earth;
@@ -115,6 +99,22 @@ export class StateContext implements IStateContext {
 
     public get motionless(): boolean {
         return this._state.motionless;
+    }
+
+    public earth(): void {
+        this._state = this._state.earth();
+    }
+
+    public traverse(): void {
+        this._state = this._state.traverse();
+    }
+
+    public wait(): void {
+        this._state = this._state.wait();
+    }
+
+    public waitInteractively(): void {
+        this._state = this._state.waitInteractively();
     }
 
     public getCenter(): number[] {

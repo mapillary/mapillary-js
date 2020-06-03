@@ -8,12 +8,12 @@ import {
 import {Transform} from "../../../Geo";
 
 export class CreatePolygonHandler extends CreateVertexHandler {
-    protected _addPoint(tag: OutlineCreateTag, basicPoint: number[]): void {
-        tag.addPoint(basicPoint);
-    }
-
     protected get _create$(): Subject<number[]> {
         return this._tagCreator.createPolygon$;
+    }
+
+    protected _addPoint(tag: OutlineCreateTag, basicPoint: number[]): void {
+        tag.addPoint(basicPoint);
     }
 
     protected _getNameExtension(): string {

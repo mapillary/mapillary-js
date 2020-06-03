@@ -132,6 +132,10 @@ export class APIv3 {
         ];
     }
 
+    public get clientId(): string {
+        return this._clientId;
+    }
+
     public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
         return this._catchInvalidateGet$(
             this._wrapModelResponse$<falcor.JSONEnvelope<IImageByKey<IFillNode>>>(this._model.get([
@@ -286,10 +290,6 @@ export class APIv3 {
                     [sequenceKeys])),
             this._pathSequenceViewAdd,
             sequenceKeys);
-    }
-
-    public get clientId(): string {
-        return this._clientId;
     }
 
     private _catchInvalidateGet$<TResult>(observable: Observable<TResult>, path: APIPath, paths: string[]): Observable<TResult> {

@@ -5,12 +5,7 @@
     "adjacent-overload-signatures": false,
     "ban-types": false,
     "member-access": true,
-    "member-ordering": [
-      true,
-        "public-before-private",
-        "static-before-instance",
-        "variables-before-functions"
-      ],
+    "member-ordering": [true, {"order": "fields-first"}],
     "no-any": false,
     "no-empty-interface": false,
     "no-namespace": false,

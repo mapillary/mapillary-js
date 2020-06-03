@@ -73,6 +73,14 @@ export class RouteComponent extends Component<IRouteConfiguration> {
         super(name, container, navigator);
     }
 
+    public play(): void {
+        this.configure({ playing: true });
+    }
+
+    public stop(): void {
+        this.configure({ playing: false });
+    }
+
     protected _activate(): void {
         let slowedStream$: Observable<IFrame> = this._navigator.stateService.currentState$.pipe(
             filter(
@@ -297,14 +305,6 @@ export class RouteComponent extends Component<IRouteConfiguration> {
 
     protected _getDefaultConfiguration(): IRouteConfiguration {
         return {};
-    }
-
-    public play(): void {
-        this.configure({ playing: true });
-    }
-
-    public stop(): void {
-        this.configure({ playing: false });
     }
 
     private _getRouteAnnotationNode(description: string): vd.VNode {
