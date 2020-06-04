@@ -11,7 +11,7 @@ module.exports = function(config) {
     browsers: ['ChromeHeadless'],
     concurrency: 1,
     files: [
-      'spec/**/*.spec.ts'
+      {pattern: 'spec/**/*.spec.ts', type: "js"}
     ],
     frameworks: ['jasmine', 'browserify'],
     mime: {
