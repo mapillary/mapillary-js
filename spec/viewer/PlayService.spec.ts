@@ -300,7 +300,7 @@ describe("PlayService.play", () => {
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -649,7 +649,7 @@ describe("PlayService.play", () => {
 
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
 
         playService.setDirection(EdgeDirection.Next);
 
@@ -701,7 +701,7 @@ describe("PlayService.play", () => {
 
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
 
         playService.setDirection(EdgeDirection.Next);
 

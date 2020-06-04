@@ -9,6 +9,7 @@ import {
     APIv3,
     ICoreNode,
     IKey,
+    IFullNode,
 } from "../../src/API";
 import {EdgeDirection} from "../../src/graph/edge/EdgeDirection";
 import {AbortMapillaryError} from "../../src/Error";
@@ -463,7 +464,7 @@ describe("Navigator.moveCloseTo$", () => {
         spyOn(loadingService, "startLoading").and.stub();
 
         let key: string = "key";
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(observableOf<IKey>({ key: key }));
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(observableOf<IFullNode>(<IFullNode>{ key: key }));
 
         let navigator: Navigator =
             new Navigator(
@@ -501,7 +502,7 @@ describe("Navigator.moveCloseTo$", () => {
         spyOn(loadingService, "startLoading").and.stub();
         let stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
 
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(observableOf<IKey>(null));
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(observableOf<IFullNode>(null));
 
         let navigator: Navigator =
             new Navigator(
@@ -542,7 +543,7 @@ describe("Navigator.moveCloseTo$", () => {
         let cacheService: CacheService = new CacheService(graphService, stateService);
 
         spyOn(loadingService, "startLoading").and.stub();
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IKey>());
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IFullNode>());
 
         let navigator: Navigator =
             new Navigator(
@@ -1010,7 +1011,7 @@ describe("Navigator.setToken$", () => {
         spyOn(loadingService, "stopLoading").and.stub();
 
         spyOn(graphService, "cacheNode$").and.returnValue(new Subject<Node>());
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IKey>());
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IFullNode>());
 
         spyOn(stateService, "clearNodes").and.stub();
 
@@ -1050,7 +1051,7 @@ describe("Navigator.setToken$", () => {
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
 
-        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IKey>());
+        spyOn(apiV3, "imageCloseTo$").and.returnValue(new Subject<IFullNode>());
 
         let navigator: Navigator =
             new Navigator(

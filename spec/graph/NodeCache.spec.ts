@@ -222,7 +222,7 @@ describe("NodeCache.cacheImage$", () => {
 
         new MockCreator().mockProperty(imageMock, "src", "");
 
-        spyOn(window, "Blob").and.returnValue({});
+        spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
         const nodeCache: NodeCache = new NodeCache();
@@ -256,7 +256,7 @@ describe("NodeCache.cacheImage$", () => {
 
         new MockCreator().mockProperty(imageMock, "src", "");
 
-        spyOn(window, "Blob").and.returnValue({});
+        spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
         const nodeCache: NodeCache = new NodeCache();
@@ -286,7 +286,7 @@ describe("NodeCache.cacheImage$", () => {
 
         new MockCreator().mockProperty(imageMock, "src", "");
 
-        spyOn(window, "Blob").and.returnValue({});
+        spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
         const nodeCache: NodeCache = new NodeCache();

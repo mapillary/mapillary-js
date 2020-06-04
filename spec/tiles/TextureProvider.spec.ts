@@ -57,9 +57,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -88,7 +87,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -110,9 +109,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -141,7 +139,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -163,9 +161,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -194,7 +191,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -216,9 +213,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -247,7 +243,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -269,9 +265,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -300,7 +295,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -322,9 +317,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -353,7 +347,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -375,9 +369,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -406,7 +399,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -428,9 +421,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -459,7 +451,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -481,9 +473,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -512,7 +503,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo = getTileSpy.calls.first();
+        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -534,9 +525,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
@@ -596,9 +586,8 @@ describe("TextureProvider.setRegionOfInterest", () => {
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
         let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue({
-            getParameter: () => { return 1024; },
-        });
+        spyOn(rendererMock, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 

@@ -659,7 +659,7 @@ describe("Graph.cacheTiles$", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        let node: Node = helper.createNode();
 
         spyOn(calculator, "encodeHs").and.returnValue(["h"]);
 
@@ -670,15 +670,15 @@ describe("Graph.cacheTiles$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
-        spyOn(graph, "getNode").and.returnValue(fullNode);
+        spyOn(graph, "getNode").and.returnValue(node);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(false);
-        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(node.key)).toBe(false);
+        expect(graph.isCachingTiles(node.key)).toBe(false);
 
-        graph.cacheTiles$(fullNode.key);
+        graph.cacheTiles$(node.key);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(false);
-        expect(graph.isCachingTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(node.key)).toBe(false);
+        expect(graph.isCachingTiles(node.key)).toBe(true);
     });
 
     it("should cache tiles", () => {
@@ -725,7 +725,7 @@ describe("Graph.cacheTiles$", () => {
         let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        let node: Node = helper.createNode();
 
         let h: string = "h";
         let encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
@@ -738,10 +738,10 @@ describe("Graph.cacheTiles$", () => {
         let graph: Graph = new Graph(apiV3, index, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
-        spyOn(graph, "getNode").and.returnValue(fullNode);
+        spyOn(graph, "getNode").and.returnValue(node);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(false);
-        expect(graph.hasTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(node.key)).toBe(false);
+        expect(graph.hasTiles(node.key)).toBe(false);
 
         expect(encodeHsSpy.calls.count()).toBe(1);
     });

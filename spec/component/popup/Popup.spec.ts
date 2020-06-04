@@ -353,27 +353,30 @@ describe("Popup.setBasicRect", () => {
     beforeEach(() => {
         dom = new DOM();
         const createElement: Function = dom.createElement.bind(dom);
-        spyOn(dom, "createElement").and.callFake(
-            (tagName: string, className: string, container: HTMLElement): HTMLElement => {
-                if (className === "mapillaryjs-popup") {
-                    const element: HTMLDivElement = window.document.createElement("div");
 
-                    Object.defineProperty(element, "offsetWidth", { value: 20 });
-                    Object.defineProperty(element, "offsetHeight", { value: 20 });
+        function createTagMappedElement<K extends keyof HTMLElementTagNameMap>(
+            tagName: K, className?: string, container?: HTMLElement): HTMLElementTagNameMap[K] {
+            if (className === "mapillaryjs-popup") {
+                const element: HTMLDivElement = window.document.createElement("div");
 
-                    if (!!className) {
-                        element.className = className;
-                    }
+                Object.defineProperty(element, "offsetWidth", { value: 20 });
+                Object.defineProperty(element, "offsetHeight", { value: 20 });
 
-                    if (!!container) {
-                        container.appendChild(element);
-                    }
-
-                    return element;
+                if (!!className) {
+                    element.className = className;
                 }
 
-                return createElement(tagName, className, container);
-            });
+                if (!!container) {
+                    container.appendChild(element);
+                }
+
+                return <HTMLElementTagNameMap[K]>element;
+            }
+
+            return createElement(tagName, className, container);
+        };
+
+        spyOn(dom, "createElement").and.callFake(createTagMappedElement);
 
         viewportCoords = new ViewportCoords();
 

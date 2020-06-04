@@ -110,7 +110,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 return pngXmlHTTPRequestMock;
             });
 
-        spyOn(window, "Blob").and.returnValue({});
+        spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
         let imageSpy: jasmine.Spy = spyOn(window, <keyof Window>"Image");
@@ -192,7 +192,7 @@ describe("SpriteService.spriteAtlas$", () => {
                 return pngXmlHTTPRequestMock;
             });
 
-        spyOn(window, "Blob").and.returnValue({});
+        spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
         let imageSpy: jasmine.Spy = spyOn(window, <keyof Window>"Image");

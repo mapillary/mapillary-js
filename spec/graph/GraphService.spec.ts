@@ -341,7 +341,7 @@ describe("GraphService.graphMode$", () => {
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Observable<Graph>[]> = new Subject<Observable<Graph>[]>();
+        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
         let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
@@ -371,7 +371,7 @@ describe("GraphService.graphMode$", () => {
 
         graphService.setGraphMode(GraphMode.Sequence);
 
-        cacheTiles$.next([observableOf<Graph>(graph)]);
+        cacheTiles$[0].next(graph);
 
         expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });
@@ -439,7 +439,7 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph> = new Subject<Graph>();
+        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -496,7 +496,7 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph> = new Subject<Graph>();
+        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -550,7 +550,7 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph> = new Subject<Graph>();
+        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -738,7 +738,7 @@ describe("GraphService.reset$", () => {
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph> = new Subject<Graph>();
+        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -799,7 +799,7 @@ describe("GraphService.reset$", () => {
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph> = new Subject<Graph>();
+        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
         let graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -858,7 +858,7 @@ describe("GraphService.reset$", () => {
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Observable<Graph>[]> = new Subject<Observable<Graph>[]>();
+        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
         let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
@@ -887,7 +887,7 @@ describe("GraphService.reset$", () => {
 
         graphService.reset$([]);
 
-        cacheTiles$.next([observableOf<Graph>(graph)]);
+        cacheTiles$[0].next(graph);
 
         expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });
@@ -948,7 +948,7 @@ describe("GraphService.setFilter$", () => {
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Observable<Graph>[]> = new Subject<Observable<Graph>[]>();
+        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
         let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
@@ -980,7 +980,7 @@ describe("GraphService.setFilter$", () => {
 
         graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe(() => { /*noop*/ });
 
-        cacheTiles$.next([observableOf<Graph>(graph)]);
+        cacheTiles$[0].next(graph);
 
         expect(hasSpatialAreaSpy.calls.count()).toBe(0);
     });

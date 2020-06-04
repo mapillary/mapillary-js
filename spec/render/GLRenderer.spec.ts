@@ -22,7 +22,7 @@ class RendererMock implements THREE.Renderer {
 
     public render(s: THREE.Scene, c: THREE.Camera): void { return; }
     public setSize(w: number, h: number, updateStyle?: boolean): void { return; }
-    public setClearColor(c: THREE.Color, o: number): void { return; }
+    public setClearColor(color: THREE.Color | string | number, alpha?: number): void { return; }
     public setPixelRatio(ratio: number): void { return; }
     public clear(): void { return; }
     public clearDepth(): void { return; }
@@ -64,6 +64,8 @@ class RenderServiceMock extends RenderService {
 
 describe("GLRenderer.ctor", () => {
     it("should be contructed", () => {
+        spyOn(THREE, "WebGLRenderer");
+
         let element: HTMLDivElement = document.createElement("div");
         let canvasContainer: HTMLElement = document.createElement("div");
         let renderService: RenderService = new RenderServiceMock(element);
@@ -111,7 +113,7 @@ describe("GLRenderer.renderer", () => {
 
     it("should be created on first render", () => {
         let rendererMock: RendererMock = new RendererMock();
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
@@ -125,7 +127,7 @@ describe("GLRenderer.renderer", () => {
     it("should render on new hash", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "render");
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
@@ -145,7 +147,7 @@ describe("GLRenderer.renderer", () => {
     it("should only render once for the same frame id", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "render");
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let glRenderer: GLRenderer = new GLRenderer(document.createElement("div"), renderServiceMock);
@@ -167,7 +169,7 @@ describe("GLRenderer.renderer", () => {
     it("should render twice for two frame ids", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "render");
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         const frame: IFrame = new FrameHelper().createFrame();
         frame.id = 1;
@@ -202,7 +204,7 @@ describe("GLRenderer.renderer", () => {
     it("should clear when hash is cleared", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "clear");
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         const frame: IFrame = new FrameHelper().createFrame();
         frame.id = 1;
@@ -237,7 +239,7 @@ describe("GLRenderer.renderer", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "clear");
         spyOn(rendererMock, "render");
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
 
@@ -266,7 +268,7 @@ describe("GLRenderer.renderer", () => {
     it("should not render frame if not needed", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "render");
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
@@ -292,7 +294,7 @@ describe("GLRenderer.renderer", () => {
     it("should render frame if camera has changed", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "render");
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
@@ -320,7 +322,7 @@ describe("GLRenderer.renderer", () => {
     it("should render on resize", () => {
         let rendererMock: RendererMock = new RendererMock();
         spyOn(rendererMock, "render");
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
@@ -348,7 +350,7 @@ describe("GLRenderer.renderer", () => {
 
     it("should not render a frame until all render hashes has submitted", () => {
         let rendererMock: RendererMock = new RendererMock();
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let hash1: string = "hash1";
         let hash2: string = "hash2";
@@ -394,7 +396,7 @@ describe("GLRenderer.renderer", () => {
 
     it("should render when one of multiple render hashes is cleared", () => {
         let rendererMock: RendererMock = new RendererMock();
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
 
         let hash1: string = "hash1";
         let hash2: string = "hash2";

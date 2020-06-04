@@ -334,7 +334,7 @@ describe("TagScene.intersectObjects", () => {
 
         tagScene.add([renderTag]);
 
-        spyOn(raycaster, "intersectObjects").and.returnValue([{ object: retrievableObject }]);
+        spyOn(raycaster, "intersectObjects").and.returnValue([<THREE.Intersection>{ object: retrievableObject }]);
 
         const result: string[] = tagScene.intersectObjects([0, 0], new THREE.Camera());
 

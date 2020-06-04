@@ -72,7 +72,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         const basicProximateClick$: Subject<number[]> = new Subject<number[]>();
-        spyOn(container.mouseService.proximateClick$, <keyof Observable<void>>"pipe").and.returnValue(basicProximateClick$);
+        spyOn(container.mouseService.proximateClick$, "pipe").and.returnValue(basicProximateClick$);
 
         component.activate();
         createPointHandler.enable();
@@ -105,7 +105,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         const basicProximateClick$: Subject<number[]> = new Subject<number[]>();
-        spyOn(container.mouseService.proximateClick$, <keyof Observable<void>>"pipe").and.returnValue(basicProximateClick$);
+        spyOn(container.mouseService.proximateClick$, "pipe").and.returnValue(basicProximateClick$);
 
         component.activate();
 
@@ -132,7 +132,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         const basicProximateClick$: Subject<number[]> = new Subject<number[]>();
-        spyOn(container.mouseService.proximateClick$, <keyof Observable<void>>"pipe").and.returnValue(basicProximateClick$);
+        spyOn(container.mouseService.proximateClick$, "pipe").and.returnValue(basicProximateClick$);
 
         component.activate();
         createPointHandler.enable();
@@ -166,7 +166,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         const createPointHandler: CreatePointHandler = new CreatePointHandler(component, container, navigator, viewportCoords, tagCreator);
 
         const basicProximateClick$: Subject<number[]> = new Subject<number[]>();
-        spyOn(container.mouseService.proximateClick$, <keyof Observable<void>>"pipe").and.returnValue(basicProximateClick$);
+        spyOn(container.mouseService.proximateClick$, "pipe").and.returnValue(basicProximateClick$);
 
         component.activate();
         createPointHandler.enable();
