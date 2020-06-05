@@ -52,7 +52,7 @@
     "cssnano": "^4.1.10",
     "exorcist": "^1.0.1",
     "express": "^4.17.1",
-    "husky": "^1.1.1",
+    "husky": "^4.2.5",
     "jasmine-core": "^3.5.0",
     "karma": "^5.0.9",
     "karma-browserify": "^7.0.0",
