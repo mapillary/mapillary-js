@@ -66,8 +66,7 @@
     "typedoc": "^0.17.7",
     "typedoc-default-themes": "^0.10.1",
     "typescript": "^3.9.5",
-    "uglify-js": "^3.4.9",
-    "watchify": "^3.11.0"
+    "uglify-js": "^3.4.9"
   },
   "browser": {
     "falcor": "./node_modules/falcor/dist/falcor.browser.min.js",
@@ -81,7 +80,6 @@
   "scripts": {
     "build-css": "cat styles/*.css | postcss --use autoprefixer --use cssnano -o dist/mapillary.min.css",
     "build-dev": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug | exorcist dist/mapillary.js.map > dist/mapillary.js",
-    "build-watch": "watchify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary --debug -v -o 'exorcist dist/mapillary.js.map > dist/mapillary.js'",
     "build-docs": "typedoc --tsconfig tsconfig.docs.json --mode file --theme default --excludePrivate --excludeProtected --excludeExternals  --name MapillaryJS --out docs/",
     "build-min": "browserify src/Mapillary.ts --plugin tsify --transform brfs --standalone Mapillary | uglifyjs -m > dist/mapillary.min.js",
     "clean": "npm run clean-dist && npm run clean-docs",
