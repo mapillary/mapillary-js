@@ -1,7 +1,6 @@
 import {merge as observableMerge, from as observableFrom, of as observableOf, Observable, Subject} from "rxjs";
 
 import {tap, refCount, catchError, publish, finalize, map, reduce, mergeMap, mergeAll, last} from "rxjs/operators";
-import * as rbush from "rbush";
 
 import {
     APIv3,
@@ -27,6 +26,7 @@ import {
     Sequence,
     GraphCalculator,
 } from "../Graph";
+import { GeoRBush } from "../Geo";
 
 type NodeIndexItem = {
     lat: number;
@@ -140,7 +140,7 @@ export class Graph {
     /**
      * Contains all nodes in the graph. Used for fast spatial lookups.
      */
-    private _nodeIndex: rbush.RBush<NodeIndexItem>;
+    private _nodeIndex: GeoRBush<NodeIndexItem>;
 
     /**
      * All node index items sorted in tiles for easy uncache.
@@ -187,7 +187,7 @@ export class Graph {
      */
     constructor(
         apiV3: APIv3,
-        nodeIndex?: rbush.RBush<NodeIndexItem>,
+        nodeIndex?: GeoRBush<NodeIndexItem>,
         graphCalculator?: GraphCalculator,
         edgeCalculator?: EdgeCalculator,
         filterCreator?: FilterCreator,
@@ -225,7 +225,7 @@ export class Graph {
             };
 
         this._nodes = {};
-        this._nodeIndex = nodeIndex != null ? nodeIndex : rbush<NodeIndexItem>(16, [".lat", ".lon", ".lat", ".lon"]);
+        this._nodeIndex = nodeIndex != null ? nodeIndex : new GeoRBush<NodeIndexItem>(16);
         this._nodeIndexTiles = {};
         this._nodeToTile = {};
 

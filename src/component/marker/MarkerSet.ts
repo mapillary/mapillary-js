@@ -1,9 +1,8 @@
-import * as rbush from "rbush";
-
 import {Observable, Subject} from "rxjs";
 
 import {ILatLon} from "../../API";
 import {Marker} from "../../Component";
+import { GeoRBush } from "../../Geo";
 
 type MarkerIndexItem = {
     lat: number;
@@ -11,18 +10,16 @@ type MarkerIndexItem = {
     marker: Marker;
 };
 
-type MarkerIndex = rbush.RBush<MarkerIndexItem>;
-
 export class MarkerSet {
     private _hash: { [id: string]: MarkerIndexItem };
-    private _index: MarkerIndex;
+    private _index: GeoRBush<MarkerIndexItem>;
 
     private _indexChanged$: Subject<MarkerSet>;
     private _updated$: Subject<Marker[]>;
 
     constructor() {
         this._hash = {};
-        this._index = rbush<MarkerIndexItem>(16, [".lon", ".lat", ".lon", ".lat"]);
+        this._index = new GeoRBush<MarkerIndexItem>(16);
 
         this._indexChanged$ = new Subject<MarkerSet>();
         this._updated$ = new Subject<Marker[]>();
@@ -39,7 +36,7 @@ export class MarkerSet {
     public add(markers: Marker[]): void {
         const updated: Marker[] = [];
         const hash: { [id: string]: MarkerIndexItem } = this._hash;
-        const index: MarkerIndex = this._index;
+        const index: GeoRBush<MarkerIndexItem> = this._index;
 
         for (const marker of markers) {
             const id: string = marker.id;
@@ -87,7 +84,7 @@ export class MarkerSet {
 
     public remove(ids: string[]): void {
         const hash: { [id: string]: MarkerIndexItem } = this._hash;
-        const index: MarkerIndex = this._index;
+        const index: GeoRBush<MarkerIndexItem> = this._index;
 
         let changed: boolean = false;
         for (const id of ids) {
@@ -124,7 +121,7 @@ export class MarkerSet {
 
     public update(marker: Marker): void {
         const hash: { [id: string]: MarkerIndexItem } = this._hash;
-        const index: MarkerIndex = this._index;
+        const index: GeoRBush<MarkerIndexItem> = this._index;
         const id: string = marker.id;
 
         if (!(id in hash)) {

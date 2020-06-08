@@ -1,7 +1,6 @@
 import {from as observableFrom, of as observableOf, merge as observableMerge, Observable, Subject} from "rxjs";
 
 import {first, mergeAll} from "rxjs/operators";
-import * as rbush from "rbush";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
 
@@ -14,6 +13,7 @@ import {
 } from "../../src/API";
 import {EdgeCalculator} from "../../src/Edge";
 import {GraphMapillaryError} from "../../src/Error";
+import {GeoRBush} from "../../src/Geo";
 import {
     GraphCalculator,
     Graph,
@@ -33,7 +33,7 @@ describe("Graph.ctor", () => {
 
     it("should create a graph with all ctor params", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let graph: Graph = new Graph(apiV3, index, calculator);
@@ -51,7 +51,7 @@ describe("Graph.cacheBoundingBox$", () => {
 
     it("should cache one node in the bounding box", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -98,7 +98,7 @@ describe("Graph.cacheBoundingBox$", () => {
 
     it("should not cache tile of fill node if already cached", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -171,7 +171,7 @@ describe("Graph.cacheBoundingBox$", () => {
 
     it("should only cache tile once for two similar calls", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -237,7 +237,7 @@ describe("Graph.cacheFull$", () => {
 
     it("should be fetching", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let fullNode: IFullNode = helper.createFullNode();
@@ -255,7 +255,7 @@ describe("Graph.cacheFull$", () => {
 
     it("should fetch", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -288,7 +288,7 @@ describe("Graph.cacheFull$", () => {
 
     it("should not make additional calls when fetching same node twice", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let fullNode: IFullNode = helper.createFullNode();
@@ -307,7 +307,7 @@ describe("Graph.cacheFull$", () => {
 
     it("should throw when fetching node already in graph", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -330,7 +330,7 @@ describe("Graph.cacheFull$", () => {
 
     it("should throw if sequence key is missing", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -356,7 +356,7 @@ describe("Graph.cacheFull$", () => {
 
     it("should make full when fetched node has been retrieved in tile in parallell", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let key: string = "key";
@@ -433,7 +433,7 @@ describe("Graph.cacheFill$", () => {
 
     it("should be filling", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -482,7 +482,7 @@ describe("Graph.cacheFill$", () => {
 
     it("should fill", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -536,7 +536,7 @@ describe("Graph.cacheFill$", () => {
 
     it("should not make additional calls when filling same node twice", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -586,7 +586,7 @@ describe("Graph.cacheFill$", () => {
 
     it("should throw if already fetching", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -612,7 +612,7 @@ describe("Graph.cacheFill$", () => {
 
     it("should throw if node does not exist", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
@@ -625,7 +625,7 @@ describe("Graph.cacheFill$", () => {
 
     it("should throw if already full", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -656,7 +656,7 @@ describe("Graph.cacheTiles$", () => {
 
     it("should be caching tiles", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let node: Node = helper.createNode();
@@ -683,7 +683,7 @@ describe("Graph.cacheTiles$", () => {
 
     it("should cache tiles", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let fullNode: IFullNode = helper.createFullNode();
@@ -722,7 +722,7 @@ describe("Graph.cacheTiles$", () => {
 
     it("should encode hs only once when checking tiles cache", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let node: Node = helper.createNode();
@@ -748,7 +748,7 @@ describe("Graph.cacheTiles$", () => {
 
     it("should encode hs only once when caching tiles", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let fullNode: IFullNode = helper.createFullNode();
@@ -796,7 +796,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should throw when sequence does not exist", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -807,7 +807,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should not be cached", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -834,7 +834,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -863,7 +863,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should be cached and not caching", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -901,7 +901,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should not be cached after uncaching sequence node", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(graphCalculator, "encodeH").and.returnValue("h");
 
@@ -950,7 +950,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should not be cached after uncaching sequence", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(graphCalculator, "encodeH").and.returnValue("h");
 
@@ -1001,7 +1001,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should be cached after uncaching if sequence is kept", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(graphCalculator, "encodeH").and.returnValue("h");
 
@@ -1050,7 +1050,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should be cached after uncaching if all nodes are kept", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(graphCalculator, "encodeH").and.returnValue("h");
 
@@ -1099,7 +1099,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should not be cached after uncaching tile", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         let h: string = "h";
         spyOn(graphCalculator, "encodeH").and.returnValue(h);
@@ -1175,7 +1175,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should be cached after uncaching tile if sequence is kept", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         let h: string = "h";
         spyOn(graphCalculator, "encodeH").and.returnValue(h);
@@ -1251,7 +1251,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should throw if caching already cached sequence nodes", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1286,7 +1286,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should only call API once if caching multiple times before response", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1323,7 +1323,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should not be cached and not caching on error", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1359,7 +1359,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching in with single batch when lass than or equal to 200 nodes", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1397,7 +1397,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching in batches when more than 200 nodes", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1436,7 +1436,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching prioritized batch when reference node key is specified at start", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1480,7 +1480,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching prioritized batch when reference node key is specified at end", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1525,7 +1525,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching in prioritized batches when reference node key is specified in middle", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1571,7 +1571,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should not corrupt sequence when caching in batches", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1606,7 +1606,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
         const apiV3: APIv3 = new APIv3("clientId");
-        const index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1659,7 +1659,7 @@ describe("Graph.cacheSpatialArea$", () => {
 
     it("should be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1686,7 +1686,7 @@ describe("Graph.cacheSpatialArea$", () => {
 
     it("should not be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1745,7 +1745,7 @@ describe("Graph.cacheSpatialEdges", () => {
 
     it("should use fallback keys", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1801,7 +1801,7 @@ describe("Graph.cacheSpatialEdges", () => {
 
     it("should apply filter", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1862,7 +1862,7 @@ describe("Graph.cacheSpatialEdges", () => {
 
     it("should apply remove by filtering", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1930,7 +1930,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should not be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -1951,7 +1951,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should be caching", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -1976,7 +1976,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2014,7 +2014,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should throw if node not in graph", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2033,7 +2033,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should throw if already cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2067,7 +2067,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should call api only once when caching the same sequence twice in succession", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2096,7 +2096,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should emit to changed stream", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2138,7 +2138,7 @@ describe("Graph.cacheNodeSequence$", () => {
 describe("Graph.cacheSequence$", () => {
     it("should not be cached", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let graph: Graph = new Graph(apiV3, index, calculator);
@@ -2150,7 +2150,7 @@ describe("Graph.cacheSequence$", () => {
 
     it("should not be caching", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let graph: Graph = new Graph(apiV3, index, calculator);
@@ -2162,7 +2162,7 @@ describe("Graph.cacheSequence$", () => {
 
     it("should be caching", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -2180,7 +2180,7 @@ describe("Graph.cacheSequence$", () => {
 
     it("should cache", (done: Function) => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -2212,7 +2212,7 @@ describe("Graph.cacheSequence$", () => {
 
     it("should call api only once when caching the same sequence twice in succession", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -2239,7 +2239,7 @@ describe("Graph.resetSpatialEdges", () => {
 
     it("should use fallback keys", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -2304,7 +2304,7 @@ describe("Graph.resetSpatialEdges", () => {
 
     it("should have to re-encode hs after spatial edges reset", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let graphCalculator: GraphCalculator = new GraphCalculator(null);
         let edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -2401,7 +2401,7 @@ describe("Graph.reset", () => {
 
     it("should remove node", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2435,7 +2435,7 @@ describe("Graph.reset", () => {
 
     it("should dispose cache initialized node", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2470,7 +2470,7 @@ describe("Graph.reset", () => {
 
     it("should keep supplied node", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2519,7 +2519,7 @@ describe("Graph.uncache", () => {
 
     it("should remove prestored node if not cache initialized", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2561,7 +2561,7 @@ describe("Graph.uncache", () => {
 
     it("should not remove prestored node if in kept sequence", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2604,7 +2604,7 @@ describe("Graph.uncache", () => {
 
     it("should remove prestored node if cache initialized", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2646,7 +2646,7 @@ describe("Graph.uncache", () => {
 
     it("should not remove prestored node when in keys to keep", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2690,7 +2690,7 @@ describe("Graph.uncache", () => {
 
     it("should not remove prestored node if below threshold", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2734,7 +2734,7 @@ describe("Graph.uncache", () => {
 
     it("should remove prestored node accessed earliest", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2811,7 +2811,7 @@ describe("Graph.uncache", () => {
 
     it("should uncache cache initialized node", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2871,7 +2871,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache cache initialized node if below threshold", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2933,7 +2933,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache cache initialized node if key should be kept", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -2994,7 +2994,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache cache initialized node if key in use", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -3051,7 +3051,7 @@ describe("Graph.uncache", () => {
 
     it("should uncache cache initialized node accessed earliest", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -3147,7 +3147,7 @@ describe("Graph.uncache", () => {
 
     it("should uncache sequence", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -3187,7 +3187,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache sequence if specified to keep", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -3227,7 +3227,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache sequence if number below threshold", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -3267,7 +3267,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache sequence accessed last", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
@@ -3335,7 +3335,7 @@ describe("Graph.uncache", () => {
 
     it("should uncache node by uncaching tile", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -3394,7 +3394,7 @@ describe("Graph.uncache", () => {
 
     it("should not dispose node by uncaching tile if in specified sequence", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -3455,7 +3455,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache node by uncaching tile when number below threshold", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
@@ -3515,7 +3515,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache and dispose node by uncaching tile when tile is related to kept key", () => {
         let apiV3: APIv3 = new APIv3("clientId");
-        let index: rbush.RBush<any> = rbush<any>(16, [".lon", ".lat", ".lon", ".lat"]);
+        let index: GeoRBush<any> = new GeoRBush(16);
         let calculator: GraphCalculator = new GraphCalculator(null);
 
         let h: string = "h";
