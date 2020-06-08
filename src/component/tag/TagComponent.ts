@@ -582,7 +582,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._editVertexHandler.enable();
 
         const handlerGeometryCreated$: Observable<Geometry> =
-            observableFrom<keyof typeof TagMode>(<(keyof typeof TagMode)[]>Object.keys(this._createHandlers)).pipe(
+            observableFrom(<(keyof typeof TagMode)[]>Object.keys(this._createHandlers)).pipe(
                 map(
                     (key: keyof typeof TagMode): CreateHandlerBase => {
                         return this._createHandlers[key];

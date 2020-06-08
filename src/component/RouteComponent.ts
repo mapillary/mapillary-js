@@ -101,7 +101,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                 this.configuration$.pipe(
                     mergeMap(
                         (conf: IRouteConfiguration): Observable<IRoutePath> => {
-                            return observableFrom<IRoutePath>(conf.paths);
+                            return observableFrom(conf.paths);
                         }),
                     distinct(
                         (p: IRoutePath): string => {

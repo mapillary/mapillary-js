@@ -159,7 +159,7 @@ export class EditVertexHandler extends TagHandlerBase {
                                     return this._viewportCoords.insideElement(event, this._container.element);
                                 }));
 
-                    return observableCombineLatest<MouseEvent, RenderCamera>(
+                    return observableCombineLatest(
                             mouseDrag$,
                             this._container.renderService.renderCamera$).pipe(
                         withLatestFrom(

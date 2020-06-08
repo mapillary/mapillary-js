@@ -171,7 +171,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                         }
                     }
 
-                    return observableFrom<Observable<EdgesDepth>>(edgesDepths$).pipe(
+                    return observableFrom(edgesDepths$).pipe(
                         mergeAll());
                 }),
             skip(1));

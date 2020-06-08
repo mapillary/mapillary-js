@@ -281,7 +281,7 @@ export class Navigator {
                         return this._graphService.cacheNode$(key);
                 });
 
-        return observableFrom<Observable<Node>>(cacheNodes$).pipe(
+        return observableFrom(cacheNodes$).pipe(
             mergeAll());
     }
 

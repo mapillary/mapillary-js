@@ -255,7 +255,7 @@ export class GraphService {
                             return observableEmpty();
                         }
 
-                        return observableFrom<Observable<Graph>>(graph.cacheTiles$(key)).pipe(
+                        return observableFrom(graph.cacheTiles$(key)).pipe(
                             mergeMap(
                                 (graph$: Observable<Graph>): Observable<Graph> => {
                                     return graph$.pipe(
@@ -282,7 +282,7 @@ export class GraphService {
                             return observableOf<Graph>(graph);
                         }
 
-                        return observableFrom<Observable<Graph>>(graph.cacheSpatialArea$(key)).pipe(
+                        return observableFrom(graph.cacheSpatialArea$(key)).pipe(
                             mergeMap(
                                 (graph$: Observable<Graph>): Observable<Graph> => {
                                     return graph$.pipe(
