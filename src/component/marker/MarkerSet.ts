@@ -112,7 +112,12 @@ export class MarkerSet {
 
     public search([sw, ne]: [ILatLon, ILatLon]): Marker[] {
         return this._index
-            .search({ maxX: ne.lon, maxY: ne.lat, minX: sw.lon, minY: sw.lat })
+            .search({
+                maxX: ne.lat,
+                maxY: ne.lon,
+                minX: sw.lat,
+                minY: sw.lon,
+            })
             .map(
                 (indexItem: MarkerIndexItem): Marker => {
                     return indexItem.marker;
