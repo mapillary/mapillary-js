@@ -41,7 +41,7 @@ describe("Transform.rt", () => {
 
         let rt: THREE.Matrix4 = transform.rt;
 
-        let elements: Float32Array = rt.elements;
+        let elements: number[] = rt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(1);
@@ -84,7 +84,7 @@ describe("Transform.rt", () => {
 
         let rt: THREE.Matrix4 = transform.rt;
 
-        let elements: Float32Array = rt.elements;
+        let elements: number[] = rt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(-1);
@@ -127,7 +127,7 @@ describe("Transform.rt", () => {
 
         let rt: THREE.Matrix4 = transform.rt;
 
-        let elements: Float32Array = rt.elements;
+        let elements: number[] = rt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(1);
@@ -170,7 +170,7 @@ describe("Transform.rt", () => {
 
         let rt: THREE.Matrix4 = transform.rt;
 
-        let elements: Float32Array = rt.elements;
+        let elements: number[] = rt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(1);
@@ -224,7 +224,7 @@ describe("Transform.srt", () => {
 
         let sRt: THREE.Matrix4 = transform.srt;
 
-        let elements: Float32Array = sRt.elements;
+        let elements: number[] = sRt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(1);
@@ -268,7 +268,7 @@ describe("Transform.srt", () => {
 
         let sRt: THREE.Matrix4 = transform.srt;
 
-        let elements: Float32Array = sRt.elements;
+        let elements: number[] = sRt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBeLessThan(epsilon);
@@ -312,7 +312,7 @@ describe("Transform.srt", () => {
 
         let sRt: THREE.Matrix4 = transform.srt;
 
-        let elements: Float32Array = sRt.elements;
+        let elements: number[] = sRt.elements;
 
         // elements is a column-major array
         expect(elements[0]).toBe(0.5);

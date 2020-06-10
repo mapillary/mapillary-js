@@ -300,7 +300,7 @@ export class SliderGLRenderer {
 
                 this._previousKey = previousNode.key;
 
-                const elements: Float32Array = state.currentTransform.rt.elements;
+                const elements: number[] = state.currentTransform.rt.elements;
                 let translation: number[] = [elements[12], elements[13], elements[14]];
 
                 const currentAspect: number = state.currentTransform.basicAspect;

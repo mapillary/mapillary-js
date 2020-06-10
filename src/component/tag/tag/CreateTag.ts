@@ -102,7 +102,7 @@ export abstract class CreateTag<T extends Geometry> {
         const positions: Float32Array = this._getLinePositions(polygon3d);
 
         const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
         const material: THREE.LineBasicMaterial =
             new THREE.LineBasicMaterial(
@@ -120,7 +120,7 @@ export abstract class CreateTag<T extends Geometry> {
         }
 
         line.geometry.dispose();
-        line.material.dispose();
+        (<THREE.Material>line.material).dispose();
     }
 
     private _getLinePositions(polygon3d: number[][]): Float32Array {

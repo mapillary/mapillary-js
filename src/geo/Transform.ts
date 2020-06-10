@@ -259,7 +259,7 @@ export class Transform {
      * @returns {THREE.Vector3} Normalized and orientation adjusted up vector.
      */
     public upVector(): THREE.Vector3 {
-        let rte: Float32Array = this._rt.elements;
+        let rte: number[] = this._rt.elements;
 
         switch (this._orientation) {
             case 1:
@@ -654,7 +654,7 @@ export class Transform {
      */
     private _getSrt(rt: THREE.Matrix4, scale: number): THREE.Matrix4 {
         let srt: THREE.Matrix4 = rt.clone();
-        let elements: Float32Array = srt.elements;
+        let elements: number[] = srt.elements;
 
         elements[12] = scale * elements[12];
         elements[13] = scale * elements[13];

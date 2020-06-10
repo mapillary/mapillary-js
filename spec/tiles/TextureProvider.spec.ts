@@ -15,6 +15,7 @@ class RendererMock implements THREE.Renderer {
 
     public getContext(): void { return; }
     public render(s: THREE.Scene, c: THREE.Camera, t?: THREE.WebGLRenderTarget): void { return; }
+    public getRenderTarget(): THREE.RenderTarget { return; }
     public setRenderTarget(t?: THREE.WebGLRenderTarget): void { return; }
     public setSize(w: number, h: number, updateStyle?: boolean): void { return; }
 }

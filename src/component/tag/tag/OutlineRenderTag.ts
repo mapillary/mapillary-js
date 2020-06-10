@@ -317,7 +317,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
     private _disposeHoles(): void {
         for (let hole of this._holes) {
             hole.geometry.dispose();
-            hole.material.dispose();
+            (<THREE.Material>hole.material).dispose();
         }
 
         this._holes = [];

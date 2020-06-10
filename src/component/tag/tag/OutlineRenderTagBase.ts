@@ -72,7 +72,7 @@ export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
         let positions: Float32Array = new Float32Array(triangles);
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         geometry.computeBoundingSphere();
 
         let material: THREE.MeshBasicMaterial =
@@ -87,7 +87,7 @@ export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
         let positions: Float32Array = this._getLinePositions(points3d);
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         geometry.computeBoundingSphere();
 
         let material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial();
@@ -119,7 +119,7 @@ export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
         }
 
         this._outline.geometry.dispose();
-        this._outline.material.dispose();
+        (<THREE.Material>this._outline.material).dispose();
         this._outline = null;
     }
 
@@ -167,7 +167,7 @@ export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
             attribute.needsUpdate = true;
         } else {
             geometry.removeAttribute("position");
-            geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         }
 
         geometry.computeBoundingSphere();

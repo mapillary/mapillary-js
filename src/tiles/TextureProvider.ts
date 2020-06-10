@@ -289,7 +289,7 @@ export class TextureProvider {
 
             this._renderToTarget(0, 0, this._width, this._height, this._background);
 
-            this._createdSubject$.next((<any>this._renderTarget).texture);
+            this._createdSubject$.next(this._renderTarget.texture);
             this._hasSubject$.next(true);
         }
 
@@ -519,8 +519,11 @@ export class TextureProvider {
         let scene: THREE.Scene = new THREE.Scene();
         scene.add(mesh);
 
-        this._renderer.render(scene, this._camera, this._renderTarget);
-        this._renderer.setRenderTarget(undefined);
+        const target: THREE.RenderTarget = this._renderer.getRenderTarget();
+
+        this._renderer.setRenderTarget(this._renderTarget)
+        this._renderer.render(scene, this._camera);
+        this._renderer.setRenderTarget(target);
 
         scene.remove(mesh);
 

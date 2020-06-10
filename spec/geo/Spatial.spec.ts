@@ -17,7 +17,7 @@ describe("Spatial.rotationMatrix", () => {
 
         let matrix: THREE.Matrix4 = spatial.rotationMatrix(angleAxis);
 
-        let elements: Float32Array = matrix.elements;
+        let elements: number[] = matrix.elements;
 
         // elements is a column-major list
         expect(elements[0]).toBe(1);

@@ -201,7 +201,7 @@ export class Spatial {
         let R2: THREE.Matrix4 = this.rotationMatrix(rotation2);
 
         let R: THREE.Matrix4 = R1T.multiply(R2);
-        let elements: Float32Array = R.elements;
+        let elements: number[] = R.elements;
 
         // from Tr(R) = 1 + 2 * cos(theta)
         let tr: number = elements[0] + elements[5] + elements[10];

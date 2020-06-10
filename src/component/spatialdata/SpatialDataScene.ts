@@ -430,7 +430,7 @@ export class SpatialDataScene {
         const south: number[] = transform.unprojectBasic([0.5, 1], 0.16);
 
         const axis: THREE.BufferGeometry = new THREE.BufferGeometry();
-        axis.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray([north, south], 3), 3));
+        axis.setAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray([north, south], 3), 3));
 
         return new THREE.Line(axis, new THREE.LineBasicMaterial());
     }
@@ -456,7 +456,7 @@ export class SpatialDataScene {
         ];
 
         const diagonals: THREE.BufferGeometry = new THREE.BufferGeometry();
-        diagonals.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices, 3), 3));
+        diagonals.setAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices, 3), 3));
 
         return new THREE.LineSegments(diagonals, new THREE.LineBasicMaterial());
     }
@@ -474,7 +474,7 @@ export class SpatialDataScene {
                 });
 
         const frame: THREE.BufferGeometry = new THREE.BufferGeometry();
-        frame.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices3d, 3), 3));
+        frame.setAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices3d, 3), 3));
 
         return new THREE.Line(frame, new THREE.LineBasicMaterial());
     }
@@ -492,7 +492,7 @@ export class SpatialDataScene {
         }
 
         const latitude: THREE.BufferGeometry = new THREE.BufferGeometry();
-        latitude.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        latitude.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
         return new THREE.Line(latitude, new THREE.LineBasicMaterial());
     }
@@ -510,7 +510,7 @@ export class SpatialDataScene {
         }
 
         const latitude: THREE.BufferGeometry = new THREE.BufferGeometry();
-        latitude.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        latitude.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
         return new THREE.Line(latitude, new THREE.LineBasicMaterial());
     }
@@ -558,12 +558,12 @@ export class SpatialDataScene {
         }
 
         const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-        geometry.addAttribute("color", new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
         const material: THREE.PointsMaterial = new THREE.PointsMaterial({
             size: 0.1,
-            vertexColors: THREE.VertexColors,
+            vertexColors: true,
         });
 
         return new THREE.Points(geometry, material);
@@ -573,7 +573,7 @@ export class SpatialDataScene {
         const computedPosition: number[] = transform.unprojectBasic([0, 0], 0);
         const vertices: number[][] = [originalPosition, computedPosition];
         const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.addAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices, 3), 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(this._arrayToFloatArray(vertices, 3), 3));
 
         return new THREE.Line(
             geometry,
@@ -596,7 +596,7 @@ export class SpatialDataScene {
         for (const camera of tileCameras.children.slice()) {
             for (const child of camera.children) {
                 (<THREE.Line>child).geometry.dispose();
-                (<THREE.Line>child).material.dispose();
+                (<THREE.Material>(<THREE.Line>child).material).dispose();
 
                 const index: number = this._interactiveObjects.indexOf(child);
                 if (index !== -1) {
@@ -631,7 +631,7 @@ export class SpatialDataScene {
 
             for (const points of this._clusterReconstructions[key].points.children.slice()) {
                 (<THREE.Points>points).geometry.dispose();
-                (<THREE.Points>points).material.dispose();
+                (<THREE.Material>(<THREE.Points>points).material).dispose();
             }
 
             this._scene.remove(this._clusterReconstructions[key].points);
@@ -645,7 +645,7 @@ export class SpatialDataScene {
 
         for (const position of tilePositions.children.slice()) {
             (<THREE.Points>position).geometry.dispose();
-            (<THREE.Points>position).material.dispose();
+            (<THREE.Material>(<THREE.Points>position).material).dispose();
 
             tilePositions.remove(position);
         }
@@ -671,7 +671,7 @@ export class SpatialDataScene {
 
         for (const line of tile.children.slice()) {
             (<THREE.Line>line).geometry.dispose();
-            (<THREE.Line>line).material.dispose();
+            (<THREE.Material>(<THREE.Line>line).material).dispose();
 
             tile.remove(line);
         }

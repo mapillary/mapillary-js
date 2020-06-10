@@ -12,6 +12,7 @@ import {
 import {
     Node,
 } from "../../Graph";
+import { Camera } from "../../Geo";
 
 export class TraversingState extends InteractiveStateBase {
     private _baseAlpha: number;
@@ -132,7 +133,7 @@ export class TraversingState extends InteractiveStateBase {
         }
 
         this._updateZoom(animationSpeed);
-        this._updateLookat(animationSpeed);
+        this._updateLookat(animationSpeed)
 
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }

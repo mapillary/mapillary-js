@@ -165,34 +165,13 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                opacity: {
-                    type: "f",
-                    value: 1,
-                },
-                phiLength: {
-                    type: "f",
-                    value: phiLength,
-                },
-                phiShift: {
-                    type: "f",
-                    value: phiShift,
-                },
-                projectorMat: {
-                    type: "m4",
-                    value: transform.rt,
-                },
-                projectorTex: {
-                    type: "t",
-                    value: texture,
-                },
-                thetaLength: {
-                    type: "f",
-                    value: thetaLength,
-                },
-                thetaShift: {
-                    type: "f",
-                    value: thetaShift,
-                },
+                opacity: { value: 1.0 },
+                phiLength: { value: phiLength },
+                phiShift: { value: phiShift },
+                projectorMat: { value: transform.rt },
+                projectorTex: { value: texture },
+                thetaLength: { value: thetaLength },
+                thetaShift: { value: thetaShift },
             },
             vertexShader: Shaders.equirectangular.vertex,
         };
@@ -217,38 +196,14 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                curtain: {
-                    type: "f",
-                    value: 1,
-                },
-                opacity: {
-                    type: "f",
-                    value: 1,
-                },
-                phiLength: {
-                    type: "f",
-                    value: phiLength,
-                },
-                phiShift: {
-                    type: "f",
-                    value: phiShift,
-                },
-                projectorMat: {
-                    type: "m4",
-                    value: transform.rt,
-                },
-                projectorTex: {
-                    type: "t",
-                    value: texture,
-                },
-                thetaLength: {
-                    type: "f",
-                    value: thetaLength,
-                },
-                thetaShift: {
-                    type: "f",
-                    value: thetaShift,
-                },
+                curtain: { value: 1.0 },
+                opacity: { value: 1.0 },
+                phiLength: { value: phiLength },
+                phiShift: { value: phiShift },
+                projectorMat: { value: transform.rt },
+                projectorTex: { value: texture },
+                thetaLength: { value: thetaLength },
+                thetaShift: { value: thetaShift },
             },
             vertexShader: Shaders.equirectangularCurtain.vertex,
         };
@@ -263,42 +218,15 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                focal: {
-                    type: "f",
-                    value: transform.focal,
-                },
-                k1: {
-                    type: "f",
-                    value: transform.ck1,
-                },
-                k2: {
-                    type: "f",
-                    value: transform.ck2,
-                },
-                opacity: {
-                    type: "f",
-                    value: 1,
-                },
-                projectorMat: {
-                    type: "m4",
-                    value: transform.basicRt,
-                },
-                projectorTex: {
-                    type: "t",
-                    value: texture,
-                },
-                radial_peak: {
-                    type: "f",
-                    value: !!transform.radialPeak ? transform.radialPeak : 0,
-                },
-                scale_x: {
-                    type: "f",
-                    value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
-                },
-                scale_y: {
-                    type: "f",
-                    value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight,
-                },
+                focal: { value: transform.focal },
+                k1: { value: transform.ck1 },
+                k2: { value: transform.ck2 },
+                opacity: { value: 1.0 },
+                projectorMat: { value: transform.basicRt },
+                projectorTex: { value: texture },
+                radial_peak: { value: !!transform.radialPeak ? transform.radialPeak : 0.0 },
+                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
+                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
             },
             vertexShader: Shaders.perspective.vertex,
         };
@@ -313,42 +241,15 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                focal: {
-                    type: "f",
-                    value: transform.focal,
-                },
-                k1: {
-                    type: "f",
-                    value: transform.ck1,
-                },
-                k2: {
-                    type: "f",
-                    value: transform.ck2,
-                },
-                opacity: {
-                    type: "f",
-                    value: 1,
-                },
-                projectorMat: {
-                    type: "m4",
-                    value: transform.basicRt,
-                },
-                projectorTex: {
-                    type: "t",
-                    value: texture,
-                },
-                radial_peak: {
-                    type: "f",
-                    value: !!transform.radialPeak ? transform.radialPeak : 0,
-                },
-                scale_x: {
-                    type: "f",
-                    value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
-                },
-                scale_y: {
-                    type: "f",
-                    value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight,
-                },
+                focal: { value: transform.focal },
+                k1: { value: transform.ck1 },
+                k2: { value: transform.ck2 },
+                opacity: { value: 1.0 },
+                projectorMat: { value: transform.basicRt },
+                projectorTex: { value: texture },
+                radial_peak: { value: !!transform.radialPeak ? transform.radialPeak : 0.0 },
+                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
+                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
             },
             vertexShader: Shaders.fisheye.vertex,
         };
@@ -363,46 +264,16 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                curtain: {
-                    type: "f",
-                    value: 1,
-                },
-                focal: {
-                    type: "f",
-                    value: transform.focal,
-                },
-                k1: {
-                    type: "f",
-                    value: transform.ck1,
-                },
-                k2: {
-                    type: "f",
-                    value: transform.ck2,
-                },
-                opacity: {
-                    type: "f",
-                    value: 1,
-                },
-                projectorMat: {
-                    type: "m4",
-                    value: transform.basicRt,
-                },
-                projectorTex: {
-                    type: "t",
-                    value: texture,
-                },
-                radial_peak: {
-                    type: "f",
-                    value: !!transform.radialPeak ? transform.radialPeak : 0,
-                },
-                scale_x: {
-                    type: "f",
-                    value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
-                },
-                scale_y: {
-                    type: "f",
-                    value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight,
-                },
+                curtain: { value: 1.0 },
+                focal: { value: transform.focal },
+                k1: { value: transform.ck1 },
+                k2: { value: transform.ck2 },
+                opacity: { value: 1.0 },
+                projectorMat: { value: transform.basicRt },
+                projectorTex: { value: texture },
+                radial_peak: { value: !!transform.radialPeak ? transform.radialPeak : 0.0 },
+                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
+                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
             },
             vertexShader: Shaders.fisheyeCurtain.vertex,
         };
@@ -417,46 +288,16 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                curtain: {
-                    type: "f",
-                    value: 1,
-                },
-                focal: {
-                    type: "f",
-                    value: transform.focal,
-                },
-                k1: {
-                    type: "f",
-                    value: transform.ck1,
-                },
-                k2: {
-                    type: "f",
-                    value: transform.ck2,
-                },
-                opacity: {
-                    type: "f",
-                    value: 1,
-                },
-                projectorMat: {
-                    type: "m4",
-                    value: transform.basicRt,
-                },
-                projectorTex: {
-                    type: "t",
-                    value: texture,
-                },
-                radial_peak: {
-                    type: "f",
-                    value: !!transform.radialPeak ? transform.radialPeak : 0,
-                },
-                scale_x: {
-                    type: "f",
-                    value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth,
-                },
-                scale_y: {
-                    type: "f",
-                    value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight,
-                },
+                curtain: { value: 1.0 },
+                focal: { value: transform.focal },
+                k1: { value: transform.ck1 },
+                k2: { value: transform.ck2 },
+                opacity: { value: 1.0 },
+                projectorMat: { value: transform.basicRt },
+                projectorTex: { value: texture },
+                radial_peak: { value: !!transform.radialPeak ? transform.radialPeak : 0.0 },
+                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
+                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
             },
             vertexShader: Shaders.perspectiveCurtain.vertex,
         };
@@ -471,22 +312,10 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                curtain: {
-                    type: "f",
-                    value: 1,
-                },
-                opacity: {
-                    type: "f",
-                    value: 1,
-                },
-                projectorMat: {
-                    type: "m4",
-                    value: transform.projectorMatrix(),
-                },
-                projectorTex: {
-                    type: "t",
-                    value: texture,
-                },
+                curtain: { value: 1.0 },
+                opacity: { value: 1.0 },
+                projectorMat: { value: transform.projectorMatrix() },
+                projectorTex: { value: texture },
             },
             vertexShader: Shaders.perspectiveDistortedCurtain.vertex,
         };
@@ -501,18 +330,9 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                opacity: {
-                    type: "f",
-                    value: 1,
-                },
-                projectorMat: {
-                    type: "m4",
-                    value: transform.projectorMatrix(),
-                },
-                projectorTex: {
-                    type: "t",
-                    value: texture,
-                },
+                opacity: { value: 1.0 },
+                projectorMat: { value: transform.projectorMatrix() },
+                projectorTex: { value: texture },
             },
             vertexShader: Shaders.perspectiveDistorted.vertex,
         };
@@ -568,7 +388,7 @@ export class MeshFactory {
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
         return geometry;
@@ -615,7 +435,7 @@ export class MeshFactory {
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
         return geometry;
@@ -657,7 +477,7 @@ export class MeshFactory {
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
         return geometry;
@@ -680,7 +500,7 @@ export class MeshFactory {
             thetaStart,
             thetaLength);
 
-        geometry.applyMatrix(new THREE.Matrix4().getInverse(transform.rt));
+        geometry.applyMatrix4(new THREE.Matrix4().getInverse(transform.rt));
 
         return geometry;
     }
@@ -761,7 +581,7 @@ export class MeshFactory {
 
         let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
-        geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
         return geometry;

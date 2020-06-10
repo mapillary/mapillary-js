@@ -210,7 +210,12 @@ export class RenderCamera {
 
             this._perspective.up.copy(camera.up);
             this._perspective.position.copy(camera.position);
+
+            // Workaround for shaking camera
+            this._perspective.matrixAutoUpdate = true;
             this._perspective.lookAt(camera.lookat);
+            this._perspective.matrixAutoUpdate = false;
+
             this._perspective.updateMatrix();
             this._perspective.updateMatrixWorld(false);
 
