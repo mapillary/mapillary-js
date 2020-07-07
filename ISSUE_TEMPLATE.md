@@ -1,4 +1,8 @@
 <!--
+   OBSERVE! Only create issues specifically related to MapillaryJS
+   in this repository. If you experience general issues with a 
+   Mapillary product, contact support@mapillary.com. Thanks.
+
    Thanks for contributing! Request a feature or use the
    template below for reporting bugs.
 
