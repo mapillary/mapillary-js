@@ -303,8 +303,9 @@ export class Viewer extends EventEmitter {
      * application when the initial key is not known at implementation
      * time.
      *
-     * @param {string} id - Required `id` of a DOM element which will
-     * be transformed into the viewer.
+     * @param {string | HTMLElement} container - The HTML element in which
+     * MapillaryJS will render the viewer, or the element's string `id`. The
+     * specified element must have no children.
      * @param {string} clientId - Required `Mapillary API ClientID`. Can
      * be obtained from https://www.mapillary.com/app/settings/developers.
      * @param {string} key - Optional `image-key` to start from. The key
@@ -323,7 +324,7 @@ export class Viewer extends EventEmitter {
      * var viewer = new Mapillary.Viewer("<element-id>", "<client-id>", "<image-key>");
      * ```
      */
-    constructor (id: string, clientId: string, key?: string, options?: IViewerOptions, token?: string) {
+    constructor (container: string | HTMLElement, clientId: string, key?: string, options?: IViewerOptions, token?: string) {
         super();
 
         options = options != null ? options : {};
@@ -332,7 +333,7 @@ export class Viewer extends EventEmitter {
         Urls.setOptions(options.url);
 
         this._navigator = new Navigator(clientId, options, token);
-        this._container = new Container(id, this._navigator.stateService, options);
+        this._container = new Container(container, this._navigator.stateService, options);
         this._observer = new Observer(this, this._navigator, this._container);
         this._componentController = new ComponentController(this._container, this._navigator, this._observer, key, options.component);
     }

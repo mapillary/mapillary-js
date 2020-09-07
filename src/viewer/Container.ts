@@ -33,15 +33,21 @@ export class Container {
 
     private _dom: DOM;
 
-    constructor (id: string, stateService: StateService, options: IViewerOptions, dom?: DOM) {
-        this.id = id;
+    constructor (container: string | HTMLElement, stateService: StateService, options: IViewerOptions, dom?: DOM) {
         this._dom = !!dom ? dom : new DOM();
 
-        this._container = this._dom.document.getElementById(id);
-
-        if (!this._container) {
-            throw new Error(`Container '${id}' not found.`);
+        if (typeof container === 'string') {
+            this._container = this._dom.document.getElementById(container);
+            if (!this._container) {
+                throw new Error(`Container '${container}' not found.`);
+            }
+        } else if (container instanceof HTMLElement) {
+            this._container = container;
+        } else {
+            throw new Error(`Invalid type: 'container' must be a String or HTMLElement.`);
         }
+
+        this.id = !!this._container.id ? this._container.id : "mapillary-js-fallback-container-id";
 
         this._container.classList.add("mapillary-js");
 
