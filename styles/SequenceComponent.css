@@ -246,24 +246,24 @@
 
 .Play.SequenceComponentIcon,
 .PlayDisabled.SequenceComponentIcon {
-    background-image: url('./stepper-play.svg');
+    background-image: svg-load('svg/stepper-play.svg');
 }
 
 .Stop.SequenceComponentIcon,
 .StopDisabled.SequenceComponentIcon {
-    background-image: url('./stepper-stop.svg');
+    background-image: svg-load('svg/stepper-stop.svg');
 }
 
 .SequenceStepPrev .SequenceComponentIcon,
 .SequenceStepPrevDisabled .SequenceComponentIcon,
 .SequenceStepPrevHighlight .SequenceComponentIcon {
-    background-image: url('./stepper-left.svg');
+    background-image: svg-load('svg/stepper-left.svg');
 }
 
 .SequenceStepNext .SequenceComponentIcon,
 .SequenceStepNextDisabled .SequenceComponentIcon,
 .SequenceStepNextHighlight .SequenceComponentIcon {
-    background-image: url('./stepper-right.svg');
+    background-image: svg-load('svg/stepper-right.svg');
 }
 
 .PlayDisabled.SequenceComponentIcon,

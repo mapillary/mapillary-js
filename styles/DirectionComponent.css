@@ -58,7 +58,7 @@
 
 .DirectionsArrowStep,
 .DirectionsArrowDisabled {
-    background: url(./pointer-white.svg);
+    background: svg-load('svg/pointer-white.svg');
     background-repeat: no-repeat;
 }
 
@@ -68,7 +68,7 @@
 }
 
 .DirectionsArrowPano {
-    background: url(./pointer-wheat.svg);
+    background: svg-load('svg/pointer-wheat.svg');
     background-repeat: no-repeat;
 }
 
@@ -121,20 +121,20 @@
 
 .TurnLeft {
     left: 45%;
-    background: url(./turn.svg);
+    background: svg-load('svg/turn.svg');
     background-repeat: no-repeat;
     transform: translate(-50%, -50%);
 }
 
 .TurnRight {
     left: 55%;
-    background: url(./turn.svg);
+    background: svg-load('svg/turn.svg');
     background-repeat: no-repeat;
     transform: translate(-50%, -50%) scaleX(-1);
 }
 
 .TurnAround {
-    background: url(./turn-around.svg);
+    background: svg-load('svg/turn-around.svg');
     background-repeat: no-repeat;
     transform: translate(-50%, -50%);
 }
