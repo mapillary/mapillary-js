@@ -1,4 +1,5 @@
 export {ICoreNode} from "./ICoreNode";
+export {IDataProvider} from "./IDataProvider";
 export {IFillNode} from "./IFillNode";
 export {IFullNode} from "./IFullNode";
 export {IGPano} from "./IGPano";
